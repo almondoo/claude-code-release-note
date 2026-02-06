@@ -1,5 +1,6 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { CSSProperties } from "react";
+import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 
 import releases from "~/data/releases.json";
 
@@ -15,7 +16,6 @@ interface ReleaseVersion {
 
 interface TagColor {
   bg: string;
-  light: string;
   text: string;
 }
 
@@ -29,6 +29,7 @@ interface VersionCardProps {
   items: ReleaseItem[];
   isOpen: boolean;
   onToggle: () => void;
+  reducedMotion: boolean | null;
 }
 
 export function meta(): Array<{ title?: string; name?: string; content?: string }> {
@@ -38,49 +39,115 @@ export function meta(): Array<{ title?: string; name?: string; content?: string 
   ];
 }
 
-const RELEASES: ReleaseVersion[] = releases;
+const RELEASES: ReleaseVersion[] = [...releases].reverse();
 
 const TAG_COLORS: Record<string, TagColor> = {
-  "新機能": { bg: "#10b981", light: "#d1fae5", text: "#065f46" },
-  "バグ修正": { bg: "#ef4444", light: "#fee2e2", text: "#991b1b" },
-  "改善": { bg: "#3b82f6", light: "#dbeafe", text: "#1e40af" },
-  "SDK": { bg: "#8b5cf6", light: "#ede9fe", text: "#5b21b6" },
-  "IDE": { bg: "#f97316", light: "#ffedd5", text: "#9a3412" },
-  "Platform": { bg: "#6b7280", light: "#f3f4f6", text: "#374151" },
-  "Security": { bg: "#dc2626", light: "#fecaca", text: "#7f1d1d" },
-  "Perf": { bg: "#eab308", light: "#fef9c3", text: "#854d0e" },
-  "非推奨": { bg: "#78716c", light: "#e7e5e4", text: "#44403c" },
-  "Plugin": { bg: "#06b6d4", light: "#cffafe", text: "#155e75" },
+  "新機能": { bg: "rgba(16, 185, 129, 0.15)", text: "#6EE7B7" },
+  "バグ修正": { bg: "rgba(239, 68, 68, 0.15)", text: "#FCA5A5" },
+  "改善": { bg: "rgba(59, 130, 246, 0.15)", text: "#93C5FD" },
+  "SDK": { bg: "rgba(139, 92, 246, 0.15)", text: "#C4B5FD" },
+  "IDE": { bg: "rgba(249, 115, 22, 0.15)", text: "#FDBA74" },
+  "Platform": { bg: "rgba(107, 114, 128, 0.15)", text: "#D1D5DB" },
+  "Security": { bg: "rgba(220, 38, 38, 0.15)", text: "#FCA5A5" },
+  "Perf": { bg: "rgba(234, 179, 8, 0.15)", text: "#FDE68A" },
+  "非推奨": { bg: "rgba(120, 113, 108, 0.15)", text: "#D6D3D1" },
+  "Plugin": { bg: "rgba(6, 182, 212, 0.15)", text: "#67E8F9" },
 };
 
 const TAG_LABELS: Record<string, string> = {
-  "新機能": "🆕 新機能",
-  "バグ修正": "🐛 バグ修正",
-  "改善": "⬆️ 改善",
-  "SDK": "🔌 SDK",
-  "IDE": "💻 IDE",
-  "Platform": "🖥️ プラットフォーム",
-  "Security": "🔒 セキュリティ",
-  "Perf": "⚡ パフォーマンス",
-  "非推奨": "🗑️ 非推奨",
-  "Plugin": "🧩 プラグイン",
+  "新機能": "新機能",
+  "バグ修正": "バグ修正",
+  "改善": "改善",
+  "SDK": "SDK",
+  "IDE": "IDE",
+  "Platform": "プラットフォーム",
+  "Security": "セキュリティ",
+  "Perf": "パフォーマンス",
+  "非推奨": "非推奨",
+  "Plugin": "プラグイン",
 };
 
 const ALL_TAGS = Object.keys(TAG_COLORS);
 
 // ---------------------------------------------------------------------------
-// Shared styles
+// Design tokens
 // ---------------------------------------------------------------------------
 
-const FONT_MONO = "'JetBrains Mono', 'Fira Code', monospace" as const;
-const FONT_SANS = "'Noto Sans JP', system-ui, -apple-system, sans-serif" as const;
+const COLORS = {
+  bg: "#0F172A",
+  surface: "#1E293B",
+  surfaceHover: "#263548",
+  border: "#334155",
+  borderSubtle: "#1E293B",
+  accent: "#3B82F6",
+  accentGlow: "rgba(59, 130, 246, 0.25)",
+  text: "#F1F5F9",
+  textSecondary: "#94A3B8",
+  textMuted: "#64748B",
+} as const;
 
-const cardStyle: CSSProperties = {
-  background: "#fff",
-  borderRadius: "14px",
-  border: "1px solid #e2e8f0",
-  boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
-};
+const FONT_MONO = "'JetBrains Mono', 'Fira Code', monospace" as const;
+const FONT_SANS = "'IBM Plex Sans', 'Noto Sans JP', system-ui, -apple-system, sans-serif" as const;
+
+// ---------------------------------------------------------------------------
+// SVG Icons
+// ---------------------------------------------------------------------------
+
+function SearchIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={COLORS.textMuted} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="11" cy="11" r="8" />
+      <line x1="21" y1="21" x2="16.65" y2="16.65" />
+    </svg>
+  );
+}
+
+function ChevronIcon({ isOpen }: { isOpen: boolean }) {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      style={{
+        transform: isOpen ? "rotate(180deg)" : "rotate(0deg)",
+        transition: "transform 0.2s ease",
+      }}
+    >
+      <polyline points="6 9 12 15 18 9" />
+    </svg>
+  );
+}
+
+function FolderIcon({ open }: { open: boolean }) {
+  if (open) {
+    return (
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+        <line x1="9" y1="14" x2="15" y2="14" />
+      </svg>
+    );
+  }
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+    </svg>
+  );
+}
+
+function EmptyIcon() {
+  return (
+    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke={COLORS.textMuted} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="11" cy="11" r="8" />
+      <line x1="21" y1="21" x2="16.65" y2="16.65" />
+      <line x1="8" y1="11" x2="14" y2="11" />
+    </svg>
+  );
+}
 
 // ---------------------------------------------------------------------------
 // Badge
@@ -93,16 +160,15 @@ function Badge({ tag, small }: BadgeProps): React.JSX.Element {
       style={{
         display: "inline-flex",
         alignItems: "center",
-        gap: "3px",
-        padding: small ? "1px 6px" : "2px 8px",
+        padding: small ? "1px 7px" : "2px 9px",
         borderRadius: "6px",
         fontSize: small ? "10px" : "11px",
         fontWeight: 600,
-        background: colors.light,
-        color: colors.text,
-        border: `1px solid ${colors.bg}30`,
+        background: colors?.bg ?? "rgba(100,116,139,0.15)",
+        color: colors?.text ?? COLORS.textSecondary,
         whiteSpace: "nowrap",
         lineHeight: 1.6,
+        letterSpacing: "0.2px",
       }}
     >
       {TAG_LABELS[tag] ?? tag}
@@ -114,7 +180,7 @@ function Badge({ tag, small }: BadgeProps): React.JSX.Element {
 // VersionCard
 // ---------------------------------------------------------------------------
 
-function VersionCard({ version, items, isOpen, onToggle }: VersionCardProps): React.JSX.Element {
+function VersionCard({ version, items, isOpen, onToggle, reducedMotion }: VersionCardProps): React.JSX.Element {
   const tagCounts: Record<string, number> = {};
   for (const item of items) {
     for (const tag of item.tags) {
@@ -123,35 +189,45 @@ function VersionCard({ version, items, isOpen, onToggle }: VersionCardProps): Re
   }
   const sortedTags = Object.entries(tagCounts).sort((a, b) => b[1] - a[1]);
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      onToggle();
+    }
+  };
+
   return (
     <div
       style={{
-        background: "#fff",
-        borderRadius: "16px",
-        border: "1px solid #e2e8f0",
+        background: COLORS.surface,
+        borderRadius: "12px",
+        border: `1px solid ${isOpen ? COLORS.accent + "40" : COLORS.border}`,
         overflow: "hidden",
         boxShadow: isOpen
-          ? "0 20px 40px -12px rgba(0,0,0,0.08), 0 0 0 1px rgba(59,130,246,0.1)"
-          : "0 1px 3px rgba(0,0,0,0.04)",
-        transition: "box-shadow 0.3s ease",
+          ? `0 0 0 1px ${COLORS.accent}20, 0 8px 32px -8px rgba(0,0,0,0.4)`
+          : "0 1px 3px rgba(0,0,0,0.2)",
+        transition: "border-color 0.2s, box-shadow 0.2s",
       }}
     >
       <div
+        role="button"
+        tabIndex={0}
         onClick={onToggle}
+        onKeyDown={handleKeyDown}
         onMouseEnter={(e) => {
-          if (!isOpen) e.currentTarget.style.background = "#fafbfc";
+          if (!isOpen) e.currentTarget.style.background = COLORS.surfaceHover;
         }}
         onMouseLeave={(e) => {
-          if (!isOpen) e.currentTarget.style.background = "#fff";
+          if (!isOpen) e.currentTarget.style.background = "transparent";
         }}
         style={{
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          padding: "16px 20px",
+          padding: "14px 18px",
           cursor: "pointer",
-          background: isOpen ? "linear-gradient(135deg, #f8fafc, #f1f5f9)" : "#fff",
-          borderBottom: isOpen ? "1px solid #e2e8f0" : "none",
+          background: isOpen ? `linear-gradient(135deg, ${COLORS.surface}, ${COLORS.surfaceHover})` : "transparent",
+          borderBottom: isOpen ? `1px solid ${COLORS.border}` : "1px solid transparent",
           transition: "background 0.2s",
         }}
       >
@@ -160,24 +236,22 @@ function VersionCard({ version, items, isOpen, onToggle }: VersionCardProps): Re
             <span
               style={{
                 fontFamily: FONT_MONO,
-                fontSize: "18px",
-                fontWeight: 800,
-                background: "linear-gradient(135deg, #1e293b, #475569)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                letterSpacing: "-0.5px",
+                fontSize: "17px",
+                fontWeight: 700,
+                color: COLORS.text,
+                letterSpacing: "-0.3px",
               }}
             >
               v{version}
             </span>
             <span
               style={{
-                fontSize: "12px",
-                color: "#94a3b8",
-                fontFamily: "'JetBrains Mono', monospace",
-                background: "#f1f5f9",
+                fontSize: "11px",
+                color: COLORS.textMuted,
+                fontFamily: FONT_MONO,
+                background: COLORS.bg,
                 padding: "2px 8px",
-                borderRadius: "20px",
+                borderRadius: "4px",
               }}
             >
               {items.length}件
@@ -192,16 +266,16 @@ function VersionCard({ version, items, isOpen, onToggle }: VersionCardProps): Re
                   alignItems: "center",
                   gap: "3px",
                   padding: "2px 8px",
-                  borderRadius: "20px",
+                  borderRadius: "4px",
                   fontSize: "10px",
-                  fontWeight: 700,
-                  background: TAG_COLORS[tag].bg + "14",
-                  color: TAG_COLORS[tag].bg,
+                  fontWeight: 600,
+                  background: TAG_COLORS[tag]?.bg ?? "rgba(100,116,139,0.15)",
+                  color: TAG_COLORS[tag]?.text ?? COLORS.textSecondary,
                   letterSpacing: "0.2px",
                 }}
               >
                 {TAG_LABELS[tag] ?? tag}
-                <span style={{ opacity: 0.6, marginLeft: "2px" }}>{count}</span>
+                <span style={{ opacity: 0.5, marginLeft: "2px" }}>{count}</span>
               </span>
             ))}
           </div>
@@ -211,68 +285,76 @@ function VersionCard({ version, items, isOpen, onToggle }: VersionCardProps): Re
           style={{
             width: "28px",
             height: "28px",
-            borderRadius: "8px",
+            borderRadius: "6px",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            background: isOpen ? "#3b82f6" : "#f1f5f9",
-            color: isOpen ? "#fff" : "#94a3b8",
-            fontSize: "12px",
-            fontWeight: 700,
+            background: isOpen ? COLORS.accent : COLORS.bg,
+            color: isOpen ? "#fff" : COLORS.textMuted,
             transition: "all 0.2s",
             flexShrink: 0,
           }}
         >
-          {isOpen ? "\u2212" : "+"}
+          <ChevronIcon isOpen={isOpen} />
         </div>
       </div>
 
-      {isOpen && (
-        <div style={{ padding: "8px 12px 16px" }}>
-          {items.map((item, index) => (
-            <div
-              key={index}
-              onMouseEnter={(e) => { e.currentTarget.style.background = "#f8fafc"; }}
-              onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
-              style={{
-                display: "flex",
-                gap: "10px",
-                padding: "10px 8px",
-                borderBottom: index < items.length - 1 ? "1px solid #f1f5f9" : "none",
-                alignItems: "flex-start",
-                borderRadius: "8px",
-                transition: "background 0.15s",
-              }}
-            >
-              <div
-                style={{
-                  display: "flex",
-                  gap: "3px",
-                  flexWrap: "wrap",
-                  minWidth: "100px",
-                  flexShrink: 0,
-                  paddingTop: "1px",
-                }}
-              >
-                {item.tags.map((tag) => (
-                  <Badge key={tag} tag={tag} small />
-                ))}
-              </div>
-              <span
-                style={{
-                  color: "#334155",
-                  fontSize: "13px",
-                  lineHeight: 1.6,
-                  wordBreak: "break-word",
-                  fontFamily: FONT_SANS,
-                }}
-              >
-                {item.t}
-              </span>
+      <AnimatePresence initial={false}>
+        {isOpen && (
+          <motion.div
+            initial={reducedMotion ? false : { height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={reducedMotion ? undefined : { height: 0, opacity: 0 }}
+            transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}
+            style={{ overflow: "hidden" }}
+          >
+            <div style={{ padding: "6px 10px 14px" }}>
+              {items.map((item, index) => (
+                <div
+                  key={index}
+                  onMouseEnter={(e) => { e.currentTarget.style.background = COLORS.surfaceHover; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
+                  style={{
+                    display: "flex",
+                    gap: "10px",
+                    padding: "9px 8px",
+                    borderBottom: index < items.length - 1 ? `1px solid ${COLORS.border}40` : "none",
+                    alignItems: "flex-start",
+                    borderRadius: "6px",
+                    transition: "background 0.15s",
+                  }}
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: "3px",
+                      flexWrap: "wrap",
+                      minWidth: "100px",
+                      flexShrink: 0,
+                      paddingTop: "1px",
+                    }}
+                  >
+                    {item.tags.map((tag) => (
+                      <Badge key={tag} tag={tag} small />
+                    ))}
+                  </div>
+                  <span
+                    style={{
+                      color: COLORS.textSecondary,
+                      fontSize: "13px",
+                      lineHeight: 1.7,
+                      wordBreak: "break-word",
+                      fontFamily: FONT_SANS,
+                    }}
+                  >
+                    {item.t}
+                  </span>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-      )}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
@@ -286,6 +368,13 @@ export default function ReleaseNote(): React.JSX.Element {
   const [query, setQuery] = useState("");
   const [openVersions, setOpenVersions] = useState<Set<string>>(new Set());
   const [allExpanded, setAllExpanded] = useState(false);
+  const [searchFocused, setSearchFocused] = useState(false);
+  const reducedMotion = useReducedMotion();
+  const hasMounted = useRef(false);
+
+  useEffect(() => {
+    hasMounted.current = true;
+  }, []);
 
   const filtered = useMemo(() => {
     const lowerQuery = query.toLowerCase();
@@ -303,6 +392,16 @@ export default function ReleaseNote(): React.JSX.Element {
 
   const totalItems = filtered.reduce((sum, release) => sum + release.items.length, 0);
   const totalAll = RELEASES.reduce((sum, release) => sum + release.items.length, 0);
+
+  const allTagsSelected = activeTags.size === ALL_TAGS.length;
+
+  function toggleAllTags(): void {
+    if (allTagsSelected) {
+      setActiveTags(new Set());
+    } else {
+      setActiveTags(new Set(ALL_TAGS));
+    }
+  }
 
   function toggleTag(tag: string): void {
     setActiveTags((prev) => {
@@ -337,26 +436,34 @@ export default function ReleaseNote(): React.JSX.Element {
     setAllExpanded(!allExpanded);
   }
 
+  const m = reducedMotion
+    ? { initial: undefined, animate: undefined, transition: undefined }
+    : null;
+
   return (
     <div
       style={{
         minHeight: "100vh",
-        background: "linear-gradient(180deg, #f0f4f8 0%, #e2e8f0 50%, #f0f4f8 100%)",
+        background: COLORS.bg,
         fontFamily: FONT_SANS,
+        color: COLORS.text,
       }}
     >
       <div style={{ maxWidth: "920px", margin: "0 auto", padding: "32px 16px" }}>
         {/* Header */}
-        <div
+        <motion.div
+          initial={m ? false : { opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
           style={{
             textAlign: "center",
             marginBottom: "32px",
             padding: "40px 24px",
-            background: "linear-gradient(135deg, #1e293b 0%, #334155 50%, #1e293b 100%)",
-            borderRadius: "24px",
+            background: `linear-gradient(135deg, ${COLORS.surface} 0%, ${COLORS.bg} 100%)`,
+            borderRadius: "16px",
             position: "relative",
             overflow: "hidden",
-            boxShadow: "0 25px 50px -12px rgba(0,0,0,0.25)",
+            border: `1px solid ${COLORS.border}`,
           }}
         >
           <div
@@ -367,20 +474,20 @@ export default function ReleaseNote(): React.JSX.Element {
               right: 0,
               bottom: 0,
               background:
-                "radial-gradient(ellipse at 30% 20%, rgba(59,130,246,0.15), transparent 60%), " +
-                "radial-gradient(ellipse at 70% 80%, rgba(168,85,247,0.1), transparent 60%)",
+                "radial-gradient(ellipse at 30% 20%, rgba(59,130,246,0.08), transparent 60%), " +
+                "radial-gradient(ellipse at 70% 80%, rgba(168,85,247,0.05), transparent 60%)",
             }}
           />
           <div style={{ position: "relative" }}>
             <div
               style={{
-                fontSize: "13px",
+                fontSize: "12px",
                 fontWeight: 600,
-                color: "#94a3b8",
+                color: COLORS.textMuted,
                 letterSpacing: "3px",
                 textTransform: "uppercase",
                 marginBottom: "12px",
-                fontFamily: "'JetBrains Mono', monospace",
+                fontFamily: FONT_MONO,
               }}
             >
               CLAUDE CODE
@@ -388,9 +495,9 @@ export default function ReleaseNote(): React.JSX.Element {
             <h1
               style={{
                 fontSize: "32px",
-                fontWeight: 800,
+                fontWeight: 700,
                 margin: "0 0 12px",
-                color: "#f8fafc",
+                color: COLORS.text,
                 letterSpacing: "-0.5px",
               }}
             >
@@ -401,140 +508,209 @@ export default function ReleaseNote(): React.JSX.Element {
                 display: "flex",
                 justifyContent: "center",
                 gap: "24px",
-                fontSize: "14px",
-                color: "#94a3b8",
+                fontSize: "13px",
+                color: COLORS.textSecondary,
+                flexWrap: "wrap",
               }}
             >
               <span>
-                <strong style={{ color: "#e2e8f0" }}>{RELEASES.length}</strong> バージョン
+                <strong style={{ color: COLORS.text }}>{RELEASES.length}</strong> バージョン
               </span>
               <span>
-                <strong style={{ color: "#e2e8f0" }}>{totalAll}</strong> 件の変更
+                <strong style={{ color: COLORS.text }}>{totalAll}</strong> 件の変更
               </span>
-              <span style={{ fontFamily: "monospace" }}>v2.0.0 〜 v2.1.33</span>
+              <span style={{ fontFamily: FONT_MONO, fontSize: "12px" }}>v{RELEASES[0]?.v} 〜 v{RELEASES[RELEASES.length - 1]?.v}</span>
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Search */}
-        <div style={{ ...cardStyle, padding: "4px", marginBottom: "16px" }}>
+        <motion.div
+          initial={m ? false : { opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.1 }}
+          style={{
+            background: COLORS.surface,
+            borderRadius: "10px",
+            border: `1px solid ${searchFocused ? COLORS.accent : COLORS.border}`,
+            boxShadow: searchFocused ? `0 0 0 3px ${COLORS.accentGlow}` : "none",
+            padding: "2px 14px",
+            marginBottom: "14px",
+            display: "flex",
+            alignItems: "center",
+            gap: "10px",
+            transition: "border-color 0.2s, box-shadow 0.2s",
+          }}
+        >
+          <SearchIcon />
           <input
             type="text"
-            placeholder="🔍 キーワードで検索..."
+            placeholder="キーワードで検索..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
+            onFocus={() => setSearchFocused(true)}
+            onBlur={() => setSearchFocused(false)}
             style={{
               width: "100%",
-              padding: "12px 16px",
+              padding: "11px 0",
               border: "none",
               background: "transparent",
               fontSize: "14px",
-              color: "#1e293b",
+              color: COLORS.text,
               outline: "none",
               fontFamily: FONT_SANS,
-              boxSizing: "border-box",
             }}
           />
-        </div>
+        </motion.div>
 
         {/* Tag filters */}
-        <div
+        <motion.div
+          initial={m ? false : { opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.15 }}
           style={{
-            ...cardStyle,
+            background: COLORS.surface,
+            borderRadius: "10px",
+            border: `1px solid ${COLORS.border}`,
             display: "flex",
             gap: "6px",
             flexWrap: "wrap",
-            marginBottom: "16px",
-            padding: "16px",
+            marginBottom: "14px",
+            padding: "14px",
           }}
         >
+          <motion.button
+            whileTap={reducedMotion ? undefined : { scale: 0.95 }}
+            onClick={toggleAllTags}
+            style={{
+              padding: "5px 12px",
+              borderRadius: "6px",
+              fontSize: "12px",
+              fontWeight: 600,
+              cursor: "pointer",
+              border: `1px solid ${allTagsSelected ? COLORS.accent + "60" : COLORS.border}`,
+              background: allTagsSelected ? COLORS.accentGlow : "transparent",
+              color: allTagsSelected ? COLORS.accent : COLORS.textMuted,
+              transition: "all 0.15s",
+              fontFamily: FONT_SANS,
+            }}
+          >
+            {allTagsSelected ? "全解除" : "全選択"}
+          </motion.button>
+          <span style={{ width: "1px", height: "20px", background: COLORS.border, flexShrink: 0 }} />
           {ALL_TAGS.map((tag) => {
             const active = activeTags.has(tag);
             const colors = TAG_COLORS[tag];
             return (
-              <button
+              <motion.button
                 key={tag}
+                whileTap={reducedMotion ? undefined : { scale: 0.95 }}
                 onClick={() => toggleTag(tag)}
                 style={{
                   padding: "5px 12px",
-                  borderRadius: "20px",
+                  borderRadius: "6px",
                   fontSize: "12px",
                   fontWeight: 600,
                   cursor: "pointer",
-                  border: `1.5px solid ${active ? colors.bg : "#e2e8f0"}`,
-                  background: active ? colors.bg : "#fff",
-                  color: active ? "#fff" : "#64748b",
+                  border: `1px solid ${active ? colors.text + "60" : COLORS.border}`,
+                  background: active ? colors.bg : "transparent",
+                  color: active ? colors.text : COLORS.textMuted,
                   transition: "all 0.15s",
                   fontFamily: FONT_SANS,
                 }}
               >
                 {TAG_LABELS[tag]}
-              </button>
+              </motion.button>
             );
           })}
-        </div>
+        </motion.div>
 
         {/* Controls */}
-        <div
+        <motion.div
+          initial={m ? false : { opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.3, delay: 0.2 }}
           style={{
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
-            marginBottom: "16px",
+            marginBottom: "14px",
             padding: "0 4px",
           }}
         >
-          <span style={{ fontSize: "13px", color: "#64748b", fontWeight: 500 }}>
+          <span style={{ fontSize: "13px", color: COLORS.textMuted, fontWeight: 500 }}>
             {filtered.length} バージョン ・ {totalItems} 件表示中
           </span>
           <button
             onClick={toggleAll}
             style={{
-              padding: "6px 16px",
-              borderRadius: "10px",
+              padding: "6px 14px",
+              borderRadius: "8px",
               fontSize: "12px",
               fontWeight: 600,
               cursor: "pointer",
-              border: "1px solid #e2e8f0",
-              background: "#fff",
-              color: "#475569",
+              border: `1px solid ${COLORS.border}`,
+              background: COLORS.surface,
+              color: COLORS.textSecondary,
               fontFamily: FONT_SANS,
-              boxShadow: "0 1px 2px rgba(0,0,0,0.04)",
+              display: "flex",
+              alignItems: "center",
+              gap: "6px",
             }}
           >
-            {allExpanded ? "📁 すべて閉じる" : "📂 すべて開く"}
+            <FolderIcon open={allExpanded} />
+            {allExpanded ? "すべて閉じる" : "すべて開く"}
           </button>
-        </div>
+        </motion.div>
 
         {/* Version cards */}
-        <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-          {filtered.map((release) => (
-            <VersionCard
-              key={release.v}
-              version={release.v}
-              items={release.items}
-              isOpen={openVersions.has(release.v)}
-              onToggle={() => toggleVersion(release.v)}
-            />
-          ))}
+        <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+          <AnimatePresence mode="popLayout">
+            {filtered.map((release, i) => (
+              <motion.div
+                key={release.v}
+                layout={!reducedMotion}
+                initial={m ? false : hasMounted.current ? { opacity: 0 } : { opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={m ? undefined : { opacity: 0, scale: 0.96, transition: { duration: 0.2 } }}
+                transition={{ duration: 0.25, delay: reducedMotion || hasMounted.current ? 0 : Math.min(i * 0.06, 0.6) }}
+              >
+                <VersionCard
+                  version={release.v}
+                  items={release.items}
+                  isOpen={openVersions.has(release.v)}
+                  onToggle={() => toggleVersion(release.v)}
+                  reducedMotion={reducedMotion}
+                />
+              </motion.div>
+            ))}
+          </AnimatePresence>
         </div>
 
-        {filtered.length === 0 && (
-          <div
-            style={{
-              textAlign: "center",
-              padding: "64px 24px",
-              background: "#fff",
-              borderRadius: "16px",
-              border: "1px solid #e2e8f0",
-            }}
-          >
-            <div style={{ fontSize: "48px", marginBottom: "16px" }}>🔍</div>
-            <p style={{ color: "#94a3b8", fontSize: "15px", margin: 0 }}>
-              条件に一致する変更はありません
-            </p>
-          </div>
-        )}
+        <AnimatePresence>
+          {filtered.length === 0 && (
+            <motion.div
+              initial={m ? false : { opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={m ? undefined : { opacity: 0, scale: 0.95 }}
+              transition={{ duration: 0.3 }}
+              style={{
+                textAlign: "center",
+                padding: "64px 24px",
+                background: COLORS.surface,
+                borderRadius: "12px",
+                border: `1px solid ${COLORS.border}`,
+              }}
+            >
+              <div style={{ marginBottom: "16px" }}>
+                <EmptyIcon />
+              </div>
+              <p style={{ color: COLORS.textMuted, fontSize: "14px", margin: 0 }}>
+                条件に一致する変更はありません
+              </p>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Footer */}
         <div
@@ -542,8 +718,9 @@ export default function ReleaseNote(): React.JSX.Element {
             textAlign: "center",
             padding: "24px",
             marginTop: "24px",
-            color: "#94a3b8",
+            color: COLORS.textMuted,
             fontSize: "12px",
+            borderTop: `1px solid ${COLORS.border}`,
           }}
         >
           Claude Code Release Notes Viewer

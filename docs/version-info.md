@@ -844,3 +844,8 @@ Version 2.1.33:
 • VSCode: Added support for remote sessions, allowing OAuth users to browse and resume sessions from claude.ai
 • VSCode: Added git branch and message count to the session picker, with support for searching by branch name
 • VSCode: Fixed scroll-to-bottom under-scrolling on initial session load and session switch
+
+Version 2.1.34:
+• Fixed a crash when agent teams setting changed between renders
+• Fixed a bug where commands excluded from sandboxing (via sandbox.excludedCommands or dangerouslyDisableSandbox) could bypass the Bash ask permission rule when autoAllowBashIfSandboxed
+was enabled
