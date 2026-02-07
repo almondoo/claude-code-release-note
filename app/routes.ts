@@ -6,4 +6,6 @@ export default [
   route("commands", "routes/commands.tsx"),
   route("plugins", "routes/plugins.tsx"),
   route("directory", "routes/directory.tsx"),
+  route("setup", "routes/setup.tsx"),
+  route("best-practices", "routes/best-practices.tsx"),
 ] satisfies RouteConfig;

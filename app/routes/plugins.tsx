@@ -1,9 +1,7 @@
 import { useState, useMemo, useRef, useCallback } from "react";
-import { Link } from "react-router";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 
 import {
-  ArrowLeftIcon,
   BoltIcon,
   CheckIcon,
   CloseIcon,
@@ -17,6 +15,7 @@ import {
   TimingIcon,
 } from "~/components/icons.js";
 import { EmptyState } from "~/components/empty-state.js";
+import { PageHeader } from "~/components/page-header";
 import { SearchInput } from "~/components/search-input.js";
 import { useModalLock } from "~/hooks/useModalLock.js";
 import pluginsData from "~/data/plugins.json";
@@ -392,11 +391,6 @@ function QuickStartPanel(): React.JSX.Element {
   );
 }
 
-const NAV_LINKS = [
-  { to: "/", label: "リリースノート", icon: <ArrowLeftIcon />, trailing: false },
-  { to: "/commands", label: "コマンド一覧", icon: null, trailing: true },
-  { to: "/directory", label: "ディレクトリ構成", icon: null, trailing: true },
-];
 
 export default function Plugins(): React.JSX.Element {
   const [query, setQuery] = useState("");
@@ -450,54 +444,15 @@ export default function Plugins(): React.JSX.Element {
     <div className="min-h-screen bg-slate-900 font-sans text-slate-100">
       <div className="max-w-[1100px] mx-auto px-4 py-8">
         {/* Header */}
-        <motion.div
-          initial={m ? false : { opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, ease: "easeOut" }}
-          className="text-center mb-7 relative overflow-hidden rounded-2xl border border-slate-700 px-6 py-9 bg-gradient-to-br from-slate-800 to-slate-900"
-        >
-          <div
-            className="absolute inset-0"
-            style={{
-              background:
-                "radial-gradient(ellipse at 30% 20%, rgba(6,182,212,0.08), transparent 60%), " +
-                "radial-gradient(ellipse at 70% 80%, rgba(16,185,129,0.05), transparent 60%)",
-            }}
-          />
-          <div className="relative">
-            <div className="text-xs font-semibold text-slate-500 tracking-[3px] uppercase mb-3 font-mono">
-              CLAUDE CODE
-            </div>
-            <h1 className="text-[28px] font-bold m-0 mb-2.5 text-slate-100 tracking-tight">
-              公式プラグイン
-            </h1>
-            <p className="text-sm text-slate-400 m-0 mb-3.5 max-w-[520px] mx-auto leading-relaxed">
-              Anthropic が公式マーケットプレイスで提供するプラグイン。
-              コードインテリジェンス、外部サービス連携、開発ワークフローを拡張します。
-            </p>
-            <div className="flex justify-center gap-6 text-[13px] text-slate-400 flex-wrap">
-              <span>
-                <strong className="text-slate-100">{TOTAL}</strong> プラグイン
-              </span>
-              <span>
-                <strong className="text-slate-100">{CATEGORIES.length}</strong> カテゴリ
-              </span>
-            </div>
-            <div className="flex justify-center gap-3 mt-3.5">
-              {NAV_LINKS.map((link) => (
-                <Link
-                  key={link.to}
-                  to={link.to}
-                  className="nav-link inline-flex items-center gap-1.5 text-slate-500 no-underline text-xs font-sans rounded-md border border-slate-700 transition-all py-1 px-3"
-                >
-                  {link.icon}
-                  {link.label}
-                  {link.trailing && " →"}
-                </Link>
-              ))}
-            </div>
-          </div>
-        </motion.div>
+        <PageHeader
+          title="公式プラグイン"
+          description="Anthropic が公式マーケットプレイスで提供するプラグイン。コードインテリジェンス、外部サービス連携、開発ワークフローを拡張します。"
+          stats={[
+            { value: TOTAL, label: "プラグイン" },
+            { value: CATEGORIES.length, label: "カテゴリ" },
+          ]}
+          gradient={["rgba(6,182,212,0.08)", "rgba(16,185,129,0.05)"]}
+        />
 
         {/* Tabs */}
         <motion.div

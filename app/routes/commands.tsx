@@ -1,9 +1,7 @@
 import { useState, useMemo, useEffect, useRef, useCallback } from "react";
-import { Link } from "react-router";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 
 import {
-  ArrowLeftIcon,
   CloseIcon,
   DetailInfoIcon,
   InfoIcon,
@@ -12,6 +10,7 @@ import {
 } from "~/components/icons";
 import { EmptyState } from "~/components/empty-state";
 import { Footer } from "~/components/footer";
+import { PageHeader } from "~/components/page-header";
 import { SearchInput } from "~/components/search-input";
 import commandsData from "~/data/commands.json";
 import { useModalLock } from "~/hooks/useModalLock";
@@ -576,61 +575,14 @@ export default function Commands(): React.JSX.Element {
     <div className="min-h-screen bg-slate-900 font-sans text-slate-100">
       <div className="max-w-[1100px] mx-auto px-4 py-8">
         {/* Header */}
-        <motion.div
-          initial={m ? false : { opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, ease: "easeOut" }}
-          className="text-center mb-7 relative overflow-hidden rounded-2xl border border-slate-700"
-          style={{
-            padding: "36px 24px",
-            background: `linear-gradient(135deg, #1E293B 0%, #0F172A 100%)`,
-          }}
-        >
-          <div
-            className="absolute inset-0"
-            style={{
-              background:
-                "radial-gradient(ellipse at 30% 20%, rgba(59,130,246,0.08), transparent 60%), " +
-                "radial-gradient(ellipse at 70% 80%, rgba(168,85,247,0.05), transparent 60%)",
-            }}
-          />
-          <div className="relative">
-            <div className="text-xs font-semibold text-slate-500 tracking-[3px] uppercase mb-3 font-mono">
-              CLAUDE CODE
-            </div>
-            <h1 className="text-[28px] font-bold m-0 mb-2.5 text-slate-100 tracking-tight">
-              コマンド一覧
-            </h1>
-            <div className="flex justify-center gap-6 text-[13px] text-slate-400 flex-wrap">
-              <span>
-                <strong className="text-slate-100">{TOTAL_SLASH}</strong> スラッシュコマンド
-              </span>
-              <span>
-                <strong className="text-slate-100">{TOTAL_CLI}</strong> CLI オプション
-              </span>
-              <span>
-                <strong className="text-slate-100">{SHORTCUTS.length}</strong> ショートカット
-              </span>
-            </div>
-            <div className="flex justify-center gap-3 mt-3.5">
-              {[
-                { to: "/", label: "リリースノート", icon: <ArrowLeftIcon />, trailing: false },
-                { to: "/plugins", label: "公式プラグイン", icon: null, trailing: true },
-                { to: "/directory", label: "ディレクトリ構成", icon: null, trailing: true },
-              ].map((link) => (
-                <Link
-                  key={link.to}
-                  to={link.to}
-                  className="nav-link inline-flex items-center gap-1.5 text-slate-500 no-underline text-xs font-sans border border-slate-700 transition-all rounded-md py-1 px-3"
-                >
-                  {link.icon}
-                  {link.label}
-                  {link.trailing && " →"}
-                </Link>
-              ))}
-            </div>
-          </div>
-        </motion.div>
+        <PageHeader
+          title="コマンド一覧"
+          stats={[
+            { value: TOTAL_SLASH, label: "スラッシュコマンド" },
+            { value: TOTAL_CLI, label: "CLI オプション" },
+            { value: SHORTCUTS.length, label: "ショートカット" },
+          ]}
+        />
 
         {/* Tabs */}
         <motion.div

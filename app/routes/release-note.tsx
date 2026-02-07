@@ -6,6 +6,7 @@ import { Badge, TAG_COLORS, TAG_LABELS } from "~/components/badge";
 import { EmptyState } from "~/components/empty-state";
 import { Footer } from "~/components/footer";
 import { CloseIcon, ExternalLinkIcon } from "~/components/icons";
+import { PageHeader } from "~/components/page-header";
 import { SearchInput } from "~/components/search-input";
 import releases from "~/data/releases.json";
 import versionDetails from "~/data/version-details.json";
@@ -126,11 +127,6 @@ const TAG_ICONS: Record<string, () => React.JSX.Element> = {
   ),
 };
 
-const NAV_LINKS = [
-  { to: "/commands", label: "コマンド一覧" },
-  { to: "/plugins", label: "公式プラグイン" },
-  { to: "/directory", label: "ディレクトリ構成" },
-];
 
 function TagCountBadge({ tag, count }: { tag: string; count: number }): React.JSX.Element {
   return (
@@ -384,51 +380,18 @@ export default function ReleaseNote(): React.JSX.Element {
     <div className="min-h-screen bg-slate-900 font-sans text-slate-100">
       <div className="max-w-[1100px] mx-auto p-8 px-4">
         {/* Header */}
-        <motion.div
-          initial={m ? false : { opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, ease: "easeOut" }}
-          className="text-center mb-7 py-10 px-6 bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl relative overflow-hidden border border-slate-700"
-        >
-          <div
-            className="absolute inset-0"
-            style={{
-              background:
-                "radial-gradient(ellipse at 30% 20%, rgba(59,130,246,0.08), transparent 60%), " +
-                "radial-gradient(ellipse at 70% 80%, rgba(168,85,247,0.05), transparent 60%)",
-            }}
-          />
-          <div className="relative">
-            <div className="text-xs font-semibold text-slate-500 tracking-[3px] uppercase mb-3 font-mono">
-              CLAUDE CODE
-            </div>
-            <h1 className="text-[32px] font-bold mb-3 text-slate-100 tracking-tight">
-              リリースノート
-            </h1>
-            <div className="flex justify-center items-baseline gap-6 text-[13px] text-slate-400 flex-wrap">
-              <span>
-                <strong className="text-slate-100">{RELEASES.length}</strong> バージョン
-              </span>
-              <span>
-                <strong className="text-slate-100">{totalAll}</strong> 件の変更
-              </span>
-              <span className="font-mono text-xs">
-                v{RELEASES[0]?.v} 〜 v{RELEASES[RELEASES.length - 1]?.v}
-              </span>
-            </div>
-            <div className="mt-4 flex gap-3 justify-center flex-wrap">
-              {NAV_LINKS.map((link) => (
-                <Link
-                  key={link.to}
-                  to={link.to}
-                  className="nav-link inline-flex items-center gap-1.5 text-slate-500 text-xs font-sans py-1 px-3 rounded-md border border-slate-700 transition-all"
-                >
-                  {link.label} →
-                </Link>
-              ))}
-            </div>
-          </div>
-        </motion.div>
+        <PageHeader
+          title="リリースノート"
+          stats={[
+            { value: RELEASES.length, label: "バージョン" },
+            { value: totalAll, label: "件の変更" },
+          ]}
+          extraStats={
+            <span className="font-mono text-xs">
+              v{RELEASES[0]?.v} 〜 v{RELEASES[RELEASES.length - 1]?.v}
+            </span>
+          }
+        />
 
         {/* Tab navigation */}
         <motion.div
