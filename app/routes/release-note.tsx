@@ -547,6 +547,7 @@ export default function ReleaseNote(): React.JSX.Element {
               style={{
                 display: "flex",
                 justifyContent: "center",
+                alignItems: "baseline",
                 gap: "24px",
                 fontSize: "13px",
                 color: COLORS.textSecondary,
