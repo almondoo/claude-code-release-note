@@ -42,6 +42,10 @@ Claude Code のリリースノートを日本語で閲覧できる Web アプリ
 
 `~/` は `./app/` にマッピング (`tsconfig.json` の paths + vite-tsconfig-paths)
 
+## 作業ルール
+
+- 仕様が不明確な場合や、複数の選択肢があって判断に迷う場合は、自己判断で進めずに必ず `AskUserQuestion` ツールを使ってユーザーに確認すること
+
 ## 参考リンク
 
 - Claude Code の公式 Changelog: https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md

@@ -54,6 +54,8 @@ const TAG_COLORS: Record<string, TagColor> = {
   "Perf": { bg: "rgba(234, 179, 8, 0.15)", text: "#FDE68A" },
   "非推奨": { bg: "rgba(120, 113, 108, 0.15)", text: "#D6D3D1" },
   "Plugin": { bg: "rgba(6, 182, 212, 0.15)", text: "#67E8F9" },
+  "MCP": { bg: "rgba(20, 184, 166, 0.15)", text: "#5EEAD4" },
+  "Agent": { bg: "rgba(99, 102, 241, 0.15)", text: "#A5B4FC" },
 };
 
 const TAG_LABELS: Record<string, string> = {
@@ -67,6 +69,8 @@ const TAG_LABELS: Record<string, string> = {
   "Perf": "パフォーマンス",
   "非推奨": "非推奨",
   "Plugin": "プラグイン",
+  "MCP": "MCP",
+  "Agent": "エージェント",
 };
 
 const ALL_TAGS = Object.keys(TAG_COLORS);
