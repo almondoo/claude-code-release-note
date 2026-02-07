@@ -39,44 +39,16 @@ interface Shortcut {
 }
 
 // ---------------------------------------------------------------------------
-// Design tokens
-// ---------------------------------------------------------------------------
-
-const COLORS = {
-  bg: "#0F172A",
-  surface: "#1E293B",
-  surfaceHover: "#263548",
-  border: "#334155",
-  accent: "#3B82F6",
-  accentGlow: "rgba(59, 130, 246, 0.25)",
-  text: "#F1F5F9",
-  textSecondary: "#94A3B8",
-  textMuted: "#64748B",
-  green: "#6EE7B7",
-  greenBg: "rgba(16, 185, 129, 0.15)",
-  purple: "#C4B5FD",
-  purpleBg: "rgba(139, 92, 246, 0.15)",
-  orange: "#FDBA74",
-  orangeBg: "rgba(249, 115, 22, 0.15)",
-  cyan: "#67E8F9",
-  cyanBg: "rgba(6, 182, 212, 0.15)",
-  overlay: "rgba(0, 0, 0, 0.6)",
-} as const;
-
-const FONT_MONO = "'JetBrains Mono', 'Fira Code', monospace" as const;
-const FONT_SANS = "'IBM Plex Sans', 'Noto Sans JP', system-ui, -apple-system, sans-serif" as const;
-
-// ---------------------------------------------------------------------------
-// Category colors
+// Category colors (raw hex values, used dynamically via inline style)
 // ---------------------------------------------------------------------------
 
 const CATEGORY_COLORS: Record<string, { color: string; bg: string }> = {
-  essential: { color: COLORS.green, bg: COLORS.greenBg },
-  session: { color: COLORS.cyan, bg: COLORS.cyanBg },
-  config: { color: COLORS.orange, bg: COLORS.orangeBg },
-  memory: { color: COLORS.accent, bg: COLORS.accentGlow },
+  essential: { color: "#6EE7B7", bg: "rgba(16, 185, 129, 0.15)" },
+  session: { color: "#67E8F9", bg: "rgba(6, 182, 212, 0.15)" },
+  config: { color: "#FDBA74", bg: "rgba(249, 115, 22, 0.15)" },
+  memory: { color: "#3B82F6", bg: "rgba(59, 130, 246, 0.25)" },
   integration: { color: "#5EEAD4", bg: "rgba(20, 184, 166, 0.15)" },
-  agent: { color: COLORS.purple, bg: COLORS.purpleBg },
+  agent: { color: "#C4B5FD", bg: "rgba(139, 92, 246, 0.15)" },
   utility: { color: "#F472B6", bg: "rgba(244, 114, 182, 0.15)" },
   account: { color: "#FDE68A", bg: "rgba(234, 179, 8, 0.15)" },
 };
@@ -140,7 +112,7 @@ const CATEGORY_ICONS: Record<string, () => React.JSX.Element> = {
 
 function SearchIcon() {
   return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={COLORS.textMuted} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-slate-500">
       <circle cx="11" cy="11" r="8" />
       <line x1="21" y1="21" x2="16.65" y2="16.65" />
     </svg>
@@ -241,11 +213,11 @@ const TAB_DEFS: TabDef[] = [
   ...CATEGORIES.map((c) => ({
     id: c.id,
     label: c.name,
-    color: CATEGORY_COLORS[c.id]?.color || COLORS.accent,
+    color: CATEGORY_COLORS[c.id]?.color || "#3B82F6",
     type: "slash-category" as const,
   })),
-  { id: "cli", label: "CLI", color: COLORS.purple, type: "cli" },
-  { id: "shortcuts", label: "ショートカット", color: COLORS.orange, type: "shortcuts" },
+  { id: "cli", label: "CLI", color: "#C4B5FD", type: "cli" },
+  { id: "shortcuts", label: "ショートカット", color: "#FDBA74", type: "shortcuts" },
 ];
 
 // ---------------------------------------------------------------------------
@@ -269,96 +241,43 @@ function CommandCard({
       tabIndex={0}
       onClick={onClick}
       onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onClick(); } }}
-      style={{
-        background: COLORS.surface,
-        borderRadius: "12px",
-        border: `1px solid ${COLORS.border}`,
-        padding: "18px 20px",
-        display: "flex",
-        flexDirection: "column",
-        gap: "10px",
-        cursor: "pointer",
-        transition: "all 0.2s ease",
-        position: "relative",
-        overflow: "hidden",
-      }}
+      className="bg-surface rounded-xl border border-slate-700 flex flex-col gap-2.5 cursor-pointer transition-all relative overflow-hidden hover:-translate-y-0.5 hover:bg-surface-hover"
+      style={{ padding: "18px 20px" }}
       onMouseEnter={(e) => {
-        e.currentTarget.style.background = COLORS.surfaceHover;
         e.currentTarget.style.borderColor = accentColor + "60";
-        e.currentTarget.style.transform = "translateY(-2px)";
         e.currentTarget.style.boxShadow = `0 8px 24px rgba(0,0,0,0.3), 0 0 0 1px ${accentColor}20`;
       }}
       onMouseLeave={(e) => {
-        e.currentTarget.style.background = COLORS.surface;
-        e.currentTarget.style.borderColor = COLORS.border;
-        e.currentTarget.style.transform = "translateY(0)";
+        e.currentTarget.style.borderColor = "";
         e.currentTarget.style.boxShadow = "none";
       }}
     >
       <div
-        style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
-          height: "3px",
-          background: `linear-gradient(90deg, ${accentColor}, ${accentColor}40)`,
-          borderRadius: "12px 12px 0 0",
-        }}
+        className="absolute top-0 left-0 right-0 h-[3px] rounded-t-xl"
+        style={{ background: `linear-gradient(90deg, ${accentColor}, ${accentColor}40)` }}
       />
-      <div style={{ display: "flex", alignItems: "baseline", gap: "8px" }}>
+      <div className="flex items-baseline gap-2">
         <code
-          style={{
-            fontFamily: FONT_MONO,
-            fontSize: "14px",
-            fontWeight: 700,
-            color: accentColor,
-            whiteSpace: "nowrap",
-          }}
+          className="font-mono text-sm font-bold whitespace-nowrap"
+          style={{ color: accentColor }}
         >
           {cmd.name}
         </code>
         {cmd.args && (
-          <span
-            style={{
-              fontSize: "11px",
-              color: COLORS.textMuted,
-              fontFamily: FONT_MONO,
-              whiteSpace: "nowrap",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-            }}
-          >
+          <span className="text-[11px] text-slate-500 font-mono whitespace-nowrap overflow-hidden text-ellipsis">
             {cmd.args}
           </span>
         )}
       </div>
-      <p
-        style={{
-          margin: 0,
-          fontSize: "12px",
-          lineHeight: 1.6,
-          color: COLORS.textSecondary,
-          fontFamily: FONT_SANS,
-          flex: 1,
-          display: "-webkit-box",
-          WebkitLineClamp: 2,
-          WebkitBoxOrient: "vertical",
-          overflow: "hidden",
-        }}
-      >
+      <p className="m-0 text-xs leading-[1.6] text-slate-400 font-sans flex-1 overflow-hidden" style={{ display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>
         {cmd.description}
       </p>
       <span
+        className="text-[10px] font-semibold rounded self-start whitespace-nowrap"
         style={{
-          fontSize: "10px",
-          fontWeight: 600,
           padding: "2px 8px",
-          borderRadius: "4px",
           background: accentColor + "18",
           color: accentColor,
-          whiteSpace: "nowrap",
-          alignSelf: "flex-start",
         }}
       >
         {categoryName}
@@ -386,98 +305,35 @@ function CLICard({
       tabIndex={0}
       onClick={onClick}
       onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onClick(); } }}
-      style={{
-        background: COLORS.surface,
-        borderRadius: "12px",
-        border: `1px solid ${COLORS.border}`,
-        padding: "18px 20px",
-        display: "flex",
-        flexDirection: "column",
-        gap: "10px",
-        cursor: "pointer",
-        transition: "all 0.2s ease",
-        position: "relative",
-        overflow: "hidden",
-      }}
+      className="bg-surface rounded-xl border border-slate-700 flex flex-col gap-2.5 cursor-pointer transition-all relative overflow-hidden hover:-translate-y-0.5 hover:bg-surface-hover"
+      style={{ padding: "18px 20px" }}
       onMouseEnter={(e) => {
-        e.currentTarget.style.background = COLORS.surfaceHover;
-        e.currentTarget.style.borderColor = COLORS.purple + "60";
-        e.currentTarget.style.transform = "translateY(-2px)";
-        e.currentTarget.style.boxShadow = `0 8px 24px rgba(0,0,0,0.3), 0 0 0 1px ${COLORS.purple}20`;
+        e.currentTarget.style.borderColor = "#C4B5FD60";
+        e.currentTarget.style.boxShadow = `0 8px 24px rgba(0,0,0,0.3), 0 0 0 1px #C4B5FD20`;
       }}
       onMouseLeave={(e) => {
-        e.currentTarget.style.background = COLORS.surface;
-        e.currentTarget.style.borderColor = COLORS.border;
-        e.currentTarget.style.transform = "translateY(0)";
+        e.currentTarget.style.borderColor = "";
         e.currentTarget.style.boxShadow = "none";
       }}
     >
       <div
-        style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
-          height: "3px",
-          background: `linear-gradient(90deg, ${COLORS.purple}, ${COLORS.purple}40)`,
-          borderRadius: "12px 12px 0 0",
-        }}
+        className="absolute top-0 left-0 right-0 h-[3px] rounded-t-xl"
+        style={{ background: `linear-gradient(90deg, #C4B5FD, #C4B5FD40)` }}
       />
-      <div style={{ display: "flex", alignItems: "baseline", gap: "8px" }}>
-        <code
-          style={{
-            fontFamily: FONT_MONO,
-            fontSize: "14px",
-            fontWeight: 700,
-            color: COLORS.purple,
-            whiteSpace: "nowrap",
-          }}
-        >
+      <div className="flex items-baseline gap-2">
+        <code className="font-mono text-sm font-bold whitespace-nowrap text-purple-300">
           {cmd.name}
         </code>
         {cmd.args && (
-          <span
-            style={{
-              fontSize: "11px",
-              color: COLORS.textMuted,
-              fontFamily: FONT_MONO,
-              whiteSpace: "nowrap",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-            }}
-          >
+          <span className="text-[11px] text-slate-500 font-mono whitespace-nowrap overflow-hidden text-ellipsis">
             {cmd.args}
           </span>
         )}
       </div>
-      <p
-        style={{
-          margin: 0,
-          fontSize: "12px",
-          lineHeight: 1.6,
-          color: COLORS.textSecondary,
-          fontFamily: FONT_SANS,
-          flex: 1,
-          display: "-webkit-box",
-          WebkitLineClamp: 2,
-          WebkitBoxOrient: "vertical",
-          overflow: "hidden",
-        }}
-      >
+      <p className="m-0 text-xs leading-[1.6] text-slate-400 font-sans flex-1 overflow-hidden" style={{ display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>
         {cmd.description}
       </p>
-      <span
-        style={{
-          fontSize: "10px",
-          fontWeight: 600,
-          padding: "2px 8px",
-          borderRadius: "4px",
-          background: COLORS.purpleBg,
-          color: COLORS.purple,
-          whiteSpace: "nowrap",
-          alignSelf: "flex-start",
-        }}
-      >
+      <span className="text-[10px] font-semibold rounded self-start whitespace-nowrap" style={{ padding: "2px 8px", background: "rgba(139, 92, 246, 0.15)", color: "#C4B5FD" }}>
         {kind === "command" ? "Command" : "Flag"}
       </span>
     </div>
@@ -501,74 +357,34 @@ function ShortcutCard({
       tabIndex={0}
       onClick={onClick}
       onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onClick(); } }}
-      style={{
-        background: COLORS.surface,
-        borderRadius: "12px",
-        border: `1px solid ${COLORS.border}`,
-        padding: "18px 20px",
-        display: "flex",
-        flexDirection: "column",
-        gap: "10px",
-        cursor: "pointer",
-        transition: "all 0.2s ease",
-        position: "relative",
-        overflow: "hidden",
-      }}
+      className="bg-surface rounded-xl border border-slate-700 flex flex-col gap-2.5 cursor-pointer transition-all relative overflow-hidden hover:-translate-y-0.5 hover:bg-surface-hover"
+      style={{ padding: "18px 20px" }}
       onMouseEnter={(e) => {
-        e.currentTarget.style.background = COLORS.surfaceHover;
-        e.currentTarget.style.borderColor = COLORS.orange + "60";
-        e.currentTarget.style.transform = "translateY(-2px)";
-        e.currentTarget.style.boxShadow = `0 8px 24px rgba(0,0,0,0.3), 0 0 0 1px ${COLORS.orange}20`;
+        e.currentTarget.style.borderColor = "#FDBA7460";
+        e.currentTarget.style.boxShadow = `0 8px 24px rgba(0,0,0,0.3), 0 0 0 1px #FDBA7420`;
       }}
       onMouseLeave={(e) => {
-        e.currentTarget.style.background = COLORS.surface;
-        e.currentTarget.style.borderColor = COLORS.border;
-        e.currentTarget.style.transform = "translateY(0)";
+        e.currentTarget.style.borderColor = "";
         e.currentTarget.style.boxShadow = "none";
       }}
     >
       <div
-        style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
-          height: "3px",
-          background: `linear-gradient(90deg, ${COLORS.orange}, ${COLORS.orange}40)`,
-          borderRadius: "12px 12px 0 0",
-        }}
+        className="absolute top-0 left-0 right-0 h-[3px] rounded-t-xl"
+        style={{ background: `linear-gradient(90deg, #FDBA74, #FDBA7440)` }}
       />
       <kbd
+        className="font-mono text-[13px] font-semibold inline-block whitespace-nowrap w-fit"
         style={{
-          fontFamily: FONT_MONO,
-          fontSize: "13px",
-          fontWeight: 600,
-          color: COLORS.orange,
-          background: COLORS.orangeBg,
+          color: "#FDBA74",
+          background: "rgba(249, 115, 22, 0.15)",
           padding: "4px 12px",
           borderRadius: "6px",
-          border: `1px solid ${COLORS.orange}30`,
-          display: "inline-block",
-          whiteSpace: "nowrap",
-          width: "fit-content",
+          border: "1px solid #FDBA7430",
         }}
       >
         {shortcut.key}
       </kbd>
-      <p
-        style={{
-          margin: 0,
-          fontSize: "12px",
-          lineHeight: 1.6,
-          color: COLORS.textSecondary,
-          fontFamily: FONT_SANS,
-          flex: 1,
-          display: "-webkit-box",
-          WebkitLineClamp: 2,
-          WebkitBoxOrient: "vertical",
-          overflow: "hidden",
-        }}
-      >
+      <p className="m-0 text-xs leading-[1.6] text-slate-400 font-sans flex-1 overflow-hidden" style={{ display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>
         {shortcut.description}
       </p>
     </div>
@@ -621,21 +437,19 @@ function DetailModal({
     detail = data.cmd.detail;
     whenToUse = data.cmd.whenToUse;
     title = (
-      <div style={{ display: "flex", alignItems: "baseline", gap: "8px", flexWrap: "wrap" }}>
-        <code style={{ fontFamily: FONT_MONO, fontSize: "16px", fontWeight: 700, color: accentColor }}>{data.cmd.name}</code>
+      <div className="flex items-baseline gap-2 flex-wrap">
+        <code className="font-mono text-base font-bold" style={{ color: accentColor }}>{data.cmd.name}</code>
         {data.cmd.args && (
-          <span style={{ fontSize: "12px", color: COLORS.textMuted, fontFamily: FONT_MONO }}>{data.cmd.args}</span>
+          <span className="text-xs text-slate-500 font-mono">{data.cmd.args}</span>
         )}
       </div>
     );
     extraHeader = (
-      <div style={{ display: "flex", gap: "6px", marginTop: "8px", flexWrap: "wrap" }}>
+      <div className="flex gap-1.5 mt-2 flex-wrap">
         <span
+          className="text-[10px] font-semibold rounded"
           style={{
-            fontSize: "10px",
-            fontWeight: 600,
             padding: "2px 8px",
-            borderRadius: "4px",
             background: accentColor + "18",
             color: accentColor,
           }}
@@ -643,13 +457,11 @@ function DetailModal({
           {data.categoryName}
         </span>
         <span
+          className="text-[10px] font-semibold rounded"
           style={{
-            fontSize: "10px",
-            fontWeight: 600,
             padding: "2px 8px",
-            borderRadius: "4px",
-            background: COLORS.greenBg,
-            color: COLORS.green,
+            background: "rgba(16, 185, 129, 0.15)",
+            color: "#6EE7B7",
           }}
         >
           スラッシュコマンド
@@ -657,27 +469,25 @@ function DetailModal({
       </div>
     );
   } else if (data.type === "cli") {
-    accentColor = COLORS.purple;
+    accentColor = "#C4B5FD";
     detail = data.cmd.detail;
     whenToUse = data.cmd.whenToUse;
     title = (
-      <div style={{ display: "flex", alignItems: "baseline", gap: "8px", flexWrap: "wrap" }}>
-        <code style={{ fontFamily: FONT_MONO, fontSize: "16px", fontWeight: 700, color: accentColor }}>{data.cmd.name}</code>
+      <div className="flex items-baseline gap-2 flex-wrap">
+        <code className="font-mono text-base font-bold" style={{ color: accentColor }}>{data.cmd.name}</code>
         {data.cmd.args && (
-          <span style={{ fontSize: "12px", color: COLORS.textMuted, fontFamily: FONT_MONO }}>{data.cmd.args}</span>
+          <span className="text-xs text-slate-500 font-mono">{data.cmd.args}</span>
         )}
       </div>
     );
     extraHeader = (
-      <div style={{ display: "flex", gap: "6px", marginTop: "8px" }}>
+      <div className="flex gap-1.5 mt-2">
         <span
+          className="text-[10px] font-semibold rounded"
           style={{
-            fontSize: "10px",
-            fontWeight: 600,
             padding: "2px 8px",
-            borderRadius: "4px",
-            background: COLORS.purpleBg,
-            color: COLORS.purple,
+            background: "rgba(139, 92, 246, 0.15)",
+            color: "#C4B5FD",
           }}
         >
           CLI {data.kind === "command" ? "Command" : "Flag"}
@@ -685,35 +495,31 @@ function DetailModal({
       </div>
     );
   } else {
-    accentColor = COLORS.orange;
+    accentColor = "#FDBA74";
     detail = data.shortcut.detail;
     whenToUse = data.shortcut.whenToUse;
     title = (
       <kbd
+        className="font-mono text-sm font-semibold"
         style={{
-          fontFamily: FONT_MONO,
-          fontSize: "14px",
-          fontWeight: 600,
-          color: COLORS.orange,
-          background: COLORS.orangeBg,
+          color: "#FDBA74",
+          background: "rgba(249, 115, 22, 0.15)",
           padding: "4px 14px",
           borderRadius: "6px",
-          border: `1px solid ${COLORS.orange}30`,
+          border: "1px solid #FDBA7430",
         }}
       >
         {data.shortcut.key}
       </kbd>
     );
     extraHeader = (
-      <div style={{ display: "flex", gap: "6px", marginTop: "8px" }}>
+      <div className="flex gap-1.5 mt-2">
         <span
+          className="text-[10px] font-semibold rounded"
           style={{
-            fontSize: "10px",
-            fontWeight: 600,
             padding: "2px 8px",
-            borderRadius: "4px",
-            background: COLORS.orangeBg,
-            color: COLORS.orange,
+            background: "rgba(249, 115, 22, 0.15)",
+            color: "#FDBA74",
           }}
         >
           ショートカット
@@ -732,69 +538,36 @@ function DetailModal({
       exit={reducedMotion ? undefined : { opacity: 0 }}
       transition={{ duration: 0.2 }}
       onClick={(e) => { if (e.target === overlayRef.current) onClose(); }}
-      style={{
-        position: "fixed",
-        inset: 0,
-        zIndex: 1000,
-        background: COLORS.overlay,
-        backdropFilter: "blur(4px)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: "24px",
-      }}
+      className="fixed inset-0 z-[1000] bg-black/60 backdrop-blur-[4px] flex items-center justify-center p-6"
     >
       <motion.div
         initial={reducedMotion ? false : { opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={reducedMotion ? undefined : { opacity: 0, scale: 0.95, y: 20 }}
         transition={{ duration: 0.25, ease: "easeOut" }}
+        className="bg-surface rounded-2xl w-full max-w-[640px] max-h-[85vh] overflow-hidden flex flex-col"
         style={{
-          background: COLORS.surface,
-          borderRadius: "16px",
           border: `1px solid ${accentColor}30`,
-          width: "100%",
-          maxWidth: "640px",
-          maxHeight: "85vh",
-          overflow: "hidden",
-          display: "flex",
-          flexDirection: "column",
           boxShadow: `0 24px 64px rgba(0,0,0,0.5), 0 0 0 1px ${accentColor}15`,
         }}
       >
         {/* Header */}
         <div
+          className="flex items-start gap-3.5 relative border-b border-slate-700"
           style={{
             padding: "20px 24px",
-            borderBottom: `1px solid ${COLORS.border}`,
-            display: "flex",
-            alignItems: "flex-start",
-            gap: "14px",
-            background: `linear-gradient(135deg, ${COLORS.surface} 0%, ${COLORS.bg} 100%)`,
-            position: "relative",
+            background: `linear-gradient(135deg, #1E293B 0%, #0F172A 100%)`,
           }}
         >
           <div
-            style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              right: 0,
-              height: "3px",
-              background: `linear-gradient(90deg, ${accentColor}, ${accentColor}40)`,
-            }}
+            className="absolute top-0 left-0 right-0 h-[3px]"
+            style={{ background: `linear-gradient(90deg, ${accentColor}, ${accentColor}40)` }}
           />
           <div
+            className="w-10 h-10 rounded-[10px] flex items-center justify-center shrink-0"
             style={{
-              width: "40px",
-              height: "40px",
-              borderRadius: "10px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
               background: accentColor + "18",
               color: accentColor,
-              flexShrink: 0,
             }}
           >
             {data.type === "shortcut" ? (
@@ -805,17 +578,9 @@ function DetailModal({
               <TerminalIcon />
             )}
           </div>
-          <div style={{ flex: 1, minWidth: 0 }}>
+          <div className="flex-1 min-w-0">
             {title}
-            <div
-              style={{
-                fontSize: "13px",
-                color: COLORS.textSecondary,
-                marginTop: "6px",
-                fontFamily: FONT_SANS,
-                lineHeight: 1.6,
-              }}
-            >
+            <div className="text-[13px] text-slate-400 mt-1.5 font-sans leading-[1.6]">
               {description}
             </div>
             {extraHeader}
@@ -823,100 +588,32 @@ function DetailModal({
           <button
             onClick={onClose}
             aria-label="閉じる"
-            style={{
-              background: "none",
-              border: "none",
-              color: COLORS.textMuted,
-              cursor: "pointer",
-              padding: "4px",
-              borderRadius: "6px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              transition: "color 0.15s, background 0.15s",
-              flexShrink: 0,
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.color = COLORS.text;
-              e.currentTarget.style.background = COLORS.bg;
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.color = COLORS.textMuted;
-              e.currentTarget.style.background = "transparent";
-            }}
+            className="bg-transparent border-none text-slate-500 cursor-pointer p-1 rounded-md flex items-center justify-center transition-colors shrink-0 hover:text-slate-100 hover:bg-slate-900"
           >
             <CloseIcon />
           </button>
         </div>
 
         {/* Body */}
-        <div
-          style={{
-            padding: "24px",
-            overflowY: "auto",
-            display: "flex",
-            flexDirection: "column",
-            gap: "20px",
-          }}
-        >
+        <div className="p-6 overflow-y-auto flex flex-col gap-5">
           {/* Detail */}
-          <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "6px",
-                color: COLORS.cyan,
-                fontSize: "11px",
-                fontWeight: 700,
-                letterSpacing: "0.5px",
-                textTransform: "uppercase",
-                fontFamily: FONT_MONO,
-              }}
-            >
+          <div className="flex flex-col gap-2.5">
+            <div className="flex items-center gap-1.5 text-cyan-300 text-[11px] font-bold tracking-wide uppercase font-mono">
               <DetailInfoIcon />
               詳細説明
             </div>
-            <p
-              style={{
-                margin: 0,
-                fontSize: "13px",
-                lineHeight: 1.8,
-                color: COLORS.textSecondary,
-                fontFamily: FONT_SANS,
-              }}
-            >
+            <p className="m-0 text-[13px] leading-[1.8] text-slate-400 font-sans">
               {detail}
             </p>
           </div>
 
           {/* When to use */}
-          <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "6px",
-                color: COLORS.orange,
-                fontSize: "11px",
-                fontWeight: 700,
-                letterSpacing: "0.5px",
-                textTransform: "uppercase",
-                fontFamily: FONT_MONO,
-              }}
-            >
+          <div className="flex flex-col gap-2.5">
+            <div className="flex items-center gap-1.5 text-orange-300 text-[11px] font-bold tracking-wide uppercase font-mono">
               <TimingIcon />
               使うタイミング
             </div>
-            <p
-              style={{
-                margin: 0,
-                fontSize: "13px",
-                lineHeight: 1.8,
-                color: COLORS.textSecondary,
-                fontFamily: FONT_SANS,
-              }}
-            >
+            <p className="m-0 text-[13px] leading-[1.8] text-slate-400 font-sans">
               {whenToUse}
             </p>
           </div>
@@ -1016,96 +713,46 @@ export default function Commands(): React.JSX.Element {
     : null;
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        background: COLORS.bg,
-        fontFamily: FONT_SANS,
-        color: COLORS.text,
-      }}
-    >
-      <div style={{ maxWidth: "1100px", margin: "0 auto", padding: "32px 16px" }}>
+    <div className="min-h-screen bg-slate-900 font-sans text-slate-100">
+      <div className="max-w-[1100px] mx-auto px-4 py-8">
         {/* Header */}
         <motion.div
           initial={m ? false : { opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: "easeOut" }}
+          className="text-center mb-7 relative overflow-hidden rounded-2xl border border-slate-700"
           style={{
-            textAlign: "center",
-            marginBottom: "28px",
             padding: "36px 24px",
-            background: `linear-gradient(135deg, ${COLORS.surface} 0%, ${COLORS.bg} 100%)`,
-            borderRadius: "16px",
-            position: "relative",
-            overflow: "hidden",
-            border: `1px solid ${COLORS.border}`,
+            background: `linear-gradient(135deg, #1E293B 0%, #0F172A 100%)`,
           }}
         >
           <div
+            className="absolute inset-0"
             style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
               background:
                 "radial-gradient(ellipse at 30% 20%, rgba(59,130,246,0.08), transparent 60%), " +
                 "radial-gradient(ellipse at 70% 80%, rgba(168,85,247,0.05), transparent 60%)",
             }}
           />
-          <div style={{ position: "relative" }}>
-            <div
-              style={{
-                fontSize: "12px",
-                fontWeight: 600,
-                color: COLORS.textMuted,
-                letterSpacing: "3px",
-                textTransform: "uppercase",
-                marginBottom: "12px",
-                fontFamily: FONT_MONO,
-              }}
-            >
+          <div className="relative">
+            <div className="text-xs font-semibold text-slate-500 tracking-[3px] uppercase mb-3 font-mono">
               CLAUDE CODE
             </div>
-            <h1
-              style={{
-                fontSize: "28px",
-                fontWeight: 700,
-                margin: "0 0 10px",
-                color: COLORS.text,
-                letterSpacing: "-0.5px",
-              }}
-            >
+            <h1 className="text-[28px] font-bold m-0 mb-2.5 text-slate-100 tracking-tight">
               コマンド一覧
             </h1>
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                gap: "24px",
-                fontSize: "13px",
-                color: COLORS.textSecondary,
-                flexWrap: "wrap",
-              }}
-            >
+            <div className="flex justify-center gap-6 text-[13px] text-slate-400 flex-wrap">
               <span>
-                <strong style={{ color: COLORS.text }}>{TOTAL_SLASH}</strong> スラッシュコマンド
+                <strong className="text-slate-100">{TOTAL_SLASH}</strong> スラッシュコマンド
               </span>
               <span>
-                <strong style={{ color: COLORS.text }}>{TOTAL_CLI}</strong> CLI オプション
+                <strong className="text-slate-100">{TOTAL_CLI}</strong> CLI オプション
               </span>
               <span>
-                <strong style={{ color: COLORS.text }}>{SHORTCUTS.length}</strong> ショートカット
+                <strong className="text-slate-100">{SHORTCUTS.length}</strong> ショートカット
               </span>
             </div>
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                gap: "12px",
-                marginTop: "14px",
-              }}
-            >
+            <div className="flex justify-center gap-3 mt-3.5">
               {[
                 { to: "/", label: "リリースノート", icon: <ArrowLeftIcon />, trailing: false },
                 { to: "/plugins", label: "公式プラグイン", icon: null, trailing: true },
@@ -1114,27 +761,8 @@ export default function Commands(): React.JSX.Element {
                 <Link
                   key={link.to}
                   to={link.to}
-                  style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: "6px",
-                    color: COLORS.textMuted,
-                    textDecoration: "none",
-                    fontSize: "12px",
-                    fontFamily: FONT_SANS,
-                    padding: "4px 12px",
-                    borderRadius: "6px",
-                    border: `1px solid ${COLORS.border}`,
-                    transition: "all 0.15s",
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.color = COLORS.text;
-                    e.currentTarget.style.borderColor = COLORS.accent + "60";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.color = COLORS.textMuted;
-                    e.currentTarget.style.borderColor = COLORS.border;
-                  }}
+                  className="inline-flex items-center gap-1.5 text-slate-500 no-underline text-xs font-sans border border-slate-700 transition-all hover:text-slate-100 hover:border-blue-500/60"
+                  style={{ padding: "4px 12px", borderRadius: "6px" }}
                 >
                   {link.icon}
                   {link.label}
@@ -1151,14 +779,8 @@ export default function Commands(): React.JSX.Element {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.1 }}
           ref={tabScrollRef}
-          style={{
-            display: "flex",
-            gap: "4px",
-            marginBottom: "20px",
-            overflowX: "auto",
-            paddingBottom: "4px",
-            scrollbarWidth: "none",
-          }}
+          className="flex gap-1 mb-5 overflow-x-auto pb-1"
+          style={{ scrollbarWidth: "none" }}
         >
           {TAB_DEFS.map((tab) => {
             const isActive = activeTab === tab.id;
@@ -1169,48 +791,39 @@ export default function Commands(): React.JSX.Element {
                   setActiveTab(tab.id);
                   setQuery("");
                 }}
+                className="shrink-0 rounded-[10px] text-[13px] font-sans cursor-pointer transition-all whitespace-nowrap flex items-center gap-1.5"
                 style={{
-                  flexShrink: 0,
                   padding: "10px 16px",
-                  borderRadius: "10px",
                   border: isActive ? `1px solid ${tab.color}40` : `1px solid transparent`,
                   background: isActive ? tab.color + "18" : "transparent",
-                  color: isActive ? tab.color : COLORS.textMuted,
-                  fontSize: "13px",
+                  color: isActive ? tab.color : "#64748B",
                   fontWeight: isActive ? 600 : 500,
-                  fontFamily: FONT_SANS,
-                  cursor: "pointer",
-                  transition: "all 0.2s",
-                  whiteSpace: "nowrap",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "6px",
                 }}
                 onMouseEnter={(e) => {
                   if (!isActive) {
-                    e.currentTarget.style.background = COLORS.surfaceHover;
-                    e.currentTarget.style.color = COLORS.text;
+                    e.currentTarget.style.background = "#263548";
+                    e.currentTarget.style.color = "#F1F5F9";
                   }
                 }}
                 onMouseLeave={(e) => {
                   if (!isActive) {
                     e.currentTarget.style.background = "transparent";
-                    e.currentTarget.style.color = COLORS.textMuted;
+                    e.currentTarget.style.color = "#64748B";
                   }
                 }}
               >
                 {tab.type === "slash-category" && CATEGORY_ICONS[tab.id] && (
-                  <span style={{ display: "flex", alignItems: "center", transform: "scale(0.8)" }}>
+                  <span className="flex items-center scale-[0.8]">
                     {CATEGORY_ICONS[tab.id]()}
                   </span>
                 )}
                 {tab.type === "cli" && (
-                  <span style={{ display: "flex", alignItems: "center" }}>
+                  <span className="flex items-center">
                     <TerminalIcon />
                   </span>
                 )}
                 {tab.type === "shortcuts" && (
-                  <span style={{ display: "flex", alignItems: "center" }}>
+                  <span className="flex items-center">
                     <InfoIcon />
                   </span>
                 )}
@@ -1225,17 +838,11 @@ export default function Commands(): React.JSX.Element {
           initial={m ? false : { opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.3, delay: 0.15 }}
+          className="bg-surface rounded-[10px] mb-4 flex items-center gap-2.5 transition-all"
           style={{
-            background: COLORS.surface,
-            borderRadius: "10px",
-            border: `1px solid ${searchFocused ? COLORS.accent : COLORS.border}`,
-            boxShadow: searchFocused ? `0 0 0 3px ${COLORS.accentGlow}` : "none",
+            border: `1px solid ${searchFocused ? "#3B82F6" : "#334155"}`,
+            boxShadow: searchFocused ? "0 0 0 3px rgba(59, 130, 246, 0.25)" : "none",
             padding: "2px 14px",
-            marginBottom: "16px",
-            display: "flex",
-            alignItems: "center",
-            gap: "10px",
-            transition: "border-color 0.2s, box-shadow 0.2s",
           }}
         >
           <SearchIcon />
@@ -1246,30 +853,14 @@ export default function Commands(): React.JSX.Element {
             onChange={(e) => setQuery(e.target.value)}
             onFocus={() => setSearchFocused(true)}
             onBlur={() => setSearchFocused(false)}
-            style={{
-              width: "100%",
-              padding: "11px 0",
-              border: "none",
-              background: "transparent",
-              fontSize: "14px",
-              color: COLORS.text,
-              outline: "none",
-              fontFamily: FONT_SANS,
-            }}
+            className="w-full border-none bg-transparent text-sm text-slate-100 outline-none font-sans"
+            style={{ padding: "11px 0" }}
           />
         </motion.div>
 
         {/* Count */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "10px",
-            marginBottom: "16px",
-            padding: "0 4px",
-          }}
-        >
-          <span style={{ fontSize: "13px", color: COLORS.textMuted, fontWeight: 500 }}>
+        <div className="flex items-center gap-2.5 mb-4 px-1">
+          <span className="text-[13px] text-slate-500 font-medium">
             {currentCount} 件表示中
           </span>
         </div>
@@ -1283,13 +874,7 @@ export default function Commands(): React.JSX.Element {
             exit={reducedMotion ? undefined : { opacity: 0, y: -10 }}
             transition={{ duration: 0.25 }}
           >
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
-                gap: "14px",
-              }}
-            >
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-3.5">
               <AnimatePresence mode="popLayout">
                 {isSlashTab && filteredSlashCommands.map((cmd, i) => (
                   <motion.div
@@ -1302,13 +887,13 @@ export default function Commands(): React.JSX.Element {
                   >
                     <CommandCard
                       cmd={cmd}
-                      accentColor={CATEGORY_COLORS[activeTab]?.color || COLORS.accent}
+                      accentColor={CATEGORY_COLORS[activeTab]?.color || "#3B82F6"}
                       categoryName={activeCategory?.name || ""}
                       onClick={() => openModal({
                         type: "command",
                         cmd,
                         categoryName: activeCategory?.name || "",
-                        accentColor: CATEGORY_COLORS[activeTab]?.color || COLORS.accent,
+                        accentColor: CATEGORY_COLORS[activeTab]?.color || "#3B82F6",
                       })}
                     />
                   </motion.div>
@@ -1375,31 +960,27 @@ export default function Commands(): React.JSX.Element {
                 initial={reducedMotion ? false : { opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.3 }}
-                style={{
-                  textAlign: "center",
-                  padding: "64px 24px",
-                  background: COLORS.surface,
-                  borderRadius: "12px",
-                  border: `1px solid ${COLORS.border}`,
-                }}
+                className="text-center bg-surface rounded-xl border border-slate-700"
+                style={{ padding: "64px 24px" }}
               >
-                <div style={{ marginBottom: "16px" }}>
+                <div className="mb-4">
                   <svg
                     width="48"
                     height="48"
                     viewBox="0 0 24 24"
                     fill="none"
-                    stroke={COLORS.textMuted}
+                    stroke="currentColor"
                     strokeWidth="1.5"
                     strokeLinecap="round"
                     strokeLinejoin="round"
+                    className="text-slate-500"
                   >
                     <circle cx="11" cy="11" r="8" />
                     <line x1="21" y1="21" x2="16.65" y2="16.65" />
                     <line x1="8" y1="11" x2="14" y2="11" />
                   </svg>
                 </div>
-                <p style={{ color: COLORS.textMuted, fontSize: "14px", margin: 0 }}>
+                <p className="text-slate-500 text-sm m-0">
                   条件に一致するコマンドはありません
                 </p>
               </motion.div>
@@ -1408,16 +989,7 @@ export default function Commands(): React.JSX.Element {
         </AnimatePresence>
 
         {/* Footer */}
-        <div
-          style={{
-            textAlign: "center",
-            padding: "24px",
-            marginTop: "24px",
-            color: COLORS.textMuted,
-            fontSize: "12px",
-            borderTop: `1px solid ${COLORS.border}`,
-          }}
-        >
+        <div className="text-center p-6 mt-6 text-slate-500 text-xs border-t border-slate-700">
           Claude Code Release Notes Viewer
         </div>
       </div>

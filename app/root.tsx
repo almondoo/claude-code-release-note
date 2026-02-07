@@ -8,6 +8,7 @@ import {
 } from "react-router";
 
 import type { Route } from "./+types/root";
+import "./app.css";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -31,29 +32,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <meta name="theme-color" content="#0F172A" />
         <Meta />
         <Links />
-        <style
-          dangerouslySetInnerHTML={{
-            __html: `
-              *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-              ::-webkit-scrollbar { width: 8px; height: 8px; }
-              ::-webkit-scrollbar-track { background: #1E293B; }
-              ::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
-              ::-webkit-scrollbar-thumb:hover { background: #64748b; }
-              ::selection { background: rgba(59, 130, 246, 0.3); color: #F1F5F9; }
-              ::placeholder { color: #64748b; }
-              :focus-visible { outline: 2px solid #3B82F6; outline-offset: 2px; }
-              @media (prefers-reduced-motion: reduce) {
-                *, *::before, *::after {
-                  animation-duration: 0.01ms !important;
-                  animation-iteration-count: 1 !important;
-                  transition-duration: 0.01ms !important;
-                }
-              }
-            `,
-          }}
-        />
       </head>
-      <body style={{ background: "#0F172A", color: "#F1F5F9" }}>
+      <body className="bg-slate-900 text-slate-100">
         {children}
         <ScrollRestoration />
         <Scripts />
@@ -83,11 +63,11 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   }
 
   return (
-    <main style={{ paddingTop: "64px", padding: "16px", maxWidth: "960px", margin: "0 auto", color: "#F1F5F9" }}>
+    <main className="pt-16 p-4 max-w-[960px] mx-auto text-slate-100">
       <h1>{message}</h1>
       <p>{details}</p>
       {stack && (
-        <pre style={{ width: "100%", padding: "16px", overflowX: "auto", background: "#1E293B", borderRadius: "8px" }}>
+        <pre className="w-full p-4 overflow-x-auto bg-surface rounded-lg">
           <code>{stack}</code>
         </pre>
       )}

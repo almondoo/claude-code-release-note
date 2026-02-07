@@ -28,45 +28,15 @@ interface Category {
 }
 
 // ---------------------------------------------------------------------------
-// Design tokens
-// ---------------------------------------------------------------------------
-
-const COLORS = {
-  bg: "#0F172A",
-  surface: "#1E293B",
-  surfaceHover: "#263548",
-  border: "#334155",
-  accent: "#3B82F6",
-  accentGlow: "rgba(59, 130, 246, 0.25)",
-  text: "#F1F5F9",
-  textSecondary: "#94A3B8",
-  textMuted: "#64748B",
-  green: "#6EE7B7",
-  greenBg: "rgba(16, 185, 129, 0.15)",
-  purple: "#C4B5FD",
-  purpleBg: "rgba(139, 92, 246, 0.15)",
-  orange: "#FDBA74",
-  orangeBg: "rgba(249, 115, 22, 0.15)",
-  cyan: "#67E8F9",
-  cyanBg: "rgba(6, 182, 212, 0.15)",
-  teal: "#5EEAD4",
-  tealBg: "rgba(20, 184, 166, 0.15)",
-  overlay: "rgba(0, 0, 0, 0.6)",
-} as const;
-
-const FONT_MONO = "'JetBrains Mono', 'Fira Code', monospace" as const;
-const FONT_SANS = "'IBM Plex Sans', 'Noto Sans JP', system-ui, -apple-system, sans-serif" as const;
-
-// ---------------------------------------------------------------------------
 // Category colors & icons
 // ---------------------------------------------------------------------------
 
 const CATEGORY_COLORS: Record<string, { color: string; bg: string }> = {
-  "code-intelligence": { color: COLORS.cyan, bg: COLORS.cyanBg },
-  "dev-tools": { color: COLORS.purple, bg: COLORS.purpleBg },
-  "code-review-git": { color: COLORS.green, bg: COLORS.greenBg },
-  "external-integrations": { color: COLORS.teal, bg: COLORS.tealBg },
-  "output-styles": { color: COLORS.orange, bg: COLORS.orangeBg },
+  "code-intelligence": { color: "#67E8F9", bg: "rgba(6, 182, 212, 0.15)" },
+  "dev-tools": { color: "#C4B5FD", bg: "rgba(139, 92, 246, 0.15)" },
+  "code-review-git": { color: "#6EE7B7", bg: "rgba(16, 185, 129, 0.15)" },
+  "external-integrations": { color: "#5EEAD4", bg: "rgba(20, 184, 166, 0.15)" },
+  "output-styles": { color: "#FDBA74", bg: "rgba(249, 115, 22, 0.15)" },
   "community": { color: "#F472B6", bg: "rgba(244, 114, 182, 0.15)" },
 };
 
@@ -116,7 +86,7 @@ const CATEGORY_ICONS: Record<string, () => React.JSX.Element> = {
 
 function SearchIcon() {
   return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={COLORS.textMuted} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-slate-500">
       <circle cx="11" cy="11" r="8" />
       <line x1="21" y1="21" x2="16.65" y2="16.65" />
     </svg>
@@ -240,10 +210,10 @@ const TAB_DEFS: TabDef[] = [
   ...CATEGORIES.map((c) => ({
     id: c.id,
     label: c.name,
-    color: CATEGORY_COLORS[c.id]?.color || COLORS.accent,
+    color: CATEGORY_COLORS[c.id]?.color || "#3B82F6",
     type: "category" as const,
   })),
-  { id: "quickstart", label: "クイックスタート", color: COLORS.teal, type: "quickstart" },
+  { id: "quickstart", label: "クイックスタート", color: "#5EEAD4", type: "quickstart" },
 ];
 
 // ---------------------------------------------------------------------------
@@ -266,20 +236,11 @@ function CopyButton({ text }: { text: string }) {
         e.stopPropagation();
         handleCopy();
       }}
+      className="inline-flex items-center gap-1 px-2 py-0.5 rounded border font-mono text-[11px] cursor-pointer transition-all shrink-0"
       style={{
-        display: "inline-flex",
-        alignItems: "center",
-        gap: "4px",
-        padding: "2px 8px",
-        borderRadius: "4px",
-        border: `1px solid ${copied ? COLORS.green + "40" : COLORS.border}`,
-        background: copied ? COLORS.greenBg : COLORS.bg,
-        color: copied ? COLORS.green : COLORS.textMuted,
-        fontSize: "11px",
-        fontFamily: FONT_MONO,
-        cursor: "pointer",
-        transition: "all 0.15s",
-        flexShrink: 0,
+        borderColor: copied ? "#6EE7B740" : "#334155",
+        background: copied ? "rgba(16, 185, 129, 0.15)" : "#0F172A",
+        color: copied ? "#6EE7B7" : "#64748B",
       }}
     >
       {copied ? <CheckIcon /> : <CopyIcon />}
@@ -307,102 +268,33 @@ function PluginCard({
       tabIndex={0}
       onClick={onClick}
       onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onClick(); } }}
-      style={{
-        background: COLORS.surface,
-        borderRadius: "12px",
-        border: `1px solid ${COLORS.border}`,
-        padding: "18px 20px",
-        display: "flex",
-        flexDirection: "column",
-        gap: "10px",
-        cursor: "pointer",
-        transition: "all 0.2s ease",
-        position: "relative",
-        overflow: "hidden",
-      }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.background = COLORS.surfaceHover;
-        e.currentTarget.style.borderColor = accentColor + "60";
-        e.currentTarget.style.transform = "translateY(-2px)";
-        e.currentTarget.style.boxShadow = `0 8px 24px rgba(0,0,0,0.3), 0 0 0 1px ${accentColor}20`;
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.background = COLORS.surface;
-        e.currentTarget.style.borderColor = COLORS.border;
-        e.currentTarget.style.transform = "translateY(0)";
-        e.currentTarget.style.boxShadow = "none";
-      }}
+      className="plugin-card bg-surface rounded-xl border border-slate-700 flex flex-col gap-2.5 cursor-pointer relative overflow-hidden px-5 py-[18px]"
+      style={{ "--accent": accentColor } as React.CSSProperties}
     >
       <div
+        className="absolute top-0 left-0 right-0 h-[3px] rounded-t-xl"
         style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
-          height: "3px",
           background: `linear-gradient(90deg, ${accentColor}, ${accentColor}40)`,
-          borderRadius: "12px 12px 0 0",
         }}
       />
-      <div style={{ display: "flex", alignItems: "baseline", gap: "8px" }}>
+      <div className="flex items-baseline gap-2">
         <code
-          style={{
-            fontFamily: FONT_MONO,
-            fontSize: "14px",
-            fontWeight: 700,
-            color: accentColor,
-            whiteSpace: "nowrap",
-          }}
+          className="font-mono text-sm font-bold whitespace-nowrap"
+          style={{ color: accentColor }}
         >
           {plugin.displayName}
         </code>
         {plugin.binary && (
-          <span
-            style={{
-              fontSize: "10px",
-              color: COLORS.textMuted,
-              fontFamily: FONT_MONO,
-              background: COLORS.bg,
-              padding: "1px 6px",
-              borderRadius: "3px",
-              whiteSpace: "nowrap",
-            }}
-          >
+          <span className="text-[10px] text-slate-500 font-mono bg-slate-900 whitespace-nowrap px-1.5 py-px rounded-sm">
             LSP
           </span>
         )}
       </div>
-      <p
-        style={{
-          margin: 0,
-          fontSize: "12px",
-          lineHeight: 1.6,
-          color: COLORS.textSecondary,
-          fontFamily: FONT_SANS,
-          flex: 1,
-          display: "-webkit-box",
-          WebkitLineClamp: 2,
-          WebkitBoxOrient: "vertical",
-          overflow: "hidden",
-        }}
-      >
+      <p className="m-0 text-xs leading-relaxed text-slate-400 font-sans flex-1 line-clamp-2">
         {plugin.description}
       </p>
-      <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "auto" }}>
-        <code
-          style={{
-            fontFamily: FONT_MONO,
-            fontSize: "10px",
-            color: COLORS.textMuted,
-            background: COLORS.bg,
-            padding: "2px 8px",
-            borderRadius: "4px",
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-            whiteSpace: "nowrap",
-            flex: 1,
-          }}
-        >
+      <div className="flex items-center gap-2 mt-auto">
+        <code className="font-mono text-[10px] text-slate-500 bg-slate-900 rounded overflow-hidden text-ellipsis whitespace-nowrap flex-1 px-2 py-[2px]">
           {plugin.install}
         </code>
         <CopyButton text={plugin.install} />
@@ -451,69 +343,32 @@ function DetailModal({
       exit={reducedMotion ? undefined : { opacity: 0 }}
       transition={{ duration: 0.2 }}
       onClick={(e) => { if (e.target === overlayRef.current) onClose(); }}
-      style={{
-        position: "fixed",
-        inset: 0,
-        zIndex: 1000,
-        background: COLORS.overlay,
-        backdropFilter: "blur(4px)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: "24px",
-      }}
+      className="fixed inset-0 z-[1000] bg-overlay backdrop-blur-[4px] flex items-center justify-center p-6"
     >
       <motion.div
         initial={reducedMotion ? false : { opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={reducedMotion ? undefined : { opacity: 0, scale: 0.95, y: 20 }}
         transition={{ duration: 0.25, ease: "easeOut" }}
+        className="bg-surface rounded-2xl w-full max-w-[640px] max-h-[85vh] overflow-hidden flex flex-col"
         style={{
-          background: COLORS.surface,
-          borderRadius: "16px",
           border: `1px solid ${accentColor}30`,
-          width: "100%",
-          maxWidth: "640px",
-          maxHeight: "85vh",
-          overflow: "hidden",
-          display: "flex",
-          flexDirection: "column",
           boxShadow: `0 24px 64px rgba(0,0,0,0.5), 0 0 0 1px ${accentColor}15`,
         }}
       >
         {/* Header */}
-        <div
-          style={{
-            padding: "20px 24px",
-            borderBottom: `1px solid ${COLORS.border}`,
-            display: "flex",
-            alignItems: "flex-start",
-            gap: "14px",
-            background: `linear-gradient(135deg, ${COLORS.surface} 0%, ${COLORS.bg} 100%)`,
-            position: "relative",
-          }}
-        >
+        <div className="flex items-start gap-3.5 relative px-6 py-5 border-b border-slate-700 bg-gradient-to-br from-slate-800 to-slate-900">
           <div
+            className="absolute top-0 left-0 right-0 h-[3px]"
             style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              right: 0,
-              height: "3px",
               background: `linear-gradient(90deg, ${accentColor}, ${accentColor}40)`,
             }}
           />
           <div
+            className="w-10 h-10 flex items-center justify-center shrink-0 rounded-[10px]"
             style={{
-              width: "40px",
-              height: "40px",
-              borderRadius: "10px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
               background: accentColor + "18",
               color: accentColor,
-              flexShrink: 0,
             }}
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -522,41 +377,19 @@ function DetailModal({
               <line x1="9" y1="21" x2="9" y2="9" />
             </svg>
           </div>
-          <div style={{ flex: 1, minWidth: 0 }}>
+          <div className="flex-1 min-w-0">
             <code
-              style={{
-                fontFamily: FONT_MONO,
-                fontSize: "16px",
-                fontWeight: 700,
-                color: accentColor,
-                wordBreak: "break-all",
-              }}
+              className="font-mono text-base font-bold break-all"
+              style={{ color: accentColor }}
             >
               {plugin.displayName}
             </code>
-            <div
-              style={{
-                fontSize: "13px",
-                color: COLORS.textSecondary,
-                marginTop: "6px",
-                fontFamily: FONT_SANS,
-                lineHeight: 1.6,
-              }}
-            >
+            <div className="text-[13px] text-slate-400 mt-1.5 font-sans leading-relaxed">
               {plugin.description}
             </div>
-            <div style={{ display: "flex", gap: "6px", marginTop: "8px", flexWrap: "wrap" }}>
+            <div className="flex gap-1.5 mt-2 flex-wrap">
               {plugin.binary && (
-                <span
-                  style={{
-                    fontSize: "10px",
-                    fontWeight: 600,
-                    padding: "2px 8px",
-                    borderRadius: "4px",
-                    background: COLORS.cyanBg,
-                    color: COLORS.cyan,
-                  }}
-                >
+                <span className="text-[10px] font-semibold rounded px-2 py-[2px] bg-cyan-500/15 text-cyan-300">
                   LSP: {plugin.binary}
                 </span>
               )}
@@ -566,21 +399,7 @@ function DetailModal({
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={(e) => e.stopPropagation()}
-                  style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: "4px",
-                    fontSize: "10px",
-                    fontWeight: 600,
-                    padding: "2px 8px",
-                    borderRadius: "4px",
-                    background: COLORS.bg,
-                    color: COLORS.textMuted,
-                    textDecoration: "none",
-                    transition: "color 0.15s",
-                  }}
-                  onMouseEnter={(e) => { e.currentTarget.style.color = COLORS.text; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.color = COLORS.textMuted; }}
+                  className="homepage-link inline-flex items-center gap-1 text-[10px] font-semibold rounded bg-slate-900 text-slate-500 no-underline transition-colors px-2 py-[2px]"
                 >
                   <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
@@ -594,66 +413,24 @@ function DetailModal({
           <button
             onClick={onClose}
             aria-label="閉じる"
-            style={{
-              background: "none",
-              border: "none",
-              color: COLORS.textMuted,
-              cursor: "pointer",
-              padding: "4px",
-              borderRadius: "6px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              transition: "color 0.15s, background 0.15s",
-              flexShrink: 0,
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.color = COLORS.text;
-              e.currentTarget.style.background = COLORS.bg;
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.color = COLORS.textMuted;
-              e.currentTarget.style.background = "transparent";
-            }}
+            className="close-btn bg-transparent border-none text-slate-500 cursor-pointer p-1 rounded-md flex items-center justify-center transition-colors shrink-0"
           >
             <CloseIcon />
           </button>
         </div>
 
         {/* Body */}
-        <div
-          style={{
-            padding: "24px",
-            overflowY: "auto",
-            display: "flex",
-            flexDirection: "column",
-            gap: "20px",
-          }}
-        >
+        <div className="p-6 overflow-y-auto flex flex-col gap-5">
           {/* Install */}
           <div
-            style={{
-              background: COLORS.bg,
-              borderRadius: "8px",
-              padding: "10px 14px",
-              border: `1px solid ${accentColor}20`,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              gap: "12px",
-            }}
+            className="bg-slate-900 rounded-lg flex items-center justify-between gap-3 px-3.5 py-2.5"
+            style={{ border: `1px solid ${accentColor}20` }}
           >
-            <div style={{ display: "flex", alignItems: "center", gap: "8px", minWidth: 0 }}>
+            <div className="flex items-center gap-2 min-w-0">
               <DownloadIcon />
               <code
-                style={{
-                  fontFamily: FONT_MONO,
-                  fontSize: "12px",
-                  color: accentColor,
-                  whiteSpace: "nowrap",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                }}
+                className="font-mono text-xs whitespace-nowrap overflow-hidden text-ellipsis"
+                style={{ color: accentColor }}
               >
                 {plugin.install}
               </code>
@@ -662,115 +439,40 @@ function DetailModal({
           </div>
 
           {/* Detail */}
-          <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "6px",
-                color: COLORS.cyan,
-                fontSize: "11px",
-                fontWeight: 700,
-                letterSpacing: "0.5px",
-                textTransform: "uppercase",
-                fontFamily: FONT_MONO,
-              }}
-            >
+          <div className="flex flex-col gap-2.5">
+            <div className="flex items-center gap-1.5 text-[11px] font-bold tracking-wide uppercase font-mono text-cyan-300">
               <DetailInfoIcon />
               詳細説明
             </div>
-            <p
-              style={{
-                margin: 0,
-                fontSize: "13px",
-                lineHeight: 1.8,
-                color: COLORS.textSecondary,
-                fontFamily: FONT_SANS,
-              }}
-            >
+            <p className="m-0 text-[13px] leading-[1.8] text-slate-400 font-sans">
               {plugin.detail}
             </p>
           </div>
 
           {/* When to use */}
-          <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "6px",
-                color: COLORS.orange,
-                fontSize: "11px",
-                fontWeight: 700,
-                letterSpacing: "0.5px",
-                textTransform: "uppercase",
-                fontFamily: FONT_MONO,
-              }}
-            >
+          <div className="flex flex-col gap-2.5">
+            <div className="flex items-center gap-1.5 text-[11px] font-bold tracking-wide uppercase font-mono text-orange-300">
               <TimingIcon />
               使うタイミング
             </div>
-            <p
-              style={{
-                margin: 0,
-                fontSize: "13px",
-                lineHeight: 1.8,
-                color: COLORS.textSecondary,
-                fontFamily: FONT_SANS,
-              }}
-            >
+            <p className="m-0 text-[13px] leading-[1.8] text-slate-400 font-sans">
               {plugin.whenToUse}
             </p>
           </div>
 
           {/* Setup */}
-          <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "6px",
-                color: COLORS.teal,
-                fontSize: "11px",
-                fontWeight: 700,
-                letterSpacing: "0.5px",
-                textTransform: "uppercase",
-                fontFamily: FONT_MONO,
-              }}
-            >
+          <div className="flex flex-col gap-2.5">
+            <div className="flex items-center gap-1.5 text-[11px] font-bold tracking-wide uppercase font-mono text-teal-300">
               <SetupIcon />
               セットアップ
             </div>
-            <p
-              style={{
-                margin: 0,
-                fontSize: "13px",
-                lineHeight: 1.8,
-                color: COLORS.textSecondary,
-                fontFamily: FONT_SANS,
-              }}
-            >
+            <p className="m-0 text-[13px] leading-[1.8] text-slate-400 font-sans">
               {plugin.setup}
             </p>
             {plugin.binary && (
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "6px",
-                }}
-              >
-                <span style={{ fontSize: "11px", color: COLORS.textMuted, fontFamily: FONT_SANS }}>必要なバイナリ:</span>
-                <code
-                  style={{
-                    fontFamily: FONT_MONO,
-                    fontSize: "11px",
-                    color: COLORS.cyan,
-                    background: COLORS.cyanBg,
-                    padding: "2px 8px",
-                    borderRadius: "4px",
-                  }}
-                >
+              <div className="flex items-center gap-1.5">
+                <span className="text-[11px] text-slate-500 font-sans">必要なバイナリ:</span>
+                <code className="font-mono text-[11px] rounded px-2 py-[2px] bg-cyan-500/15 text-cyan-300">
                   {plugin.binary}
                 </code>
               </div>
@@ -806,78 +508,27 @@ function QuickStartPanel() {
   ];
 
   return (
-    <div
-      style={{
-        background: COLORS.surface,
-        borderRadius: "12px",
-        border: `1px solid ${COLORS.border}`,
-        padding: "24px",
-      }}
-    >
-      <div
-        style={{
-          fontSize: "13px",
-          fontWeight: 700,
-          color: COLORS.teal,
-          letterSpacing: "0.5px",
-          textTransform: "uppercase",
-          fontFamily: FONT_MONO,
-          marginBottom: "20px",
-          display: "flex",
-          alignItems: "center",
-          gap: "8px",
-        }}
-      >
+    <div className="bg-surface rounded-xl border border-slate-700 p-6">
+      <div className="text-[13px] font-bold tracking-wide uppercase font-mono mb-5 flex items-center gap-2 text-teal-300">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
         </svg>
         クイックスタート
       </div>
-      <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+      <div className="flex flex-col gap-4">
         {steps.map((step, i) => (
-          <div
-            key={i}
-            style={{
-              display: "flex",
-              gap: "14px",
-              alignItems: "flex-start",
-            }}
-          >
-            <div
-              style={{
-                width: "32px",
-                height: "32px",
-                borderRadius: "8px",
-                background: COLORS.tealBg,
-                color: COLORS.teal,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: "14px",
-                fontWeight: 700,
-                fontFamily: FONT_MONO,
-                flexShrink: 0,
-              }}
-            >
+          <div key={i} className="flex gap-3.5 items-start">
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold font-mono shrink-0 bg-teal-500/15 text-teal-300">
               {i + 1}
             </div>
-            <div style={{ flex: 1 }}>
-              <div style={{ display: "flex", alignItems: "baseline", gap: "8px", marginBottom: "4px" }}>
-                <span style={{ fontSize: "14px", fontWeight: 600, color: COLORS.text }}>{step.title}</span>
-                <code
-                  style={{
-                    fontFamily: FONT_MONO,
-                    fontSize: "11px",
-                    color: COLORS.teal,
-                    background: COLORS.tealBg,
-                    padding: "1px 6px",
-                    borderRadius: "3px",
-                  }}
-                >
+            <div className="flex-1">
+              <div className="flex items-baseline gap-2 mb-1">
+                <span className="text-sm font-semibold text-slate-100">{step.title}</span>
+                <code className="font-mono text-[11px] rounded-sm px-1.5 py-px bg-teal-500/15 text-teal-300">
                   {step.cmd}
                 </code>
               </div>
-              <span style={{ fontSize: "13px", color: COLORS.textSecondary, fontFamily: FONT_SANS, lineHeight: 1.6 }}>
+              <span className="text-[13px] text-slate-400 font-sans leading-relaxed">
                 {step.desc}
               </span>
             </div>
@@ -937,107 +588,43 @@ export default function Plugins(): React.JSX.Element {
     : null;
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        background: COLORS.bg,
-        fontFamily: FONT_SANS,
-        color: COLORS.text,
-      }}
-    >
-      <div style={{ maxWidth: "1100px", margin: "0 auto", padding: "32px 16px" }}>
+    <div className="min-h-screen bg-slate-900 font-sans text-slate-100">
+      <div className="max-w-[1100px] mx-auto px-4 py-8">
         {/* Header */}
         <motion.div
           initial={m ? false : { opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: "easeOut" }}
-          style={{
-            textAlign: "center",
-            marginBottom: "28px",
-            padding: "36px 24px",
-            background: `linear-gradient(135deg, ${COLORS.surface} 0%, ${COLORS.bg} 100%)`,
-            borderRadius: "16px",
-            position: "relative",
-            overflow: "hidden",
-            border: `1px solid ${COLORS.border}`,
-          }}
+          className="text-center mb-7 relative overflow-hidden rounded-2xl border border-slate-700 px-6 py-9 bg-gradient-to-br from-slate-800 to-slate-900"
         >
           <div
+            className="absolute inset-0"
             style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
               background:
                 "radial-gradient(ellipse at 30% 20%, rgba(6,182,212,0.08), transparent 60%), " +
                 "radial-gradient(ellipse at 70% 80%, rgba(16,185,129,0.05), transparent 60%)",
             }}
           />
-          <div style={{ position: "relative" }}>
-            <div
-              style={{
-                fontSize: "12px",
-                fontWeight: 600,
-                color: COLORS.textMuted,
-                letterSpacing: "3px",
-                textTransform: "uppercase",
-                marginBottom: "12px",
-                fontFamily: FONT_MONO,
-              }}
-            >
+          <div className="relative">
+            <div className="text-xs font-semibold text-slate-500 tracking-[3px] uppercase mb-3 font-mono">
               CLAUDE CODE
             </div>
-            <h1
-              style={{
-                fontSize: "28px",
-                fontWeight: 700,
-                margin: "0 0 10px",
-                color: COLORS.text,
-                letterSpacing: "-0.5px",
-              }}
-            >
+            <h1 className="text-[28px] font-bold m-0 mb-2.5 text-slate-100 tracking-tight">
               公式プラグイン
             </h1>
-            <p
-              style={{
-                fontSize: "14px",
-                color: COLORS.textSecondary,
-                margin: "0 0 14px",
-                maxWidth: "520px",
-                marginLeft: "auto",
-                marginRight: "auto",
-                lineHeight: 1.7,
-              }}
-            >
+            <p className="text-sm text-slate-400 m-0 mb-3.5 max-w-[520px] mx-auto leading-relaxed">
               Anthropic が公式マーケットプレイスで提供するプラグイン。
               コードインテリジェンス、外部サービス連携、開発ワークフローを拡張します。
             </p>
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                gap: "24px",
-                fontSize: "13px",
-                color: COLORS.textSecondary,
-                flexWrap: "wrap",
-              }}
-            >
+            <div className="flex justify-center gap-6 text-[13px] text-slate-400 flex-wrap">
               <span>
-                <strong style={{ color: COLORS.text }}>{TOTAL}</strong> プラグイン
+                <strong className="text-slate-100">{TOTAL}</strong> プラグイン
               </span>
               <span>
-                <strong style={{ color: COLORS.text }}>{CATEGORIES.length}</strong> カテゴリ
+                <strong className="text-slate-100">{CATEGORIES.length}</strong> カテゴリ
               </span>
             </div>
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                gap: "12px",
-                marginTop: "14px",
-              }}
-            >
+            <div className="flex justify-center gap-3 mt-3.5">
               {[
                 { to: "/", label: "リリースノート", icon: <ArrowLeftIcon />, trailing: false },
                 { to: "/commands", label: "コマンド一覧", icon: null, trailing: true },
@@ -1046,27 +633,7 @@ export default function Plugins(): React.JSX.Element {
                 <Link
                   key={link.to}
                   to={link.to}
-                  style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: "6px",
-                    color: COLORS.textMuted,
-                    textDecoration: "none",
-                    fontSize: "12px",
-                    fontFamily: FONT_SANS,
-                    padding: "4px 12px",
-                    borderRadius: "6px",
-                    border: `1px solid ${COLORS.border}`,
-                    transition: "all 0.15s",
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.color = COLORS.text;
-                    e.currentTarget.style.borderColor = COLORS.accent + "60";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.color = COLORS.textMuted;
-                    e.currentTarget.style.borderColor = COLORS.border;
-                  }}
+                  className="nav-link inline-flex items-center gap-1.5 text-slate-500 no-underline text-xs font-sans rounded-md border border-slate-700 transition-all py-1 px-3"
                 >
                   {link.icon}
                   {link.label}
@@ -1083,14 +650,7 @@ export default function Plugins(): React.JSX.Element {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.1 }}
           ref={tabScrollRef}
-          style={{
-            display: "flex",
-            gap: "4px",
-            marginBottom: "20px",
-            overflowX: "auto",
-            paddingBottom: "4px",
-            scrollbarWidth: "none",
-          }}
+          className="flex gap-1 mb-5 overflow-x-auto pb-1 scrollbar-none"
         >
           {TAB_DEFS.map((tab) => {
             const isActive = activeTab === tab.id;
@@ -1101,43 +661,20 @@ export default function Plugins(): React.JSX.Element {
                   setActiveTab(tab.id);
                   setQuery("");
                 }}
+                className={`shrink-0 rounded-[10px] text-[13px] font-sans cursor-pointer transition-all whitespace-nowrap flex items-center gap-1.5 px-4 py-2.5 ${isActive ? "font-semibold" : "font-medium tab-btn-inactive"}`}
                 style={{
-                  flexShrink: 0,
-                  padding: "10px 16px",
-                  borderRadius: "10px",
-                  border: isActive ? `1px solid ${tab.color}40` : `1px solid transparent`,
+                  border: isActive ? `1px solid ${tab.color}40` : "1px solid transparent",
                   background: isActive ? tab.color + "18" : "transparent",
-                  color: isActive ? tab.color : COLORS.textMuted,
-                  fontSize: "13px",
-                  fontWeight: isActive ? 600 : 500,
-                  fontFamily: FONT_SANS,
-                  cursor: "pointer",
-                  transition: "all 0.2s",
-                  whiteSpace: "nowrap",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "6px",
-                }}
-                onMouseEnter={(e) => {
-                  if (!isActive) {
-                    e.currentTarget.style.background = COLORS.surfaceHover;
-                    e.currentTarget.style.color = COLORS.text;
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (!isActive) {
-                    e.currentTarget.style.background = "transparent";
-                    e.currentTarget.style.color = COLORS.textMuted;
-                  }
+                  color: isActive ? tab.color : "#64748B",
                 }}
               >
                 {tab.type === "category" && CATEGORY_ICONS[tab.id] && (
-                  <span style={{ display: "flex", alignItems: "center", transform: "scale(0.8)" }}>
+                  <span className="flex items-center scale-[0.8]">
                     {CATEGORY_ICONS[tab.id]()}
                   </span>
                 )}
                 {tab.type === "quickstart" && (
-                  <span style={{ display: "flex", alignItems: "center" }}>
+                  <span className="flex items-center">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
                     </svg>
@@ -1155,17 +692,10 @@ export default function Plugins(): React.JSX.Element {
             initial={m ? false : { opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.3, delay: 0.15 }}
+            className="bg-surface rounded-[10px] mb-4 flex items-center gap-2.5 transition-all px-3.5 py-[2px]"
             style={{
-              background: COLORS.surface,
-              borderRadius: "10px",
-              border: `1px solid ${searchFocused ? COLORS.accent : COLORS.border}`,
-              boxShadow: searchFocused ? `0 0 0 3px ${COLORS.accentGlow}` : "none",
-              padding: "2px 14px",
-              marginBottom: "16px",
-              display: "flex",
-              alignItems: "center",
-              gap: "10px",
-              transition: "border-color 0.2s, box-shadow 0.2s",
+              border: `1px solid ${searchFocused ? "#3B82F6" : "#334155"}`,
+              boxShadow: searchFocused ? "0 0 0 3px rgba(59, 130, 246, 0.25)" : "none",
             }}
           >
             <SearchIcon />
@@ -1176,16 +706,7 @@ export default function Plugins(): React.JSX.Element {
               onChange={(e) => setQuery(e.target.value)}
               onFocus={() => setSearchFocused(true)}
               onBlur={() => setSearchFocused(false)}
-              style={{
-                width: "100%",
-                padding: "11px 0",
-                border: "none",
-                background: "transparent",
-                fontSize: "14px",
-                color: COLORS.text,
-                outline: "none",
-                fontFamily: FONT_SANS,
-              }}
+              className="w-full border-none bg-transparent text-sm text-slate-100 outline-none font-sans py-[11px]"
             />
           </motion.div>
         )}
@@ -1211,28 +732,14 @@ export default function Plugins(): React.JSX.Element {
               transition={{ duration: 0.25 }}
             >
               {/* Count */}
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "10px",
-                  marginBottom: "16px",
-                  padding: "0 4px",
-                }}
-              >
-                <span style={{ fontSize: "13px", color: COLORS.textMuted, fontWeight: 500 }}>
+              <div className="flex items-center gap-2.5 mb-4 px-1">
+                <span className="text-[13px] text-slate-500 font-medium">
                   {filteredPlugins.length} 件表示中
                 </span>
               </div>
 
               {/* Card grid */}
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
-                  gap: "14px",
-                }}
-              >
+              <div className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-3.5">
                 <AnimatePresence mode="popLayout">
                   {filteredPlugins.map((plugin, i) => (
                     <motion.div
@@ -1245,8 +752,8 @@ export default function Plugins(): React.JSX.Element {
                     >
                       <PluginCard
                         plugin={plugin}
-                        accentColor={CATEGORY_COLORS[activeTab]?.color || COLORS.accent}
-                        onClick={() => openModal(plugin, CATEGORY_COLORS[activeTab]?.color || COLORS.accent)}
+                        accentColor={CATEGORY_COLORS[activeTab]?.color || "#3B82F6"}
+                        onClick={() => openModal(plugin, CATEGORY_COLORS[activeTab]?.color || "#3B82F6")}
                       />
                     </motion.div>
                   ))}
@@ -1259,31 +766,26 @@ export default function Plugins(): React.JSX.Element {
                   initial={reducedMotion ? false : { opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ duration: 0.3 }}
-                  style={{
-                    textAlign: "center",
-                    padding: "64px 24px",
-                    background: COLORS.surface,
-                    borderRadius: "12px",
-                    border: `1px solid ${COLORS.border}`,
-                  }}
+                  className="text-center bg-surface rounded-xl border border-slate-700 py-16 px-6"
                 >
-                  <div style={{ marginBottom: "16px" }}>
+                  <div className="mb-4">
                     <svg
                       width="48"
                       height="48"
                       viewBox="0 0 24 24"
                       fill="none"
-                      stroke={COLORS.textMuted}
+                      stroke="currentColor"
                       strokeWidth="1.5"
                       strokeLinecap="round"
                       strokeLinejoin="round"
+                      className="text-slate-500"
                     >
                       <circle cx="11" cy="11" r="8" />
                       <line x1="21" y1="21" x2="16.65" y2="16.65" />
                       <line x1="8" y1="11" x2="14" y2="11" />
                     </svg>
                   </div>
-                  <p style={{ color: COLORS.textMuted, fontSize: "14px", margin: 0 }}>
+                  <p className="text-slate-500 text-sm m-0">
                     条件に一致するプラグインはありません
                   </p>
                 </motion.div>
@@ -1293,22 +795,13 @@ export default function Plugins(): React.JSX.Element {
         </AnimatePresence>
 
         {/* Footer */}
-        <div
-          style={{
-            textAlign: "center",
-            padding: "24px",
-            marginTop: "24px",
-            color: COLORS.textMuted,
-            fontSize: "12px",
-            fontFamily: FONT_SANS,
-          }}
-        >
-          <p style={{ margin: "0 0 4px" }}>
+        <div className="text-center p-6 mt-6 text-slate-500 text-xs font-sans">
+          <p className="m-0 mb-1">
             <a
               href="https://github.com/anthropics/claude-plugins-official"
               target="_blank"
               rel="noopener noreferrer"
-              style={{ color: COLORS.accent, textDecoration: "none" }}
+              className="text-blue-500 no-underline"
             >
               公式プラグインリポジトリ
             </a>
@@ -1317,12 +810,12 @@ export default function Plugins(): React.JSX.Element {
               href="https://code.claude.com/docs/en/discover-plugins"
               target="_blank"
               rel="noopener noreferrer"
-              style={{ color: COLORS.accent, textDecoration: "none" }}
+              className="text-blue-500 no-underline"
             >
               プラグインドキュメント
             </a>
           </p>
-          <p style={{ margin: 0, color: COLORS.textMuted + "80" }}>
+          <p className="m-0 text-slate-500/50">
             /plugin コマンドから最新のプラグイン一覧を確認できます
           </p>
         </div>

@@ -36,51 +36,15 @@ interface PrecedenceItem {
 }
 
 // ---------------------------------------------------------------------------
-// Design tokens
-// ---------------------------------------------------------------------------
-
-const COLORS = {
-  bg: "#0F172A",
-  surface: "#1E293B",
-  surfaceHover: "#263548",
-  surfaceActive: "#2D3F56",
-  border: "#334155",
-  accent: "#3B82F6",
-  accentGlow: "rgba(59, 130, 246, 0.25)",
-  text: "#F1F5F9",
-  textSecondary: "#94A3B8",
-  textMuted: "#64748B",
-  green: "#6EE7B7",
-  greenBg: "rgba(16, 185, 129, 0.15)",
-  purple: "#C4B5FD",
-  purpleBg: "rgba(139, 92, 246, 0.15)",
-  orange: "#FDBA74",
-  orangeBg: "rgba(249, 115, 22, 0.15)",
-  cyan: "#67E8F9",
-  cyanBg: "rgba(6, 182, 212, 0.15)",
-  teal: "#5EEAD4",
-  tealBg: "rgba(20, 184, 166, 0.15)",
-  yellow: "#FDE68A",
-  yellowBg: "rgba(234, 179, 8, 0.15)",
-  red: "#FCA5A5",
-  redBg: "rgba(239, 68, 68, 0.15)",
-  overlay: "rgba(0, 0, 0, 0.6)",
-} as const;
-
-const FONT_MONO = "'JetBrains Mono', 'Fira Code', monospace" as const;
-const FONT_SANS =
-  "'IBM Plex Sans', 'Noto Sans JP', system-ui, -apple-system, sans-serif" as const;
-
-// ---------------------------------------------------------------------------
-// Section colors & icons
+// Section colors & icons (dynamic — keep raw hex values)
 // ---------------------------------------------------------------------------
 
 const SECTION_COLORS: Record<string, { color: string; bg: string }> = {
-  global: { color: COLORS.purple, bg: COLORS.purpleBg },
-  "project-root": { color: COLORS.green, bg: COLORS.greenBg },
-  "project-claude": { color: COLORS.cyan, bg: COLORS.cyanBg },
-  home: { color: COLORS.orange, bg: COLORS.orangeBg },
-  managed: { color: COLORS.red, bg: COLORS.redBg },
+  global: { color: "#C4B5FD", bg: "rgba(139, 92, 246, 0.15)" },
+  "project-root": { color: "#6EE7B7", bg: "rgba(16, 185, 129, 0.15)" },
+  "project-claude": { color: "#67E8F9", bg: "rgba(6, 182, 212, 0.15)" },
+  home: { color: "#FDBA74", bg: "rgba(249, 115, 22, 0.15)" },
+  managed: { color: "#FCA5A5", bg: "rgba(239, 68, 68, 0.15)" },
 };
 
 const SECTION_ICONS: Record<string, () => React.JSX.Element> = {
@@ -117,19 +81,19 @@ const SECTION_ICONS: Record<string, () => React.JSX.Element> = {
 };
 
 // ---------------------------------------------------------------------------
-// Recommend / VCS badge colors
+// Recommend / VCS badge colors (dynamic)
 // ---------------------------------------------------------------------------
 
 const RECOMMEND_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
-  recommended: { label: "推奨", color: COLORS.green, bg: COLORS.greenBg },
-  optional: { label: "任意", color: COLORS.textMuted, bg: "rgba(100,116,139,0.15)" },
-  advanced: { label: "上級", color: COLORS.purple, bg: COLORS.purpleBg },
+  recommended: { label: "推奨", color: "#6EE7B7", bg: "rgba(16, 185, 129, 0.15)" },
+  optional: { label: "任意", color: "#64748B", bg: "rgba(100,116,139,0.15)" },
+  advanced: { label: "上級", color: "#C4B5FD", bg: "rgba(139, 92, 246, 0.15)" },
 };
 
 const VCS_CONFIG = {
-  true: { label: "VCS ○", color: COLORS.green, bg: COLORS.greenBg },
-  false: { label: "VCS ×", color: COLORS.textMuted, bg: "rgba(100,116,139,0.15)" },
-  null: { label: "OS 管理", color: COLORS.orange, bg: COLORS.orangeBg },
+  true: { label: "VCS ○", color: "#6EE7B7", bg: "rgba(16, 185, 129, 0.15)" },
+  false: { label: "VCS ×", color: "#64748B", bg: "rgba(100,116,139,0.15)" },
+  null: { label: "OS 管理", color: "#FDBA74", bg: "rgba(249, 115, 22, 0.15)" },
 };
 
 // ---------------------------------------------------------------------------
@@ -138,7 +102,7 @@ const VCS_CONFIG = {
 
 function SearchIcon() {
   return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={COLORS.textMuted} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-slate-500">
       <circle cx="11" cy="11" r="8" />
       <line x1="21" y1="21" x2="16.65" y2="16.65" />
     </svg>
@@ -251,11 +215,11 @@ const ALL_ENTRIES = SECTIONS.flatMap((s) => s.entries);
 const TOTAL = ALL_ENTRIES.length;
 
 const PRECEDENCE_COLORS: Record<string, { color: string; bg: string }> = {
-  red: { color: COLORS.red, bg: COLORS.redBg },
-  orange: { color: COLORS.orange, bg: COLORS.orangeBg },
-  yellow: { color: COLORS.yellow, bg: COLORS.yellowBg },
-  green: { color: COLORS.green, bg: COLORS.greenBg },
-  blue: { color: COLORS.accent, bg: COLORS.accentGlow },
+  red: { color: "#FCA5A5", bg: "rgba(239, 68, 68, 0.15)" },
+  orange: { color: "#FDBA74", bg: "rgba(249, 115, 22, 0.15)" },
+  yellow: { color: "#FDE68A", bg: "rgba(234, 179, 8, 0.15)" },
+  green: { color: "#6EE7B7", bg: "rgba(16, 185, 129, 0.15)" },
+  blue: { color: "#3B82F6", bg: "rgba(59, 130, 246, 0.25)" },
 };
 
 // Tab IDs: section tabs + special info tabs
@@ -283,120 +247,59 @@ function EntryCard({
       tabIndex={0}
       onClick={onClick}
       onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onClick(); } }}
-      style={{
-        background: COLORS.surface,
-        borderRadius: "12px",
-        border: `1px solid ${COLORS.border}`,
-        padding: "18px 20px",
-        display: "flex",
-        flexDirection: "column",
-        gap: "10px",
-        cursor: "pointer",
-        transition: "all 0.2s ease",
-        position: "relative",
-        overflow: "hidden",
-      }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.background = COLORS.surfaceHover;
-        e.currentTarget.style.borderColor = accentColor + "60";
-        e.currentTarget.style.transform = "translateY(-2px)";
-        e.currentTarget.style.boxShadow = `0 8px 24px rgba(0,0,0,0.3), 0 0 0 1px ${accentColor}20`;
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.background = COLORS.surface;
-        e.currentTarget.style.borderColor = COLORS.border;
-        e.currentTarget.style.transform = "translateY(0)";
-        e.currentTarget.style.boxShadow = "none";
-      }}
+      className="entry-card bg-surface rounded-xl border border-slate-700 flex flex-col gap-2.5 cursor-pointer relative overflow-hidden"
+      style={{ padding: "18px 20px", ["--accent" as string]: accentColor }}
     >
       {/* Top accent line */}
       <div
+        className="absolute top-0 left-0 right-0 rounded-t-xl"
         style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
           height: "3px",
           background: `linear-gradient(90deg, ${accentColor}, ${accentColor}40)`,
-          borderRadius: "12px 12px 0 0",
         }}
       />
 
       {/* Header */}
-      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-        <span style={{ color: accentColor, flexShrink: 0, display: "flex", alignItems: "center" }}>
+      <div className="flex items-center gap-2">
+        <span className="shrink-0 flex items-center" style={{ color: accentColor }}>
           {entry.type === "directory" ? <FolderIcon /> : <FileIcon />}
         </span>
         <code
-          style={{
-            fontFamily: FONT_MONO,
-            fontSize: "13px",
-            fontWeight: 700,
-            color: accentColor,
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-            whiteSpace: "nowrap",
-          }}
+          className="font-mono text-[13px] font-bold overflow-hidden text-ellipsis whitespace-nowrap"
+          style={{ color: accentColor }}
         >
           {entry.path}
         </code>
       </div>
 
       {/* Name */}
-      <div
-        style={{
-          fontSize: "14px",
-          fontWeight: 600,
-          color: COLORS.text,
-          fontFamily: FONT_SANS,
-          lineHeight: 1.4,
-        }}
-      >
+      <div className="text-sm font-semibold text-slate-100 font-sans leading-[1.4]">
         {entry.name}
       </div>
 
       {/* Description */}
-      <p
-        style={{
-          margin: 0,
-          fontSize: "12px",
-          lineHeight: 1.6,
-          color: COLORS.textSecondary,
-          fontFamily: FONT_SANS,
-          flex: 1,
-          display: "-webkit-box",
-          WebkitLineClamp: 2,
-          WebkitBoxOrient: "vertical",
-          overflow: "hidden",
-        }}
-      >
+      <p className="m-0 text-xs leading-[1.6] text-slate-400 font-sans flex-1 line-clamp-2">
         {entry.description}
       </p>
 
       {/* Badges */}
-      <div style={{ display: "flex", gap: "6px", marginTop: "auto", flexWrap: "wrap" }}>
+      <div className="flex gap-1.5 mt-auto flex-wrap">
         <span
+          className="text-[10px] font-semibold whitespace-nowrap rounded"
           style={{
-            fontSize: "10px",
-            fontWeight: 600,
             padding: "2px 8px",
-            borderRadius: "4px",
             background: recommendCfg.bg,
             color: recommendCfg.color,
-            whiteSpace: "nowrap",
           }}
         >
           {recommendCfg.label}
         </span>
         <span
+          className="text-[10px] font-semibold whitespace-nowrap rounded"
           style={{
-            fontSize: "10px",
-            fontWeight: 600,
             padding: "2px 8px",
-            borderRadius: "4px",
             background: vcsCfg.bg,
             color: vcsCfg.color,
-            whiteSpace: "nowrap",
           }}
         >
           {vcsCfg.label}
@@ -432,10 +335,13 @@ function DetailModal({
       if (e.key === "Escape") onClose();
     };
     document.addEventListener("keydown", handleEsc);
+    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
     document.body.style.overflow = "hidden";
+    document.body.style.paddingRight = `${scrollbarWidth}px`;
     return () => {
       document.removeEventListener("keydown", handleEsc);
       document.body.style.overflow = "";
+      document.body.style.paddingRight = "";
     };
   }, [onClose]);
 
@@ -463,19 +369,10 @@ function DetailModal({
   };
 
   const ModalSection = ({ id, children }: { id: string; children: React.ReactNode }) => (
-    <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+    <div className="flex flex-col gap-2.5">
       <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "6px",
-          color: accentColor,
-          fontSize: "11px",
-          fontWeight: 700,
-          letterSpacing: "0.5px",
-          textTransform: "uppercase",
-          fontFamily: FONT_MONO,
-        }}
+        className="flex items-center gap-1.5 text-[11px] font-bold tracking-wide uppercase font-mono"
+        style={{ color: accentColor }}
       >
         {sectionIcon(id)}
         {sectionLabel(id)}
@@ -492,103 +389,60 @@ function DetailModal({
       exit={reducedMotion ? undefined : { opacity: 0 }}
       transition={{ duration: 0.2 }}
       onClick={(e) => { if (e.target === overlayRef.current) onClose(); }}
-      style={{
-        position: "fixed",
-        inset: 0,
-        zIndex: 1000,
-        background: COLORS.overlay,
-        backdropFilter: "blur(4px)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: "24px",
-      }}
+      className="fixed inset-0 z-[1000] bg-overlay backdrop-blur-sm flex items-center justify-center p-6"
     >
       <motion.div
         initial={reducedMotion ? false : { opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={reducedMotion ? undefined : { opacity: 0, scale: 0.95, y: 20 }}
         transition={{ duration: 0.25, ease: "easeOut" }}
+        className="bg-surface rounded-2xl w-full max-w-[640px] overflow-hidden flex flex-col"
         style={{
-          background: COLORS.surface,
-          borderRadius: "16px",
-          border: `1px solid ${accentColor}30`,
-          width: "100%",
-          maxWidth: "640px",
           maxHeight: "85vh",
-          overflow: "hidden",
-          display: "flex",
-          flexDirection: "column",
+          border: `1px solid ${accentColor}30`,
           boxShadow: `0 24px 64px rgba(0,0,0,0.5), 0 0 0 1px ${accentColor}15`,
         }}
       >
         {/* Modal header */}
         <div
+          className="flex items-start gap-3.5 relative"
           style={{
             padding: "20px 24px",
-            borderBottom: `1px solid ${COLORS.border}`,
-            display: "flex",
-            alignItems: "flex-start",
-            gap: "14px",
-            background: `linear-gradient(135deg, ${COLORS.surface} 0%, ${COLORS.bg} 100%)`,
-            position: "relative",
+            borderBottom: "1px solid #334155",
+            background: "linear-gradient(135deg, #1E293B 0%, #0F172A 100%)",
           }}
         >
           <div
+            className="absolute top-0 left-0 right-0"
             style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              right: 0,
               height: "3px",
               background: `linear-gradient(90deg, ${accentColor}, ${accentColor}40)`,
             }}
           />
           <div
+            className="w-10 h-10 rounded-[10px] flex items-center justify-center shrink-0"
             style={{
-              width: "40px",
-              height: "40px",
-              borderRadius: "10px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              background: SECTION_COLORS[section.id]?.bg || COLORS.accentGlow,
+              background: SECTION_COLORS[section.id]?.bg || "rgba(59, 130, 246, 0.25)",
               color: accentColor,
-              flexShrink: 0,
             }}
           >
             {entry.type === "directory" ? <FolderIcon /> : <FileIcon />}
           </div>
-          <div style={{ flex: 1, minWidth: 0 }}>
+          <div className="flex-1 min-w-0">
             <code
-              style={{
-                fontFamily: FONT_MONO,
-                fontSize: "15px",
-                fontWeight: 700,
-                color: accentColor,
-                wordBreak: "break-all",
-              }}
+              className="font-mono text-[15px] font-bold break-all"
+              style={{ color: accentColor }}
             >
               {entry.path}
             </code>
-            <div
-              style={{
-                fontSize: "14px",
-                fontWeight: 600,
-                color: COLORS.text,
-                marginTop: "4px",
-                fontFamily: FONT_SANS,
-              }}
-            >
+            <div className="text-sm font-semibold text-slate-100 mt-1 font-sans">
               {entry.name}
             </div>
-            <div style={{ display: "flex", gap: "6px", marginTop: "8px", flexWrap: "wrap" }}>
+            <div className="flex gap-1.5 mt-2 flex-wrap">
               <span
+                className="text-[10px] font-semibold rounded"
                 style={{
-                  fontSize: "10px",
-                  fontWeight: 600,
                   padding: "2px 8px",
-                  borderRadius: "4px",
                   background: recommendCfg.bg,
                   color: recommendCfg.color,
                 }}
@@ -596,11 +450,9 @@ function DetailModal({
                 {recommendCfg.label}
               </span>
               <span
+                className="text-[10px] font-semibold rounded"
                 style={{
-                  fontSize: "10px",
-                  fontWeight: 600,
                   padding: "2px 8px",
-                  borderRadius: "4px",
                   background: vcsCfg.bg,
                   color: vcsCfg.color,
                 }}
@@ -608,14 +460,8 @@ function DetailModal({
                 {vcsCfg.label}
               </span>
               <span
-                style={{
-                  fontSize: "10px",
-                  fontWeight: 600,
-                  padding: "2px 8px",
-                  borderRadius: "4px",
-                  background: COLORS.bg,
-                  color: COLORS.textMuted,
-                }}
+                className="text-[10px] font-semibold bg-slate-900 text-slate-500 rounded"
+                style={{ padding: "2px 8px" }}
               >
                 {entry.type === "directory" ? "ディレクトリ" : "ファイル"}
               </span>
@@ -624,54 +470,20 @@ function DetailModal({
           <button
             onClick={onClose}
             aria-label="閉じる"
-            style={{
-              background: "none",
-              border: "none",
-              color: COLORS.textMuted,
-              cursor: "pointer",
-              padding: "4px",
-              borderRadius: "6px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              transition: "color 0.15s, background 0.15s",
-              flexShrink: 0,
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.color = COLORS.text;
-              e.currentTarget.style.background = COLORS.bg;
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.color = COLORS.textMuted;
-              e.currentTarget.style.background = "transparent";
-            }}
+            className="close-btn bg-transparent border-none text-slate-500 cursor-pointer p-1 rounded-md flex items-center justify-center transition-colors shrink-0"
           >
             <CloseIcon />
           </button>
         </div>
 
         {/* Modal body */}
-        <div
-          style={{
-            padding: "24px",
-            overflowY: "auto",
-            display: "flex",
-            flexDirection: "column",
-            gap: "24px",
-          }}
-        >
+        <div className="p-6 overflow-y-auto flex flex-col gap-6">
           {/* Detail */}
           <ModalSection id="detail">
             {detailParagraphs.map((p, i) => (
               <p
                 key={i}
-                style={{
-                  margin: 0,
-                  fontSize: "13px",
-                  lineHeight: 1.8,
-                  color: COLORS.textSecondary,
-                  fontFamily: FONT_SANS,
-                }}
+                className="m-0 text-[13px] leading-[1.8] text-slate-400 font-sans"
               >
                 {p}
               </p>
@@ -682,26 +494,17 @@ function DetailModal({
           {usageParagraphs.length > 0 && (
             <ModalSection id="usage">
               <div
+                className="rounded-[10px] flex flex-col gap-2"
                 style={{
-                  background: COLORS.tealBg,
-                  borderRadius: "10px",
-                  border: `1px solid ${COLORS.teal}20`,
+                  background: "rgba(20, 184, 166, 0.15)",
+                  border: "1px solid rgba(94, 234, 212, 0.125)",
                   padding: "14px 16px",
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "8px",
                 }}
               >
                 {usageParagraphs.map((p, i) => (
                   <p
                     key={i}
-                    style={{
-                      margin: 0,
-                      fontSize: "12px",
-                      lineHeight: 1.8,
-                      color: COLORS.textSecondary,
-                      fontFamily: FONT_SANS,
-                    }}
+                    className="m-0 text-xs leading-[1.8] text-slate-400 font-sans"
                   >
                     {p}
                   </p>
@@ -712,57 +515,31 @@ function DetailModal({
 
           {/* Location */}
           <ModalSection id="location">
-            <div
-              style={{
-                background: COLORS.bg,
-                borderRadius: "10px",
-                border: `1px solid ${COLORS.border}`,
-                padding: "14px 16px",
-                display: "flex",
-                flexDirection: "column",
-                gap: "8px",
-              }}
-            >
-              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                <span style={{ fontSize: "11px", color: COLORS.textMuted, fontFamily: FONT_MONO }}>
+            <div className="bg-slate-900 rounded-[10px] border border-slate-700 flex flex-col gap-2" style={{ padding: "14px 16px" }}>
+              <div className="flex items-center gap-2">
+                <span className="text-[11px] text-slate-500 font-mono">
                   パス:
                 </span>
                 <code
-                  style={{
-                    fontFamily: FONT_MONO,
-                    fontSize: "13px",
-                    fontWeight: 600,
-                    color: accentColor,
-                  }}
+                  className="font-mono text-[13px] font-semibold"
+                  style={{ color: accentColor }}
                 >
                   {fullPath}
                 </code>
               </div>
-              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                <span style={{ fontSize: "11px", color: COLORS.textMuted, fontFamily: FONT_MONO }}>
+              <div className="flex items-center gap-2">
+                <span className="text-[11px] text-slate-500 font-mono">
                   スコープ:
                 </span>
-                <span
-                  style={{
-                    fontSize: "12px",
-                    color: COLORS.text,
-                    fontFamily: FONT_SANS,
-                  }}
-                >
+                <span className="text-xs text-slate-100 font-sans">
                   {section.name}
                 </span>
               </div>
-              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                <span style={{ fontSize: "11px", color: COLORS.textMuted, fontFamily: FONT_MONO }}>
+              <div className="flex items-center gap-2">
+                <span className="text-[11px] text-slate-500 font-mono">
                   ベースパス:
                 </span>
-                <code
-                  style={{
-                    fontFamily: FONT_MONO,
-                    fontSize: "12px",
-                    color: COLORS.textSecondary,
-                  }}
-                >
+                <code className="font-mono text-xs text-slate-400">
                   {section.basePath}
                 </code>
               </div>
@@ -773,31 +550,18 @@ function DetailModal({
           {section.bestPractices.length > 0 && (
             <ModalSection id="bestPractices">
               <div
+                className="rounded-[10px]"
                 style={{
-                  background: COLORS.bg + "80",
-                  borderRadius: "10px",
-                  border: `1px solid ${COLORS.border}60`,
+                  background: "rgba(15, 23, 42, 0.5)",
+                  border: "1px solid rgba(51, 65, 85, 0.375)",
                   padding: "14px 16px",
                 }}
               >
-                <ul
-                  style={{
-                    margin: 0,
-                    paddingLeft: "20px",
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "6px",
-                  }}
-                >
+                <ul className="m-0 pl-5 flex flex-col gap-1.5">
                   {section.bestPractices.map((tip, i) => (
                     <li
                       key={i}
-                      style={{
-                        fontSize: "12px",
-                        lineHeight: 1.7,
-                        color: COLORS.textSecondary,
-                        fontFamily: FONT_SANS,
-                      }}
+                      className="text-xs leading-[1.7] text-slate-400 font-sans"
                     >
                       {tip}
                     </li>
@@ -818,29 +582,9 @@ function DetailModal({
 
 function PrecedencePanel() {
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-      <div
-        style={{
-          background: COLORS.surface,
-          borderRadius: "12px",
-          border: `1px solid ${COLORS.border}`,
-          padding: "24px",
-        }}
-      >
-        <div
-          style={{
-            fontSize: "13px",
-            fontWeight: 700,
-            color: COLORS.orange,
-            letterSpacing: "0.5px",
-            textTransform: "uppercase",
-            fontFamily: FONT_MONO,
-            marginBottom: "20px",
-            display: "flex",
-            alignItems: "center",
-            gap: "8px",
-          }}
-        >
+    <div className="flex flex-col gap-4">
+      <div className="bg-surface rounded-xl border border-slate-700 p-6">
+        <div className="text-[13px] font-bold tracking-wide uppercase font-mono mb-5 flex items-center gap-2" style={{ color: "#FDBA74" }}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="17 1 21 5 17 9" />
             <path d="M3 11V9a4 4 0 0 1 4-4h14" />
@@ -849,46 +593,30 @@ function PrecedencePanel() {
           </svg>
           設定の優先順位
         </div>
-        <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+        <div className="flex flex-col gap-2.5">
           {PRECEDENCE.map((item) => {
-            const pc = PRECEDENCE_COLORS[item.color] || { color: COLORS.text, bg: COLORS.bg };
+            const pc = PRECEDENCE_COLORS[item.color] || { color: "#F1F5F9", bg: "#0F172A" };
             return (
-              <div key={item.level} style={{ display: "flex", gap: "12px", alignItems: "center" }}>
+              <div key={item.level} className="flex gap-3 items-center">
                 <div
-                  style={{
-                    width: "32px",
-                    height: "32px",
-                    borderRadius: "8px",
-                    background: pc.bg,
-                    color: pc.color,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontSize: "14px",
-                    fontWeight: 700,
-                    fontFamily: FONT_MONO,
-                    flexShrink: 0,
-                  }}
+                  className="w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold font-mono shrink-0"
+                  style={{ background: pc.bg, color: pc.color }}
                 >
                   {item.level}
                 </div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ display: "flex", alignItems: "baseline", gap: "8px" }}>
-                    <span style={{ fontSize: "14px", fontWeight: 600, color: pc.color }}>{item.name}</span>
-                    <span style={{ fontSize: "12px", color: COLORS.textMuted, fontFamily: FONT_SANS }}>{item.description}</span>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-sm font-semibold" style={{ color: pc.color }}>{item.name}</span>
+                    <span className="text-xs text-slate-500 font-sans">{item.description}</span>
                   </div>
                 </div>
                 {item.level === 1 && (
                   <span
+                    className="text-[10px] font-semibold rounded whitespace-nowrap shrink-0"
                     style={{
-                      fontSize: "10px",
-                      fontWeight: 600,
                       padding: "2px 8px",
-                      borderRadius: "4px",
-                      background: COLORS.redBg,
-                      color: COLORS.red,
-                      whiteSpace: "nowrap",
-                      flexShrink: 0,
+                      background: "rgba(239, 68, 68, 0.15)",
+                      color: "#FCA5A5",
                     }}
                   >
                     最優先
@@ -899,16 +627,11 @@ function PrecedencePanel() {
           })}
         </div>
         <div
+          className="mt-4 rounded-lg text-xs leading-[1.7] text-slate-400 font-sans"
           style={{
-            marginTop: "16px",
             padding: "12px 14px",
-            background: COLORS.bg + "80",
-            borderRadius: "8px",
-            border: `1px solid ${COLORS.border}40`,
-            fontSize: "12px",
-            lineHeight: 1.7,
-            color: COLORS.textSecondary,
-            fontFamily: FONT_SANS,
+            background: "rgba(15, 23, 42, 0.5)",
+            border: "1px solid rgba(51, 65, 85, 0.25)",
           }}
         >
           上位の設定が下位の設定を上書きします。同じキーが複数の階層で定義されている場合、番号の小さい方が優先されます。
@@ -924,28 +647,8 @@ function PrecedencePanel() {
 
 function CommitGuidePanel() {
   return (
-    <div
-      style={{
-        background: COLORS.surface,
-        borderRadius: "12px",
-        border: `1px solid ${COLORS.border}`,
-        padding: "24px",
-      }}
-    >
-      <div
-        style={{
-          fontSize: "13px",
-          fontWeight: 700,
-          color: COLORS.teal,
-          letterSpacing: "0.5px",
-          textTransform: "uppercase",
-          fontFamily: FONT_MONO,
-          marginBottom: "20px",
-          display: "flex",
-          alignItems: "center",
-          gap: "8px",
-        }}
-      >
+    <div className="bg-surface rounded-xl border border-slate-700 p-6">
+      <div className="text-[13px] font-bold tracking-wide uppercase font-mono mb-5 flex items-center gap-2" style={{ color: "#5EEAD4" }}>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <circle cx="12" cy="12" r="4" />
           <line x1="1.05" y1="12" x2="7" y2="12" />
@@ -953,73 +656,45 @@ function CommitGuidePanel() {
         </svg>
         コミット判断ガイド
       </div>
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
-          gap: "12px",
-        }}
-      >
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(260px,1fr))] gap-3">
         <div
+          className="rounded-[10px]"
           style={{
-            background: COLORS.bg + "80",
-            borderRadius: "10px",
+            background: "rgba(15, 23, 42, 0.5)",
             padding: "16px 18px",
-            border: `1px solid ${COLORS.green}20`,
+            border: "1px solid rgba(110, 231, 183, 0.125)",
           }}
         >
-          <div
-            style={{
-              fontSize: "12px",
-              fontWeight: 700,
-              color: COLORS.green,
-              marginBottom: "12px",
-              display: "flex",
-              alignItems: "center",
-              gap: "6px",
-              fontFamily: FONT_MONO,
-            }}
-          >
+          <div className="text-xs font-bold mb-3 flex items-center gap-1.5 font-mono" style={{ color: "#6EE7B7" }}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="20 6 9 17 4 12" />
             </svg>
             コミットする
           </div>
-          <ul style={{ margin: 0, paddingLeft: "16px", display: "flex", flexDirection: "column", gap: "4px" }}>
+          <ul className="m-0 pl-4 flex flex-col gap-1">
             {COMMIT_GUIDE.commit.map((item, i) => (
-              <li key={i} style={{ fontSize: "12px", lineHeight: 1.7, color: COLORS.textSecondary, fontFamily: FONT_SANS }}>{item}</li>
+              <li key={i} className="text-xs leading-[1.7] text-slate-400 font-sans">{item}</li>
             ))}
           </ul>
         </div>
         <div
+          className="rounded-[10px]"
           style={{
-            background: COLORS.bg + "80",
-            borderRadius: "10px",
+            background: "rgba(15, 23, 42, 0.5)",
             padding: "16px 18px",
-            border: `1px solid ${COLORS.red}20`,
+            border: "1px solid rgba(252, 165, 165, 0.125)",
           }}
         >
-          <div
-            style={{
-              fontSize: "12px",
-              fontWeight: 700,
-              color: COLORS.red,
-              marginBottom: "12px",
-              display: "flex",
-              alignItems: "center",
-              gap: "6px",
-              fontFamily: FONT_MONO,
-            }}
-          >
+          <div className="text-xs font-bold mb-3 flex items-center gap-1.5 font-mono" style={{ color: "#FCA5A5" }}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <line x1="18" y1="6" x2="6" y2="18" />
               <line x1="6" y1="6" x2="18" y2="18" />
             </svg>
             コミットしない
           </div>
-          <ul style={{ margin: 0, paddingLeft: "16px", display: "flex", flexDirection: "column", gap: "4px" }}>
+          <ul className="m-0 pl-4 flex flex-col gap-1">
             {COMMIT_GUIDE.noCommit.map((item, i) => (
-              <li key={i} style={{ fontSize: "12px", lineHeight: 1.7, color: COLORS.textSecondary, fontFamily: FONT_SANS }}>{item}</li>
+              <li key={i} className="text-xs leading-[1.7] text-slate-400 font-sans">{item}</li>
             ))}
           </ul>
         </div>
@@ -1034,28 +709,8 @@ function CommitGuidePanel() {
 
 function SkillsVsAgentsPanel() {
   return (
-    <div
-      style={{
-        background: COLORS.surface,
-        borderRadius: "12px",
-        border: `1px solid ${COLORS.border}`,
-        padding: "24px",
-      }}
-    >
-      <div
-        style={{
-          fontSize: "13px",
-          fontWeight: 700,
-          color: COLORS.purple,
-          letterSpacing: "0.5px",
-          textTransform: "uppercase",
-          fontFamily: FONT_MONO,
-          marginBottom: "20px",
-          display: "flex",
-          alignItems: "center",
-          gap: "8px",
-        }}
-      >
+    <div className="bg-surface rounded-xl border border-slate-700 p-6">
+      <div className="text-[13px] font-bold tracking-wide uppercase font-mono mb-5 flex items-center gap-2" style={{ color: "#C4B5FD" }}>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
           <circle cx="8.5" cy="7" r="4" />
@@ -1063,46 +718,40 @@ function SkillsVsAgentsPanel() {
         </svg>
         skills/ と agents/ の使い分け
       </div>
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
-          gap: "12px",
-        }}
-      >
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(260px,1fr))] gap-3">
         <div
+          className="rounded-[10px]"
           style={{
-            background: COLORS.bg + "80",
-            borderRadius: "10px",
+            background: "rgba(15, 23, 42, 0.5)",
             padding: "16px 18px",
-            border: `1px solid ${COLORS.cyan}20`,
+            border: "1px solid rgba(103, 232, 249, 0.125)",
           }}
         >
-          <div style={{ fontSize: "13px", fontWeight: 700, color: COLORS.cyan, marginBottom: "8px", fontFamily: FONT_MONO }}>skills/</div>
-          <p style={{ fontSize: "12px", color: COLORS.textSecondary, margin: "0 0 10px", lineHeight: 1.6, fontFamily: FONT_SANS }}>
+          <div className="text-[13px] font-bold mb-2 font-mono" style={{ color: "#67E8F9" }}>skills/</div>
+          <p className="text-xs text-slate-400 leading-[1.6] font-sans" style={{ margin: "0 0 10px" }}>
             {SKILLS_VS_AGENTS.skills.description}
           </p>
-          <ul style={{ margin: 0, paddingLeft: "16px", display: "flex", flexDirection: "column", gap: "4px" }}>
+          <ul className="m-0 pl-4 flex flex-col gap-1">
             {SKILLS_VS_AGENTS.skills.characteristics.map((c: string, i: number) => (
-              <li key={i} style={{ fontSize: "11px", lineHeight: 1.6, color: COLORS.textMuted, fontFamily: FONT_SANS }}>{c}</li>
+              <li key={i} className="text-[11px] leading-[1.6] text-slate-500 font-sans">{c}</li>
             ))}
           </ul>
         </div>
         <div
+          className="rounded-[10px]"
           style={{
-            background: COLORS.bg + "80",
-            borderRadius: "10px",
+            background: "rgba(15, 23, 42, 0.5)",
             padding: "16px 18px",
-            border: `1px solid ${COLORS.purple}20`,
+            border: "1px solid rgba(196, 181, 253, 0.125)",
           }}
         >
-          <div style={{ fontSize: "13px", fontWeight: 700, color: COLORS.purple, marginBottom: "8px", fontFamily: FONT_MONO }}>agents/</div>
-          <p style={{ fontSize: "12px", color: COLORS.textSecondary, margin: "0 0 10px", lineHeight: 1.6, fontFamily: FONT_SANS }}>
+          <div className="text-[13px] font-bold mb-2 font-mono" style={{ color: "#C4B5FD" }}>agents/</div>
+          <p className="text-xs text-slate-400 leading-[1.6] font-sans" style={{ margin: "0 0 10px" }}>
             {SKILLS_VS_AGENTS.agents.description}
           </p>
-          <ul style={{ margin: 0, paddingLeft: "16px", display: "flex", flexDirection: "column", gap: "4px" }}>
+          <ul className="m-0 pl-4 flex flex-col gap-1">
             {SKILLS_VS_AGENTS.agents.characteristics.map((c: string, i: number) => (
-              <li key={i} style={{ fontSize: "11px", lineHeight: 1.6, color: COLORS.textMuted, fontFamily: FONT_SANS }}>{c}</li>
+              <li key={i} className="text-[11px] leading-[1.6] text-slate-500 font-sans">{c}</li>
             ))}
           </ul>
         </div>
@@ -1128,12 +777,12 @@ const TAB_DEFS: TabDef[] = [
     id: s.id,
     label: s.name,
     shortLabel: s.name.replace("（企業管理者向け）", "").replace("マネージド設定", "マネージド"),
-    color: SECTION_COLORS[s.id]?.color || COLORS.accent,
+    color: SECTION_COLORS[s.id]?.color || "#3B82F6",
     type: "section" as const,
   })),
-  { id: "precedence", label: "優先順位", shortLabel: "優先順位", color: COLORS.orange, type: "info" },
-  { id: "commit-guide", label: "コミットガイド", shortLabel: "コミット", color: COLORS.teal, type: "info" },
-  { id: "skills-agents", label: "Skills vs Agents", shortLabel: "Skills/Agents", color: COLORS.purple, type: "info" },
+  { id: "precedence", label: "優先順位", shortLabel: "優先順位", color: "#FDBA74", type: "info" },
+  { id: "commit-guide", label: "コミットガイド", shortLabel: "コミット", color: "#5EEAD4", type: "info" },
+  { id: "skills-agents", label: "Skills vs Agents", shortLabel: "Skills/Agents", color: "#C4B5FD", type: "info" },
 ];
 
 // ---------------------------------------------------------------------------
@@ -1185,107 +834,47 @@ export default function Directory(): React.JSX.Element {
     : null;
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        background: COLORS.bg,
-        fontFamily: FONT_SANS,
-        color: COLORS.text,
-      }}
-    >
-      <div style={{ maxWidth: "1100px", margin: "0 auto", padding: "32px 16px" }}>
+    <div className="min-h-screen bg-slate-900 font-sans text-slate-100">
+      <div className="max-w-[1100px] mx-auto py-8 px-4">
         {/* Header */}
         <motion.div
           initial={m ? false : { opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: "easeOut" }}
+          className="text-center mb-7 rounded-2xl relative overflow-hidden border border-slate-700"
           style={{
-            textAlign: "center",
-            marginBottom: "28px",
             padding: "36px 24px",
-            background: `linear-gradient(135deg, ${COLORS.surface} 0%, ${COLORS.bg} 100%)`,
-            borderRadius: "16px",
-            position: "relative",
-            overflow: "hidden",
-            border: `1px solid ${COLORS.border}`,
+            background: "linear-gradient(135deg, #1E293B 0%, #0F172A 100%)",
           }}
         >
           <div
+            className="absolute inset-0"
             style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
               background:
                 "radial-gradient(ellipse at 30% 20%, rgba(139,92,246,0.08), transparent 60%), " +
                 "radial-gradient(ellipse at 70% 80%, rgba(6,182,212,0.05), transparent 60%)",
             }}
           />
-          <div style={{ position: "relative" }}>
-            <div
-              style={{
-                fontSize: "12px",
-                fontWeight: 600,
-                color: COLORS.textMuted,
-                letterSpacing: "3px",
-                textTransform: "uppercase",
-                marginBottom: "12px",
-                fontFamily: FONT_MONO,
-              }}
-            >
+          <div className="relative">
+            <div className="text-xs font-semibold text-slate-500 tracking-[3px] uppercase mb-3 font-mono">
               CLAUDE CODE
             </div>
-            <h1
-              style={{
-                fontSize: "28px",
-                fontWeight: 700,
-                margin: "0 0 10px",
-                color: COLORS.text,
-                letterSpacing: "-0.5px",
-              }}
-            >
+            <h1 className="text-[28px] font-bold m-0 mb-2.5 text-slate-100 tracking-tight">
               ディレクトリ構成ガイド
             </h1>
-            <p
-              style={{
-                fontSize: "14px",
-                color: COLORS.textSecondary,
-                margin: "0 0 14px",
-                maxWidth: "520px",
-                marginLeft: "auto",
-                marginRight: "auto",
-                lineHeight: 1.7,
-              }}
-            >
+            <p className="text-sm text-slate-400 mx-auto leading-[1.7] max-w-[520px]" style={{ margin: "0 auto 14px" }}>
               設定ファイルの配置場所・使い方・ベストプラクティスを網羅したガイド
             </p>
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                gap: "24px",
-                fontSize: "13px",
-                color: COLORS.textSecondary,
-                flexWrap: "wrap",
-              }}
-            >
+            <div className="flex justify-center gap-6 text-[13px] text-slate-400 flex-wrap">
               <span>
-                <strong style={{ color: COLORS.text }}>{TOTAL}</strong> エントリ
+                <strong className="text-slate-100">{TOTAL}</strong> エントリ
               </span>
               <span>
-                <strong style={{ color: COLORS.text }}>{SECTIONS.length}</strong> セクション
+                <strong className="text-slate-100">{SECTIONS.length}</strong> セクション
               </span>
             </div>
             {/* Nav links */}
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                gap: "12px",
-                marginTop: "14px",
-              }}
-            >
+            <div className="flex justify-center gap-3 mt-3.5">
               {[
                 { to: "/", label: "リリースノート", icon: <ArrowLeftIcon />, trailing: false },
                 { to: "/commands", label: "コマンド一覧", icon: null, trailing: true },
@@ -1294,27 +883,8 @@ export default function Directory(): React.JSX.Element {
                 <Link
                   key={link.to}
                   to={link.to}
-                  style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: "6px",
-                    color: COLORS.textMuted,
-                    textDecoration: "none",
-                    fontSize: "12px",
-                    fontFamily: FONT_SANS,
-                    padding: "4px 12px",
-                    borderRadius: "6px",
-                    border: `1px solid ${COLORS.border}`,
-                    transition: "all 0.15s",
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.color = COLORS.text;
-                    e.currentTarget.style.borderColor = COLORS.accent + "60";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.color = COLORS.textMuted;
-                    e.currentTarget.style.borderColor = COLORS.border;
-                  }}
+                  className="nav-link inline-flex items-center gap-1.5 text-slate-500 no-underline text-xs font-sans rounded-md border border-slate-700 transition-all"
+                  style={{ padding: "4px 12px" }}
                 >
                   {link.icon}
                   {link.label}
@@ -1331,14 +901,7 @@ export default function Directory(): React.JSX.Element {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.1 }}
           ref={tabScrollRef}
-          style={{
-            display: "flex",
-            gap: "4px",
-            marginBottom: "20px",
-            overflowX: "auto",
-            paddingBottom: "4px",
-            scrollbarWidth: "none",
-          }}
+          className="flex gap-1 mb-5 overflow-x-auto pb-1 scrollbar-none"
         >
           {TAB_DEFS.map((tab) => {
             const isActive = activeTab === tab.id;
@@ -1349,47 +912,27 @@ export default function Directory(): React.JSX.Element {
                   setActiveTab(tab.id);
                   setQuery("");
                 }}
+                className={`shrink-0 rounded-[10px] text-[13px] font-sans cursor-pointer transition-all whitespace-nowrap flex items-center gap-1.5 ${
+                  isActive ? "font-semibold" : "font-medium tab-btn-inactive"
+                }`}
                 style={{
-                  flexShrink: 0,
                   padding: "10px 16px",
-                  borderRadius: "10px",
-                  border: isActive ? `1px solid ${tab.color}40` : `1px solid transparent`,
+                  border: isActive ? `1px solid ${tab.color}40` : "1px solid transparent",
                   background: isActive ? tab.color + "18" : "transparent",
-                  color: isActive ? tab.color : COLORS.textMuted,
-                  fontSize: "13px",
-                  fontWeight: isActive ? 600 : 500,
-                  fontFamily: FONT_SANS,
-                  cursor: "pointer",
-                  transition: "all 0.2s",
-                  whiteSpace: "nowrap",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "6px",
-                }}
-                onMouseEnter={(e) => {
-                  if (!isActive) {
-                    e.currentTarget.style.background = COLORS.surfaceHover;
-                    e.currentTarget.style.color = COLORS.text;
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (!isActive) {
-                    e.currentTarget.style.background = "transparent";
-                    e.currentTarget.style.color = COLORS.textMuted;
-                  }
+                  color: isActive ? tab.color : "#64748B",
                 }}
               >
                 {tab.type === "section" && SECTION_ICONS[tab.id] && (
-                  <span style={{ display: "flex", alignItems: "center", transform: "scale(0.8)" }}>
+                  <span className="flex items-center scale-[0.8]">
                     {SECTION_ICONS[tab.id]()}
                   </span>
                 )}
                 {tab.type === "info" && (
-                  <span style={{ display: "flex", alignItems: "center" }}>
+                  <span className="flex items-center">
                     <InfoIcon />
                   </span>
                 )}
-                <span className="tab-full-label" style={{ display: "inline" }}>{tab.shortLabel}</span>
+                <span className="tab-full-label inline">{tab.shortLabel}</span>
               </button>
             );
           })}
@@ -1401,17 +944,11 @@ export default function Directory(): React.JSX.Element {
             initial={m ? false : { opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.3, delay: 0.15 }}
+            className="bg-surface rounded-[10px] mb-4 flex items-center gap-2.5 transition-all"
             style={{
-              background: COLORS.surface,
-              borderRadius: "10px",
-              border: `1px solid ${searchFocused ? COLORS.accent : COLORS.border}`,
-              boxShadow: searchFocused ? `0 0 0 3px ${COLORS.accentGlow}` : "none",
               padding: "2px 14px",
-              marginBottom: "16px",
-              display: "flex",
-              alignItems: "center",
-              gap: "10px",
-              transition: "border-color 0.2s, box-shadow 0.2s",
+              border: `1px solid ${searchFocused ? "#3B82F6" : "#334155"}`,
+              boxShadow: searchFocused ? "0 0 0 3px rgba(59, 130, 246, 0.25)" : "none",
             }}
           >
             <SearchIcon />
@@ -1422,16 +959,8 @@ export default function Directory(): React.JSX.Element {
               onChange={(e) => setQuery(e.target.value)}
               onFocus={() => setSearchFocused(true)}
               onBlur={() => setSearchFocused(false)}
-              style={{
-                width: "100%",
-                padding: "11px 0",
-                border: "none",
-                background: "transparent",
-                fontSize: "14px",
-                color: COLORS.text,
-                outline: "none",
-                fontFamily: FONT_SANS,
-              }}
+              className="w-full border-none bg-transparent text-sm text-slate-100 outline-none font-sans"
+              style={{ padding: "11px 0" }}
             />
           </motion.div>
         )}
@@ -1460,49 +989,26 @@ export default function Directory(): React.JSX.Element {
             >
               {/* Section description */}
               {activeSection && (
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "10px",
-                    marginBottom: "16px",
-                    padding: "0 4px",
-                  }}
-                >
+                <div className="flex items-center gap-2.5 mb-4 px-1">
                   <div
+                    className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
                     style={{
-                      width: "32px",
-                      height: "32px",
-                      borderRadius: "8px",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      background: SECTION_COLORS[activeSection.id]?.bg || COLORS.accentGlow,
-                      color: SECTION_COLORS[activeSection.id]?.color || COLORS.accent,
-                      flexShrink: 0,
+                      background: SECTION_COLORS[activeSection.id]?.bg || "rgba(59, 130, 246, 0.25)",
+                      color: SECTION_COLORS[activeSection.id]?.color || "#3B82F6",
                     }}
                   >
                     {SECTION_ICONS[activeSection.id]?.()}
                   </div>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ display: "flex", alignItems: "baseline", gap: "8px", flexWrap: "wrap" }}>
-                      <code
-                        style={{
-                          fontSize: "12px",
-                          color: COLORS.textMuted,
-                          fontFamily: FONT_MONO,
-                          background: COLORS.surface,
-                          padding: "2px 8px",
-                          borderRadius: "4px",
-                        }}
-                      >
+                  <div className="flex-1">
+                    <div className="flex items-baseline gap-2 flex-wrap">
+                      <code className="text-xs text-slate-500 font-mono bg-surface rounded" style={{ padding: "2px 8px" }}>
                         {activeSection.basePath}
                       </code>
-                      <span style={{ fontSize: "12px", color: COLORS.textMuted }}>
+                      <span className="text-xs text-slate-500">
                         {filteredEntries.length} / {activeSection.entries.length} エントリ
                       </span>
                     </div>
-                    <span style={{ fontSize: "12px", color: COLORS.textMuted, fontFamily: FONT_SANS }}>
+                    <span className="text-xs text-slate-500 font-sans">
                       {activeSection.description}
                     </span>
                   </div>
@@ -1510,13 +1016,7 @@ export default function Directory(): React.JSX.Element {
               )}
 
               {/* Card grid */}
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
-                  gap: "14px",
-                }}
-              >
+              <div className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-3.5">
                 <AnimatePresence mode="popLayout">
                   {filteredEntries.map((entry, i) => (
                     <motion.div
@@ -1542,7 +1042,7 @@ export default function Directory(): React.JSX.Element {
                     >
                       <EntryCard
                         entry={entry}
-                        accentColor={SECTION_COLORS[activeTab]?.color || COLORS.accent}
+                        accentColor={SECTION_COLORS[activeTab]?.color || "#3B82F6"}
                         onClick={() => openModal(entry, activeSection!)}
                       />
                     </motion.div>
@@ -1556,21 +1056,16 @@ export default function Directory(): React.JSX.Element {
                   initial={reducedMotion ? false : { opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ duration: 0.3 }}
-                  style={{
-                    textAlign: "center",
-                    padding: "64px 24px",
-                    background: COLORS.surface,
-                    borderRadius: "12px",
-                    border: `1px solid ${COLORS.border}`,
-                  }}
+                  className="text-center bg-surface rounded-xl border border-slate-700"
+                  style={{ padding: "64px 24px" }}
                 >
-                  <div style={{ marginBottom: "16px" }}>
+                  <div className="mb-4">
                     <svg
                       width="48"
                       height="48"
                       viewBox="0 0 24 24"
                       fill="none"
-                      stroke={COLORS.textMuted}
+                      stroke="#64748B"
                       strokeWidth="1.5"
                       strokeLinecap="round"
                       strokeLinejoin="round"
@@ -1580,7 +1075,7 @@ export default function Directory(): React.JSX.Element {
                       <line x1="8" y1="11" x2="14" y2="11" />
                     </svg>
                   </div>
-                  <p style={{ color: COLORS.textMuted, fontSize: "14px", margin: 0 }}>
+                  <p className="text-slate-500 text-sm m-0">
                     条件に一致するエントリはありません
                   </p>
                 </motion.div>
@@ -1590,17 +1085,7 @@ export default function Directory(): React.JSX.Element {
         </AnimatePresence>
 
         {/* Footer */}
-        <div
-          style={{
-            textAlign: "center",
-            padding: "24px",
-            marginTop: "24px",
-            color: COLORS.textMuted,
-            fontSize: "12px",
-            fontFamily: FONT_SANS,
-            borderTop: `1px solid ${COLORS.border}`,
-          }}
-        >
+        <div className="text-center p-6 mt-6 text-slate-500 text-xs font-sans border-t border-slate-700">
           Claude Code Release Notes Viewer
         </div>
       </div>
@@ -1611,7 +1096,7 @@ export default function Directory(): React.JSX.Element {
           <DetailModal
             entry={selectedEntry.entry}
             section={selectedEntry.section}
-            accentColor={SECTION_COLORS[selectedEntry.section.id]?.color || COLORS.accent}
+            accentColor={SECTION_COLORS[selectedEntry.section.id]?.color || "#3B82F6"}
             onClose={closeModal}
             reducedMotion={reducedMotion}
           />

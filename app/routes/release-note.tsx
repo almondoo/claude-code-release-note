@@ -78,26 +78,6 @@ const VERSION_DETAILS_AVAILABLE = new Set(Object.keys(versionDetails));
 const totalAll = RELEASES.reduce((sum, r) => sum + r.items.length, 0);
 
 // ---------------------------------------------------------------------------
-// Design tokens
-// ---------------------------------------------------------------------------
-
-const COLORS = {
-  bg: "#0F172A",
-  surface: "#1E293B",
-  surfaceHover: "#263548",
-  border: "#334155",
-  accent: "#3B82F6",
-  accentGlow: "rgba(59, 130, 246, 0.25)",
-  text: "#F1F5F9",
-  textSecondary: "#94A3B8",
-  textMuted: "#64748B",
-  overlay: "rgba(0, 0, 0, 0.6)",
-} as const;
-
-const FONT_MONO = "'JetBrains Mono', 'Fira Code', monospace" as const;
-const FONT_SANS = "'IBM Plex Sans', 'Noto Sans JP', system-ui, -apple-system, sans-serif" as const;
-
-// ---------------------------------------------------------------------------
 // Tab definitions
 // ---------------------------------------------------------------------------
 
@@ -108,11 +88,11 @@ interface TabDef {
 }
 
 const TAB_DEFS: TabDef[] = [
-  { id: "all", label: "すべて", color: COLORS.accent },
+  { id: "all", label: "すべて", color: "#3B82F6" },
   ...ALL_TAGS.map((tag) => ({
     id: tag,
     label: TAG_LABELS[tag] ?? tag,
-    color: TAG_COLORS[tag]?.text ?? COLORS.accent,
+    color: TAG_COLORS[tag]?.text ?? "#3B82F6",
   })),
 ];
 
@@ -201,7 +181,7 @@ const TAG_ICONS: Record<string, () => React.JSX.Element> = {
 
 function SearchIcon() {
   return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={COLORS.textMuted} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-slate-500">
       <circle cx="11" cy="11" r="8" />
       <line x1="21" y1="21" x2="16.65" y2="16.65" />
     </svg>
@@ -228,7 +208,7 @@ function CloseIcon() {
 
 function EmptyIcon() {
   return (
-    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke={COLORS.textMuted} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-slate-500">
       <circle cx="11" cy="11" r="8" />
       <line x1="21" y1="21" x2="16.65" y2="16.65" />
       <line x1="8" y1="11" x2="14" y2="11" />
@@ -254,16 +234,13 @@ function Badge({ tag, small }: { tag: string; small?: boolean }): React.JSX.Elem
   const colors = TAG_COLORS[tag];
   return (
     <span
+      className={`inline-flex items-center whitespace-nowrap font-semibold tracking-wide ${
+        small ? "px-[7px] py-px text-[10px]" : "px-[9px] py-[2px] text-[11px]"
+      }`}
       style={{
-        display: "inline-flex",
-        alignItems: "center",
-        padding: small ? "1px 7px" : "2px 9px",
         borderRadius: "6px",
-        fontSize: small ? "10px" : "11px",
-        fontWeight: 600,
         background: colors?.bg ?? "rgba(100,116,139,0.15)",
-        color: colors?.text ?? COLORS.textSecondary,
-        whiteSpace: "nowrap",
+        color: colors?.text ?? "#94A3B8",
         lineHeight: 1.6,
         letterSpacing: "0.2px",
       }}
@@ -303,128 +280,62 @@ function VersionCard({
       tabIndex={0}
       onClick={onClick}
       onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onClick(); } }}
-      style={{
-        background: COLORS.surface,
-        borderRadius: "12px",
-        border: `1px solid ${COLORS.border}`,
-        padding: "18px 20px",
-        display: "flex",
-        flexDirection: "column",
-        gap: "10px",
-        cursor: "pointer",
-        transition: "all 0.2s",
-        position: "relative",
-        overflow: "hidden",
-        height: "180px",
-      }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.borderColor = accentColor + "60";
-        e.currentTarget.style.transform = "translateY(-2px)";
-        e.currentTarget.style.boxShadow = `0 8px 24px -8px rgba(0,0,0,0.4), 0 0 0 1px ${accentColor}20`;
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.borderColor = COLORS.border;
-        e.currentTarget.style.transform = "translateY(0)";
-        e.currentTarget.style.boxShadow = "none";
-      }}
+      className="version-card bg-surface rounded-xl border border-slate-700 flex flex-col gap-[10px] cursor-pointer relative overflow-hidden h-[180px]"
+      style={{ padding: "18px 20px", "--accent": accentColor } as React.CSSProperties}
     >
       {/* Accent line */}
       <div
+        className="absolute top-0 left-0 right-0 h-[3px]"
         style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
-          height: "3px",
           background: `linear-gradient(90deg, ${accentColor}, ${accentColor}60)`,
         }}
       />
 
       {/* Version header */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <span
-          style={{
-            fontFamily: FONT_MONO,
-            fontSize: "16px",
-            fontWeight: 700,
-            color: COLORS.text,
-            letterSpacing: "-0.3px",
-          }}
-        >
+      <div className="flex items-center justify-between">
+        <span className="font-mono text-base font-bold text-slate-100 tracking-tight">
           v{version}
         </span>
-        <span
-          style={{
-            fontSize: "11px",
-            color: COLORS.textMuted,
-            fontFamily: FONT_MONO,
-            background: COLORS.bg,
-            padding: "2px 8px",
-            borderRadius: "4px",
-          }}
-        >
+        <span className="text-[11px] text-slate-500 font-mono bg-slate-900 px-2 py-[2px] rounded">
           {items.length}件
         </span>
       </div>
 
       {/* Tag badges */}
-      <div style={{ display: "flex", gap: "4px", flexWrap: "wrap" }}>
+      <div className="flex gap-1 flex-wrap">
         {sortedTags.slice(0, 4).map(([tag, count]) => (
           <span
             key={tag}
+            className="inline-flex items-center gap-[3px] px-[7px] py-[2px] rounded text-[10px] font-semibold"
             style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "3px",
-              padding: "2px 7px",
-              borderRadius: "4px",
-              fontSize: "10px",
-              fontWeight: 600,
               background: TAG_COLORS[tag]?.bg ?? "rgba(100,116,139,0.15)",
-              color: TAG_COLORS[tag]?.text ?? COLORS.textSecondary,
+              color: TAG_COLORS[tag]?.text ?? "#94A3B8",
               letterSpacing: "0.2px",
             }}
           >
             {TAG_LABELS[tag] ?? tag}
-            <span style={{ opacity: 0.5 }}>{count}</span>
+            <span className="opacity-50">{count}</span>
           </span>
         ))}
         {sortedTags.length > 4 && (
-          <span
-            style={{
-              padding: "2px 7px",
-              borderRadius: "4px",
-              fontSize: "10px",
-              fontWeight: 600,
-              background: "rgba(100,116,139,0.1)",
-              color: COLORS.textMuted,
-            }}
-          >
+          <span className="px-[7px] py-[2px] rounded text-[10px] font-semibold bg-slate-500/10 text-slate-500">
             +{sortedTags.length - 4}
           </span>
         )}
       </div>
 
       {/* Preview: first 2 items */}
-      <div style={{ display: "flex", flexDirection: "column", gap: "4px", flex: 1, minHeight: 0, overflow: "hidden" }}>
+      <div className="flex flex-col gap-1 flex-1 min-h-0 overflow-hidden">
         {items.slice(0, 2).map((item, i) => (
           <span
             key={i}
-            style={{
-              color: COLORS.textSecondary,
-              fontSize: "12px",
-              lineHeight: 1.5,
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              whiteSpace: "nowrap",
-              fontFamily: FONT_SANS,
-            }}
+            className="text-slate-400 text-xs leading-normal overflow-hidden text-ellipsis whitespace-nowrap font-sans"
           >
             {item.t}
           </span>
         ))}
         {items.length > 2 && (
-          <span style={{ color: COLORS.textMuted, fontSize: "11px" }}>
+          <span className="text-slate-500 text-[11px]">
             他 {items.length - 2} 件...
           </span>
         )}
@@ -432,17 +343,7 @@ function VersionCard({
 
       {/* Detail availability indicator */}
       {hasDetails && (
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "4px",
-            fontSize: "10px",
-            fontWeight: 600,
-            color: COLORS.accent,
-            marginTop: "auto",
-          }}
-        >
+        <div className="flex items-center gap-1 text-[10px] font-semibold text-blue-500 mt-auto">
           <ExternalLinkIcon />
           詳細あり
         </div>
@@ -501,17 +402,7 @@ function DetailModal({
       exit={reducedMotion ? undefined : { opacity: 0 }}
       transition={{ duration: 0.2 }}
       onClick={onClose}
-      style={{
-        position: "fixed",
-        inset: 0,
-        background: COLORS.overlay,
-        backdropFilter: "blur(4px)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        zIndex: 50,
-        padding: "24px",
-      }}
+      className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-6"
     >
       <motion.div
         initial={reducedMotion ? false : { opacity: 0, y: 30, scale: 0.96 }}
@@ -519,75 +410,32 @@ function DetailModal({
         exit={reducedMotion ? undefined : { opacity: 0, y: 30, scale: 0.96 }}
         transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}
         onClick={(e) => e.stopPropagation()}
-        style={{
-          background: COLORS.surface,
-          borderRadius: "16px",
-          border: `1px solid ${COLORS.border}`,
-          width: "100%",
-          maxWidth: "680px",
-          maxHeight: "85vh",
-          overflow: "hidden",
-          display: "flex",
-          flexDirection: "column",
-          boxShadow: "0 24px 64px -16px rgba(0,0,0,0.5)",
-        }}
+        className="bg-surface rounded-2xl border border-slate-700 w-full max-w-[680px] max-h-[85vh] overflow-hidden flex flex-col shadow-2xl"
+        style={{ boxShadow: "0 24px 64px -16px rgba(0,0,0,0.5)" }}
       >
         {/* Modal header */}
-        <div
-          style={{
-            padding: "20px 24px",
-            borderBottom: `1px solid ${COLORS.border}`,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            background: `linear-gradient(135deg, ${COLORS.surface}, ${COLORS.surfaceHover})`,
-            flexShrink: 0,
-          }}
-        >
+        <div className="px-6 py-5 border-b border-slate-700 flex items-center justify-between shrink-0 bg-gradient-to-br from-surface to-surface-hover">
           <div>
-            <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "8px" }}>
-              <span
-                style={{
-                  fontFamily: FONT_MONO,
-                  fontSize: "22px",
-                  fontWeight: 700,
-                  color: COLORS.text,
-                  letterSpacing: "-0.5px",
-                }}
-              >
+            <div className="flex items-center gap-3 mb-2">
+              <span className="font-mono text-[22px] font-bold text-slate-100 tracking-tight">
                 v{version}
               </span>
-              <span
-                style={{
-                  fontFamily: FONT_MONO,
-                  fontSize: "12px",
-                  color: COLORS.textMuted,
-                  background: COLORS.bg,
-                  padding: "2px 8px",
-                  borderRadius: "4px",
-                }}
-              >
+              <span className="font-mono text-xs text-slate-500 bg-slate-900 px-2 py-[2px] rounded">
                 {items.length}件の変更
               </span>
             </div>
-            <div style={{ display: "flex", gap: "4px", flexWrap: "wrap" }}>
+            <div className="flex gap-1 flex-wrap">
               {sortedTags.map(([tag, count]) => (
                 <span
                   key={tag}
+                  className="inline-flex items-center gap-[3px] px-2 py-[2px] rounded text-[10px] font-semibold"
                   style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: "3px",
-                    padding: "2px 8px",
-                    borderRadius: "4px",
-                    fontSize: "10px",
-                    fontWeight: 600,
                     background: TAG_COLORS[tag]?.bg ?? "rgba(100,116,139,0.15)",
-                    color: TAG_COLORS[tag]?.text ?? COLORS.textSecondary,
+                    color: TAG_COLORS[tag]?.text ?? "#94A3B8",
                   }}
                 >
                   {TAG_LABELS[tag] ?? tag}
-                  <span style={{ opacity: 0.5 }}>{count}</span>
+                  <span className="opacity-50">{count}</span>
                 </span>
               ))}
             </div>
@@ -595,63 +443,29 @@ function DetailModal({
           <button
             onClick={onClose}
             aria-label="閉じる"
-            style={{
-              width: "36px",
-              height: "36px",
-              borderRadius: "10px",
-              border: `1px solid ${COLORS.border}`,
-              background: COLORS.bg,
-              color: COLORS.textMuted,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              cursor: "pointer",
-              transition: "all 0.15s",
-              flexShrink: 0,
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = COLORS.surfaceHover;
-              e.currentTarget.style.color = COLORS.text;
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = COLORS.bg;
-              e.currentTarget.style.color = COLORS.textMuted;
-            }}
+            className="w-9 h-9 rounded-[10px] border border-slate-700 bg-slate-900 text-slate-500 flex items-center justify-center cursor-pointer transition-all shrink-0 hover:bg-surface-hover hover:text-slate-100"
           >
             <CloseIcon />
           </button>
         </div>
 
         {/* Modal body */}
-        <div style={{ overflowY: "auto", padding: "16px 24px 24px", flex: 1 }}>
+        <div className="overflow-y-auto flex-1 px-6 pt-4 pb-6">
           {/* Items list */}
-          <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
+          <div className="flex flex-col gap-[2px]">
             {items.map((item, i) => (
               <div
                 key={i}
-                style={{
-                  padding: "10px 12px",
-                  borderRadius: "8px",
-                  transition: "background 0.15s",
-                }}
-                onMouseEnter={(e) => { e.currentTarget.style.background = COLORS.surfaceHover; }}
-                onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
+                className="modal-item rounded-lg transition-colors"
+                style={{ padding: "10px 12px" }}
               >
-                <div style={{ display: "flex", gap: "8px", alignItems: "flex-start" }}>
-                  <div style={{ display: "flex", gap: "3px", flexWrap: "wrap", flexShrink: 0, paddingTop: "2px" }}>
+                <div className="flex gap-2 items-start">
+                  <div className="flex gap-[3px] flex-wrap shrink-0 pt-[2px]">
                     {item.tags.map((tag) => (
                       <Badge key={tag} tag={tag} small />
                     ))}
                   </div>
-                  <span
-                    style={{
-                      color: COLORS.text,
-                      fontSize: "13px",
-                      lineHeight: 1.7,
-                      wordBreak: "break-word",
-                      fontFamily: FONT_SANS,
-                    }}
-                  >
+                  <span className="text-slate-100 text-[13px] leading-relaxed break-words font-sans">
                     {item.t}
                   </span>
                 </div>
@@ -662,33 +476,11 @@ function DetailModal({
           {/* Version page link */}
           <Link
             to={`/version/${version}`}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: "6px",
-              marginTop: "16px",
-              padding: "10px 16px",
-              borderRadius: "8px",
-              fontSize: "13px",
-              fontWeight: 600,
-              color: hasDetails ? COLORS.accent : COLORS.textMuted,
-              background: hasDetails ? "rgba(59, 130, 246, 0.08)" : "transparent",
-              border: `1px solid ${hasDetails ? COLORS.accent + "40" : COLORS.border}`,
-              textDecoration: "none",
-              fontFamily: FONT_SANS,
-              transition: "all 0.15s",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = hasDetails
-                ? "rgba(59, 130, 246, 0.15)"
-                : COLORS.surfaceHover;
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = hasDetails
-                ? "rgba(59, 130, 246, 0.08)"
-                : "transparent";
-            }}
+            className={`flex items-center justify-center gap-1.5 mt-4 py-2.5 px-4 rounded-lg text-[13px] font-semibold font-sans transition-all ${
+              hasDetails
+                ? "text-blue-500 bg-blue-500/[0.08] border border-blue-500/25 modal-link-detail"
+                : "text-slate-500 bg-transparent border border-slate-700 modal-link-plain"
+            }`}
           >
             {hasDetails ? "バージョン詳細ページへ →" : "バージョンページへ →"}
           </Link>
@@ -756,115 +548,47 @@ export default function ReleaseNote(): React.JSX.Element {
     : [];
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        background: COLORS.bg,
-        fontFamily: FONT_SANS,
-        color: COLORS.text,
-      }}
-    >
-      <div style={{ maxWidth: "1100px", margin: "0 auto", padding: "32px 16px" }}>
+    <div className="min-h-screen bg-slate-900 font-sans text-slate-100">
+      <div className="max-w-[1100px] mx-auto p-8 px-4">
         {/* Header */}
         <motion.div
           initial={m ? false : { opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: "easeOut" }}
-          style={{
-            textAlign: "center",
-            marginBottom: "28px",
-            padding: "40px 24px",
-            background: `linear-gradient(135deg, ${COLORS.surface} 0%, ${COLORS.bg} 100%)`,
-            borderRadius: "16px",
-            position: "relative",
-            overflow: "hidden",
-            border: `1px solid ${COLORS.border}`,
-          }}
+          className="text-center mb-7 py-10 px-6 bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl relative overflow-hidden border border-slate-700"
         >
           <div
+            className="absolute inset-0"
             style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
               background:
                 "radial-gradient(ellipse at 30% 20%, rgba(59,130,246,0.08), transparent 60%), " +
                 "radial-gradient(ellipse at 70% 80%, rgba(168,85,247,0.05), transparent 60%)",
             }}
           />
-          <div style={{ position: "relative" }}>
-            <div
-              style={{
-                fontSize: "12px",
-                fontWeight: 600,
-                color: COLORS.textMuted,
-                letterSpacing: "3px",
-                textTransform: "uppercase",
-                marginBottom: "12px",
-                fontFamily: FONT_MONO,
-              }}
-            >
+          <div className="relative">
+            <div className="text-xs font-semibold text-slate-500 tracking-[3px] uppercase mb-3 font-mono">
               CLAUDE CODE
             </div>
-            <h1
-              style={{
-                fontSize: "32px",
-                fontWeight: 700,
-                margin: "0 0 12px",
-                color: COLORS.text,
-                letterSpacing: "-0.5px",
-              }}
-            >
+            <h1 className="text-[32px] font-bold mb-3 text-slate-100 tracking-tight">
               リリースノート
             </h1>
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "baseline",
-                gap: "24px",
-                fontSize: "13px",
-                color: COLORS.textSecondary,
-                flexWrap: "wrap",
-              }}
-            >
+            <div className="flex justify-center items-baseline gap-6 text-[13px] text-slate-400 flex-wrap">
               <span>
-                <strong style={{ color: COLORS.text }}>{RELEASES.length}</strong> バージョン
+                <strong className="text-slate-100">{RELEASES.length}</strong> バージョン
               </span>
               <span>
-                <strong style={{ color: COLORS.text }}>{totalAll}</strong> 件の変更
+                <strong className="text-slate-100">{totalAll}</strong> 件の変更
               </span>
-              <span style={{ fontFamily: FONT_MONO, fontSize: "12px" }}>
+              <span className="font-mono text-xs">
                 v{RELEASES[0]?.v} 〜 v{RELEASES[RELEASES.length - 1]?.v}
               </span>
             </div>
-            <div style={{ marginTop: "16px", display: "flex", gap: "12px", justifyContent: "center", flexWrap: "wrap" }}>
+            <div className="mt-4 flex gap-3 justify-center flex-wrap">
               {NAV_LINKS.map((link) => (
                 <Link
                   key={link.to}
                   to={link.to}
-                  style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: "6px",
-                    color: COLORS.textMuted,
-                    textDecoration: "none",
-                    fontSize: "12px",
-                    fontFamily: FONT_SANS,
-                    padding: "4px 12px",
-                    borderRadius: "6px",
-                    border: `1px solid ${COLORS.border}`,
-                    transition: "all 0.15s",
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.color = COLORS.text;
-                    e.currentTarget.style.borderColor = COLORS.accent + "60";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.color = COLORS.textMuted;
-                    e.currentTarget.style.borderColor = COLORS.border;
-                  }}
+                  className="nav-link inline-flex items-center gap-1.5 text-slate-500 text-xs font-sans py-1 px-3 rounded-md border border-slate-700 transition-all"
                 >
                   {link.label} →
                 </Link>
@@ -879,14 +603,7 @@ export default function ReleaseNote(): React.JSX.Element {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.05 }}
           ref={tabsRef}
-          style={{
-            display: "flex",
-            gap: "6px",
-            marginBottom: "14px",
-            overflowX: "auto",
-            padding: "4px 0",
-            scrollbarWidth: "none",
-          }}
+          className="flex gap-1.5 mb-3.5 overflow-x-auto py-1 scrollbar-none"
         >
           {TAB_DEFS.map((tab) => {
             const active = activeTab === tab.id;
@@ -895,38 +612,17 @@ export default function ReleaseNote(): React.JSX.Element {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
+                className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-[13px] font-semibold cursor-pointer transition-all font-sans whitespace-nowrap shrink-0 ${
+                  active ? "" : "hover:bg-surface-hover hover:text-slate-400"
+                }`}
                 style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: "6px",
-                  padding: "8px 16px",
-                  borderRadius: "8px",
-                  fontSize: "13px",
-                  fontWeight: 600,
-                  cursor: "pointer",
-                  border: `1px solid ${active ? tab.color + "60" : COLORS.border}`,
-                  background: active ? (TAG_COLORS[tab.id]?.bg ?? COLORS.accentGlow) : COLORS.surface,
-                  color: active ? tab.color : COLORS.textMuted,
-                  transition: "all 0.15s",
-                  fontFamily: FONT_SANS,
-                  whiteSpace: "nowrap",
-                  flexShrink: 0,
-                }}
-                onMouseEnter={(e) => {
-                  if (!active) {
-                    e.currentTarget.style.background = COLORS.surfaceHover;
-                    e.currentTarget.style.color = COLORS.textSecondary;
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (!active) {
-                    e.currentTarget.style.background = COLORS.surface;
-                    e.currentTarget.style.color = COLORS.textMuted;
-                  }
+                  border: `1px solid ${active ? tab.color + "60" : "#334155"}`,
+                  background: active ? (TAG_COLORS[tab.id]?.bg ?? "rgba(59, 130, 246, 0.25)") : "#1E293B",
+                  color: active ? tab.color : "#64748B",
                 }}
               >
                 {Icon && (
-                  <span style={{ display: "flex", alignItems: "center" }}>
+                  <span className="flex items-center">
                     <Icon />
                   </span>
                 )}
@@ -941,25 +637,13 @@ export default function ReleaseNote(): React.JSX.Element {
           initial={m ? false : { opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.1 }}
-          style={{
-            display: "flex",
-            gap: "12px",
-            alignItems: "center",
-            marginBottom: "18px",
-          }}
+          className="flex gap-3 items-center mb-[18px]"
         >
           <div
+            className="flex-1 bg-surface rounded-[10px] px-3.5 py-[2px] flex items-center gap-2.5 transition-[border-color,box-shadow]"
             style={{
-              flex: 1,
-              background: COLORS.surface,
-              borderRadius: "10px",
-              border: `1px solid ${searchFocused ? accentColor : COLORS.border}`,
+              border: `1px solid ${searchFocused ? accentColor : "#334155"}`,
               boxShadow: searchFocused ? `0 0 0 3px ${accentColor}25` : "none",
-              padding: "2px 14px",
-              display: "flex",
-              alignItems: "center",
-              gap: "10px",
-              transition: "border-color 0.2s, box-shadow 0.2s",
             }}
           >
             <SearchIcon />
@@ -970,39 +654,16 @@ export default function ReleaseNote(): React.JSX.Element {
               onChange={(e) => setQuery(e.target.value)}
               onFocus={() => setSearchFocused(true)}
               onBlur={() => setSearchFocused(false)}
-              style={{
-                width: "100%",
-                padding: "10px 0",
-                border: "none",
-                background: "transparent",
-                fontSize: "14px",
-                color: COLORS.text,
-                outline: "none",
-                fontFamily: FONT_SANS,
-              }}
+              className="w-full py-2.5 border-none bg-transparent text-sm text-slate-100 outline-none font-sans"
             />
           </div>
-          <span
-            style={{
-              fontSize: "12px",
-              color: COLORS.textMuted,
-              fontWeight: 500,
-              whiteSpace: "nowrap",
-              fontFamily: FONT_MONO,
-            }}
-          >
+          <span className="text-xs text-slate-500 font-medium whitespace-nowrap font-mono">
             {filtered.length}ver / {totalItems}件
           </span>
         </motion.div>
 
         {/* Card grid */}
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
-            gap: "14px",
-          }}
-        >
+        <div className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-3.5">
           <AnimatePresence mode="popLayout">
             {filtered.map((release, i) => (
               <motion.div
@@ -1032,18 +693,12 @@ export default function ReleaseNote(): React.JSX.Element {
               animate={{ opacity: 1, scale: 1 }}
               exit={m ? undefined : { opacity: 0, scale: 0.95 }}
               transition={{ duration: 0.3 }}
-              style={{
-                textAlign: "center",
-                padding: "64px 24px",
-                background: COLORS.surface,
-                borderRadius: "12px",
-                border: `1px solid ${COLORS.border}`,
-              }}
+              className="text-center py-16 px-6 bg-surface rounded-xl border border-slate-700"
             >
-              <div style={{ marginBottom: "16px" }}>
+              <div className="mb-4">
                 <EmptyIcon />
               </div>
-              <p style={{ color: COLORS.textMuted, fontSize: "14px", margin: 0 }}>
+              <p className="text-slate-500 text-sm m-0">
                 条件に一致する変更はありません
               </p>
             </motion.div>
@@ -1051,16 +706,7 @@ export default function ReleaseNote(): React.JSX.Element {
         </AnimatePresence>
 
         {/* Footer */}
-        <div
-          style={{
-            textAlign: "center",
-            padding: "24px",
-            marginTop: "24px",
-            color: COLORS.textMuted,
-            fontSize: "12px",
-            borderTop: `1px solid ${COLORS.border}`,
-          }}
-        >
+        <div className="text-center p-6 mt-6 text-slate-500 text-xs border-t border-slate-700">
           Claude Code Release Notes Viewer
         </div>
       </div>
