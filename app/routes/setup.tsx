@@ -1,11 +1,9 @@
-import { useState, useMemo, useRef, useCallback } from "react";
+import { useState, useMemo, useRef, useCallback, useEffect } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 
 import {
-  BoltIcon,
   CheckIcon,
   ChevronDownIcon,
-  CloseIcon,
   CopyIcon,
   BookOpenIcon,
 } from "~/components/icons";
@@ -145,25 +143,6 @@ const CALLOUT_STYLES: Record<string, { color: string; bg: string; border: string
   tip: { color: "#34D399", bg: "rgba(16, 185, 129, 0.08)", border: "#10B981", label: "Tip" },
   important: { color: "#F87171", bg: "rgba(239, 68, 68, 0.08)", border: "#EF4444", label: "Important" },
 };
-
-interface TabDef {
-  id: string;
-  label: string;
-  color: string;
-  type: "section" | "special";
-}
-
-const TAB_DEFS: TabDef[] = [
-  { id: "all", label: "すべて", color: "#3B82F6", type: "section" },
-  ...SECTIONS.map((s) => ({
-    id: s.id,
-    label: s.name,
-    color: SECTION_COLORS[s.id]?.color || "#3B82F6",
-    type: "section" as const,
-  })),
-  { id: "quickstart", label: "クイックスタート", color: "#5EEAD4", type: "special" },
-  { id: "summary", label: "まとめ", color: "#A5B4FC", type: "special" },
-];
 
 
 // --- Sub-components ---
@@ -390,35 +369,116 @@ function SummaryPanel(): React.JSX.Element {
   );
 }
 
+// --- Timeline components ---
+
+interface TimelineSidebarProps {
+  sections: SetupSection[];
+  activeSectionId: string;
+  onSectionClick: (id: string) => void;
+  filteredSectionIds: Set<string>;
+  hasQuery: boolean;
+}
+
+function TimelineSidebar({ sections, activeSectionId, onSectionClick, filteredSectionIds, hasQuery }: TimelineSidebarProps): React.JSX.Element {
+  return (
+    <nav className="hidden md:block w-[260px] shrink-0">
+      <div className="sticky top-8 max-h-[calc(100vh-4rem)] overflow-y-auto scrollbar-none">
+        <div className="flex flex-col relative">
+          {/* Vertical line */}
+          <div
+            className="absolute left-[15px] top-[16px] bottom-[16px] w-px"
+            style={{ background: "linear-gradient(to bottom, #334155 0%, #1E293B 100%)" }}
+          />
+          {sections.map((section, idx) => {
+            const isActive = section.id === activeSectionId;
+            const colors = SECTION_COLORS[section.id] || { color: "#3B82F6", bg: "rgba(59,130,246,0.15)" };
+            const isDimmed = hasQuery && !filteredSectionIds.has(section.id);
+
+            return (
+              <button
+                key={section.id}
+                onClick={() => onSectionClick(section.id)}
+                className="timeline-node relative flex items-center gap-3 py-2.5 px-0 text-left cursor-pointer border-none bg-transparent transition-all"
+                style={{
+                  opacity: isDimmed ? 0.4 : 1,
+                }}
+              >
+                {/* Node circle */}
+                <div
+                  className="relative z-10 w-[32px] h-[32px] rounded-full flex items-center justify-center shrink-0 text-xs font-bold transition-all duration-300"
+                  style={{
+                    background: isActive ? colors.color + "25" : "#1E293B",
+                    border: isActive ? `2px solid ${colors.color}` : "2px solid #334155",
+                    color: isActive ? colors.color : "#64748B",
+                    boxShadow: isActive ? `0 0 12px ${colors.color}30` : "none",
+                  }}
+                >
+                  {idx + 1}
+                </div>
+                {/* Label */}
+                <div className="flex flex-col min-w-0">
+                  <span
+                    className="text-[13px] font-medium truncate transition-colors duration-300"
+                    style={{ color: isActive ? colors.color : "#94A3B8" }}
+                  >
+                    {section.name}
+                  </span>
+                  <span className="text-[11px] text-slate-500">
+                    {section.steps.length} ステップ
+                  </span>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    </nav>
+  );
+}
+
+interface MobileTimelineMarkerProps {
+  index: number;
+  section: SetupSection;
+}
+
+function MobileTimelineMarker({ index, section }: MobileTimelineMarkerProps): React.JSX.Element {
+  const colors = SECTION_COLORS[section.id] || { color: "#3B82F6", bg: "rgba(59,130,246,0.15)" };
+  return (
+    <div className="md:hidden flex items-center gap-3 mb-3">
+      <div
+        className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 text-xs font-bold"
+        style={{
+          background: colors.color + "25",
+          border: `2px solid ${colors.color}`,
+          color: colors.color,
+        }}
+      >
+        {index + 1}
+      </div>
+      <div
+        className="flex-1 h-px"
+        style={{ background: `linear-gradient(to right, ${colors.color}40, transparent)` }}
+      />
+    </div>
+  );
+}
+
+
 // --- Main page ---
 
 export default function SetupPage(): React.JSX.Element {
   const [query, setQuery] = useState("");
-  const [activeTab, setActiveTab] = useState<string>("all");
   const [expandedSteps, setExpandedSteps] = useState<Set<string>>(new Set());
+  const [activeSectionId, setActiveSectionId] = useState(SECTIONS[0].id);
   const reducedMotion = useReducedMotion();
-  const hasMounted = useRef(false);
-  const tabScrollRef = useRef<HTMLDivElement>(null);
-
-  if (!hasMounted.current) {
-    hasMounted.current = true;
-  }
+  const sectionRefs = useRef<Map<string, HTMLElement>>(new Map());
+  const isScrollingRef = useRef(false);
 
   const lowerQuery = query.toLowerCase();
-  const isAllTab = activeTab === "all";
-  const isQuickStart = activeTab === "quickstart";
-  const isSummary = activeTab === "summary";
-  const isSpecialTab = isQuickStart || isSummary;
-  const activeSection = SECTIONS.find((s) => s.id === activeTab);
 
   const filteredSections = useMemo(() => {
-    const sections = isAllTab
-      ? SECTIONS
-      : activeSection
-        ? [activeSection]
-        : [];
-    if (!query) return sections;
-    return sections
+    if (!query) return SECTIONS;
+    return SECTIONS
       .map((section) => ({
         ...section,
         steps: section.steps.filter(
@@ -431,9 +491,56 @@ export default function SetupPage(): React.JSX.Element {
         ),
       }))
       .filter((section) => section.steps.length > 0);
-  }, [isAllTab, activeSection, query, lowerQuery]);
+  }, [query, lowerQuery]);
+
+  const filteredSectionIds = useMemo(
+    () => new Set(filteredSections.map((s) => s.id)),
+    [filteredSections]
+  );
 
   const visibleStepCount = filteredSections.reduce((sum, s) => sum + s.steps.length, 0);
+
+  // IntersectionObserver for scroll-based active section tracking
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (isScrollingRef.current) return;
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            const id = entry.target.getAttribute("data-section-id");
+            if (id) setActiveSectionId(id);
+          }
+        }
+      },
+      { rootMargin: "-80px 0px -60% 0px", threshold: 0 }
+    );
+
+    const refs = sectionRefs.current;
+    refs.forEach((el) => observer.observe(el));
+
+    return () => {
+      refs.forEach((el) => observer.unobserve(el));
+    };
+  }, []);
+
+  const handleSectionClick = useCallback((id: string) => {
+    const el = sectionRefs.current.get(id);
+    if (!el) return;
+    isScrollingRef.current = true;
+    setActiveSectionId(id);
+    el.scrollIntoView({ behavior: "smooth", block: "start" });
+    setTimeout(() => {
+      isScrollingRef.current = false;
+    }, 800);
+  }, []);
+
+  const setSectionRef = useCallback((id: string, el: HTMLElement | null) => {
+    if (el) {
+      sectionRefs.current.set(id, el);
+    } else {
+      sectionRefs.current.delete(id);
+    }
+  }, []);
 
   const toggleStep = useCallback((stepId: string) => {
     setExpandedSteps((prev) => {
@@ -465,153 +572,112 @@ export default function SetupPage(): React.JSX.Element {
           gradient={["rgba(139,92,246,0.08)", "rgba(16,185,129,0.05)"]}
         />
 
-        {/* Tabs */}
+        {/* Hero cards: QuickStart + Summary */}
         <motion.div
           initial={m ? false : { opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.1 }}
-          ref={tabScrollRef}
-          className="flex gap-1 mb-5 overflow-x-auto pb-1 scrollbar-none"
+          className="flex flex-col gap-4 mb-6"
         >
-          {TAB_DEFS.map((tab) => {
-            const isActive = activeTab === tab.id;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => {
-                  setActiveTab(tab.id);
-                  setQuery("");
-                }}
-                className={`shrink-0 rounded-[10px] text-[13px] font-sans cursor-pointer transition-all whitespace-nowrap flex items-center gap-1.5 px-4 py-2.5 ${isActive ? "font-semibold" : "font-medium tab-btn-inactive"}`}
-                style={{
-                  border: isActive ? `1px solid ${tab.color}40` : "1px solid transparent",
-                  background: isActive ? tab.color + "18" : "transparent",
-                  color: isActive ? tab.color : "#64748B",
-                }}
-              >
-                {tab.type === "section" && SECTION_ICONS[tab.id] && (
-                  <span className="flex items-center scale-[0.8]">
-                    {SECTION_ICONS[tab.id]()}
-                  </span>
-                )}
-                {tab.id === "quickstart" && (
-                  <span className="flex items-center">
-                    <BoltIcon width={14} height={14} />
-                  </span>
-                )}
-                {tab.id === "summary" && (
-                  <span className="flex items-center">
-                    <BookOpenIcon width={14} height={14} />
-                  </span>
-                )}
-                {tab.label}
-              </button>
-            );
-          })}
+          <QuickStartPanel />
+          <SummaryPanel />
         </motion.div>
 
-        {/* Search -- only for non-special tabs */}
-        {!isSpecialTab && (
-          <motion.div
-            initial={m ? false : { opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.3, delay: 0.15 }}
-            className="mb-4"
-          >
-            <SearchInput value={query} onChange={setQuery} placeholder="ステップを検索..." />
-          </motion.div>
-        )}
+        {/* Search */}
+        <motion.div
+          initial={m ? false : { opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.3, delay: 0.15 }}
+          className="mb-4"
+        >
+          <SearchInput value={query} onChange={setQuery} placeholder="ステップを検索..." />
+        </motion.div>
 
-        {/* Tab content */}
-        <AnimatePresence mode="popLayout">
-          {isQuickStart ? (
-            <motion.div
-              key="quickstart"
-              initial={reducedMotion ? false : { opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={reducedMotion ? undefined : { opacity: 0 }}
-              transition={{ duration: 0.15 }}
-            >
-              <QuickStartPanel />
-            </motion.div>
-          ) : isSummary ? (
-            <motion.div
-              key="summary"
-              initial={reducedMotion ? false : { opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={reducedMotion ? undefined : { opacity: 0 }}
-              transition={{ duration: 0.15 }}
-            >
-              <SummaryPanel />
-            </motion.div>
-          ) : (
-            <motion.div
-              key={activeTab}
-              initial={reducedMotion ? false : { opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={reducedMotion ? undefined : { opacity: 0 }}
-              transition={{ duration: 0.15 }}
-            >
-              {/* Count */}
-              <div className="flex items-center gap-2.5 mb-4 px-1">
-                <span className="text-[13px] text-slate-500 font-medium">
-                  {visibleStepCount} / {isAllTab ? TOTAL_STEPS : (activeSection?.steps.length ?? 0)} ステップ
-                </span>
-              </div>
+        {/* Step count */}
+        <div className="flex items-center gap-2.5 mb-4 px-1">
+          <span className="text-[13px] text-slate-500 font-medium">
+            {visibleStepCount} / {TOTAL_STEPS} ステップ
+          </span>
+        </div>
 
-              {/* Step cards grouped by section */}
-              <div className="flex flex-col gap-6">
-                {filteredSections.map((section) => {
-                  const colors = SECTION_COLORS[section.id] || { color: "#3B82F6", bg: "rgba(59,130,246,0.15)" };
-                  return (
-                    <div key={section.id}>
-                      {isAllTab && (
-                        <div className="flex items-center gap-2.5 mb-3 px-1">
-                          {SECTION_ICONS[section.id] && (
-                            <span className="flex items-center" style={{ color: colors.color }}>
-                              {SECTION_ICONS[section.id]()}
-                            </span>
-                          )}
-                          <h2 className="text-base font-bold m-0" style={{ color: colors.color }}>
-                            {section.name}
-                          </h2>
-                          <span className="text-xs text-slate-500">{section.description}</span>
-                        </div>
+        {/* Two-column layout: Timeline sidebar + Content */}
+        <div className="flex gap-8">
+          <TimelineSidebar
+            sections={SECTIONS}
+            activeSectionId={activeSectionId}
+            onSectionClick={handleSectionClick}
+            filteredSectionIds={filteredSectionIds}
+            hasQuery={query.length > 0}
+          />
+
+          {/* Content area */}
+          <div className="flex-1 min-w-0">
+            <div className="flex flex-col gap-8">
+              {filteredSections.map((section, sectionIdx) => {
+                const colors = SECTION_COLORS[section.id] || { color: "#3B82F6", bg: "rgba(59,130,246,0.15)" };
+                const globalIdx = SECTIONS.findIndex((s) => s.id === section.id);
+
+                return (
+                  <motion.section
+                    key={section.id}
+                    ref={(el) => setSectionRef(section.id, el)}
+                    data-section-id={section.id}
+                    className="scroll-mt-8"
+                    initial={reducedMotion ? false : { opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: "-50px" }}
+                    transition={{ duration: 0.4, delay: reducedMotion ? 0 : Math.min(sectionIdx * 0.05, 0.3) }}
+                  >
+                    {/* Mobile timeline marker */}
+                    <MobileTimelineMarker index={globalIdx} section={section} />
+
+                    {/* Section header */}
+                    <div className="flex items-center gap-2.5 mb-3 px-1">
+                      {SECTION_ICONS[section.id] && (
+                        <span className="flex items-center" style={{ color: colors.color }}>
+                          {SECTION_ICONS[section.id]()}
+                        </span>
                       )}
-                      <div className="flex flex-col gap-2.5">
-                        <AnimatePresence mode="popLayout">
-                          {section.steps.map((step, i) => (
-                            <motion.div
-                              key={step.id}
-                              layout={!reducedMotion}
-                              initial={reducedMotion ? false : { opacity: 0, y: 15 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              exit={reducedMotion ? undefined : { opacity: 0, scale: 0.96, transition: { duration: 0.15 } }}
-                              transition={{ duration: 0.2, delay: reducedMotion ? 0 : Math.min(i * 0.04, 0.4) }}
-                            >
-                              <StepCard
-                                step={step}
-                                accentColor={colors.color}
-                                expanded={expandedSteps.has(step.id)}
-                                onToggle={() => toggleStep(step.id)}
-                                reducedMotion={reducedMotion}
-                              />
-                            </motion.div>
-                          ))}
-                        </AnimatePresence>
-                      </div>
+                      <h2 className="text-base font-bold m-0" style={{ color: colors.color }}>
+                        {section.name}
+                      </h2>
+                      <span className="text-xs text-slate-500">{section.description}</span>
                     </div>
-                  );
-                })}
-              </div>
 
-              {/* Empty state */}
-              {visibleStepCount === 0 && (
-                <EmptyState message="条件に一致するステップはありません" reducedMotion={reducedMotion} />
-              )}
-            </motion.div>
-          )}
-        </AnimatePresence>
+                    {/* Step cards */}
+                    <div className="flex flex-col gap-2.5">
+                      <AnimatePresence mode="popLayout">
+                        {section.steps.map((step, i) => (
+                          <motion.div
+                            key={step.id}
+                            layout={!reducedMotion}
+                            initial={reducedMotion ? false : { opacity: 0, y: 15 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={reducedMotion ? undefined : { opacity: 0, scale: 0.96, transition: { duration: 0.15 } }}
+                            transition={{ duration: 0.2, delay: reducedMotion ? 0 : Math.min(i * 0.04, 0.4) }}
+                          >
+                            <StepCard
+                              step={step}
+                              accentColor={colors.color}
+                              expanded={expandedSteps.has(step.id)}
+                              onToggle={() => toggleStep(step.id)}
+                              reducedMotion={reducedMotion}
+                            />
+                          </motion.div>
+                        ))}
+                      </AnimatePresence>
+                    </div>
+                  </motion.section>
+                );
+              })}
+            </div>
+
+            {/* Empty state */}
+            {visibleStepCount === 0 && (
+              <EmptyState message="条件に一致するステップはありません" reducedMotion={reducedMotion} />
+            )}
+          </div>
+        </div>
 
         {/* Footer */}
         <Footer>
