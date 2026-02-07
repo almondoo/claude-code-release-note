@@ -8,21 +8,18 @@ import {
   BookOpenIcon,
   CheckIcon,
   CloseIcon,
-  EmptyIcon,
   FileIcon,
   FolderIcon,
   InfoIcon,
   LightbulbIcon,
   MapPinIcon,
-  SearchIcon,
   TerminalIcon,
 } from "~/components/icons";
+import { EmptyState } from "~/components/empty-state";
+import { Footer } from "~/components/footer";
+import { SearchInput } from "~/components/search-input";
 import directoryData from "~/data/directory-structure.json";
 import { useModalLock } from "~/hooks/useModalLock";
-
-// ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
 
 interface Entry {
   path: string;
@@ -31,6 +28,7 @@ interface Entry {
   description: string;
   detail: string;
   usage: string;
+  bestPractice: string;
   vcs: boolean | null;
   recommended: "recommended" | "optional" | "advanced";
 }
@@ -50,10 +48,6 @@ interface PrecedenceItem {
   description: string;
   color: string;
 }
-
-// ---------------------------------------------------------------------------
-// Section colors & icons (dynamic -- keep raw hex values)
-// ---------------------------------------------------------------------------
 
 const SECTION_COLORS: Record<string, { color: string; bg: string }> = {
   global: { color: "#C4B5FD", bg: "rgba(139, 92, 246, 0.15)" },
@@ -128,10 +122,6 @@ const SECTION_ICONS: Record<string, () => React.JSX.Element> = {
   ),
 };
 
-// ---------------------------------------------------------------------------
-// Recommend / VCS badge colors (dynamic)
-// ---------------------------------------------------------------------------
-
 const RECOMMEND_CONFIG: Record<
   string,
   { label: string; color: string; bg: string; title: string }
@@ -177,18 +167,10 @@ const VCS_CONFIG = {
   },
 };
 
-// ---------------------------------------------------------------------------
-// Helper: resolve VCS config key from boolean | null
-// ---------------------------------------------------------------------------
-
 function getVcsKey(vcs: boolean | null): "true" | "false" | "null" {
   if (vcs === null) return "null";
   return String(vcs) as "true" | "false";
 }
-
-// ---------------------------------------------------------------------------
-// Tooltip badge -- shows tooltip instantly on hover via createPortal
-// ---------------------------------------------------------------------------
 
 function BadgeWithTooltip({
   label,
@@ -241,10 +223,6 @@ function BadgeWithTooltip({
   );
 }
 
-// ---------------------------------------------------------------------------
-// Meta
-// ---------------------------------------------------------------------------
-
 export function meta(): Array<{
   title?: string;
   name?: string;
@@ -259,10 +237,6 @@ export function meta(): Array<{
     },
   ];
 }
-
-// ---------------------------------------------------------------------------
-// Data
-// ---------------------------------------------------------------------------
 
 const SECTIONS: Section[] = directoryData.sections as unknown as Section[];
 const PRECEDENCE: PrecedenceItem[] =
@@ -281,10 +255,6 @@ const PRECEDENCE_COLORS: Record<string, { color: string; bg: string }> = {
 };
 
 const SPECIAL_TABS = ["precedence", "commit-guide", "skills-agents"] as const;
-
-// ---------------------------------------------------------------------------
-// EntryCard -- compact grid card
-// ---------------------------------------------------------------------------
 
 function EntryCard({
   entry,
@@ -309,7 +279,7 @@ function EntryCard({
           onClick();
         }
       }}
-      className="entry-card bg-surface rounded-xl border border-slate-700 flex flex-col gap-2.5 cursor-pointer relative overflow-hidden h-[200px]"
+      className="hover-card bg-surface rounded-xl border border-slate-700 flex flex-col gap-2.5 cursor-pointer relative overflow-hidden h-[200px]"
       style={{ padding: "18px 20px", ["--accent" as string]: accentColor }}
     >
       <div
@@ -351,10 +321,6 @@ function EntryCard({
   );
 }
 
-// ---------------------------------------------------------------------------
-// Modal section header mapping
-// ---------------------------------------------------------------------------
-
 const MODAL_SECTION_META: Record<
   string,
   { label: string; icon: React.JSX.Element }
@@ -364,10 +330,6 @@ const MODAL_SECTION_META: Record<
   location: { label: "配置場所", icon: <MapPinIcon /> },
   bestPractices: { label: "ベストプラクティス", icon: <LightbulbIcon /> },
 };
-
-// ---------------------------------------------------------------------------
-// Modal -- detail popup
-// ---------------------------------------------------------------------------
 
 function DetailModal({
   entry,
@@ -566,7 +528,7 @@ function DetailModal({
             </div>
           </ModalSection>
 
-          {section.bestPractices.length > 0 && (
+          {entry.bestPractice && (
             <ModalSection id="bestPractices">
               <div
                 className="rounded-[10px]"
@@ -576,16 +538,9 @@ function DetailModal({
                   padding: "14px 16px",
                 }}
               >
-                <ul className="m-0 pl-5 flex flex-col gap-1.5">
-                  {section.bestPractices.map((tip, i) => (
-                    <li
-                      key={i}
-                      className="text-xs leading-[1.7] text-slate-400 font-sans"
-                    >
-                      {tip}
-                    </li>
-                  ))}
-                </ul>
+                <p className="m-0 text-xs leading-[1.7] text-slate-400 font-sans">
+                  {entry.bestPractice}
+                </p>
               </div>
             </ModalSection>
           )}
@@ -594,10 +549,6 @@ function DetailModal({
     </motion.div>
   );
 }
-
-// ---------------------------------------------------------------------------
-// PrecedencePanel
-// ---------------------------------------------------------------------------
 
 function PrecedencePanel(): React.JSX.Element {
   return (
@@ -681,10 +632,6 @@ function PrecedencePanel(): React.JSX.Element {
     </div>
   );
 }
-
-// ---------------------------------------------------------------------------
-// CommitGuidePanel
-// ---------------------------------------------------------------------------
 
 function CommitGuidePanel(): React.JSX.Element {
   return (
@@ -778,10 +725,6 @@ function CommitGuidePanel(): React.JSX.Element {
     </div>
   );
 }
-
-// ---------------------------------------------------------------------------
-// SkillsVsAgentsPanel
-// ---------------------------------------------------------------------------
 
 function SkillsVsAgentsPanel(): React.JSX.Element {
   return (
@@ -878,10 +821,6 @@ function SkillsVsAgentsPanel(): React.JSX.Element {
   );
 }
 
-// ---------------------------------------------------------------------------
-// Tab definitions
-// ---------------------------------------------------------------------------
-
 interface TabDef {
   id: string;
   label: string;
@@ -923,14 +862,9 @@ const TAB_DEFS: TabDef[] = [
   },
 ];
 
-// ---------------------------------------------------------------------------
-// Main Component
-// ---------------------------------------------------------------------------
-
 export default function Directory(): React.JSX.Element {
   const [activeTab, setActiveTab] = useState<string>("global");
   const [query, setQuery] = useState("");
-  const [searchFocused, setSearchFocused] = useState(false);
   const [selectedEntry, setSelectedEntry] = useState<{
     entry: Entry;
     section: Section;
@@ -1102,32 +1036,59 @@ export default function Directory(): React.JSX.Element {
           })}
         </motion.div>
 
+        {/* Best practices -- only for section tabs */}
+        {!isInfoTab && activeSection && activeSection.bestPractices.length > 0 && (
+          <motion.div
+            initial={m ? false : { opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.3, delay: 0.12 }}
+            className="mb-4"
+          >
+            <div
+              className="rounded-xl border flex gap-3"
+              style={{
+                padding: "14px 18px",
+                background: `${SECTION_COLORS[activeSection.id]?.bg || "rgba(59, 130, 246, 0.08)"}`,
+                borderColor: `${SECTION_COLORS[activeSection.id]?.color || "#3B82F6"}25`,
+              }}
+            >
+              <div
+                className="shrink-0 mt-0.5"
+                style={{ color: SECTION_COLORS[activeSection.id]?.color || "#3B82F6" }}
+              >
+                <LightbulbIcon width={16} height={16} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div
+                  className="text-[11px] font-bold tracking-wide uppercase font-mono mb-2"
+                  style={{ color: SECTION_COLORS[activeSection.id]?.color || "#3B82F6" }}
+                >
+                  ベストプラクティス
+                </div>
+                <ul className="m-0 pl-4 flex flex-col gap-1">
+                  {activeSection.bestPractices.map((tip, i) => (
+                    <li
+                      key={i}
+                      className="text-xs leading-[1.7] text-slate-400 font-sans"
+                    >
+                      {tip}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
         {/* Search -- only for section tabs */}
         {!isInfoTab && (
           <motion.div
             initial={m ? false : { opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.3, delay: 0.15 }}
-            className="bg-surface rounded-[10px] mb-4 flex items-center gap-2.5 transition-all"
-            style={{
-              padding: "2px 14px",
-              border: `1px solid ${searchFocused ? "#3B82F6" : "#334155"}`,
-              boxShadow: searchFocused
-                ? "0 0 0 3px rgba(59, 130, 246, 0.25)"
-                : "none",
-            }}
+            className="mb-4"
           >
-            <SearchIcon />
-            <input
-              type="text"
-              placeholder="ファイル名やキーワードで検索..."
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              onFocus={() => setSearchFocused(true)}
-              onBlur={() => setSearchFocused(false)}
-              className="w-full border-none bg-transparent text-sm text-slate-100 outline-none font-sans"
-              style={{ padding: "11px 0" }}
-            />
+            <SearchInput value={query} onChange={setQuery} placeholder="ファイル名やキーワードで検索..." />
           </motion.div>
         )}
 
@@ -1228,29 +1189,13 @@ export default function Directory(): React.JSX.Element {
 
               {/* Empty state */}
               {filteredEntries.length === 0 && (
-                <motion.div
-                  initial={reducedMotion ? false : { opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.3 }}
-                  className="text-center bg-surface rounded-xl border border-slate-700"
-                  style={{ padding: "64px 24px" }}
-                >
-                  <div className="mb-4">
-                    <EmptyIcon />
-                  </div>
-                  <p className="text-slate-500 text-sm m-0">
-                    条件に一致するエントリはありません
-                  </p>
-                </motion.div>
+                <EmptyState message="条件に一致するエントリはありません" reducedMotion={reducedMotion} />
               )}
             </motion.div>
           )}
         </AnimatePresence>
 
-        {/* Footer */}
-        <div className="text-center p-6 mt-6 text-slate-500 text-xs font-sans border-t border-slate-700">
-          Claude Code Release Notes Viewer
-        </div>
+        <Footer />
       </div>
 
       {/* Modal */}

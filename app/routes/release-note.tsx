@@ -2,14 +2,14 @@ import { useCallback, useMemo, useRef, useState } from "react";
 import { Link } from "react-router";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 
-import { CloseIcon, EmptyIcon, ExternalLinkIcon, SearchIcon } from "~/components/icons";
+import { Badge, TAG_COLORS, TAG_LABELS } from "~/components/badge";
+import { EmptyState } from "~/components/empty-state";
+import { Footer } from "~/components/footer";
+import { CloseIcon, ExternalLinkIcon } from "~/components/icons";
+import { SearchInput } from "~/components/search-input";
 import releases from "~/data/releases.json";
 import versionDetails from "~/data/version-details.json";
 import { useModalLock } from "~/hooks/useModalLock";
-
-// ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
 
 interface ReleaseItem {
   t: string;
@@ -21,15 +21,6 @@ interface ReleaseVersion {
   items: ReleaseItem[];
 }
 
-interface TagColor {
-  bg: string;
-  text: string;
-}
-
-// ---------------------------------------------------------------------------
-// Meta
-// ---------------------------------------------------------------------------
-
 export function meta(): Array<{ title?: string; name?: string; content?: string }> {
   return [
     { title: "Claude Code リリースノート" },
@@ -37,51 +28,13 @@ export function meta(): Array<{ title?: string; name?: string; content?: string 
   ];
 }
 
-// ---------------------------------------------------------------------------
-// Data
-// ---------------------------------------------------------------------------
-
 const RELEASES: ReleaseVersion[] = [...releases].reverse();
-
-const TAG_COLORS: Record<string, TagColor> = {
-  "新機能": { bg: "rgba(16, 185, 129, 0.15)", text: "#6EE7B7" },
-  "バグ修正": { bg: "rgba(239, 68, 68, 0.15)", text: "#FCA5A5" },
-  "改善": { bg: "rgba(59, 130, 246, 0.15)", text: "#93C5FD" },
-  "SDK": { bg: "rgba(139, 92, 246, 0.15)", text: "#C4B5FD" },
-  "IDE": { bg: "rgba(249, 115, 22, 0.15)", text: "#FDBA74" },
-  "Platform": { bg: "rgba(107, 114, 128, 0.15)", text: "#D1D5DB" },
-  "Security": { bg: "rgba(220, 38, 38, 0.15)", text: "#FCA5A5" },
-  "Perf": { bg: "rgba(234, 179, 8, 0.15)", text: "#FDE68A" },
-  "非推奨": { bg: "rgba(120, 113, 108, 0.15)", text: "#D6D3D1" },
-  "Plugin": { bg: "rgba(6, 182, 212, 0.15)", text: "#67E8F9" },
-  "MCP": { bg: "rgba(20, 184, 166, 0.15)", text: "#5EEAD4" },
-  "Agent": { bg: "rgba(99, 102, 241, 0.15)", text: "#A5B4FC" },
-};
-
-const TAG_LABELS: Record<string, string> = {
-  "新機能": "新機能",
-  "バグ修正": "バグ修正",
-  "改善": "改善",
-  "SDK": "SDK",
-  "IDE": "IDE",
-  "Platform": "プラットフォーム",
-  "Security": "セキュリティ",
-  "Perf": "パフォーマンス",
-  "非推奨": "非推奨",
-  "Plugin": "プラグイン",
-  "MCP": "MCP",
-  "Agent": "エージェント",
-};
 
 const ALL_TAGS = Object.keys(TAG_COLORS);
 
 const VERSION_DETAILS_AVAILABLE = new Set(Object.keys(versionDetails));
 
 const totalAll = RELEASES.reduce((sum, r) => sum + r.items.length, 0);
-
-// ---------------------------------------------------------------------------
-// Tab definitions
-// ---------------------------------------------------------------------------
 
 interface TabDef {
   id: string;
@@ -97,10 +50,6 @@ const TAB_DEFS: TabDef[] = [
     color: TAG_COLORS[tag]?.text ?? "#3B82F6",
   })),
 ];
-
-// ---------------------------------------------------------------------------
-// Tag icons
-// ---------------------------------------------------------------------------
 
 const TAG_ICONS: Record<string, () => React.JSX.Element> = {
   "新機能": () => (
@@ -177,43 +126,11 @@ const TAG_ICONS: Record<string, () => React.JSX.Element> = {
   ),
 };
 
-// ---------------------------------------------------------------------------
-// Nav links
-// ---------------------------------------------------------------------------
-
 const NAV_LINKS = [
   { to: "/commands", label: "コマンド一覧" },
   { to: "/plugins", label: "公式プラグイン" },
   { to: "/directory", label: "ディレクトリ構成" },
 ];
-
-// ---------------------------------------------------------------------------
-// Badge (small inline tag)
-// ---------------------------------------------------------------------------
-
-function Badge({ tag, small }: { tag: string; small?: boolean }): React.JSX.Element {
-  const colors = TAG_COLORS[tag];
-  return (
-    <span
-      className={`inline-flex items-center whitespace-nowrap font-semibold tracking-wide ${
-        small ? "px-[7px] py-px text-[10px]" : "px-[9px] py-[2px] text-[11px]"
-      }`}
-      style={{
-        borderRadius: "6px",
-        background: colors?.bg ?? "rgba(100,116,139,0.15)",
-        color: colors?.text ?? "#94A3B8",
-        lineHeight: 1.6,
-        letterSpacing: "0.2px",
-      }}
-    >
-      {TAG_LABELS[tag] ?? tag}
-    </span>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// TagCountBadge — shared tag-count badge used in both VersionCard and modal
-// ---------------------------------------------------------------------------
 
 function TagCountBadge({ tag, count }: { tag: string; count: number }): React.JSX.Element {
   return (
@@ -231,10 +148,6 @@ function TagCountBadge({ tag, count }: { tag: string; count: number }): React.JS
   );
 }
 
-// ---------------------------------------------------------------------------
-// Helper: compute sorted tag counts for a list of items
-// ---------------------------------------------------------------------------
-
 function computeSortedTagCounts(items: ReleaseItem[]): [string, number][] {
   const tagCounts: Record<string, number> = {};
   for (const item of items) {
@@ -244,10 +157,6 @@ function computeSortedTagCounts(items: ReleaseItem[]): [string, number][] {
   }
   return Object.entries(tagCounts).sort((a, b) => b[1] - a[1]);
 }
-
-// ---------------------------------------------------------------------------
-// VersionCard -- Grid card for each version
-// ---------------------------------------------------------------------------
 
 function VersionCard({
   version,
@@ -269,7 +178,7 @@ function VersionCard({
       tabIndex={0}
       onClick={onClick}
       onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onClick(); } }}
-      className="version-card bg-surface rounded-xl border border-slate-700 flex flex-col gap-[10px] cursor-pointer relative overflow-hidden h-[200px]"
+      className="hover-card bg-surface rounded-xl border border-slate-700 flex flex-col gap-[10px] cursor-pointer relative overflow-hidden h-[200px]"
       style={{ padding: "18px 20px", "--accent": accentColor } as React.CSSProperties}
     >
       {/* Accent line */}
@@ -327,10 +236,6 @@ function VersionCard({
     </div>
   );
 }
-
-// ---------------------------------------------------------------------------
-// DetailModal -- version detail popup
-// ---------------------------------------------------------------------------
 
 function DetailModal({
   version,
@@ -433,14 +338,9 @@ function DetailModal({
   );
 }
 
-// ---------------------------------------------------------------------------
-// Main page component
-// ---------------------------------------------------------------------------
-
 export default function ReleaseNote(): React.JSX.Element {
   const [activeTab, setActiveTab] = useState("all");
   const [query, setQuery] = useState("");
-  const [searchFocused, setSearchFocused] = useState(false);
   const [modalVersion, setModalVersion] = useState<string | null>(null);
   const reducedMotion = useReducedMotion();
   const tabsRef = useRef<HTMLDivElement>(null);
@@ -572,23 +472,8 @@ export default function ReleaseNote(): React.JSX.Element {
           transition={{ duration: 0.4, delay: 0.1 }}
           className="flex gap-3 items-center mb-[18px]"
         >
-          <div
-            className="flex-1 bg-surface rounded-[10px] px-3.5 py-[2px] flex items-center gap-2.5 transition-[border-color,box-shadow]"
-            style={{
-              border: `1px solid ${searchFocused ? accentColor : "#334155"}`,
-              boxShadow: searchFocused ? `0 0 0 3px ${accentColor}25` : "none",
-            }}
-          >
-            <SearchIcon />
-            <input
-              type="text"
-              placeholder="キーワードで検索..."
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              onFocus={() => setSearchFocused(true)}
-              onBlur={() => setSearchFocused(false)}
-              className="w-full py-2.5 border-none bg-transparent text-sm text-slate-100 outline-none font-sans"
-            />
+          <div className="flex-1">
+            <SearchInput value={query} onChange={setQuery} placeholder="キーワードで検索..." accentColor={accentColor} />
           </div>
           <span className="text-xs text-slate-500 font-medium whitespace-nowrap font-mono">
             {filtered.length}ver / {totalItems}件
@@ -621,27 +506,12 @@ export default function ReleaseNote(): React.JSX.Element {
         {/* Empty state */}
         <AnimatePresence>
           {filtered.length === 0 && (
-            <motion.div
-              initial={m ? false : { opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={m ? undefined : { opacity: 0, scale: 0.95 }}
-              transition={{ duration: 0.3 }}
-              className="text-center py-16 px-6 bg-surface rounded-xl border border-slate-700"
-            >
-              <div className="mb-4">
-                <EmptyIcon />
-              </div>
-              <p className="text-slate-500 text-sm m-0">
-                条件に一致する変更はありません
-              </p>
-            </motion.div>
+            <EmptyState message="条件に一致する変更はありません" reducedMotion={reducedMotion} />
           )}
         </AnimatePresence>
 
         {/* Footer */}
-        <div className="text-center p-6 mt-6 text-slate-500 text-xs border-t border-slate-700">
-          Claude Code Release Notes Viewer
-        </div>
+        <Footer />
       </div>
 
       {/* Modal */}

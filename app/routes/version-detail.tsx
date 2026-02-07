@@ -4,12 +4,9 @@ import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 
 import { ArrowLeftIcon, ChevronLeftIcon, ChevronRightIcon, ChevronDownIcon } from "~/components/icons";
 import { Badge, TAG_COLORS, TAG_LABELS } from "~/components/badge";
+import { Footer } from "~/components/footer";
 import releases from "~/data/releases.json";
 import versionDetails from "~/data/version-details.json";
-
-// ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
 
 interface ReleaseItem {
   t: string;
@@ -23,10 +20,6 @@ interface DetailItem {
   category: string;
 }
 
-// ---------------------------------------------------------------------------
-// Data
-// ---------------------------------------------------------------------------
-
 const RELEASES = [...releases].reverse();
 const VERSION_DETAILS: Record<string, DetailItem[]> = versionDetails;
 
@@ -37,10 +30,6 @@ function getAdjacentVersions(version: string): { prev: string | null; next: stri
     next: idx > 0 ? RELEASES[idx - 1].v : null,
   };
 }
-
-// ---------------------------------------------------------------------------
-// CategoryBadge
-// ---------------------------------------------------------------------------
 
 function CategoryBadge({ category }: { category: string }): React.JSX.Element {
   return (
@@ -56,10 +45,6 @@ function CategoryBadge({ category }: { category: string }): React.JSX.Element {
     </span>
   );
 }
-
-// ---------------------------------------------------------------------------
-// DetailCard
-// ---------------------------------------------------------------------------
 
 function DetailCard({
   item,
@@ -150,10 +135,6 @@ function DetailCard({
   );
 }
 
-// ---------------------------------------------------------------------------
-// FallbackCard (for versions without detailed data)
-// ---------------------------------------------------------------------------
-
 function FallbackCard({ item }: { item: ReleaseItem }): React.JSX.Element {
   return (
     <div className="bg-surface rounded-xl border border-slate-700 px-[18px] py-4">
@@ -168,10 +149,6 @@ function FallbackCard({ item }: { item: ReleaseItem }): React.JSX.Element {
     </div>
   );
 }
-
-// ---------------------------------------------------------------------------
-// NavButton
-// ---------------------------------------------------------------------------
 
 function NavButton({ to, label, direction }: { to: string; label: string; direction: "prev" | "next" }): React.JSX.Element {
   return (
@@ -191,10 +168,6 @@ function NavButton({ to, label, direction }: { to: string; label: string; direct
     </Link>
   );
 }
-
-// ---------------------------------------------------------------------------
-// Main Component
-// ---------------------------------------------------------------------------
 
 export default function VersionDetail(): React.JSX.Element {
   const { version } = useParams();
@@ -328,9 +301,7 @@ export default function VersionDetail(): React.JSX.Element {
         </motion.div>
 
         {/* Footer */}
-        <div className="text-center p-6 mt-6 text-slate-500 text-xs border-t border-slate-700">
-          Claude Code Release Notes Viewer
-        </div>
+        <Footer />
       </div>
     </div>
   );

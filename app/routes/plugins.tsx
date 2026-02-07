@@ -10,20 +10,16 @@ import {
   CopyIcon,
   DetailInfoIcon,
   DownloadIcon,
-  EmptyIcon,
   ExternalLinkIcon,
   GitHubIcon,
   PluginIcon,
-  SearchIcon,
   SettingsIcon,
   TimingIcon,
 } from "~/components/icons.js";
+import { EmptyState } from "~/components/empty-state.js";
+import { SearchInput } from "~/components/search-input.js";
 import { useModalLock } from "~/hooks/useModalLock.js";
 import pluginsData from "~/data/plugins.json";
-
-// ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
 
 interface Plugin {
   name: string;
@@ -43,10 +39,6 @@ interface Category {
   description: string;
   plugins: Plugin[];
 }
-
-// ---------------------------------------------------------------------------
-// Category colors & icons
-// ---------------------------------------------------------------------------
 
 const CATEGORY_COLORS: Record<string, { color: string; bg: string }> = {
   "code-intelligence": { color: "#67E8F9", bg: "rgba(6, 182, 212, 0.15)" },
@@ -97,10 +89,6 @@ const CATEGORY_ICONS: Record<string, () => React.JSX.Element> = {
   ),
 };
 
-// ---------------------------------------------------------------------------
-// Meta
-// ---------------------------------------------------------------------------
-
 export function meta(): Array<{ title?: string; name?: string; content?: string }> {
   return [
     { title: "Claude Code 公式プラグイン一覧" },
@@ -108,16 +96,8 @@ export function meta(): Array<{ title?: string; name?: string; content?: string 
   ];
 }
 
-// ---------------------------------------------------------------------------
-// Data
-// ---------------------------------------------------------------------------
-
 const CATEGORIES: Category[] = pluginsData.categories;
 const TOTAL = CATEGORIES.flatMap((c) => c.plugins).length;
-
-// ---------------------------------------------------------------------------
-// Tab definitions
-// ---------------------------------------------------------------------------
 
 interface TabDef {
   id: string;
@@ -135,10 +115,6 @@ const TAB_DEFS: TabDef[] = [
   })),
   { id: "quickstart", label: "クイックスタート", color: "#5EEAD4", type: "quickstart" },
 ];
-
-// ---------------------------------------------------------------------------
-// CopyButton
-// ---------------------------------------------------------------------------
 
 function CopyButton({ text }: { text: string }): React.JSX.Element {
   const [copied, setCopied] = useState(false);
@@ -167,10 +143,6 @@ function CopyButton({ text }: { text: string }): React.JSX.Element {
   );
 }
 
-// ---------------------------------------------------------------------------
-// PluginCard
-// ---------------------------------------------------------------------------
-
 interface PluginCardProps {
   plugin: Plugin;
   accentColor: string;
@@ -184,7 +156,7 @@ function PluginCard({ plugin, accentColor, onClick }: PluginCardProps): React.JS
       tabIndex={0}
       onClick={onClick}
       onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onClick(); } }}
-      className="plugin-card bg-surface rounded-xl border border-slate-700 flex flex-col gap-2.5 cursor-pointer relative overflow-hidden h-[200px] px-5 py-[18px]"
+      className="hover-card bg-surface rounded-xl border border-slate-700 flex flex-col gap-2.5 cursor-pointer relative overflow-hidden h-[200px] px-5 py-[18px]"
       style={{ "--accent": accentColor } as React.CSSProperties}
     >
       <div
@@ -213,10 +185,6 @@ function PluginCard({ plugin, accentColor, onClick }: PluginCardProps): React.JS
     </div>
   );
 }
-
-// ---------------------------------------------------------------------------
-// DetailModal
-// ---------------------------------------------------------------------------
 
 interface DetailModalProps {
   plugin: Plugin;
@@ -365,10 +333,6 @@ function DetailModal({ plugin, accentColor, onClose, reducedMotion }: DetailModa
   );
 }
 
-// ---------------------------------------------------------------------------
-// QuickStartPanel
-// ---------------------------------------------------------------------------
-
 const QUICKSTART_STEPS = [
   {
     title: "ブラウズ",
@@ -418,23 +382,14 @@ function QuickStartPanel(): React.JSX.Element {
   );
 }
 
-// ---------------------------------------------------------------------------
-// Nav links
-// ---------------------------------------------------------------------------
-
 const NAV_LINKS = [
   { to: "/", label: "リリースノート", icon: <ArrowLeftIcon />, trailing: false },
   { to: "/commands", label: "コマンド一覧", icon: null, trailing: true },
   { to: "/directory", label: "ディレクトリ構成", icon: null, trailing: true },
 ];
 
-// ---------------------------------------------------------------------------
-// Main Component
-// ---------------------------------------------------------------------------
-
 export default function Plugins(): React.JSX.Element {
   const [query, setQuery] = useState("");
-  const [searchFocused, setSearchFocused] = useState(false);
   const [activeTab, setActiveTab] = useState<string>(CATEGORIES[0]?.id || "");
   const [selectedPlugin, setSelectedPlugin] = useState<{ plugin: Plugin; accentColor: string } | null>(null);
   const reducedMotion = useReducedMotion();
@@ -575,22 +530,9 @@ export default function Plugins(): React.JSX.Element {
             initial={m ? false : { opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.3, delay: 0.15 }}
-            className="bg-surface rounded-[10px] mb-4 flex items-center gap-2.5 transition-all px-3.5 py-[2px]"
-            style={{
-              border: `1px solid ${searchFocused ? "#3B82F6" : "#334155"}`,
-              boxShadow: searchFocused ? "0 0 0 3px rgba(59, 130, 246, 0.25)" : "none",
-            }}
+            className="mb-4"
           >
-            <SearchIcon />
-            <input
-              type="text"
-              placeholder="プラグインを検索..."
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              onFocus={() => setSearchFocused(true)}
-              onBlur={() => setSearchFocused(false)}
-              className="w-full border-none bg-transparent text-sm text-slate-100 outline-none font-sans py-[11px]"
-            />
+            <SearchInput value={query} onChange={setQuery} placeholder="プラグインを検索..." />
           </motion.div>
         )}
 
@@ -645,19 +587,7 @@ export default function Plugins(): React.JSX.Element {
 
               {/* Empty state */}
               {filteredPlugins.length === 0 && (
-                <motion.div
-                  initial={reducedMotion ? false : { opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.3 }}
-                  className="text-center bg-surface rounded-xl border border-slate-700 py-16 px-6"
-                >
-                  <div className="mb-4">
-                    <EmptyIcon />
-                  </div>
-                  <p className="text-slate-500 text-sm m-0">
-                    条件に一致するプラグインはありません
-                  </p>
-                </motion.div>
+                <EmptyState message="条件に一致するプラグインはありません" reducedMotion={reducedMotion} />
               )}
             </motion.div>
           )}

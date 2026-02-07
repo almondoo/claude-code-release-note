@@ -6,18 +6,15 @@ import {
   ArrowLeftIcon,
   CloseIcon,
   DetailInfoIcon,
-  EmptyIcon,
   InfoIcon,
-  SearchIcon,
   TerminalIcon,
   TimingIcon,
 } from "~/components/icons";
+import { EmptyState } from "~/components/empty-state";
+import { Footer } from "~/components/footer";
+import { SearchInput } from "~/components/search-input";
 import commandsData from "~/data/commands.json";
 import { useModalLock } from "~/hooks/useModalLock";
-
-// ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
 
 interface Command {
   name: string;
@@ -41,10 +38,6 @@ interface Shortcut {
   whenToUse: string;
 }
 
-// ---------------------------------------------------------------------------
-// Category colors (raw hex values, used dynamically via inline style)
-// ---------------------------------------------------------------------------
-
 const CATEGORY_COLORS: Record<string, { color: string; bg: string }> = {
   essential: { color: "#6EE7B7", bg: "rgba(16, 185, 129, 0.15)" },
   session: { color: "#67E8F9", bg: "rgba(6, 182, 212, 0.15)" },
@@ -55,10 +48,6 @@ const CATEGORY_COLORS: Record<string, { color: string; bg: string }> = {
   utility: { color: "#F472B6", bg: "rgba(244, 114, 182, 0.15)" },
   account: { color: "#FDE68A", bg: "rgba(234, 179, 8, 0.15)" },
 };
-
-// ---------------------------------------------------------------------------
-// Category icons
-// ---------------------------------------------------------------------------
 
 const CATEGORY_ICONS: Record<string, () => React.JSX.Element> = {
   essential: () => (
@@ -109,20 +98,12 @@ const CATEGORY_ICONS: Record<string, () => React.JSX.Element> = {
   ),
 };
 
-// ---------------------------------------------------------------------------
-// Meta
-// ---------------------------------------------------------------------------
-
 export function meta(): Array<{ title?: string; name?: string; content?: string }> {
   return [
     { title: "Claude Code コマンド一覧" },
     { name: "description", content: "Claude Code の全スラッシュコマンドと CLI オプションのリファレンス" },
   ];
 }
-
-// ---------------------------------------------------------------------------
-// Data
-// ---------------------------------------------------------------------------
 
 const CATEGORIES: Category[] = commandsData.categories;
 const CLI_COMMANDS: Command[] = commandsData.cli.commands;
@@ -131,10 +112,6 @@ const SHORTCUTS: Shortcut[] = commandsData.shortcuts;
 
 const TOTAL_SLASH = CATEGORIES.flatMap((c) => c.commands).length;
 const TOTAL_CLI = CLI_COMMANDS.length + CLI_FLAGS.length;
-
-// ---------------------------------------------------------------------------
-// Tab definitions
-// ---------------------------------------------------------------------------
 
 interface TabDef {
   id: string;
@@ -154,18 +131,10 @@ const TAB_DEFS: TabDef[] = [
   { id: "shortcuts", label: "ショートカット", color: "#FDBA74", type: "shortcuts" },
 ];
 
-// ---------------------------------------------------------------------------
-// Search helper
-// ---------------------------------------------------------------------------
-
 function matchesQuery(fields: (string | null)[], lowerQuery: string): boolean {
   if (!lowerQuery) return true;
   return fields.some((f) => f != null && f.toLowerCase().includes(lowerQuery));
 }
-
-// ---------------------------------------------------------------------------
-// CommandCard — compact grid card for slash commands
-// ---------------------------------------------------------------------------
 
 function CommandCard({
   cmd,
@@ -184,7 +153,7 @@ function CommandCard({
       tabIndex={0}
       onClick={onClick}
       onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onClick(); } }}
-      className="command-card bg-surface rounded-xl border border-slate-700 flex flex-col gap-2.5 cursor-pointer relative overflow-hidden h-[200px] px-5 py-[18px]"
+      className="hover-card bg-surface rounded-xl border border-slate-700 flex flex-col gap-2.5 cursor-pointer relative overflow-hidden h-[200px] px-5 py-[18px]"
       style={{ "--accent": accentColor } as React.CSSProperties}
     >
       <div
@@ -221,10 +190,6 @@ function CommandCard({
   );
 }
 
-// ---------------------------------------------------------------------------
-// CLICard — card for CLI commands/flags
-// ---------------------------------------------------------------------------
-
 const CLI_ACCENT = "#C4B5FD";
 
 function CLICard({
@@ -242,7 +207,7 @@ function CLICard({
       tabIndex={0}
       onClick={onClick}
       onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onClick(); } }}
-      className="command-card bg-surface rounded-xl border border-slate-700 flex flex-col gap-2.5 cursor-pointer relative overflow-hidden h-[200px] px-5 py-[18px]"
+      className="hover-card bg-surface rounded-xl border border-slate-700 flex flex-col gap-2.5 cursor-pointer relative overflow-hidden h-[200px] px-5 py-[18px]"
       style={{ "--accent": CLI_ACCENT } as React.CSSProperties}
     >
       <div
@@ -269,10 +234,6 @@ function CLICard({
   );
 }
 
-// ---------------------------------------------------------------------------
-// ShortcutCard
-// ---------------------------------------------------------------------------
-
 const SHORTCUT_ACCENT = "#FDBA74";
 
 function ShortcutCard({
@@ -288,7 +249,7 @@ function ShortcutCard({
       tabIndex={0}
       onClick={onClick}
       onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onClick(); } }}
-      className="command-card bg-surface rounded-xl border border-slate-700 flex flex-col gap-2.5 cursor-pointer relative overflow-hidden h-[200px] px-5 py-[18px]"
+      className="hover-card bg-surface rounded-xl border border-slate-700 flex flex-col gap-2.5 cursor-pointer relative overflow-hidden h-[200px] px-5 py-[18px]"
       style={{ "--accent": SHORTCUT_ACCENT } as React.CSSProperties}
     >
       <div
@@ -313,10 +274,6 @@ function ShortcutCard({
     </div>
   );
 }
-
-// ---------------------------------------------------------------------------
-// DetailModal — shared modal for command/CLI/shortcut details
-// ---------------------------------------------------------------------------
 
 type ModalData =
   | { type: "command"; cmd: Command; categoryName: string; accentColor: string }
@@ -532,13 +489,8 @@ function DetailModal({
   );
 }
 
-// ---------------------------------------------------------------------------
-// Main Component
-// ---------------------------------------------------------------------------
-
 export default function Commands(): React.JSX.Element {
   const [query, setQuery] = useState("");
-  const [searchFocused, setSearchFocused] = useState(false);
   const [activeTab, setActiveTab] = useState<string>("essential");
   const [modalData, setModalData] = useState<ModalData | null>(null);
   const reducedMotion = useReducedMotion();
@@ -713,22 +665,9 @@ export default function Commands(): React.JSX.Element {
           initial={m ? false : { opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.3, delay: 0.15 }}
-          className="bg-surface rounded-[10px] mb-4 flex items-center gap-2.5 transition-all px-3.5 py-[2px]"
-          style={{
-            border: `1px solid ${searchFocused ? "#3B82F6" : "#334155"}`,
-            boxShadow: searchFocused ? "0 0 0 3px rgba(59, 130, 246, 0.25)" : "none",
-          }}
+          className="mb-4"
         >
-          <SearchIcon />
-          <input
-            type="text"
-            placeholder="コマンドを検索..."
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            onFocus={() => setSearchFocused(true)}
-            onBlur={() => setSearchFocused(false)}
-            className="w-full border-none bg-transparent text-sm text-slate-100 outline-none font-sans py-[11px]"
-          />
+          <SearchInput value={query} onChange={setQuery} placeholder="コマンドを検索..." />
         </motion.div>
 
         {/* Count */}
@@ -829,27 +768,12 @@ export default function Commands(): React.JSX.Element {
 
             {/* Empty state */}
             {currentCount === 0 && (
-              <motion.div
-                initial={reducedMotion ? false : { opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.3 }}
-                className="text-center bg-surface rounded-xl border border-slate-700 py-16 px-6"
-              >
-                <div className="mb-4">
-                  <EmptyIcon />
-                </div>
-                <p className="text-slate-500 text-sm m-0">
-                  条件に一致するコマンドはありません
-                </p>
-              </motion.div>
+              <EmptyState message="条件に一致するコマンドはありません" reducedMotion={reducedMotion} />
             )}
           </motion.div>
         </AnimatePresence>
 
-        {/* Footer */}
-        <div className="text-center p-6 mt-6 text-slate-500 text-xs border-t border-slate-700">
-          Claude Code Release Notes Viewer
-        </div>
+        <Footer />
       </div>
 
       {/* Modal */}
