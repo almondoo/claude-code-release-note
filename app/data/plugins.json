@@ -1,0 +1,591 @@
+{
+  "categories": [
+    {
+      "id": "code-intelligence",
+      "name": "コードインテリジェンス",
+      "description": "Language Server Protocol (LSP) を活用した高度なコード解析・ナビゲーション",
+      "plugins": [
+        {
+          "name": "typescript-lsp",
+          "displayName": "TypeScript",
+          "description": "TypeScript / JavaScript の型チェックとコードナビゲーション",
+          "binary": "typescript-language-server",
+          "install": "/plugin install typescript-lsp@claude-plugins-official",
+          "detail": "typescript-language-server を利用して .ts, .tsx, .js, .jsx, .mts, .cts, .mjs, .cjs ファイルの型エラー検出、定義ジャンプ、参照検索、シンボル一覧、ホバー情報などをリアルタイムで提供します。Claude がファイルを編集するたびに自動で診断が走り、型エラーやインポート漏れを即座に検出・修正します。",
+          "whenToUse": "TypeScript / JavaScript プロジェクトで作業するとき。型安全性を確保しながらコーディングしたい場合や、大規模プロジェクトで正確なコードナビゲーションが必要な場合。",
+          "setup": "npm install -g typescript-language-server typescript でバイナリをインストールした後、プラグインを有効化します。"
+        },
+        {
+          "name": "pyright-lsp",
+          "displayName": "Python",
+          "description": "Python の型チェックと静的解析 (Pyright)",
+          "binary": "pyright-langserver",
+          "install": "/plugin install pyright-lsp@claude-plugins-official",
+          "detail": "Pyright を利用した Python コード (.py, .pyi) の型チェック、定義ジャンプ、参照検索、補完情報を提供します。型ヒント (type hints) に基づく高精度な解析で、誤ったインポートや未定義変数を即座に検出します。",
+          "whenToUse": "Python プロジェクト（Django、FastAPI、Flask など）で型安全性を重視した開発を行うとき。",
+          "setup": "pip install pyright または npm install -g pyright でインストールします。"
+        },
+        {
+          "name": "gopls-lsp",
+          "displayName": "Go",
+          "description": "Go の公式言語サーバーによるコードインテリジェンス",
+          "binary": "gopls",
+          "install": "/plugin install gopls-lsp@claude-plugins-official",
+          "detail": "gopls (Go 公式言語サーバー) を利用して .go ファイルの型チェック、定義ジャンプ、参照検索、インポート自動管理などを提供します。go modules に対応し、依存関係の解決も正確に行います。$GOPATH/bin が PATH に含まれている必要があります。",
+          "whenToUse": "Go プロジェクトで作業するとき。パッケージ間のナビゲーションやインターフェース実装の追跡に最適です。",
+          "setup": "go install golang.org/x/tools/gopls@latest でインストールし、$GOPATH/bin を PATH に追加します。"
+        },
+        {
+          "name": "rust-analyzer-lsp",
+          "displayName": "Rust",
+          "description": "Rust の高度なコード解析と型推論",
+          "binary": "rust-analyzer",
+          "install": "/plugin install rust-analyzer-lsp@claude-plugins-official",
+          "detail": "rust-analyzer を利用して .rs ファイルの型推論、ライフタイム解析、マクロ展開、定義ジャンプ、参照検索などを提供します。Cargo ワークスペース全体を解析し、コンパイルエラーを事前に検出します。",
+          "whenToUse": "Rust プロジェクトで開発するとき。大規模プロジェクトではメモリ消費に注意してください。",
+          "setup": "rustup component add rust-analyzer でインストールします。"
+        },
+        {
+          "name": "clangd-lsp",
+          "displayName": "C / C++",
+          "description": "C/C++ のコード解析とナビゲーション (clangd)",
+          "binary": "clangd",
+          "install": "/plugin install clangd-lsp@claude-plugins-official",
+          "detail": "clangd を利用して .c, .h, .cpp, .cc, .cxx, .hpp, .hxx ファイルの構文解析、定義ジャンプ、参照検索、ヘッダーインクルード管理などを提供します。--background-index オプションで起動し、compile_commands.json に基づいた正確なプロジェクト解析が可能です。",
+          "whenToUse": "C/C++ プロジェクトで作業するとき。複雑なヘッダー依存関係やマクロ定義の追跡に有効です。",
+          "setup": "brew install llvm などで clangd をインストールします。"
+        },
+        {
+          "name": "jdtls-lsp",
+          "displayName": "Java",
+          "description": "Java の型解析とリファクタリング支援 (Eclipse JDT.LS)",
+          "binary": "jdtls",
+          "install": "/plugin install jdtls-lsp@claude-plugins-official",
+          "detail": "Eclipse JDT Language Server を利用して .java ファイルの型解析、定義ジャンプ、参照検索、パッケージ管理などを提供します。Maven / Gradle プロジェクトの依存関係を自動解決します。起動タイムアウトは 120 秒に設定されています。",
+          "whenToUse": "Java プロジェクト（Spring Boot、Android など）で作業するとき。",
+          "setup": "brew install jdtls などでインストールします。JDK 17 以上が必要です。"
+        },
+        {
+          "name": "kotlin-lsp",
+          "displayName": "Kotlin",
+          "description": "Kotlin のコードインテリジェンス",
+          "binary": "kotlin-lsp",
+          "install": "/plugin install kotlin-lsp@claude-plugins-official",
+          "detail": "Kotlin Language Server を利用して .kt, .kts ファイルの型チェック、定義ジャンプ、参照検索を提供します。起動タイムアウトは 120 秒に設定されています。",
+          "whenToUse": "Kotlin プロジェクト（Android、Spring など）で作業するとき。",
+          "setup": "brew install kotlin-language-server などでインストールします。"
+        },
+        {
+          "name": "csharp-lsp",
+          "displayName": "C#",
+          "description": "C# / .NET のコードインテリジェンス",
+          "binary": "csharp-ls",
+          "install": "/plugin install csharp-lsp@claude-plugins-official",
+          "detail": "csharp-ls を利用して .cs ファイルの型チェック、定義ジャンプ、参照検索、NuGet パッケージの依存解決などを提供します。",
+          "whenToUse": "C# / .NET プロジェクト（ASP.NET、Unity など）で作業するとき。",
+          "setup": "dotnet tool install --global csharp-ls でインストールします。.NET SDK が必要です。"
+        },
+        {
+          "name": "swift-lsp",
+          "displayName": "Swift",
+          "description": "Swift のコードインテリジェンス (SourceKit-LSP)",
+          "binary": "sourcekit-lsp",
+          "install": "/plugin install swift-lsp@claude-plugins-official",
+          "detail": "SourceKit-LSP を利用して .swift ファイルの型チェック、定義ジャンプ、参照検索を提供します。Swift Package Manager プロジェクトに対応しています。",
+          "whenToUse": "Swift プロジェクト（iOS、macOS アプリ開発など）で作業するとき。",
+          "setup": "Xcode をインストールすると sourcekit-lsp が含まれます。"
+        },
+        {
+          "name": "php-lsp",
+          "displayName": "PHP",
+          "description": "PHP の型チェックとコード解析 (Intelephense)",
+          "binary": "intelephense",
+          "install": "/plugin install php-lsp@claude-plugins-official",
+          "detail": "Intelephense を利用して .php ファイルの型チェック、定義ジャンプ、参照検索、名前空間管理などを提供します。",
+          "whenToUse": "PHP プロジェクト（Laravel、Symfony など）で作業するとき。",
+          "setup": "npm install -g intelephense でインストールします。"
+        },
+        {
+          "name": "lua-lsp",
+          "displayName": "Lua",
+          "description": "Lua のコードインテリジェンス",
+          "binary": "lua-language-server",
+          "install": "/plugin install lua-lsp@claude-plugins-official",
+          "detail": "Lua Language Server を利用して .lua ファイルの型チェック（LuaCATS アノテーション対応）、定義ジャンプ、参照検索を提供します。",
+          "whenToUse": "Lua プロジェクト（Neovim 設定、ゲーム開発など）で作業するとき。",
+          "setup": "brew install lua-language-server などでインストールします。"
+        }
+      ]
+    },
+    {
+      "id": "dev-tools",
+      "name": "Anthropic 開発ツール",
+      "description": "Anthropic が提供する開発支援スキル・エージェント・フック",
+      "plugins": [
+        {
+          "name": "feature-dev",
+          "displayName": "Feature Dev",
+          "description": "コードベース探索・アーキテクチャ設計・品質レビューの専門エージェントによる機能開発ワークフロー",
+          "binary": null,
+          "install": "/plugin install feature-dev@claude-plugins-official",
+          "detail": "機能開発を包括的に支援するプラグインです。コードベースの探索エージェント、アーキテクチャ設計エージェント、品質レビューエージェントなど、複数の専門エージェントを組み合わせて、新機能の実装を体系的に進めます。",
+          "whenToUse": "新しい機能を設計・実装するとき。要件の整理からコードの実装、レビューまでの一連のフローを効率化したい場合に最適です。",
+          "setup": "インストール後すぐに使えます。"
+        },
+        {
+          "name": "frontend-design",
+          "displayName": "Frontend Design",
+          "description": "汎用的な AI 生成デザインを避け、独創的でプロダクション品質のフロントエンド UI を生成",
+          "binary": null,
+          "install": "/plugin install frontend-design@claude-plugins-official",
+          "detail": "Anthropic の Prithvi Rajasekaran と Alexander Bricken が開発したフロントエンドデザインスキルです。大胆な美的選択、独自のタイポグラフィとカラーパレット、インパクトのあるアニメーションとビジュアルディテールを備えた、プロダクション品質のコードを生成します。AI が生成した「ありがちなデザイン」を意識的に避けます。",
+          "whenToUse": "ダッシュボード、ランディングページ、アプリ UI など、視覚的に洗練されたフロントエンドを作成するとき。例: 「音楽ストリーミングアプリのダッシュボードを作成して」",
+          "setup": "インストール後すぐに使えます。"
+        },
+        {
+          "name": "playground",
+          "displayName": "Playground",
+          "description": "インタラクティブな HTML プレイグラウンドを生成 — デザイン探索、データエクスプローラー、コンセプトマップなど",
+          "binary": null,
+          "install": "/plugin install playground@claude-plugins-official",
+          "detail": "自己完結型の単一ファイル HTML プレイグラウンドを作成します。ビジュアルコントロール、ライブプレビュー、コピーボタン付きのプロンプト出力を備えています。デザインプレイグラウンド、データエクスプローラー、コンセプトマップ、ドキュメント批評などのテンプレートが含まれます。",
+          "whenToUse": "アイデアを素早く視覚化したいとき。プロトタイプの検証、デザインの探索、データの可視化に便利です。",
+          "setup": "インストール後すぐに使えます。"
+        },
+        {
+          "name": "ralph-loop",
+          "displayName": "Ralph Loop",
+          "description": "反復的な自己参照 AI ループで段階的に品質を向上させる開発手法 (Ralph Wiggum テクニック)",
+          "binary": null,
+          "install": "/plugin install ralph-loop@claude-plugins-official",
+          "detail": "Claude が同じタスクに対して繰り返し作業し、前回の成果物を確認しながら改善を重ねるインタラクティブなループを実装します。各イテレーションで前回の作業を参照し、完了するまで段階的に品質を向上させます。",
+          "whenToUse": "複雑なタスクを段階的に改善したいとき。1回の生成では十分な品質が得られないコード生成やテキスト作成で、反復的な洗練が必要な場合に有効です。",
+          "setup": "インストール後すぐに使えます。"
+        },
+        {
+          "name": "agent-sdk-dev",
+          "displayName": "Agent SDK Dev",
+          "description": "Claude Agent SDK を使った開発を支援するツールキット",
+          "binary": null,
+          "install": "/plugin install agent-sdk-dev@claude-plugins-official",
+          "detail": "Claude Agent SDK を使ったカスタムエージェントの開発を支援します。SDK のドキュメント参照、コード生成テンプレート、デバッグツールなどを提供します。",
+          "whenToUse": "Claude Agent SDK を使って独自のエージェントやワークフローを構築するとき。",
+          "setup": "インストール後すぐに使えます。"
+        },
+        {
+          "name": "plugin-dev",
+          "displayName": "Plugin Dev",
+          "description": "プラグインの開発・テスト・配布を支援する 7 つの専門スキルを含むツールキット",
+          "binary": null,
+          "install": "/plugin install plugin-dev@claude-plugins-official",
+          "detail": "Claude Code プラグインを作成するための包括的なツールキットです。hooks、MCP 統合、コマンド、エージェント、ベストプラクティスをカバーする 7 つの専門スキルを提供します。AI 支援によるプラグインの作成とバリデーションが可能です。",
+          "whenToUse": "自分のチームや組織向けのカスタムプラグインを作成したいとき。",
+          "setup": "インストール後すぐに使えます。"
+        },
+        {
+          "name": "claude-code-setup",
+          "displayName": "Claude Code Setup",
+          "description": "コードベースを分析し、最適な Claude Code 自動化（hooks、skills、MCP サーバー、サブエージェント）を提案",
+          "binary": null,
+          "install": "/plugin install claude-code-setup@claude-plugins-official",
+          "detail": "プロジェクトのコードベースを読み取り専用で分析し、最適な Claude Code の自動化設定を提案します。MCP サーバー（context7、Playwright など）、スキル（Plan agent、frontend-design など）、Hooks（自動フォーマット、自動 lint、機密ファイルブロック）、サブエージェント（セキュリティ、パフォーマンス、アクセシビリティレビュー）、スラッシュコマンド（/test、/pr-review、/explain）の推奨を行います。",
+          "whenToUse": "新しいプロジェクトで Claude Code を初めて設定するとき。「このプロジェクトに最適な自動化を提案して」のように使います。",
+          "setup": "インストール後すぐに使えます。ファイルの変更は行いません（読み取り専用）。"
+        },
+        {
+          "name": "claude-md-management",
+          "displayName": "CLAUDE.md Management",
+          "description": "CLAUDE.md ファイルの品質監査、セッション学習の記録、プロジェクトメモリの更新を支援",
+          "binary": null,
+          "install": "/plugin install claude-md-management@claude-plugins-official",
+          "detail": "2 つの機能を提供します。(1) claude-md-improver スキル: CLAUDE.md を現在のコードベース状態と照合して品質監査を行います。(2) /revise-claude-md コマンド: 現在のセッションで得た学びを CLAUDE.md に反映します。テンプレート、更新ガイドライン、品質基準のリファレンスも内蔵しています。",
+          "whenToUse": "CLAUDE.md が古くなっていないか確認したいとき、セッション中に得た知見を記録したいとき。「CLAUDE.md を監査して」や /revise-claude-md で使います。",
+          "setup": "インストール後すぐに使えます。"
+        },
+        {
+          "name": "security-guidance",
+          "displayName": "Security Guidance",
+          "description": "ファイル編集時にコマンドインジェクション・XSS・安全でないコードパターンを警告する Hook",
+          "binary": null,
+          "install": "/plugin install security-guidance@claude-plugins-official",
+          "detail": "ファイル編集時に自動的にトリガーされるセキュリティリマインダー Hook です。コマンドインジェクション、XSS (クロスサイトスクリプティング)、安全でないコードパターンなどの潜在的なセキュリティ問題を検出して警告します。",
+          "whenToUse": "セキュリティを重視するプロジェクトで常に有効化しておくと便利です。特にユーザー入力を扱うコードや外部 API と連携するコードの編集時に効果的です。",
+          "setup": "インストール後すぐに有効化されます。ファイル編集時に自動でトリガーされます。"
+        },
+        {
+          "name": "hookify",
+          "displayName": "Hookify",
+          "description": "会話パターンや明示的な指示からカスタム Hook を簡単に作成",
+          "binary": null,
+          "install": "/plugin install hookify@claude-plugins-official",
+          "detail": "望ましくない動作を防止するカスタム Hook をマークダウンファイルで簡単に定義できます。会話パターンを分析して自動的にルールを生成したり、明示的な指示からルールを作成したりできます。",
+          "whenToUse": "特定のコーディングパターンを禁止したい、特定のファイルへのアクセスを制限したいなど、カスタムルールが必要なとき。",
+          "setup": "インストール後すぐに使えます。"
+        }
+      ]
+    },
+    {
+      "id": "code-review-git",
+      "name": "コードレビュー & Git",
+      "description": "コードの品質管理と Git ワークフローの自動化",
+      "plugins": [
+        {
+          "name": "pr-review-toolkit",
+          "displayName": "PR Review Toolkit",
+          "description": "6 つの専門エージェントによる PR の包括的レビュー",
+          "binary": null,
+          "install": "/plugin install pr-review-toolkit@claude-plugins-official",
+          "detail": "6 つの専門エージェントを使って PR を多角的にレビューします。(1) comment-analyzer: コメントの正確性と保守性、(2) pr-test-analyzer: テストカバレッジの品質と網羅性、(3) silent-failure-hunter: エラーハンドリングとサイレント失敗の検出、(4) type-design-analyzer: 型設計の品質と不変条件（4 軸で 1-10 評価）、(5) code-reviewer: プロジェクトガイドライン・スタイル・バグの全般チェック、(6) code-simplifier: コードの簡素化とリファクタリング。/pr-review-toolkit:review-pr で全エージェントによる総合レビューを実行できます。",
+          "whenToUse": "PR を作成した後、マージ前に品質チェックを行いたいとき。",
+          "setup": "インストール後すぐに使えます。GitHub CLI (gh) があると PR 情報を自動取得できます。"
+        },
+        {
+          "name": "code-review",
+          "displayName": "Code Review",
+          "description": "複数の専門エージェントと信頼度スコアリングによる自動コードレビュー",
+          "binary": null,
+          "install": "/plugin install code-review@claude-plugins-official",
+          "detail": "PR に対して 4 つの並列エージェントを起動する自動コードレビューです。(1)(2) CLAUDE.md 準拠チェック、(3) 明らかなバグ検出、(4) git blame/履歴コンテキスト分析。各指摘に 0-100 の信頼度スコアを付け、80 未満の偽陽性をフィルタリングします。/code-review:code-review で実行します。Boris Cherny (Anthropic) が開発。",
+          "whenToUse": "PR をレビューするとき。特に CLAUDE.md のガイドラインへの準拠を確認したい場合に最適です。",
+          "setup": "GitHub CLI (gh) と GitHub リモートを持つ git リポジトリが必要です。"
+        },
+        {
+          "name": "code-simplifier",
+          "displayName": "Code Simplifier",
+          "description": "機能を保持しながらコードの明瞭性・一貫性・保守性を改善するエージェント",
+          "binary": null,
+          "install": "/plugin install code-simplifier@claude-plugins-official",
+          "detail": "最近変更されたコードに焦点を当て、不要な複雑さやネスト、冗長なコードや抽象化の削減、プロジェクト標準との整合性確保、過度に凝縮されたコードの読みやすさ改善などを行います。すべての機能を保持したまま簡素化します。",
+          "whenToUse": "コードレビューを通過した後、コードが動作するが複雑に感じるとき。",
+          "setup": "インストール後すぐに使えます。"
+        },
+        {
+          "name": "commit-commands",
+          "displayName": "Commit Commands",
+          "description": "Git コミット・プッシュ・PR 作成・ブランチクリーンアップの自動化",
+          "binary": null,
+          "install": "/plugin install commit-commands@claude-plugins-official",
+          "detail": "3 つのコマンドを提供します。(1) /commit: git status を分析し、最近のコミットスタイルに合わせた適切なメッセージを自動生成してコミット（機密ファイルのコミットを防止）。(2) /commit-push-pr: main にいる場合はフィーチャーブランチを作成し、コミット・プッシュ・PR 作成まで一気に実行（全ブランチコミットを分析して PR 要約を生成）。(3) /clean_gone: リモートで削除済みのローカルブランチと関連ワークツリーをクリーンアップ。",
+          "whenToUse": "コードの変更をコミットする準備ができたとき。特にコミットメッセージの作成が面倒な場合や PR 作成まで一気に行いたいときに便利です。",
+          "setup": "インストール後すぐに使えます。PR 作成には GitHub CLI (gh) の認証が必要です。"
+        }
+      ]
+    },
+    {
+      "id": "external-integrations",
+      "name": "外部サービス連携",
+      "description": "MCP サーバーを通じた外部サービスとのシームレスな連携",
+      "plugins": [
+        {
+          "name": "github",
+          "displayName": "GitHub",
+          "description": "リポジトリ管理・Issue・PR・コードレビュー・GitHub API を直接操作",
+          "binary": null,
+          "install": "/plugin install github@claude-plugins-official",
+          "detail": "公式 GitHub MCP サーバーを内蔵し、Issue の作成・管理、PR のレビュー・マージ、リポジトリ検索、コードレビュー、GitHub API 全般へのアクセスを Claude Code から直接行えます。",
+          "whenToUse": "GitHub ベースの開発ワークフローで、Issue 管理や PR レビューを Claude Code 内で完結させたいとき。",
+          "setup": "gh auth login で GitHub CLI の認証を済ませてからインストールします。"
+        },
+        {
+          "name": "gitlab",
+          "displayName": "GitLab",
+          "description": "リポジトリ・マージリクエスト・CI/CD パイプライン・Issue・Wiki を管理",
+          "binary": null,
+          "install": "/plugin install gitlab@claude-plugins-official",
+          "detail": "GitLab DevOps プラットフォームの MCP 統合です。リポジトリ管理、マージリクエスト、CI/CD パイプライン、Issue、Wiki など、GitLab の包括的な DevOps ライフサイクルツールにフルアクセスできます。",
+          "whenToUse": "GitLab をメインのソース管理に使っている場合。",
+          "setup": "GitLab のパーソナルアクセストークンを設定してからインストールします。"
+        },
+        {
+          "name": "atlassian",
+          "displayName": "Atlassian (Jira / Confluence)",
+          "description": "Jira の Issue 管理・スプリント・Confluence のドキュメント参照",
+          "binary": null,
+          "install": "/plugin install atlassian@claude-plugins-official",
+          "detail": "Atlassian 製品（Jira、Confluence）との連携です。Issue の検索・作成、ドキュメントへのアクセス、スプリント管理など、開発ワークフローを Atlassian のコラボレーションツールと統合します。ソース: github.com/atlassian/atlassian-mcp-server",
+          "whenToUse": "Jira でタスク管理、Confluence で仕様管理をしているチームで作業するとき。",
+          "setup": "Atlassian の API トークンとサイト URL を設定してからインストールします。"
+        },
+        {
+          "name": "linear",
+          "displayName": "Linear",
+          "description": "Issue 追跡・プロジェクト管理・ステータス更新・ワークスペース検索",
+          "binary": null,
+          "install": "/plugin install linear@claude-plugins-official",
+          "detail": "Linear のモダンな Issue トラッカーとの統合です。Issue の作成・管理、プロジェクト管理、ステータス更新、ワークスペース全体の検索を行い、ソフトウェア開発ワークフローを効率化します。",
+          "whenToUse": "Linear でプロジェクト管理をしているチームで作業するとき。",
+          "setup": "Linear の API キーを設定してからインストールします。"
+        },
+        {
+          "name": "asana",
+          "displayName": "Asana",
+          "description": "タスクの作成・管理・プロジェクト検索・進捗トラッキング",
+          "binary": null,
+          "install": "/plugin install asana@claude-plugins-official",
+          "detail": "Asana プロジェクト管理との統合です。タスクの作成・管理、プロジェクト検索、アサインメント更新、進捗追跡を行い、開発ワークフローを Asana と統合します。",
+          "whenToUse": "Asana でタスク管理をしているチームで作業するとき。",
+          "setup": "Asana のパーソナルアクセストークンを設定してからインストールします。"
+        },
+        {
+          "name": "Notion",
+          "displayName": "Notion",
+          "description": "ページの検索・作成・更新、データベースのクエリ、ナレッジベースへのアクセス",
+          "binary": null,
+          "install": "/plugin install Notion@claude-plugins-official",
+          "detail": "Notion ワークスペースとの統合です。ページの検索・作成・更新、データベースの管理、チームのナレッジベースへのアクセスを Claude Code から行えます。ソース: github.com/makenotion/claude-code-notion-plugin",
+          "whenToUse": "Notion にドキュメントや仕様を管理しているチームで作業するとき。",
+          "setup": "Notion のインテグレーショントークンを設定してからインストールします。"
+        },
+        {
+          "name": "slack",
+          "displayName": "Slack",
+          "description": "メッセージ検索・チャンネルアクセス・スレッド参照",
+          "binary": null,
+          "install": "/plugin install slack@claude-plugins-official",
+          "detail": "Slack ワークスペースとの統合です。メッセージの検索、チャンネルへのアクセス、スレッドの参照を行い、コーディング中にチームのコミュニケーション内容を素早く確認できます。",
+          "whenToUse": "Slack で技術的な議論が行われており、その内容をコンテキストとして活用したいとき。",
+          "setup": "Slack の Bot トークンまたは OAuth トークンを設定してからインストールします。"
+        },
+        {
+          "name": "figma",
+          "displayName": "Figma",
+          "description": "デザインファイル参照・コンポーネント情報取得・デザイントークン抽出",
+          "binary": null,
+          "install": "/plugin install figma@claude-plugins-official",
+          "detail": "Figma デザインプラットフォームとの統合です。デザインファイルへのアクセス、コンポーネント情報の抽出、デザイントークン（色、フォント、スペーシング）の読み取りを行い、デザインと開発のギャップを埋めます。ソース: github.com/figma/mcp-server-guide",
+          "whenToUse": "Figma のデザインに基づいた UI 実装を行うとき。",
+          "setup": "Figma のパーソナルアクセストークンを設定してからインストールします。"
+        },
+        {
+          "name": "sentry",
+          "displayName": "Sentry",
+          "description": "エラーレポート参照・スタックトレース分析・Issue 検索",
+          "binary": null,
+          "install": "/plugin install sentry@claude-plugins-official",
+          "detail": "Sentry エラー監視との統合です。エラーレポートへのアクセス、スタックトレースの分析、フィンガープリントによる Issue 検索、本番エラーのデバッグを開発環境から直接行えます。ソース: github.com/getsentry/sentry-for-claude",
+          "whenToUse": "本番環境のエラーを調査・修正するとき。",
+          "setup": "Sentry の認証トークンとオーガニゼーション設定を行ってからインストールします。"
+        },
+        {
+          "name": "vercel",
+          "displayName": "Vercel",
+          "description": "デプロイ管理・ビルドステータス・ログ・ドメイン設定",
+          "binary": null,
+          "install": "/plugin install vercel@claude-plugins-official",
+          "detail": "Vercel デプロイプラットフォームとの統合です。デプロイの管理、ビルドステータスの確認、ログへのアクセス、ドメインの設定、フロントエンドインフラストラクチャの制御を Claude Code から直接行えます。ソース: github.com/vercel/vercel-deploy-claude-code-plugin",
+          "whenToUse": "Vercel にデプロイしているプロジェクトで作業するとき。",
+          "setup": "Vercel のアクセストークンを設定してからインストールします。"
+        },
+        {
+          "name": "firebase",
+          "displayName": "Firebase",
+          "description": "Firestore・認証・Cloud Functions・ホスティング・ストレージの管理",
+          "binary": null,
+          "install": "/plugin install firebase@claude-plugins-official",
+          "detail": "Google Firebase MCP 統合です。Firestore データベース、認証、Cloud Functions、ホスティング、ストレージの管理を Claude Code から直接行えます。",
+          "whenToUse": "Firebase ベースのプロジェクトで作業するとき。",
+          "setup": "Firebase CLI の認証（firebase login）を済ませてからインストールします。"
+        },
+        {
+          "name": "supabase",
+          "displayName": "Supabase",
+          "description": "データベース操作・認証・ストレージ・リアルタイムサブスクリプション",
+          "binary": null,
+          "install": "/plugin install supabase@claude-plugins-official",
+          "detail": "Supabase MCP 統合です。Firestore データベース、認証、Cloud Functions、ストレージの管理、SQL クエリの実行、バックエンドの操作を Claude Code から直接行えます。",
+          "whenToUse": "Supabase をバックエンドに使っているプロジェクトで作業するとき。",
+          "setup": "Supabase のプロジェクト URL と API キーを設定してからインストールします。"
+        },
+        {
+          "name": "stripe",
+          "displayName": "Stripe",
+          "description": "Stripe 決済 API の開発支援 — エラー説明・テストカード情報・ベストプラクティス",
+          "binary": null,
+          "install": "/plugin install stripe@claude-plugins-official",
+          "detail": "Stripe の開発プラグインです。MCP サーバーに加え、/stripe:explain-error（エラー説明）、/stripe:test-cards（テストカード情報）のコマンドと、Stripe ベストプラクティスのスキルを提供します。MIT ライセンス。ソース: github.com/stripe/ai",
+          "whenToUse": "Stripe の決済機能を実装・デバッグするとき。",
+          "setup": "Stripe の API キーを設定してからインストールします。"
+        },
+        {
+          "name": "playwright",
+          "displayName": "Playwright",
+          "description": "Microsoft 製ブラウザ自動化・E2E テスト — ページ操作・スクリーンショット・フォーム入力",
+          "binary": null,
+          "install": "/plugin install playwright@claude-plugins-official",
+          "detail": "Microsoft 製の Playwright ブラウザ自動化 MCP サーバーです。Web ページとの対話、スクリーンショット撮影、フォーム入力、要素クリック、自動ブラウザテストワークフローを Claude Code から実行できます。",
+          "whenToUse": "E2E テストの作成・実行や、Web ページの自動操作が必要なとき。",
+          "setup": "npx playwright install でブラウザをインストールしてからプラグインを有効化します。"
+        },
+        {
+          "name": "laravel-boost",
+          "displayName": "Laravel Boost",
+          "description": "Laravel 開発支援 — Artisan コマンド・Eloquent クエリ・ルーティング・マイグレーション",
+          "binary": null,
+          "install": "/plugin install laravel-boost@claude-plugins-official",
+          "detail": "Laravel 開発ツールキット MCP サーバーです。Artisan コマンド、Eloquent クエリ、ルーティング、マイグレーション、フレームワーク固有のコード生成など、Laravel アプリケーション向けのインテリジェントな支援を提供します。",
+          "whenToUse": "Laravel プロジェクトで開発するとき。",
+          "setup": "Laravel プロジェクトで composer install が完了している状態でインストールします。"
+        },
+        {
+          "name": "context7",
+          "displayName": "Context7",
+          "description": "ライブラリの最新ドキュメントとコード例をソースリポジトリから直接取得",
+          "binary": null,
+          "install": "/plugin install context7@claude-plugins-official",
+          "detail": "Upstash Context7 MCP サーバーです。バージョン固有のドキュメントとコード例をソースリポジトリから直接 LLM コンテキストに取り込みます。古いドキュメントに基づく誤ったコード生成を防ぎます。コミュニティ管理。",
+          "whenToUse": "ライブラリやフレームワークの最新ドキュメントを参照しながらコーディングしたいとき。",
+          "setup": "インストール後すぐに使えます。"
+        },
+        {
+          "name": "pinecone",
+          "displayName": "Pinecone",
+          "description": "ベクトルデータベースの管理 — インデックス操作・クエリ・RAG アプリ構築",
+          "binary": null,
+          "install": "/plugin install pinecone@claude-plugins-official",
+          "detail": "Pinecone ベクトルデータベース統合です。ベクトルインデックスの管理、データクエリ、高速プロトタイピングのツールを提供します。/quickstart で AGENTS.md 生成と Python プロジェクト初期化、/query でインデックスの探索が可能です。セマンティック検索、RAG、レコメンデーションシステムの開発に最適。ソース: github.com/pinecone-io/pinecone-claude-code-plugin",
+          "whenToUse": "Pinecone を使ったベクトル検索・RAG アプリケーションを開発するとき。",
+          "setup": "Pinecone の API キーを設定してからインストールします。"
+        }
+      ]
+    },
+    {
+      "id": "output-styles",
+      "name": "出力スタイル",
+      "description": "Claude の応答スタイルをカスタマイズ",
+      "plugins": [
+        {
+          "name": "explanatory-output-style",
+          "displayName": "Explanatory Style",
+          "description": "実装の選択理由やコードベースのパターンについて教育的な洞察を追加（廃止された Explanatory 出力スタイルの再現）",
+          "binary": null,
+          "install": "/plugin install explanatory-output-style@claude-plugins-official",
+          "detail": "Claude がコードを生成・修正する際に、なぜその実装方法を選んだのか、どのようなトレードオフがあるのか、コードベースのどのようなパターンに従っているのかを詳しく解説します。廃止された Explanatory 出力スタイルをプラグインとして再現したものです。",
+          "whenToUse": "コードの背景や設計判断の理由を理解したいとき。",
+          "setup": "インストール後すぐに有効化されます。"
+        },
+        {
+          "name": "learning-output-style",
+          "displayName": "Learning Style",
+          "description": "意思決定ポイントでユーザーにコード貢献を求める対話的学習モード（未出荷の Learning スタイルの実装）",
+          "binary": null,
+          "install": "/plugin install learning-output-style@claude-plugins-official",
+          "detail": "Claude が教師のように振る舞い、意思決定ポイントでユーザーに有意義なコード貢献を求める対話的な学習モードです。単に答えを提示するのではなく、理解を深めることに焦点を当てます。未出荷だった Learning 出力スタイルのプラグイン実装です。",
+          "whenToUse": "新しいプログラミング言語やフレームワークを学んでいるとき。",
+          "setup": "インストール後すぐに有効化されます。"
+        }
+      ]
+    },
+    {
+      "id": "community",
+      "name": "コミュニティ・パートナー",
+      "description": "サードパーティが開発し公式マーケットプレイスで配布されるプラグイン",
+      "plugins": [
+        {
+          "name": "superpowers",
+          "displayName": "Superpowers",
+          "description": "ブレインストーミング・TDD・体系的デバッグ・サブエージェント駆動開発・コードレビューなど 15+ スキルの総合パック",
+          "binary": null,
+          "install": "/plugin install superpowers@claude-plugins-official",
+          "detail": "Jesse Vincent 開発のコアスキルライブラリです。ワークフロー: (1) ブレインストーミング（ソクラテス式）、(2) Git ワークツリー（隔離環境）、(3) プラン作成（2-5 分単位のタスク分割）、(4) サブエージェント駆動開発（レビュー付きタスク委任）、(5) TDD (RED-GREEN-REFACTOR)、(6) コードレビュー依頼、(7) 開発ブランチ完了。他にも systematic-debugging、verification-before-completion、writing-skills、dispatching-parallel-agents など 15 以上のスキルを提供。MIT ライセンス。",
+          "whenToUse": "体系的な開発プロセスを導入したいとき。TDD、デバッグ、プランニングの各スキルは個別にも使えます。",
+          "setup": "インストール後すぐに使えます。",
+          "homepage": "https://github.com/obra/superpowers"
+        },
+        {
+          "name": "greptile",
+          "displayName": "Greptile",
+          "description": "AI パワードのコードベース検索 — 自然言語でリポジトリをクエリし、依存関係やアーキテクチャを理解",
+          "binary": null,
+          "install": "/plugin install greptile@claude-plugins-official",
+          "detail": "AI パワードのコードベース検索・理解ツールです。自然言語でリポジトリをクエリし、関連コードの検索、依存関係の理解、コードベースアーキテクチャに関するコンテキスト付きの回答を得られます。",
+          "whenToUse": "大規模なコードベースの構造や依存関係を素早く理解したいとき。",
+          "setup": "Greptile のアカウントと API キーが必要です。",
+          "homepage": "https://github.com/anthropics/claude-plugins-public/tree/main/external_plugins/greptile"
+        },
+        {
+          "name": "serena",
+          "displayName": "Serena",
+          "description": "セマンティックコード分析 — LSP 統合によるコード理解・リファクタリング提案・ナビゲーション",
+          "binary": null,
+          "install": "/plugin install serena@claude-plugins-official",
+          "detail": "Language Server Protocol を活用したセマンティックコード分析 MCP サーバーです。インテリジェントなコード理解、リファクタリング提案、コードベースナビゲーションを提供します。コミュニティ管理。",
+          "whenToUse": "コードベースの深い理解とリファクタリングの提案が必要なとき。",
+          "setup": "プロジェクトに応じた言語サーバーのインストールが必要な場合があります。",
+          "homepage": "https://github.com/anthropics/claude-plugins-public/tree/main/external_plugins/serena"
+        },
+        {
+          "name": "huggingface-skills",
+          "displayName": "Hugging Face Skills",
+          "description": "オープンソース AI モデル・データセット・Spaces のビルド・トレーニング・評価・利用",
+          "binary": null,
+          "install": "/plugin install huggingface-skills@claude-plugins-official",
+          "detail": "Hugging Face プラットフォームとの統合です。オープンソースの AI モデル、データセット、Spaces のビルド、トレーニング、評価、利用を Claude Code から行えます。ソース: github.com/huggingface/skills",
+          "whenToUse": "Hugging Face のモデルやデータセットを使った AI/ML 開発を行うとき。",
+          "setup": "Hugging Face のアカウントとトークンが必要です。",
+          "homepage": "https://github.com/huggingface/skills"
+        },
+        {
+          "name": "posthog",
+          "displayName": "PostHog",
+          "description": "分析プラットフォーム連携 — インサイト・フィーチャーフラグ・A/B テスト・エラー追跡・LLM コスト分析",
+          "binary": null,
+          "install": "/plugin install posthog@claude-plugins-official",
+          "detail": "PostHog 分析プラットフォームとの統合です。自然言語でインサイトのクエリ、フィーチャーフラグの管理、A/B 実験の実行、エラー追跡、LLM コスト分析が可能です。10 のスラッシュコマンドを提供。OAuth 認証、EU/US クラウド、セルフホストに対応。ソース: github.com/PostHog/posthog-for-claude",
+          "whenToUse": "PostHog で分析・フィーチャーフラグを管理しているプロジェクトで作業するとき。",
+          "setup": "PostHog の API キーまたは OAuth 認証を設定してからインストールします。",
+          "homepage": "https://github.com/PostHog/posthog-for-claude"
+        },
+        {
+          "name": "coderabbit",
+          "displayName": "CodeRabbit",
+          "description": "外部 AI コードレビュー — 40+ 静的解析ツール・AST パース・コードグラフ分析で第三者視点を提供。無料。",
+          "binary": null,
+          "install": "/plugin install coderabbit@claude-plugins-official",
+          "detail": "専門 AI アーキテクチャと 40 以上の統合静的解析ツールを使った外部コードレビューです。AST パースとコードグラフ関係によるコンテキスト認識分析で、バグ、セキュリティ脆弱性、ロジックエラー、エッジケースを検出します。CLAUDE.md とプロジェクトのコーディングガイドラインを自動的に取り込みます。無料で利用可能。ソース: github.com/coderabbitai/claude-plugin",
+          "whenToUse": "コード変更に対してセカンドオピニオンが欲しいとき。セキュリティに敏感なロジックの実装後に特に有効です。",
+          "setup": "インストール後すぐに使えます（無料）。",
+          "homepage": "https://github.com/coderabbitai/claude-plugin"
+        },
+        {
+          "name": "sonatype-guide",
+          "displayName": "Sonatype Guide",
+          "description": "ソフトウェアサプライチェーンインテリジェンス — 依存関係の脆弱性分析・安全バージョン推奨・品質メトリクス",
+          "binary": null,
+          "install": "/plugin install sonatype-guide@claude-plugins-official",
+          "detail": "Sonatype Guide MCP サーバーです。依存関係の脆弱性分析、安全なバージョンの推奨、コンポーネントの品質メトリクスチェックを行います。ソフトウェアサプライチェーンのセキュリティ管理に特化しています。ソース: github.com/sonatype/sonatype-guide-claude-plugin",
+          "whenToUse": "依存関係のセキュリティを確認したいとき。ライブラリのバージョンアップ時に脆弱性をチェックする場合に有効です。",
+          "setup": "Sonatype のアカウント設定が必要な場合があります。",
+          "homepage": "https://github.com/sonatype/sonatype-guide-claude-plugin"
+        },
+        {
+          "name": "firecrawl",
+          "displayName": "Firecrawl",
+          "description": "Web スクレイピング・クロール — サイトを LLM 向けマークダウンや構造化データに変換。AI エージェントによる自動収集。",
+          "binary": null,
+          "install": "/plugin install firecrawl@claude-plugins-official",
+          "detail": "Firecrawl による Web スクレイピング・クロールです。Web サイトをクリーンな LLM 向けマークダウンや構造化データに変換します。単一ページのスクレイピング、サイト全体のクロール、Web 検索、構造化情報の抽出が可能です。AI エージェントが自律的に複数ソースからデータを収集する機能も搭載。ソース: github.com/firecrawl/firecrawl-claude-plugin",
+          "whenToUse": "Web サイトの情報を取り込んで開発に活用したいとき。ドキュメントの参照やデータ収集に便利です。",
+          "setup": "Firecrawl の API キーを設定してからインストールします。",
+          "homepage": "https://github.com/firecrawl/firecrawl-claude-plugin"
+        },
+        {
+          "name": "circleback",
+          "displayName": "Circleback",
+          "description": "会議・メール・カレンダーイベントなどの会話コンテキストを検索・参照",
+          "binary": null,
+          "install": "/plugin install circleback@claude-plugins-official",
+          "detail": "Circleback の会話コンテキスト統合です。ミーティング、メール、カレンダーイベントなどを検索・アクセスし、開発に関連するコンテキストを Claude Code から参照できます。ソース: github.com/circlebackai/claude-code-plugin",
+          "whenToUse": "ミーティングの議事録やメールの内容を参照しながら開発したいとき。",
+          "setup": "Circleback のアカウントと認証設定が必要です。",
+          "homepage": "https://github.com/circlebackai/claude-code-plugin"
+        }
+      ]
+    }
+  ],
+  "usage": {
+    "install": "Claude Code 内で /plugin install <プラグイン名>@claude-plugins-official を実行",
+    "browse": "/plugin を実行して Discover タブからブラウズ",
+    "manage": "/plugin を実行して Installed タブで管理",
+    "marketplaceAdd": "/plugin marketplace add <owner/repo> でマーケットプレイスを追加"
+  }
+}

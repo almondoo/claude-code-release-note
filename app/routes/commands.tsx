@@ -1333,6 +1333,32 @@ export default function Commands(): React.JSX.Element {
                 <ArrowLeftIcon />
                 リリースノート
               </Link>
+              <Link
+                to="/plugins"
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "6px",
+                  color: COLORS.textMuted,
+                  textDecoration: "none",
+                  fontSize: "12px",
+                  fontFamily: FONT_SANS,
+                  padding: "4px 12px",
+                  borderRadius: "6px",
+                  border: `1px solid ${COLORS.border}`,
+                  transition: "all 0.15s",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.color = COLORS.text;
+                  e.currentTarget.style.borderColor = COLORS.accent + "60";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.color = COLORS.textMuted;
+                  e.currentTarget.style.borderColor = COLORS.border;
+                }}
+              >
+                公式プラグイン →
+              </Link>
             </div>
           </div>
         </motion.div>

@@ -16,11 +16,13 @@ Claude Code のリリースノートを日本語で閲覧できる Web アプリ
 
 テストフレームワークは未導入。
 
+**注意**: `pnpm run dev` や `pnpm run start` で起動したサーバーは、作業完了時に必ず停止すること。プロセスを残したままにしない。
+
 ## アーキテクチャ
 
 ### データフロー
 
-`docs/version-info.md` (英語の元データ) → `app/data/releases.json` (日本語に翻訳済みの JSON) → `app/routes/release-note.tsx` (表示)
+`https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md` (英語の元データ) → `app/data/releases.json` (日本語に翻訳済みの JSON) → `app/routes/release-note.tsx` (表示)
 
 - `releases.json` はバージョンごとのリリース情報を配列で保持。各アイテムは `t` (テキスト) と `tags` (カテゴリタグ配列) を持つ
 - タグ種別: `新機能`, `バグ修正`, `改善`, `SDK`, `IDE`, `Platform`, `Security`, `Perf`, `非推奨`, `Plugin`
@@ -39,3 +41,7 @@ Claude Code のリリースノートを日本語で閲覧できる Web アプリ
 ### パスエイリアス
 
 `~/` は `./app/` にマッピング (`tsconfig.json` の paths + vite-tsconfig-paths)
+
+## 参考リンク
+
+- Claude Code の公式 Changelog: https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md

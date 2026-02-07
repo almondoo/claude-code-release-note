@@ -561,7 +561,7 @@ export default function ReleaseNote(): React.JSX.Element {
               </span>
               <span style={{ fontFamily: FONT_MONO, fontSize: "12px" }}>v{RELEASES[0]?.v} 〜 v{RELEASES[RELEASES.length - 1]?.v}</span>
             </div>
-            <div style={{ marginTop: "16px" }}>
+            <div style={{ marginTop: "16px", display: "flex", gap: "12px", justifyContent: "center", flexWrap: "wrap" }}>
               <Link
                 to="/commands"
                 style={{
@@ -587,6 +587,32 @@ export default function ReleaseNote(): React.JSX.Element {
                 }}
               >
                 コマンド一覧 →
+              </Link>
+              <Link
+                to="/plugins"
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "6px",
+                  color: COLORS.textMuted,
+                  textDecoration: "none",
+                  fontSize: "12px",
+                  fontFamily: FONT_SANS,
+                  padding: "4px 12px",
+                  borderRadius: "6px",
+                  border: `1px solid ${COLORS.border}`,
+                  transition: "all 0.15s",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.color = COLORS.text;
+                  e.currentTarget.style.borderColor = COLORS.accent + "60";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.color = COLORS.textMuted;
+                  e.currentTarget.style.borderColor = COLORS.border;
+                }}
+              >
+                公式プラグイン →
               </Link>
             </div>
           </div>

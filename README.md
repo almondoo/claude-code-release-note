@@ -1,87 +1,61 @@
-# Welcome to React Router!
+# Claude Code Release Note (日本語)
 
-A modern, production-ready template for building full-stack React applications using React Router.
+Claude Code のリリースノートを日本語で閲覧できる Web アプリケーション。
 
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/remix-run/react-router-templates/tree/main/default)
+## 技術スタック
 
-## Features
+| カテゴリ | 技術 |
+|---|---|
+| フレームワーク | [React Router v7](https://reactrouter.com/) (SSR モード) |
+| UI ライブラリ | [React](https://react.dev/) 19 |
+| アニメーション | [Motion](https://motion.dev/) |
+| 言語 | TypeScript 5.9 |
+| ビルドツール | [Vite](https://vite.dev/) 7 |
+| パッケージマネージャ | pnpm |
+| フォント | Noto Sans JP / JetBrains Mono (Google Fonts) |
+| スタイリング | インラインスタイル (`CSSProperties`) — CSS フレームワーク不使用 |
 
-- 🚀 Server-side rendering
-- ⚡️ Hot Module Replacement (HMR)
-- 📦 Asset bundling and optimization
-- 🔄 Data loading and mutations
-- 🔒 TypeScript by default
-- 🎉 TailwindCSS for styling
-- 📖 [React Router docs](https://reactrouter.com/)
+## リリースノート収録バージョン
 
-## Getting Started
+全 88 バージョンを収録 (2.0.0 〜 2.1.34)
 
-### Installation
-
-Install the dependencies:
-
-```bash
-npm install
-```
-
-### Development
-
-Start the development server with HMR:
+## コマンド
 
 ```bash
-npm run dev
+# 依存関係のインストール
+pnpm install
+
+# 開発サーバー起動 (http://localhost:5173)
+pnpm run dev
+
+# プロダクションビルド
+pnpm run build
+
+# ビルド済みアプリの起動
+pnpm run start
+
+# 型生成 + TypeScript 型チェック
+pnpm run typecheck
 ```
 
-Your application will be available at `http://localhost:5173`.
-
-## Building for Production
-
-Create a production build:
-
-```bash
-npm run build
-```
-
-## Deployment
-
-### Docker Deployment
-
-To build and run using Docker:
-
-```bash
-docker build -t my-app .
-
-# Run the container
-docker run -p 3000:3000 my-app
-```
-
-The containerized application can be deployed to any platform that supports Docker, including:
-
-- AWS ECS
-- Google Cloud Run
-- Azure Container Apps
-- Digital Ocean App Platform
-- Fly.io
-- Railway
-
-### DIY Deployment
-
-If you're familiar with deploying Node applications, the built-in app server is production-ready.
-
-Make sure to deploy the output of `npm run build`
+## プロジェクト構成
 
 ```
-├── package.json
-├── package-lock.json (or pnpm-lock.yaml, or bun.lockb)
-├── build/
-│   ├── client/    # Static assets
-│   └── server/    # Server-side code
+app/
+├── data/
+│   └── releases.json      # 日本語翻訳済みリリースデータ
+├── routes.ts               # ルート定義
+├── root.tsx                # ルートレイアウト
+└── routes/
+    └── release-note.tsx    # メインページ
 ```
 
-## Styling
+## データフロー
 
-This template comes with [Tailwind CSS](https://tailwindcss.com/) already configured for a simple default starting experience. You can use whatever CSS framework you prefer.
+`https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md` (英語) → `app/data/releases.json` (日本語 JSON) → `app/routes/release-note.tsx` (表示)
 
----
+## 機能
 
-Built with ❤️ using React Router.
+- バージョンごとの折りたたみカード表示
+- タグによるフィルタリング (`新機能` / `バグ修正` / `改善` / `SDK` / `IDE` / `Platform` / `Security` / `Perf` / `非推奨` / `Plugin`)
+- キーワード検索
