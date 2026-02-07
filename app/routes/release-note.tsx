@@ -1,8 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { CSSProperties } from "react";
+import { Link } from "react-router";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 
 import releases from "~/data/releases.json";
+import versionDetails from "~/data/version-details.json";
 
 interface ReleaseItem {
   t: string;
@@ -68,6 +70,8 @@ const TAG_LABELS: Record<string, string> = {
 };
 
 const ALL_TAGS = Object.keys(TAG_COLORS);
+
+const VERSION_DETAILS_AVAILABLE = new Set(Object.keys(versionDetails));
 
 // ---------------------------------------------------------------------------
 // Design tokens
@@ -351,6 +355,42 @@ function VersionCard({ version, items, isOpen, onToggle, reducedMotion }: Versio
                   </span>
                 </div>
               ))}
+              <Link
+                to={`/version/${version}`}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "6px",
+                  marginTop: "10px",
+                  padding: "8px 16px",
+                  borderRadius: "8px",
+                  fontSize: "12px",
+                  fontWeight: 600,
+                  color: VERSION_DETAILS_AVAILABLE.has(version) ? COLORS.accent : COLORS.textMuted,
+                  background: VERSION_DETAILS_AVAILABLE.has(version)
+                    ? "rgba(59, 130, 246, 0.08)"
+                    : "transparent",
+                  border: `1px solid ${VERSION_DETAILS_AVAILABLE.has(version) ? COLORS.accent + "40" : COLORS.border}`,
+                  textDecoration: "none",
+                  fontFamily: FONT_SANS,
+                  transition: "all 0.15s",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = VERSION_DETAILS_AVAILABLE.has(version)
+                    ? "rgba(59, 130, 246, 0.15)"
+                    : COLORS.surfaceHover;
+                  e.currentTarget.style.color = VERSION_DETAILS_AVAILABLE.has(version) ? COLORS.accent : COLORS.textSecondary;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = VERSION_DETAILS_AVAILABLE.has(version)
+                    ? "rgba(59, 130, 246, 0.08)"
+                    : "transparent";
+                  e.currentTarget.style.color = VERSION_DETAILS_AVAILABLE.has(version) ? COLORS.accent : COLORS.textMuted;
+                }}
+              >
+                {VERSION_DETAILS_AVAILABLE.has(version) ? "詳細を見る →" : "バージョンページへ →"}
+              </Link>
             </div>
           </motion.div>
         )}
@@ -520,6 +560,34 @@ export default function ReleaseNote(): React.JSX.Element {
                 <strong style={{ color: COLORS.text }}>{totalAll}</strong> 件の変更
               </span>
               <span style={{ fontFamily: FONT_MONO, fontSize: "12px" }}>v{RELEASES[0]?.v} 〜 v{RELEASES[RELEASES.length - 1]?.v}</span>
+            </div>
+            <div style={{ marginTop: "16px" }}>
+              <Link
+                to="/commands"
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "6px",
+                  color: COLORS.textMuted,
+                  textDecoration: "none",
+                  fontSize: "12px",
+                  fontFamily: FONT_SANS,
+                  padding: "4px 12px",
+                  borderRadius: "6px",
+                  border: `1px solid ${COLORS.border}`,
+                  transition: "all 0.15s",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.color = COLORS.text;
+                  e.currentTarget.style.borderColor = COLORS.accent + "60";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.color = COLORS.textMuted;
+                  e.currentTarget.style.borderColor = COLORS.border;
+                }}
+              >
+                コマンド一覧 →
+              </Link>
             </div>
           </div>
         </motion.div>
