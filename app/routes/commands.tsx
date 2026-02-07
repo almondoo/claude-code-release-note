@@ -1,5 +1,4 @@
-import { useState, useMemo, useRef, useEffect } from "react";
-import type { CSSProperties } from "react";
+import { useState, useMemo, useEffect, useRef, useCallback } from "react";
 import { Link } from "react-router";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 
@@ -40,7 +39,7 @@ interface Shortcut {
 }
 
 // ---------------------------------------------------------------------------
-// Design tokens (shared with release-note)
+// Design tokens
 // ---------------------------------------------------------------------------
 
 const COLORS = {
@@ -61,13 +60,29 @@ const COLORS = {
   orangeBg: "rgba(249, 115, 22, 0.15)",
   cyan: "#67E8F9",
   cyanBg: "rgba(6, 182, 212, 0.15)",
+  overlay: "rgba(0, 0, 0, 0.6)",
 } as const;
 
 const FONT_MONO = "'JetBrains Mono', 'Fira Code', monospace" as const;
 const FONT_SANS = "'IBM Plex Sans', 'Noto Sans JP', system-ui, -apple-system, sans-serif" as const;
 
 // ---------------------------------------------------------------------------
-// Category icons (inline SVG)
+// Category colors
+// ---------------------------------------------------------------------------
+
+const CATEGORY_COLORS: Record<string, { color: string; bg: string }> = {
+  essential: { color: COLORS.green, bg: COLORS.greenBg },
+  session: { color: COLORS.cyan, bg: COLORS.cyanBg },
+  config: { color: COLORS.orange, bg: COLORS.orangeBg },
+  memory: { color: COLORS.accent, bg: COLORS.accentGlow },
+  integration: { color: "#5EEAD4", bg: "rgba(20, 184, 166, 0.15)" },
+  agent: { color: COLORS.purple, bg: COLORS.purpleBg },
+  utility: { color: "#F472B6", bg: "rgba(244, 114, 182, 0.15)" },
+  account: { color: "#FDE68A", bg: "rgba(234, 179, 8, 0.15)" },
+};
+
+// ---------------------------------------------------------------------------
+// Category icons
 // ---------------------------------------------------------------------------
 
 const CATEGORY_ICONS: Record<string, () => React.JSX.Element> = {
@@ -117,12 +132,6 @@ const CATEGORY_ICONS: Record<string, () => React.JSX.Element> = {
       <circle cx="12" cy="7" r="4" />
     </svg>
   ),
-  terminal: () => (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <polyline points="4 17 10 11 4 5" />
-      <line x1="12" y1="19" x2="20" y2="19" />
-    </svg>
-  ),
 };
 
 // ---------------------------------------------------------------------------
@@ -147,32 +156,49 @@ function ArrowLeftIcon() {
   );
 }
 
+function CloseIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="18" y1="6" x2="6" y2="18" />
+      <line x1="6" y1="6" x2="18" y2="18" />
+    </svg>
+  );
+}
+
+function DetailInfoIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="10" />
+      <line x1="12" y1="16" x2="12" y2="12" />
+      <line x1="12" y1="8" x2="12.01" y2="8" />
+    </svg>
+  );
+}
+
+function TimingIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="10" />
+      <polyline points="12 6 12 12 16 14" />
+    </svg>
+  );
+}
+
 function TerminalIcon() {
   return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <polyline points="4 17 10 11 4 5" />
       <line x1="12" y1="19" x2="20" y2="19" />
     </svg>
   );
 }
 
-function ChevronIcon({ isOpen }: { isOpen: boolean }) {
+function InfoIcon() {
   return (
-    <svg
-      width="16"
-      height="16"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      style={{
-        transform: isOpen ? "rotate(180deg)" : "rotate(0deg)",
-        transition: "transform 0.2s ease",
-      }}
-    >
-      <polyline points="6 9 12 15 18 9" />
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="10" />
+      <line x1="12" y1="16" x2="12" y2="12" />
+      <line x1="12" y1="8" x2="12.01" y2="8" />
     </svg>
   );
 }
@@ -197,885 +223,706 @@ const CLI_COMMANDS: CLICommand[] = commandsData.cli.commands;
 const CLI_FLAGS: CLICommand[] = commandsData.cli.flags;
 const SHORTCUTS: Shortcut[] = commandsData.shortcuts;
 
-const ALL_COMMANDS = CATEGORIES.flatMap((c) => c.commands);
-const TOTAL_SLASH = ALL_COMMANDS.length;
+const TOTAL_SLASH = CATEGORIES.flatMap((c) => c.commands).length;
 const TOTAL_CLI = CLI_COMMANDS.length + CLI_FLAGS.length;
 
 // ---------------------------------------------------------------------------
-// CommandRow
+// Tab definitions
 // ---------------------------------------------------------------------------
 
-function DetailInfoIcon() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="12" r="10" />
-      <line x1="12" y1="16" x2="12" y2="12" />
-      <line x1="12" y1="8" x2="12.01" y2="8" />
-    </svg>
-  );
+interface TabDef {
+  id: string;
+  label: string;
+  color: string;
+  type: "slash-category" | "cli" | "shortcuts";
 }
 
-function TimingIcon() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="12" r="10" />
-      <polyline points="12 6 12 12 16 14" />
-    </svg>
-  );
-}
+const TAB_DEFS: TabDef[] = [
+  ...CATEGORIES.map((c) => ({
+    id: c.id,
+    label: c.name,
+    color: CATEGORY_COLORS[c.id]?.color || COLORS.accent,
+    type: "slash-category" as const,
+  })),
+  { id: "cli", label: "CLI", color: COLORS.purple, type: "cli" },
+  { id: "shortcuts", label: "ショートカット", color: COLORS.orange, type: "shortcuts" },
+];
 
-function CommandRow({
+// ---------------------------------------------------------------------------
+// CommandCard — compact grid card for slash commands
+// ---------------------------------------------------------------------------
+
+function CommandCard({
   cmd,
-  isExpanded,
-  onToggle,
-  reducedMotion,
-  accentColor = COLORS.green,
+  accentColor,
+  categoryName,
+  onClick,
 }: {
-  cmd: Command | CLICommand;
-  isExpanded: boolean;
-  onToggle: () => void;
-  reducedMotion: boolean | null;
-  accentColor?: string;
-}) {
-  const [hovered, setHovered] = useState(false);
-
-  return (
-    <div
-      style={{
-        borderRadius: "8px",
-        background: isExpanded ? COLORS.bg + "80" : "transparent",
-        border: isExpanded ? `1px solid ${COLORS.border}60` : "1px solid transparent",
-        transition: "all 0.2s",
-        margin: "2px 0",
-      }}
-    >
-      <div
-        role="button"
-        tabIndex={0}
-        onClick={onToggle}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" || e.key === " ") {
-            e.preventDefault();
-            onToggle();
-          }
-        }}
-        onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => setHovered(false)}
-        style={{
-          display: "grid",
-          gridTemplateColumns: "minmax(160px, auto) 1fr auto",
-          gap: "12px",
-          padding: "10px 14px",
-          borderRadius: "8px",
-          background: hovered && !isExpanded ? COLORS.surfaceHover : "transparent",
-          transition: "background 0.15s",
-          alignItems: "baseline",
-          cursor: "pointer",
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "baseline", gap: "8px", minWidth: 0 }}>
-          <code
-            style={{
-              fontFamily: FONT_MONO,
-              fontSize: "13px",
-              fontWeight: 600,
-              color: accentColor,
-              whiteSpace: "nowrap",
-            }}
-          >
-            {cmd.name}
-          </code>
-          {cmd.args && (
-            <span
-              style={{
-                fontSize: "11px",
-                color: COLORS.textMuted,
-                fontFamily: FONT_MONO,
-                whiteSpace: "nowrap",
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-              }}
-            >
-              {cmd.args}
-            </span>
-          )}
-        </div>
-        <span
-          style={{
-            color: COLORS.textSecondary,
-            fontSize: "13px",
-            lineHeight: 1.6,
-            fontFamily: FONT_SANS,
-          }}
-        >
-          {cmd.description}
-        </span>
-        <div
-          style={{
-            width: "22px",
-            height: "22px",
-            borderRadius: "4px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            color: isExpanded ? accentColor : COLORS.textMuted,
-            opacity: hovered || isExpanded ? 1 : 0.4,
-            transition: "all 0.15s",
-            flexShrink: 0,
-          }}
-        >
-          <ChevronIcon isOpen={isExpanded} />
-        </div>
-      </div>
-
-      <AnimatePresence initial={false}>
-        {isExpanded && (
-          <motion.div
-            initial={reducedMotion ? false : { height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={reducedMotion ? undefined : { height: 0, opacity: 0 }}
-            transition={{ duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
-            style={{ overflow: "hidden" }}
-          >
-            <div
-              style={{
-                padding: "4px 14px 14px",
-                display: "flex",
-                flexDirection: "column",
-                gap: "10px",
-              }}
-            >
-              {/* 詳細説明 */}
-              <div
-                style={{
-                  background: COLORS.surface,
-                  borderRadius: "8px",
-                  padding: "12px 14px",
-                  border: `1px solid ${COLORS.border}40`,
-                }}
-              >
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "6px",
-                    marginBottom: "6px",
-                    color: COLORS.cyan,
-                    fontSize: "11px",
-                    fontWeight: 700,
-                    letterSpacing: "0.5px",
-                    textTransform: "uppercase",
-                    fontFamily: FONT_MONO,
-                  }}
-                >
-                  <DetailInfoIcon />
-                  詳細説明
-                </div>
-                <p
-                  style={{
-                    margin: 0,
-                    fontSize: "13px",
-                    lineHeight: 1.75,
-                    color: COLORS.textSecondary,
-                    fontFamily: FONT_SANS,
-                  }}
-                >
-                  {cmd.detail}
-                </p>
-              </div>
-
-              {/* 使うタイミング */}
-              <div
-                style={{
-                  background: COLORS.surface,
-                  borderRadius: "8px",
-                  padding: "12px 14px",
-                  border: `1px solid ${COLORS.border}40`,
-                }}
-              >
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "6px",
-                    marginBottom: "6px",
-                    color: COLORS.orange,
-                    fontSize: "11px",
-                    fontWeight: 700,
-                    letterSpacing: "0.5px",
-                    textTransform: "uppercase",
-                    fontFamily: FONT_MONO,
-                  }}
-                >
-                  <TimingIcon />
-                  使うタイミング
-                </div>
-                <p
-                  style={{
-                    margin: 0,
-                    fontSize: "13px",
-                    lineHeight: 1.75,
-                    color: COLORS.textSecondary,
-                    fontFamily: FONT_SANS,
-                  }}
-                >
-                  {cmd.whenToUse}
-                </p>
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// CategorySection
-// ---------------------------------------------------------------------------
-
-function CategorySection({
-  category,
-  isOpen,
-  onToggle,
-  reducedMotion,
-  filteredCommands,
-  expandedCommands,
-  onToggleCommand,
-}: {
-  category: Category;
-  isOpen: boolean;
-  onToggle: () => void;
-  reducedMotion: boolean | null;
-  filteredCommands: Command[];
-  expandedCommands: Set<string>;
-  onToggleCommand: (name: string) => void;
-}) {
-  const IconComponent = CATEGORY_ICONS[category.id];
-
-  return (
-    <div
-      style={{
-        background: COLORS.surface,
-        borderRadius: "12px",
-        border: `1px solid ${isOpen ? COLORS.accent + "40" : COLORS.border}`,
-        overflow: "hidden",
-        boxShadow: isOpen
-          ? `0 0 0 1px ${COLORS.accent}20, 0 8px 32px -8px rgba(0,0,0,0.4)`
-          : "0 1px 3px rgba(0,0,0,0.2)",
-        transition: "border-color 0.2s, box-shadow 0.2s",
-      }}
-    >
-      <div
-        role="button"
-        tabIndex={0}
-        onClick={onToggle}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" || e.key === " ") {
-            e.preventDefault();
-            onToggle();
-          }
-        }}
-        onMouseEnter={(e) => {
-          if (!isOpen) e.currentTarget.style.background = COLORS.surfaceHover;
-        }}
-        onMouseLeave={(e) => {
-          if (!isOpen) e.currentTarget.style.background = "transparent";
-        }}
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          padding: "16px 18px",
-          cursor: "pointer",
-          background: isOpen ? `linear-gradient(135deg, ${COLORS.surface}, ${COLORS.surfaceHover})` : "transparent",
-          borderBottom: isOpen ? `1px solid ${COLORS.border}` : "1px solid transparent",
-          transition: "background 0.2s",
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", gap: "12px", flex: 1 }}>
-          <div
-            style={{
-              width: "36px",
-              height: "36px",
-              borderRadius: "10px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              background: isOpen ? COLORS.accentGlow : COLORS.bg,
-              color: isOpen ? COLORS.accent : COLORS.textMuted,
-              transition: "all 0.2s",
-              flexShrink: 0,
-            }}
-          >
-            {IconComponent && <IconComponent />}
-          </div>
-          <div>
-            <div style={{ display: "flex", alignItems: "baseline", gap: "8px" }}>
-              <span
-                style={{
-                  fontSize: "15px",
-                  fontWeight: 700,
-                  color: COLORS.text,
-                  letterSpacing: "-0.2px",
-                }}
-              >
-                {category.name}
-              </span>
-              <span
-                style={{
-                  fontSize: "11px",
-                  color: COLORS.textMuted,
-                  fontFamily: FONT_MONO,
-                  background: COLORS.bg,
-                  padding: "2px 8px",
-                  borderRadius: "4px",
-                }}
-              >
-                {filteredCommands.length}
-              </span>
-            </div>
-            <span
-              style={{
-                fontSize: "12px",
-                color: COLORS.textMuted,
-                fontFamily: FONT_SANS,
-              }}
-            >
-              {category.description}
-            </span>
-          </div>
-        </div>
-        <div
-          style={{
-            width: "28px",
-            height: "28px",
-            borderRadius: "6px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            background: isOpen ? COLORS.accent : COLORS.bg,
-            color: isOpen ? "#fff" : COLORS.textMuted,
-            transition: "all 0.2s",
-            flexShrink: 0,
-          }}
-        >
-          <ChevronIcon isOpen={isOpen} />
-        </div>
-      </div>
-
-      <AnimatePresence initial={false}>
-        {isOpen && (
-          <motion.div
-            initial={reducedMotion ? false : { height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={reducedMotion ? undefined : { height: 0, opacity: 0 }}
-            transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}
-            style={{ overflow: "hidden" }}
-          >
-            <div style={{ padding: "8px 6px 14px" }}>
-              {filteredCommands.map((cmd) => (
-                <CommandRow
-                  key={cmd.name}
-                  cmd={cmd}
-                  isExpanded={expandedCommands.has(cmd.name)}
-                  onToggle={() => onToggleCommand(cmd.name)}
-                  reducedMotion={reducedMotion}
-                />
-              ))}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// CLISection
-// ---------------------------------------------------------------------------
-
-function CLISection({
-  isOpen,
-  onToggle,
-  reducedMotion,
-  filteredCommands,
-  filteredFlags,
-  expandedCommands,
-  onToggleCommand,
-}: {
-  isOpen: boolean;
-  onToggle: () => void;
-  reducedMotion: boolean | null;
-  filteredCommands: CLICommand[];
-  filteredFlags: CLICommand[];
-  expandedCommands: Set<string>;
-  onToggleCommand: (name: string) => void;
+  cmd: Command;
+  accentColor: string;
+  categoryName: string;
+  onClick: () => void;
 }) {
   return (
     <div
-      style={{
-        background: COLORS.surface,
-        borderRadius: "12px",
-        border: `1px solid ${isOpen ? COLORS.purple + "40" : COLORS.border}`,
-        overflow: "hidden",
-        boxShadow: isOpen
-          ? `0 0 0 1px ${COLORS.purple}20, 0 8px 32px -8px rgba(0,0,0,0.4)`
-          : "0 1px 3px rgba(0,0,0,0.2)",
-        transition: "border-color 0.2s, box-shadow 0.2s",
-      }}
-    >
-      <div
-        role="button"
-        tabIndex={0}
-        onClick={onToggle}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" || e.key === " ") {
-            e.preventDefault();
-            onToggle();
-          }
-        }}
-        onMouseEnter={(e) => {
-          if (!isOpen) e.currentTarget.style.background = COLORS.surfaceHover;
-        }}
-        onMouseLeave={(e) => {
-          if (!isOpen) e.currentTarget.style.background = "transparent";
-        }}
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          padding: "16px 18px",
-          cursor: "pointer",
-          background: isOpen ? `linear-gradient(135deg, ${COLORS.surface}, ${COLORS.surfaceHover})` : "transparent",
-          borderBottom: isOpen ? `1px solid ${COLORS.border}` : "1px solid transparent",
-          transition: "background 0.2s",
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", gap: "12px", flex: 1 }}>
-          <div
-            style={{
-              width: "36px",
-              height: "36px",
-              borderRadius: "10px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              background: isOpen ? COLORS.purpleBg : COLORS.bg,
-              color: isOpen ? COLORS.purple : COLORS.textMuted,
-              transition: "all 0.2s",
-              flexShrink: 0,
-            }}
-          >
-            <TerminalIcon />
-          </div>
-          <div>
-            <div style={{ display: "flex", alignItems: "baseline", gap: "8px" }}>
-              <span
-                style={{
-                  fontSize: "15px",
-                  fontWeight: 700,
-                  color: COLORS.text,
-                  letterSpacing: "-0.2px",
-                }}
-              >
-                CLI コマンド & フラグ
-              </span>
-              <span
-                style={{
-                  fontSize: "11px",
-                  color: COLORS.textMuted,
-                  fontFamily: FONT_MONO,
-                  background: COLORS.bg,
-                  padding: "2px 8px",
-                  borderRadius: "4px",
-                }}
-              >
-                {filteredCommands.length + filteredFlags.length}
-              </span>
-            </div>
-            <span
-              style={{
-                fontSize: "12px",
-                color: COLORS.textMuted,
-                fontFamily: FONT_SANS,
-              }}
-            >
-              ターミナルから直接実行するコマンドとオプション
-            </span>
-          </div>
-        </div>
-        <div
-          style={{
-            width: "28px",
-            height: "28px",
-            borderRadius: "6px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            background: isOpen ? COLORS.purple : COLORS.bg,
-            color: isOpen ? "#fff" : COLORS.textMuted,
-            transition: "all 0.2s",
-            flexShrink: 0,
-          }}
-        >
-          <ChevronIcon isOpen={isOpen} />
-        </div>
-      </div>
-
-      <AnimatePresence initial={false}>
-        {isOpen && (
-          <motion.div
-            initial={reducedMotion ? false : { height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={reducedMotion ? undefined : { height: 0, opacity: 0 }}
-            transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}
-            style={{ overflow: "hidden" }}
-          >
-            <div style={{ padding: "8px 6px 14px" }}>
-              {filteredCommands.length > 0 && (
-                <>
-                  <div
-                    style={{
-                      padding: "8px 14px 4px",
-                      fontSize: "11px",
-                      fontWeight: 700,
-                      color: COLORS.textMuted,
-                      letterSpacing: "1.5px",
-                      textTransform: "uppercase",
-                      fontFamily: FONT_MONO,
-                    }}
-                  >
-                    Commands
-                  </div>
-                  {filteredCommands.map((cmd) => (
-                    <CommandRow
-                      key={cmd.name}
-                      cmd={cmd}
-                      isExpanded={expandedCommands.has(cmd.name)}
-                      onToggle={() => onToggleCommand(cmd.name)}
-                      reducedMotion={reducedMotion}
-                      accentColor={COLORS.purple}
-                    />
-                  ))}
-                </>
-              )}
-              {filteredFlags.length > 0 && (
-                <>
-                  <div
-                    style={{
-                      padding: "16px 14px 4px",
-                      fontSize: "11px",
-                      fontWeight: 700,
-                      color: COLORS.textMuted,
-                      letterSpacing: "1.5px",
-                      textTransform: "uppercase",
-                      fontFamily: FONT_MONO,
-                      borderTop: filteredCommands.length > 0 ? `1px solid ${COLORS.border}40` : "none",
-                      marginTop: filteredCommands.length > 0 ? "8px" : 0,
-                    }}
-                  >
-                    Flags
-                  </div>
-                  {filteredFlags.map((cmd) => (
-                    <CommandRow
-                      key={cmd.name}
-                      cmd={cmd}
-                      isExpanded={expandedCommands.has(cmd.name)}
-                      onToggle={() => onToggleCommand(cmd.name)}
-                      reducedMotion={reducedMotion}
-                      accentColor={COLORS.purple}
-                    />
-                  ))}
-                </>
-              )}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// ShortcutsSection
-// ---------------------------------------------------------------------------
-
-function ShortcutRow({
-  shortcut,
-  isExpanded,
-  onToggle,
-  reducedMotion,
-}: {
-  shortcut: Shortcut;
-  isExpanded: boolean;
-  onToggle: () => void;
-  reducedMotion: boolean | null;
-}) {
-  const [hovered, setHovered] = useState(false);
-
-  return (
-    <div
-      style={{
-        borderRadius: "8px",
-        background: isExpanded ? COLORS.bg + "80" : "transparent",
-        border: isExpanded ? `1px solid ${COLORS.border}60` : "1px solid transparent",
-        transition: "all 0.2s",
-        margin: "2px 0",
-      }}
-    >
-      <div
-        role="button"
-        tabIndex={0}
-        onClick={onToggle}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" || e.key === " ") {
-            e.preventDefault();
-            onToggle();
-          }
-        }}
-        onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => setHovered(false)}
-        style={{
-          display: "grid",
-          gridTemplateColumns: "minmax(160px, auto) 1fr auto",
-          gap: "12px",
-          padding: "10px 14px",
-          borderRadius: "8px",
-          background: hovered && !isExpanded ? COLORS.surfaceHover : "transparent",
-          transition: "background 0.15s",
-          alignItems: "baseline",
-          cursor: "pointer",
-        }}
-      >
-        <kbd
-          style={{
-            fontFamily: FONT_MONO,
-            fontSize: "12px",
-            fontWeight: 600,
-            color: COLORS.orange,
-            background: COLORS.orangeBg,
-            padding: "3px 10px",
-            borderRadius: "6px",
-            border: `1px solid ${COLORS.orange}30`,
-            display: "inline-block",
-            whiteSpace: "nowrap",
-            width: "fit-content",
-          }}
-        >
-          {shortcut.key}
-        </kbd>
-        <span
-          style={{
-            color: COLORS.textSecondary,
-            fontSize: "13px",
-            lineHeight: 1.6,
-            fontFamily: FONT_SANS,
-          }}
-        >
-          {shortcut.description}
-        </span>
-        <div
-          style={{
-            width: "22px",
-            height: "22px",
-            borderRadius: "4px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            color: isExpanded ? COLORS.orange : COLORS.textMuted,
-            opacity: hovered || isExpanded ? 1 : 0.4,
-            transition: "all 0.15s",
-            flexShrink: 0,
-          }}
-        >
-          <ChevronIcon isOpen={isExpanded} />
-        </div>
-      </div>
-
-      <AnimatePresence initial={false}>
-        {isExpanded && (
-          <motion.div
-            initial={reducedMotion ? false : { height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={reducedMotion ? undefined : { height: 0, opacity: 0 }}
-            transition={{ duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
-            style={{ overflow: "hidden" }}
-          >
-            <div
-              style={{
-                padding: "4px 14px 14px",
-                display: "flex",
-                flexDirection: "column",
-                gap: "10px",
-              }}
-            >
-              <div
-                style={{
-                  background: COLORS.surface,
-                  borderRadius: "8px",
-                  padding: "12px 14px",
-                  border: `1px solid ${COLORS.border}40`,
-                }}
-              >
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "6px",
-                    marginBottom: "6px",
-                    color: COLORS.cyan,
-                    fontSize: "11px",
-                    fontWeight: 700,
-                    letterSpacing: "0.5px",
-                    textTransform: "uppercase",
-                    fontFamily: FONT_MONO,
-                  }}
-                >
-                  <DetailInfoIcon />
-                  詳細説明
-                </div>
-                <p
-                  style={{
-                    margin: 0,
-                    fontSize: "13px",
-                    lineHeight: 1.75,
-                    color: COLORS.textSecondary,
-                    fontFamily: FONT_SANS,
-                  }}
-                >
-                  {shortcut.detail}
-                </p>
-              </div>
-
-              <div
-                style={{
-                  background: COLORS.surface,
-                  borderRadius: "8px",
-                  padding: "12px 14px",
-                  border: `1px solid ${COLORS.border}40`,
-                }}
-              >
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "6px",
-                    marginBottom: "6px",
-                    color: COLORS.orange,
-                    fontSize: "11px",
-                    fontWeight: 700,
-                    letterSpacing: "0.5px",
-                    textTransform: "uppercase",
-                    fontFamily: FONT_MONO,
-                  }}
-                >
-                  <TimingIcon />
-                  使うタイミング
-                </div>
-                <p
-                  style={{
-                    margin: 0,
-                    fontSize: "13px",
-                    lineHeight: 1.75,
-                    color: COLORS.textSecondary,
-                    fontFamily: FONT_SANS,
-                  }}
-                >
-                  {shortcut.whenToUse}
-                </p>
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
-}
-
-function ShortcutsSection({
-  shortcuts,
-  reducedMotion,
-  expandedCommands,
-  onToggleCommand,
-}: {
-  shortcuts: Shortcut[];
-  reducedMotion: boolean | null;
-  expandedCommands: Set<string>;
-  onToggleCommand: (key: string) => void;
-}) {
-  return (
-    <motion.div
-      initial={reducedMotion ? false : { opacity: 0, y: 15 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.25 }}
+      role="button"
+      tabIndex={0}
+      onClick={onClick}
+      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onClick(); } }}
       style={{
         background: COLORS.surface,
         borderRadius: "12px",
         border: `1px solid ${COLORS.border}`,
+        padding: "18px 20px",
+        display: "flex",
+        flexDirection: "column",
+        gap: "10px",
+        cursor: "pointer",
+        transition: "all 0.2s ease",
+        position: "relative",
         overflow: "hidden",
       }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.background = COLORS.surfaceHover;
+        e.currentTarget.style.borderColor = accentColor + "60";
+        e.currentTarget.style.transform = "translateY(-2px)";
+        e.currentTarget.style.boxShadow = `0 8px 24px rgba(0,0,0,0.3), 0 0 0 1px ${accentColor}20`;
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.background = COLORS.surface;
+        e.currentTarget.style.borderColor = COLORS.border;
+        e.currentTarget.style.transform = "translateY(0)";
+        e.currentTarget.style.boxShadow = "none";
+      }}
     >
-      <div style={{ padding: "8px 6px 14px" }}>
-        {shortcuts.map((s) => (
-          <ShortcutRow
-            key={s.key}
-            shortcut={s}
-            isExpanded={expandedCommands.has(s.key)}
-            onToggle={() => onToggleCommand(s.key)}
-            reducedMotion={reducedMotion}
-          />
-        ))}
+      <div
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          height: "3px",
+          background: `linear-gradient(90deg, ${accentColor}, ${accentColor}40)`,
+          borderRadius: "12px 12px 0 0",
+        }}
+      />
+      <div style={{ display: "flex", alignItems: "baseline", gap: "8px" }}>
+        <code
+          style={{
+            fontFamily: FONT_MONO,
+            fontSize: "14px",
+            fontWeight: 700,
+            color: accentColor,
+            whiteSpace: "nowrap",
+          }}
+        >
+          {cmd.name}
+        </code>
+        {cmd.args && (
+          <span
+            style={{
+              fontSize: "11px",
+              color: COLORS.textMuted,
+              fontFamily: FONT_MONO,
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+            }}
+          >
+            {cmd.args}
+          </span>
+        )}
       </div>
-    </motion.div>
+      <p
+        style={{
+          margin: 0,
+          fontSize: "12px",
+          lineHeight: 1.6,
+          color: COLORS.textSecondary,
+          fontFamily: FONT_SANS,
+          flex: 1,
+          display: "-webkit-box",
+          WebkitLineClamp: 2,
+          WebkitBoxOrient: "vertical",
+          overflow: "hidden",
+        }}
+      >
+        {cmd.description}
+      </p>
+      <span
+        style={{
+          fontSize: "10px",
+          fontWeight: 600,
+          padding: "2px 8px",
+          borderRadius: "4px",
+          background: accentColor + "18",
+          color: accentColor,
+          whiteSpace: "nowrap",
+          alignSelf: "flex-start",
+        }}
+      >
+        {categoryName}
+      </span>
+    </div>
   );
 }
 
 // ---------------------------------------------------------------------------
-// Tab button
+// CLICard — card for CLI commands/flags
 // ---------------------------------------------------------------------------
 
-function TabButton({
-  active,
+function CLICard({
+  cmd,
+  kind,
   onClick,
-  children,
-  count,
 }: {
-  active: boolean;
+  cmd: CLICommand;
+  kind: "command" | "flag";
   onClick: () => void;
-  children: React.ReactNode;
-  count: number;
 }) {
   return (
-    <button
+    <div
+      role="button"
+      tabIndex={0}
       onClick={onClick}
+      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onClick(); } }}
       style={{
-        padding: "8px 16px",
-        borderRadius: "8px",
-        fontSize: "13px",
-        fontWeight: 600,
-        cursor: "pointer",
-        border: `1px solid ${active ? COLORS.accent + "60" : COLORS.border}`,
-        background: active ? COLORS.accentGlow : "transparent",
-        color: active ? COLORS.accent : COLORS.textMuted,
-        transition: "all 0.15s",
-        fontFamily: FONT_SANS,
+        background: COLORS.surface,
+        borderRadius: "12px",
+        border: `1px solid ${COLORS.border}`,
+        padding: "18px 20px",
         display: "flex",
-        alignItems: "center",
-        gap: "6px",
+        flexDirection: "column",
+        gap: "10px",
+        cursor: "pointer",
+        transition: "all 0.2s ease",
+        position: "relative",
+        overflow: "hidden",
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.background = COLORS.surfaceHover;
+        e.currentTarget.style.borderColor = COLORS.purple + "60";
+        e.currentTarget.style.transform = "translateY(-2px)";
+        e.currentTarget.style.boxShadow = `0 8px 24px rgba(0,0,0,0.3), 0 0 0 1px ${COLORS.purple}20`;
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.background = COLORS.surface;
+        e.currentTarget.style.borderColor = COLORS.border;
+        e.currentTarget.style.transform = "translateY(0)";
+        e.currentTarget.style.boxShadow = "none";
       }}
     >
-      {children}
-      <span
+      <div
         style={{
-          fontSize: "11px",
-          fontFamily: FONT_MONO,
-          opacity: 0.7,
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          height: "3px",
+          background: `linear-gradient(90deg, ${COLORS.purple}, ${COLORS.purple}40)`,
+          borderRadius: "12px 12px 0 0",
+        }}
+      />
+      <div style={{ display: "flex", alignItems: "baseline", gap: "8px" }}>
+        <code
+          style={{
+            fontFamily: FONT_MONO,
+            fontSize: "14px",
+            fontWeight: 700,
+            color: COLORS.purple,
+            whiteSpace: "nowrap",
+          }}
+        >
+          {cmd.name}
+        </code>
+        {cmd.args && (
+          <span
+            style={{
+              fontSize: "11px",
+              color: COLORS.textMuted,
+              fontFamily: FONT_MONO,
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+            }}
+          >
+            {cmd.args}
+          </span>
+        )}
+      </div>
+      <p
+        style={{
+          margin: 0,
+          fontSize: "12px",
+          lineHeight: 1.6,
+          color: COLORS.textSecondary,
+          fontFamily: FONT_SANS,
+          flex: 1,
+          display: "-webkit-box",
+          WebkitLineClamp: 2,
+          WebkitBoxOrient: "vertical",
+          overflow: "hidden",
         }}
       >
-        {count}
+        {cmd.description}
+      </p>
+      <span
+        style={{
+          fontSize: "10px",
+          fontWeight: 600,
+          padding: "2px 8px",
+          borderRadius: "4px",
+          background: COLORS.purpleBg,
+          color: COLORS.purple,
+          whiteSpace: "nowrap",
+          alignSelf: "flex-start",
+        }}
+      >
+        {kind === "command" ? "Command" : "Flag"}
       </span>
-    </button>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// ShortcutCard
+// ---------------------------------------------------------------------------
+
+function ShortcutCard({
+  shortcut,
+  onClick,
+}: {
+  shortcut: Shortcut;
+  onClick: () => void;
+}) {
+  return (
+    <div
+      role="button"
+      tabIndex={0}
+      onClick={onClick}
+      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onClick(); } }}
+      style={{
+        background: COLORS.surface,
+        borderRadius: "12px",
+        border: `1px solid ${COLORS.border}`,
+        padding: "18px 20px",
+        display: "flex",
+        flexDirection: "column",
+        gap: "10px",
+        cursor: "pointer",
+        transition: "all 0.2s ease",
+        position: "relative",
+        overflow: "hidden",
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.background = COLORS.surfaceHover;
+        e.currentTarget.style.borderColor = COLORS.orange + "60";
+        e.currentTarget.style.transform = "translateY(-2px)";
+        e.currentTarget.style.boxShadow = `0 8px 24px rgba(0,0,0,0.3), 0 0 0 1px ${COLORS.orange}20`;
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.background = COLORS.surface;
+        e.currentTarget.style.borderColor = COLORS.border;
+        e.currentTarget.style.transform = "translateY(0)";
+        e.currentTarget.style.boxShadow = "none";
+      }}
+    >
+      <div
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          height: "3px",
+          background: `linear-gradient(90deg, ${COLORS.orange}, ${COLORS.orange}40)`,
+          borderRadius: "12px 12px 0 0",
+        }}
+      />
+      <kbd
+        style={{
+          fontFamily: FONT_MONO,
+          fontSize: "13px",
+          fontWeight: 600,
+          color: COLORS.orange,
+          background: COLORS.orangeBg,
+          padding: "4px 12px",
+          borderRadius: "6px",
+          border: `1px solid ${COLORS.orange}30`,
+          display: "inline-block",
+          whiteSpace: "nowrap",
+          width: "fit-content",
+        }}
+      >
+        {shortcut.key}
+      </kbd>
+      <p
+        style={{
+          margin: 0,
+          fontSize: "12px",
+          lineHeight: 1.6,
+          color: COLORS.textSecondary,
+          fontFamily: FONT_SANS,
+          flex: 1,
+          display: "-webkit-box",
+          WebkitLineClamp: 2,
+          WebkitBoxOrient: "vertical",
+          overflow: "hidden",
+        }}
+      >
+        {shortcut.description}
+      </p>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// DetailModal — shared modal for command/CLI/shortcut details
+// ---------------------------------------------------------------------------
+
+type ModalData =
+  | { type: "command"; cmd: Command; categoryName: string; accentColor: string }
+  | { type: "cli"; cmd: CLICommand; kind: "command" | "flag" }
+  | { type: "shortcut"; shortcut: Shortcut };
+
+function DetailModal({
+  data,
+  onClose,
+  reducedMotion,
+}: {
+  data: ModalData;
+  onClose: () => void;
+  reducedMotion: boolean | null;
+}) {
+  const overlayRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+    document.addEventListener("keydown", handleEsc);
+    document.body.style.overflow = "hidden";
+    document.body.style.paddingRight = `${scrollbarWidth}px`;
+    return () => {
+      document.removeEventListener("keydown", handleEsc);
+      document.body.style.overflow = "";
+      document.body.style.paddingRight = "";
+    };
+  }, [onClose]);
+
+  let title: React.ReactNode;
+  let accentColor: string;
+  let detail: string;
+  let whenToUse: string;
+  let extraHeader: React.ReactNode = null;
+
+  if (data.type === "command") {
+    accentColor = data.accentColor;
+    detail = data.cmd.detail;
+    whenToUse = data.cmd.whenToUse;
+    title = (
+      <div style={{ display: "flex", alignItems: "baseline", gap: "8px", flexWrap: "wrap" }}>
+        <code style={{ fontFamily: FONT_MONO, fontSize: "16px", fontWeight: 700, color: accentColor }}>{data.cmd.name}</code>
+        {data.cmd.args && (
+          <span style={{ fontSize: "12px", color: COLORS.textMuted, fontFamily: FONT_MONO }}>{data.cmd.args}</span>
+        )}
+      </div>
+    );
+    extraHeader = (
+      <div style={{ display: "flex", gap: "6px", marginTop: "8px", flexWrap: "wrap" }}>
+        <span
+          style={{
+            fontSize: "10px",
+            fontWeight: 600,
+            padding: "2px 8px",
+            borderRadius: "4px",
+            background: accentColor + "18",
+            color: accentColor,
+          }}
+        >
+          {data.categoryName}
+        </span>
+        <span
+          style={{
+            fontSize: "10px",
+            fontWeight: 600,
+            padding: "2px 8px",
+            borderRadius: "4px",
+            background: COLORS.greenBg,
+            color: COLORS.green,
+          }}
+        >
+          スラッシュコマンド
+        </span>
+      </div>
+    );
+  } else if (data.type === "cli") {
+    accentColor = COLORS.purple;
+    detail = data.cmd.detail;
+    whenToUse = data.cmd.whenToUse;
+    title = (
+      <div style={{ display: "flex", alignItems: "baseline", gap: "8px", flexWrap: "wrap" }}>
+        <code style={{ fontFamily: FONT_MONO, fontSize: "16px", fontWeight: 700, color: accentColor }}>{data.cmd.name}</code>
+        {data.cmd.args && (
+          <span style={{ fontSize: "12px", color: COLORS.textMuted, fontFamily: FONT_MONO }}>{data.cmd.args}</span>
+        )}
+      </div>
+    );
+    extraHeader = (
+      <div style={{ display: "flex", gap: "6px", marginTop: "8px" }}>
+        <span
+          style={{
+            fontSize: "10px",
+            fontWeight: 600,
+            padding: "2px 8px",
+            borderRadius: "4px",
+            background: COLORS.purpleBg,
+            color: COLORS.purple,
+          }}
+        >
+          CLI {data.kind === "command" ? "Command" : "Flag"}
+        </span>
+      </div>
+    );
+  } else {
+    accentColor = COLORS.orange;
+    detail = data.shortcut.detail;
+    whenToUse = data.shortcut.whenToUse;
+    title = (
+      <kbd
+        style={{
+          fontFamily: FONT_MONO,
+          fontSize: "14px",
+          fontWeight: 600,
+          color: COLORS.orange,
+          background: COLORS.orangeBg,
+          padding: "4px 14px",
+          borderRadius: "6px",
+          border: `1px solid ${COLORS.orange}30`,
+        }}
+      >
+        {data.shortcut.key}
+      </kbd>
+    );
+    extraHeader = (
+      <div style={{ display: "flex", gap: "6px", marginTop: "8px" }}>
+        <span
+          style={{
+            fontSize: "10px",
+            fontWeight: 600,
+            padding: "2px 8px",
+            borderRadius: "4px",
+            background: COLORS.orangeBg,
+            color: COLORS.orange,
+          }}
+        >
+          ショートカット
+        </span>
+      </div>
+    );
+  }
+
+  const description = data.type === "command" ? data.cmd.description : data.type === "cli" ? data.cmd.description : data.shortcut.description;
+
+  return (
+    <motion.div
+      ref={overlayRef}
+      initial={reducedMotion ? false : { opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={reducedMotion ? undefined : { opacity: 0 }}
+      transition={{ duration: 0.2 }}
+      onClick={(e) => { if (e.target === overlayRef.current) onClose(); }}
+      style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 1000,
+        background: COLORS.overlay,
+        backdropFilter: "blur(4px)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "24px",
+      }}
+    >
+      <motion.div
+        initial={reducedMotion ? false : { opacity: 0, scale: 0.95, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={reducedMotion ? undefined : { opacity: 0, scale: 0.95, y: 20 }}
+        transition={{ duration: 0.25, ease: "easeOut" }}
+        style={{
+          background: COLORS.surface,
+          borderRadius: "16px",
+          border: `1px solid ${accentColor}30`,
+          width: "100%",
+          maxWidth: "640px",
+          maxHeight: "85vh",
+          overflow: "hidden",
+          display: "flex",
+          flexDirection: "column",
+          boxShadow: `0 24px 64px rgba(0,0,0,0.5), 0 0 0 1px ${accentColor}15`,
+        }}
+      >
+        {/* Header */}
+        <div
+          style={{
+            padding: "20px 24px",
+            borderBottom: `1px solid ${COLORS.border}`,
+            display: "flex",
+            alignItems: "flex-start",
+            gap: "14px",
+            background: `linear-gradient(135deg, ${COLORS.surface} 0%, ${COLORS.bg} 100%)`,
+            position: "relative",
+          }}
+        >
+          <div
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              height: "3px",
+              background: `linear-gradient(90deg, ${accentColor}, ${accentColor}40)`,
+            }}
+          />
+          <div
+            style={{
+              width: "40px",
+              height: "40px",
+              borderRadius: "10px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              background: accentColor + "18",
+              color: accentColor,
+              flexShrink: 0,
+            }}
+          >
+            {data.type === "shortcut" ? (
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M18 3a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3H6a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3V6a3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3h12a3 3 0 0 0 3-3 3 3 0 0 0-3-3z" />
+              </svg>
+            ) : (
+              <TerminalIcon />
+            )}
+          </div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            {title}
+            <div
+              style={{
+                fontSize: "13px",
+                color: COLORS.textSecondary,
+                marginTop: "6px",
+                fontFamily: FONT_SANS,
+                lineHeight: 1.6,
+              }}
+            >
+              {description}
+            </div>
+            {extraHeader}
+          </div>
+          <button
+            onClick={onClose}
+            aria-label="閉じる"
+            style={{
+              background: "none",
+              border: "none",
+              color: COLORS.textMuted,
+              cursor: "pointer",
+              padding: "4px",
+              borderRadius: "6px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              transition: "color 0.15s, background 0.15s",
+              flexShrink: 0,
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.color = COLORS.text;
+              e.currentTarget.style.background = COLORS.bg;
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.color = COLORS.textMuted;
+              e.currentTarget.style.background = "transparent";
+            }}
+          >
+            <CloseIcon />
+          </button>
+        </div>
+
+        {/* Body */}
+        <div
+          style={{
+            padding: "24px",
+            overflowY: "auto",
+            display: "flex",
+            flexDirection: "column",
+            gap: "20px",
+          }}
+        >
+          {/* Detail */}
+          <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "6px",
+                color: COLORS.cyan,
+                fontSize: "11px",
+                fontWeight: 700,
+                letterSpacing: "0.5px",
+                textTransform: "uppercase",
+                fontFamily: FONT_MONO,
+              }}
+            >
+              <DetailInfoIcon />
+              詳細説明
+            </div>
+            <p
+              style={{
+                margin: 0,
+                fontSize: "13px",
+                lineHeight: 1.8,
+                color: COLORS.textSecondary,
+                fontFamily: FONT_SANS,
+              }}
+            >
+              {detail}
+            </p>
+          </div>
+
+          {/* When to use */}
+          <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "6px",
+                color: COLORS.orange,
+                fontSize: "11px",
+                fontWeight: 700,
+                letterSpacing: "0.5px",
+                textTransform: "uppercase",
+                fontFamily: FONT_MONO,
+              }}
+            >
+              <TimingIcon />
+              使うタイミング
+            </div>
+            <p
+              style={{
+                margin: 0,
+                fontSize: "13px",
+                lineHeight: 1.8,
+                color: COLORS.textSecondary,
+                fontFamily: FONT_SANS,
+              }}
+            >
+              {whenToUse}
+            </p>
+          </div>
+        </div>
+      </motion.div>
+    </motion.div>
   );
 }
 
@@ -1086,11 +933,11 @@ function TabButton({
 export default function Commands(): React.JSX.Element {
   const [query, setQuery] = useState("");
   const [searchFocused, setSearchFocused] = useState(false);
-  const [openSections, setOpenSections] = useState<Set<string>>(new Set());
-  const [expandedCommands, setExpandedCommands] = useState<Set<string>>(new Set());
-  const [tab, setTab] = useState<"slash" | "cli" | "shortcuts">("slash");
+  const [activeTab, setActiveTab] = useState<string>("essential");
+  const [modalData, setModalData] = useState<ModalData | null>(null);
   const reducedMotion = useReducedMotion();
   const hasMounted = useRef(false);
+  const tabScrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     hasMounted.current = true;
@@ -1098,20 +945,20 @@ export default function Commands(): React.JSX.Element {
 
   const lowerQuery = query.toLowerCase();
 
-  const filteredCategories = useMemo(() => {
-    return CATEGORIES.map((cat) => ({
-      ...cat,
-      commands: cat.commands.filter(
-        (cmd) =>
-          !query ||
-          cmd.name.toLowerCase().includes(lowerQuery) ||
-          cmd.description.toLowerCase().includes(lowerQuery) ||
-          (cmd.args && cmd.args.toLowerCase().includes(lowerQuery)) ||
-          cmd.detail.toLowerCase().includes(lowerQuery) ||
-          cmd.whenToUse.toLowerCase().includes(lowerQuery)
-      ),
-    })).filter((cat) => cat.commands.length > 0);
-  }, [query, lowerQuery]);
+  const activeCategory = CATEGORIES.find((c) => c.id === activeTab);
+
+  const filteredSlashCommands = useMemo(() => {
+    if (!activeCategory) return [];
+    return activeCategory.commands.filter(
+      (cmd) =>
+        !query ||
+        cmd.name.toLowerCase().includes(lowerQuery) ||
+        cmd.description.toLowerCase().includes(lowerQuery) ||
+        (cmd.args && cmd.args.toLowerCase().includes(lowerQuery)) ||
+        cmd.detail.toLowerCase().includes(lowerQuery) ||
+        cmd.whenToUse.toLowerCase().includes(lowerQuery)
+    );
+  }, [activeCategory, query, lowerQuery]);
 
   const filteredCLICommands = useMemo(() => {
     return CLI_COMMANDS.filter(
@@ -1146,69 +993,23 @@ export default function Commands(): React.JSX.Element {
     );
   }, [query, lowerQuery]);
 
-  const totalFiltered =
-    tab === "slash"
-      ? filteredCategories.reduce((sum, c) => sum + c.commands.length, 0)
-      : tab === "cli"
-        ? filteredCLICommands.length + filteredCLIFlags.length
-        : filteredShortcuts.length;
+  const isCLITab = activeTab === "cli";
+  const isShortcutsTab = activeTab === "shortcuts";
+  const isSlashTab = !isCLITab && !isShortcutsTab;
 
-  function toggleSection(id: string) {
-    setOpenSections((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) {
-        next.delete(id);
-      } else {
-        next.add(id);
-      }
-      return next;
-    });
-  }
+  const currentCount = isSlashTab
+    ? filteredSlashCommands.length
+    : isCLITab
+      ? filteredCLICommands.length + filteredCLIFlags.length
+      : filteredShortcuts.length;
 
-  function toggleCommand(name: string) {
-    setExpandedCommands((prev) => {
-      const next = new Set(prev);
-      if (next.has(name)) {
-        next.delete(name);
-      } else {
-        next.add(name);
-      }
-      return next;
-    });
-  }
+  const openModal = useCallback((data: ModalData) => {
+    setModalData(data);
+  }, []);
 
-  function toggleAll() {
-    if (tab === "slash") {
-      const allIds = filteredCategories.map((c) => c.id);
-      const allOpen = allIds.every((id) => openSections.has(id));
-      if (allOpen) {
-        setOpenSections(new Set());
-      } else {
-        setOpenSections(new Set([...openSections, ...allIds]));
-      }
-    } else {
-      if (openSections.has("cli")) {
-        setOpenSections((prev) => {
-          const next = new Set(prev);
-          next.delete("cli");
-          return next;
-        });
-      } else {
-        setOpenSections((prev) => new Set([...prev, "cli"]));
-      }
-    }
-  }
-
-  // Auto-expand all when searching
-  useEffect(() => {
-    if (query) {
-      if (tab === "slash") {
-        setOpenSections(new Set(filteredCategories.map((c) => c.id)));
-      } else if (tab === "cli") {
-        setOpenSections((prev) => new Set([...prev, "cli"]));
-      }
-    }
-  }, [query, tab, filteredCategories]);
+  const closeModal = useCallback(() => {
+    setModalData(null);
+  }, []);
 
   const m = reducedMotion
     ? { initial: undefined, animate: undefined, transition: undefined }
@@ -1223,7 +1024,7 @@ export default function Commands(): React.JSX.Element {
         color: COLORS.text,
       }}
     >
-      <div style={{ maxWidth: "920px", margin: "0 auto", padding: "32px 16px" }}>
+      <div style={{ maxWidth: "1100px", margin: "0 auto", padding: "32px 16px" }}>
         {/* Header */}
         <motion.div
           initial={m ? false : { opacity: 0, y: -20 }}
@@ -1231,8 +1032,8 @@ export default function Commands(): React.JSX.Element {
           transition={{ duration: 0.5, ease: "easeOut" }}
           style={{
             textAlign: "center",
-            marginBottom: "32px",
-            padding: "40px 24px",
+            marginBottom: "28px",
+            padding: "36px 24px",
             background: `linear-gradient(135deg, ${COLORS.surface} 0%, ${COLORS.bg} 100%)`,
             borderRadius: "16px",
             position: "relative",
@@ -1268,9 +1069,9 @@ export default function Commands(): React.JSX.Element {
             </div>
             <h1
               style={{
-                fontSize: "32px",
+                fontSize: "28px",
                 fontWeight: 700,
-                margin: "0 0 12px",
+                margin: "0 0 10px",
                 color: COLORS.text,
                 letterSpacing: "-0.5px",
               }}
@@ -1297,84 +1098,140 @@ export default function Commands(): React.JSX.Element {
                 <strong style={{ color: COLORS.text }}>{SHORTCUTS.length}</strong> ショートカット
               </span>
             </div>
-            {/* Nav links */}
             <div
               style={{
                 display: "flex",
                 justifyContent: "center",
                 gap: "12px",
-                marginTop: "16px",
+                marginTop: "14px",
               }}
             >
-              <Link
-                to="/"
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: "6px",
-                  color: COLORS.textMuted,
-                  textDecoration: "none",
-                  fontSize: "12px",
-                  fontFamily: FONT_SANS,
-                  padding: "4px 12px",
-                  borderRadius: "6px",
-                  border: `1px solid ${COLORS.border}`,
-                  transition: "all 0.15s",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.color = COLORS.text;
-                  e.currentTarget.style.borderColor = COLORS.accent + "60";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.color = COLORS.textMuted;
-                  e.currentTarget.style.borderColor = COLORS.border;
-                }}
-              >
-                <ArrowLeftIcon />
-                リリースノート
-              </Link>
-              <Link
-                to="/plugins"
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: "6px",
-                  color: COLORS.textMuted,
-                  textDecoration: "none",
-                  fontSize: "12px",
-                  fontFamily: FONT_SANS,
-                  padding: "4px 12px",
-                  borderRadius: "6px",
-                  border: `1px solid ${COLORS.border}`,
-                  transition: "all 0.15s",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.color = COLORS.text;
-                  e.currentTarget.style.borderColor = COLORS.accent + "60";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.color = COLORS.textMuted;
-                  e.currentTarget.style.borderColor = COLORS.border;
-                }}
-              >
-                公式プラグイン →
-              </Link>
+              {[
+                { to: "/", label: "リリースノート", icon: <ArrowLeftIcon />, trailing: false },
+                { to: "/plugins", label: "公式プラグイン", icon: null, trailing: true },
+                { to: "/directory", label: "ディレクトリ構成", icon: null, trailing: true },
+              ].map((link) => (
+                <Link
+                  key={link.to}
+                  to={link.to}
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "6px",
+                    color: COLORS.textMuted,
+                    textDecoration: "none",
+                    fontSize: "12px",
+                    fontFamily: FONT_SANS,
+                    padding: "4px 12px",
+                    borderRadius: "6px",
+                    border: `1px solid ${COLORS.border}`,
+                    transition: "all 0.15s",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.color = COLORS.text;
+                    e.currentTarget.style.borderColor = COLORS.accent + "60";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.color = COLORS.textMuted;
+                    e.currentTarget.style.borderColor = COLORS.border;
+                  }}
+                >
+                  {link.icon}
+                  {link.label}
+                  {link.trailing && " →"}
+                </Link>
+              ))}
             </div>
           </div>
         </motion.div>
 
-        {/* Search */}
+        {/* Tabs */}
         <motion.div
           initial={m ? false : { opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.1 }}
+          ref={tabScrollRef}
+          style={{
+            display: "flex",
+            gap: "4px",
+            marginBottom: "20px",
+            overflowX: "auto",
+            paddingBottom: "4px",
+            scrollbarWidth: "none",
+          }}
+        >
+          {TAB_DEFS.map((tab) => {
+            const isActive = activeTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => {
+                  setActiveTab(tab.id);
+                  setQuery("");
+                }}
+                style={{
+                  flexShrink: 0,
+                  padding: "10px 16px",
+                  borderRadius: "10px",
+                  border: isActive ? `1px solid ${tab.color}40` : `1px solid transparent`,
+                  background: isActive ? tab.color + "18" : "transparent",
+                  color: isActive ? tab.color : COLORS.textMuted,
+                  fontSize: "13px",
+                  fontWeight: isActive ? 600 : 500,
+                  fontFamily: FONT_SANS,
+                  cursor: "pointer",
+                  transition: "all 0.2s",
+                  whiteSpace: "nowrap",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "6px",
+                }}
+                onMouseEnter={(e) => {
+                  if (!isActive) {
+                    e.currentTarget.style.background = COLORS.surfaceHover;
+                    e.currentTarget.style.color = COLORS.text;
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!isActive) {
+                    e.currentTarget.style.background = "transparent";
+                    e.currentTarget.style.color = COLORS.textMuted;
+                  }
+                }}
+              >
+                {tab.type === "slash-category" && CATEGORY_ICONS[tab.id] && (
+                  <span style={{ display: "flex", alignItems: "center", transform: "scale(0.8)" }}>
+                    {CATEGORY_ICONS[tab.id]()}
+                  </span>
+                )}
+                {tab.type === "cli" && (
+                  <span style={{ display: "flex", alignItems: "center" }}>
+                    <TerminalIcon />
+                  </span>
+                )}
+                {tab.type === "shortcuts" && (
+                  <span style={{ display: "flex", alignItems: "center" }}>
+                    <InfoIcon />
+                  </span>
+                )}
+                {tab.label}
+              </button>
+            );
+          })}
+        </motion.div>
+
+        {/* Search */}
+        <motion.div
+          initial={m ? false : { opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.3, delay: 0.15 }}
           style={{
             background: COLORS.surface,
             borderRadius: "10px",
             border: `1px solid ${searchFocused ? COLORS.accent : COLORS.border}`,
             boxShadow: searchFocused ? `0 0 0 3px ${COLORS.accentGlow}` : "none",
             padding: "2px 14px",
-            marginBottom: "14px",
+            marginBottom: "16px",
             display: "flex",
             alignItems: "center",
             gap: "10px",
@@ -1402,165 +1259,152 @@ export default function Commands(): React.JSX.Element {
           />
         </motion.div>
 
-        {/* Tabs */}
-        <motion.div
-          initial={m ? false : { opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.15 }}
+        {/* Count */}
+        <div
           style={{
             display: "flex",
-            gap: "8px",
-            marginBottom: "14px",
-          }}
-        >
-          <TabButton active={tab === "slash"} onClick={() => setTab("slash")} count={TOTAL_SLASH}>
-            スラッシュコマンド
-          </TabButton>
-          <TabButton active={tab === "cli"} onClick={() => setTab("cli")} count={TOTAL_CLI}>
-            CLI
-          </TabButton>
-          <TabButton active={tab === "shortcuts"} onClick={() => setTab("shortcuts")} count={SHORTCUTS.length}>
-            ショートカット
-          </TabButton>
-        </motion.div>
-
-        {/* Controls */}
-        <motion.div
-          initial={m ? false : { opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.3, delay: 0.2 }}
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
             alignItems: "center",
-            marginBottom: "14px",
+            gap: "10px",
+            marginBottom: "16px",
             padding: "0 4px",
           }}
         >
           <span style={{ fontSize: "13px", color: COLORS.textMuted, fontWeight: 500 }}>
-            {totalFiltered} 件表示中
+            {currentCount} 件表示中
           </span>
-          {tab !== "shortcuts" && (
-            <button
-              onClick={toggleAll}
-              style={{
-                padding: "6px 14px",
-                borderRadius: "8px",
-                fontSize: "12px",
-                fontWeight: 600,
-                cursor: "pointer",
-                border: `1px solid ${COLORS.border}`,
-                background: COLORS.surface,
-                color: COLORS.textSecondary,
-                fontFamily: FONT_SANS,
-              }}
-            >
-              {tab === "slash"
-                ? filteredCategories.every((c) => openSections.has(c.id))
-                  ? "すべて閉じる"
-                  : "すべて開く"
-                : openSections.has("cli")
-                  ? "閉じる"
-                  : "開く"}
-            </button>
-          )}
-        </motion.div>
-
-        {/* Content */}
-        <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-          <AnimatePresence mode="popLayout">
-            {tab === "slash" ? (
-              filteredCategories.map((cat, i) => (
-                <motion.div
-                  key={cat.id}
-                  layout={!reducedMotion}
-                  initial={m ? false : hasMounted.current ? { opacity: 0 } : { opacity: 0, y: 15 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={m ? undefined : { opacity: 0, scale: 0.96, transition: { duration: 0.2 } }}
-                  transition={{
-                    duration: 0.25,
-                    delay: reducedMotion || hasMounted.current ? 0 : Math.min(i * 0.06, 0.6),
-                  }}
-                >
-                  <CategorySection
-                    category={cat}
-                    isOpen={openSections.has(cat.id)}
-                    onToggle={() => toggleSection(cat.id)}
-                    reducedMotion={reducedMotion}
-                    filteredCommands={cat.commands}
-                    expandedCommands={expandedCommands}
-                    onToggleCommand={toggleCommand}
-                  />
-                </motion.div>
-              ))
-            ) : tab === "cli" ? (
-              <motion.div
-                key="cli"
-                layout={!reducedMotion}
-                initial={m ? false : { opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={m ? undefined : { opacity: 0, scale: 0.96, transition: { duration: 0.2 } }}
-                transition={{ duration: 0.25 }}
-              >
-                <CLISection
-                  isOpen={openSections.has("cli")}
-                  onToggle={() => toggleSection("cli")}
-                  reducedMotion={reducedMotion}
-                  filteredCommands={filteredCLICommands}
-                  filteredFlags={filteredCLIFlags}
-                  expandedCommands={expandedCommands}
-                  onToggleCommand={toggleCommand}
-                />
-              </motion.div>
-            ) : (
-              <ShortcutsSection
-                key="shortcuts"
-                shortcuts={filteredShortcuts}
-                reducedMotion={reducedMotion}
-                expandedCommands={expandedCommands}
-                onToggleCommand={toggleCommand}
-              />
-            )}
-          </AnimatePresence>
         </div>
 
-        {/* Empty state */}
-        <AnimatePresence>
-          {totalFiltered === 0 && (
-            <motion.div
-              initial={m ? false : { opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={m ? undefined : { opacity: 0, scale: 0.95 }}
-              transition={{ duration: 0.3 }}
+        {/* Card grid */}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeTab}
+            initial={reducedMotion ? false : { opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={reducedMotion ? undefined : { opacity: 0, y: -10 }}
+            transition={{ duration: 0.25 }}
+          >
+            <div
               style={{
-                textAlign: "center",
-                padding: "64px 24px",
-                background: COLORS.surface,
-                borderRadius: "12px",
-                border: `1px solid ${COLORS.border}`,
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
+                gap: "14px",
               }}
             >
-              <div style={{ marginBottom: "16px" }}>
-                <svg
-                  width="48"
-                  height="48"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke={COLORS.textMuted}
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <circle cx="11" cy="11" r="8" />
-                  <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                  <line x1="8" y1="11" x2="14" y2="11" />
-                </svg>
-              </div>
-              <p style={{ color: COLORS.textMuted, fontSize: "14px", margin: 0 }}>
-                条件に一致するコマンドはありません
-              </p>
-            </motion.div>
-          )}
+              <AnimatePresence mode="popLayout">
+                {isSlashTab && filteredSlashCommands.map((cmd, i) => (
+                  <motion.div
+                    key={cmd.name}
+                    layout={!reducedMotion}
+                    initial={reducedMotion ? false : hasMounted.current ? { opacity: 0 } : { opacity: 0, y: 15 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={reducedMotion ? undefined : { opacity: 0, scale: 0.96, transition: { duration: 0.15 } }}
+                    transition={{ duration: 0.2, delay: reducedMotion || hasMounted.current ? 0 : Math.min(i * 0.04, 0.4) }}
+                  >
+                    <CommandCard
+                      cmd={cmd}
+                      accentColor={CATEGORY_COLORS[activeTab]?.color || COLORS.accent}
+                      categoryName={activeCategory?.name || ""}
+                      onClick={() => openModal({
+                        type: "command",
+                        cmd,
+                        categoryName: activeCategory?.name || "",
+                        accentColor: CATEGORY_COLORS[activeTab]?.color || COLORS.accent,
+                      })}
+                    />
+                  </motion.div>
+                ))}
+
+                {isCLITab && (
+                  <>
+                    {filteredCLICommands.map((cmd, i) => (
+                      <motion.div
+                        key={`cli-cmd-${cmd.name}`}
+                        layout={!reducedMotion}
+                        initial={reducedMotion ? false : hasMounted.current ? { opacity: 0 } : { opacity: 0, y: 15 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={reducedMotion ? undefined : { opacity: 0, scale: 0.96, transition: { duration: 0.15 } }}
+                        transition={{ duration: 0.2, delay: reducedMotion || hasMounted.current ? 0 : Math.min(i * 0.04, 0.4) }}
+                      >
+                        <CLICard
+                          cmd={cmd}
+                          kind="command"
+                          onClick={() => openModal({ type: "cli", cmd, kind: "command" })}
+                        />
+                      </motion.div>
+                    ))}
+                    {filteredCLIFlags.map((cmd, i) => (
+                      <motion.div
+                        key={`cli-flag-${cmd.name}`}
+                        layout={!reducedMotion}
+                        initial={reducedMotion ? false : hasMounted.current ? { opacity: 0 } : { opacity: 0, y: 15 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={reducedMotion ? undefined : { opacity: 0, scale: 0.96, transition: { duration: 0.15 } }}
+                        transition={{ duration: 0.2, delay: reducedMotion || hasMounted.current ? 0 : Math.min((filteredCLICommands.length + i) * 0.04, 0.4) }}
+                      >
+                        <CLICard
+                          cmd={cmd}
+                          kind="flag"
+                          onClick={() => openModal({ type: "cli", cmd, kind: "flag" })}
+                        />
+                      </motion.div>
+                    ))}
+                  </>
+                )}
+
+                {isShortcutsTab && filteredShortcuts.map((s, i) => (
+                  <motion.div
+                    key={s.key}
+                    layout={!reducedMotion}
+                    initial={reducedMotion ? false : hasMounted.current ? { opacity: 0 } : { opacity: 0, y: 15 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={reducedMotion ? undefined : { opacity: 0, scale: 0.96, transition: { duration: 0.15 } }}
+                    transition={{ duration: 0.2, delay: reducedMotion || hasMounted.current ? 0 : Math.min(i * 0.04, 0.4) }}
+                  >
+                    <ShortcutCard
+                      shortcut={s}
+                      onClick={() => openModal({ type: "shortcut", shortcut: s })}
+                    />
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            </div>
+
+            {/* Empty state */}
+            {currentCount === 0 && (
+              <motion.div
+                initial={reducedMotion ? false : { opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.3 }}
+                style={{
+                  textAlign: "center",
+                  padding: "64px 24px",
+                  background: COLORS.surface,
+                  borderRadius: "12px",
+                  border: `1px solid ${COLORS.border}`,
+                }}
+              >
+                <div style={{ marginBottom: "16px" }}>
+                  <svg
+                    width="48"
+                    height="48"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke={COLORS.textMuted}
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <circle cx="11" cy="11" r="8" />
+                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                    <line x1="8" y1="11" x2="14" y2="11" />
+                  </svg>
+                </div>
+                <p style={{ color: COLORS.textMuted, fontSize: "14px", margin: 0 }}>
+                  条件に一致するコマンドはありません
+                </p>
+              </motion.div>
+            )}
+          </motion.div>
         </AnimatePresence>
 
         {/* Footer */}
@@ -1577,6 +1421,17 @@ export default function Commands(): React.JSX.Element {
           Claude Code Release Notes Viewer
         </div>
       </div>
+
+      {/* Modal */}
+      <AnimatePresence>
+        {modalData && (
+          <DetailModal
+            data={modalData}
+            onClose={closeModal}
+            reducedMotion={reducedMotion}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }

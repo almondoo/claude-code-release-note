@@ -5,4 +5,5 @@ export default [
   route("version/:version", "routes/version-detail.tsx"),
   route("commands", "routes/commands.tsx"),
   route("plugins", "routes/plugins.tsx"),
+  route("directory", "routes/directory.tsx"),
 ] satisfies RouteConfig;
