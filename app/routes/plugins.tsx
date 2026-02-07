@@ -1,7 +1,24 @@
-import { useState, useMemo, useEffect, useRef, useCallback } from "react";
+import { useState, useMemo, useRef, useCallback } from "react";
 import { Link } from "react-router";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 
+import {
+  ArrowLeftIcon,
+  BoltIcon,
+  CheckIcon,
+  CloseIcon,
+  CopyIcon,
+  DetailInfoIcon,
+  DownloadIcon,
+  EmptyIcon,
+  ExternalLinkIcon,
+  GitHubIcon,
+  PluginIcon,
+  SearchIcon,
+  SettingsIcon,
+  TimingIcon,
+} from "~/components/icons.js";
+import { useModalLock } from "~/hooks/useModalLock.js";
 import pluginsData from "~/data/plugins.json";
 
 // ---------------------------------------------------------------------------
@@ -81,102 +98,6 @@ const CATEGORY_ICONS: Record<string, () => React.JSX.Element> = {
 };
 
 // ---------------------------------------------------------------------------
-// Icons
-// ---------------------------------------------------------------------------
-
-function SearchIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-slate-500">
-      <circle cx="11" cy="11" r="8" />
-      <line x1="21" y1="21" x2="16.65" y2="16.65" />
-    </svg>
-  );
-}
-
-function ArrowLeftIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <line x1="19" y1="12" x2="5" y2="12" />
-      <polyline points="12 19 5 12 12 5" />
-    </svg>
-  );
-}
-
-function CloseIcon() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <line x1="18" y1="6" x2="6" y2="18" />
-      <line x1="6" y1="6" x2="18" y2="18" />
-    </svg>
-  );
-}
-
-function DetailInfoIcon() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="12" r="10" />
-      <line x1="12" y1="16" x2="12" y2="12" />
-      <line x1="12" y1="8" x2="12.01" y2="8" />
-    </svg>
-  );
-}
-
-function TimingIcon() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="12" r="10" />
-      <polyline points="12 6 12 12 16 14" />
-    </svg>
-  );
-}
-
-function SetupIcon() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="12" r="3" />
-      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
-    </svg>
-  );
-}
-
-function DownloadIcon() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-      <polyline points="7 10 12 15 17 10" />
-      <line x1="12" y1="15" x2="12" y2="3" />
-    </svg>
-  );
-}
-
-function CopyIcon() {
-  return (
-    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-    </svg>
-  );
-}
-
-function CheckIcon() {
-  return (
-    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-      <polyline points="20 6 9 17 4 12" />
-    </svg>
-  );
-}
-
-function ExternalLinkIcon() {
-  return (
-    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-      <polyline points="15 3 21 3 21 9" />
-      <line x1="10" y1="14" x2="21" y2="3" />
-    </svg>
-  );
-}
-
-// ---------------------------------------------------------------------------
 // Meta
 // ---------------------------------------------------------------------------
 
@@ -192,8 +113,7 @@ export function meta(): Array<{ title?: string; name?: string; content?: string 
 // ---------------------------------------------------------------------------
 
 const CATEGORIES: Category[] = pluginsData.categories;
-const ALL_PLUGINS = CATEGORIES.flatMap((c) => c.plugins);
-const TOTAL = ALL_PLUGINS.length;
+const TOTAL = CATEGORIES.flatMap((c) => c.plugins).length;
 
 // ---------------------------------------------------------------------------
 // Tab definitions
@@ -220,10 +140,11 @@ const TAB_DEFS: TabDef[] = [
 // CopyButton
 // ---------------------------------------------------------------------------
 
-function CopyButton({ text }: { text: string }) {
+function CopyButton({ text }: { text: string }): React.JSX.Element {
   const [copied, setCopied] = useState(false);
 
-  function handleCopy() {
+  function handleCopy(e: React.MouseEvent) {
+    e.stopPropagation();
     navigator.clipboard.writeText(text).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
@@ -232,10 +153,7 @@ function CopyButton({ text }: { text: string }) {
 
   return (
     <button
-      onClick={(e) => {
-        e.stopPropagation();
-        handleCopy();
-      }}
+      onClick={handleCopy}
       className="inline-flex items-center gap-1 px-2 py-0.5 rounded border font-mono text-[11px] cursor-pointer transition-all shrink-0"
       style={{
         borderColor: copied ? "#6EE7B740" : "#334155",
@@ -253,35 +171,28 @@ function CopyButton({ text }: { text: string }) {
 // PluginCard
 // ---------------------------------------------------------------------------
 
-function PluginCard({
-  plugin,
-  accentColor,
-  onClick,
-}: {
+interface PluginCardProps {
   plugin: Plugin;
   accentColor: string;
   onClick: () => void;
-}) {
+}
+
+function PluginCard({ plugin, accentColor, onClick }: PluginCardProps): React.JSX.Element {
   return (
     <div
       role="button"
       tabIndex={0}
       onClick={onClick}
       onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onClick(); } }}
-      className="plugin-card bg-surface rounded-xl border border-slate-700 flex flex-col gap-2.5 cursor-pointer relative overflow-hidden px-5 py-[18px]"
+      className="plugin-card bg-surface rounded-xl border border-slate-700 flex flex-col gap-2.5 cursor-pointer relative overflow-hidden h-[200px] px-5 py-[18px]"
       style={{ "--accent": accentColor } as React.CSSProperties}
     >
       <div
         className="absolute top-0 left-0 right-0 h-[3px] rounded-t-xl"
-        style={{
-          background: `linear-gradient(90deg, ${accentColor}, ${accentColor}40)`,
-        }}
+        style={{ background: `linear-gradient(90deg, ${accentColor}, ${accentColor}40)` }}
       />
       <div className="flex items-baseline gap-2">
-        <code
-          className="font-mono text-sm font-bold whitespace-nowrap"
-          style={{ color: accentColor }}
-        >
+        <code className="font-mono text-sm font-bold whitespace-nowrap" style={{ color: accentColor }}>
           {plugin.displayName}
         </code>
         {plugin.binary && (
@@ -307,33 +218,17 @@ function PluginCard({
 // DetailModal
 // ---------------------------------------------------------------------------
 
-function DetailModal({
-  plugin,
-  accentColor,
-  onClose,
-  reducedMotion,
-}: {
+interface DetailModalProps {
   plugin: Plugin;
   accentColor: string;
   onClose: () => void;
   reducedMotion: boolean | null;
-}) {
+}
+
+function DetailModal({ plugin, accentColor, onClose, reducedMotion }: DetailModalProps): React.JSX.Element {
   const overlayRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const handleEsc = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-    };
-    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
-    document.addEventListener("keydown", handleEsc);
-    document.body.style.overflow = "hidden";
-    document.body.style.paddingRight = `${scrollbarWidth}px`;
-    return () => {
-      document.removeEventListener("keydown", handleEsc);
-      document.body.style.overflow = "";
-      document.body.style.paddingRight = "";
-    };
-  }, [onClose]);
+  useModalLock(onClose);
 
   return (
     <motion.div
@@ -360,28 +255,16 @@ function DetailModal({
         <div className="flex items-start gap-3.5 relative px-6 py-5 border-b border-slate-700 bg-gradient-to-br from-slate-800 to-slate-900">
           <div
             className="absolute top-0 left-0 right-0 h-[3px]"
-            style={{
-              background: `linear-gradient(90deg, ${accentColor}, ${accentColor}40)`,
-            }}
+            style={{ background: `linear-gradient(90deg, ${accentColor}, ${accentColor}40)` }}
           />
           <div
             className="w-10 h-10 flex items-center justify-center shrink-0 rounded-[10px]"
-            style={{
-              background: accentColor + "18",
-              color: accentColor,
-            }}
+            style={{ background: accentColor + "18", color: accentColor }}
           >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-              <line x1="3" y1="9" x2="21" y2="9" />
-              <line x1="9" y1="21" x2="9" y2="9" />
-            </svg>
+            <PluginIcon />
           </div>
           <div className="flex-1 min-w-0">
-            <code
-              className="font-mono text-base font-bold break-all"
-              style={{ color: accentColor }}
-            >
+            <code className="font-mono text-base font-bold break-all" style={{ color: accentColor }}>
               {plugin.displayName}
             </code>
             <div className="text-[13px] text-slate-400 mt-1.5 font-sans leading-relaxed">
@@ -401,9 +284,7 @@ function DetailModal({
                   onClick={(e) => e.stopPropagation()}
                   className="homepage-link inline-flex items-center gap-1 text-[10px] font-semibold rounded bg-slate-900 text-slate-500 no-underline transition-colors px-2 py-[2px]"
                 >
-                  <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
-                  </svg>
+                  <GitHubIcon />
                   GitHub
                   <ExternalLinkIcon />
                 </a>
@@ -463,7 +344,7 @@ function DetailModal({
           {/* Setup */}
           <div className="flex flex-col gap-2.5">
             <div className="flex items-center gap-1.5 text-[11px] font-bold tracking-wide uppercase font-mono text-teal-300">
-              <SetupIcon />
+              <SettingsIcon />
               セットアップ
             </div>
             <p className="m-0 text-[13px] leading-[1.8] text-slate-400 font-sans">
@@ -488,35 +369,33 @@ function DetailModal({
 // QuickStartPanel
 // ---------------------------------------------------------------------------
 
-function QuickStartPanel() {
-  const steps = [
-    {
-      title: "ブラウズ",
-      cmd: "/plugin",
-      desc: "Discover タブで利用可能なプラグインを閲覧",
-    },
-    {
-      title: "インストール",
-      cmd: "/plugin install <name>@claude-plugins-official",
-      desc: "プラグインをインストール（user / project / local スコープ選択可）",
-    },
-    {
-      title: "管理",
-      cmd: "/plugin",
-      desc: "Installed タブでプラグインの有効化・無効化・削除",
-    },
-  ];
+const QUICKSTART_STEPS = [
+  {
+    title: "ブラウズ",
+    cmd: "/plugin",
+    desc: "Discover タブで利用可能なプラグインを閲覧",
+  },
+  {
+    title: "インストール",
+    cmd: "/plugin install <name>@claude-plugins-official",
+    desc: "プラグインをインストール（user / project / local スコープ選択可）",
+  },
+  {
+    title: "管理",
+    cmd: "/plugin",
+    desc: "Installed タブでプラグインの有効化・無効化・削除",
+  },
+];
 
+function QuickStartPanel(): React.JSX.Element {
   return (
     <div className="bg-surface rounded-xl border border-slate-700 p-6">
       <div className="text-[13px] font-bold tracking-wide uppercase font-mono mb-5 flex items-center gap-2 text-teal-300">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
-        </svg>
+        <BoltIcon />
         クイックスタート
       </div>
       <div className="flex flex-col gap-4">
-        {steps.map((step, i) => (
+        {QUICKSTART_STEPS.map((step, i) => (
           <div key={i} className="flex gap-3.5 items-start">
             <div className="w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold font-mono shrink-0 bg-teal-500/15 text-teal-300">
               {i + 1}
@@ -540,6 +419,16 @@ function QuickStartPanel() {
 }
 
 // ---------------------------------------------------------------------------
+// Nav links
+// ---------------------------------------------------------------------------
+
+const NAV_LINKS = [
+  { to: "/", label: "リリースノート", icon: <ArrowLeftIcon />, trailing: false },
+  { to: "/commands", label: "コマンド一覧", icon: null, trailing: true },
+  { to: "/directory", label: "ディレクトリ構成", icon: null, trailing: true },
+];
+
+// ---------------------------------------------------------------------------
 // Main Component
 // ---------------------------------------------------------------------------
 
@@ -552,20 +441,20 @@ export default function Plugins(): React.JSX.Element {
   const hasMounted = useRef(false);
   const tabScrollRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
+  // Track initial mount for stagger animations
+  if (!hasMounted.current) {
     hasMounted.current = true;
-  }, []);
+  }
 
   const lowerQuery = query.toLowerCase();
-
   const activeCategory = CATEGORIES.find((c) => c.id === activeTab);
   const isQuickStart = activeTab === "quickstart";
 
   const filteredPlugins = useMemo(() => {
     if (!activeCategory) return [];
+    if (!query) return activeCategory.plugins;
     return activeCategory.plugins.filter(
       (p) =>
-        !query ||
         p.name.toLowerCase().includes(lowerQuery) ||
         p.displayName.toLowerCase().includes(lowerQuery) ||
         p.description.toLowerCase().includes(lowerQuery) ||
@@ -625,11 +514,7 @@ export default function Plugins(): React.JSX.Element {
               </span>
             </div>
             <div className="flex justify-center gap-3 mt-3.5">
-              {[
-                { to: "/", label: "リリースノート", icon: <ArrowLeftIcon />, trailing: false },
-                { to: "/commands", label: "コマンド一覧", icon: null, trailing: true },
-                { to: "/directory", label: "ディレクトリ構成", icon: null, trailing: true },
-              ].map((link) => (
+              {NAV_LINKS.map((link) => (
                 <Link
                   key={link.to}
                   to={link.to}
@@ -675,9 +560,7 @@ export default function Plugins(): React.JSX.Element {
                 )}
                 {tab.type === "quickstart" && (
                   <span className="flex items-center">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
-                    </svg>
+                    <BoltIcon width={14} height={14} />
                   </span>
                 )}
                 {tab.label}
@@ -686,7 +569,7 @@ export default function Plugins(): React.JSX.Element {
           })}
         </motion.div>
 
-        {/* Search — only for category tabs */}
+        {/* Search -- only for category tabs */}
         {!isQuickStart && (
           <motion.div
             initial={m ? false : { opacity: 0 }}
@@ -712,24 +595,24 @@ export default function Plugins(): React.JSX.Element {
         )}
 
         {/* Tab content */}
-        <AnimatePresence mode="wait">
+        <AnimatePresence mode="popLayout">
           {isQuickStart ? (
             <motion.div
               key="quickstart"
-              initial={reducedMotion ? false : { opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={reducedMotion ? undefined : { opacity: 0, y: -10 }}
-              transition={{ duration: 0.25 }}
+              initial={reducedMotion ? false : { opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={reducedMotion ? undefined : { opacity: 0 }}
+              transition={{ duration: 0.15 }}
             >
               <QuickStartPanel />
             </motion.div>
           ) : (
             <motion.div
               key={activeTab}
-              initial={reducedMotion ? false : { opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={reducedMotion ? undefined : { opacity: 0, y: -10 }}
-              transition={{ duration: 0.25 }}
+              initial={reducedMotion ? false : { opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={reducedMotion ? undefined : { opacity: 0 }}
+              transition={{ duration: 0.15 }}
             >
               {/* Count */}
               <div className="flex items-center gap-2.5 mb-4 px-1">
@@ -745,10 +628,10 @@ export default function Plugins(): React.JSX.Element {
                     <motion.div
                       key={plugin.name}
                       layout={!reducedMotion}
-                      initial={reducedMotion ? false : hasMounted.current ? { opacity: 0 } : { opacity: 0, y: 15 }}
+                      initial={reducedMotion ? false : { opacity: 0, y: 15 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={reducedMotion ? undefined : { opacity: 0, scale: 0.96, transition: { duration: 0.15 } }}
-                      transition={{ duration: 0.2, delay: reducedMotion || hasMounted.current ? 0 : Math.min(i * 0.04, 0.4) }}
+                      transition={{ duration: 0.2, delay: reducedMotion ? 0 : Math.min(i * 0.04, 0.4) }}
                     >
                       <PluginCard
                         plugin={plugin}
@@ -769,21 +652,7 @@ export default function Plugins(): React.JSX.Element {
                   className="text-center bg-surface rounded-xl border border-slate-700 py-16 px-6"
                 >
                   <div className="mb-4">
-                    <svg
-                      width="48"
-                      height="48"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="1.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      className="text-slate-500"
-                    >
-                      <circle cx="11" cy="11" r="8" />
-                      <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                      <line x1="8" y1="11" x2="14" y2="11" />
-                    </svg>
+                    <EmptyIcon />
                   </div>
                   <p className="text-slate-500 text-sm m-0">
                     条件に一致するプラグインはありません

@@ -1,4 +1,4 @@
-# Claude Code Release Note (日本語)
+# Claude Code Release Note
 
 Claude Code のリリースノートを日本語で閲覧できる Web アプリケーション。
 

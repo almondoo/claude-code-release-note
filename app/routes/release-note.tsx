@@ -1,9 +1,11 @@
-import { useEffect, useMemo, useRef, useState, useCallback } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { Link } from "react-router";
-import { motion, AnimatePresence, useReducedMotion } from "motion/react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 
+import { CloseIcon, EmptyIcon, ExternalLinkIcon, SearchIcon } from "~/components/icons";
 import releases from "~/data/releases.json";
 import versionDetails from "~/data/version-details.json";
+import { useModalLock } from "~/hooks/useModalLock";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -176,55 +178,14 @@ const TAG_ICONS: Record<string, () => React.JSX.Element> = {
 };
 
 // ---------------------------------------------------------------------------
-// SVG Icons
+// Nav links
 // ---------------------------------------------------------------------------
 
-function SearchIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-slate-500">
-      <circle cx="11" cy="11" r="8" />
-      <line x1="21" y1="21" x2="16.65" y2="16.65" />
-    </svg>
-  );
-}
-
-function ArrowLeftIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <line x1="19" y1="12" x2="5" y2="12" />
-      <polyline points="12 19 5 12 12 5" />
-    </svg>
-  );
-}
-
-function CloseIcon() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <line x1="18" y1="6" x2="6" y2="18" />
-      <line x1="6" y1="6" x2="18" y2="18" />
-    </svg>
-  );
-}
-
-function EmptyIcon() {
-  return (
-    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-slate-500">
-      <circle cx="11" cy="11" r="8" />
-      <line x1="21" y1="21" x2="16.65" y2="16.65" />
-      <line x1="8" y1="11" x2="14" y2="11" />
-    </svg>
-  );
-}
-
-function ExternalLinkIcon() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-      <polyline points="15 3 21 3 21 9" />
-      <line x1="10" y1="14" x2="21" y2="3" />
-    </svg>
-  );
-}
+const NAV_LINKS = [
+  { to: "/commands", label: "コマンド一覧" },
+  { to: "/plugins", label: "公式プラグイン" },
+  { to: "/directory", label: "ディレクトリ構成" },
+];
 
 // ---------------------------------------------------------------------------
 // Badge (small inline tag)
@@ -251,7 +212,41 @@ function Badge({ tag, small }: { tag: string; small?: boolean }): React.JSX.Elem
 }
 
 // ---------------------------------------------------------------------------
-// VersionCard — Grid card for each version
+// TagCountBadge — shared tag-count badge used in both VersionCard and modal
+// ---------------------------------------------------------------------------
+
+function TagCountBadge({ tag, count }: { tag: string; count: number }): React.JSX.Element {
+  return (
+    <span
+      className="inline-flex items-center gap-[3px] px-[7px] py-[2px] rounded text-[10px] font-semibold"
+      style={{
+        background: TAG_COLORS[tag]?.bg ?? "rgba(100,116,139,0.15)",
+        color: TAG_COLORS[tag]?.text ?? "#94A3B8",
+        letterSpacing: "0.2px",
+      }}
+    >
+      {TAG_LABELS[tag] ?? tag}
+      <span className="opacity-50">{count}</span>
+    </span>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Helper: compute sorted tag counts for a list of items
+// ---------------------------------------------------------------------------
+
+function computeSortedTagCounts(items: ReleaseItem[]): [string, number][] {
+  const tagCounts: Record<string, number> = {};
+  for (const item of items) {
+    for (const tag of item.tags) {
+      tagCounts[tag] = (tagCounts[tag] ?? 0) + 1;
+    }
+  }
+  return Object.entries(tagCounts).sort((a, b) => b[1] - a[1]);
+}
+
+// ---------------------------------------------------------------------------
+// VersionCard -- Grid card for each version
 // ---------------------------------------------------------------------------
 
 function VersionCard({
@@ -265,13 +260,7 @@ function VersionCard({
   accentColor: string;
   onClick: () => void;
 }): React.JSX.Element {
-  const tagCounts: Record<string, number> = {};
-  for (const item of items) {
-    for (const tag of item.tags) {
-      tagCounts[tag] = (tagCounts[tag] ?? 0) + 1;
-    }
-  }
-  const sortedTags = Object.entries(tagCounts).sort((a, b) => b[1] - a[1]);
+  const sortedTags = computeSortedTagCounts(items);
   const hasDetails = VERSION_DETAILS_AVAILABLE.has(version);
 
   return (
@@ -280,15 +269,13 @@ function VersionCard({
       tabIndex={0}
       onClick={onClick}
       onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onClick(); } }}
-      className="version-card bg-surface rounded-xl border border-slate-700 flex flex-col gap-[10px] cursor-pointer relative overflow-hidden h-[180px]"
+      className="version-card bg-surface rounded-xl border border-slate-700 flex flex-col gap-[10px] cursor-pointer relative overflow-hidden h-[200px]"
       style={{ padding: "18px 20px", "--accent": accentColor } as React.CSSProperties}
     >
       {/* Accent line */}
       <div
         className="absolute top-0 left-0 right-0 h-[3px]"
-        style={{
-          background: `linear-gradient(90deg, ${accentColor}, ${accentColor}60)`,
-        }}
+        style={{ background: `linear-gradient(90deg, ${accentColor}, ${accentColor}60)` }}
       />
 
       {/* Version header */}
@@ -304,18 +291,7 @@ function VersionCard({
       {/* Tag badges */}
       <div className="flex gap-1 flex-wrap">
         {sortedTags.slice(0, 4).map(([tag, count]) => (
-          <span
-            key={tag}
-            className="inline-flex items-center gap-[3px] px-[7px] py-[2px] rounded text-[10px] font-semibold"
-            style={{
-              background: TAG_COLORS[tag]?.bg ?? "rgba(100,116,139,0.15)",
-              color: TAG_COLORS[tag]?.text ?? "#94A3B8",
-              letterSpacing: "0.2px",
-            }}
-          >
-            {TAG_LABELS[tag] ?? tag}
-            <span className="opacity-50">{count}</span>
-          </span>
+          <TagCountBadge key={tag} tag={tag} count={count} />
         ))}
         {sortedTags.length > 4 && (
           <span className="px-[7px] py-[2px] rounded text-[10px] font-semibold bg-slate-500/10 text-slate-500">
@@ -353,7 +329,7 @@ function VersionCard({
 }
 
 // ---------------------------------------------------------------------------
-// DetailModal — version detail popup
+// DetailModal -- version detail popup
 // ---------------------------------------------------------------------------
 
 function DetailModal({
@@ -368,32 +344,9 @@ function DetailModal({
   reducedMotion: boolean | null;
 }): React.JSX.Element {
   const hasDetails = VERSION_DETAILS_AVAILABLE.has(version);
+  const sortedTags = computeSortedTagCounts(items);
 
-  useEffect(() => {
-    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
-    document.body.style.overflow = "hidden";
-    document.body.style.paddingRight = `${scrollbarWidth}px`;
-    return () => {
-      document.body.style.overflow = "";
-      document.body.style.paddingRight = "";
-    };
-  }, []);
-
-  useEffect(() => {
-    function onKey(e: KeyboardEvent) {
-      if (e.key === "Escape") onClose();
-    }
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [onClose]);
-
-  const tagCounts: Record<string, number> = {};
-  for (const item of items) {
-    for (const tag of item.tags) {
-      tagCounts[tag] = (tagCounts[tag] ?? 0) + 1;
-    }
-  }
-  const sortedTags = Object.entries(tagCounts).sort((a, b) => b[1] - a[1]);
+  useModalLock(onClose);
 
   return (
     <motion.div
@@ -426,17 +379,7 @@ function DetailModal({
             </div>
             <div className="flex gap-1 flex-wrap">
               {sortedTags.map(([tag, count]) => (
-                <span
-                  key={tag}
-                  className="inline-flex items-center gap-[3px] px-2 py-[2px] rounded text-[10px] font-semibold"
-                  style={{
-                    background: TAG_COLORS[tag]?.bg ?? "rgba(100,116,139,0.15)",
-                    color: TAG_COLORS[tag]?.text ?? "#94A3B8",
-                  }}
-                >
-                  {TAG_LABELS[tag] ?? tag}
-                  <span className="opacity-50">{count}</span>
-                </span>
+                <TagCountBadge key={tag} tag={tag} count={count} />
               ))}
             </div>
           </div>
@@ -491,16 +434,6 @@ function DetailModal({
 }
 
 // ---------------------------------------------------------------------------
-// Nav links array
-// ---------------------------------------------------------------------------
-
-const NAV_LINKS = [
-  { to: "/commands", label: "コマンド一覧" },
-  { to: "/plugins", label: "公式プラグイン" },
-  { to: "/directory", label: "ディレクトリ構成" },
-];
-
-// ---------------------------------------------------------------------------
 // Main page component
 // ---------------------------------------------------------------------------
 
@@ -540,7 +473,7 @@ export default function ReleaseNote(): React.JSX.Element {
   const modalRelease = modalVersion
     ? RELEASES.find((r) => r.v === modalVersion)
     : null;
-  // If tab-filtered, show only filtered items in modal; if "all" show everything
+
   const modalItems = modalRelease
     ? activeTab === "all"
       ? modalRelease.items

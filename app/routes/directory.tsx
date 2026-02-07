@@ -1,8 +1,24 @@
-import { useState, useMemo, useEffect, useRef, useCallback } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { Link } from "react-router";
-import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 
+import {
+  ArrowLeftIcon,
+  BookOpenIcon,
+  CheckIcon,
+  CloseIcon,
+  EmptyIcon,
+  FileIcon,
+  FolderIcon,
+  InfoIcon,
+  LightbulbIcon,
+  MapPinIcon,
+  SearchIcon,
+  TerminalIcon,
+} from "~/components/icons";
 import directoryData from "~/data/directory-structure.json";
+import { useModalLock } from "~/hooks/useModalLock";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -36,7 +52,7 @@ interface PrecedenceItem {
 }
 
 // ---------------------------------------------------------------------------
-// Section colors & icons (dynamic — keep raw hex values)
+// Section colors & icons (dynamic -- keep raw hex values)
 // ---------------------------------------------------------------------------
 
 const SECTION_COLORS: Record<string, { color: string; bg: string }> = {
@@ -49,31 +65,63 @@ const SECTION_COLORS: Record<string, { color: string; bg: string }> = {
 
 const SECTION_ICONS: Record<string, () => React.JSX.Element> = {
   global: () => (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
       <circle cx="12" cy="12" r="10" />
       <line x1="2" y1="12" x2="22" y2="12" />
       <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
     </svg>
   ),
-  "project-root": () => (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
-    </svg>
-  ),
+  "project-root": () => <FolderIcon width={18} height={18} />,
   "project-claude": () => (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
       <circle cx="12" cy="12" r="3" />
       <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
     </svg>
   ),
   home: () => (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
       <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
       <polyline points="9 22 9 12 15 12 15 22" />
     </svg>
   ),
   managed: () => (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
       <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
       <path d="M7 11V7a5 5 0 0 1 10 0v4" />
     </svg>
@@ -84,110 +132,112 @@ const SECTION_ICONS: Record<string, () => React.JSX.Element> = {
 // Recommend / VCS badge colors (dynamic)
 // ---------------------------------------------------------------------------
 
-const RECOMMEND_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
-  recommended: { label: "推奨", color: "#6EE7B7", bg: "rgba(16, 185, 129, 0.15)" },
-  optional: { label: "任意", color: "#64748B", bg: "rgba(100,116,139,0.15)" },
-  advanced: { label: "上級", color: "#C4B5FD", bg: "rgba(139, 92, 246, 0.15)" },
+const RECOMMEND_CONFIG: Record<
+  string,
+  { label: string; color: string; bg: string; title: string }
+> = {
+  recommended: {
+    label: "推奨",
+    color: "#6EE7B7",
+    bg: "rgba(16, 185, 129, 0.15)",
+    title: "ほとんどのユーザーに設定をおすすめします",
+  },
+  optional: {
+    label: "任意",
+    color: "#64748B",
+    bg: "rgba(100,116,139,0.15)",
+    title: "必要に応じて設定してください",
+  },
+  advanced: {
+    label: "上級",
+    color: "#C4B5FD",
+    bg: "rgba(139, 92, 246, 0.15)",
+    title: "仕組みを理解した上で設定してください",
+  },
 };
 
 const VCS_CONFIG = {
-  true: { label: "VCS ○", color: "#6EE7B7", bg: "rgba(16, 185, 129, 0.15)" },
-  false: { label: "VCS ×", color: "#64748B", bg: "rgba(100,116,139,0.15)" },
-  null: { label: "OS 管理", color: "#FDBA74", bg: "rgba(249, 115, 22, 0.15)" },
+  true: {
+    label: "VCS ○",
+    color: "#6EE7B7",
+    bg: "rgba(16, 185, 129, 0.15)",
+    title: "Git 等のバージョン管理にコミットしてチームで共有できます",
+  },
+  false: {
+    label: "VCS ×",
+    color: "#64748B",
+    bg: "rgba(100,116,139,0.15)",
+    title: "個人環境のみ。Git 等のバージョン管理にはコミットしません",
+  },
+  null: {
+    label: "OS 管理",
+    color: "#FDBA74",
+    bg: "rgba(249, 115, 22, 0.15)",
+    title: "OS のシステムディレクトリで管理される設定です",
+  },
 };
 
 // ---------------------------------------------------------------------------
-// SVG Icons
+// Helper: resolve VCS config key from boolean | null
 // ---------------------------------------------------------------------------
 
-function SearchIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-slate-500">
-      <circle cx="11" cy="11" r="8" />
-      <line x1="21" y1="21" x2="16.65" y2="16.65" />
-    </svg>
-  );
+function getVcsKey(vcs: boolean | null): "true" | "false" | "null" {
+  if (vcs === null) return "null";
+  return String(vcs) as "true" | "false";
 }
 
-function ArrowLeftIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <line x1="19" y1="12" x2="5" y2="12" />
-      <polyline points="12 19 5 12 12 5" />
-    </svg>
-  );
-}
+// ---------------------------------------------------------------------------
+// Tooltip badge -- shows tooltip instantly on hover via createPortal
+// ---------------------------------------------------------------------------
 
-function FileIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-      <polyline points="14 2 14 8 20 8" />
-    </svg>
-  );
-}
+function BadgeWithTooltip({
+  label,
+  color,
+  bg,
+  title,
+}: {
+  label: string;
+  color: string;
+  bg: string;
+  title: string;
+}): React.JSX.Element {
+  const ref = useRef<HTMLSpanElement>(null);
+  const [pos, setPos] = useState<{ x: number; y: number } | null>(null);
 
-function FolderIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
-    </svg>
-  );
-}
+  const show = useCallback(() => {
+    const el = ref.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    setPos({ x: rect.left + rect.width / 2, y: rect.top });
+  }, []);
+  const hide = useCallback(() => setPos(null), []);
 
-function CloseIcon() {
   return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <line x1="18" y1="6" x2="6" y2="18" />
-      <line x1="6" y1="6" x2="18" y2="18" />
-    </svg>
-  );
-}
-
-function LightbulbIcon() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M9 18h6" />
-      <path d="M10 22h4" />
-      <path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14" />
-    </svg>
-  );
-}
-
-function MapPinIcon() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-      <circle cx="12" cy="10" r="3" />
-    </svg>
-  );
-}
-
-function BookOpenIcon() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
-      <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
-    </svg>
-  );
-}
-
-function TerminalIcon() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <polyline points="4 17 10 11 4 5" />
-      <line x1="12" y1="19" x2="20" y2="19" />
-    </svg>
-  );
-}
-
-function InfoIcon() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="12" r="10" />
-      <line x1="12" y1="16" x2="12" y2="12" />
-      <line x1="12" y1="8" x2="12.01" y2="8" />
-    </svg>
+    <>
+      <span
+        ref={ref}
+        className="text-[10px] font-semibold whitespace-nowrap rounded cursor-help"
+        style={{ padding: "2px 8px", background: bg, color }}
+        onMouseEnter={show}
+        onMouseLeave={hide}
+      >
+        {label}
+      </span>
+      {pos &&
+        createPortal(
+          <span
+            className="fixed pointer-events-none px-2.5 py-1.5 rounded-md bg-slate-800 text-slate-200 text-[11px] leading-snug whitespace-nowrap shadow-lg border border-slate-700 z-[9999] -translate-x-1/2"
+            style={{
+              left: pos.x,
+              top: pos.y - 8,
+              transform: "translate(-50%, -100%)",
+            }}
+          >
+            {title}
+          </span>,
+          document.body,
+        )}
+    </>
   );
 }
 
@@ -195,10 +245,18 @@ function InfoIcon() {
 // Meta
 // ---------------------------------------------------------------------------
 
-export function meta(): Array<{ title?: string; name?: string; content?: string }> {
+export function meta(): Array<{
+  title?: string;
+  name?: string;
+  content?: string;
+}> {
   return [
     { title: "Claude Code ディレクトリ構成ガイド" },
-    { name: "description", content: "Claude Code の設定ファイル・ディレクトリ構成のベストプラクティスガイド" },
+    {
+      name: "description",
+      content:
+        "Claude Code の設定ファイル・ディレクトリ構成のベストプラクティスガイド",
+    },
   ];
 }
 
@@ -207,12 +265,12 @@ export function meta(): Array<{ title?: string; name?: string; content?: string 
 // ---------------------------------------------------------------------------
 
 const SECTIONS: Section[] = directoryData.sections as unknown as Section[];
-const PRECEDENCE: PrecedenceItem[] = directoryData.precedence as PrecedenceItem[];
+const PRECEDENCE: PrecedenceItem[] =
+  directoryData.precedence as PrecedenceItem[];
 const COMMIT_GUIDE = directoryData.commitGuide;
 const SKILLS_VS_AGENTS = directoryData.skillsVsAgents;
 
-const ALL_ENTRIES = SECTIONS.flatMap((s) => s.entries);
-const TOTAL = ALL_ENTRIES.length;
+const TOTAL = SECTIONS.flatMap((s) => s.entries).length;
 
 const PRECEDENCE_COLORS: Record<string, { color: string; bg: string }> = {
   red: { color: "#FCA5A5", bg: "rgba(239, 68, 68, 0.15)" },
@@ -222,11 +280,10 @@ const PRECEDENCE_COLORS: Record<string, { color: string; bg: string }> = {
   blue: { color: "#3B82F6", bg: "rgba(59, 130, 246, 0.25)" },
 };
 
-// Tab IDs: section tabs + special info tabs
 const SPECIAL_TABS = ["precedence", "commit-guide", "skills-agents"] as const;
 
 // ---------------------------------------------------------------------------
-// EntryCard — compact grid card
+// EntryCard -- compact grid card
 // ---------------------------------------------------------------------------
 
 function EntryCard({
@@ -237,20 +294,24 @@ function EntryCard({
   entry: Entry;
   accentColor: string;
   onClick: () => void;
-}) {
+}): React.JSX.Element {
   const recommendCfg = RECOMMEND_CONFIG[entry.recommended];
-  const vcsCfg = VCS_CONFIG[entry.vcs === null ? "null" : (String(entry.vcs) as "true" | "false")];
+  const vcsCfg = VCS_CONFIG[getVcsKey(entry.vcs)];
 
   return (
     <div
       role="button"
       tabIndex={0}
       onClick={onClick}
-      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onClick(); } }}
-      className="entry-card bg-surface rounded-xl border border-slate-700 flex flex-col gap-2.5 cursor-pointer relative overflow-hidden"
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onClick();
+        }
+      }}
+      className="entry-card bg-surface rounded-xl border border-slate-700 flex flex-col gap-2.5 cursor-pointer relative overflow-hidden h-[200px]"
       style={{ padding: "18px 20px", ["--accent" as string]: accentColor }}
     >
-      {/* Top accent line */}
       <div
         className="absolute top-0 left-0 right-0 rounded-t-xl"
         style={{
@@ -259,9 +320,11 @@ function EntryCard({
         }}
       />
 
-      {/* Header */}
       <div className="flex items-center gap-2">
-        <span className="shrink-0 flex items-center" style={{ color: accentColor }}>
+        <span
+          className="shrink-0 flex items-center"
+          style={{ color: accentColor }}
+        >
           {entry.type === "directory" ? <FolderIcon /> : <FileIcon />}
         </span>
         <code
@@ -272,45 +335,38 @@ function EntryCard({
         </code>
       </div>
 
-      {/* Name */}
       <div className="text-sm font-semibold text-slate-100 font-sans leading-[1.4]">
         {entry.name}
       </div>
 
-      {/* Description */}
       <p className="m-0 text-xs leading-[1.6] text-slate-400 font-sans flex-1 line-clamp-2">
         {entry.description}
       </p>
 
-      {/* Badges */}
       <div className="flex gap-1.5 mt-auto flex-wrap">
-        <span
-          className="text-[10px] font-semibold whitespace-nowrap rounded"
-          style={{
-            padding: "2px 8px",
-            background: recommendCfg.bg,
-            color: recommendCfg.color,
-          }}
-        >
-          {recommendCfg.label}
-        </span>
-        <span
-          className="text-[10px] font-semibold whitespace-nowrap rounded"
-          style={{
-            padding: "2px 8px",
-            background: vcsCfg.bg,
-            color: vcsCfg.color,
-          }}
-        >
-          {vcsCfg.label}
-        </span>
+        <BadgeWithTooltip {...recommendCfg} />
+        <BadgeWithTooltip {...vcsCfg} />
       </div>
     </div>
   );
 }
 
 // ---------------------------------------------------------------------------
-// Modal — detail popup
+// Modal section header mapping
+// ---------------------------------------------------------------------------
+
+const MODAL_SECTION_META: Record<
+  string,
+  { label: string; icon: React.JSX.Element }
+> = {
+  detail: { label: "詳細", icon: <BookOpenIcon /> },
+  usage: { label: "使い方", icon: <TerminalIcon /> },
+  location: { label: "配置場所", icon: <MapPinIcon /> },
+  bestPractices: { label: "ベストプラクティス", icon: <LightbulbIcon /> },
+};
+
+// ---------------------------------------------------------------------------
+// Modal -- detail popup
 // ---------------------------------------------------------------------------
 
 function DetailModal({
@@ -325,61 +381,40 @@ function DetailModal({
   accentColor: string;
   onClose: () => void;
   reducedMotion: boolean | null;
-}) {
+}): React.JSX.Element {
   const overlayRef = useRef<HTMLDivElement>(null);
   const recommendCfg = RECOMMEND_CONFIG[entry.recommended];
-  const vcsCfg = VCS_CONFIG[entry.vcs === null ? "null" : (String(entry.vcs) as "true" | "false")];
+  const vcsCfg = VCS_CONFIG[getVcsKey(entry.vcs)];
 
-  useEffect(() => {
-    const handleEsc = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-    };
-    document.addEventListener("keydown", handleEsc);
-    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
-    document.body.style.overflow = "hidden";
-    document.body.style.paddingRight = `${scrollbarWidth}px`;
-    return () => {
-      document.removeEventListener("keydown", handleEsc);
-      document.body.style.overflow = "";
-      document.body.style.paddingRight = "";
-    };
-  }, [onClose]);
+  useModalLock(onClose);
 
   const fullPath = section.basePath + entry.path;
   const detailParagraphs = entry.detail.split("\n\n").filter(Boolean);
-  const usageParagraphs = entry.usage ? entry.usage.split("\n\n").filter(Boolean) : [];
+  const usageParagraphs = entry.usage
+    ? entry.usage.split("\n\n").filter(Boolean)
+    : [];
 
-  const sectionLabel = (id: string): string => {
-    switch (id) {
-      case "detail": return "詳細";
-      case "usage": return "使い方";
-      case "location": return "配置場所";
-      case "bestPractices": return "ベストプラクティス";
-      default: return "";
-    }
-  };
-  const sectionIcon = (id: string) => {
-    switch (id) {
-      case "detail": return <BookOpenIcon />;
-      case "usage": return <TerminalIcon />;
-      case "location": return <MapPinIcon />;
-      case "bestPractices": return <LightbulbIcon />;
-      default: return null;
-    }
-  };
-
-  const ModalSection = ({ id, children }: { id: string; children: React.ReactNode }) => (
-    <div className="flex flex-col gap-2.5">
-      <div
-        className="flex items-center gap-1.5 text-[11px] font-bold tracking-wide uppercase font-mono"
-        style={{ color: accentColor }}
-      >
-        {sectionIcon(id)}
-        {sectionLabel(id)}
+  function ModalSection({
+    id,
+    children,
+  }: {
+    id: string;
+    children: React.ReactNode;
+  }): React.JSX.Element {
+    const meta = MODAL_SECTION_META[id];
+    return (
+      <div className="flex flex-col gap-2.5">
+        <div
+          className="flex items-center gap-1.5 text-[11px] font-bold tracking-wide uppercase font-mono"
+          style={{ color: accentColor }}
+        >
+          {meta?.icon}
+          {meta?.label}
+        </div>
+        {children}
       </div>
-      {children}
-    </div>
-  );
+    );
+  }
 
   return (
     <motion.div
@@ -388,13 +423,15 @@ function DetailModal({
       animate={{ opacity: 1 }}
       exit={reducedMotion ? undefined : { opacity: 0 }}
       transition={{ duration: 0.2 }}
-      onClick={(e) => { if (e.target === overlayRef.current) onClose(); }}
+      onClick={(e) => {
+        if (e.target === overlayRef.current) onClose();
+      }}
       className="fixed inset-0 z-[1000] bg-overlay backdrop-blur-sm flex items-center justify-center p-6"
     >
       <motion.div
-        initial={reducedMotion ? false : { opacity: 0, scale: 0.95, y: 20 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={reducedMotion ? undefined : { opacity: 0, scale: 0.95, y: 20 }}
+        initial={reducedMotion ? false : { opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        exit={reducedMotion ? undefined : { opacity: 0, scale: 0.95 }}
         transition={{ duration: 0.25, ease: "easeOut" }}
         className="bg-surface rounded-2xl w-full max-w-[640px] overflow-hidden flex flex-col"
         style={{
@@ -422,7 +459,8 @@ function DetailModal({
           <div
             className="w-10 h-10 rounded-[10px] flex items-center justify-center shrink-0"
             style={{
-              background: SECTION_COLORS[section.id]?.bg || "rgba(59, 130, 246, 0.25)",
+              background:
+                SECTION_COLORS[section.id]?.bg || "rgba(59, 130, 246, 0.25)",
               color: accentColor,
             }}
           >
@@ -439,26 +477,8 @@ function DetailModal({
               {entry.name}
             </div>
             <div className="flex gap-1.5 mt-2 flex-wrap">
-              <span
-                className="text-[10px] font-semibold rounded"
-                style={{
-                  padding: "2px 8px",
-                  background: recommendCfg.bg,
-                  color: recommendCfg.color,
-                }}
-              >
-                {recommendCfg.label}
-              </span>
-              <span
-                className="text-[10px] font-semibold rounded"
-                style={{
-                  padding: "2px 8px",
-                  background: vcsCfg.bg,
-                  color: vcsCfg.color,
-                }}
-              >
-                {vcsCfg.label}
-              </span>
+              <BadgeWithTooltip {...recommendCfg} />
+              <BadgeWithTooltip {...vcsCfg} />
               <span
                 className="text-[10px] font-semibold bg-slate-900 text-slate-500 rounded"
                 style={{ padding: "2px 8px" }}
@@ -478,7 +498,6 @@ function DetailModal({
 
         {/* Modal body */}
         <div className="p-6 overflow-y-auto flex flex-col gap-6">
-          {/* Detail */}
           <ModalSection id="detail">
             {detailParagraphs.map((p, i) => (
               <p
@@ -490,7 +509,6 @@ function DetailModal({
             ))}
           </ModalSection>
 
-          {/* Usage */}
           {usageParagraphs.length > 0 && (
             <ModalSection id="usage">
               <div
@@ -513,9 +531,11 @@ function DetailModal({
             </ModalSection>
           )}
 
-          {/* Location */}
           <ModalSection id="location">
-            <div className="bg-slate-900 rounded-[10px] border border-slate-700 flex flex-col gap-2" style={{ padding: "14px 16px" }}>
+            <div
+              className="bg-slate-900 rounded-[10px] border border-slate-700 flex flex-col gap-2"
+              style={{ padding: "14px 16px" }}
+            >
               <div className="flex items-center gap-2">
                 <span className="text-[11px] text-slate-500 font-mono">
                   パス:
@@ -546,7 +566,6 @@ function DetailModal({
             </div>
           </ModalSection>
 
-          {/* Best Practices */}
           {section.bestPractices.length > 0 && (
             <ModalSection id="bestPractices">
               <div
@@ -580,12 +599,24 @@ function DetailModal({
 // PrecedencePanel
 // ---------------------------------------------------------------------------
 
-function PrecedencePanel() {
+function PrecedencePanel(): React.JSX.Element {
   return (
     <div className="flex flex-col gap-4">
       <div className="bg-surface rounded-xl border border-slate-700 p-6">
-        <div className="text-[13px] font-bold tracking-wide uppercase font-mono mb-5 flex items-center gap-2" style={{ color: "#FDBA74" }}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <div
+          className="text-[13px] font-bold tracking-wide uppercase font-mono mb-5 flex items-center gap-2"
+          style={{ color: "#FDBA74" }}
+        >
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
             <polyline points="17 1 21 5 17 9" />
             <path d="M3 11V9a4 4 0 0 1 4-4h14" />
             <polyline points="7 23 3 19 7 15" />
@@ -595,7 +626,10 @@ function PrecedencePanel() {
         </div>
         <div className="flex flex-col gap-2.5">
           {PRECEDENCE.map((item) => {
-            const pc = PRECEDENCE_COLORS[item.color] || { color: "#F1F5F9", bg: "#0F172A" };
+            const pc = PRECEDENCE_COLORS[item.color] || {
+              color: "#F1F5F9",
+              bg: "#0F172A",
+            };
             return (
               <div key={item.level} className="flex gap-3 items-center">
                 <div
@@ -606,8 +640,15 @@ function PrecedencePanel() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-baseline gap-2">
-                    <span className="text-sm font-semibold" style={{ color: pc.color }}>{item.name}</span>
-                    <span className="text-xs text-slate-500 font-sans">{item.description}</span>
+                    <span
+                      className="text-sm font-semibold"
+                      style={{ color: pc.color }}
+                    >
+                      {item.name}
+                    </span>
+                    <span className="text-xs text-slate-500 font-sans">
+                      {item.description}
+                    </span>
                   </div>
                 </div>
                 {item.level === 1 && (
@@ -645,11 +686,23 @@ function PrecedencePanel() {
 // CommitGuidePanel
 // ---------------------------------------------------------------------------
 
-function CommitGuidePanel() {
+function CommitGuidePanel(): React.JSX.Element {
   return (
     <div className="bg-surface rounded-xl border border-slate-700 p-6">
-      <div className="text-[13px] font-bold tracking-wide uppercase font-mono mb-5 flex items-center gap-2" style={{ color: "#5EEAD4" }}>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <div
+        className="text-[13px] font-bold tracking-wide uppercase font-mono mb-5 flex items-center gap-2"
+        style={{ color: "#5EEAD4" }}
+      >
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
           <circle cx="12" cy="12" r="4" />
           <line x1="1.05" y1="12" x2="7" y2="12" />
           <line x1="17.01" y1="12" x2="22.96" y2="12" />
@@ -665,15 +718,21 @@ function CommitGuidePanel() {
             border: "1px solid rgba(110, 231, 183, 0.125)",
           }}
         >
-          <div className="text-xs font-bold mb-3 flex items-center gap-1.5 font-mono" style={{ color: "#6EE7B7" }}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="20 6 9 17 4 12" />
-            </svg>
+          <div
+            className="text-xs font-bold mb-3 flex items-center gap-1.5 font-mono"
+            style={{ color: "#6EE7B7" }}
+          >
+            <CheckIcon width={14} height={14} />
             コミットする
           </div>
           <ul className="m-0 pl-4 flex flex-col gap-1">
             {COMMIT_GUIDE.commit.map((item, i) => (
-              <li key={i} className="text-xs leading-[1.7] text-slate-400 font-sans">{item}</li>
+              <li
+                key={i}
+                className="text-xs leading-[1.7] text-slate-400 font-sans"
+              >
+                {item}
+              </li>
             ))}
           </ul>
         </div>
@@ -685,8 +744,20 @@ function CommitGuidePanel() {
             border: "1px solid rgba(252, 165, 165, 0.125)",
           }}
         >
-          <div className="text-xs font-bold mb-3 flex items-center gap-1.5 font-mono" style={{ color: "#FCA5A5" }}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <div
+            className="text-xs font-bold mb-3 flex items-center gap-1.5 font-mono"
+            style={{ color: "#FCA5A5" }}
+          >
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
               <line x1="18" y1="6" x2="6" y2="18" />
               <line x1="6" y1="6" x2="18" y2="18" />
             </svg>
@@ -694,7 +765,12 @@ function CommitGuidePanel() {
           </div>
           <ul className="m-0 pl-4 flex flex-col gap-1">
             {COMMIT_GUIDE.noCommit.map((item, i) => (
-              <li key={i} className="text-xs leading-[1.7] text-slate-400 font-sans">{item}</li>
+              <li
+                key={i}
+                className="text-xs leading-[1.7] text-slate-400 font-sans"
+              >
+                {item}
+              </li>
             ))}
           </ul>
         </div>
@@ -707,11 +783,23 @@ function CommitGuidePanel() {
 // SkillsVsAgentsPanel
 // ---------------------------------------------------------------------------
 
-function SkillsVsAgentsPanel() {
+function SkillsVsAgentsPanel(): React.JSX.Element {
   return (
     <div className="bg-surface rounded-xl border border-slate-700 p-6">
-      <div className="text-[13px] font-bold tracking-wide uppercase font-mono mb-5 flex items-center gap-2" style={{ color: "#C4B5FD" }}>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <div
+        className="text-[13px] font-bold tracking-wide uppercase font-mono mb-5 flex items-center gap-2"
+        style={{ color: "#C4B5FD" }}
+      >
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
           <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
           <circle cx="8.5" cy="7" r="4" />
           <polyline points="17 11 19 13 23 9" />
@@ -727,14 +815,29 @@ function SkillsVsAgentsPanel() {
             border: "1px solid rgba(103, 232, 249, 0.125)",
           }}
         >
-          <div className="text-[13px] font-bold mb-2 font-mono" style={{ color: "#67E8F9" }}>skills/</div>
-          <p className="text-xs text-slate-400 leading-[1.6] font-sans" style={{ margin: "0 0 10px" }}>
+          <div
+            className="text-[13px] font-bold mb-2 font-mono"
+            style={{ color: "#67E8F9" }}
+          >
+            skills/
+          </div>
+          <p
+            className="text-xs text-slate-400 leading-[1.6] font-sans"
+            style={{ margin: "0 0 10px" }}
+          >
             {SKILLS_VS_AGENTS.skills.description}
           </p>
           <ul className="m-0 pl-4 flex flex-col gap-1">
-            {SKILLS_VS_AGENTS.skills.characteristics.map((c: string, i: number) => (
-              <li key={i} className="text-[11px] leading-[1.6] text-slate-500 font-sans">{c}</li>
-            ))}
+            {SKILLS_VS_AGENTS.skills.characteristics.map(
+              (c: string, i: number) => (
+                <li
+                  key={i}
+                  className="text-[11px] leading-[1.6] text-slate-500 font-sans"
+                >
+                  {c}
+                </li>
+              ),
+            )}
           </ul>
         </div>
         <div
@@ -745,14 +848,29 @@ function SkillsVsAgentsPanel() {
             border: "1px solid rgba(196, 181, 253, 0.125)",
           }}
         >
-          <div className="text-[13px] font-bold mb-2 font-mono" style={{ color: "#C4B5FD" }}>agents/</div>
-          <p className="text-xs text-slate-400 leading-[1.6] font-sans" style={{ margin: "0 0 10px" }}>
+          <div
+            className="text-[13px] font-bold mb-2 font-mono"
+            style={{ color: "#C4B5FD" }}
+          >
+            agents/
+          </div>
+          <p
+            className="text-xs text-slate-400 leading-[1.6] font-sans"
+            style={{ margin: "0 0 10px" }}
+          >
             {SKILLS_VS_AGENTS.agents.description}
           </p>
           <ul className="m-0 pl-4 flex flex-col gap-1">
-            {SKILLS_VS_AGENTS.agents.characteristics.map((c: string, i: number) => (
-              <li key={i} className="text-[11px] leading-[1.6] text-slate-500 font-sans">{c}</li>
-            ))}
+            {SKILLS_VS_AGENTS.agents.characteristics.map(
+              (c: string, i: number) => (
+                <li
+                  key={i}
+                  className="text-[11px] leading-[1.6] text-slate-500 font-sans"
+                >
+                  {c}
+                </li>
+              ),
+            )}
           </ul>
         </div>
       </div>
@@ -776,13 +894,33 @@ const TAB_DEFS: TabDef[] = [
   ...SECTIONS.map((s) => ({
     id: s.id,
     label: s.name,
-    shortLabel: s.name.replace("（企業管理者向け）", "").replace("マネージド設定", "マネージド"),
+    shortLabel: s.name
+      .replace("（企業管理者向け）", "")
+      .replace("マネージド設定", "マネージド"),
     color: SECTION_COLORS[s.id]?.color || "#3B82F6",
     type: "section" as const,
   })),
-  { id: "precedence", label: "優先順位", shortLabel: "優先順位", color: "#FDBA74", type: "info" },
-  { id: "commit-guide", label: "コミットガイド", shortLabel: "コミット", color: "#5EEAD4", type: "info" },
-  { id: "skills-agents", label: "Skills vs Agents", shortLabel: "Skills/Agents", color: "#C4B5FD", type: "info" },
+  {
+    id: "precedence",
+    label: "優先順位",
+    shortLabel: "優先順位",
+    color: "#FDBA74",
+    type: "info",
+  },
+  {
+    id: "commit-guide",
+    label: "コミットガイド",
+    shortLabel: "コミット",
+    color: "#5EEAD4",
+    type: "info",
+  },
+  {
+    id: "skills-agents",
+    label: "Skills vs Agents",
+    shortLabel: "Skills/Agents",
+    color: "#C4B5FD",
+    type: "info",
+  },
 ];
 
 // ---------------------------------------------------------------------------
@@ -793,7 +931,10 @@ export default function Directory(): React.JSX.Element {
   const [activeTab, setActiveTab] = useState<string>("global");
   const [query, setQuery] = useState("");
   const [searchFocused, setSearchFocused] = useState(false);
-  const [selectedEntry, setSelectedEntry] = useState<{ entry: Entry; section: Section } | null>(null);
+  const [selectedEntry, setSelectedEntry] = useState<{
+    entry: Entry;
+    section: Section;
+  } | null>(null);
   const reducedMotion = useReducedMotion();
   const hasMounted = useRef(false);
   const tabScrollRef = useRef<HTMLDivElement>(null);
@@ -815,11 +956,13 @@ export default function Directory(): React.JSX.Element {
         e.name.toLowerCase().includes(lowerQuery) ||
         e.description.toLowerCase().includes(lowerQuery) ||
         e.detail.toLowerCase().includes(lowerQuery) ||
-        e.usage.toLowerCase().includes(lowerQuery)
+        e.usage.toLowerCase().includes(lowerQuery),
     );
   }, [activeSection, query, lowerQuery]);
 
-  const isInfoTab = SPECIAL_TABS.includes(activeTab as (typeof SPECIAL_TABS)[number]);
+  const isInfoTab = SPECIAL_TABS.includes(
+    activeTab as (typeof SPECIAL_TABS)[number],
+  );
 
   const openModal = useCallback((entry: Entry, section: Section) => {
     setSelectedEntry({ entry, section });
@@ -838,8 +981,8 @@ export default function Directory(): React.JSX.Element {
       <div className="max-w-[1100px] mx-auto py-8 px-4">
         {/* Header */}
         <motion.div
-          initial={m ? false : { opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={m ? false : { opacity: 0 }}
+          animate={{ opacity: 1 }}
           transition={{ duration: 0.5, ease: "easeOut" }}
           className="text-center mb-7 rounded-2xl relative overflow-hidden border border-slate-700"
           style={{
@@ -862,7 +1005,10 @@ export default function Directory(): React.JSX.Element {
             <h1 className="text-[28px] font-bold m-0 mb-2.5 text-slate-100 tracking-tight">
               ディレクトリ構成ガイド
             </h1>
-            <p className="text-sm text-slate-400 mx-auto leading-[1.7] max-w-[520px]" style={{ margin: "0 auto 14px" }}>
+            <p
+              className="text-sm text-slate-400 mx-auto leading-[1.7] max-w-[520px]"
+              style={{ margin: "0 auto 14px" }}
+            >
               設定ファイルの配置場所・使い方・ベストプラクティスを網羅したガイド
             </p>
             <div className="flex justify-center gap-6 text-[13px] text-slate-400 flex-wrap">
@@ -870,15 +1016,31 @@ export default function Directory(): React.JSX.Element {
                 <strong className="text-slate-100">{TOTAL}</strong> エントリ
               </span>
               <span>
-                <strong className="text-slate-100">{SECTIONS.length}</strong> セクション
+                <strong className="text-slate-100">{SECTIONS.length}</strong>{" "}
+                セクション
               </span>
             </div>
             {/* Nav links */}
             <div className="flex justify-center gap-3 mt-3.5">
               {[
-                { to: "/", label: "リリースノート", icon: <ArrowLeftIcon />, trailing: false },
-                { to: "/commands", label: "コマンド一覧", icon: null, trailing: true },
-                { to: "/plugins", label: "公式プラグイン", icon: null, trailing: true },
+                {
+                  to: "/",
+                  label: "リリースノート",
+                  icon: <ArrowLeftIcon />,
+                  trailing: false,
+                },
+                {
+                  to: "/commands",
+                  label: "コマンド一覧",
+                  icon: null,
+                  trailing: true,
+                },
+                {
+                  to: "/plugins",
+                  label: "公式プラグイン",
+                  icon: null,
+                  trailing: true,
+                },
               ].map((link) => (
                 <Link
                   key={link.to}
@@ -897,8 +1059,8 @@ export default function Directory(): React.JSX.Element {
 
         {/* Tabs */}
         <motion.div
-          initial={m ? false : { opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={m ? false : { opacity: 0 }}
+          animate={{ opacity: 1 }}
           transition={{ duration: 0.4, delay: 0.1 }}
           ref={tabScrollRef}
           className="flex gap-1 mb-5 overflow-x-auto pb-1 scrollbar-none"
@@ -917,7 +1079,9 @@ export default function Directory(): React.JSX.Element {
                 }`}
                 style={{
                   padding: "10px 16px",
-                  border: isActive ? `1px solid ${tab.color}40` : "1px solid transparent",
+                  border: isActive
+                    ? `1px solid ${tab.color}40`
+                    : "1px solid transparent",
                   background: isActive ? tab.color + "18" : "transparent",
                   color: isActive ? tab.color : "#64748B",
                 }}
@@ -938,7 +1102,7 @@ export default function Directory(): React.JSX.Element {
           })}
         </motion.div>
 
-        {/* Search — only for section tabs */}
+        {/* Search -- only for section tabs */}
         {!isInfoTab && (
           <motion.div
             initial={m ? false : { opacity: 0 }}
@@ -948,7 +1112,9 @@ export default function Directory(): React.JSX.Element {
             style={{
               padding: "2px 14px",
               border: `1px solid ${searchFocused ? "#3B82F6" : "#334155"}`,
-              boxShadow: searchFocused ? "0 0 0 3px rgba(59, 130, 246, 0.25)" : "none",
+              boxShadow: searchFocused
+                ? "0 0 0 3px rgba(59, 130, 246, 0.25)"
+                : "none",
             }}
           >
             <SearchIcon />
@@ -966,14 +1132,14 @@ export default function Directory(): React.JSX.Element {
         )}
 
         {/* Tab content */}
-        <AnimatePresence mode="wait">
+        <AnimatePresence mode="popLayout">
           {isInfoTab ? (
             <motion.div
               key={activeTab}
-              initial={reducedMotion ? false : { opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={reducedMotion ? undefined : { opacity: 0, y: -10 }}
-              transition={{ duration: 0.25 }}
+              initial={reducedMotion ? false : { opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={reducedMotion ? undefined : { opacity: 0 }}
+              transition={{ duration: 0.15 }}
             >
               {activeTab === "precedence" && <PrecedencePanel />}
               {activeTab === "commit-guide" && <CommitGuidePanel />}
@@ -982,10 +1148,10 @@ export default function Directory(): React.JSX.Element {
           ) : (
             <motion.div
               key={activeTab}
-              initial={reducedMotion ? false : { opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={reducedMotion ? undefined : { opacity: 0, y: -10 }}
-              transition={{ duration: 0.25 }}
+              initial={reducedMotion ? false : { opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={reducedMotion ? undefined : { opacity: 0 }}
+              transition={{ duration: 0.15 }}
             >
               {/* Section description */}
               {activeSection && (
@@ -993,19 +1159,26 @@ export default function Directory(): React.JSX.Element {
                   <div
                     className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
                     style={{
-                      background: SECTION_COLORS[activeSection.id]?.bg || "rgba(59, 130, 246, 0.25)",
-                      color: SECTION_COLORS[activeSection.id]?.color || "#3B82F6",
+                      background:
+                        SECTION_COLORS[activeSection.id]?.bg ||
+                        "rgba(59, 130, 246, 0.25)",
+                      color:
+                        SECTION_COLORS[activeSection.id]?.color || "#3B82F6",
                     }}
                   >
                     {SECTION_ICONS[activeSection.id]?.()}
                   </div>
                   <div className="flex-1">
                     <div className="flex items-baseline gap-2 flex-wrap">
-                      <code className="text-xs text-slate-500 font-mono bg-surface rounded" style={{ padding: "2px 8px" }}>
+                      <code
+                        className="text-xs text-slate-500 font-mono bg-surface rounded"
+                        style={{ padding: "2px 8px" }}
+                      >
                         {activeSection.basePath}
                       </code>
                       <span className="text-xs text-slate-500">
-                        {filteredEntries.length} / {activeSection.entries.length} エントリ
+                        {filteredEntries.length} /{" "}
+                        {activeSection.entries.length} エントリ
                       </span>
                     </div>
                     <span className="text-xs text-slate-500 font-sans">
@@ -1022,27 +1195,30 @@ export default function Directory(): React.JSX.Element {
                     <motion.div
                       key={entry.path}
                       layout={!reducedMotion}
-                      initial={
-                        reducedMotion
-                          ? false
-                          : hasMounted.current
-                            ? { opacity: 0 }
-                            : { opacity: 0, y: 15 }
-                      }
-                      animate={{ opacity: 1, y: 0 }}
+                      initial={reducedMotion ? false : { opacity: 0 }}
+                      animate={{ opacity: 1 }}
                       exit={
                         reducedMotion
                           ? undefined
-                          : { opacity: 0, scale: 0.96, transition: { duration: 0.15 } }
+                          : {
+                              opacity: 0,
+                              scale: 0.96,
+                              transition: { duration: 0.15 },
+                            }
                       }
                       transition={{
                         duration: 0.2,
-                        delay: reducedMotion || hasMounted.current ? 0 : Math.min(i * 0.04, 0.4),
+                        delay:
+                          reducedMotion || hasMounted.current
+                            ? 0
+                            : Math.min(i * 0.04, 0.4),
                       }}
                     >
                       <EntryCard
                         entry={entry}
-                        accentColor={SECTION_COLORS[activeTab]?.color || "#3B82F6"}
+                        accentColor={
+                          SECTION_COLORS[activeTab]?.color || "#3B82F6"
+                        }
                         onClick={() => openModal(entry, activeSection!)}
                       />
                     </motion.div>
@@ -1060,20 +1236,7 @@ export default function Directory(): React.JSX.Element {
                   style={{ padding: "64px 24px" }}
                 >
                   <div className="mb-4">
-                    <svg
-                      width="48"
-                      height="48"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="#64748B"
-                      strokeWidth="1.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <circle cx="11" cy="11" r="8" />
-                      <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                      <line x1="8" y1="11" x2="14" y2="11" />
-                    </svg>
+                    <EmptyIcon />
                   </div>
                   <p className="text-slate-500 text-sm m-0">
                     条件に一致するエントリはありません
@@ -1096,7 +1259,9 @@ export default function Directory(): React.JSX.Element {
           <DetailModal
             entry={selectedEntry.entry}
             section={selectedEntry.section}
-            accentColor={SECTION_COLORS[selectedEntry.section.id]?.color || "#3B82F6"}
+            accentColor={
+              SECTION_COLORS[selectedEntry.section.id]?.color || "#3B82F6"
+            }
             onClose={closeModal}
             reducedMotion={reducedMotion}
           />
