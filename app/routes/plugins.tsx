@@ -107,6 +107,7 @@ interface TabDef {
 }
 
 const TAB_DEFS: TabDef[] = [
+  { id: "all", label: "すべて", color: "#3B82F6", type: "category" },
   ...CATEGORIES.map((c) => ({
     id: c.id,
     label: c.name,
@@ -115,6 +116,15 @@ const TAB_DEFS: TabDef[] = [
   })),
   { id: "quickstart", label: "クイックスタート", color: "#5EEAD4", type: "quickstart" },
 ];
+
+const PLUGIN_CATEGORY_MAP = new Map<string, { color: string }>();
+for (const cat of CATEGORIES) {
+  for (const p of cat.plugins) {
+    PLUGIN_CATEGORY_MAP.set(p.name, {
+      color: CATEGORY_COLORS[cat.id]?.color || "#3B82F6",
+    });
+  }
+}
 
 function CopyButton({ text }: { text: string }): React.JSX.Element {
   const [copied, setCopied] = useState(false);
@@ -390,7 +400,7 @@ const NAV_LINKS = [
 
 export default function Plugins(): React.JSX.Element {
   const [query, setQuery] = useState("");
-  const [activeTab, setActiveTab] = useState<string>(CATEGORIES[0]?.id || "");
+  const [activeTab, setActiveTab] = useState<string>("all");
   const [selectedPlugin, setSelectedPlugin] = useState<{ plugin: Plugin; accentColor: string } | null>(null);
   const reducedMotion = useReducedMotion();
   const hasMounted = useRef(false);
@@ -402,13 +412,18 @@ export default function Plugins(): React.JSX.Element {
   }
 
   const lowerQuery = query.toLowerCase();
+  const isAllTab = activeTab === "all";
   const activeCategory = CATEGORIES.find((c) => c.id === activeTab);
   const isQuickStart = activeTab === "quickstart";
 
   const filteredPlugins = useMemo(() => {
-    if (!activeCategory) return [];
-    if (!query) return activeCategory.plugins;
-    return activeCategory.plugins.filter(
+    const plugins = isAllTab
+      ? CATEGORIES.flatMap((c) => c.plugins)
+      : activeCategory
+        ? activeCategory.plugins
+        : [];
+    if (!query) return plugins;
+    return plugins.filter(
       (p) =>
         p.name.toLowerCase().includes(lowerQuery) ||
         p.displayName.toLowerCase().includes(lowerQuery) ||
@@ -417,7 +432,7 @@ export default function Plugins(): React.JSX.Element {
         p.whenToUse.toLowerCase().includes(lowerQuery) ||
         (p.binary && p.binary.toLowerCase().includes(lowerQuery))
     );
-  }, [activeCategory, query, lowerQuery]);
+  }, [isAllTab, activeCategory, query, lowerQuery]);
 
   const openModal = useCallback((plugin: Plugin, accentColor: string) => {
     setSelectedPlugin({ plugin, accentColor });
@@ -566,22 +581,27 @@ export default function Plugins(): React.JSX.Element {
               {/* Card grid */}
               <div className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-3.5">
                 <AnimatePresence mode="popLayout">
-                  {filteredPlugins.map((plugin, i) => (
-                    <motion.div
-                      key={plugin.name}
-                      layout={!reducedMotion}
-                      initial={reducedMotion ? false : { opacity: 0, y: 15 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={reducedMotion ? undefined : { opacity: 0, scale: 0.96, transition: { duration: 0.15 } }}
-                      transition={{ duration: 0.2, delay: reducedMotion ? 0 : Math.min(i * 0.04, 0.4) }}
-                    >
-                      <PluginCard
-                        plugin={plugin}
-                        accentColor={CATEGORY_COLORS[activeTab]?.color || "#3B82F6"}
-                        onClick={() => openModal(plugin, CATEGORY_COLORS[activeTab]?.color || "#3B82F6")}
-                      />
-                    </motion.div>
-                  ))}
+                  {filteredPlugins.map((plugin, i) => {
+                    const color = isAllTab
+                      ? (PLUGIN_CATEGORY_MAP.get(plugin.name)?.color || "#3B82F6")
+                      : (CATEGORY_COLORS[activeTab]?.color || "#3B82F6");
+                    return (
+                      <motion.div
+                        key={plugin.name}
+                        layout={!reducedMotion}
+                        initial={reducedMotion ? false : { opacity: 0, y: 15 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={reducedMotion ? undefined : { opacity: 0, scale: 0.96, transition: { duration: 0.15 } }}
+                        transition={{ duration: 0.2, delay: reducedMotion ? 0 : Math.min(i * 0.04, 0.4) }}
+                      >
+                        <PluginCard
+                          plugin={plugin}
+                          accentColor={color}
+                          onClick={() => openModal(plugin, color)}
+                        />
+                      </motion.div>
+                    );
+                  })}
                 </AnimatePresence>
               </div>
 

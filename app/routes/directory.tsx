@@ -246,6 +246,19 @@ const SKILLS_VS_AGENTS = directoryData.skillsVsAgents;
 
 const TOTAL = SECTIONS.flatMap((s) => s.entries).length;
 
+const ENTRY_SECTION_MAP = new Map<string, Section>();
+for (const s of SECTIONS) {
+  for (const e of s.entries) {
+    ENTRY_SECTION_MAP.set(e.path + "@" + s.id, s);
+  }
+}
+function getSectionForEntry(entry: Entry): Section {
+  for (const s of SECTIONS) {
+    if (s.entries.includes(entry)) return s;
+  }
+  return SECTIONS[0];
+}
+
 const PRECEDENCE_COLORS: Record<string, { color: string; bg: string }> = {
   red: { color: "#FCA5A5", bg: "rgba(239, 68, 68, 0.15)" },
   orange: { color: "#FDBA74", bg: "rgba(249, 115, 22, 0.15)" },
@@ -830,6 +843,7 @@ interface TabDef {
 }
 
 const TAB_DEFS: TabDef[] = [
+  { id: "all", label: "すべて", shortLabel: "すべて", color: "#3B82F6", type: "section" },
   ...SECTIONS.map((s) => ({
     id: s.id,
     label: s.name,
@@ -863,7 +877,7 @@ const TAB_DEFS: TabDef[] = [
 ];
 
 export default function Directory(): React.JSX.Element {
-  const [activeTab, setActiveTab] = useState<string>("global");
+  const [activeTab, setActiveTab] = useState<string>("all");
   const [query, setQuery] = useState("");
   const [selectedEntry, setSelectedEntry] = useState<{
     entry: Entry;
@@ -879,11 +893,16 @@ export default function Directory(): React.JSX.Element {
 
   const lowerQuery = query.toLowerCase();
 
+  const isAllTab = activeTab === "all";
   const activeSection = SECTIONS.find((s) => s.id === activeTab);
 
   const filteredEntries = useMemo(() => {
-    if (!activeSection) return [];
-    return activeSection.entries.filter(
+    const entries = isAllTab
+      ? SECTIONS.flatMap((s) => s.entries)
+      : activeSection
+        ? activeSection.entries
+        : [];
+    return entries.filter(
       (e) =>
         !query ||
         e.path.toLowerCase().includes(lowerQuery) ||
@@ -892,7 +911,7 @@ export default function Directory(): React.JSX.Element {
         e.detail.toLowerCase().includes(lowerQuery) ||
         e.usage.toLowerCase().includes(lowerQuery),
     );
-  }, [activeSection, query, lowerQuery]);
+  }, [isAllTab, activeSection, query, lowerQuery]);
 
   const isInfoTab = SPECIAL_TABS.includes(
     activeTab as (typeof SPECIAL_TABS)[number],
@@ -1115,7 +1134,7 @@ export default function Directory(): React.JSX.Element {
               transition={{ duration: 0.15 }}
             >
               {/* Section description */}
-              {activeSection && (
+              {activeSection && !isAllTab && (
                 <div className="flex items-center gap-2.5 mb-4 px-1">
                   <div
                     className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
@@ -1149,41 +1168,51 @@ export default function Directory(): React.JSX.Element {
                 </div>
               )}
 
+              {isAllTab && (
+                <div className="flex items-center gap-2.5 mb-4 px-1">
+                  <span className="text-[13px] text-slate-500 font-medium">
+                    {filteredEntries.length} / {TOTAL} エントリ
+                  </span>
+                </div>
+              )}
+
               {/* Card grid */}
               <div className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-3.5">
                 <AnimatePresence mode="popLayout">
-                  {filteredEntries.map((entry, i) => (
-                    <motion.div
-                      key={entry.path}
-                      layout={!reducedMotion}
-                      initial={reducedMotion ? false : { opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={
-                        reducedMotion
-                          ? undefined
-                          : {
-                              opacity: 0,
-                              scale: 0.96,
-                              transition: { duration: 0.15 },
-                            }
-                      }
-                      transition={{
-                        duration: 0.2,
-                        delay:
-                          reducedMotion || hasMounted.current
-                            ? 0
-                            : Math.min(i * 0.04, 0.4),
-                      }}
-                    >
-                      <EntryCard
-                        entry={entry}
-                        accentColor={
-                          SECTION_COLORS[activeTab]?.color || "#3B82F6"
+                  {filteredEntries.map((entry, i) => {
+                    const section = isAllTab ? getSectionForEntry(entry) : activeSection!;
+                    const color = SECTION_COLORS[section.id]?.color || "#3B82F6";
+                    return (
+                      <motion.div
+                        key={`${section.id}-${entry.path}`}
+                        layout={!reducedMotion}
+                        initial={reducedMotion ? false : { opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={
+                          reducedMotion
+                            ? undefined
+                            : {
+                                opacity: 0,
+                                scale: 0.96,
+                                transition: { duration: 0.15 },
+                              }
                         }
-                        onClick={() => openModal(entry, activeSection!)}
-                      />
-                    </motion.div>
-                  ))}
+                        transition={{
+                          duration: 0.2,
+                          delay:
+                            reducedMotion || hasMounted.current
+                              ? 0
+                              : Math.min(i * 0.04, 0.4),
+                        }}
+                      >
+                        <EntryCard
+                          entry={entry}
+                          accentColor={color}
+                          onClick={() => openModal(entry, section)}
+                        />
+                      </motion.div>
+                    );
+                  })}
                 </AnimatePresence>
               </div>
 

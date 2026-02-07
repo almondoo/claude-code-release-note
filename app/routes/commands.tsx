@@ -121,6 +121,7 @@ interface TabDef {
 }
 
 const TAB_DEFS: TabDef[] = [
+  { id: "all", label: "すべて", color: "#3B82F6", type: "slash-category" },
   ...CATEGORIES.map((c) => ({
     id: c.id,
     label: c.name,
@@ -130,6 +131,16 @@ const TAB_DEFS: TabDef[] = [
   { id: "cli", label: "CLI", color: "#C4B5FD", type: "cli" },
   { id: "shortcuts", label: "ショートカット", color: "#FDBA74", type: "shortcuts" },
 ];
+
+const CMD_CATEGORY_MAP = new Map<string, { name: string; color: string }>();
+for (const cat of CATEGORIES) {
+  for (const cmd of cat.commands) {
+    CMD_CATEGORY_MAP.set(cmd.name, {
+      name: cat.name,
+      color: CATEGORY_COLORS[cat.id]?.color || "#3B82F6",
+    });
+  }
+}
 
 function matchesQuery(fields: (string | null)[], lowerQuery: string): boolean {
   if (!lowerQuery) return true;
@@ -491,7 +502,7 @@ function DetailModal({
 
 export default function Commands(): React.JSX.Element {
   const [query, setQuery] = useState("");
-  const [activeTab, setActiveTab] = useState<string>("essential");
+  const [activeTab, setActiveTab] = useState<string>("all");
   const [modalData, setModalData] = useState<ModalData | null>(null);
   const reducedMotion = useReducedMotion();
   const hasMounted = useRef(false);
@@ -503,14 +514,19 @@ export default function Commands(): React.JSX.Element {
 
   const lowerQuery = query.toLowerCase();
 
+  const isAllTab = activeTab === "all";
   const activeCategory = CATEGORIES.find((c) => c.id === activeTab);
 
   const filteredSlashCommands = useMemo(() => {
-    if (!activeCategory) return [];
-    return activeCategory.commands.filter(
+    const commands = isAllTab
+      ? CATEGORIES.flatMap((c) => c.commands)
+      : activeCategory
+        ? activeCategory.commands
+        : [];
+    return commands.filter(
       (cmd) => matchesQuery([cmd.name, cmd.description, cmd.args, cmd.detail, cmd.whenToUse], lowerQuery),
     );
-  }, [activeCategory, lowerQuery]);
+  }, [isAllTab, activeCategory, lowerQuery]);
 
   const filteredCLICommands = useMemo(() => {
     return CLI_COMMANDS.filter(
@@ -533,6 +549,7 @@ export default function Commands(): React.JSX.Element {
   const isCLITab = activeTab === "cli";
   const isShortcutsTab = activeTab === "shortcuts";
   const isSlashTab = !isCLITab && !isShortcutsTab;
+  const isAllSlashTab = isAllTab && isSlashTab;
 
   let currentCount: number;
   if (isSlashTab) {
@@ -688,28 +705,33 @@ export default function Commands(): React.JSX.Element {
           >
             <div className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-3.5">
               <AnimatePresence mode="popLayout">
-                {isSlashTab && filteredSlashCommands.map((cmd, i) => (
-                  <motion.div
-                    key={cmd.name}
-                    layout={!reducedMotion}
-                    initial={reducedMotion ? false : hasMounted.current ? { opacity: 0 } : { opacity: 0, y: 15 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={reducedMotion ? undefined : { opacity: 0, scale: 0.96, transition: { duration: 0.15 } }}
-                    transition={{ duration: 0.2, delay: reducedMotion || hasMounted.current ? 0 : Math.min(i * 0.04, 0.4) }}
-                  >
-                    <CommandCard
-                      cmd={cmd}
-                      accentColor={CATEGORY_COLORS[activeTab]?.color || "#3B82F6"}
-                      categoryName={activeCategory?.name || ""}
-                      onClick={() => openModal({
-                        type: "command",
-                        cmd,
-                        categoryName: activeCategory?.name || "",
-                        accentColor: CATEGORY_COLORS[activeTab]?.color || "#3B82F6",
-                      })}
-                    />
-                  </motion.div>
-                ))}
+                {isSlashTab && filteredSlashCommands.map((cmd, i) => {
+                  const catInfo = isAllTab
+                    ? CMD_CATEGORY_MAP.get(cmd.name) || { name: "", color: "#3B82F6" }
+                    : { name: activeCategory?.name || "", color: CATEGORY_COLORS[activeTab]?.color || "#3B82F6" };
+                  return (
+                    <motion.div
+                      key={cmd.name}
+                      layout={!reducedMotion}
+                      initial={reducedMotion ? false : hasMounted.current ? { opacity: 0 } : { opacity: 0, y: 15 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={reducedMotion ? undefined : { opacity: 0, scale: 0.96, transition: { duration: 0.15 } }}
+                      transition={{ duration: 0.2, delay: reducedMotion || hasMounted.current ? 0 : Math.min(i * 0.04, 0.4) }}
+                    >
+                      <CommandCard
+                        cmd={cmd}
+                        accentColor={catInfo.color}
+                        categoryName={catInfo.name}
+                        onClick={() => openModal({
+                          type: "command",
+                          cmd,
+                          categoryName: catInfo.name,
+                          accentColor: catInfo.color,
+                        })}
+                      />
+                    </motion.div>
+                  );
+                })}
 
                 {isCLITab && (
                   <>
