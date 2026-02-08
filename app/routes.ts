@@ -1,11 +1,11 @@
 import { type RouteConfig, index, route } from "@react-router/dev/routes";
 
 export default [
-  index("routes/release-note.tsx"),
-  route("version/:version", "routes/version-detail.tsx"),
-  route("commands", "routes/commands.tsx"),
-  route("plugins", "routes/plugins.tsx"),
-  route("directory", "routes/directory.tsx"),
-  route("setup", "routes/setup.tsx"),
-  route("best-practices", "routes/best-practices.tsx"),
+  index("routes/release-note/index.tsx"),
+  route("version/:version", "routes/version-detail/index.tsx"),
+  route("commands", "routes/commands/index.tsx"),
+  route("plugins", "routes/plugins/index.tsx"),
+  route("directory", "routes/directory/index.tsx"),
+  route("setup", "routes/setup/index.tsx"),
+  route("best-practices", "routes/best-practices/index.tsx"),
 ] satisfies RouteConfig;
