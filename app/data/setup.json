@@ -9,18 +9,43 @@
           "id": "prerequisites",
           "title": "前提条件の確認",
           "description": "Claude Code を使うために必要な環境を確認します",
-          "content": "Claude Code を利用するには、Node.js v18 以上が必要です。macOS、Linux、または WSL 上の Windows で動作します。\n\nまた、Anthropic のアカウントが必要です。Max プラン、Team プラン、または API クレジットが利用可能なプランに加入してください。",
+          "content": "Claude Code を利用するには、Node.js v18 以上が必要です。macOS、Linux、または WSL 上の Windows で動作します。\n\nまた、Anthropic のアカウントが必要です。Max プラン、Team プラン、または API クレジットが利用可能なプランに加入してください。\n\nNode.js がまだインストールされていない場合や、バージョンが古い場合は、以下のバージョン管理ツールを使ってインストール・更新できます。",
           "code": [
             {
               "lang": "bash",
               "label": "Node.js バージョン確認",
               "value": "node --version\n# v18.0.0 以上が必要"
+            },
+            {
+              "lang": "bash",
+              "label": "nvm でインストール",
+              "value": "# nvm のインストール\ncurl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash\n\n# Node.js LTS のインストール\nnvm install --lts\nnvm use --lts",
+              "recommended": true
+            },
+            {
+              "lang": "bash",
+              "label": "Volta でインストール",
+              "value": "# Volta のインストール\ncurl https://get.volta.sh | bash\n\n# Node.js のインストール\nvolta install node"
+            },
+            {
+              "lang": "bash",
+              "label": "fnm でインストール",
+              "value": "# fnm のインストール (macOS)\nbrew install fnm\n\n# Node.js LTS のインストール\nfnm install --lts\nfnm use --lts"
+            },
+            {
+              "lang": "bash",
+              "label": "mise でインストール",
+              "value": "# mise のインストール\ncurl https://mise.run | sh\n\n# Node.js のインストール\nmise use --global node@lts"
             }
           ],
           "callouts": [
             {
               "type": "important",
-              "text": "Node.js v18 未満の場合は、nvm や Volta でバージョンを更新してください。"
+              "text": "Node.js v18 未満の場合は、バージョン管理ツールでバージョンを更新してください。"
+            },
+            {
+              "type": "tip",
+              "text": "nvm は最も広く使われている Node.js バージョン管理ツールです。迷ったら nvm を選択してください。"
             }
           ],
           "tags": ["必須", "初心者向け"]
@@ -28,19 +53,35 @@
         {
           "id": "install",
           "title": "インストール",
-          "description": "npm でグローバルインストールします",
-          "content": "Claude Code は npm パッケージとして配布されています。グローバルインストールすることで、どのディレクトリからでも `claude` コマンドが使えるようになります。",
+          "description": "パッケージマネージャーでグローバルインストールします",
+          "content": "Claude Code は npm パッケージとして配布されています。お好みのパッケージマネージャーでグローバルインストールすることで、どのディレクトリからでも `claude` コマンドが使えるようになります。",
           "code": [
             {
               "lang": "bash",
               "label": "npm でインストール",
-              "value": "npm install -g @anthropic-ai/claude-code"
+              "value": "npm install -g @anthropic-ai/claude-code",
+              "recommended": true
+            },
+            {
+              "lang": "bash",
+              "label": "yarn でインストール",
+              "value": "yarn global add @anthropic-ai/claude-code"
+            },
+            {
+              "lang": "bash",
+              "label": "pnpm でインストール",
+              "value": "pnpm add -g @anthropic-ai/claude-code"
+            },
+            {
+              "lang": "bash",
+              "label": "bun でインストール",
+              "value": "bun install -g @anthropic-ai/claude-code"
             }
           ],
           "callouts": [
             {
               "type": "tip",
-              "text": "権限エラーが出る場合は sudo を付けるか、npm のグローバルディレクトリを変更してください。"
+              "text": "公式ドキュメントでは npm が推奨されています。権限エラーが出る場合は sudo を付けるか、npm のグローバルディレクトリを変更してください。"
             }
           ],
           "tags": ["必須", "初心者向け"]
@@ -71,18 +112,34 @@
           "id": "auth",
           "title": "認証",
           "description": "Anthropic アカウントで認証します",
-          "content": "初回起動時にブラウザが開き、Anthropic アカウントでの認証が求められます。OAuth フローに従ってログインしてください。\n\nAPI キーを使用する場合は、環境変数 `ANTHROPIC_API_KEY` を設定します。",
+          "content": "Claude Code では複数の認証方法が利用できます。利用プランに応じて適切な方法を選択してください。",
           "code": [
             {
               "lang": "bash",
-              "label": "API キーで認証（オプション）",
-              "value": "export ANTHROPIC_API_KEY=sk-ant-xxxxx"
+              "label": "OAuth 認証（ブラウザ認証）",
+              "value": "# 初回起動時に自動でブラウザが開きます\nclaude\n# ブラウザで Anthropic アカウントにログイン",
+              "recommended": true
+            },
+            {
+              "lang": "bash",
+              "label": "API キー認証",
+              "value": "# 環境変数に API キーを設定\nexport ANTHROPIC_API_KEY=sk-ant-xxxxx\n\n# または .env ファイルに記述\necho 'ANTHROPIC_API_KEY=sk-ant-xxxxx' >> ~/.zshrc\nsource ~/.zshrc"
+            },
+            {
+              "lang": "bash",
+              "label": "Amazon Bedrock 経由",
+              "value": "# Bedrock の認証情報を設定\nexport CLAUDE_CODE_USE_BEDROCK=1\nexport AWS_REGION=us-east-1\nexport AWS_ACCESS_KEY_ID=your-access-key\nexport AWS_SECRET_ACCESS_KEY=your-secret-key"
+            },
+            {
+              "lang": "bash",
+              "label": "Google Vertex AI 経由",
+              "value": "# Vertex AI の認証情報を設定\nexport CLAUDE_CODE_USE_VERTEX=1\nexport CLOUD_ML_REGION=us-east5\nexport ANTHROPIC_VERTEX_PROJECT_ID=your-project-id"
             }
           ],
           "callouts": [
             {
               "type": "info",
-              "text": "Max プランでは OAuth 認証、API プランでは API キー認証を使用します。"
+              "text": "Max プラン・Team プランでは OAuth 認証が推奨です。API プランでは API キー認証、企業利用では Bedrock / Vertex AI 経由も選択できます。"
             }
           ],
           "tags": ["必須", "初心者向け"]
@@ -91,18 +148,43 @@
           "id": "terminal-setup",
           "title": "ターミナル設定",
           "description": "推奨ターミナル設定を行います",
-          "content": "Claude Code はリッチなターミナル UI を提供します。最適な体験のために、256 色対応のターミナルエミュレータを使用してください。\n\nVS Code のターミナル、iTerm2、Alacritty、WezTerm などが推奨です。",
+          "content": "Claude Code はリッチなターミナル UI を提供します。最適な体験のために、256 色対応のターミナルエミュレータを使用してください。\n\nOS ごとにおすすめのターミナルエミュレータは異なります。",
           "code": [
             {
               "lang": "bash",
               "label": "ターミナルカラーサポート確認",
               "value": "echo $TERM\n# xterm-256color が推奨"
+            },
+            {
+              "lang": "bash",
+              "label": "macOS: iTerm2",
+              "value": "# Homebrew でインストール\nbrew install --cask iterm2",
+              "recommended": true
+            },
+            {
+              "lang": "bash",
+              "label": "macOS: WezTerm",
+              "value": "# Homebrew でインストール\nbrew install --cask wezterm"
+            },
+            {
+              "lang": "bash",
+              "label": "macOS: Ghostty",
+              "value": "# Homebrew でインストール\nbrew install --cask ghostty"
+            },
+            {
+              "lang": "bash",
+              "label": "Linux: Alacritty",
+              "value": "# Ubuntu/Debian\nsudo apt install alacritty\n\n# Arch Linux\nsudo pacman -S alacritty"
             }
           ],
           "callouts": [
             {
               "type": "tip",
               "text": "ターミナルのフォントに Nerd Font を使うと、アイコン表示が改善されます。"
+            },
+            {
+              "type": "info",
+              "text": "VS Code / JetBrains IDE の内蔵ターミナルでも問題なく動作します。IDE 連携セクションも参照してください。"
             }
           ],
           "tags": ["初心者向け"]
@@ -164,20 +246,31 @@
         },
         {
           "id": "claude-md-init",
-          "title": "/init で生成",
-          "description": "対話的に CLAUDE.md を生成する",
-          "content": "Claude Code のセッション内で `/init` コマンドを実行すると、プロジェクトの構成を分析して CLAUDE.md のテンプレートを自動生成します。",
+          "title": "CLAUDE.md の生成方法",
+          "description": "対話的にまたは手動で CLAUDE.md を作成する",
+          "content": "CLAUDE.md を作成する方法はいくつかあります。プロジェクトの状況に応じて選択してください。",
           "code": [
             {
               "lang": "bash",
-              "label": "/init コマンドの実行",
-              "value": "claude\n# セッション内で:\n> /init"
+              "label": "/init コマンドで自動生成",
+              "value": "claude\n# セッション内で:\n> /init",
+              "recommended": true
+            },
+            {
+              "lang": "bash",
+              "label": "手動で作成",
+              "value": "# プロジェクトルートに CLAUDE.md を作成\ntouch CLAUDE.md\n\n# エディタで開いて編集\ncode CLAUDE.md  # VS Code の場合"
+            },
+            {
+              "lang": "bash",
+              "label": "Claude Code に依頼して生成",
+              "value": "claude\n# セッション内で:\n> このプロジェクトを分析して CLAUDE.md を作成してください"
             }
           ],
           "callouts": [
             {
               "type": "tip",
-              "text": "/init は何度でも実行できます。既存の CLAUDE.md を上書きする前に確認されます。"
+              "text": "/init は何度でも実行できます。既存の CLAUDE.md を上書きする前に確認されます。初回は /init での自動生成がおすすめです。"
             }
           ],
           "tags": ["必須", "初心者向け"]
@@ -200,7 +293,7 @@
               "text": "機密情報（API キー、パスワード等）を CLAUDE.md に含めないでください。Git で共有される可能性があります。"
             }
           ],
-          "tags": ["必須", "チーム向け"]
+          "tags": ["必須", "中級者向け", "チーム向け"]
         },
         {
           "id": "claude-md-hierarchy",
@@ -215,7 +308,7 @@
             }
           ],
           "callouts": [],
-          "tags": ["上級者向け", "チーム向け"]
+          "tags": ["中級者向け", "チーム向け"]
         },
         {
           "id": "claude-md-rules",
@@ -348,15 +441,31 @@
           "id": "mcp-add",
           "title": "MCP サーバーの追加",
           "description": "claude mcp add コマンドで追加",
-          "content": "Claude Code の CLI から `claude mcp add` コマンドで MCP サーバーを登録できます。\n\nスコープとして `-s user`（ユーザー全体）または `-s project`（プロジェクト固有）を指定できます。",
+          "content": "Claude Code の CLI から `claude mcp add` コマンドで MCP サーバーを登録できます。\n\nスコープとして `-s user`（ユーザー全体）または `-s project`（プロジェクト固有）を指定できます。トランスポート方式は stdio と SSE の2種類があります。",
           "code": [
             {
               "lang": "bash",
-              "label": "MCP サーバーの追加",
-              "value": "# stdio トランスポート\nclaude mcp add my-server -s project -- npx @example/mcp-server\n\n# 環境変数付き\nclaude mcp add my-server -s project -e API_KEY=xxx -- npx @example/mcp-server\n\n# 登録済みサーバーの確認\nclaude mcp list"
+              "label": "stdio トランスポート（ローカル実行）",
+              "value": "# ローカルプロセスとして起動\nclaude mcp add my-server -s project -- npx @example/mcp-server\n\n# 環境変数付き\nclaude mcp add my-server -s project -e API_KEY=xxx -- npx @example/mcp-server",
+              "recommended": true
+            },
+            {
+              "lang": "bash",
+              "label": "SSE トランスポート（リモートサーバー）",
+              "value": "# リモートの MCP サーバーに接続\nclaude mcp add my-remote-server -s project --transport sse --url https://example.com/mcp"
+            },
+            {
+              "lang": "bash",
+              "label": "登録済みサーバーの管理",
+              "value": "# サーバー一覧の確認\nclaude mcp list\n\n# サーバーの削除\nclaude mcp remove my-server\n\n# サーバーのリセット（再起動）\nclaude mcp reset"
             }
           ],
-          "callouts": [],
+          "callouts": [
+            {
+              "type": "info",
+              "text": "ほとんどのケースでは stdio トランスポートが推奨です。リモートのサーバーに接続する場合のみ SSE を使用してください。"
+            }
+          ],
           "tags": ["上級者向け"]
         },
         {
@@ -469,7 +578,7 @@
               "text": "Claude Code はターミナルネイティブなので、どのエディタとも組み合わせて使えます。"
             }
           ],
-          "tags": ["上級者向け"]
+          "tags": ["中級者向け"]
         }
       ]
     },
@@ -510,7 +619,7 @@
               "text": "ワイルドカード（*）を使って、パターンマッチングで権限を設定できます。"
             }
           ],
-          "tags": ["上級者向け", "チーム向け"]
+          "tags": ["中級者向け", "チーム向け"]
         },
         {
           "id": "permissions-ci",
@@ -557,7 +666,7 @@
               "text": "コンテキストウィンドウの使用量が多くなったら /compact を実行すると、コストと精度のバランスが改善されます。"
             }
           ],
-          "tags": ["初心者向け"]
+          "tags": ["初心者向け", "中級者向け"]
         },
         {
           "id": "tips-prompting",
@@ -571,7 +680,7 @@
               "text": "画像やスクリーンショットも入力として渡せます。UI の修正依頼に便利です。"
             }
           ],
-          "tags": ["初心者向け"]
+          "tags": ["初心者向け", "中級者向け"]
         },
         {
           "id": "tips-models",
@@ -586,7 +695,7 @@
             }
           ],
           "callouts": [],
-          "tags": ["上級者向け"]
+          "tags": ["中級者向け"]
         },
         {
           "id": "tips-non-interactive",
@@ -755,7 +864,7 @@
               "text": "CLAUDE.md と .claude/settings.json はリポジトリにコミットし、.claude/settings.local.json は .gitignore に追加してください。"
             }
           ],
-          "tags": ["チーム向け"]
+          "tags": ["中級者向け", "チーム向け"]
         },
         {
           "id": "bp-security",
@@ -795,7 +904,7 @@
               "text": "Max プランなら定額なので、コストを気にせず活用できます。"
             }
           ],
-          "tags": ["上級者向け"]
+          "tags": ["中級者向け"]
         },
         {
           "id": "bp-cicd",

@@ -17,6 +17,7 @@ interface CodeBlock {
   lang: string;
   label: string;
   value: string;
+  recommended?: boolean;
 }
 
 interface Callout {
@@ -132,6 +133,7 @@ const SECTION_ICONS: Record<string, () => React.JSX.Element> = {
 const TAG_COLORS: Record<string, { color: string; bg: string }> = {
   "必須": { color: "#F87171", bg: "rgba(239, 68, 68, 0.15)" },
   "初心者向け": { color: "#6EE7B7", bg: "rgba(16, 185, 129, 0.15)" },
+  "中級者向け": { color: "#FCD34D", bg: "rgba(250, 204, 21, 0.15)" },
   "上級者向け": { color: "#C4B5FD", bg: "rgba(139, 92, 246, 0.15)" },
   "チーム向け": { color: "#67E8F9", bg: "rgba(6, 182, 212, 0.15)" },
   "CI/CD": { color: "#FDBA74", bg: "rgba(249, 115, 22, 0.15)" },
@@ -176,9 +178,35 @@ function CopyButton({ text }: { text: string }): React.JSX.Element {
 
 function CodeBlockView({ block }: { block: CodeBlock }): React.JSX.Element {
   return (
-    <div className="rounded-lg overflow-hidden border border-slate-700">
-      <div className="flex items-center justify-between bg-slate-800 px-3.5 py-2">
-        <span className="text-[11px] text-slate-400 font-mono">{block.label}</span>
+    <div
+      className="rounded-lg overflow-hidden border"
+      style={{
+        borderColor: block.recommended ? "rgba(16, 185, 129, 0.3)" : "#334155",
+      }}
+    >
+      <div
+        className="flex items-center justify-between px-3.5 py-2"
+        style={{
+          background: block.recommended ? "rgba(16, 185, 129, 0.08)" : undefined,
+        }}
+      >
+        <div className="flex items-center gap-2 min-w-0">
+          <span className="text-[11px] text-slate-400 font-mono truncate">{block.label}</span>
+          {block.recommended && (
+            <span
+              className="inline-flex items-center gap-1 text-[10px] font-bold rounded px-1.5 py-[1px] shrink-0"
+              style={{
+                background: "rgba(16, 185, 129, 0.15)",
+                color: "#6EE7B7",
+              }}
+            >
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+              推奨
+            </span>
+          )}
+        </div>
         <CopyButton text={block.value} />
       </div>
       <pre className="m-0 p-3.5 bg-[#0B1120] overflow-x-auto text-[13px] leading-relaxed">
