@@ -6,99 +6,44 @@
       "description": "Claude Code のインストール手順",
       "steps": [
         {
-          "id": "prerequisites",
-          "title": "前提条件の確認",
-          "description": "Claude Code を使うために必要な環境を確認します",
-          "content": "Claude Code を利用するには、Node.js v18 以上が必要です。macOS、Linux、または WSL 上の Windows で動作します。\n\nまた、Anthropic のアカウントが必要です。Max プラン、Team プラン、または API クレジットが利用可能なプランに加入してください。\n\nNode.js がまだインストールされていない場合や、バージョンが古い場合は、以下のバージョン管理ツールを使ってインストール・更新できます。",
+          "id": "install",
+          "title": "Claude Code のインストール",
+          "description": "ネイティブインストーラーまたはパッケージマネージャーでインストールします",
+          "content": "Claude Code をインストールするには、以下のいずれかの方法を使います。ネイティブインストールが推奨です（バックグラウンドで自動更新されます）。\n\nHomebrew / WinGet 経由のインストールでは自動更新されないため、定期的に手動でアップグレードしてください。\n\nOS ごとの詳しいインストール手順は [公式ドキュメント](https://code.claude.com/docs/en/overview) を参照してください。",
           "code": [
             {
               "lang": "bash",
-              "label": "Node.js バージョン確認",
-              "value": "node --version\n# v18.0.0 以上が必要"
-            },
-            {
-              "lang": "bash",
-              "label": "nvm でインストール",
-              "value": "# nvm のインストール\ncurl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash\n\n# Node.js LTS のインストール\nnvm install --lts\nnvm use --lts",
+              "label": "ネイティブインストール (macOS / Linux / WSL)",
+              "value": "curl -fsSL https://claude.ai/install.sh | bash",
               "recommended": true
             },
             {
-              "lang": "bash",
-              "label": "Volta でインストール",
-              "value": "# Volta のインストール\ncurl https://get.volta.sh | bash\n\n# Node.js のインストール\nvolta install node"
+              "lang": "powershell",
+              "label": "ネイティブインストール (Windows PowerShell)",
+              "value": "irm https://claude.ai/install.ps1 | iex"
             },
             {
               "lang": "bash",
-              "label": "fnm でインストール",
-              "value": "# fnm のインストール (macOS)\nbrew install fnm\n\n# Node.js LTS のインストール\nfnm install --lts\nfnm use --lts"
+              "label": "Homebrew (macOS / Linux)",
+              "value": "brew install --cask claude-code"
             },
             {
-              "lang": "bash",
-              "label": "mise でインストール",
-              "value": "# mise のインストール\ncurl https://mise.run | sh\n\n# Node.js のインストール\nmise use --global node@lts"
-            }
-          ],
-          "callouts": [
-            {
-              "type": "important",
-              "text": "Node.js v18 未満の場合は、バージョン管理ツールでバージョンを更新してください。"
+              "lang": "powershell",
+              "label": "WinGet (Windows)",
+              "value": "winget install Anthropic.ClaudeCode"
             },
-            {
-              "type": "tip",
-              "text": "nvm は最も広く使われている Node.js バージョン管理ツールです。迷ったら nvm を選択してください。"
-            }
-          ],
-          "tags": ["必須", "初心者向け"]
-        },
-        {
-          "id": "install",
-          "title": "インストール",
-          "description": "パッケージマネージャーでグローバルインストールします",
-          "content": "Claude Code は npm パッケージとして配布されています。お好みのパッケージマネージャーでグローバルインストールすることで、どのディレクトリからでも `claude` コマンドが使えるようになります。",
-          "code": [
             {
               "lang": "bash",
               "label": "npm でインストール",
-              "value": "npm install -g @anthropic-ai/claude-code",
-              "recommended": true
-            },
-            {
-              "lang": "bash",
-              "label": "yarn でインストール",
-              "value": "yarn global add @anthropic-ai/claude-code"
-            },
-            {
-              "lang": "bash",
-              "label": "pnpm でインストール",
-              "value": "pnpm add -g @anthropic-ai/claude-code"
-            },
-            {
-              "lang": "bash",
-              "label": "bun でインストール",
-              "value": "bun install -g @anthropic-ai/claude-code"
+              "value": "npm install -g @anthropic-ai/claude-code"
             }
           ],
           "callouts": [
             {
               "type": "tip",
-              "text": "公式ドキュメントでは npm が推奨されています。権限エラーが出る場合は sudo を付けるか、npm のグローバルディレクトリを変更してください。"
+              "text": "ネイティブインストールはバックグラウンドで自動更新されるため、常に最新版を利用できます。Homebrew / WinGet / npm の場合は手動更新が必要です。"
             }
           ],
-          "tags": ["必須", "初心者向け"]
-        },
-        {
-          "id": "verify",
-          "title": "インストール確認",
-          "description": "正しくインストールされたことを確認します",
-          "content": "インストール後、`claude --version` でバージョンが表示されれば成功です。",
-          "code": [
-            {
-              "lang": "bash",
-              "label": "バージョン確認",
-              "value": "claude --version"
-            }
-          ],
-          "callouts": [],
           "tags": ["必須", "初心者向け"]
         }
       ]
@@ -109,119 +54,30 @@
       "description": "初回起動時の基本的な設定",
       "steps": [
         {
-          "id": "auth",
-          "title": "認証",
-          "description": "Anthropic アカウントで認証します",
-          "content": "Claude Code では複数の認証方法が利用できます。利用プランに応じて適切な方法を選択してください。",
-          "code": [
-            {
-              "lang": "bash",
-              "label": "OAuth 認証（ブラウザ認証）",
-              "value": "# 初回起動時に自動でブラウザが開きます\nclaude\n# ブラウザで Anthropic アカウントにログイン",
-              "recommended": true
-            },
-            {
-              "lang": "bash",
-              "label": "API キー認証",
-              "value": "# 環境変数に API キーを設定\nexport ANTHROPIC_API_KEY=sk-ant-xxxxx\n\n# または .env ファイルに記述\necho 'ANTHROPIC_API_KEY=sk-ant-xxxxx' >> ~/.zshrc\nsource ~/.zshrc"
-            },
-            {
-              "lang": "bash",
-              "label": "Amazon Bedrock 経由",
-              "value": "# Bedrock の認証情報を設定\nexport CLAUDE_CODE_USE_BEDROCK=1\nexport AWS_REGION=us-east-1\nexport AWS_ACCESS_KEY_ID=your-access-key\nexport AWS_SECRET_ACCESS_KEY=your-secret-key"
-            },
-            {
-              "lang": "bash",
-              "label": "Google Vertex AI 経由",
-              "value": "# Vertex AI の認証情報を設定\nexport CLAUDE_CODE_USE_VERTEX=1\nexport CLOUD_ML_REGION=us-east5\nexport ANTHROPIC_VERTEX_PROJECT_ID=your-project-id"
-            }
-          ],
-          "callouts": [
-            {
-              "type": "info",
-              "text": "Max プラン・Team プランでは OAuth 認証が推奨です。API プランでは API キー認証、企業利用では Bedrock / Vertex AI 経由も選択できます。"
-            }
-          ],
-          "tags": ["必須", "初心者向け"]
-        },
-        {
-          "id": "terminal-setup",
-          "title": "ターミナル設定",
-          "description": "推奨ターミナル設定を行います",
-          "content": "Claude Code はリッチなターミナル UI を提供します。最適な体験のために、256 色対応のターミナルエミュレータを使用してください。\n\nOS ごとにおすすめのターミナルエミュレータは異なります。",
-          "code": [
-            {
-              "lang": "bash",
-              "label": "ターミナルカラーサポート確認",
-              "value": "echo $TERM\n# xterm-256color が推奨"
-            },
-            {
-              "lang": "bash",
-              "label": "macOS: iTerm2",
-              "value": "# Homebrew でインストール\nbrew install --cask iterm2",
-              "recommended": true
-            },
-            {
-              "lang": "bash",
-              "label": "macOS: WezTerm",
-              "value": "# Homebrew でインストール\nbrew install --cask wezterm"
-            },
-            {
-              "lang": "bash",
-              "label": "macOS: Ghostty",
-              "value": "# Homebrew でインストール\nbrew install --cask ghostty"
-            },
-            {
-              "lang": "bash",
-              "label": "Linux: Alacritty",
-              "value": "# Ubuntu/Debian\nsudo apt install alacritty\n\n# Arch Linux\nsudo pacman -S alacritty"
-            }
-          ],
-          "callouts": [
-            {
-              "type": "tip",
-              "text": "ターミナルのフォントに Nerd Font を使うと、アイコン表示が改善されます。"
-            },
-            {
-              "type": "info",
-              "text": "VS Code / JetBrains IDE の内蔵ターミナルでも問題なく動作します。IDE 連携セクションも参照してください。"
-            }
-          ],
-          "tags": ["初心者向け"]
-        },
-        {
           "id": "first-run",
-          "title": "初回起動",
-          "description": "プロジェクトディレクトリで claude を起動します",
-          "content": "作業したいプロジェクトのルートディレクトリで `claude` コマンドを実行します。Claude Code がディレクトリの内容を認識し、コンテキストとして活用します。",
+          "title": "認証と初回起動",
+          "description": "プロジェクトで claude を起動し、ログインします",
+          "content": "インストールが完了したら、作業したいプロジェクトのディレクトリで `claude` コマンドを実行するだけです。初回起動時にブラウザが開き、Anthropic アカウントでのログインが求められます。\n\nClaude サブスクリプション（Max / Team プラン）または Anthropic Console アカウントが必要です。API キーや Bedrock / Vertex AI 経由での認証も利用可能です。",
           "code": [
             {
               "lang": "bash",
-              "label": "プロジェクトで起動",
-              "value": "cd your-project\nclaude"
-            }
-          ],
-          "callouts": [
+              "label": "プロジェクトで起動（初回はログイン画面が開く）",
+              "value": "cd your-project\nclaude",
+              "recommended": true
+            },
             {
-              "type": "info",
-              "text": "初回起動時に権限設定の確認が表示されます。推奨設定を選択してください。"
+              "lang": "bash",
+              "label": "API キーで認証する場合",
+              "value": "export ANTHROPIC_API_KEY=sk-ant-xxxxx\nclaude"
             }
           ],
-          "tags": ["必須", "初心者向け"]
-        },
-        {
-          "id": "plan-selection",
-          "title": "プラン選択",
-          "description": "利用プランの特徴と選び方",
-          "content": "Claude Code は複数のプランで利用できます。\n\nMax プラン: 月額固定で使い放題。個人開発者におすすめ。\nTeam プラン: チーム向け。管理機能付き。\nAPI プラン: 従量課金。CI/CD 統合に最適。",
-          "code": [],
           "callouts": [
             {
               "type": "tip",
-              "text": "まずは Max プランの無料トライアルで試してみるのがおすすめです。"
+              "text": "初回起動時にブラウザでログインするだけで認証完了です。API プランや企業利用では API キー・Bedrock・Vertex AI 経由の認証も選択できます。"
             }
           ],
-          "tags": ["初心者向け"]
+          "tags": ["必須", "初心者向け"]
         }
       ]
     },

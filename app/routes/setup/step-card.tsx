@@ -10,6 +10,21 @@ import { TAG_COLORS } from "./constants";
 import { CodeBlockView } from "./code-block-view";
 import { CalloutBox } from "./callout-box";
 
+function renderInlineLinks(text: string): React.ReactNode[] {
+  const parts = text.split(/(\[[^\]]+\]\([^)]+\))/g);
+  return parts.map((part, i) => {
+    const match = part.match(/^\[([^\]]+)\]\(([^)]+)\)$/);
+    if (match) {
+      return (
+        <a key={i} href={match[2]} target="_blank" rel="noopener noreferrer" style={{ color: "#67E8F9", textDecoration: "underline", textUnderlineOffset: 2 }}>
+          {match[1]}
+        </a>
+      );
+    }
+    return part;
+  });
+}
+
 interface StepCardProps {
   step: Step;
   accentColor: string;
@@ -75,7 +90,7 @@ export function StepCard({ step, accentColor, expanded, onToggle, reducedMotion 
             <div className="px-5 pb-5 flex flex-col gap-4 border-t border-slate-700 pt-4">
               {step.content.split("\n\n").map((paragraph, i) => (
                 <p key={i} className="m-0 text-[13px] leading-[1.8] text-slate-400 font-sans">
-                  {paragraph}
+                  {renderInlineLinks(paragraph)}
                 </p>
               ))}
               {step.code.map((block, i) => (
