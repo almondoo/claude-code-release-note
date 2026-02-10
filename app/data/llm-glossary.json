@@ -1,0 +1,605 @@
+{
+  "categories": [
+    { "id": "infrastructure", "label": "インフラ", "color": "#3B82F6" },
+    { "id": "security", "label": "セキュリティ", "color": "#EF4444" },
+    { "id": "cost", "label": "コスト", "color": "#10B981" },
+    { "id": "model", "label": "モデル", "color": "#A855F7" },
+    { "id": "operations", "label": "運用", "color": "#F59E0B" }
+  ],
+  "terms": [
+    {
+      "id": "llm-gateway",
+      "term": "LLMゲートウェイ",
+      "termEn": "LLM Gateway",
+      "short": "LLM APIへのアクセスを統合管理するミドルウェア",
+      "description": "複数のLLM APIへのリクエストを一元的に管理・制御するプロキシサーバー。認証、レート制限、ログ記録、コスト管理、フォールバックなどの機能を提供する。企業がLLMを本番環境で運用する際の中核的なインフラコンポーネントであり、ガバナンスとセキュリティの強化に不可欠。",
+      "relatedTerms": ["reverse-proxy", "api-gateway", "smart-routing"],
+      "category": "infrastructure"
+    },
+    {
+      "id": "reverse-proxy",
+      "term": "リバースプロキシ",
+      "termEn": "Reverse Proxy",
+      "short": "クライアントとサーバー間のリクエストを仲介するサーバー",
+      "description": "クライアントからのリクエストを受け取り、適切なバックエンドサーバーに転送する中間サーバー。LLM文脈では、APIリクエストのルーティング、SSL終端、キャッシュ、負荷分散などを担当する。NginxやEnvoyが代表的な実装例であり、LLMゲートウェイの基盤技術として広く使われている。",
+      "relatedTerms": ["llm-gateway", "load-balancer", "waf"],
+      "category": "infrastructure"
+    },
+    {
+      "id": "api-gateway",
+      "term": "APIゲートウェイ",
+      "termEn": "API Gateway",
+      "short": "APIリクエストの認証・制御・監視を行うエントリーポイント",
+      "description": "マイクロサービスアーキテクチャにおけるAPIの単一エントリーポイント。認証・認可、レート制限、リクエスト変換、モニタリングなどの共通機能を集約する。LLMゲートウェイはAPIゲートウェイの概念をLLM固有の要件（トークン管理、プロンプトフィルタリング等）に拡張したものと位置付けられる。",
+      "relatedTerms": ["llm-gateway", "reverse-proxy", "microservices"],
+      "category": "infrastructure"
+    },
+    {
+      "id": "load-balancer",
+      "term": "ロードバランサー",
+      "termEn": "Load Balancer",
+      "short": "トラフィックを複数サーバーに分散して負荷を均等化する仕組み",
+      "description": "受信したリクエストを複数のバックエンドサーバーやAPIエンドポイントに分散させることで、可用性とパフォーマンスを向上させる。LLM環境では、複数のモデルプロバイダー間でリクエストを分散させたり、レート制限回避のためのトラフィック制御に活用される。ラウンドロビン、最小接続数、重み付けなどのアルゴリズムが用いられる。",
+      "relatedTerms": ["reverse-proxy", "smart-routing", "model-fallback"],
+      "category": "infrastructure"
+    },
+    {
+      "id": "vpc",
+      "term": "VPC",
+      "termEn": "Virtual Private Cloud",
+      "short": "クラウド上に構築する論理的に分離されたプライベートネットワーク",
+      "description": "パブリッククラウド内に論理的に隔離された仮想ネットワークを構築する技術。サブネット、ルーティング、ファイアウォールルールを独自に設定でき、外部からのアクセスを厳密に制御できる。LLMの企業利用では、機密データがパブリックインターネットを経由しないよう、VPC内でのプライベート接続（AWS PrivateLink等）が推奨される。",
+      "relatedTerms": ["encryption", "zero-data-retention", "casb"],
+      "category": "infrastructure"
+    },
+    {
+      "id": "cdn",
+      "term": "CDN",
+      "termEn": "Content Delivery Network",
+      "short": "コンテンツを地理的に分散配置してレイテンシを低減するネットワーク",
+      "description": "世界各地のエッジサーバーにコンテンツをキャッシュし、ユーザーに最も近いサーバーから配信することで、レイテンシの低減と可用性の向上を実現する。LLM文脈では、静的アセットの配信やエンベディング結果のキャッシュに活用される。Cloudflare Workers等のエッジコンピューティングとの組み合わせも増えている。",
+      "relatedTerms": ["edge-computing", "prompt-caching", "semantic-caching"],
+      "category": "infrastructure"
+    },
+    {
+      "id": "service-mesh",
+      "term": "サービスメッシュ",
+      "termEn": "Service Mesh",
+      "short": "マイクロサービス間通信を管理するインフラストラクチャレイヤー",
+      "description": "マイクロサービス間の通信を透過的に管理するための専用インフラレイヤー。サービスディスカバリー、負荷分散、暗号化、認証、オブザーバビリティなどの機能をアプリケーションコードから分離して提供する。IstioやLinkerdが代表的な実装であり、LLMを含む複雑なマイクロサービス環境での通信管理に有効。",
+      "relatedTerms": ["microservices", "container-orchestration", "observability"],
+      "category": "infrastructure"
+    },
+    {
+      "id": "container-orchestration",
+      "term": "コンテナオーケストレーション",
+      "termEn": "Container Orchestration",
+      "short": "コンテナ化されたアプリケーションのデプロイ・管理・スケーリングを自動化する仕組み",
+      "description": "コンテナのライフサイクル管理、スケーリング、ネットワーキング、ストレージ管理を自動化するプラットフォーム。LLM推論サーバーのデプロイやオートスケーリング、GPUリソースの効率的な割り当てに不可欠。Kubernetesが事実上の標準であり、vLLMなどの推論エンジンのデプロイに広く使われている。",
+      "relatedTerms": ["kubernetes", "serverless", "vllm"],
+      "category": "infrastructure"
+    },
+    {
+      "id": "serverless",
+      "term": "サーバーレス",
+      "termEn": "Serverless",
+      "short": "サーバー管理不要でコードを実行できるクラウドコンピューティングモデル",
+      "description": "インフラの管理をクラウドプロバイダーに完全に委任し、リクエスト単位で自動スケールするコンピューティングモデル。AWS Lambda、Google Cloud Functionsなどが代表例。LLM APIの呼び出しを含む軽量な処理に適しているが、コールドスタートやタイムアウト制限に注意が必要。推論処理自体よりも前後のパイプライン処理に適用されることが多い。",
+      "relatedTerms": ["edge-computing", "microservices", "container-orchestration"],
+      "category": "infrastructure"
+    },
+    {
+      "id": "edge-computing",
+      "term": "エッジコンピューティング",
+      "termEn": "Edge Computing",
+      "short": "データ発生源に近い場所で処理を実行する分散コンピューティングモデル",
+      "description": "ユーザーやデバイスに物理的に近い場所で計算処理を行うことで、レイテンシの削減とデータプライバシーの向上を図るアプローチ。LLM文脈では、小型モデルをエッジで実行してプリフィルタリングを行い、複雑なクエリのみをクラウドのLLMに転送するハイブリッド構成が注目されている。Cloudflare WorkersやAWS Lambda@Edgeが代表的なプラットフォーム。",
+      "relatedTerms": ["cdn", "serverless", "smart-routing"],
+      "category": "infrastructure"
+    },
+    {
+      "id": "microservices",
+      "term": "マイクロサービス",
+      "termEn": "Microservices",
+      "short": "アプリケーションを小さな独立したサービスの集合として構築するアーキテクチャ",
+      "description": "アプリケーションを独立してデプロイ・スケール可能な小さなサービス群に分割するアーキテクチャパターン。各サービスは単一の責任を持ち、API経由で通信する。LLMアプリケーションでは、プロンプト処理、推論、後処理、ログ記録などを独立したサービスとして構成することで、柔軟なスケーリングと保守性を実現する。",
+      "relatedTerms": ["api-gateway", "service-mesh", "container-orchestration"],
+      "category": "infrastructure"
+    },
+    {
+      "id": "kubernetes",
+      "term": "Kubernetes",
+      "termEn": "Kubernetes",
+      "short": "コンテナ化されたワークロードを管理するオープンソースのオーケストレーションプラットフォーム",
+      "description": "Googleが開発し、CNCFが管理するコンテナオーケストレーションの業界標準プラットフォーム。宣言的な構成管理、自動スケーリング、自己修復、ローリングアップデートなどの機能を提供する。LLM推論ワークロードでは、GPUノードプール管理、推論サーバーのオートスケーリング、カナリアデプロイなどに活用される。",
+      "relatedTerms": ["container-orchestration", "gitops", "canary-deploy"],
+      "category": "infrastructure"
+    },
+    {
+      "id": "dlp",
+      "term": "DLP",
+      "termEn": "Data Loss Prevention",
+      "short": "機密データの漏洩を検出・防止するセキュリティ技術",
+      "description": "組織の機密情報（個人情報、企業秘密、知的財産など）が不正に外部に流出することを防止する技術・プロセスの総称。LLM環境では、プロンプトに含まれる機密データがモデルプロバイダーに送信される前に検出・マスキングする仕組みとして重要。LLMゲートウェイの中核機能の一つであり、PIIの自動検出と連携して機能する。",
+      "relatedTerms": ["pii-detection", "guardrails", "casb"],
+      "category": "security"
+    },
+    {
+      "id": "pii-detection",
+      "term": "PII検出",
+      "termEn": "PII Detection",
+      "short": "個人を特定可能な情報を自動的に検出する技術",
+      "description": "氏名、住所、電話番号、メールアドレス、クレジットカード番号、マイナンバーなどの個人識別情報（Personally Identifiable Information）をテキストから自動的に検出する技術。LLMへの入力プロンプトに含まれるPIIを検出し、マスキングまたはブロックすることで、プライバシー保護とコンプライアンス遵守を実現する。正規表現ベースとNLPベースのアプローチがある。",
+      "relatedTerms": ["dlp", "guardrails", "zero-data-retention"],
+      "category": "security"
+    },
+    {
+      "id": "casb",
+      "term": "CASB",
+      "termEn": "Cloud Access Security Broker",
+      "short": "クラウドサービスのセキュリティポリシーを仲介・適用するソリューション",
+      "description": "ユーザーとクラウドサービスの間に配置され、セキュリティポリシーの適用、データ保護、脅威防御、コンプライアンス監視を行うセキュリティソリューション。LLM利用においては、シャドーAI（未承認のAIサービス利用）の可視化と制御、データ流出の防止、利用ポリシーの適用に活用される。Netskope、Microsoft Defender for Cloud Appsなどが代表的な製品。",
+      "relatedTerms": ["dlp", "sso-saml", "rbac"],
+      "category": "security"
+    },
+    {
+      "id": "sso-saml",
+      "term": "SSO/SAML",
+      "termEn": "Single Sign-On / Security Assertion Markup Language",
+      "short": "一度の認証で複数サービスにアクセスできる仕組みとその標準プロトコル",
+      "description": "ユーザーが一度の認証で複数のアプリケーションやサービスにアクセスできる認証方式。SAMLはその実現に使われるXMLベースの標準プロトコル。LLMゲートウェイやAIプラットフォームへのアクセスにおいて、企業の既存ID管理基盤（Okta、Azure AD等）と連携した一元的な認証・認可を実現する。OIDCも同様の目的で広く使われる。",
+      "relatedTerms": ["rbac", "casb", "token-management"],
+      "category": "security"
+    },
+    {
+      "id": "rbac",
+      "term": "RBAC",
+      "termEn": "Role-Based Access Control",
+      "short": "役割に基づいてリソースへのアクセス権限を管理する方式",
+      "description": "ユーザーの役割（ロール）に基づいてシステムリソースへのアクセス権限を制御するセキュリティモデル。LLM環境では、使用可能なモデル、APIの呼び出し上限、アクセス可能なデータソース、プロンプトテンプレートの利用権限などをロール単位で制御する。部門ごとのコスト管理やデータアクセス制御にも直結する。",
+      "relatedTerms": ["sso-saml", "token-management", "cost-allocation"],
+      "category": "security"
+    },
+    {
+      "id": "zero-data-retention",
+      "term": "ZDR（ゼロデータリテンション）",
+      "termEn": "Zero Data Retention",
+      "short": "LLMプロバイダーがユーザーデータを一切保存しないポリシー",
+      "description": "LLMプロバイダーがAPIリクエストおよびレスポンスのデータを処理後に一切保存せず、モデルの学習にも使用しないことを保証するデータ保護ポリシー。企業の機密情報をLLMで処理する際に、データ漏洩やプライバシーリスクを最小化するために重要。AnthropicのAPI利用やAzure OpenAI Serviceなどが対応している。",
+      "relatedTerms": ["dlp", "pii-detection", "encryption"],
+      "category": "security"
+    },
+    {
+      "id": "token-management",
+      "term": "トークン管理",
+      "termEn": "Token Management",
+      "short": "APIキーやアクセストークンのライフサイクルを安全に管理する仕組み",
+      "description": "LLM APIのアクセスに使用されるAPIキー、アクセストークン、リフレッシュトークンなどの発行・配布・ローテーション・失効を管理するプロセス。企業環境では、個別のAPIキーを直接配布するのではなく、LLMゲートウェイを経由して一元管理することで、セキュリティリスクの低減と監査証跡の確保を実現する。HashiCorp Vaultなどのシークレット管理ツールとの連携が推奨される。",
+      "relatedTerms": ["rbac", "sso-saml", "llm-gateway"],
+      "category": "security"
+    },
+    {
+      "id": "encryption",
+      "term": "暗号化",
+      "termEn": "Encryption",
+      "short": "データを不正アクセスから保護するために暗号技術で変換する処理",
+      "description": "データを暗号アルゴリズムにより読み取り不可能な形式に変換し、適切な鍵を持つ者のみが復号できるようにするセキュリティ対策。LLM環境では、転送中の暗号化（TLS/mTLS）と保存時の暗号化（AES-256等）の両方が重要。プロンプトやレスポンスに含まれる機密情報の保護、ログデータの暗号化、エンベディングベクトルの暗号化などに適用される。",
+      "relatedTerms": ["vpc", "zero-data-retention", "service-mesh"],
+      "category": "security"
+    },
+    {
+      "id": "waf",
+      "term": "WAF",
+      "termEn": "Web Application Firewall",
+      "short": "Webアプリケーションを攻撃から保護するファイアウォール",
+      "description": "HTTPトラフィックを監視・フィルタリングし、SQLインジェクション、XSS、プロンプトインジェクションなどの攻撃からWebアプリケーションを保護するセキュリティ装置。LLM環境では、プロンプトインジェクション攻撃やジェイルブレイク試行の検出・ブロックに特化したルールセットが重要になる。AWS WAF、Cloudflare WAFなどが一般的。",
+      "relatedTerms": ["reverse-proxy", "guardrails", "llm-gateway"],
+      "category": "security"
+    },
+    {
+      "id": "guardrails",
+      "term": "ガードレール",
+      "termEn": "Guardrails",
+      "short": "LLMの入出力を制御し安全性を確保する仕組み",
+      "description": "LLMへの入力（プロンプト）と出力（レスポンス）を検査・フィルタリングし、不適切なコンテンツ、機密情報の漏洩、ポリシー違反を防止する仕組みの総称。プロンプトインジェクション検出、トピック制限、出力フォーマット検証、PII検出などが含まれる。NVIDIAのNeMo Guardrailsや、Guardrails AIなどのOSSフレームワークが存在する。",
+      "relatedTerms": ["dlp", "pii-detection", "waf"],
+      "category": "security"
+    },
+    {
+      "id": "prompt-caching",
+      "term": "プロンプトキャッシング",
+      "termEn": "Prompt Caching",
+      "short": "同一プロンプトの処理結果を再利用してコストとレイテンシを削減する技術",
+      "description": "同一または類似のプロンプトに対するLLMの応答結果をキャッシュし、再度同じリクエストが来た際にキャッシュから返すことで、APIコールの削減とレスポンス時間の短縮を実現する技術。Anthropic APIのプロンプトキャッシング機能は、長いシステムプロンプトのプレフィックス部分をキャッシュすることで入力トークンコストを最大90%削減できる。",
+      "relatedTerms": ["semantic-caching", "token-optimization", "finops"],
+      "category": "cost"
+    },
+    {
+      "id": "semantic-caching",
+      "term": "セマンティックキャッシング",
+      "termEn": "Semantic Caching",
+      "short": "意味的に類似したクエリのレスポンスを再利用するキャッシュ手法",
+      "description": "完全一致ではなく、エンベディングを用いた意味的類似度に基づいてキャッシュのヒット判定を行うキャッシュ手法。「東京の天気は？」と「東京の今日の天気を教えて」のように、表現は異なるが意味が同じクエリに対して同一のキャッシュを返すことができる。類似度の閾値設定が精度に大きく影響するため、ユースケースに応じたチューニングが必要。",
+      "relatedTerms": ["prompt-caching", "embedding", "token-optimization"],
+      "category": "cost"
+    },
+    {
+      "id": "batch-api",
+      "term": "バッチAPI",
+      "termEn": "Batch API",
+      "short": "大量のリクエストを一括処理して割引料金を適用するAPI利用形態",
+      "description": "リアルタイム性を必要としない大量のLLMリクエストをまとめて送信し、非同期で結果を受け取る利用形態。通常のAPI呼び出しと比較して大幅な割引（Anthropicの場合50%OFF）が適用される。データ分析、コンテンツ生成、分類タスクなど、即座の応答が不要なバッチ処理ワークロードに最適。処理完了まで最大24時間かかる場合がある。",
+      "relatedTerms": ["token-optimization", "finops", "cost-allocation"],
+      "category": "cost"
+    },
+    {
+      "id": "token-optimization",
+      "term": "トークン最適化",
+      "termEn": "Token Optimization",
+      "short": "LLMのトークン消費量を削減してコストと速度を改善する手法群",
+      "description": "プロンプトの圧縮、不要なコンテキストの削除、効率的なプロンプト設計などにより、LLMに送受信するトークン数を最小化する手法の総称。システムプロンプトの最適化、Few-shotの例示数の調整、出力フォーマットの指定による冗長性削減などが含まれる。トークン数はコストに直結するため、大規模運用ではROIへの影響が非常に大きい。",
+      "relatedTerms": ["prompt-caching", "prompt-engineering", "finops"],
+      "category": "cost"
+    },
+    {
+      "id": "smart-routing",
+      "term": "スマートルーティング",
+      "termEn": "Smart Routing",
+      "short": "リクエスト内容に応じて最適なモデルに自動振り分けする機能",
+      "description": "プロンプトの複雑さ、必要な精度、レイテンシ要件、コスト制約などに基づいて、リクエストを最適なLLMモデルに自動的にルーティングする機能。簡単な質問は軽量モデル（Claude Haiku等）に、複雑な推論は高性能モデル（Claude Opus等）に振り分けることで、コストとパフォーマンスのバランスを最適化する。LLMゲートウェイの高度な機能として実装される。",
+      "relatedTerms": ["llm-gateway", "multi-model-strategy", "model-fallback"],
+      "category": "cost"
+    },
+    {
+      "id": "cost-allocation",
+      "term": "コストアロケーション",
+      "termEn": "Cost Allocation",
+      "short": "LLM利用コストを部門・プロジェクト単位で配分・追跡する仕組み",
+      "description": "組織全体のLLM APIコストを、部門、チーム、プロジェクト、アプリケーションなどの単位で正確に配分し、追跡・可視化する仕組み。APIキーやユーザーIDに基づくタグ付けにより、誰がいくら使っているかを明確にする。予算管理、利用最適化の意思決定、チャージバック（部門間課金）の基盤となる。",
+      "relatedTerms": ["finops", "chargeback", "rbac"],
+      "category": "cost"
+    },
+    {
+      "id": "finops",
+      "term": "FinOps",
+      "termEn": "FinOps (Cloud Financial Operations)",
+      "short": "クラウドコストの可視化・最適化・ガバナンスを推進する運用手法",
+      "description": "エンジニアリング、財務、ビジネスの各チームが協力して、クラウド利用のコスト効率を最大化するための運用フレームワーク。LLM運用では、モデル別・用途別のコスト追跡、予算アラート、最適なモデル選択、キャッシュ戦略の評価などが含まれる。「情報提供→最適化→運用」のサイクルを回すことで、継続的なコスト改善を実現する。",
+      "relatedTerms": ["cost-allocation", "chargeback", "token-optimization"],
+      "category": "cost"
+    },
+    {
+      "id": "chargeback",
+      "term": "チャージバック",
+      "termEn": "Chargeback",
+      "short": "LLM利用コストを利用部門に直接課金する仕組み",
+      "description": "IT部門が一括で支払うLLM APIコストを、実際の利用量に基づいて各事業部門に課金する会計処理の仕組み。各部門にコスト意識を持たせ、無駄な利用を抑制する効果がある。ショーバック（利用量の可視化のみで実際の課金は行わない方式）から段階的に導入する企業も多い。コストアロケーションの仕組みが前提となる。",
+      "relatedTerms": ["cost-allocation", "finops", "rbac"],
+      "category": "cost"
+    },
+    {
+      "id": "reserved-capacity",
+      "term": "リザーブドキャパシティ",
+      "termEn": "Reserved Capacity",
+      "short": "LLM APIの処理能力を事前予約して安定したスループットを確保する契約形態",
+      "description": "LLMプロバイダーと事前に一定の処理能力（スループット）を契約・予約することで、安定したパフォーマンスとコスト削減を実現する利用形態。AnthropicやOpenAIなどが大口顧客向けに提供しており、通常のオンデマンド料金と比較して大幅な割引が適用される。利用量が予測可能な大規模ワークロードに適しているが、未使用分のコストが発生するリスクがある。",
+      "relatedTerms": ["finops", "capacity-planning", "sla"],
+      "category": "cost"
+    },
+    {
+      "id": "rag",
+      "term": "RAG",
+      "termEn": "Retrieval-Augmented Generation",
+      "short": "外部知識を検索してLLMの回答精度を向上させる手法",
+      "description": "LLMが回答を生成する前に、関連する情報を外部のナレッジベース（ベクトルDB、ドキュメントストアなど）から検索し、その情報をコンテキストとしてプロンプトに含めることで、回答の正確性と最新性を向上させる手法。ファインチューニングと比較して、データの更新が容易で、ハルシネーションの抑制にも効果がある。企業のLLM活用で最も普及している手法の一つ。",
+      "relatedTerms": ["embedding", "prompt-engineering", "mcp"],
+      "category": "model"
+    },
+    {
+      "id": "embedding",
+      "term": "エンベディング",
+      "termEn": "Embedding",
+      "short": "テキストを数値ベクトルに変換して意味的な類似性を計算可能にする技術",
+      "description": "テキスト、画像、音声などのデータを高次元の数値ベクトル（密ベクトル）に変換する技術。意味的に類似したデータは近いベクトルにマッピングされるため、類似検索、クラスタリング、分類などに活用できる。RAGシステムではドキュメントの検索に不可欠であり、OpenAIのtext-embedding-3やCohereのEmbed v3などの専用モデルが使われる。",
+      "relatedTerms": ["rag", "semantic-caching", "fine-tuning"],
+      "category": "model"
+    },
+    {
+      "id": "fine-tuning",
+      "term": "ファインチューニング",
+      "termEn": "Fine-Tuning",
+      "short": "特定のタスクやドメインに合わせてLLMを追加学習させる手法",
+      "description": "事前学習済みのLLMを、特定のドメインやタスクに特化したデータセットで追加学習させることで、そのタスクにおける性能を向上させる手法。プロンプトエンジニアリングやRAGでは達成できない高い精度や特定の出力形式が必要な場合に検討される。学習データの品質管理、計算コスト、モデルの汎用性とのトレードオフを考慮する必要がある。",
+      "relatedTerms": ["rag", "quantization", "prompt-engineering"],
+      "category": "model"
+    },
+    {
+      "id": "quantization",
+      "term": "量子化",
+      "termEn": "Quantization",
+      "short": "モデルパラメータの精度を下げてメモリ使用量と推論速度を改善する技術",
+      "description": "モデルの重みパラメータをFP32からFP16、INT8、INT4などの低精度表現に変換することで、メモリ使用量の削減と推論速度の向上を実現する技術。GPTQ、AWQ、GGUF等の手法があり、精度劣化を最小限に抑えながら大幅な効率化が可能。自社ホスティングでLLMを運用する際に、GPUコストの削減とスループット向上に直結する。",
+      "relatedTerms": ["vllm", "inference-engine", "fine-tuning"],
+      "category": "model"
+    },
+    {
+      "id": "vllm",
+      "term": "vLLM",
+      "termEn": "vLLM",
+      "short": "高速なLLM推論とサービングを実現するオープンソースライブラリ",
+      "description": "PagedAttentionアルゴリズムを採用した高速なLLM推論・サービングエンジン。KVキャッシュのメモリ管理を最適化することで、従来の手法と比較して2-4倍のスループットを実現する。HuggingFace Transformersモデルとの互換性が高く、連続バッチ処理、テンソル並列処理などの最適化技術を搭載している。自社ホスティングでのLLM運用における事実上の標準ツール。",
+      "relatedTerms": ["inference-engine", "quantization", "container-orchestration"],
+      "category": "model"
+    },
+    {
+      "id": "mcp",
+      "term": "MCP",
+      "termEn": "Model Context Protocol",
+      "short": "LLMと外部ツール・データソースを接続する標準プロトコル",
+      "description": "Anthropicが提唱するオープンプロトコルで、LLMアプリケーションが外部のデータソースやツールと安全かつ標準化された方法で連携するための仕様。クライアント-サーバーモデルを採用し、ツール呼び出し、リソースアクセス、プロンプト提供などの機能を提供する。LLMのエコシステムにおけるUSB-Cのような統一インターフェースを目指しており、Claude Codeなどで活用されている。",
+      "relatedTerms": ["rag", "prompt-engineering", "multi-model-strategy"],
+      "category": "model"
+    },
+    {
+      "id": "prompt-engineering",
+      "term": "プロンプトエンジニアリング",
+      "termEn": "Prompt Engineering",
+      "short": "LLMから最適な出力を引き出すためのプロンプト設計技法",
+      "description": "LLMに対する入力（プロンプト）を体系的に設計・最適化することで、望ましい出力の品質、形式、正確性を向上させる技術・手法。Zero-shot、Few-shot、Chain-of-Thought、Tree-of-Thoughtなどの手法がある。企業環境では、プロンプトテンプレートの標準化、バージョン管理、A/Bテストなどの運用プラクティスも重要になる。",
+      "relatedTerms": ["token-optimization", "rag", "guardrails"],
+      "category": "model"
+    },
+    {
+      "id": "multi-model-strategy",
+      "term": "マルチモデル戦略",
+      "termEn": "Multi-Model Strategy",
+      "short": "複数のLLMを用途に応じて使い分ける運用アプローチ",
+      "description": "単一のLLMプロバイダーに依存せず、タスクの特性（精度要件、速度、コスト）に応じて複数のモデルを戦略的に使い分けるアプローチ。Claude、GPT、Gemini、オープンソースモデルなどを組み合わせることで、ベンダーロックインの回避、コスト最適化、障害時の可用性確保を実現する。LLMゲートウェイがこの戦略を技術的に支える基盤となる。",
+      "relatedTerms": ["smart-routing", "model-fallback", "llm-gateway"],
+      "category": "model"
+    },
+    {
+      "id": "model-fallback",
+      "term": "モデルフォールバック",
+      "termEn": "Model Fallback",
+      "short": "プライマリモデルの障害時に代替モデルへ自動切替する仕組み",
+      "description": "プライマリのLLMが利用不可（障害、レート制限、タイムアウト等）になった際に、自動的に代替のモデルにリクエストをリダイレクトする仕組み。サービスの可用性を維持するために重要な機能であり、LLMゲートウェイで実装されることが多い。フォールバック先のモデルは、コストやレイテンシが異なる場合があるため、ビジネス要件に応じた優先順位の設定が必要。",
+      "relatedTerms": ["multi-model-strategy", "smart-routing", "sla"],
+      "category": "model"
+    },
+    {
+      "id": "inference-engine",
+      "term": "推論エンジン",
+      "termEn": "Inference Engine",
+      "short": "LLMモデルを効率的に実行して推論結果を提供するソフトウェア",
+      "description": "学習済みのLLMモデルを本番環境で効率的に実行するためのソフトウェアスタック。バッチ処理、KVキャッシュ管理、テンソル並列処理、量子化サポートなどの最適化技術を実装している。vLLM、TensorRT-LLM、TGI（Text Generation Inference）、llama.cppなどが代表的な実装であり、自社ホスティングでのLLM運用の中核を担う。",
+      "relatedTerms": ["vllm", "quantization", "kubernetes"],
+      "category": "model"
+    },
+    {
+      "id": "sla",
+      "term": "SLA",
+      "termEn": "Service Level Agreement",
+      "short": "サービスの品質水準を定義・保証する契約上の合意",
+      "description": "サービスプロバイダーと顧客の間で合意されるサービス品質の保証水準。可用性（99.9%等）、レイテンシ（P95/P99）、スループット、エラーレートなどの指標が定められる。LLM環境では、APIの応答時間、可用性、レート制限、障害時の対応時間などが含まれる。SLO（目標値）とSLI（実測値）を組み合わせて運用する。",
+      "relatedTerms": ["observability", "model-fallback", "capacity-planning"],
+      "category": "operations"
+    },
+    {
+      "id": "observability",
+      "term": "オブザーバビリティ",
+      "termEn": "Observability",
+      "short": "システムの内部状態を外部から把握・分析可能にする仕組み",
+      "description": "メトリクス、ログ、トレース（いわゆる3本柱）を通じて、システムの内部状態を包括的に把握・分析する能力。LLM環境では、リクエスト/レスポンスのログ、トークン使用量、レイテンシ分布、エラーレート、モデル別のパフォーマンスなどを継続的に監視する。Datadog、Grafana、OpenTelemetryなどのツールが活用され、LangSmithやLangfuseなどのLLM特化型オブザーバビリティツールも台頭している。",
+      "relatedTerms": ["sla", "sre", "incident-management"],
+      "category": "operations"
+    },
+    {
+      "id": "sre",
+      "term": "SRE",
+      "termEn": "Site Reliability Engineering",
+      "short": "ソフトウェアエンジニアリングの手法でシステムの信頼性を向上させる実践",
+      "description": "Googleが提唱した、ソフトウェアエンジニアリングのアプローチでインフラの運用課題を解決する実践体系。SLI/SLO/SLAの定義、エラーバジェット、トイルの削減、自動化などの原則に基づく。LLM基盤の運用においても、モデルの可用性管理、障害対応の自動化、パフォーマンス最適化などにSREの考え方が適用される。",
+      "relatedTerms": ["sla", "observability", "incident-management"],
+      "category": "operations"
+    },
+    {
+      "id": "canary-deploy",
+      "term": "カナリアデプロイ",
+      "termEn": "Canary Deployment",
+      "short": "新バージョンを少数のトラフィックで先行検証するデプロイ手法",
+      "description": "新しいバージョンのアプリケーションやモデルを、まず全体のごく一部（例：5%）のトラフィックにのみ公開し、問題がないことを確認してから段階的に展開する手法。LLM環境では、新しいモデルバージョン、プロンプトテンプレートの変更、ゲートウェイ設定の更新などを安全にリリースするために活用される。メトリクスベースの自動ロールバック機能と組み合わせることが推奨される。",
+      "relatedTerms": ["blue-green-deploy", "gitops", "observability"],
+      "category": "operations"
+    },
+    {
+      "id": "blue-green-deploy",
+      "term": "ブルーグリーンデプロイ",
+      "termEn": "Blue-Green Deployment",
+      "short": "本番環境を2系統用意して瞬時に切り替えるデプロイ手法",
+      "description": "同一の本番環境を2つ（Blue=現行、Green=新版）用意し、新バージョンをGreen環境にデプロイ後、ロードバランサーのルーティングを切り替えることで瞬時にリリースする手法。問題発生時は即座にBlue環境に戻せるため、ダウンタイムとリスクを最小化できる。LLMゲートウェイやAPIサーバーのアップグレードに適しているが、環境を2つ維持するコストが発生する。",
+      "relatedTerms": ["canary-deploy", "load-balancer", "gitops"],
+      "category": "operations"
+    },
+    {
+      "id": "incident-management",
+      "term": "インシデント管理",
+      "termEn": "Incident Management",
+      "short": "システム障害の検知から復旧・再発防止までを体系的に管理するプロセス",
+      "description": "システム障害やサービス品質低下を迅速に検知・対応・復旧し、事後分析を通じて再発を防止する一連のプロセス。LLM環境固有のインシデントとして、モデルプロバイダーの障害、レート制限の超過、異常なトークン消費、プロンプトインジェクション攻撃などがある。PagerDuty、OpsGenieなどのオンコール管理ツールと、ポストモーテム文化の確立が重要。",
+      "relatedTerms": ["sre", "observability", "sla"],
+      "category": "operations"
+    },
+    {
+      "id": "capacity-planning",
+      "term": "キャパシティプランニング",
+      "termEn": "Capacity Planning",
+      "short": "将来の需要を予測してシステムリソースを適切に計画する活動",
+      "description": "現在と将来のワークロード需要を分析・予測し、それに対応するための計算リソース、ネットワーク帯域、API利用枠などを事前に計画するプロセス。LLM環境では、トークン使用量の増加傾向、新規プロジェクトの需要、ピーク時のトラフィックパターンなどを考慮して、APIレート制限の引き上げ交渉やリザーブドキャパシティの契約を計画する。",
+      "relatedTerms": ["reserved-capacity", "sla", "load-testing"],
+      "category": "operations"
+    },
+    {
+      "id": "load-testing",
+      "term": "負荷テスト",
+      "termEn": "Load Testing",
+      "short": "システムに大量のリクエストを送信して性能と安定性を検証するテスト",
+      "description": "本番環境を模した条件でシステムに大量のリクエストを送信し、スループット、レイテンシ、エラーレート、リソース使用率などを測定する性能テスト。LLM環境では、ゲートウェイのスループット限界、同時接続数の上限、キャッシュの効果、フォールバック機能の動作などを検証する。k6、Locust、Gatlingなどのツールが使われる。",
+      "relatedTerms": ["capacity-planning", "sla", "sre"],
+      "category": "operations"
+    },
+    {
+      "id": "gitops",
+      "term": "GitOps",
+      "termEn": "GitOps",
+      "short": "Gitリポジトリを信頼の源としてインフラとアプリをデプロイする運用手法",
+      "description": "Gitリポジトリをシステムの望ましい状態の唯一の信頼源（Single Source of Truth）とし、リポジトリへの変更を自動的にインフラやアプリケーションに反映するデプロイ・運用手法。LLM環境では、ゲートウェイの設定、プロンプトテンプレート、モデルルーティングルール、ガードレール設定などをGitで管理し、PRベースのレビュー・承認フローを経てデプロイする。ArgoCD、Flux CDが代表的なツール。",
+      "relatedTerms": ["kubernetes", "canary-deploy", "blue-green-deploy"],
+      "category": "operations"
+    },
+    {
+      "id": "mtls",
+      "term": "相互TLS認証",
+      "termEn": "Mutual TLS",
+      "short": "クライアントとサーバーの双方が証明書で相互認証するTLS拡張",
+      "description": "通常のTLSではサーバーのみが証明書を提示するが、mTLSではクライアント側も証明書を提示して双方向の認証を行う。LLM基盤では、サービスメッシュ（Istio / Linkerd）を通じてマイクロサービス間の全通信にmTLSを適用し、中間者攻撃の防止とサービスの真正性保証を実現する。ゼロトラストアーキテクチャの基盤技術。",
+      "relatedTerms": ["zero-trust", "service-mesh", "encryption"],
+      "category": "security"
+    },
+    {
+      "id": "zero-trust",
+      "term": "ゼロトラスト",
+      "termEn": "Zero Trust",
+      "short": "ネットワーク位置に関わらず全アクセスを検証するセキュリティモデル",
+      "description": "「信頼しない、常に検証する」を原則とし、ネットワーク内外を問わずすべてのアクセスに対して認証・認可・暗号化を要求するセキュリティモデル。LLM基盤では、Identity-Aware Proxy（IAP）による認証、mTLSによるサービス間通信の暗号化、マイクロセグメンテーションによるネットワーク分離を組み合わせて実装する。BeyondCorp / ZTNAの考え方に基づく。",
+      "relatedTerms": ["mtls", "iap", "service-mesh"],
+      "category": "security"
+    },
+    {
+      "id": "private-link",
+      "term": "プライベートリンク",
+      "termEn": "Private Link",
+      "short": "クラウドサービスへの接続をパブリックインターネットを経由せず確立する技術",
+      "description": "クラウドプロバイダーのバックボーンネットワーク内でサービスへのプライベート接続を確立する技術。AWS PrivateLink、Azure Private Endpoint、GCP Private Service Connectが各クラウドの実装。LLM APIへの通信を完全にプライベートネットワーク内に閉じることで、盗聴リスクを排除し、規制要件への適合を容易にする。",
+      "relatedTerms": ["vpc", "zero-trust", "encryption"],
+      "category": "security"
+    },
+    {
+      "id": "prompt-injection",
+      "term": "プロンプトインジェクション",
+      "termEn": "Prompt Injection",
+      "short": "LLMへの入力を操作して意図しない動作を引き起こす攻撃手法",
+      "description": "ユーザー入力や外部データソースに攻撃コードを埋め込み、LLMのシステムプロンプトを上書きまたは回避させる攻撃手法。OWASP Top 10 for LLM Applications（2025）で最上位にランクされている。直接的インジェクション（ユーザーが直接入力）と間接的インジェクション（RAGなどで読み込まれる外部データに仕込まれる）の2種類がある。多層防御アプローチが必要。",
+      "relatedTerms": ["guardrails", "red-teaming", "waf"],
+      "category": "security"
+    },
+    {
+      "id": "opa",
+      "term": "Open Policy Agent",
+      "termEn": "OPA",
+      "short": "ポリシーをコードとして定義・実行する汎用ポリシーエンジン",
+      "description": "Regoという宣言的言語でポリシーを記述し、APIや各種システムでポリシー判定を実行するオープンソースのポリシーエンジン。LLM基盤では、ABAC（属性ベースアクセス制御）のポリシー評価、データ分類に基づくLLM利用制限、Kubernetes環境でのGatekeeperによるポリシーエンフォースメントに活用される。CNCFの卒業プロジェクト。",
+      "relatedTerms": ["abac", "rbac", "zero-trust"],
+      "category": "security"
+    },
+    {
+      "id": "sbom",
+      "term": "ソフトウェア部品表",
+      "termEn": "SBOM",
+      "short": "ソフトウェアを構成する全コンポーネントの一覧表",
+      "description": "Software Bill of Materialsの略。ソフトウェア製品に含まれるすべてのコンポーネント（ライブラリ、フレームワーク、モデルファイル等）とそのバージョン、ライセンス情報を体系的に記録した文書。LLMサプライチェーンセキュリティにおいて、モデルの依存関係追跡と脆弱性管理に不可欠。SPDX、CycloneDXなどの標準フォーマットがある。",
+      "relatedTerms": ["cosign", "safetensors", "supply-chain"],
+      "category": "security"
+    },
+    {
+      "id": "abac",
+      "term": "属性ベースアクセス制御",
+      "termEn": "ABAC",
+      "short": "ユーザー・リソース・環境の属性に基づいてアクセスを制御する方式",
+      "description": "Attribute-Based Access Controlの略。ユーザー属性（部署、役職）、リソース属性（データ分類レベル）、環境属性（時間帯、接続元ネットワーク）の組み合わせでアクセス可否を動的に判定する方式。RBACよりも細粒度の制御が可能で、LLM基盤では「engineeringチームがVPN経由でInternalデータに対してのみGPT-4oを使用可能」といった複合条件を表現できる。",
+      "relatedTerms": ["rbac", "opa", "zero-trust"],
+      "category": "security"
+    },
+    {
+      "id": "ner",
+      "term": "固有表現認識",
+      "termEn": "NER",
+      "short": "テキストから人名・組織名・地名などの固有表現を自動抽出する技術",
+      "description": "Named Entity Recognitionの略。自然言語処理の基本タスクの一つで、テキスト中の人名、組織名、住所、日付などの固有表現を識別・分類する。LLMセキュリティでは、正規表現では検出困難な非定型のPII（個人識別情報）を文脈から検出するために使用される。日本語対応にはGiNZAやMeCab辞書との統合が効果的。Microsoft Presidioが代表的な実装。",
+      "relatedTerms": ["pii-detection", "dlp", "guardrails"],
+      "category": "security"
+    },
+    {
+      "id": "data-classification",
+      "term": "データ分類",
+      "termEn": "Data Classification",
+      "short": "情報の機密度に応じてデータを分類し適切な保護レベルを適用する仕組み",
+      "description": "組織のデータをPublic（公開）、Internal（社内限定）、Confidential（機密）、Restricted（最高機密）の4段階などに分類し、各レベルに応じたセキュリティ制御を適用する仕組み。LLM基盤では、データ分類に基づいてLLM利用の可否やルーティング先（外部API/ゲートウェイ/プライベートモデル）を自動判定する。DLPとの連動が不可欠。",
+      "relatedTerms": ["dlp", "data-residency", "zero-data-retention"],
+      "category": "security"
+    },
+    {
+      "id": "red-teaming",
+      "term": "レッドチーム",
+      "termEn": "Red Teaming",
+      "short": "攻撃者の視点でシステムの脆弱性を能動的に検証するテスト手法",
+      "description": "攻撃者の手法を模倣してシステムのセキュリティ脆弱性を能動的に発見するテスト手法。LLM環境では、Prompt Injection耐性テスト、Jailbreak試行、情報漏洩テスト、ツール悪用テストなどを実施する。NVIDIAのGarak、MicrosoftのPyRIT、HarmBenchなどの自動テストツールと、手動テストを組み合わせて継続的に実施する。",
+      "relatedTerms": ["prompt-injection", "guardrails", "sbom"],
+      "category": "security"
+    },
+    {
+      "id": "egress-control",
+      "term": "Egress制御",
+      "termEn": "Egress Control",
+      "short": "ネットワークからの外向き通信を制限・監視するセキュリティ制御",
+      "description": "システムから外部への通信（Egress）をホワイトリスト方式で制限し、許可された宛先への通信のみを許可するセキュリティ制御。LLMエージェントがツール利用（Function Calling / MCP）で外部APIを呼び出す際に、意図しない情報流出や悪意あるサーバーへの通信を防止する。Kubernetes NetworkPolicyやファイアウォールルールで実装する。",
+      "relatedTerms": ["zero-trust", "private-link", "waf"],
+      "category": "security"
+    },
+    {
+      "id": "audit-log",
+      "term": "監査ログ",
+      "termEn": "Audit Log",
+      "short": "システム操作の記録を監査目的で保持・管理するログ",
+      "description": "誰が、いつ、何を、どのように操作したかを記録し、コンプライアンスや不正検知に活用するログ。LLM基盤では、全リクエスト/レスポンスのメタデータ、プロンプト/レスポンスのハッシュまたは全文、DLP検出結果、ガードレールのトリガー情報を記録する。ログレベルを3段階（メタデータ/ハッシュ/全文）に分け、コストと監査要件のバランスを取る設計が推奨される。",
+      "relatedTerms": ["data-residency", "opa", "observability"],
+      "category": "security"
+    },
+    {
+      "id": "data-residency",
+      "term": "データレジデンシー",
+      "termEn": "Data Residency",
+      "short": "データの物理的な保管・処理場所を特定のリージョンに限定する要件",
+      "description": "データが特定の地理的リージョン内でのみ保管・処理されることを保証する要件。GDPR、個人情報保護法、FISC安全対策基準などの規制に対応するために必要。LLM利用では、プロンプトとレスポンスが処理されるリージョンを確認し、日本リージョン対応のサービス（AWS Bedrock東京、Azure OpenAI Japan East等）を選択する。",
+      "relatedTerms": ["audit-log", "data-classification", "zero-data-retention"],
+      "category": "security"
+    },
+    {
+      "id": "safetensors",
+      "term": "safetensors",
+      "termEn": "safetensors",
+      "short": "テンソルデータのみを格納するセキュアなモデルファイル形式",
+      "description": "Hugging Faceが開発した、機械学習モデルの重みを安全に保存するファイル形式。従来のPickle形式（.bin / .pt）は任意のPythonコード実行が可能でRCE（Remote Code Execution）のリスクがあるが、safetensorsはテンソルデータのみを格納しコード実行のリスクがない。プライベートデプロイでは必ずsafetensors形式を使用すべき。",
+      "relatedTerms": ["sbom", "cosign"],
+      "category": "security"
+    },
+    {
+      "id": "cosign",
+      "term": "Cosign/Sigstore",
+      "termEn": "Cosign",
+      "short": "コンテナイメージやアーティファクトの署名・検証を行うツール",
+      "description": "Sigstoreプロジェクトの一部で、コンテナイメージやソフトウェアアーティファクトにデジタル署名を付与し、その完全性を検証するツール。LLMサプライチェーンセキュリティでは、モデルファイルのダウンロード後にcosignで署名を検証し、改ざんされていないことを確認する。SBOMと組み合わせて使用することで、包括的なサプライチェーン保護を実現する。",
+      "relatedTerms": ["sbom", "safetensors"],
+      "category": "security"
+    },
+    {
+      "id": "iap",
+      "term": "Identity-Aware Proxy",
+      "termEn": "IAP",
+      "short": "ユーザーIDとデバイス状態に基づいてアクセスを制御するプロキシ",
+      "description": "ネットワーク位置ではなく、ユーザーのアイデンティティとデバイスのセキュリティ状態（ポスチャー）に基づいてアプリケーションへのアクセスを制御するプロキシ。Google IAP、Azure AD Application Proxy、Cloudflare Accessが代表例。LLM基盤では、ゲートウェイの前段に配置してゼロトラストアクセスを実現し、VPN不要のセキュアなアクセスを提供する。",
+      "relatedTerms": ["zero-trust", "sso-saml", "mtls"],
+      "category": "security"
+    }
+  ]
+}

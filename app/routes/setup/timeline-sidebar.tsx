@@ -48,12 +48,12 @@ export function TimelineSidebar({ sections, activeSectionId, onSectionClick, fil
                 {/* Label */}
                 <div className="flex flex-col min-w-0">
                   <span
-                    className="text-[13px] font-medium truncate transition-colors duration-300"
+                    className="text-[14px] font-medium truncate transition-colors duration-300"
                     style={{ color: isActive ? colors.color : "#94A3B8" }}
                   >
                     {section.name}
                   </span>
-                  <span className="text-[11px] text-slate-500">
+                  <span className="text-[12px] text-slate-500">
                     {section.steps.length} ステップ
                   </span>
                 </div>

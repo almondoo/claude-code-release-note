@@ -5,7 +5,7 @@ export function CommitGuidePanel(): React.JSX.Element {
   return (
     <div className="bg-surface rounded-xl border border-slate-700 p-6">
       <div
-        className="text-[13px] font-bold tracking-wide uppercase font-mono mb-5 flex items-center gap-2"
+        className="text-[14px] font-bold tracking-wide uppercase font-mono mb-5 flex items-center gap-2"
         style={{ color: "#5EEAD4" }}
       >
         <svg

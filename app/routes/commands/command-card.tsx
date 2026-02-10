@@ -32,7 +32,7 @@ export function CommandCard({
           {cmd.name}
         </code>
         {cmd.args && (
-          <span className="text-[11px] text-slate-500 font-mono whitespace-nowrap overflow-hidden text-ellipsis">
+          <span className="text-[12px] text-slate-500 font-mono whitespace-nowrap overflow-hidden text-ellipsis">
             {cmd.args}
           </span>
         )}
@@ -41,7 +41,7 @@ export function CommandCard({
         {cmd.description}
       </p>
       <span
-        className="text-[10px] font-semibold rounded self-start whitespace-nowrap mt-auto"
+        className="text-[11px] font-semibold rounded self-start whitespace-nowrap mt-auto"
         style={{
           padding: "2px 8px",
           background: accentColor + "18",

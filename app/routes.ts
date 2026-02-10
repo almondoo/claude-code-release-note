@@ -8,4 +8,5 @@ export default [
   route("directory", "routes/directory/index.tsx"),
   route("setup", "routes/setup/index.tsx"),
   route("best-practices", "routes/best-practices/index.tsx"),
+  route("llm-infra-guide", "routes/llm-infra-guide/index.tsx"),
 ] satisfies RouteConfig;

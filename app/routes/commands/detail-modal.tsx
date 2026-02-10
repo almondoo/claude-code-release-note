@@ -34,13 +34,13 @@ export function getModalFields(data: ModalData): {
       extraHeader: (
         <div className="flex gap-1.5 mt-2 flex-wrap">
           <span
-            className="text-[10px] font-semibold rounded"
+            className="text-[11px] font-semibold rounded"
             style={{ padding: "2px 8px", background: accentColor + "18", color: accentColor }}
           >
             {data.categoryName}
           </span>
           <span
-            className="text-[10px] font-semibold rounded"
+            className="text-[11px] font-semibold rounded"
             style={{ padding: "2px 8px", background: "rgba(16, 185, 129, 0.15)", color: "#6EE7B7" }}
           >
             スラッシュコマンド
@@ -67,7 +67,7 @@ export function getModalFields(data: ModalData): {
       extraHeader: (
         <div className="flex gap-1.5 mt-2">
           <span
-            className="text-[10px] font-semibold rounded"
+            className="text-[11px] font-semibold rounded"
             style={{ padding: "2px 8px", background: "rgba(139, 92, 246, 0.15)", color: CLI_ACCENT }}
           >
             CLI {data.kind === "command" ? "Command" : "Flag"}
@@ -100,7 +100,7 @@ export function getModalFields(data: ModalData): {
     extraHeader: (
       <div className="flex gap-1.5 mt-2">
         <span
-          className="text-[10px] font-semibold rounded"
+          className="text-[11px] font-semibold rounded"
           style={{ padding: "2px 8px", background: "rgba(249, 115, 22, 0.15)", color: SHORTCUT_ACCENT }}
         >
           ショートカット
@@ -138,7 +138,7 @@ export function DetailModal({
       headerContent={
         <>
           {title}
-          <div className="text-[13px] text-slate-400 mt-1.5 font-sans leading-[1.6]">
+          <div className="text-[14px] text-slate-400 mt-1.5 font-sans leading-[1.6]">
             {description}
           </div>
           {extraHeader}
@@ -147,22 +147,22 @@ export function DetailModal({
     >
       {/* Detail */}
       <div className="flex flex-col gap-2.5">
-        <div className="flex items-center gap-1.5 text-cyan-300 text-[11px] font-bold tracking-wide uppercase font-mono">
+        <div className="flex items-center gap-1.5 text-cyan-300 text-[12px] font-bold tracking-wide uppercase font-mono">
           <DetailInfoIcon />
           詳細説明
         </div>
-        <p className="m-0 text-[13px] leading-[1.8] text-slate-400 font-sans">
+        <p className="m-0 text-[14px] leading-[1.8] text-slate-400 font-sans">
           {detail}
         </p>
       </div>
 
       {/* When to use */}
       <div className="flex flex-col gap-2.5">
-        <div className="flex items-center gap-1.5 text-orange-300 text-[11px] font-bold tracking-wide uppercase font-mono">
+        <div className="flex items-center gap-1.5 text-orange-300 text-[12px] font-bold tracking-wide uppercase font-mono">
           <TimingIcon />
           使うタイミング
         </div>
-        <p className="m-0 text-[13px] leading-[1.8] text-slate-400 font-sans">
+        <p className="m-0 text-[14px] leading-[1.8] text-slate-400 font-sans">
           {whenToUse}
         </p>
       </div>

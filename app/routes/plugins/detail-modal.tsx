@@ -30,12 +30,12 @@ export function DetailModal({ plugin, accentColor, onClose, reducedMotion }: Det
           <code className="font-mono text-base font-bold break-all" style={{ color: accentColor }}>
             {plugin.displayName}
           </code>
-          <div className="text-[13px] text-slate-400 mt-1.5 font-sans leading-relaxed">
+          <div className="text-[14px] text-slate-400 mt-1.5 font-sans leading-relaxed">
             {plugin.description}
           </div>
           <div className="flex gap-1.5 mt-2 flex-wrap">
             {plugin.binary && (
-              <span className="text-[10px] font-semibold rounded px-2 py-[2px] bg-cyan-500/15 text-cyan-300">
+              <span className="text-[11px] font-semibold rounded px-2 py-[2px] bg-cyan-500/15 text-cyan-300">
                 LSP: {plugin.binary}
               </span>
             )}
@@ -45,7 +45,7 @@ export function DetailModal({ plugin, accentColor, onClose, reducedMotion }: Det
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={(e) => e.stopPropagation()}
-                className="homepage-link inline-flex items-center gap-1 text-[10px] font-semibold rounded bg-slate-900 text-slate-500 no-underline transition-colors px-2 py-[2px]"
+                className="homepage-link inline-flex items-center gap-1 text-[11px] font-semibold rounded bg-slate-900 text-slate-500 no-underline transition-colors px-2 py-[2px]"
               >
                 <GitHubIcon />
                 GitHub
@@ -75,39 +75,39 @@ export function DetailModal({ plugin, accentColor, onClose, reducedMotion }: Det
 
       {/* Detail */}
       <div className="flex flex-col gap-2.5">
-        <div className="flex items-center gap-1.5 text-[11px] font-bold tracking-wide uppercase font-mono text-cyan-300">
+        <div className="flex items-center gap-1.5 text-[12px] font-bold tracking-wide uppercase font-mono text-cyan-300">
           <DetailInfoIcon />
           詳細説明
         </div>
-        <p className="m-0 text-[13px] leading-[1.8] text-slate-400 font-sans">
+        <p className="m-0 text-[14px] leading-[1.8] text-slate-400 font-sans">
           {plugin.detail}
         </p>
       </div>
 
       {/* When to use */}
       <div className="flex flex-col gap-2.5">
-        <div className="flex items-center gap-1.5 text-[11px] font-bold tracking-wide uppercase font-mono text-orange-300">
+        <div className="flex items-center gap-1.5 text-[12px] font-bold tracking-wide uppercase font-mono text-orange-300">
           <TimingIcon />
           使うタイミング
         </div>
-        <p className="m-0 text-[13px] leading-[1.8] text-slate-400 font-sans">
+        <p className="m-0 text-[14px] leading-[1.8] text-slate-400 font-sans">
           {plugin.whenToUse}
         </p>
       </div>
 
       {/* Setup */}
       <div className="flex flex-col gap-2.5">
-        <div className="flex items-center gap-1.5 text-[11px] font-bold tracking-wide uppercase font-mono text-teal-300">
+        <div className="flex items-center gap-1.5 text-[12px] font-bold tracking-wide uppercase font-mono text-teal-300">
           <SettingsIcon />
           セットアップ
         </div>
-        <p className="m-0 text-[13px] leading-[1.8] text-slate-400 font-sans">
+        <p className="m-0 text-[14px] leading-[1.8] text-slate-400 font-sans">
           {plugin.setup}
         </p>
         {plugin.binary && (
           <div className="flex items-center gap-1.5">
-            <span className="text-[11px] text-slate-500 font-sans">必要なバイナリ:</span>
-            <code className="font-mono text-[11px] rounded px-2 py-[2px] bg-cyan-500/15 text-cyan-300">
+            <span className="text-[12px] text-slate-500 font-sans">必要なバイナリ:</span>
+            <code className="font-mono text-[12px] rounded px-2 py-[2px] bg-cyan-500/15 text-cyan-300">
               {plugin.binary}
             </code>
           </div>

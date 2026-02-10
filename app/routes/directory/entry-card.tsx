@@ -31,7 +31,7 @@ export function BadgeWithTooltip({
     <>
       <span
         ref={ref}
-        className="text-[10px] font-semibold whitespace-nowrap rounded cursor-help"
+        className="text-[11px] font-semibold whitespace-nowrap rounded cursor-help"
         style={{ padding: "2px 8px", background: bg, color }}
         onMouseEnter={show}
         onMouseLeave={hide}
@@ -41,7 +41,7 @@ export function BadgeWithTooltip({
       {pos &&
         createPortal(
           <span
-            className="fixed pointer-events-none px-2.5 py-1.5 rounded-md bg-slate-800 text-slate-200 text-[11px] leading-snug whitespace-nowrap shadow-lg border border-slate-700 z-[9999] -translate-x-1/2"
+            className="fixed pointer-events-none px-2.5 py-1.5 rounded-md bg-slate-800 text-slate-200 text-[12px] leading-snug whitespace-nowrap shadow-lg border border-slate-700 z-[9999] -translate-x-1/2"
             style={{
               left: pos.x,
               top: pos.y - 8,
@@ -98,7 +98,7 @@ export function EntryCard({
           {entry.type === "directory" ? <FolderIcon /> : <FileIcon />}
         </span>
         <code
-          className="font-mono text-[13px] font-bold overflow-hidden text-ellipsis whitespace-nowrap"
+          className="font-mono text-[14px] font-bold overflow-hidden text-ellipsis whitespace-nowrap"
           style={{ color: accentColor }}
         >
           {entry.path}

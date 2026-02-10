@@ -114,7 +114,7 @@ export default function SetupPage(): React.JSX.Element {
 
   return (
     <div className="min-h-screen bg-slate-900 font-sans text-slate-100">
-      <div className="max-w-[1100px] mx-auto px-4 py-8">
+      <div className="max-w-[1400px] mx-auto px-4 py-8">
         {/* Header */}
         <PageHeader
           title="セットアップガイド"
@@ -149,7 +149,7 @@ export default function SetupPage(): React.JSX.Element {
 
         {/* Step count */}
         <div className="flex items-center gap-2.5 mb-4 px-1">
-          <span className="text-[13px] text-slate-500 font-medium">
+          <span className="text-[14px] text-slate-500 font-medium">
             {visibleStepCount} / {TOTAL_STEPS} ステップ
           </span>
         </div>

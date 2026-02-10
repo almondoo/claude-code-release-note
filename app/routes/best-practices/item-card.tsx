@@ -35,7 +35,7 @@ export function ItemCard({
       </p>
       <div className="flex items-center gap-1.5 mt-auto flex-wrap">
         <span
-          className="text-[10px] font-semibold rounded self-start whitespace-nowrap"
+          className="text-[11px] font-semibold rounded self-start whitespace-nowrap"
           style={{
             padding: "2px 8px",
             background: accentColor + "18",
@@ -47,7 +47,7 @@ export function ItemCard({
         {item.tags.slice(0, 2).map((tag) => (
           <span
             key={tag}
-            className="text-[10px] font-semibold rounded whitespace-nowrap"
+            className="text-[11px] font-semibold rounded whitespace-nowrap"
             style={{
               padding: "2px 8px",
               background: TAG_COLORS[tag]?.bg ?? "rgba(100,116,139,0.15)",

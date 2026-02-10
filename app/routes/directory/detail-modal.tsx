@@ -43,7 +43,7 @@ export function DetailModal({
     return (
       <div className="flex flex-col gap-2.5">
         <div
-          className="flex items-center gap-1.5 text-[11px] font-bold tracking-wide uppercase font-mono"
+          className="flex items-center gap-1.5 text-[12px] font-bold tracking-wide uppercase font-mono"
           style={{ color: accentColor }}
         >
           {meta?.icon}
@@ -65,7 +65,7 @@ export function DetailModal({
       headerContent={
         <>
           <code
-            className="font-mono text-[15px] font-bold break-all"
+            className="font-mono text-[16px] font-bold break-all"
             style={{ color: accentColor }}
           >
             {entry.path}
@@ -77,7 +77,7 @@ export function DetailModal({
             <BadgeWithTooltip {...recommendCfg} />
             <BadgeWithTooltip {...vcsCfg} />
             <span
-              className="text-[10px] font-semibold bg-slate-900 text-slate-500 rounded"
+              className="text-[11px] font-semibold bg-slate-900 text-slate-500 rounded"
               style={{ padding: "2px 8px" }}
             >
               {entry.type === "directory" ? "ディレクトリ" : "ファイル"}
@@ -90,7 +90,7 @@ export function DetailModal({
         {detailParagraphs.map((p, i) => (
           <p
             key={i}
-            className="m-0 text-[13px] leading-[1.8] text-slate-400 font-sans"
+            className="m-0 text-[14px] leading-[1.8] text-slate-400 font-sans"
           >
             {p}
           </p>
@@ -125,18 +125,18 @@ export function DetailModal({
           style={{ padding: "14px 16px" }}
         >
           <div className="flex items-center gap-2">
-            <span className="text-[11px] text-slate-500 font-mono">
+            <span className="text-[12px] text-slate-500 font-mono">
               パス:
             </span>
             <code
-              className="font-mono text-[13px] font-semibold"
+              className="font-mono text-[14px] font-semibold"
               style={{ color: accentColor }}
             >
               {fullPath}
             </code>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-[11px] text-slate-500 font-mono">
+            <span className="text-[12px] text-slate-500 font-mono">
               スコープ:
             </span>
             <span className="text-xs text-slate-100 font-sans">
@@ -144,7 +144,7 @@ export function DetailModal({
             </span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-[11px] text-slate-500 font-mono">
+            <span className="text-[12px] text-slate-500 font-mono">
               ベースパス:
             </span>
             <code className="font-mono text-xs text-slate-400">

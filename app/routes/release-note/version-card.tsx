@@ -7,7 +7,7 @@ import { VERSION_DETAILS_AVAILABLE } from "./constants";
 export function TagCountBadge({ tag, count }: { tag: string; count: number }): React.JSX.Element {
   return (
     <span
-      className="inline-flex items-center gap-[3px] px-[7px] py-[2px] rounded text-[10px] font-semibold"
+      className="inline-flex items-center gap-[3px] px-[7px] py-[2px] rounded text-[11px] font-semibold"
       style={{
         background: TAG_COLORS[tag]?.bg ?? "rgba(100,116,139,0.15)",
         color: TAG_COLORS[tag]?.text ?? "#94A3B8",
@@ -64,7 +64,7 @@ export function VersionCard({
         <span className="font-mono text-base font-bold text-slate-100 tracking-tight">
           v{version}
         </span>
-        <span className="text-[11px] text-slate-500 font-mono bg-slate-900 px-2 py-[2px] rounded">
+        <span className="text-[12px] text-slate-500 font-mono bg-slate-900 px-2 py-[2px] rounded">
           {items.length}件
         </span>
       </div>
@@ -75,7 +75,7 @@ export function VersionCard({
           <TagCountBadge key={tag} tag={tag} count={count} />
         ))}
         {sortedTags.length > 4 && (
-          <span className="px-[7px] py-[2px] rounded text-[10px] font-semibold bg-slate-500/10 text-slate-500">
+          <span className="px-[7px] py-[2px] rounded text-[11px] font-semibold bg-slate-500/10 text-slate-500">
             +{sortedTags.length - 4}
           </span>
         )}
@@ -92,7 +92,7 @@ export function VersionCard({
           </span>
         ))}
         {items.length > 2 && (
-          <span className="text-slate-500 text-[11px]">
+          <span className="text-slate-500 text-[12px]">
             他 {items.length - 2} 件...
           </span>
         )}
@@ -100,7 +100,7 @@ export function VersionCard({
 
       {/* Detail availability indicator */}
       {hasDetails && (
-        <div className="flex items-center gap-1 text-[10px] font-semibold text-blue-500 mt-auto">
+        <div className="flex items-center gap-1 text-[11px] font-semibold text-blue-500 mt-auto">
           <ExternalLinkIcon />
           詳細あり
         </div>

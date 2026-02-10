@@ -62,7 +62,7 @@ export default function ReleaseNote(): React.JSX.Element {
 
   return (
     <div className="min-h-screen bg-slate-900 font-sans text-slate-100">
-      <div className="max-w-[1100px] mx-auto p-8 px-4">
+      <div className="max-w-[1400px] mx-auto p-8 px-4">
         {/* Header */}
         <PageHeader
           title="リリースノート"
@@ -92,7 +92,7 @@ export default function ReleaseNote(): React.JSX.Element {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-[13px] font-semibold cursor-pointer transition-all font-sans whitespace-nowrap shrink-0 ${
+                className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-[14px] font-semibold cursor-pointer transition-all font-sans whitespace-nowrap shrink-0 ${
                   active ? "" : "hover:bg-surface-hover hover:text-slate-400"
                 }`}
                 style={{

@@ -9,7 +9,7 @@ import type { ReleaseItem, DetailItem } from "./constants";
 export function CategoryBadge({ category }: { category: string }): React.JSX.Element {
   return (
     <span
-      className="inline-flex items-center whitespace-nowrap font-semibold tracking-wide px-[9px] py-[2px] text-[11px] rounded-md text-blue-500 border border-blue-500/20"
+      className="inline-flex items-center whitespace-nowrap font-semibold tracking-wide px-[9px] py-[2px] text-[12px] rounded-md text-blue-500 border border-blue-500/20"
       style={{
         background: "rgba(59, 130, 246, 0.1)",
         lineHeight: 1.6,
@@ -98,7 +98,7 @@ export function DetailCard({
           >
             <div className="px-[18px] pb-[18px] border-t border-slate-700/25">
               <div className="mt-4 p-4 bg-slate-900 rounded-lg border border-slate-700/40">
-                <p className="text-slate-400 text-[13px] leading-[1.9] m-0 font-sans whitespace-pre-wrap break-words">
+                <p className="text-slate-400 text-[14px] leading-[1.9] m-0 font-sans whitespace-pre-wrap break-words">
                   {item.detail}
                 </p>
               </div>

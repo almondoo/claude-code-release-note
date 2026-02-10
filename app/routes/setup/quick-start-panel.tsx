@@ -26,11 +26,11 @@ export function QuickStartPanel(): React.JSX.Element {
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1">
                 <span className="text-sm font-semibold text-slate-100">{step.title}</span>
-                <code className="font-mono text-[11px] rounded-sm px-1.5 py-px bg-teal-500/15 text-teal-300">
+                <code className="font-mono text-[12px] rounded-sm px-1.5 py-px bg-teal-500/15 text-teal-300">
                   {step.cmd}
                 </code>
               </div>
-              <span className="text-[13px] text-slate-400 font-sans leading-relaxed">
+              <span className="text-[14px] text-slate-400 font-sans leading-relaxed">
                 {step.desc}
               </span>
             </div>

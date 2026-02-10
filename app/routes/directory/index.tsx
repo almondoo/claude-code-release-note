@@ -117,7 +117,7 @@ export default function Directory(): React.JSX.Element {
 
   return (
     <div className="min-h-screen bg-slate-900 font-sans text-slate-100">
-      <div className="max-w-[1100px] mx-auto py-8 px-4">
+      <div className="max-w-[1400px] mx-auto py-8 px-4">
         {/* Header */}
         <PageHeader
           title="ディレクトリ構成ガイド"
@@ -162,7 +162,7 @@ export default function Directory(): React.JSX.Element {
               </div>
               <div className="flex-1 min-w-0">
                 <div
-                  className="text-[11px] font-bold tracking-wide uppercase font-mono mb-2"
+                  className="text-[12px] font-bold tracking-wide uppercase font-mono mb-2"
                   style={{ color: SECTION_COLORS[activeSection.id]?.color || "#3B82F6" }}
                 >
                   ベストプラクティス
@@ -253,7 +253,7 @@ export default function Directory(): React.JSX.Element {
 
               {isAllTab && (
                 <div className="flex items-center gap-2.5 mb-4 px-1">
-                  <span className="text-[13px] text-slate-500 font-medium">
+                  <span className="text-[14px] text-slate-500 font-medium">
                     {filteredEntries.length} / {TOTAL} エントリ
                   </span>
                 </div>

@@ -4,7 +4,7 @@ export function SkillsVsAgentsPanel(): React.JSX.Element {
   return (
     <div className="bg-surface rounded-xl border border-slate-700 p-6">
       <div
-        className="text-[13px] font-bold tracking-wide uppercase font-mono mb-5 flex items-center gap-2"
+        className="text-[14px] font-bold tracking-wide uppercase font-mono mb-5 flex items-center gap-2"
         style={{ color: "#C4B5FD" }}
       >
         <svg
@@ -33,7 +33,7 @@ export function SkillsVsAgentsPanel(): React.JSX.Element {
           }}
         >
           <div
-            className="text-[13px] font-bold mb-2 font-mono"
+            className="text-[14px] font-bold mb-2 font-mono"
             style={{ color: "#67E8F9" }}
           >
             skills/
@@ -49,7 +49,7 @@ export function SkillsVsAgentsPanel(): React.JSX.Element {
               (c: string, i: number) => (
                 <li
                   key={i}
-                  className="text-[11px] leading-[1.6] text-slate-500 font-sans"
+                  className="text-[12px] leading-[1.6] text-slate-500 font-sans"
                 >
                   {c}
                 </li>
@@ -66,7 +66,7 @@ export function SkillsVsAgentsPanel(): React.JSX.Element {
           }}
         >
           <div
-            className="text-[13px] font-bold mb-2 font-mono"
+            className="text-[14px] font-bold mb-2 font-mono"
             style={{ color: "#C4B5FD" }}
           >
             agents/
@@ -82,7 +82,7 @@ export function SkillsVsAgentsPanel(): React.JSX.Element {
               (c: string, i: number) => (
                 <li
                   key={i}
-                  className="text-[11px] leading-[1.6] text-slate-500 font-sans"
+                  className="text-[12px] leading-[1.6] text-slate-500 font-sans"
                 >
                   {c}
                 </li>

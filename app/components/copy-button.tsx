@@ -16,7 +16,7 @@ export function CopyButton({ text }: { text: string }): React.JSX.Element {
   return (
     <button
       onClick={handleCopy}
-      className="inline-flex items-center gap-1 px-2 py-0.5 rounded border font-mono text-[11px] cursor-pointer transition-all shrink-0"
+      className="inline-flex items-center gap-1 px-2 py-0.5 rounded border font-mono text-[12px] cursor-pointer transition-all shrink-0"
       style={{
         borderColor: copied ? "#6EE7B740" : "#334155",
         background: copied ? "rgba(16, 185, 129, 0.15)" : "#0F172A",

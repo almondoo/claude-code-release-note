@@ -39,7 +39,7 @@ export function TabBar({
           <button
             key={tab.id}
             onClick={() => onTabChange(tab.id)}
-            className={`shrink-0 rounded-[10px] text-[13px] font-sans cursor-pointer transition-all whitespace-nowrap flex items-center gap-1.5 px-4 py-2.5 ${
+            className={`shrink-0 rounded-[10px] text-[14px] font-sans cursor-pointer transition-all whitespace-nowrap flex items-center gap-1.5 px-4 py-2.5 ${
               isActive ? "font-semibold" : "font-medium tab-btn-inactive"
             }`}
             style={{

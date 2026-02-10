@@ -26,7 +26,7 @@ export function PluginCard({ plugin, accentColor, onClick }: PluginCardProps): R
           {plugin.displayName}
         </code>
         {plugin.binary && (
-          <span className="text-[10px] text-slate-500 font-mono bg-slate-900 whitespace-nowrap px-1.5 py-px rounded-sm">
+          <span className="text-[11px] text-slate-500 font-mono bg-slate-900 whitespace-nowrap px-1.5 py-px rounded-sm">
             LSP
           </span>
         )}
@@ -35,7 +35,7 @@ export function PluginCard({ plugin, accentColor, onClick }: PluginCardProps): R
         {plugin.description}
       </p>
       <div className="flex items-center gap-2 mt-auto">
-        <code className="font-mono text-[10px] text-slate-500 bg-slate-900 rounded overflow-hidden text-ellipsis whitespace-nowrap flex-1 px-2 py-[2px]">
+        <code className="font-mono text-[11px] text-slate-500 bg-slate-900 rounded overflow-hidden text-ellipsis whitespace-nowrap flex-1 px-2 py-[2px]">
           {plugin.install}
         </code>
         <CopyButton text={plugin.install} />

@@ -28,7 +28,7 @@ export function CLICard({
           {cmd.name}
         </code>
         {cmd.args && (
-          <span className="text-[11px] text-slate-500 font-mono whitespace-nowrap overflow-hidden text-ellipsis">
+          <span className="text-[12px] text-slate-500 font-mono whitespace-nowrap overflow-hidden text-ellipsis">
             {cmd.args}
           </span>
         )}
@@ -36,7 +36,7 @@ export function CLICard({
       <p className="m-0 text-xs leading-[1.6] text-slate-400 font-sans flex-1 line-clamp-2">
         {cmd.description}
       </p>
-      <span className="text-[10px] font-semibold rounded self-start whitespace-nowrap mt-auto" style={{ padding: "2px 8px", background: "rgba(139, 92, 246, 0.15)", color: CLI_ACCENT }}>
+      <span className="text-[11px] font-semibold rounded self-start whitespace-nowrap mt-auto" style={{ padding: "2px 8px", background: "rgba(139, 92, 246, 0.15)", color: CLI_ACCENT }}>
         {kind === "command" ? "Command" : "Flag"}
       </span>
     </div>

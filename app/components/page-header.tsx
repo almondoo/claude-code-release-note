@@ -9,6 +9,7 @@ const ALL_PAGES = [
   { to: "/directory", label: "ディレクトリ構成" },
   { to: "/setup", label: "セットアップ" },
   { to: "/best-practices", label: "ベストプラクティス" },
+  { to: "/llm-infra-guide", label: "LLM構築ガイド" },
 ];
 
 interface Stat {
@@ -66,7 +67,7 @@ export function PageHeader({
         <div className="text-xs font-semibold text-slate-500 tracking-[3px] uppercase mb-3 font-mono">
           CLAUDE CODE
         </div>
-        <h1 className="text-[28px] font-bold m-0 mb-2.5 text-slate-100 tracking-tight">
+        <h1 className="text-[29px] font-bold m-0 mb-2.5 text-slate-100 tracking-tight">
           {title}
         </h1>
         {description && (
@@ -75,7 +76,7 @@ export function PageHeader({
           </p>
         )}
         {(stats || extraStats) && (
-          <div className="flex justify-center items-baseline gap-6 text-[13px] text-slate-400 flex-wrap">
+          <div className="flex justify-center items-baseline gap-6 text-[14px] text-slate-400 flex-wrap">
             {stats?.map((stat, i) => (
               <span key={i}>
                 <strong className="text-slate-100">{stat.value}</strong>{" "}

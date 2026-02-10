@@ -63,7 +63,7 @@ export function StepCard({ step, accentColor, expanded, onToggle, reducedMotion 
           {step.tags.map((tag) => (
             <span
               key={tag}
-              className="hidden sm:inline-flex text-[10px] font-semibold rounded px-2 py-[2px]"
+              className="hidden sm:inline-flex text-[11px] font-semibold rounded px-2 py-[2px]"
               style={{
                 background: TAG_COLORS[tag]?.bg ?? "rgba(100,116,139,0.15)",
                 color: TAG_COLORS[tag]?.color ?? "#94A3B8",
@@ -89,7 +89,7 @@ export function StepCard({ step, accentColor, expanded, onToggle, reducedMotion 
           >
             <div className="px-5 pb-5 flex flex-col gap-4 border-t border-slate-700 pt-4">
               {step.content.split("\n\n").map((paragraph, i) => (
-                <p key={i} className="m-0 text-[13px] leading-[1.8] text-slate-400 font-sans">
+                <p key={i} className="m-0 text-[14px] leading-[1.8] text-slate-400 font-sans">
                   {renderInlineLinks(paragraph)}
                 </p>
               ))}

@@ -47,7 +47,7 @@ export function DetailModal({
         <div className="px-6 py-5 border-b border-slate-700 flex items-center justify-between shrink-0 bg-gradient-to-br from-surface to-surface-hover">
           <div>
             <div className="flex items-center gap-3 mb-2">
-              <span className="font-mono text-[22px] font-bold text-slate-100 tracking-tight">
+              <span className="font-mono text-[23px] font-bold text-slate-100 tracking-tight">
                 v{version}
               </span>
               <span className="font-mono text-xs text-slate-500 bg-slate-900 px-2 py-[2px] rounded">
@@ -85,7 +85,7 @@ export function DetailModal({
                       <Badge key={tag} tag={tag} small />
                     ))}
                   </div>
-                  <span className="text-slate-100 text-[13px] leading-relaxed break-words font-sans">
+                  <span className="text-slate-100 text-[14px] leading-relaxed break-words font-sans">
                     {item.t}
                   </span>
                 </div>
@@ -96,7 +96,7 @@ export function DetailModal({
           {/* Version page link */}
           <Link
             to={`/version/${version}`}
-            className={`flex items-center justify-center gap-1.5 mt-4 py-2.5 px-4 rounded-lg text-[13px] font-semibold font-sans transition-all ${
+            className={`flex items-center justify-center gap-1.5 mt-4 py-2.5 px-4 rounded-lg text-[14px] font-semibold font-sans transition-all ${
               hasDetails
                 ? "text-blue-500 bg-blue-500/[0.08] border border-blue-500/25 modal-link-detail"
                 : "text-slate-500 bg-transparent border border-slate-700 modal-link-plain"

@@ -12,12 +12,12 @@ export function CalloutBox({ callout }: { callout: Callout }): React.JSX.Element
       }}
     >
       <span
-        className="text-[10px] font-bold uppercase tracking-wider shrink-0 mt-0.5 font-mono"
+        className="text-[11px] font-bold uppercase tracking-wider shrink-0 mt-0.5 font-mono"
         style={{ color: style.color }}
       >
         {style.label}
       </span>
-      <span className="text-[13px] text-slate-300 leading-relaxed font-sans">{callout.text}</span>
+      <span className="text-[14px] text-slate-300 leading-relaxed font-sans">{callout.text}</span>
     </div>
   );
 }

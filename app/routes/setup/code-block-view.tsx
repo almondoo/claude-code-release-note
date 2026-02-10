@@ -17,10 +17,10 @@ export function CodeBlockView({ block }: { block: CodeBlock }): React.JSX.Elemen
         }}
       >
         <div className="flex items-center gap-2 min-w-0">
-          <span className="text-[11px] text-slate-400 font-mono truncate">{block.label}</span>
+          <span className="text-[12px] text-slate-400 font-mono truncate">{block.label}</span>
           {block.recommended && (
             <span
-              className="inline-flex items-center gap-1 text-[10px] font-bold rounded px-1.5 py-[1px] shrink-0"
+              className="inline-flex items-center gap-1 text-[11px] font-bold rounded px-1.5 py-[1px] shrink-0"
               style={{
                 background: "rgba(16, 185, 129, 0.15)",
                 color: "#6EE7B7",
@@ -35,7 +35,7 @@ export function CodeBlockView({ block }: { block: CodeBlock }): React.JSX.Elemen
         </div>
         <CopyButton text={block.value} />
       </div>
-      <pre className="m-0 p-3.5 bg-[#0B1120] overflow-x-auto text-[13px] leading-relaxed">
+      <pre className="m-0 p-3.5 bg-[#0B1120] overflow-x-auto text-[14px] leading-relaxed">
         <code className="font-mono text-slate-300 whitespace-pre">{block.value}</code>
       </pre>
     </div>

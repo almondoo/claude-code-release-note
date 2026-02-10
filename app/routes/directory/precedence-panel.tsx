@@ -5,7 +5,7 @@ export function PrecedencePanel(): React.JSX.Element {
     <div className="flex flex-col gap-4">
       <div className="bg-surface rounded-xl border border-slate-700 p-6">
         <div
-          className="text-[13px] font-bold tracking-wide uppercase font-mono mb-5 flex items-center gap-2"
+          className="text-[14px] font-bold tracking-wide uppercase font-mono mb-5 flex items-center gap-2"
           style={{ color: "#FDBA74" }}
         >
           <svg
@@ -54,7 +54,7 @@ export function PrecedencePanel(): React.JSX.Element {
                 </div>
                 {item.level === 1 && (
                   <span
-                    className="text-[10px] font-semibold rounded whitespace-nowrap shrink-0"
+                    className="text-[11px] font-semibold rounded whitespace-nowrap shrink-0"
                     style={{
                       padding: "2px 8px",
                       background: "rgba(239, 68, 68, 0.15)",

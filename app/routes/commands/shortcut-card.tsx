@@ -22,7 +22,7 @@ export function ShortcutCard({
         style={{ background: `linear-gradient(90deg, ${SHORTCUT_ACCENT}, ${SHORTCUT_ACCENT}40)` }}
       />
       <kbd
-        className="font-mono text-[13px] font-semibold inline-block whitespace-nowrap w-fit"
+        className="font-mono text-[14px] font-semibold inline-block whitespace-nowrap w-fit"
         style={{
           color: SHORTCUT_ACCENT,
           background: "rgba(249, 115, 22, 0.15)",

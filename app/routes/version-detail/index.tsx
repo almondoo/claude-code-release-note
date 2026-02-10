@@ -1,9 +1,9 @@
-import { Link, useParams } from "react-router";
 import { motion, useReducedMotion } from "motion/react";
+import { Link, useParams } from "react-router";
 
-import { ArrowLeftIcon } from "~/components/icons";
 import { TAG_COLORS, TAG_LABELS } from "~/components/badge";
 import { Footer } from "~/components/footer";
+import { ArrowLeftIcon } from "~/components/icons";
 
 import { RELEASES, VERSION_DETAILS, getAdjacentVersions } from "./constants";
 import { DetailCard, FallbackCard } from "./detail-card";
@@ -15,7 +15,9 @@ export default function VersionDetail(): React.JSX.Element {
 
   const release = RELEASES.find((r) => r.v === version);
   const details = version ? VERSION_DETAILS[version] : null;
-  const { prev, next } = version ? getAdjacentVersions(version) : { prev: null, next: null };
+  const { prev, next } = version
+    ? getAdjacentVersions(version)
+    : { prev: null, next: null };
 
   if (!release) {
     return (
@@ -46,7 +48,7 @@ export default function VersionDetail(): React.JSX.Element {
 
   return (
     <div className="min-h-screen bg-slate-900 font-sans text-slate-100">
-      <div className="max-w-[920px] mx-auto py-8 px-4">
+      <div className="max-w-[1400px] mx-auto py-8 px-4">
         {/* Back link */}
         <motion.div
           initial={m ? false : { opacity: 0, x: -10 }}
@@ -55,7 +57,7 @@ export default function VersionDetail(): React.JSX.Element {
         >
           <Link
             to="/"
-            className="back-link inline-flex items-center gap-1.5 text-slate-500 no-underline text-[13px] font-sans mb-6 py-1.5 px-3 rounded-md transition-all"
+            className="back-link inline-flex items-center gap-1.5 text-slate-500 no-underline text-[14px] font-sans mb-6 py-1.5 px-3 rounded-md transition-all"
           >
             <ArrowLeftIcon />
             リリースノート一覧
@@ -85,11 +87,20 @@ export default function VersionDetail(): React.JSX.Element {
               v{version}
             </h1>
             <div className="flex gap-3 flex-wrap items-center mb-3">
-              <span className="text-[13px] text-slate-400">
-                <strong className="text-slate-100">{release.items.length}</strong> 件の変更
+              <span className="text-[14px] text-slate-400">
+                <strong className="text-slate-100">
+                  {release.items.length}
+                </strong>{" "}
+                件の変更
               </span>
               {details && (
-                <span className="text-[11px] py-0.5 px-2 rounded font-semibold" style={{ background: "rgba(16, 185, 129, 0.15)", color: "#6EE7B7" }}>
+                <span
+                  className="text-[12px] py-0.5 px-2 rounded font-semibold"
+                  style={{
+                    background: "rgba(16, 185, 129, 0.15)",
+                    color: "#6EE7B7",
+                  }}
+                >
                   詳細情報あり
                 </span>
               )}
@@ -98,7 +109,7 @@ export default function VersionDetail(): React.JSX.Element {
               {sortedTags.map(([tag, count]) => (
                 <span
                   key={tag}
-                  className="inline-flex items-center gap-[3px] px-[9px] py-[2px] rounded-md text-[11px] font-semibold"
+                  className="inline-flex items-center gap-[3px] px-[9px] py-[2px] rounded-md text-[12px] font-semibold"
                   style={{
                     background: TAG_COLORS[tag]?.bg ?? "rgba(100,116,139,0.15)",
                     color: TAG_COLORS[tag]?.text ?? "#94A3B8",
@@ -136,8 +147,12 @@ export default function VersionDetail(): React.JSX.Element {
           transition={{ duration: 0.3, delay: 0.3 }}
           className="flex justify-between gap-3 mb-6"
         >
-          <div>{prev && <NavButton to={prev} label={prev} direction="prev" />}</div>
-          <div>{next && <NavButton to={next} label={next} direction="next" />}</div>
+          <div>
+            {prev && <NavButton to={prev} label={prev} direction="prev" />}
+          </div>
+          <div>
+            {next && <NavButton to={next} label={next} direction="next" />}
+          </div>
         </motion.div>
 
         {/* Footer */}
