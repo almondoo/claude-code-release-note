@@ -61,6 +61,8 @@ function convertNetwork(
         id: `e-zone-${zi}-${zi + 1}`,
         source: zoneId,
         target: `zone-${zi + 1}`,
+        sourceHandle: "bottom",
+        targetHandle: "top",
         label: conn?.label,
         animated: conn?.style === "dashed",
         markerEnd: { type: MarkerType.ArrowClosed, color: "#475569" },
@@ -80,6 +82,8 @@ function convertNetwork(
         id: `e-side-${ci}`,
         source: `zone-${fi}`,
         target: `zone-${ti}`,
+        sourceHandle: "bottom",
+        targetHandle: "top",
         label: conn.label,
         animated: conn.style === "dashed",
         markerEnd: { type: MarkerType.ArrowClosed, color: "#475569" },
@@ -137,6 +141,8 @@ function convertDataflow(
         id: `e-stage-${si}`,
         source: stageId,
         target: `stage-${si + 1}`,
+        sourceHandle: "right",
+        targetHandle: "left",
         markerEnd: { type: MarkerType.ArrowClosed, color: "#475569" },
       });
     }
@@ -196,6 +202,8 @@ function convertCloudArch(
         id: `e-layer-${li}`,
         source: layerId,
         target: `layer-${li + 1}`,
+        sourceHandle: "bottom",
+        targetHandle: "top",
         markerEnd: { type: MarkerType.ArrowClosed, color: "#475569" },
       });
     }

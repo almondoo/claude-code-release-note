@@ -77,6 +77,8 @@ export function SecurityNode({ data }: NodeProps): React.JSX.Element {
 
 // ── Zone Node (group) ────────────────────────────────────────────────────
 
+const invisibleHandle: CSSProperties = { background: "transparent", border: "none", width: 1, height: 1 };
+
 export function ZoneNode({ data }: NodeProps): React.JSX.Element {
   const d = data as NodeData;
   const color = d.color || "#64748B";
@@ -93,6 +95,8 @@ export function ZoneNode({ data }: NodeProps): React.JSX.Element {
         minHeight: 80,
       }}
     >
+      <Handle type="target" position={Position.Top} id="top" style={invisibleHandle} />
+      <Handle type="target" position={Position.Left} id="left" style={invisibleHandle} />
       <div
         style={{
           position: "absolute",
@@ -107,6 +111,8 @@ export function ZoneNode({ data }: NodeProps): React.JSX.Element {
       >
         {d.label}
       </div>
+      <Handle type="source" position={Position.Bottom} id="bottom" style={invisibleHandle} />
+      <Handle type="source" position={Position.Right} id="right" style={invisibleHandle} />
     </div>
   );
 }
