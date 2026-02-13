@@ -31,7 +31,7 @@ export function meta(): Array<{
   content?: string;
 }> {
   return [
-    { title: "Claude Code ディレクトリ構成ガイド" },
+    { title: "Claude Code 設定ガイド" },
     {
       name: "description",
       content:
@@ -120,7 +120,7 @@ export default function Directory(): React.JSX.Element {
       <div className="max-w-[1400px] mx-auto py-8 px-4">
         {/* Header */}
         <PageHeader
-          title="ディレクトリ構成ガイド"
+          title="Claude Code 設定ガイド"
           description="設定ファイルの配置場所・使い方・ベストプラクティスを網羅したガイド"
           stats={[
             { value: TOTAL, label: "エントリ" },
