@@ -28,7 +28,11 @@ Claude Code のリリースノートを日本語で閲覧できる Web アプリ
 - リリースデータはバージョン範囲ごとに分割: `releases-2.0.x.json`, `releases-2.1.x.json`
 - 詳細データも同様: `version-details-2.1.x.json`
 - 各アイテムは `t` (テキスト) と `tags` (カテゴリタグ配列) を持つ
-- タグ種別: `新機能`, `バグ修正`, `改善`, `SDK`, `IDE`, `Platform`, `Security`, `Perf`, `非推奨`, `Plugin`
+- **一覧データ（releases-*.json）と詳細データ（version-details-*.json）は同じタグ体系を使用すること**
+- タグは2軸構造（全12種類）:
+  - 変更タイプ (4種): `新機能`, `バグ修正`, `改善`, `非推奨`
+  - 対象領域 (8種): `SDK`, `IDE`, `Platform`, `Security`, `Perf`, `Plugin`, `MCP`, `Agent`
+- タグの定義（色・ラベル・アイコン）: `app/components/badge.tsx` と `app/routes/release-note/constants.tsx`
 
 ### ルーティング
 
