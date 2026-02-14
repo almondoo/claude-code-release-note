@@ -1,0 +1,106 @@
+{
+  "id": "infra-components",
+  "title": "インフラ構成要素",
+  "description": "LLM基盤を支える主要コンポーネント",
+  "blocks": [
+    {
+      "type": "text",
+      "content": "堅牢なLLM基盤は複数のインフラコンポーネントで構成されます。{{load-balancer}}、キャッシュ層、キューシステム、ストレージの各レイヤーを適切に設計することが重要です。"
+    },
+    {
+      "type": "diagram",
+      "data": {
+        "variant": "layers",
+        "title": "LLM基盤のインフラスタック",
+        "caption": "各レイヤーが連携してエンドツーエンドのLLMサービスを提供",
+        "layers": [
+          {
+            "label": "アクセス制御",
+            "items": [
+              "SSO/SAML",
+              "RBAC",
+              "APIキー管理",
+              "レート制限"
+            ],
+            "color": "#EF4444"
+          },
+          {
+            "label": "ゲートウェイ",
+            "items": [
+              "ルーティング",
+              "DLP/PII",
+              "ガードレール",
+              "変換"
+            ],
+            "color": "#8B5CF6"
+          },
+          {
+            "label": "キャッシュ",
+            "items": [
+              "プロンプトキャッシュ",
+              "セマンティックキャッシュ",
+              "KVストア"
+            ],
+            "color": "#3B82F6"
+          },
+          {
+            "label": "キュー/バッチ",
+            "items": [
+              "非同期処理",
+              "バッチAPI",
+              "優先度キュー"
+            ],
+            "color": "#10B981"
+          },
+          {
+            "label": "LLMプロバイダー",
+            "items": [
+              "Anthropic",
+              "OpenAI",
+              "Google",
+              "自社モデル"
+            ],
+            "color": "#F59E0B"
+          },
+          {
+            "label": "監視・ログ",
+            "items": [
+              "メトリクス",
+              "トレーシング",
+              "コスト追跡",
+              "アラート"
+            ],
+            "color": "#A855F7"
+          }
+        ]
+      }
+    },
+    {
+      "type": "subsection",
+      "title": "キャッシュ層の設計",
+      "blocks": [
+        {
+          "type": "text",
+          "content": "{{prompt-caching}}（完全一致キャッシュ）と{{semantic-caching}}（意味類似キャッシュ）を組み合わせることで、50-90%のコスト削減が見込めます。Redisをバックエンドに使用し、TTLとキャッシュ無効化戦略を設計します。"
+        },
+        {
+          "type": "codeBlock",
+          "language": "yaml",
+          "title": "Redisキャッシュ設定例",
+          "filename": "cache-config.yaml",
+          "code": "cache:\n  backend: redis\n  redis_url: redis://cache.internal:6379/0\n  \n  # 完全一致キャッシュ\n  exact_match:\n    enabled: true\n    ttl: 3600  # 1時間\n    max_entries: 100000\n  \n  # セマンティックキャッシュ\n  semantic:\n    enabled: true\n    similarity_threshold: 0.95\n    embedding_model: text-embedding-3-small\n    ttl: 7200  # 2時間\n    max_entries: 50000"
+        }
+      ]
+    },
+    {
+      "type": "subsection",
+      "title": "キューとバッチ処理",
+      "blocks": [
+        {
+          "type": "text",
+          "content": "リアルタイム性が不要なワークロードは{{batch-api}}を活用して50%のコスト削減が可能です。SQSやRabbitMQを使用した非同期処理パイプラインを構築し、優先度に基づいたキュー管理を実装します。"
+        }
+      ]
+    }
+  ]
+}

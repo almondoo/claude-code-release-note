@@ -1,0 +1,160 @@
+{
+  "id": "security-supply-chain",
+  "title": "サプライチェーンセキュリティ",
+  "description": "モデル・プラグイン・ツールの信頼性検証",
+  "blocks": [
+    {
+      "type": "text",
+      "content": "LLMサプライチェーンは、モデルプロバイダー・ホスティング基盤・サードパーティプラグイン/ツール・ファインチューニングデータセットなど、複数の信頼関係に依存します。Hugging Face上のマルウェア入りモデルの発見や、悪意のあるMCPサーバーを通じた攻撃の報告など、LLMサプライチェーンのリスクは現実の脅威です。{{sbom}}の管理と{{cosign}}による署名検証が、包括的なサプライチェーン保護の基盤となります。"
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "**信頼の検証**: すべてのサプライチェーンコンポーネントの信頼性を検証し、暗黙の信頼を排除する",
+        "**完全性の保証**: モデルファイル・設定・依存関係の改ざんを検出する仕組みを構築する",
+        "**最小権限**: サードパーティプラグインやツールに対し、必要最小限の権限のみを付与する",
+        "**継続的評価**: モデルアップデートやツール変更時に{{red-teaming}}によるセキュリティ回帰テストを実施する"
+      ]
+    },
+    {
+      "type": "table",
+      "caption": "プロバイダー信頼性評価（6カテゴリ）",
+      "headers": [
+        "評価カテゴリ",
+        "確認項目",
+        "推奨基準"
+      ],
+      "rows": [
+        [
+          "セキュリティ認証",
+          "SOC 2 Type II、ISO 27001、CSA STAR",
+          "SOC 2 Type II + ISO 27001の両方を保持"
+        ],
+        [
+          "データ処理",
+          "入出力データの学習利用有無、保持期間、暗号化",
+          "学習不使用の明示的保証、AES-256暗号化、30日以内の自動削除"
+        ],
+        [
+          "データレジデンシー",
+          "処理リージョンの選択可能性、データ移転の制御",
+          "日本リージョン対応、越境移転の明示的同意メカニズム"
+        ],
+        [
+          "インシデント対応",
+          "通知SLA、インシデントレスポンスプロセス",
+          "72時間以内の通知、専任セキュリティチームの存在"
+        ],
+        [
+          "契約・法的",
+          "DPA / BAA / 利用規約のレビュー",
+          "責任範囲の明確化、補償条項、準拠法"
+        ],
+        [
+          "可用性",
+          "SLA、障害時のフォールバック",
+          "99.9%以上のSLA、マルチリージョン対応"
+        ]
+      ]
+    },
+    {
+      "type": "codeBlock",
+      "language": "bash",
+      "title": "モデル整合性検証パイプライン",
+      "filename": "verify_model.sh",
+      "code": "#!/bin/bash\n# 1. モデルダウンロード時のチェックサム検証\nMODEL_URL=\"https://huggingface.co/org/model/resolve/main/model.safetensors\"\nEXPECTED_SHA256=\"a1b2c3d4e5f6...\"\n\nwget -O model.safetensors \"$MODEL_URL\"\nACTUAL_SHA256=$(sha256sum model.safetensors | awk '{print $1}')\n\nif [ \"$ACTUAL_SHA256\" != \"$EXPECTED_SHA256\" ]; then\n    echo \"ERROR: Model integrity check failed!\"\n    exit 1\nfi\n\n# 2. Sigstore/Cosign によるモデル署名検証\ncosign verify-blob \\\n  --signature model.safetensors.sig \\\n  --certificate model.safetensors.cert \\\n  model.safetensors\n\n# 3. SBOM (Software Bill of Materials) の生成\npython generate_model_sbom.py \\\n  --model-path ./model.safetensors \\\n  --output model-sbom.spdx.json \\\n  --format spdx",
+      "caption": "チェックサム、Cosign署名、SBOM生成の3段階検証パイプライン"
+    },
+    {
+      "type": "highlight",
+      "variant": "warning",
+      "title": "safetensorsフォーマットの推奨",
+      "content": "Hugging FaceのモデルファイルにはPickle形式（.bin / .pt）とsafetensors形式があります。Pickle形式は任意のPythonコード実行が可能であり、悪意のあるモデルファイルによるRCE（Remote Code Execution）のリスクがあります。プライベートデプロイでは必ずsafetensorsを使用してください。"
+    },
+    {
+      "type": "table",
+      "caption": "MCP/プラグインリスク評価マトリクス",
+      "headers": [
+        "評価項目",
+        "リスク: 低",
+        "リスク: 中",
+        "リスク: 高"
+      ],
+      "rows": [
+        [
+          "ソースコード",
+          "OSS、監査済み",
+          "OSS、未監査",
+          "クローズドソース"
+        ],
+        [
+          "権限要求",
+          "読み取りのみ",
+          "特定リソースへの書き込み",
+          "広範な書き込み/実行権限"
+        ],
+        [
+          "ネットワーク通信",
+          "通信なし（ローカル処理のみ）",
+          "既知APIへの制限的通信",
+          "任意のエンドポイントへの通信"
+        ],
+        [
+          "データアクセス",
+          "公開データのみ",
+          "社内データの読み取り",
+          "機密データの読み書き"
+        ],
+        [
+          "メンテナンス",
+          "活発なメンテナンス、定期セキュリティアップデート",
+          "定期的なアップデート",
+          "メンテナンス不明 / 放置"
+        ]
+      ]
+    },
+    {
+      "type": "codeBlock",
+      "language": "yaml",
+      "title": "MCPサーバーセキュリティCI/CD",
+      "filename": "mcp-security-check.yaml",
+      "code": "mcp_security_check:\n  steps:\n    - name: Static Analysis\n      run: |\n        # 依存関係の脆弱性スキャン\n        npm audit --json > audit-report.json\n        # または\n        pip-audit --format json -o audit-report.json\n\n    - name: Permission Analysis\n      run: |\n        python analyze_mcp_permissions.py \\\n          --manifest mcp-server/manifest.json \\\n          --policy company-mcp-policy.yaml\n\n    - name: Network Analysis\n      run: |\n        python analyze_network_calls.py \\\n          --source mcp-server/ \\\n          --allowed-domains allowed-domains.txt\n\n    - name: Sandbox Test\n      run: |\n        docker run --network=none --read-only \\\n          mcp-server-test:latest",
+      "caption": "MCPサーバーの依存関係・権限・ネットワーク・サンドボックスを自動検証"
+    },
+    {
+      "type": "subsection",
+      "title": "パターン別推奨構成",
+      "blocks": [
+        {
+          "type": "list",
+          "ordered": false,
+          "items": [
+            "**パターンA（API直接利用）**: プロバイダーの認証・ポリシーの定期レビュー。サードパーティツール/プラグインの利用承認プロセスの確立。APIバージョン固定とアップデート時のテスト",
+            "**パターンB（ゲートウェイ経由）**: ゲートウェイでのプロバイダー切り替え対応（マルチプロバイダー戦略）。プラグイン/MCPサーバーのサンドボックス実行。モデルバージョン管理とカナリアデプロイ",
+            "**パターンC（プライベートホスティング）**: モデルファイルのチェックサム・署名検証を必須化。{{sbom}}の生成・管理。エアギャップ環境でのモデルデプロイパイプライン。依存ライブラリの定期的な脆弱性スキャン"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "checklist",
+      "categories": [
+        {
+          "name": "サプライチェーンチェックリスト",
+          "items": [
+            "モデルプロバイダーの信頼性評価が実施・文書化されている",
+            "プロバイダーとのDPA / BAA / セキュリティ条項が締結されている",
+            "モデルファイルの整合性検証（チェックサム / 署名）が実装されている",
+            "safetensors形式が使用されている（Pickleモデルの使用を禁止）",
+            "SBOM（Software Bill of Materials）が生成・管理されている",
+            "サードパーティプラグイン / MCPサーバーのリスク評価プロセスが確立されている",
+            "プラグインのサンドボックス実行環境が構築されている",
+            "モデルアップデート時のセキュリティ回帰テストがCI/CDに組み込まれている",
+            "マルチプロバイダー戦略（プロバイダー障害時のフォールバック）が検討されている"
+          ]
+        }
+      ]
+    }
+  ]
+}

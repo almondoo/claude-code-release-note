@@ -1,0 +1,134 @@
+{
+  "id": "security-data-protection",
+  "title": "データ保護・プライバシー",
+  "description": "LLMプロンプトの機密情報検出とデータ分類",
+  "blocks": [
+    {
+      "type": "text",
+      "content": "LLMへのプロンプトには、意図的・非意図的に機密情報が含まれるリスクがあります。Samsung社員がChatGPTにソースコードを入力したインシデント（2023年）は、LLM利用におけるデータ漏洩の代表的事例です。また、LLMの出力にも学習データに含まれていた個人情報やAPIキーが再現されるリスクがあります。従来の{{dlp}}ソリューションはHTTPペイロードの定型パターンを検出対象としていましたが、自然言語に埋め込まれた機密情報の検出には{{ner}}を活用した新たなアプローチが必要です。"
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "**最小情報原則**: LLMに送信するデータは必要最小限に留める",
+        "**多層検出**: 正規表現による高速パターンマッチとNER（{{ner}}）モデルによる文脈理解を組み合わせる",
+        "**機密レベル連動**: {{data-classification}}ポリシーに基づき、機密度に応じてLLM利用を制限する",
+        "**検出と透明性のバランス**: 誤検知によるユーザー体験の低下を防ぎつつ、高リスクの漏洩は確実にブロックする"
+      ]
+    },
+    {
+      "type": "table",
+      "caption": "DLPツール比較",
+      "headers": [
+        "手法",
+        "ツール/サービス",
+        "特徴",
+        "適用フェーズ"
+      ],
+      "rows": [
+        [
+          "正規表現パターンマッチ",
+          "カスタム実装 / AWS Macie",
+          "クレジットカード番号、マイナンバー、電話番号等の定型パターンを高速検出。低レイテンシだが文脈理解に限界あり",
+          "入力/出力"
+        ],
+        [
+          "NERモデル",
+          "Microsoft Presidio / spaCy / GiNZA",
+          "人名・組織名・住所等の非定型PIIを文脈から検出。日本語対応にはGiNZAやMeCab辞書との統合が効果的",
+          "入力/出力"
+        ],
+        [
+          "クラウドDLPサービス",
+          "Google Cloud DLP / AWS Comprehend",
+          "マネージドサービスとして150+の情報タイプを検出。API呼び出し型でスケーラブル",
+          "入力/出力"
+        ],
+        [
+          "LLMゲートウェイ統合DLP",
+          "Portkey / LiteLLM / Guardrails AI",
+          "LLMプロキシに組み込まれたDLP。プロンプト/レスポンスの中間で透過的に処理",
+          "入力/出力"
+        ]
+      ]
+    },
+    {
+      "type": "codeBlock",
+      "language": "python",
+      "title": "Presidio PII検出・匿名化",
+      "filename": "pii_sanitizer.py",
+      "code": "from presidio_analyzer import AnalyzerEngine, RecognizerRegistry\nfrom presidio_anonymizer import AnonymizerEngine\nfrom presidio_anonymizer.entities import OperatorConfig\n\n# 日本語対応のためカスタムRecognizerを登録\nregistry = RecognizerRegistry()\nregistry.load_predefined_recognizers(languages=[\"en\", \"ja\"])\n\nanalyzer = AnalyzerEngine(registry=registry)\nanonymizer = AnonymizerEngine()\n\ndef sanitize_prompt(text: str) -> str:\n    \"\"\"プロンプト送信前のPII検出・マスキング\"\"\"\n    results = analyzer.analyze(\n        text=text,\n        language=\"ja\",\n        entities=[\"PERSON\", \"PHONE_NUMBER\", \"EMAIL_ADDRESS\",\n                  \"CREDIT_CARD\", \"JP_MY_NUMBER\"]\n    )\n    anonymized = anonymizer.anonymize(\n        text=text,\n        analyzer_results=results,\n        operators={\n            \"PERSON\": OperatorConfig(\"replace\", {\"new_value\": \"[氏名]\"}),\n            \"PHONE_NUMBER\": OperatorConfig(\"mask\", {\n                \"chars_to_mask\": 8,\n                \"masking_char\": \"*\",\n                \"from_end\": False\n            }),\n            \"DEFAULT\": OperatorConfig(\"replace\", {\"new_value\": \"[REDACTED]\"})\n        }\n    )\n    return anonymized.text",
+      "caption": "本番環境ではGiNZA（日本語NER）との統合により検出精度を向上"
+    },
+    {
+      "type": "table",
+      "caption": "データ分類ポリシー",
+      "headers": [
+        "分類レベル",
+        "定義",
+        "LLM利用制限",
+        "例"
+      ],
+      "rows": [
+        [
+          "Public",
+          "公開情報",
+          "制限なし（外部APIへの送信可）",
+          "公開ドキュメント、マーケティング資料"
+        ],
+        [
+          "Internal",
+          "社内限定情報",
+          "外部API利用可（DLPチェック必須）",
+          "社内Wiki、議事録"
+        ],
+        [
+          "Confidential",
+          "機密情報",
+          "ゲートウェイ経由のみ（PII匿名化必須）",
+          "顧客データ、契約書"
+        ],
+        [
+          "Restricted",
+          "最高機密",
+          "プライベートモデルのみ / LLM利用禁止",
+          "暗号鍵、医療データ、特許出願前の技術情報"
+        ]
+      ]
+    },
+    {
+      "type": "subsection",
+      "title": "パターン別推奨構成",
+      "blocks": [
+        {
+          "type": "list",
+          "ordered": false,
+          "items": [
+            "**パターンA（API直接利用）**: クライアントサイドでPresidio等を用いたPII検出を実装。CI/CDパイプラインにDLPスキャンを組み込み、APIキーやシークレットの送信を防止",
+            "**パターンB（ゲートウェイ経由）**: LLMゲートウェイにDLPミドルウェアを配置し、全リクエスト/レスポンスを透過的に検査。{{data-classification}}ポリシーとの連動によりConfidential以上のデータを自動ブロック",
+            "**パターンC（プライベートホスティング）**: データがネットワーク外に出ないためリスクは低減するが、内部者脅威への対策としてDLPは依然必要。推論サーバー前段にDLPプロキシを配置"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "checklist",
+      "categories": [
+        {
+          "name": "データ保護チェックリスト",
+          "items": [
+            "プロンプト送信前のPII検出・マスキング機構が実装されている",
+            "レスポンスに対する機密情報フィルタが実装されている",
+            "データ分類ポリシーが定義され、分類レベルに応じたLLM利用制限が実装されている",
+            "日本語PIIの検出精度テストが実施されている（マイナンバー、氏名、住所等）",
+            "DLP検出ルールの定期的な更新・チューニングのプロセスが確立されている",
+            "誤検知率（False Positive）の監視とフィードバックループが構築されている",
+            "APIプロバイダーのデータ利用ポリシー（学習への使用有無）を確認・合意している",
+            "DLPログが監査要件を満たす形で保持されている"
+          ]
+        }
+      ]
+    }
+  ]
+}

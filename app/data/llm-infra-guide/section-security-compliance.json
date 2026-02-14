@@ -1,0 +1,239 @@
+{
+  "id": "security-compliance",
+  "title": "コンプライアンス・監査",
+  "description": "規制対応と監査ログ基盤の構築",
+  "blocks": [
+    {
+      "type": "text",
+      "content": "LLMの利用は多くの規制要件に影響を及ぼします。EU AI Act（2024年発効）によるリスクベースの規制、GDPRにおけるAIによるデータ処理の適法性、日本の個人情報保護法における要配慮個人情報の取り扱い、金融業界のFISC安全対策基準、医療分野の3省2ガイドライン等、業界・地域に応じた多様な規制への対応が求められます。さらに、LLMの出力は非決定的であるため、{{audit-log}}による完全な監査証跡の確保が不可欠です。"
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "**完全な監査証跡**: すべてのLLMインタラクション（プロンプト・レスポンス・メタデータ）を記録する",
+        "**最小保持原則**: 規制要件を満たす最小限の期間でログを保持し、不要になったデータは確実に削除する",
+        "**検索可能性**: 監査要求に対し、迅速にログを検索・提出できる基盤を構築する",
+        "**自動エンフォースメント**: ポリシー違反を手動監視ではなく、{{opa}}による自動検出・ブロック"
+      ]
+    },
+    {
+      "type": "table",
+      "caption": "監査ログ3レベル設計",
+      "headers": [
+        "ログレベル",
+        "記録内容",
+        "保持期間",
+        "ストレージ",
+        "コスト感"
+      ],
+      "rows": [
+        [
+          "Level 1: メタデータ",
+          "タイムスタンプ、ユーザーID、モデル名、トークン数、レイテンシ",
+          "3年",
+          "構造化DB (DynamoDB/BigQuery)",
+          "低"
+        ],
+        [
+          "Level 2: ハッシュ",
+          "Level 1 + プロンプト/レスポンスのSHA-256ハッシュ",
+          "1年",
+          "構造化DB",
+          "低"
+        ],
+        [
+          "Level 3: 全文",
+          "Level 1 + プロンプト/レスポンスの全文（暗号化）",
+          "90日〜1年",
+          "S3 (KMS暗号化) / BigQuery",
+          "高"
+        ]
+      ]
+    },
+    {
+      "type": "codeBlock",
+      "language": "json",
+      "title": "監査ログスキーマ例",
+      "filename": "audit-log-schema.json",
+      "code": "{\n  \"timestamp\": \"2026-02-10T09:30:00Z\",\n  \"request_id\": \"req_abc123\",\n  \"user_id\": \"user@company.com\",\n  \"user_role\": \"developer\",\n  \"model\": \"claude-sonnet-4-5\",\n  \"provider\": \"anthropic\",\n  \"action\": \"chat.completions\",\n  \"input_tokens\": 1500,\n  \"output_tokens\": 800,\n  \"latency_ms\": 2340,\n  \"status\": \"success\",\n  \"data_classification\": \"internal\",\n  \"dlp_findings\": [],\n  \"prompt_hash\": \"sha256:a1b2c3...\",\n  \"response_hash\": \"sha256:d4e5f6...\",\n  \"source_ip\": \"10.0.1.50\",\n  \"tools_used\": [\"code_interpreter\"],\n  \"guardrail_triggers\": []\n}",
+      "caption": "Level 2ログの例。全文記録はLevel 3で暗号化保管"
+    },
+    {
+      "type": "table",
+      "caption": "規制対応マトリクス",
+      "headers": [
+        "規制",
+        "主な要件",
+        "LLMへの影響",
+        "対応策"
+      ],
+      "rows": [
+        [
+          "GDPR",
+          "データ主体の権利（アクセス権、削除権、説明権）",
+          "プロンプト内個人データの処理根拠、出力の説明可能性",
+          "PII匿名化 / DPA締結 / 自動意思決定への同意取得"
+        ],
+        [
+          "個人情報保護法",
+          "要配慮個人情報の取扱い、越境移転規制",
+          "LLM APIへの要配慮個人情報の送信制限",
+          "データ分類によるLLM利用制限 / 国内リージョン利用"
+        ],
+        [
+          "FISC安全対策基準",
+          "金融機関のIT利用に関する安全対策",
+          "外部クラウドサービスの利用基準",
+          "パターンC採用 / データレジデンシー確保 / 定期監査"
+        ],
+        [
+          "3省2ガイドライン",
+          "医療情報の適切な管理",
+          "患者データのLLM処理に関する制約",
+          "匿名化の徹底 / 国内DC利用 / ログ長期保持"
+        ],
+        [
+          "HIPAA",
+          "Protected Health Information (PHI) の保護",
+          "PHIをLLMに送信する際の制約",
+          "BAA締結 / PHI暗号化 / 監査ログの6年保持"
+        ]
+      ]
+    },
+    {
+      "type": "table",
+      "caption": "プロバイダー別データレジデンシー",
+      "headers": [
+        "プロバイダー",
+        "日本リージョン対応",
+        "データ処理の保証"
+      ],
+      "rows": [
+        [
+          "AWS Bedrock",
+          "東京リージョン (ap-northeast-1)",
+          "リクエスト/レスポンスはリージョン内で処理。学習には使用しない"
+        ],
+        [
+          "Azure OpenAI",
+          "Japan East",
+          "データはデプロイリージョン内で処理。Abuse Monitoringは無効化可能（申請制）"
+        ],
+        [
+          "GCP Vertex AI",
+          "asia-northeast1",
+          "VPC-SC + データロケーションポリシーで制御"
+        ],
+        [
+          "OpenAI API (直接)",
+          "リージョン指定不可",
+          "ZDRポリシーあり。Enterprise契約で追加保証"
+        ],
+        [
+          "Anthropic API (直接)",
+          "リージョン指定不可（AWS/GCP経由で対応可）",
+          "Commercial Terms: 入出力データを学習に使用しない"
+        ]
+      ]
+    },
+    {
+      "type": "codeBlock",
+      "language": "yaml",
+      "title": "OPA Gatekeeperポリシーエンフォースメント",
+      "filename": "llm-usage-policy.yaml",
+      "code": "apiVersion: constraints.gatekeeper.sh/v1beta1\nkind: LLMUsagePolicy\nmetadata:\n  name: restrict-confidential-data\nspec:\n  match:\n    kinds:\n      - apiGroups: [\"llm.company.com\"]\n        kinds: [\"LLMRequest\"]\n  parameters:\n    blockedClassifications: [\"restricted\"]\n    requiredDLPCheck: true\n    maxTokensPerRequest: 8000\n    allowedModels:\n      - \"claude-sonnet-4-5\"\n      - \"gpt-4o\"\n    requiredApprovals:\n      confidential: [\"team-lead\"]\n      restricted: [\"ciso\"]",
+      "caption": "Kubernetes環境でのLLM利用ポリシーを宣言的に定義・自動適用"
+    },
+    {
+      "type": "infraDiagram",
+      "variant": "dataflow",
+      "title": "監査・コンプライアンス基盤",
+      "caption": "ログ収集からリアルタイム異常検知、監査エクスポートまでの5段階パイプライン",
+      "stages": [
+        {
+          "label": "ログソース",
+          "color": "#DBEAFE",
+          "items": [
+            "LLMゲートウェイログ",
+            "DLPエンジンログ",
+            "認証/認可ログ",
+            "推論サーバーログ"
+          ]
+        },
+        {
+          "label": "ログ収集パイプライン",
+          "color": "#D1FAE5",
+          "items": [
+            "Fluentd / Vector（集約・正規化・PII再マスキング）",
+            "Apache Kafka（バッファリング・順序保証）"
+          ]
+        },
+        {
+          "label": "リアルタイム処理",
+          "color": "#FEF3C7",
+          "items": [
+            "ストリーム処理 (Flink / Kinesis Analytics)",
+            "異常検知エンジン",
+            "アラート通知 (PagerDuty / Slack)"
+          ]
+        },
+        {
+          "label": "ストレージ層",
+          "color": "#EDE9FE",
+          "items": [
+            "Hot: OpenSearch (30日)",
+            "Warm: S3 Standard (1年)",
+            "Cold: S3 Glacier (3年+)"
+          ]
+        },
+        {
+          "label": "分析・可視化",
+          "color": "#FCE7F3",
+          "items": [
+            "Grafana ダッシュボード",
+            "監査エクスポート"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "subsection",
+      "title": "パターン別推奨構成",
+      "blocks": [
+        {
+          "type": "list",
+          "ordered": false,
+          "items": [
+            "**パターンA（API直接利用）**: アプリケーション側でLevel 1+2ログを記録。CloudWatch Logs等に集約。プロバイダーのデータ利用ポリシーとDPA/BAA締結を確認",
+            "**パターンB（ゲートウェイ経由）**: ゲートウェイでLevel 3（全文）ログを一元取得。S3 + KMS暗号化で保管しOpenSearchで検索可能に。リアルタイム異常検知パイプライン連携",
+            "**パターンC（プライベートホスティング）**: 全ログをオンプレミスに保管し外部持ち出しを禁止。WORM（Write Once Read Many）ストレージで改ざん防止。ハッシュチェーンで完全性保証"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "checklist",
+      "categories": [
+        {
+          "name": "コンプライアンスチェックリスト",
+          "items": [
+            "全LLMリクエスト/レスポンスの監査ログが取得・保管されている",
+            "ログのストレージ暗号化（at rest / in transit）が実装されている",
+            "ログの保持期間が規制要件に基づいて設定されている",
+            "監査ログの検索・エクスポート機能が実装されている",
+            "対象規制（GDPR / 個人情報保護法 / 業界固有規制）への対応状況が文書化されている",
+            "APIプロバイダーとのDPA/BAA等の契約が締結されている",
+            "データレジデンシー要件を満たすリージョン構成が確認されている",
+            "利用ポリシー違反の自動検出・ブロック機構が実装されている",
+            "リアルタイム異常検知とアラート通知が稼働している"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "reactFlowDiagram",
+      "diagramId": "audit-pipeline"
+    }
+  ]
+}

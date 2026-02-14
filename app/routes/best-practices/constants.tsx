@@ -1,4 +1,4 @@
-import bpData from "~/data/best-practices.json";
+import bpData from "~/data/best-practices/best-practices.json";
 
 // ---------------------------------------------------------------------------
 // Types

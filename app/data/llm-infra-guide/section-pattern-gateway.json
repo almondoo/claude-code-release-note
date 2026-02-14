@@ -1,0 +1,203 @@
+{
+  "id": "pattern-gateway",
+  "title": "パターンB: プロキシ/GWの構築",
+  "description": "LLMゲートウェイによる一元管理アーキテクチャ",
+  "blocks": [
+    {
+      "type": "text",
+      "content": "{{llm-gateway}}を導入することで、複数チーム・複数モデルの利用を一元管理できます。{{rbac}}、{{dlp}}、{{cost-allocation}}などのエンタープライズ機能を集約し、ガバナンスを強化します。"
+    },
+    {
+      "type": "infraDiagram",
+      "variant": "network",
+      "title": "パターンB: ネットワーク構成",
+      "caption": "LLMゲートウェイがすべてのリクエストを仲介",
+      "zones": [
+        {
+          "label": "クライアント層",
+          "color": "#10B981",
+          "items": [
+            {
+              "label": "Web App",
+              "sublabel": "フロントエンド"
+            },
+            {
+              "label": "Backend API",
+              "sublabel": "サービス群"
+            },
+            {
+              "label": "Batch Jobs",
+              "sublabel": "非同期処理"
+            }
+          ]
+        },
+        {
+          "label": "ゲートウェイ層",
+          "color": "#8B5CF6",
+          "items": [
+            {
+              "label": "LLM Gateway",
+              "sublabel": "リクエスト制御"
+            },
+            {
+              "label": "DLP/PII",
+              "sublabel": "データ保護"
+            },
+            {
+              "label": "Cache",
+              "sublabel": "レスポンスキャッシュ"
+            }
+          ]
+        },
+        {
+          "label": "プロバイダー層",
+          "color": "#F59E0B",
+          "items": [
+            {
+              "label": "Anthropic",
+              "sublabel": "Claude API"
+            },
+            {
+              "label": "OpenAI",
+              "sublabel": "GPT API"
+            },
+            {
+              "label": "Google",
+              "sublabel": "Gemini API"
+            }
+          ]
+        },
+        {
+          "label": "監視・運用層",
+          "color": "#A855F7",
+          "items": [
+            {
+              "label": "Metrics",
+              "sublabel": "Prometheus"
+            },
+            {
+              "label": "Logs",
+              "sublabel": "Grafana Loki"
+            },
+            {
+              "label": "Alerts",
+              "sublabel": "PagerDuty"
+            }
+          ]
+        }
+      ],
+      "connections": [
+        {
+          "from": "クライアント",
+          "to": "ゲートウェイ",
+          "label": "HTTPS",
+          "style": "solid"
+        },
+        {
+          "from": "ゲートウェイ",
+          "to": "プロバイダー",
+          "label": "API呼び出し",
+          "style": "solid"
+        },
+        {
+          "from": "ゲートウェイ",
+          "to": "監視",
+          "label": "メトリクス/ログ",
+          "style": "dashed"
+        }
+      ]
+    },
+    {
+      "type": "stepGuide",
+      "title": "実装ステップ",
+      "steps": [
+        {
+          "label": "Step 1",
+          "title": "ゲートウェイ製品の選定",
+          "description": "要件に基づいてLLMゲートウェイを選定します。OSS（LiteLLM Proxy、Portkey）、マネージド（AWS Bedrock、Azure AI Gateway）、専用製品（Helicone、Braintrust）から選択します。",
+          "duration": "1-2週間",
+          "difficulty": "medium"
+        },
+        {
+          "label": "Step 2",
+          "title": "ゲートウェイのデプロイ",
+          "description": "選定したゲートウェイを{{kubernetes}}クラスタまたはマネージドサービスにデプロイします。{{vpc}}内に配置してネットワークセキュリティを確保します。",
+          "duration": "1-2週間",
+          "difficulty": "medium",
+          "blocks": [
+            {
+              "type": "codeBlock",
+              "language": "yaml",
+              "title": "LiteLLM Proxy のKubernetesデプロイ例",
+              "filename": "litellm-deployment.yaml",
+              "code": "apiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: litellm-proxy\n  namespace: llm-platform\nspec:\n  replicas: 3\n  selector:\n    matchLabels:\n      app: litellm-proxy\n  template:\n    metadata:\n      labels:\n        app: litellm-proxy\n    spec:\n      containers:\n        - name: litellm\n          image: ghcr.io/berriai/litellm:main-latest\n          ports:\n            - containerPort: 4000\n          env:\n            - name: ANTHROPIC_API_KEY\n              valueFrom:\n                secretKeyRef:\n                  name: llm-secrets\n                  key: anthropic-api-key\n          resources:\n            requests:\n              cpu: 500m\n              memory: 512Mi\n            limits:\n              cpu: 1000m\n              memory: 1Gi"
+            }
+          ]
+        },
+        {
+          "label": "Step 3",
+          "title": "ルーティングルールの設定",
+          "description": "{{smart-routing}}を設定して、リクエストの種類に応じた最適なモデルへの振り分けを自動化します。コスト・品質・レイテンシのバランスを調整します。",
+          "duration": "1週間",
+          "difficulty": "medium"
+        },
+        {
+          "label": "Step 4",
+          "title": "DLP/PIIフィルタの統合",
+          "description": "ゲートウェイにDLPフィルタを組み込み、プロンプトに含まれる機密データを自動検出・マスキングします。正規表現とNLPベースの検出を併用します。",
+          "duration": "1-2週間",
+          "difficulty": "hard"
+        },
+        {
+          "label": "Step 5",
+          "title": "キャッシュ層の構築",
+          "description": "{{prompt-caching}}と{{semantic-caching}}を設定して、重複リクエストのコストとレイテンシを大幅に削減します。Redis/Valkey をキャッシュバックエンドに使用します。",
+          "duration": "1週間",
+          "difficulty": "medium"
+        }
+      ]
+    },
+    {
+      "type": "table",
+      "caption": "主要ゲートウェイ製品比較",
+      "headers": [
+        "製品",
+        "タイプ",
+        "主な特徴",
+        "コスト"
+      ],
+      "rows": [
+        [
+          "LiteLLM Proxy",
+          "OSS",
+          "100+モデル対応、OpenAI互換API",
+          "無料（セルフホスト）"
+        ],
+        [
+          "Portkey",
+          "マネージド",
+          "キャッシュ・フォールバック・ガードレール",
+          "$99/月〜"
+        ],
+        [
+          "AWS Bedrock",
+          "クラウド",
+          "AWS統合、モデルアクセス一元化",
+          "従量課金"
+        ],
+        [
+          "Azure AI Gateway",
+          "クラウド",
+          "APIM統合、エンタープライズSSO",
+          "従量課金"
+        ],
+        [
+          "Helicone",
+          "マネージド",
+          "オブザーバビリティ特化、ワンライン統合",
+          "無料枠あり"
+        ]
+      ]
+    }
+  ]
+}

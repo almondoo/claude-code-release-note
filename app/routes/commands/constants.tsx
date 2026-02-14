@@ -1,4 +1,4 @@
-import commandsData from "~/data/commands.json";
+import commandsData from "~/data/commands/commands.json";
 
 export interface Command {
   name: string;

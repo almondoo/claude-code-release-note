@@ -1,0 +1,126 @@
+{
+  "id": "pattern-private",
+  "title": "パターンC: プライベート/オンプレ構築",
+  "description": "自社ホスティングによる完全統制アーキテクチャ",
+  "blocks": [
+    {
+      "type": "text",
+      "content": "{{zero-data-retention}}を超えてデータの完全統制が求められる場合、{{vllm}}などの{{inference-engine}}を用いてLLMを自社環境にデプロイします。GPU調達とモデル運用の専門知識が前提となります。"
+    },
+    {
+      "type": "infraDiagram",
+      "variant": "cloudArch",
+      "title": "プライベートLLM基盤構成",
+      "provider": "aws",
+      "caption": "AWS上での自社ホスティングLLM構成例",
+      "layers": [
+        {
+          "label": "アクセス層",
+          "color": "#10B981",
+          "services": [
+            {
+              "name": "ALB",
+              "description": "ロードバランサー"
+            },
+            {
+              "name": "API Gateway",
+              "description": "認証・制御"
+            }
+          ]
+        },
+        {
+          "label": "推論層",
+          "color": "#8B5CF6",
+          "services": [
+            {
+              "name": "vLLM",
+              "description": "推論エンジン"
+            },
+            {
+              "name": "TGI",
+              "description": "バックアップ"
+            },
+            {
+              "name": "Triton",
+              "description": "エンベディング"
+            }
+          ]
+        },
+        {
+          "label": "GPU層",
+          "color": "#F59E0B",
+          "services": [
+            {
+              "name": "p5.48xlarge",
+              "description": "H100 x8"
+            },
+            {
+              "name": "g5.xlarge",
+              "description": "A10G (小型)"
+            }
+          ]
+        },
+        {
+          "label": "ストレージ層",
+          "color": "#06B6D4",
+          "services": [
+            {
+              "name": "S3",
+              "description": "モデル保管"
+            },
+            {
+              "name": "EFS",
+              "description": "共有ストレージ"
+            },
+            {
+              "name": "ElastiCache",
+              "description": "KVキャッシュ"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stepGuide",
+      "title": "実装ステップ",
+      "steps": [
+        {
+          "label": "Step 1",
+          "title": "GPUインフラの調達",
+          "description": "ワークロードに応じたGPUインスタンスを選定・確保します。H100 (大型モデル70B+)、A100 (中型モデル)、A10G (小型モデル7B以下) が主な選択肢です。",
+          "duration": "2-4週間",
+          "difficulty": "hard"
+        },
+        {
+          "label": "Step 2",
+          "title": "推論エンジンのデプロイ",
+          "description": "{{vllm}}をKubernetesクラスタにデプロイし、モデルのロードと推論サービスを構築します。{{quantization}}でメモリ効率を最適化します。",
+          "duration": "1-2週間",
+          "difficulty": "hard",
+          "blocks": [
+            {
+              "type": "codeBlock",
+              "language": "bash",
+              "title": "vLLMの起動コマンド",
+              "code": "# vLLMサーバーの起動 (Llama 3.1 70B, AWQ量子化)\npython -m vllm.entrypoints.openai.api_server \\\n  --model meta-llama/Llama-3.1-70B-Instruct-AWQ \\\n  --quantization awq \\\n  --tensor-parallel-size 4 \\\n  --gpu-memory-utilization 0.9 \\\n  --max-model-len 8192 \\\n  --port 8000 \\\n  --host 0.0.0.0",
+              "caption": "4GPU並列でAWQ量子化モデルをサービング"
+            }
+          ]
+        },
+        {
+          "label": "Step 3",
+          "title": "オートスケーリングの設定",
+          "description": "GPUワークロードに応じたカスタムメトリクスベースのオートスケーリングを設定します。Kubernetes HPAとカスタムメトリクスサーバーを使用します。",
+          "duration": "1-2週間",
+          "difficulty": "hard"
+        }
+      ]
+    },
+    {
+      "type": "highlight",
+      "variant": "warning",
+      "title": "コストに注意",
+      "content": "H100 x8構成（p5.48xlarge）は約$98/時間。月間フル稼働で$70,000以上になります。GPUの稼働率が50%未満の場合、API利用（パターンA/B）の方がコスト効率が高い可能性があります。"
+    }
+  ]
+}

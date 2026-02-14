@@ -1,0 +1,136 @@
+{
+  "id": "security-access-control",
+  "title": "アクセス制御・認証",
+  "description": "RBAC/ABACによるLLMアクセスの精緻な制御",
+  "blocks": [
+    {
+      "type": "text",
+      "content": "LLMへのアクセスは「誰が」「どのモデルに」「どのような操作を」行えるかの精緻な制御が必要です。単一のAPIキーを複数チームで共有する運用は、{{audit-log}}追跡の困難さと不正利用時の影響範囲拡大を招きます。また、LLMのツール利用（Function Calling / MCP）における権限昇格のリスクは新たな攻撃面となっています。{{rbac}}に加え、{{abac}}を組み合わせた柔軟なアクセス制御と、{{opa}}によるポリシーエンジンの導入が推奨されます。"
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "**最小権限の原則**: ユーザー・サービスアカウントに対し、必要最小限のモデル・機能へのアクセスのみを付与",
+        "**認証の一元化**: 企業IdP（Identity Provider）との統合により、既存のID管理基盤を活用",
+        "**短命クレデンシャル**: 長期APIキーではなく、有効期限付きトークンと自動ローテーションを基本とする",
+        "**ゼロトラスト**: すべてのリクエストを検証し、暗黙の信頼を排除する"
+      ]
+    },
+    {
+      "type": "table",
+      "caption": "RBACロールマトリクス",
+      "headers": [
+        "ロール",
+        "許可モデル",
+        "機能制限",
+        "レート制限"
+      ],
+      "rows": [
+        [
+          "developer",
+          "GPT-4o, Claude Sonnet",
+          "テキスト生成、コード補完",
+          "100 req/min"
+        ],
+        [
+          "analyst",
+          "GPT-4o, Gemini Pro",
+          "テキスト生成、RAG検索",
+          "50 req/min"
+        ],
+        [
+          "admin",
+          "全モデル",
+          "全機能 + ツール利用",
+          "200 req/min"
+        ],
+        [
+          "service-account",
+          "指定モデルのみ",
+          "バッチ処理、パイプライン統合",
+          "500 req/min"
+        ]
+      ]
+    },
+    {
+      "type": "codeBlock",
+      "language": "rego",
+      "title": "OPA ABACポリシー",
+      "filename": "llm_authz.rego",
+      "code": "package llm.authz\n\ndefault allow = false\n\nallow {\n    input.user.role == \"developer\"\n    input.model in {\"gpt-4o\", \"claude-sonnet-4-5\"}\n    input.data_classification in {\"public\", \"internal\"}\n    input.source_network == \"vpn\"\n}\n\nallow {\n    input.user.role == \"admin\"\n    input.source_network in {\"vpn\", \"office\"}\n}\n\n# ツール利用（Function Calling）の制限\nallow_tool_use {\n    input.user.role == \"admin\"\n    input.tool_name in allowed_tools[input.user.department]\n}\n\nallowed_tools[\"engineering\"] = {\"code_interpreter\", \"file_search\"}\nallowed_tools[\"legal\"] = {\"document_search\"}",
+      "caption": "Regoでポリシーをコード化し、GitOpsで管理・デプロイする"
+    },
+    {
+      "type": "table",
+      "caption": "API鍵管理要件",
+      "headers": [
+        "要件",
+        "実装方法",
+        "ツール"
+      ],
+      "rows": [
+        [
+          "安全な保管",
+          "暗号化されたシークレットストアに格納。環境変数や設定ファイルへの直書きを禁止",
+          "HashiCorp Vault, AWS Secrets Manager, Azure Key Vault"
+        ],
+        [
+          "自動ローテーション",
+          "30〜90日周期でのキーローテーション。Vaultのdynamic secretsを利用",
+          "Vault Dynamic Secrets, AWS Lambda + Secrets Manager"
+        ],
+        [
+          "アクセス監査",
+          "シークレットへのアクセスログを記録し、異常なアクセスパターンを検出",
+          "Vault Audit Log, CloudTrail"
+        ],
+        [
+          "スコープ制限",
+          "APIキーにサービスアカウント・IPレンジ・利用制限を紐付け",
+          "プロバイダーAPI設定 + ゲートウェイポリシー"
+        ]
+      ]
+    },
+    {
+      "type": "codeBlock",
+      "language": "yaml",
+      "title": "Vault Agent Injector + Istio mTLS",
+      "filename": "llm-gateway-deployment.yaml",
+      "code": "# Kubernetes連携 (Vault Agent Injector)\n# Pod起動時にVaultからシークレットを自動注入\napiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: llm-gateway\nspec:\n  template:\n    metadata:\n      annotations:\n        vault.hashicorp.com/agent-inject: \"true\"\n        vault.hashicorp.com/agent-inject-secret-openai: \"secret/data/llm/openai\"\n        vault.hashicorp.com/role: \"llm-gateway\"\n---\n# Istio PeerAuthentication によるmTLS強制\napiVersion: security.istio.io/v1\nkind: PeerAuthentication\nmetadata:\n  name: llm-namespace-mtls\n  namespace: llm-platform\nspec:\n  mtls:\n    mode: STRICT  # mTLS必須、証明書なしでは接続拒否",
+      "caption": "Vaultによるシークレット管理とIstioによるmTLS通信の組み合わせ"
+    },
+    {
+      "type": "subsection",
+      "title": "パターン別推奨構成",
+      "blocks": [
+        {
+          "type": "list",
+          "ordered": false,
+          "items": [
+            "**パターンA（API直接利用）**: Secrets Manager + 環境変数注入によるAPIキー管理。チームごとに個別のAPIキーを発行し、利用量の追跡と制限を実施",
+            "**パターンB（ゲートウェイ経由）**: ゲートウェイでOIDC/SAMLトークンを検証し、ユーザー属性に基づく{{abac}}を実行。バックエンドAPIキーはゲートウェイのみが保持",
+            "**パターンC（プライベートホスティング）**: Kubernetes RBAC + Istio AuthorizationPolicyによる多層アクセス制御。{{mtls}}を推論エンドポイントまで徹底"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "checklist",
+      "categories": [
+        {
+          "name": "アクセス制御チェックリスト",
+          "items": [
+            "モデル・機能単位のRBAC/ABACポリシーが定義・実装されている",
+            "全APIキーがシークレットストアで管理され、自動ローテーションが有効である",
+            "APIキーのハードコーディング検出がCI/CDに組み込まれている（gitleaks等）",
+            "企業IdPとのSSO統合が完了し、LLMアクセスが一元管理されている",
+            "サービス間通信にmTLSが適用されている",
+            "ツール利用（Function Calling / MCP）に対する個別の認可ポリシーが定義されている",
+            "定期的なアクセス権レビュー（棚卸し）のプロセスが確立されている"
+          ]
+        }
+      ]
+    }
+  ]
+}

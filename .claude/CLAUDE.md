@@ -22,9 +22,12 @@ Claude Code のリリースノートを日本語で閲覧できる Web アプリ
 
 ### データフロー
 
-`https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md` (英語の元データ) → `app/data/releases.json` (日本語に翻訳済みの JSON) → `app/routes/release-note.tsx` (表示)
+`https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md` (英語の元データ) → `app/data/releases/` (日本語に翻訳済みの JSON) → `app/routes/release-note/` (表示)
 
-- `releases.json` はバージョンごとのリリース情報を配列で保持。各アイテムは `t` (テキスト) と `tags` (カテゴリタグ配列) を持つ
+- データファイルはページ単位のディレクトリで管理: `app/data/{ページ名}/`
+- リリースデータはバージョン範囲ごとに分割: `releases-2.0.x.json`, `releases-2.1.x.json`
+- 詳細データも同様: `version-details-2.1.x.json`
+- 各アイテムは `t` (テキスト) と `tags` (カテゴリタグ配列) を持つ
 - タグ種別: `新機能`, `バグ修正`, `改善`, `SDK`, `IDE`, `Platform`, `Security`, `Perf`, `非推奨`, `Plugin`
 
 ### ルーティング

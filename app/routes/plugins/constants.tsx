@@ -1,4 +1,4 @@
-import pluginsData from "~/data/plugins.json";
+import pluginsData from "~/data/plugins/plugins.json";
 
 export interface Plugin {
   name: string;

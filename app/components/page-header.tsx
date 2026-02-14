@@ -10,6 +10,7 @@ const ALL_PAGES = [
   { to: "/setup", label: "セットアップ" },
   { to: "/best-practices", label: "ベストプラクティス" },
   { to: "/llm-infra-guide", label: "LLM構築ガイド" },
+  { to: "/hands-on", label: "ハンズオン" },
 ];
 
 interface Stat {

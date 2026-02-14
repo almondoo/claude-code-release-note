@@ -6,7 +6,7 @@ import {
   MapPinIcon,
   TerminalIcon,
 } from "~/components/icons";
-import directoryData from "~/data/directory-structure.json";
+import directoryData from "~/data/directory/directory-structure.json";
 
 export interface Entry {
   path: string;

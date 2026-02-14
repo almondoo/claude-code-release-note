@@ -1,0 +1,134 @@
+{
+  "id": "monitoring",
+  "title": "監視・観測性の構築",
+  "description": "LLM基盤のオブザーバビリティスタック",
+  "blocks": [
+    {
+      "type": "text",
+      "content": "{{observability}}はLLM基盤の安定運用に不可欠です。メトリクス・ログ・トレースの3本柱を構築し、{{sla}}に基づいたモニタリングとアラートを設定します。"
+    },
+    {
+      "type": "infraDiagram",
+      "variant": "dataflow",
+      "title": "モニタリングパイプライン",
+      "caption": "全てのLLMリクエストからメトリクス・ログ・トレースを収集",
+      "stages": [
+        {
+          "label": "データソース",
+          "color": "#3B82F6",
+          "items": [
+            "LLM Gateway",
+            "Application",
+            "Infrastructure"
+          ]
+        },
+        {
+          "label": "収集",
+          "color": "#10B981",
+          "items": [
+            "OpenTelemetry",
+            "Fluentd",
+            "Prometheus"
+          ]
+        },
+        {
+          "label": "保存",
+          "color": "#F59E0B",
+          "items": [
+            "Grafana Loki",
+            "Prometheus TSDB",
+            "Jaeger"
+          ]
+        },
+        {
+          "label": "可視化",
+          "color": "#A855F7",
+          "items": [
+            "Grafana",
+            "PagerDuty",
+            "Slack"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stepGuide",
+      "title": "モニタリング構築ステップ",
+      "steps": [
+        {
+          "label": "Step 1",
+          "title": "メトリクス収集の設定",
+          "description": "Prometheusでリクエスト数、レイテンシ（P50/P95/P99）、トークン使用量、エラーレート、キャッシュヒット率を収集します。",
+          "duration": "2-3日",
+          "difficulty": "medium",
+          "blocks": [
+            {
+              "type": "codeBlock",
+              "language": "yaml",
+              "title": "Prometheus メトリクス設定",
+              "filename": "prometheus-rules.yaml",
+              "code": "groups:\n  - name: llm_metrics\n    rules:\n      - alert: HighErrorRate\n        expr: |\n          rate(llm_requests_total{status=\"error\"}[5m])\n          / rate(llm_requests_total[5m]) > 0.05\n        for: 5m\n        labels:\n          severity: critical\n        annotations:\n          summary: \"LLM APIエラー率が5%を超過\"\n      \n      - alert: HighLatency\n        expr: |\n          histogram_quantile(0.95, \n            rate(llm_request_duration_seconds_bucket[5m])\n          ) > 10\n        for: 5m\n        labels:\n          severity: warning\n        annotations:\n          summary: \"LLM P95レイテンシが10秒を超過\""
+            }
+          ]
+        },
+        {
+          "label": "Step 2",
+          "title": "ログ収集パイプライン",
+          "description": "全LLMリクエスト/レスポンスの構造化ログを収集します。プロンプト内容はPII検出後にマスキングしてから保存します。",
+          "duration": "2-3日",
+          "difficulty": "medium"
+        },
+        {
+          "label": "Step 3",
+          "title": "ダッシュボードの構築",
+          "description": "Grafanaで運用ダッシュボード（リアルタイムメトリクス）、コストダッシュボード（利用量・費用追跡）、SLAダッシュボード（目標vs実績）を作成します。",
+          "duration": "2-3日",
+          "difficulty": "easy"
+        },
+        {
+          "label": "Step 4",
+          "title": "アラートの設定",
+          "description": "PagerDutyやSlackと連携し、SLA違反、エラー率閾値超過、コスト異常検知のアラートを設定します。{{incident-management}}プロセスとの統合も行います。",
+          "duration": "1-2日",
+          "difficulty": "easy"
+        }
+      ]
+    },
+    {
+      "type": "table",
+      "caption": "推奨SLI/SLO設定",
+      "headers": [
+        "メトリクス",
+        "SLI",
+        "SLO目標",
+        "測定方法"
+      ],
+      "rows": [
+        [
+          "可用性",
+          "成功リクエスト率",
+          "99.9%",
+          "5分間ウィンドウ"
+        ],
+        [
+          "レイテンシ",
+          "P95応答時間",
+          "< 5秒",
+          "ヒストグラム"
+        ],
+        [
+          "エラーレート",
+          "5xxエラー率",
+          "< 0.1%",
+          "カウンター"
+        ],
+        [
+          "スループット",
+          "RPS上限",
+          "> 100 req/s",
+          "レートカウンター"
+        ]
+      ]
+    }
+  ]
+}

@@ -1,0 +1,128 @@
+{
+  "id": "cost-optimization",
+  "title": "コスト最適化の実装",
+  "description": "LLM利用コストを50-90%削減する実践的手法",
+  "blocks": [
+    {
+      "type": "text",
+      "content": "LLMのコスト最適化は{{finops}}の観点から体系的に取り組む必要があります。{{prompt-caching}}、{{semantic-caching}}、{{batch-api}}、{{smart-routing}}の組み合わせにより、大幅なコスト削減が現実的に達成可能です。"
+    },
+    {
+      "type": "stats",
+      "items": [
+        {
+          "label": "プロンプトキャッシュ",
+          "value": "最大90%削減",
+          "trend": "up"
+        },
+        {
+          "label": "セマンティックキャッシュ",
+          "value": "50%+削減",
+          "trend": "up"
+        },
+        {
+          "label": "バッチAPI",
+          "value": "50%削減",
+          "trend": "up"
+        },
+        {
+          "label": "スマートルーティング",
+          "value": "30-60%削減",
+          "trend": "up"
+        }
+      ]
+    },
+    {
+      "type": "stepGuide",
+      "title": "コスト最適化ステップ",
+      "steps": [
+        {
+          "label": "Step 1",
+          "title": "プロンプトキャッシングの有効化",
+          "description": "Anthropic APIのプロンプトキャッシング機能を有効化し、長いシステムプロンプトのプレフィックス部分をキャッシュします。入力トークンコストを最大90%削減できます。",
+          "duration": "2-4時間",
+          "difficulty": "easy",
+          "blocks": [
+            {
+              "type": "codeBlock",
+              "language": "python",
+              "title": "プロンプトキャッシングの実装",
+              "filename": "cached_call.py",
+              "code": "import anthropic\n\nclient = anthropic.Anthropic()\n\n# キャッシュ対象のシステムプロンプト（1024トークン以上）\nSYSTEM_PROMPT = \"\"\"あなたは金融アドバイザーです...\n(長いシステムプロンプト)\"\"\"\n\nresponse = client.messages.create(\n    model=\"claude-sonnet-4-5-20250929\",\n    max_tokens=1024,\n    system=[\n        {\n            \"type\": \"text\",\n            \"text\": SYSTEM_PROMPT,\n            \"cache_control\": {\"type\": \"ephemeral\"}\n        }\n    ],\n    messages=[{\"role\": \"user\", \"content\": \"質問内容\"}],\n)\n# cache_read_input_tokens > 0 ならキャッシュヒット",
+              "caption": "cache_controlを指定するだけで自動的にキャッシュが有効化される"
+            }
+          ]
+        },
+        {
+          "label": "Step 2",
+          "title": "スマートルーティングの設定",
+          "description": "{{smart-routing}}を設定して、簡単なタスクには軽量モデル（Claude Haiku）、複雑なタスクには高性能モデル（Claude Opus）を自動振り分けします。",
+          "duration": "1-2日",
+          "difficulty": "medium"
+        },
+        {
+          "label": "Step 3",
+          "title": "バッチAPIの活用",
+          "description": "非リアルタイムのワークロード（分析、レポート生成、分類）を{{batch-api}}に移行し、50%のコスト削減を実現します。",
+          "duration": "1-2日",
+          "difficulty": "easy"
+        },
+        {
+          "label": "Step 4",
+          "title": "コストダッシュボードの構築",
+          "description": "{{cost-allocation}}に基づく部門別・プロジェクト別のコストダッシュボードを構築し、予算超過のアラートを設定します。",
+          "duration": "3-5日",
+          "difficulty": "medium"
+        }
+      ]
+    },
+    {
+      "type": "table",
+      "caption": "最適化手法の効果比較",
+      "headers": [
+        "手法",
+        "コスト削減",
+        "実装難易度",
+        "適用条件"
+      ],
+      "rows": [
+        [
+          "プロンプトキャッシング",
+          "最大90%（入力）",
+          "低",
+          "長いシステムプロンプト"
+        ],
+        [
+          "セマンティックキャッシング",
+          "50%以上",
+          "中",
+          "類似クエリが多い"
+        ],
+        [
+          "バッチAPI",
+          "50%",
+          "低",
+          "リアルタイム性不要"
+        ],
+        [
+          "スマートルーティング",
+          "30-60%",
+          "中",
+          "タスクの複雑さが多様"
+        ],
+        [
+          "トークン最適化",
+          "20-40%",
+          "低",
+          "全ケース"
+        ],
+        [
+          "リザーブドキャパシティ",
+          "20-40%",
+          "低",
+          "安定した大量利用"
+        ]
+      ]
+    }
+  ]
+}

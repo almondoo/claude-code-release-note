@@ -7,7 +7,11 @@ description: Use when a new Claude Code version is released and needs to be adde
 
 ## Overview
 
-Claude Code の新バージョンのリリース情報を CHANGELOG と Docs から取得し、日本語に翻訳して `releases.json` と `version-details.json` に追加するスキル。
+Claude Code の新バージョンのリリース情報を CHANGELOG と Docs から取得し、日本語に翻訳して `releases-X.Y.x.json` と `version-details-X.Y.x.json` に追加するスキル。
+
+**データファイルの場所:** `app/data/releases/`
+- `releases-2.0.x.json`, `releases-2.1.x.json` — バージョン範囲ごとのリリース一覧
+- `version-details-2.1.x.json` — バージョン範囲ごとの詳細情報
 
 ## When to Use
 
@@ -24,11 +28,11 @@ Claude Code の新バージョンのリリース情報を CHANGELOG と Docs か
 
 | ステップ | 内容 | ソース |
 |---|---|---|
-| 1. 重複チェック | `releases.json` の末尾で最新バージョン確認 | ローカル |
+| 1. 重複チェック | `releases-X.Y.x.json` の末尾で最新バージョン確認 | ローカル |
 | 2. 変更項目取得 | CHANGELOG から対象バージョンを抽出 | GitHub |
 | 3. 詳細情報取得 | Docs から技術的背景を補完 | Anthropic Docs |
 | 4. 翻訳・タグ付与 | 日本語に翻訳し、タグ・カテゴリを付与 | — |
-| 5. JSON 更新 | `releases.json` と `version-details.json` に追記 | ローカル |
+| 5. JSON 更新 | `releases-X.Y.x.json` と `version-details-X.Y.x.json` に追記 | ローカル |
 | 6. 報告 | 追加内容をユーザーに報告 | — |
 
 ## 情報ソースの決定
@@ -41,7 +45,7 @@ Claude Code の新バージョンのリリース情報を CHANGELOG と Docs か
 WebFetch https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md
 ```
 
-対象バージョンのセクションから変更項目を抽出する。CHANGELOG 全体は大きいため、必要なバージョンの情報だけを抽出すること。ここで得た情報は主に `releases.json` の `t`（1行要約）に使用する。
+対象バージョンのセクションから変更項目を抽出する。CHANGELOG 全体は大きいため、必要なバージョンの情報だけを抽出すること。ここで得た情報は主に `releases-X.Y.x.json` の `t`（1行要約）に使用する。
 
 ### ステップ2: Claude Code Docs から詳細情報を取得
 
@@ -49,14 +53,14 @@ WebFetch https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md
 WebFetch https://docs.anthropic.com/en/docs/claude-code/overview
 ```
 
-CHANGELOG の各変更項目について、該当する機能の技術的背景・使い方・影響範囲を Docs から補完する。ここで得た情報は `version-details.json` の `detail` フィールドの記述に活用する。
+CHANGELOG の各変更項目について、該当する機能の技術的背景・使い方・影響範囲を Docs から補完する。ここで得た情報は `version-details-X.Y.x.json` の `detail` フィールドの記述に活用する。
 
 - CHANGELOG だけでは1行の要約しか得られないため、Docs を参照して詳細な解説を書くこと
 - Docs に該当情報がない場合は、CHANGELOG の内容と一般的な技術知識から `detail` を構成する
 
-## releases.json のフォーマット
+## releases-X.Y.x.json のフォーマット
 
-配列の **末尾** に追加:
+対応するバージョン範囲のファイル（例: `releases-2.1.x.json`）の配列 **末尾** に追加。新しいマイナーバージョン（例: 2.2.x）の場合は新ファイルを作成し、`constants.tsx` の import も追加すること:
 
 ```json
 {
@@ -65,14 +69,14 @@ CHANGELOG の各変更項目について、該当する機能の技術的背景�
 }
 ```
 
-## version-details.json のフォーマット
+## version-details-X.Y.x.json のフォーマット
 
-オブジェクトにキーを追加:
+対応するバージョン範囲のファイル（例: `version-details-2.1.x.json`）のオブジェクトにキーを追加。新しいマイナーバージョンの場合は新ファイルを作成し、`constants.ts` の import も追加すること:
 
 ```json
 "X.Y.Z": [
   {
-    "t": "releases.json の t と同一",
+    "t": "releases-X.Y.x.json の t と同一",
     "tags": ["タグ1", "タグ2"],
     "detail": "技術的背景・影響範囲・ユーザーメリットを含む詳細解説",
     "category": "分類カテゴリ"
@@ -112,9 +116,9 @@ CHANGELOG の各変更項目について、該当する機能の技術的背景�
 
 | ミス | 対処 |
 |---|---|
-| 配列の途中に挿入してしまう | `releases.json` は必ず配列の **末尾** に追加。途中挿入は表示順序を壊す |
+| 配列の途中に挿入してしまう | `releases-X.Y.x.json` は必ず配列の **末尾** に追加。途中挿入は表示順序を壊す |
 | タグの付け忘れ・誤分類 | 1つの項目に複数タグ可。迷ったらタグ一覧を再確認 |
 | CHANGELOG の項目を見落とす | バージョンセクション内の全項目を数えて確認 |
-| `t` と `detail` の `t` が不一致 | `version-details.json` の `t` は `releases.json` の `t` と完全一致させる |
-| 既存バージョンを重複追加 | 追加前に `releases.json` の末尾で最新バージョンを必ず確認 |
+| `t` と `detail` の `t` が不一致 | `version-details-X.Y.x.json` の `t` は `releases-X.Y.x.json` の `t` と完全一致させる |
+| 既存バージョンを重複追加 | 追加前に `releases-X.Y.x.json` の末尾で最新バージョンを必ず確認 |
 | `detail` が CHANGELOG の丸写し | Docs から背景情報を補完し、ユーザーメリットまで踏み込んだ解説にする |

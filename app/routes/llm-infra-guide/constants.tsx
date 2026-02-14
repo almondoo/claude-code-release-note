@@ -1,4 +1,22 @@
-import surveyData from "~/data/llm-infra-guide.json";
+import meta from "~/data/llm-infra-guide/meta.json";
+import sectionGuideOverview from "~/data/llm-infra-guide/section-guide-overview.json";
+import sectionArchitecturePatterns from "~/data/llm-infra-guide/section-architecture-patterns.json";
+import sectionPatternDirect from "~/data/llm-infra-guide/section-pattern-direct.json";
+import sectionPatternGateway from "~/data/llm-infra-guide/section-pattern-gateway.json";
+import sectionPatternPrivate from "~/data/llm-infra-guide/section-pattern-private.json";
+import sectionInfraComponents from "~/data/llm-infra-guide/section-infra-components.json";
+import sectionSecurityOverview from "~/data/llm-infra-guide/section-security-overview.json";
+import sectionSecurityDataProtection from "~/data/llm-infra-guide/section-security-data-protection.json";
+import sectionSecurityAccessControl from "~/data/llm-infra-guide/section-security-access-control.json";
+import sectionSecurityNetwork from "~/data/llm-infra-guide/section-security-network.json";
+import sectionSecurityPrompt from "~/data/llm-infra-guide/section-security-prompt.json";
+import sectionSecurityCompliance from "~/data/llm-infra-guide/section-security-compliance.json";
+import sectionSecuritySupplyChain from "~/data/llm-infra-guide/section-security-supply-chain.json";
+import sectionCostOptimization from "~/data/llm-infra-guide/section-cost-optimization.json";
+import sectionMonitoring from "~/data/llm-infra-guide/section-monitoring.json";
+import sectionImplementationRoadmap from "~/data/llm-infra-guide/section-implementation-roadmap.json";
+import sectionDecisionFramework from "~/data/llm-infra-guide/section-decision-framework.json";
+import sectionReferences from "~/data/llm-infra-guide/section-references.json";
 import type { DiagramData } from "./architecture-diagram";
 export type { DiagramData };
 
@@ -165,7 +183,29 @@ export interface GlossaryData {
 
 // ── Data ─────────────────────────────────────────────────────────────────
 
-export const SURVEY: SurveyData = surveyData as unknown as SurveyData;
+export const SURVEY: SurveyData = {
+  meta: meta as unknown as SurveyMeta,
+  sections: [
+    sectionGuideOverview,
+    sectionArchitecturePatterns,
+    sectionPatternDirect,
+    sectionPatternGateway,
+    sectionPatternPrivate,
+    sectionInfraComponents,
+    sectionSecurityOverview,
+    sectionSecurityDataProtection,
+    sectionSecurityAccessControl,
+    sectionSecurityNetwork,
+    sectionSecurityPrompt,
+    sectionSecurityCompliance,
+    sectionSecuritySupplyChain,
+    sectionCostOptimization,
+    sectionMonitoring,
+    sectionImplementationRoadmap,
+    sectionDecisionFramework,
+    sectionReferences,
+  ] as unknown as SurveySection[],
+};
 
 // ── Section colors & icons ───────────────────────────────────────────────
 

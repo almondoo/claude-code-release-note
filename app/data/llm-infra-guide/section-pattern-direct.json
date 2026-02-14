@@ -1,0 +1,112 @@
+{
+  "id": "pattern-direct",
+  "title": "パターンA: 直接利用の構築",
+  "description": "API直接呼び出しによる最小構成の実装手順",
+  "blocks": [
+    {
+      "type": "text",
+      "content": "最もシンプルなパターンとして、LLM APIを直接呼び出す構成を構築します。{{api-gateway}}を経由せず、アプリケーションから直接プロバイダーAPIにリクエストを送信します。"
+    },
+    {
+      "type": "infraDiagram",
+      "variant": "dataflow",
+      "title": "パターンA: データフロー",
+      "caption": "アプリケーションから直接LLM APIを呼び出すシンプルな構成",
+      "stages": [
+        {
+          "label": "アプリケーション",
+          "color": "#10B981",
+          "items": [
+            "Webアプリ",
+            "バッチ処理",
+            "CLI ツール"
+          ]
+        },
+        {
+          "label": "SDK",
+          "color": "#3B82F6",
+          "items": [
+            "Anthropic SDK",
+            "OpenAI SDK"
+          ]
+        },
+        {
+          "label": "LLM API",
+          "color": "#F59E0B",
+          "items": [
+            "Claude API",
+            "GPT API",
+            "Gemini API"
+          ]
+        },
+        {
+          "label": "モニタリング",
+          "color": "#A855F7",
+          "items": [
+            "ログ収集",
+            "コスト追跡"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stepGuide",
+      "title": "実装ステップ",
+      "steps": [
+        {
+          "label": "Step 1",
+          "title": "API鍵の安全な管理",
+          "description": "APIキーをシークレット管理サービスで一元管理し、環境変数経由でアプリケーションに注入します。ハードコーディングは厳禁です。",
+          "duration": "2-4時間",
+          "difficulty": "easy",
+          "blocks": [
+            {
+              "type": "codeBlock",
+              "language": "bash",
+              "title": "環境変数の設定",
+              "filename": ".env.production",
+              "code": "# シークレット管理サービスから注入\nANTHROPIC_API_KEY=sk-ant-...\nOPENAI_API_KEY=sk-...\n\n# レート制限設定\nLLM_MAX_REQUESTS_PER_MINUTE=60\nLLM_MAX_TOKENS_PER_REQUEST=4096\n\n# フォールバック設定\nLLM_PRIMARY_MODEL=claude-sonnet-4-5-20250929\nLLM_FALLBACK_MODEL=gpt-4o"
+            }
+          ]
+        },
+        {
+          "label": "Step 2",
+          "title": "SDK統合とクライアント実装",
+          "description": "Anthropic SDKを使用してLLM呼び出しを実装します。リトライ、タイムアウト、エラーハンドリングを組み込みます。",
+          "duration": "4-8時間",
+          "difficulty": "easy",
+          "blocks": [
+            {
+              "type": "codeBlock",
+              "language": "python",
+              "title": "LLMクライアント実装例",
+              "filename": "llm_client.py",
+              "code": "import anthropic\nimport os\nfrom tenacity import retry, stop_after_attempt, wait_exponential\n\nclient = anthropic.Anthropic(\n    api_key=os.environ[\"ANTHROPIC_API_KEY\"],\n    max_retries=3,\n    timeout=30.0,\n)\n\n@retry(\n    stop=stop_after_attempt(3),\n    wait=wait_exponential(multiplier=1, min=2, max=10),\n)\ndef call_llm(prompt: str, model: str = \"claude-sonnet-4-5-20250929\") -> str:\n    response = client.messages.create(\n        model=model,\n        max_tokens=4096,\n        messages=[{\"role\": \"user\", \"content\": prompt}],\n    )\n    return response.content[0].text",
+              "caption": "tenacityライブラリでエクスポネンシャルバックオフを実装"
+            }
+          ]
+        },
+        {
+          "label": "Step 3",
+          "title": "レート制限の実装",
+          "description": "APIのレート制限を超えないよう、アプリケーション側でリクエストレートを制御します。トークンバケットアルゴリズムが一般的です。",
+          "duration": "2-4時間",
+          "difficulty": "medium"
+        },
+        {
+          "label": "Step 4",
+          "title": "ログ収集とコスト追跡",
+          "description": "全てのAPI呼び出しをログに記録し、トークン使用量とコストを追跡します。{{observability}}基盤への統合を検討します。",
+          "duration": "4-8時間",
+          "difficulty": "medium"
+        }
+      ]
+    },
+    {
+      "type": "highlight",
+      "variant": "warning",
+      "title": "直接利用の限界",
+      "content": "チーム数が5を超える、月間コストが$5,000を超える、DLP/PII要件がある場合は、パターンBへの移行を検討してください。"
+    }
+  ]
+}

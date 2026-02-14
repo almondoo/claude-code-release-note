@@ -1,4 +1,4 @@
-import setupData from "~/data/setup.json";
+import setupData from "~/data/setup/setup.json";
 
 export interface CodeBlock {
   lang: string;

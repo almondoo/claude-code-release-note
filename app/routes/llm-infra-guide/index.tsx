@@ -32,7 +32,7 @@ import { StatCard } from "./stat-card";
 import { StepGuide } from "./step-guide";
 import { SurveySection as SurveySectionWrapper } from "./survey-section";
 
-import glossaryRaw from "~/data/llm-glossary.json";
+import glossaryRaw from "~/data/llm-infra-guide/llm-glossary.json";
 
 const GLOSSARY: GlossaryData = glossaryRaw as unknown as GlossaryData;
 

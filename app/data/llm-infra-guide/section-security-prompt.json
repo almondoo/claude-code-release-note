@@ -1,0 +1,229 @@
+{
+  "id": "security-prompt",
+  "title": "プロンプトセキュリティ",
+  "description": "Prompt Injection対策とガードレール実装",
+  "blocks": [
+    {
+      "type": "text",
+      "content": "{{prompt-injection}}は、LLMアプリケーション固有の攻撃ベクトルであり、OWASP Top 10 for LLM Applications（2025）において最上位にランクされています。直接的インジェクション（ユーザーが攻撃コードを直接入力）と間接的インジェクション（外部データソースに仕込まれた攻撃コードをLLMが処理）の2種類があり、後者はRAGやツール利用の普及に伴い特に深刻な脅威となっています。"
+    },
+    {
+      "type": "highlight",
+      "variant": "warning",
+      "title": "間接Prompt Injectionの実例",
+      "content": "間接的Prompt Injectionにより、LLMチャットボットがユーザーの個人情報を攻撃者のサーバーに送信する事例が報告されています。Webページやメール本文に埋め込まれた不可視の指示文が、RAGを通じてLLMに読み込まれ、意図しない動作を引き起こすパターンが主流です。"
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "**多層防御**: 入力側・処理層・出力側の各レベルで{{guardrails}}を実装する",
+        "**信頼境界の明確化**: システムプロンプト（信頼）とユーザー入力（非信頼）を明確に分離する",
+        "**最小権限**: LLMに与えるツール・データアクセスを必要最小限に制限する",
+        "**検出と緩和の併用**: 完全な防御は困難であるため、検出・ログ記録・アラートによる早期発見と緩和策を組み合わせる"
+      ]
+    },
+    {
+      "type": "table",
+      "caption": "Prompt Injection対策5層",
+      "headers": [
+        "対策層",
+        "手法",
+        "ツール/実装"
+      ],
+      "rows": [
+        [
+          "入力検証",
+          "パターンマッチによる攻撃シグネチャの検出",
+          "ブロックリスト（\"ignore previous instructions\"等）、正規表現フィルタ"
+        ],
+        [
+          "入力分類",
+          "ML分類器による攻撃プロンプトの検出",
+          "Rebuff、Lakera Guard、NVIDIA NeMo Guardrails、Protect AI Guardian"
+        ],
+        [
+          "プロンプト設計",
+          "システムプロンプトでの防御指示、デリミタによる分離",
+          "XML/JSONタグによるコンテキスト分離、防御プロンプトの埋め込み"
+        ],
+        [
+          "サンドボックス",
+          "構造化された出力のみを処理",
+          "出力をJSONスキーマで制約、Function Calling結果を検証後に実行"
+        ],
+        [
+          "アーキテクチャ",
+          "信頼レベルの異なるコンテンツの分離処理",
+          "外部コンテンツを別のLLM呼び出しで要約後、メインLLMに渡す「二重処理」パターン"
+        ]
+      ]
+    },
+    {
+      "type": "codeBlock",
+      "language": "python",
+      "title": "Guardrails AI出力バリデーション",
+      "filename": "output_validation.py",
+      "code": "from guardrails import Guard\nfrom guardrails.hub import DetectPII, ToxicLanguage, RestrictToTopic\n\nguard = Guard().use_many(\n    DetectPII(\n        pii_entities=[\"EMAIL_ADDRESS\", \"PHONE_NUMBER\", \"PERSON\",\n                      \"CREDIT_CARD\", \"JP_MY_NUMBER\"],\n        on_fail=\"fix\"  # 検出時にマスキング\n    ),\n    ToxicLanguage(\n        threshold=0.8,\n        on_fail=\"reask\"  # 有害コンテンツ検出時にLLMに再生成を依頼\n    ),\n    RestrictToTopic(\n        valid_topics=[\"技術サポート\", \"製品情報\"],\n        invalid_topics=[\"政治\", \"宗教\", \"競合他社の批判\"],\n        on_fail=\"filter\"\n    )\n)\n\n# ガード付きLLM呼び出し\nresult = guard(\n    model=\"gpt-4o\",\n    messages=[{\"role\": \"user\", \"content\": user_input}]\n)",
+      "caption": "出力側でPII、有害コンテンツ、トピック逸脱を自動検出・修正"
+    },
+    {
+      "type": "table",
+      "caption": "多層ガードレール設計",
+      "headers": [
+        "層",
+        "コンポーネント",
+        "目的",
+        "ブロック時の挙動"
+      ],
+      "rows": [
+        [
+          "入力側",
+          "Prompt分類器 / ブロックリスト / PII検出",
+          "攻撃プロンプトの検出・PII除去",
+          "ユーザーにエラーメッセージを返却。ログに記録"
+        ],
+        [
+          "処理層",
+          "システムプロンプト保護 / コンテキスト分離",
+          "インジェクション耐性の向上",
+          "LLMが防御プロンプトに従い安全な応答を生成"
+        ],
+        [
+          "出力側",
+          "有害コンテンツ検出 / PII再検出 / スキーマ検証",
+          "不適切出力のフィルタリング",
+          "マスキング / 再生成 / フォールバック応答"
+        ],
+        [
+          "フィードバック",
+          "誤検知/見逃しの報告 → ポリシー更新",
+          "検出精度の継続的改善",
+          "モデル再学習 / ルール更新"
+        ]
+      ]
+    },
+    {
+      "type": "table",
+      "caption": "Red Teamingツール",
+      "headers": [
+        "テスト手法",
+        "ツール",
+        "対象"
+      ],
+      "rows": [
+        [
+          "自動Prompt Injectionテスト",
+          "Garak (NVIDIA), PyRIT (Microsoft)",
+          "既知の攻撃パターンの網羅的テスト"
+        ],
+        [
+          "Jailbreak耐性テスト",
+          "HarmBench, JailbreakBench",
+          "安全フィルタの回避可能性を評価"
+        ],
+        [
+          "情報漏洩テスト",
+          "カスタムスクリプト + LLMプロービング",
+          "システムプロンプト・学習データの抽出可能性"
+        ],
+        [
+          "ツール悪用テスト",
+          "手動テスト + 自動化スクリプト",
+          "Function Calling / MCPを経由した権限昇格"
+        ]
+      ]
+    },
+    {
+      "type": "codeBlock",
+      "language": "bash",
+      "title": "Garak自動テストコマンド",
+      "filename": "run_garak.sh",
+      "code": "# Garak (NVIDIA) を用いた自動Prompt Injectionテスト\ngarak --model_type openai \\\n      --model_name gpt-4o \\\n      --probes promptinject,dan,encoding \\\n      --generations 10 \\\n      --report_prefix llm_security_audit",
+      "caption": "CI/CDパイプラインに組み込み、定期的な自動テストを実施"
+    },
+    {
+      "type": "infraDiagram",
+      "variant": "dataflow",
+      "title": "プロンプトセキュリティ多層防御",
+      "caption": "入力→処理→出力→フィードバックの4段階フロー",
+      "stages": [
+        {
+          "label": "入力側ガードレール",
+          "color": "#DBEAFE",
+          "items": [
+            "ブロックリスト",
+            "PII検出器 (Presidio/GiNZA)",
+            "Prompt Injection分類器 (Lakera/NeMo)",
+            "検出結果判定 → ブロック or 通過"
+          ]
+        },
+        {
+          "label": "LLM処理層",
+          "color": "#D1FAE5",
+          "items": [
+            "システムプロンプト保護",
+            "コンテキスト分離",
+            "LLM推論実行"
+          ]
+        },
+        {
+          "label": "出力側ガードレール",
+          "color": "#EDE9FE",
+          "items": [
+            "有害コンテンツ検出",
+            "PII再検出",
+            "構造化バリデーション",
+            "検証結果 → 安全/要修正/ブロック"
+          ]
+        },
+        {
+          "label": "フィードバックループ",
+          "color": "#FEF3C7",
+          "items": [
+            "誤検知レポート収集",
+            "分析エンジン",
+            "ポリシー・ルール自動更新"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "subsection",
+      "title": "パターン別推奨構成",
+      "blocks": [
+        {
+          "type": "list",
+          "ordered": false,
+          "items": [
+            "**パターンA（API直接利用）**: アプリケーションコード内でGuardrails AI / NeMo Guardrailsを統合。定期的なGarakによる自動テストをCI/CDに組み込む",
+            "**パターンB（ゲートウェイ経由）**: ゲートウェイに入出力ガードレールを一元的に配置。Lakera Guard等の専用サービスをインラインで統合。集中ログによる攻撃パターン分析",
+            "**パターンC（プライベートホスティング）**: 推論サーバー前段にガードレールプロキシを配置。NeMo Guardrailsを同一クラスタにデプロイ。モデル自体のファインチューニングによる安全性向上との組み合わせ"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "checklist",
+      "categories": [
+        {
+          "name": "プロンプトセキュリティチェックリスト",
+          "items": [
+            "入力側ガードレール（分類器 + ブロックリスト + PII検出）が実装されている",
+            "出力側ガードレール（有害コンテンツ検出 + PII再検出 + スキーマ検証）が実装されている",
+            "システムプロンプトとユーザー入力がデリミタで明確に分離されている",
+            "間接的Prompt Injection対策（外部コンテンツの分離処理）が実装されている",
+            "ツール利用（Function Calling / MCP）の結果が検証後に実行されている",
+            "Garak / PyRIT等による定期的なレッドチームテストが実施されている",
+            "攻撃検出のログとアラートが適切に設定されている",
+            "フィードバックループによる検出精度の継続的改善が運用されている"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "reactFlowDiagram",
+      "diagramId": "prompt-defense"
+    }
+  ]
+}
