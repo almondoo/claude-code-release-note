@@ -38,6 +38,11 @@ export const TAG_LABELS: Record<string, string> = {
   "Agent": "エージェント",
 };
 
+/** 表示ラベルからタグカラーを引くためのマップ */
+export const TAG_COLORS_BY_LABEL: Record<string, TagColor> = Object.fromEntries(
+  Object.entries(TAG_LABELS).map(([tag, label]) => [label, TAG_COLORS[tag]]),
+);
+
 interface BadgeProps {
   tag: string;
   small?: boolean;

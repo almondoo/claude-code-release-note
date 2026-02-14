@@ -2,16 +2,21 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 
 import { ChevronDownIcon } from "~/components/icons";
-import { Badge } from "~/components/badge";
+import { Badge, TAG_COLORS_BY_LABEL, TAG_LABELS } from "~/components/badge";
 
 import type { ReleaseItem, DetailItem } from "./constants";
 
+const DEFAULT_CATEGORY_COLOR = { bg: "rgba(59, 130, 246, 0.1)", text: "#60A5FA" };
+
 export function CategoryBadge({ category }: { category: string }): React.JSX.Element {
+  const colors = TAG_COLORS_BY_LABEL[category] ?? DEFAULT_CATEGORY_COLOR;
+
   return (
     <span
-      className="inline-flex items-center whitespace-nowrap font-semibold tracking-wide px-[9px] py-[2px] text-[12px] rounded-md text-blue-500 border border-blue-500/20"
+      className="inline-flex items-center whitespace-nowrap font-semibold tracking-wide px-[9px] py-[2px] text-[12px] rounded-md"
       style={{
-        background: "rgba(59, 130, 246, 0.1)",
+        background: colors.bg,
+        color: colors.text,
         lineHeight: 1.6,
         letterSpacing: "0.2px",
       }}
@@ -66,9 +71,11 @@ export function DetailCard({
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1 min-w-0">
             <div className="flex gap-1.5 flex-wrap mb-2">
-              {item.tags.map((tag) => (
-                <Badge key={tag} tag={tag} />
-              ))}
+              {item.tags
+                .filter((tag) => (TAG_LABELS[tag] ?? tag) !== item.category)
+                .map((tag) => (
+                  <Badge key={tag} tag={tag} />
+                ))}
               <CategoryBadge category={item.category} />
             </div>
             <p className="text-slate-100 text-sm leading-[1.7] m-0 font-sans break-words">
