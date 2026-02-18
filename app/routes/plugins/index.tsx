@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef, useCallback } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 
 import { BoltIcon } from "~/components/icons.js";
@@ -35,7 +35,11 @@ function renderTabIcon(tab: TabItem): React.ReactNode {
     return <span className="flex items-center scale-[0.8]">{CATEGORY_ICONS[tab.id]()}</span>;
   }
   if (def.type === "quickstart") {
-    return <span className="flex items-center"><BoltIcon width={14} height={14} /></span>;
+    return (
+      <span className="flex items-center">
+        <BoltIcon width={14} height={14} />
+      </span>
+    );
   }
   return null;
 }
@@ -43,14 +47,11 @@ function renderTabIcon(tab: TabItem): React.ReactNode {
 export default function Plugins(): React.JSX.Element {
   const [query, setQuery] = useState("");
   const [activeTab, setActiveTab] = useState<string>("all");
-  const [selectedPlugin, setSelectedPlugin] = useState<{ plugin: Plugin; accentColor: string } | null>(null);
+  const [selectedPlugin, setSelectedPlugin] = useState<{
+    plugin: Plugin;
+    accentColor: string;
+  } | null>(null);
   const reducedMotion = useReducedMotion();
-  const hasMounted = useRef(false);
-
-  // Track initial mount for stagger animations
-  if (!hasMounted.current) {
-    hasMounted.current = true;
-  }
 
   const lowerQuery = query.toLowerCase();
   const isAllTab = activeTab === "all";
@@ -71,7 +72,7 @@ export default function Plugins(): React.JSX.Element {
         p.description.toLowerCase().includes(lowerQuery) ||
         p.detail.toLowerCase().includes(lowerQuery) ||
         p.whenToUse.toLowerCase().includes(lowerQuery) ||
-        (p.binary && p.binary.toLowerCase().includes(lowerQuery))
+        (p.binary && p.binary.toLowerCase().includes(lowerQuery)),
     );
   }, [isAllTab, activeCategory, query, lowerQuery]);
 
@@ -159,16 +160,23 @@ export default function Plugins(): React.JSX.Element {
                 <AnimatePresence mode="popLayout">
                   {filteredPlugins.map((plugin, i) => {
                     const color = isAllTab
-                      ? (PLUGIN_CATEGORY_MAP.get(plugin.name)?.color || "#3B82F6")
-                      : (CATEGORY_COLORS[activeTab]?.color || "#3B82F6");
+                      ? PLUGIN_CATEGORY_MAP.get(plugin.name)?.color || "#3B82F6"
+                      : CATEGORY_COLORS[activeTab]?.color || "#3B82F6";
                     return (
                       <motion.div
                         key={plugin.name}
                         layout={!reducedMotion}
                         initial={reducedMotion ? false : { opacity: 0, y: 15 }}
                         animate={{ opacity: 1, y: 0 }}
-                        exit={reducedMotion ? undefined : { opacity: 0, scale: 0.96, transition: { duration: 0.15 } }}
-                        transition={{ duration: 0.2, delay: reducedMotion ? 0 : Math.min(i * 0.04, 0.4) }}
+                        exit={
+                          reducedMotion
+                            ? undefined
+                            : { opacity: 0, scale: 0.96, transition: { duration: 0.15 } }
+                        }
+                        transition={{
+                          duration: 0.2,
+                          delay: reducedMotion ? 0 : Math.min(i * 0.04, 0.4),
+                        }}
                       >
                         <PluginCard
                           plugin={plugin}
@@ -183,7 +191,10 @@ export default function Plugins(): React.JSX.Element {
 
               {/* Empty state */}
               {filteredPlugins.length === 0 && (
-                <EmptyState message="条件に一致するプラグインはありません" reducedMotion={reducedMotion} />
+                <EmptyState
+                  message="条件に一致するプラグインはありません"
+                  reducedMotion={reducedMotion}
+                />
               )}
             </motion.div>
           )}

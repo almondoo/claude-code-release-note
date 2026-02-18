@@ -107,7 +107,10 @@ function StepCard({
         >
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-[11px] font-semibold uppercase tracking-wider font-mono" style={{ color: accentColor }}>
+              <span
+                className="text-[11px] font-semibold uppercase tracking-wider font-mono"
+                style={{ color: accentColor }}
+              >
                 {step.label}
               </span>
               {step.duration && (
@@ -117,9 +120,13 @@ function StepCard({
               )}
               {step.difficulty && <DifficultyIndicator level={step.difficulty} />}
             </div>
-            <span className="text-[14px] font-semibold text-slate-200 block mt-1">{step.title}</span>
+            <span className="text-[14px] font-semibold text-slate-200 block mt-1">
+              {step.title}
+            </span>
             {!expanded && (
-              <span className="text-[12px] text-slate-500 block mt-0.5 line-clamp-1">{step.description}</span>
+              <span className="text-[12px] text-slate-500 block mt-0.5 line-clamp-1">
+                {step.description}
+              </span>
             )}
           </div>
           <span
@@ -143,9 +150,7 @@ function StepCard({
           }}
         >
           <div className="border-t border-slate-700 px-4 py-4 flex flex-col gap-4">
-            <p className="text-[13px] text-slate-400 leading-[1.8] m-0">
-              {step.description}
-            </p>
+            <p className="text-[13px] text-slate-400 leading-[1.8] m-0">{step.description}</p>
             {step.blocks?.map((block, i) => renderBlock(block, i, accentColor))}
           </div>
         </div>
@@ -156,7 +161,12 @@ function StepCard({
 
 // ── StepGuide ───────────────────────────────────────────────────────────────
 
-export function StepGuide({ title, steps, accentColor = "#3B82F6", renderBlock }: StepGuideProps): React.JSX.Element {
+export function StepGuide({
+  title,
+  steps,
+  accentColor = "#3B82F6",
+  renderBlock,
+}: StepGuideProps): React.JSX.Element {
   return (
     <div className="flex flex-col">
       {title && (

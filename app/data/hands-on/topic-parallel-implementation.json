@@ -4,22 +4,51 @@
   "difficulty": "hard",
   "estimatedTime": "45分",
   "intro": [
-    { "type": "highlight", "variant": "info", "title": "git worktree とは？", "content": "git worktree は、1つのリポジトリから複数の作業ディレクトリを作る git の標準機能です。通常はブランチを切り替えるために checkout しますが、worktree を使うと複数ブランチを同時に別フォルダで開けます。これにより、複数の作業を物理的に分離できます。" },
-    { "type": "text", "content": "複数の機能を同時並行で実装するには、ファイル競合を避けるために git worktree で作業ディレクトリを分離します。その上で2つの方法があります:" },
-    { "type": "list", "items": [
-      "Agent Teams（自動）— 1つの Claude Code セッション内でサブエージェントが並列作業。マージまで全自動",
-      "手動（複数セッション）— 各 worktree で別々のターミナルから Claude Code を起動。マージは手動"
-    ]},
-    { "type": "highlight", "variant": "tip", "title": "どちらを選ぶ？", "content": "Agent Teams は全自動で楽ですが、各エージェントの動作を細かく制御しにくい面があります。手動はステップごとに自分で確認できるため、慎重に進めたい場合に向いています。まずは手動で仕組みを理解してから Agent Teams に進むのがおすすめです。" },
+    {
+      "type": "highlight",
+      "variant": "info",
+      "title": "git worktree とは？",
+      "content": "git worktree は、1つのリポジトリから複数の作業ディレクトリを作る git の標準機能です。通常はブランチを切り替えるために checkout しますが、worktree を使うと複数ブランチを同時に別フォルダで開けます。これにより、複数の作業を物理的に分離できます。"
+    },
+    {
+      "type": "text",
+      "content": "複数の機能を同時並行で実装するには、ファイル競合を避けるために git worktree で作業ディレクトリを分離します。その上で2つの方法があります:"
+    },
+    {
+      "type": "list",
+      "items": [
+        "Agent Teams（自動）— 1つの Claude Code セッション内でサブエージェントが並列作業。マージまで全自動",
+        "手動（複数セッション）— 各 worktree で別々のターミナルから Claude Code を起動。マージは手動"
+      ]
+    },
+    {
+      "type": "highlight",
+      "variant": "tip",
+      "title": "どちらを選ぶ？",
+      "content": "Agent Teams は全自動で楽ですが、各エージェントの動作を細かく制御しにくい面があります。手動はステップごとに自分で確認できるため、慎重に進めたい場合に向いています。まずは手動で仕組みを理解してから Agent Teams に進むのがおすすめです。"
+    },
     { "type": "text", "content": "どちらの方法でも、並列化に適した作業の分割が前提です:" },
-    { "type": "list", "items": [
-      "異なるファイルを編集する作業か？ → 並列化可能",
-      "共有モジュールに依存しているか？ → 慎重に分割",
-      "実行順序に制約があるか？ → 直列に配置",
-      "テストが独立して実行できるか？ → 並列化の良い指標"
-    ]},
-    { "type": "highlight", "variant": "warning", "title": "並列化に向かないケース", "content": "共通コンポーネントの大幅変更、データベースマイグレーション、パッケージの追加・更新など、共有状態に影響する作業は直列で行いましょう。無理に並列化するとマージ時にコンフリクトが多発します。" },
-    { "type": "highlight", "variant": "warning", "title": "前提条件", "content": "git がインストール済みで、git worktree コマンドが使えること（git 2.5 以上）。Claude Code がインストール済みで正常に動作すること。Agent Teams タブを使う場合は、環境変数 CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1 の設定が必要です（設定方法は「Agent Teams で複数エージェントを協調させる」のお題を参照）。" }
+    {
+      "type": "list",
+      "items": [
+        "異なるファイルを編集する作業か？ → 並列化可能",
+        "共有モジュールに依存しているか？ → 慎重に分割",
+        "実行順序に制約があるか？ → 直列に配置",
+        "テストが独立して実行できるか？ → 並列化の良い指標"
+      ]
+    },
+    {
+      "type": "highlight",
+      "variant": "warning",
+      "title": "並列化に向かないケース",
+      "content": "共通コンポーネントの大幅変更、データベースマイグレーション、パッケージの追加・更新など、共有状態に影響する作業は直列で行いましょう。無理に並列化するとマージ時にコンフリクトが多発します。"
+    },
+    {
+      "type": "highlight",
+      "variant": "warning",
+      "title": "前提条件",
+      "content": "git がインストール済みで、git worktree コマンドが使えること（git 2.5 以上）。Claude Code がインストール済みで正常に動作すること。Agent Teams タブを使う場合は、環境変数 CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1 の設定が必要です（設定方法は「Agent Teams で複数エージェントを協調させる」のお題を参照）。"
+    }
   ],
   "approaches": [
     {
@@ -33,11 +62,29 @@
           "title": "worktree を作成する",
           "description": "Claude Code に指示して worktree を作成します。",
           "blocks": [
-            { "type": "text", "content": "Claude Code に自然言語で指示するだけで、git worktree の作成を実行してくれます。" },
-            { "type": "codeBlock", "language": "text", "code": "# 指示例:\n「以下の3つの feature ブランチ用に worktree を作成してください:\n- feature/product-reviews\n- feature/wishlist\n- feature/order-history」", "caption": "Claude Code が git worktree add を自動実行します" },
+            {
+              "type": "text",
+              "content": "Claude Code に自然言語で指示するだけで、git worktree の作成を実行してくれます。"
+            },
+            {
+              "type": "codeBlock",
+              "language": "text",
+              "code": "# 指示例:\n「以下の3つの feature ブランチ用に worktree を作成してください:\n- feature/product-reviews\n- feature/wishlist\n- feature/order-history」",
+              "caption": "Claude Code が git worktree add を自動実行します"
+            },
             { "type": "text", "content": "内部的に以下のコマンドが実行されます:" },
-            { "type": "codeBlock", "language": "bash", "code": "git worktree add ../shopapp-reviews -b feature/product-reviews\ngit worktree add ../shopapp-wishlist -b feature/wishlist\ngit worktree add ../shopapp-history -b feature/order-history", "caption": "プロジェクトの隣に新しいディレクトリが作られ、各ブランチがチェックアウトされます" },
-            { "type": "highlight", "variant": "info", "title": "ディレクトリ構成のイメージ", "content": "shopapp/ (元のディレクトリ・main ブランチ)、shopapp-reviews/ (feature/product-reviews ブランチ)、shopapp-wishlist/ (feature/wishlist ブランチ)、shopapp-history/ (feature/order-history ブランチ) のように、隣り合うフォルダに展開されます。" }
+            {
+              "type": "codeBlock",
+              "language": "bash",
+              "code": "git worktree add ../shopapp-reviews -b feature/product-reviews\ngit worktree add ../shopapp-wishlist -b feature/wishlist\ngit worktree add ../shopapp-history -b feature/order-history",
+              "caption": "プロジェクトの隣に新しいディレクトリが作られ、各ブランチがチェックアウトされます"
+            },
+            {
+              "type": "highlight",
+              "variant": "info",
+              "title": "ディレクトリ構成のイメージ",
+              "content": "shopapp/ (元のディレクトリ・main ブランチ)、shopapp-reviews/ (feature/product-reviews ブランチ)、shopapp-wishlist/ (feature/wishlist ブランチ)、shopapp-history/ (feature/order-history ブランチ) のように、隣り合うフォルダに展開されます。"
+            }
           ]
         },
         {
@@ -46,10 +93,28 @@
           "title": "チームを作成してサブエージェントを起動する",
           "description": "リーダーにチーム作成と作業分担を指示します。",
           "blocks": [
-            { "type": "text", "content": "あなたのセッション（リーダー）にチーム作成と作業分担を指示します。リーダーが自動でチームメイト（サブエージェント）を子プロセスとして起動するため、別のターミナルを開く必要はありません。" },
-            { "type": "codeBlock", "language": "text", "code": "# 指示例:\n「チームを作成して、以下の3機能を並行で実装してください。\nそれぞれ別の worktree で作業するエージェントを起動してください:\n\n1. 商品レビュー機能\n   作業ディレクトリ: ../shopapp-reviews/\n   - src/pages/ProductReview.tsx にレビュー投稿・一覧表示を実装\n   - src/api/reviews.ts にCRUD APIを作成\n\n2. お気に入り機能\n   作業ディレクトリ: ../shopapp-wishlist/\n   - src/pages/Wishlist.tsx にお気に入り一覧ページを実装\n   - src/api/wishlist.ts に追加・削除APIを作成\n\n3. 注文履歴機能\n   作業ディレクトリ: ../shopapp-history/\n   - src/pages/OrderHistory.tsx に注文一覧・詳細表示を実装\n   - src/api/orders.ts に取得APIを作成」", "caption": "各エージェントがそれぞれの worktree ディレクトリで独立して作業します" },
-            { "type": "highlight", "variant": "info", "title": "何が自動化されるか", "content": "チーム作成、サブエージェントの起動・停止、タスクの進捗管理、エージェント間のメッセージング、完了報告 — すべてリーダーが裏で管理します。あなたは最初の指示を出すだけです。" },
-            { "type": "highlight", "variant": "tip", "title": "タスク説明は具体的に", "content": "「レビュー機能をよろしく」ではなく、上の例のようにファイルパス・使用ライブラリ・APIエンドポイントまで指定するほど品質が上がります。" }
+            {
+              "type": "text",
+              "content": "あなたのセッション（リーダー）にチーム作成と作業分担を指示します。リーダーが自動でチームメイト（サブエージェント）を子プロセスとして起動するため、別のターミナルを開く必要はありません。"
+            },
+            {
+              "type": "codeBlock",
+              "language": "text",
+              "code": "# 指示例:\n「チームを作成して、以下の3機能を並行で実装してください。\nそれぞれ別の worktree で作業するエージェントを起動してください:\n\n1. 商品レビュー機能\n   作業ディレクトリ: ../shopapp-reviews/\n   - src/pages/ProductReview.tsx にレビュー投稿・一覧表示を実装\n   - src/api/reviews.ts にCRUD APIを作成\n\n2. お気に入り機能\n   作業ディレクトリ: ../shopapp-wishlist/\n   - src/pages/Wishlist.tsx にお気に入り一覧ページを実装\n   - src/api/wishlist.ts に追加・削除APIを作成\n\n3. 注文履歴機能\n   作業ディレクトリ: ../shopapp-history/\n   - src/pages/OrderHistory.tsx に注文一覧・詳細表示を実装\n   - src/api/orders.ts に取得APIを作成」",
+              "caption": "各エージェントがそれぞれの worktree ディレクトリで独立して作業します"
+            },
+            {
+              "type": "highlight",
+              "variant": "info",
+              "title": "何が自動化されるか",
+              "content": "チーム作成、サブエージェントの起動・停止、タスクの進捗管理、エージェント間のメッセージング、完了報告 — すべてリーダーが裏で管理します。あなたは最初の指示を出すだけです。"
+            },
+            {
+              "type": "highlight",
+              "variant": "tip",
+              "title": "タスク説明は具体的に",
+              "content": "「レビュー機能をよろしく」ではなく、上の例のようにファイルパス・使用ライブラリ・APIエンドポイントまで指定するほど品質が上がります。"
+            }
           ]
         },
         {
@@ -58,9 +123,22 @@
           "title": "進捗を確認する",
           "description": "リーダーにチーム全体の進捗を聞いて把握します。",
           "blocks": [
-            { "type": "text", "content": "サブエージェントは作業中に自動でタスクの状態を更新し、完了時にリーダーへメッセージを送信します。あなたはリーダーに進捗を聞くだけです。" },
-            { "type": "codeBlock", "language": "text", "code": "# 進捗確認の指示例:\n「現在のタスク進捗を見せてください」\n\n# リーダーの回答例:\n#1 「商品レビュー機能」   ✓ 完了\n#2 「お気に入り機能」     ◆ 作業中\n#3 「注文履歴機能」       ✓ 完了", "caption": "サブエージェントからの完了報告は自動配信されるため、待つだけでOKです" },
-            { "type": "highlight", "variant": "tip", "title": "問題が起きたら", "content": "サブエージェントがエラーに遭遇すると、リーダー経由で報告されます。「〇〇エージェントのエラーを確認して、対処方法を指示してください」とリーダーに頼みましょう。" }
+            {
+              "type": "text",
+              "content": "サブエージェントは作業中に自動でタスクの状態を更新し、完了時にリーダーへメッセージを送信します。あなたはリーダーに進捗を聞くだけです。"
+            },
+            {
+              "type": "codeBlock",
+              "language": "text",
+              "code": "# 進捗確認の指示例:\n「現在のタスク進捗を見せてください」\n\n# リーダーの回答例:\n#1 「商品レビュー機能」   ✓ 完了\n#2 「お気に入り機能」     ◆ 作業中\n#3 「注文履歴機能」       ✓ 完了",
+              "caption": "サブエージェントからの完了報告は自動配信されるため、待つだけでOKです"
+            },
+            {
+              "type": "highlight",
+              "variant": "tip",
+              "title": "問題が起きたら",
+              "content": "サブエージェントがエラーに遭遇すると、リーダー経由で報告されます。「〇〇エージェントのエラーを確認して、対処方法を指示してください」とリーダーに頼みましょう。"
+            }
           ]
         },
         {
@@ -69,10 +147,28 @@
           "title": "マージとクリーンアップ（自動）",
           "description": "全タスク完了後、リーダーにマージとクリーンアップを指示します。",
           "blocks": [
-            { "type": "text", "content": "全サブエージェントの作業が完了したら、リーダーに指示するだけでマージからクリーンアップまで自動実行されます。" },
-            { "type": "codeBlock", "language": "text", "code": "# 指示例:\n「全タスクが完了したので、各 feature ブランチを\nmain にマージして、worktree を削除してください」\n\n# リーダーが自動実行する内容:\n1. git merge feature/product-reviews\n2. git merge feature/wishlist\n3. git merge feature/order-history\n4. git worktree remove （各ディレクトリ）\n5. git branch -d （各ブランチ）\n6. チームのシャットダウン", "caption": "あなたが行うのは「マージしてください」の一言だけです" },
-            { "type": "highlight", "variant": "warning", "title": "コンフリクトが起きたら", "content": "共有ファイル（型定義やユーティリティなど）を複数ブランチで編集していた場合にコンフリクトが発生します。Claude Code に「コンフリクトを解消してください」と指示すれば対応してくれます。" },
-            { "type": "highlight", "variant": "info", "title": "Agent Teams フロー全体像", "content": "指示 → worktree 作成 → チーム作成 → サブエージェント並列作業 → マージ → worktree 削除 → チーム解散。全行程が1セッション内で完結します。あなたが操作するのは最初と最後の指示のみです。" }
+            {
+              "type": "text",
+              "content": "全サブエージェントの作業が完了したら、リーダーに指示するだけでマージからクリーンアップまで自動実行されます。"
+            },
+            {
+              "type": "codeBlock",
+              "language": "text",
+              "code": "# 指示例:\n「全タスクが完了したので、各 feature ブランチを\nmain にマージして、worktree を削除してください」\n\n# リーダーが自動実行する内容:\n1. git merge feature/product-reviews\n2. git merge feature/wishlist\n3. git merge feature/order-history\n4. git worktree remove （各ディレクトリ）\n5. git branch -d （各ブランチ）\n6. チームのシャットダウン",
+              "caption": "あなたが行うのは「マージしてください」の一言だけです"
+            },
+            {
+              "type": "highlight",
+              "variant": "warning",
+              "title": "コンフリクトが起きたら",
+              "content": "共有ファイル（型定義やユーティリティなど）を複数ブランチで編集していた場合にコンフリクトが発生します。Claude Code に「コンフリクトを解消してください」と指示すれば対応してくれます。"
+            },
+            {
+              "type": "highlight",
+              "variant": "info",
+              "title": "Agent Teams フロー全体像",
+              "content": "指示 → worktree 作成 → チーム作成 → サブエージェント並列作業 → マージ → worktree 削除 → チーム解散。全行程が1セッション内で完結します。あなたが操作するのは最初と最後の指示のみです。"
+            }
           ]
         }
       ]
@@ -88,10 +184,28 @@
           "title": "worktree を作成する",
           "description": "ターミナルから git worktree コマンドで作業ディレクトリを分離します。",
           "blocks": [
-            { "type": "text", "content": "ターミナル（または Claude Code のセッション）で worktree を作成します。これにより、各ブランチが別フォルダに展開されます。" },
-            { "type": "codeBlock", "language": "bash", "code": "# 各機能用の worktree を作成\ngit worktree add ../shopapp-reviews -b feature/product-reviews\ngit worktree add ../shopapp-wishlist -b feature/wishlist\ngit worktree add ../shopapp-history -b feature/order-history\n\n# 確認\ngit worktree list", "caption": "プロジェクトの隣に新しいディレクトリが作られます" },
-            { "type": "highlight", "variant": "info", "title": "ディレクトリ構成のイメージ", "content": "shopapp/ (元のディレクトリ・main ブランチ)、shopapp-reviews/ (feature/product-reviews ブランチ)、shopapp-wishlist/ (feature/wishlist ブランチ)、shopapp-history/ (feature/order-history ブランチ) のように並びます。" },
-            { "type": "highlight", "variant": "tip", "title": "命名規則", "content": "worktree のディレクトリ名にブランチ名を含めると管理しやすくなります。元のプロジェクトと同じ階層に配置するのがおすすめです。" }
+            {
+              "type": "text",
+              "content": "ターミナル（または Claude Code のセッション）で worktree を作成します。これにより、各ブランチが別フォルダに展開されます。"
+            },
+            {
+              "type": "codeBlock",
+              "language": "bash",
+              "code": "# 各機能用の worktree を作成\ngit worktree add ../shopapp-reviews -b feature/product-reviews\ngit worktree add ../shopapp-wishlist -b feature/wishlist\ngit worktree add ../shopapp-history -b feature/order-history\n\n# 確認\ngit worktree list",
+              "caption": "プロジェクトの隣に新しいディレクトリが作られます"
+            },
+            {
+              "type": "highlight",
+              "variant": "info",
+              "title": "ディレクトリ構成のイメージ",
+              "content": "shopapp/ (元のディレクトリ・main ブランチ)、shopapp-reviews/ (feature/product-reviews ブランチ)、shopapp-wishlist/ (feature/wishlist ブランチ)、shopapp-history/ (feature/order-history ブランチ) のように並びます。"
+            },
+            {
+              "type": "highlight",
+              "variant": "tip",
+              "title": "命名規則",
+              "content": "worktree のディレクトリ名にブランチ名を含めると管理しやすくなります。元のプロジェクトと同じ階層に配置するのがおすすめです。"
+            }
           ]
         },
         {
@@ -100,10 +214,28 @@
           "title": "各 worktree で Claude Code セッションを起動する",
           "description": "別々のターミナルウィンドウを開き、各 worktree で Claude Code を起動します。",
           "blocks": [
-            { "type": "text", "content": "ターミナルアプリで新しいタブやウィンドウを開き、各 worktree ディレクトリで claude コマンドを実行します。" },
-            { "type": "codeBlock", "language": "bash", "code": "# ターミナル 1（新しいタブ/ウィンドウ）\ncd ../shopapp-reviews\nclaude\n# → 「商品レビューの投稿・一覧表示機能を実装してください。\n#    src/pages/ProductReview.tsx と src/api/reviews.ts を作成」\n\n# ターミナル 2（新しいタブ/ウィンドウ）\ncd ../shopapp-wishlist\nclaude\n# → 「お気に入りリスト機能を実装してください。\n#    src/pages/Wishlist.tsx と src/api/wishlist.ts を作成」\n\n# ターミナル 3（新しいタブ/ウィンドウ）\ncd ../shopapp-history\nclaude\n# → 「注文履歴の一覧・詳細表示機能を実装してください。\n#    src/pages/OrderHistory.tsx と src/api/orders.ts を作成」", "caption": "各ターミナルで独立した Claude Code セッションが起動します" },
-            { "type": "highlight", "variant": "warning", "title": "各セッションは完全に独立", "content": "各セッションは互いの存在を知りません。セッション間で「あっちの進捗はどう？」と聞くことはできません。調整が必要な場合は、あなた自身が各ターミナルを切り替えて確認・仲介する必要があります。" },
-            { "type": "highlight", "variant": "tip", "title": "指示のコツ", "content": "各セッションに対して、CLAUDE.md やプロジェクト構成を踏まえた具体的な指示を出しましょう。「他のブランチで通知システムも並行開発中なので、共通ファイルは編集しないでください」のような注意点も伝えると安全です。" }
+            {
+              "type": "text",
+              "content": "ターミナルアプリで新しいタブやウィンドウを開き、各 worktree ディレクトリで claude コマンドを実行します。"
+            },
+            {
+              "type": "codeBlock",
+              "language": "bash",
+              "code": "# ターミナル 1（新しいタブ/ウィンドウ）\ncd ../shopapp-reviews\nclaude\n# → 「商品レビューの投稿・一覧表示機能を実装してください。\n#    src/pages/ProductReview.tsx と src/api/reviews.ts を作成」\n\n# ターミナル 2（新しいタブ/ウィンドウ）\ncd ../shopapp-wishlist\nclaude\n# → 「お気に入りリスト機能を実装してください。\n#    src/pages/Wishlist.tsx と src/api/wishlist.ts を作成」\n\n# ターミナル 3（新しいタブ/ウィンドウ）\ncd ../shopapp-history\nclaude\n# → 「注文履歴の一覧・詳細表示機能を実装してください。\n#    src/pages/OrderHistory.tsx と src/api/orders.ts を作成」",
+              "caption": "各ターミナルで独立した Claude Code セッションが起動します"
+            },
+            {
+              "type": "highlight",
+              "variant": "warning",
+              "title": "各セッションは完全に独立",
+              "content": "各セッションは互いの存在を知りません。セッション間で「あっちの進捗はどう？」と聞くことはできません。調整が必要な場合は、あなた自身が各ターミナルを切り替えて確認・仲介する必要があります。"
+            },
+            {
+              "type": "highlight",
+              "variant": "tip",
+              "title": "指示のコツ",
+              "content": "各セッションに対して、CLAUDE.md やプロジェクト構成を踏まえた具体的な指示を出しましょう。「他のブランチで通知システムも並行開発中なので、共通ファイルは編集しないでください」のような注意点も伝えると安全です。"
+            }
           ]
         },
         {
@@ -112,10 +244,28 @@
           "title": "各セッションで作業を完了させる",
           "description": "各 Claude Code セッションで実装を完了し、コミットまで行います。",
           "blocks": [
-            { "type": "text", "content": "各セッションでは通常の Claude Code と同じ使い方です。実装が完了したら、各セッション内でコミットまで済ませます。" },
-            { "type": "codeBlock", "language": "text", "code": "# 各セッションでの流れ:\n1. 実装を指示\n2. Claude Code がコードを書く\n3. 「テストを実行してください」で動作確認\n4. 「変更をコミットしてください」でコミット\n5. /exit でセッション終了", "caption": "各セッションで独立してコミットまで完了させてから終了します" },
-            { "type": "highlight", "variant": "warning", "title": "重要: 共有ファイルを編集しない", "content": "package.json、共通の型定義ファイル、ユーティリティなど、他のブランチも使うファイルは編集しないよう各セッションに伝えてください。これがコンフリクト回避の最重要ポイントです。" },
-            { "type": "highlight", "variant": "tip", "title": "進捗の確認方法", "content": "各ターミナルを順に確認するか、別ターミナルで git log --oneline --all を実行すると、各ブランチのコミット状況を一望できます。" }
+            {
+              "type": "text",
+              "content": "各セッションでは通常の Claude Code と同じ使い方です。実装が完了したら、各セッション内でコミットまで済ませます。"
+            },
+            {
+              "type": "codeBlock",
+              "language": "text",
+              "code": "# 各セッションでの流れ:\n1. 実装を指示\n2. Claude Code がコードを書く\n3. 「テストを実行してください」で動作確認\n4. 「変更をコミットしてください」でコミット\n5. /exit でセッション終了",
+              "caption": "各セッションで独立してコミットまで完了させてから終了します"
+            },
+            {
+              "type": "highlight",
+              "variant": "warning",
+              "title": "重要: 共有ファイルを編集しない",
+              "content": "package.json、共通の型定義ファイル、ユーティリティなど、他のブランチも使うファイルは編集しないよう各セッションに伝えてください。これがコンフリクト回避の最重要ポイントです。"
+            },
+            {
+              "type": "highlight",
+              "variant": "tip",
+              "title": "進捗の確認方法",
+              "content": "各ターミナルを順に確認するか、別ターミナルで git log --oneline --all を実行すると、各ブランチのコミット状況を一望できます。"
+            }
           ]
         },
         {
@@ -124,10 +274,28 @@
           "title": "マージとクリーンアップ（手動）",
           "description": "元のディレクトリでブランチをマージし、worktree を削除します。",
           "blocks": [
-            { "type": "text", "content": "全セッションの作業が完了したら、元のプロジェクトディレクトリ（main ブランチ）でマージします。ターミナルで直接コマンドを実行しても、Claude Code に指示しても OK です。" },
-            { "type": "codeBlock", "language": "bash", "code": "# 元のプロジェクトディレクトリに移動\ncd /path/to/shopapp  # main ブランチ\n\n# 各 feature ブランチを順番にマージ\ngit merge feature/product-reviews\ngit merge feature/wishlist\ngit merge feature/order-history\n\n# worktree を削除（ディレクトリも消えます）\ngit worktree remove ../shopapp-reviews\ngit worktree remove ../shopapp-wishlist\ngit worktree remove ../shopapp-history\n\n# マージ済みのブランチを削除\ngit branch -d feature/product-reviews feature/wishlist feature/order-history", "caption": "マージ → worktree 削除 → ブランチ削除の順で実行します" },
-            { "type": "highlight", "variant": "warning", "title": "コンフリクトが起きたら", "content": "git merge でコンフリクトが発生した場合、そのまま Claude Code を起動して「コンフリクトを解消してください」と指示できます。または git merge --abort でマージを中止し、手動で対応することもできます。" },
-            { "type": "highlight", "variant": "tip", "title": "手動フロー全体像", "content": "worktree 作成 → 各ターミナルで claude 起動 → 各セッションで実装・コミット → 元ディレクトリでマージ → worktree 削除。Agent Teams と違い、各ステップを自分のペースで確認しながら進められるのがメリットです。" }
+            {
+              "type": "text",
+              "content": "全セッションの作業が完了したら、元のプロジェクトディレクトリ（main ブランチ）でマージします。ターミナルで直接コマンドを実行しても、Claude Code に指示しても OK です。"
+            },
+            {
+              "type": "codeBlock",
+              "language": "bash",
+              "code": "# 元のプロジェクトディレクトリに移動\ncd /path/to/shopapp  # main ブランチ\n\n# 各 feature ブランチを順番にマージ\ngit merge feature/product-reviews\ngit merge feature/wishlist\ngit merge feature/order-history\n\n# worktree を削除（ディレクトリも消えます）\ngit worktree remove ../shopapp-reviews\ngit worktree remove ../shopapp-wishlist\ngit worktree remove ../shopapp-history\n\n# マージ済みのブランチを削除\ngit branch -d feature/product-reviews feature/wishlist feature/order-history",
+              "caption": "マージ → worktree 削除 → ブランチ削除の順で実行します"
+            },
+            {
+              "type": "highlight",
+              "variant": "warning",
+              "title": "コンフリクトが起きたら",
+              "content": "git merge でコンフリクトが発生した場合、そのまま Claude Code を起動して「コンフリクトを解消してください」と指示できます。または git merge --abort でマージを中止し、手動で対応することもできます。"
+            },
+            {
+              "type": "highlight",
+              "variant": "tip",
+              "title": "手動フロー全体像",
+              "content": "worktree 作成 → 各ターミナルで claude 起動 → 各セッションで実装・コミット → 元ディレクトリでマージ → worktree 削除。Agent Teams と違い、各ステップを自分のペースで確認しながら進められるのがメリットです。"
+            }
           ]
         }
       ]
@@ -137,13 +305,21 @@
     {
       "title": "コンフリクト回避の戦略（両方式共通）",
       "blocks": [
-        { "type": "list", "items": [
-          "共有インターフェースを先に定義 — 型定義や API 仕様は並列作業の前に main で確定させる",
-          "ファイル所有権を明確に — 「このブランチはこのディレクトリだけ触る」と決める",
-          "共通モジュールは直列で — ユーティリティや共通コンポーネントの変更は並列化の前に完了させる",
-          "細かいコミット — 小さな単位でコミットすると、コンフリクト発生時の解消が楽になる"
-        ]},
-        { "type": "highlight", "variant": "tip", "title": "おすすめの進め方", "content": "Step 0: 共通の型定義・インターフェースを main で先に定義してコミット → Step 1: worktree 作成 → Step 2: 各ブランチで独立した機能を実装 → Step 3: テスト → Step 4: main にマージ＆統合テスト" }
+        {
+          "type": "list",
+          "items": [
+            "共有インターフェースを先に定義 — 型定義や API 仕様は並列作業の前に main で確定させる",
+            "ファイル所有権を明確に — 「このブランチはこのディレクトリだけ触る」と決める",
+            "共通モジュールは直列で — ユーティリティや共通コンポーネントの変更は並列化の前に完了させる",
+            "細かいコミット — 小さな単位でコミットすると、コンフリクト発生時の解消が楽になる"
+          ]
+        },
+        {
+          "type": "highlight",
+          "variant": "tip",
+          "title": "おすすめの進め方",
+          "content": "Step 0: 共通の型定義・インターフェースを main で先に定義してコミット → Step 1: worktree 作成 → Step 2: 各ブランチで独立した機能を実装 → Step 3: テスト → Step 4: main にマージ＆統合テスト"
+        }
       ]
     }
   ],

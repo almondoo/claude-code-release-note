@@ -25,9 +25,7 @@ export function HighlightBox({ variant, title, content }: HighlightBoxProps): Re
           {title}
         </span>
       )}
-      <span className="text-[14px] text-slate-300 leading-[1.8] font-sans">
-        {content}
-      </span>
+      <span className="text-[14px] text-slate-300 leading-[1.8] font-sans">{content}</span>
     </div>
   );
 }

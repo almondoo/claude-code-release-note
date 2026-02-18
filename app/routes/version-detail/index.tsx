@@ -15,18 +15,13 @@ export default function VersionDetail(): React.JSX.Element {
 
   const release = RELEASES.find((r) => r.v === version);
   const details = version ? VERSION_DETAILS[version] : null;
-  const { prev, next } = version
-    ? getAdjacentVersions(version)
-    : { prev: null, next: null };
+  const { prev, next } = version ? getAdjacentVersions(version) : { prev: null, next: null };
 
   if (!release) {
     return (
       <div className="min-h-screen bg-slate-900 font-sans text-slate-100 flex items-center justify-center flex-col gap-4">
         <h1 className="text-2xl font-bold">バージョンが見つかりません</h1>
-        <Link
-          to="/"
-          className="text-blue-500 no-underline flex items-center gap-1.5 text-sm"
-        >
+        <Link to="/" className="text-blue-500 no-underline flex items-center gap-1.5 text-sm">
           <ArrowLeftIcon />
           一覧に戻る
         </Link>
@@ -88,10 +83,7 @@ export default function VersionDetail(): React.JSX.Element {
             </h1>
             <div className="flex gap-3 flex-wrap items-center mb-3">
               <span className="text-[14px] text-slate-400">
-                <strong className="text-slate-100">
-                  {release.items.length}
-                </strong>{" "}
-                件の変更
+                <strong className="text-slate-100">{release.items.length}</strong> 件の変更
               </span>
               {details && (
                 <span
@@ -128,16 +120,9 @@ export default function VersionDetail(): React.JSX.Element {
         <div className="flex flex-col gap-2 mb-7">
           {details
             ? details.map((item, i) => (
-                <DetailCard
-                  key={i}
-                  item={item}
-                  index={i}
-                  reducedMotion={reducedMotion}
-                />
+                <DetailCard key={i} item={item} index={i} reducedMotion={reducedMotion} />
               ))
-            : release.items.map((item, i) => (
-                <FallbackCard key={i} item={item} />
-              ))}
+            : release.items.map((item, i) => <FallbackCard key={i} item={item} />)}
         </div>
 
         {/* Navigation */}
@@ -147,12 +132,8 @@ export default function VersionDetail(): React.JSX.Element {
           transition={{ duration: 0.3, delay: 0.3 }}
           className="flex justify-between gap-3 mb-6"
         >
-          <div>
-            {prev && <NavButton to={prev} label={prev} direction="prev" />}
-          </div>
-          <div>
-            {next && <NavButton to={next} label={next} direction="next" />}
-          </div>
+          <div>{prev && <NavButton to={prev} label={prev} direction="prev" />}</div>
+          <div>{next && <NavButton to={next} label={next} direction="next" />}</div>
         </motion.div>
 
         {/* Footer */}

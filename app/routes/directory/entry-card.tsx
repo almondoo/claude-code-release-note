@@ -91,10 +91,7 @@ export function EntryCard({
       />
 
       <div className="flex items-center gap-2">
-        <span
-          className="shrink-0 flex items-center"
-          style={{ color: accentColor }}
-        >
+        <span className="shrink-0 flex items-center" style={{ color: accentColor }}>
           {entry.type === "directory" ? <FolderIcon /> : <FileIcon />}
         </span>
         <code

@@ -6,7 +6,10 @@ interface MobileTimelineMarkerProps {
   section: SetupSection;
 }
 
-export function MobileTimelineMarker({ index, section }: MobileTimelineMarkerProps): React.JSX.Element {
+export function MobileTimelineMarker({
+  index,
+  section,
+}: MobileTimelineMarkerProps): React.JSX.Element {
   const colors = SECTION_COLORS[section.id] || { color: "#3B82F6", bg: "rgba(59,130,246,0.15)" };
   return (
     <div className="md:hidden flex items-center gap-3 mb-3">

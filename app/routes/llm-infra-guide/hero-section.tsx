@@ -11,7 +11,17 @@ interface HeroSectionProps {
   keyStats: KeyStat[];
 }
 
-function AnimatedCounter({ value, prefix, unit, duration = 1500 }: { value: number; prefix?: string; unit: string; duration?: number }) {
+function AnimatedCounter({
+  value,
+  prefix,
+  unit,
+  duration = 1500,
+}: {
+  value: number;
+  prefix?: string;
+  unit: string;
+  duration?: number;
+}) {
   const [current, setCurrent] = useState(0);
   const reducedMotion = useReducedMotion();
   const ref = useRef<HTMLDivElement>(null);
@@ -19,6 +29,7 @@ function AnimatedCounter({ value, prefix, unit, duration = 1500 }: { value: numb
 
   useEffect(() => {
     if (reducedMotion || hasAnimated.current) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setCurrent(value);
       return;
     }
@@ -37,24 +48,34 @@ function AnimatedCounter({ value, prefix, unit, duration = 1500 }: { value: numb
           requestAnimationFrame(animate);
         }
       },
-      { threshold: 0.3 }
+      { threshold: 0.3 },
     );
 
     const el = ref.current;
     if (el) observer.observe(el);
-    return () => { if (el) observer.unobserve(el); };
+    return () => {
+      if (el) observer.unobserve(el);
+    };
   }, [value, duration, reducedMotion]);
 
   return (
     <div ref={ref} className="flex flex-col items-center gap-0.5">
       <span className="text-2xl md:text-3xl font-bold text-slate-100 font-mono tabular-nums">
-        {prefix}{current.toLocaleString()}{unit === "%" ? "%" : ""}
+        {prefix}
+        {current.toLocaleString()}
+        {unit === "%" ? "%" : ""}
       </span>
     </div>
   );
 }
 
-export function HeroSection({ title, date, audience, premise, keyStats }: HeroSectionProps): React.JSX.Element {
+export function HeroSection({
+  title,
+  date,
+  audience,
+  premise,
+  keyStats,
+}: HeroSectionProps): React.JSX.Element {
   const reducedMotion = useReducedMotion();
 
   return (
@@ -68,7 +89,8 @@ export function HeroSection({ title, date, audience, premise, keyStats }: HeroSe
       <div
         className="absolute inset-0"
         style={{
-          background: "radial-gradient(ellipse at 30% 20%, rgba(245,158,11,0.08), transparent 60%), radial-gradient(ellipse at 70% 80%, rgba(99,102,241,0.06), transparent 60%)",
+          background:
+            "radial-gradient(ellipse at 30% 20%, rgba(245,158,11,0.08), transparent 60%), radial-gradient(ellipse at 70% 80%, rgba(99,102,241,0.06), transparent 60%)",
         }}
       />
 
@@ -86,8 +108,17 @@ export function HeroSection({ title, date, audience, premise, keyStats }: HeroSe
         {/* Animated stat counters */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-[700px] mx-auto mb-4">
           {keyStats.map((stat, i) => (
-            <div key={i} className="flex flex-col items-center gap-1 py-3 px-2 rounded-lg" style={{ background: "rgba(30,41,59,0.5)" }}>
-              <AnimatedCounter value={stat.value} prefix={stat.prefix} unit={stat.unit} duration={1200 + i * 200} />
+            <div
+              key={i}
+              className="flex flex-col items-center gap-1 py-3 px-2 rounded-lg"
+              style={{ background: "rgba(30,41,59,0.5)" }}
+            >
+              <AnimatedCounter
+                value={stat.value}
+                prefix={stat.prefix}
+                unit={stat.unit}
+                duration={1200 + i * 200}
+              />
               <span className="text-[12px] text-slate-500 font-medium">
                 {stat.unit !== "%" ? stat.unit : ""} {stat.label}
               </span>

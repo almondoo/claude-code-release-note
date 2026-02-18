@@ -24,10 +24,7 @@ export function StatCard({ label, value, trend, accentColor }: StatCardProps): R
         {label}
       </span>
       <div className="flex items-baseline gap-1.5">
-        <span
-          className="text-lg font-bold"
-          style={{ color: accentColor ?? "#F1F5F9" }}
-        >
+        <span className="text-lg font-bold" style={{ color: accentColor ?? "#F1F5F9" }}>
           {value}
         </span>
         {t && (

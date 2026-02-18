@@ -9,7 +9,13 @@ interface TimelineSidebarProps {
   hasQuery: boolean;
 }
 
-export function TimelineSidebar({ sections, activeSectionId, onSectionClick, filteredSectionIds, hasQuery }: TimelineSidebarProps): React.JSX.Element {
+export function TimelineSidebar({
+  sections,
+  activeSectionId,
+  onSectionClick,
+  filteredSectionIds,
+  hasQuery,
+}: TimelineSidebarProps): React.JSX.Element {
   return (
     <nav className="hidden md:block w-[260px] shrink-0">
       <div className="sticky top-8 max-h-[calc(100vh-4rem)] overflow-y-auto scrollbar-none">
@@ -21,7 +27,10 @@ export function TimelineSidebar({ sections, activeSectionId, onSectionClick, fil
           />
           {sections.map((section, idx) => {
             const isActive = section.id === activeSectionId;
-            const colors = SECTION_COLORS[section.id] || { color: "#3B82F6", bg: "rgba(59,130,246,0.15)" };
+            const colors = SECTION_COLORS[section.id] || {
+              color: "#3B82F6",
+              bg: "rgba(59,130,246,0.15)",
+            };
             const isDimmed = hasQuery && !filteredSectionIds.has(section.id);
 
             return (

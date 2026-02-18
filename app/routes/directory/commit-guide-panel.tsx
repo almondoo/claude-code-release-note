@@ -42,10 +42,7 @@ export function CommitGuidePanel(): React.JSX.Element {
           </div>
           <ul className="m-0 pl-4 flex flex-col gap-1">
             {COMMIT_GUIDE.commit.map((item, i) => (
-              <li
-                key={i}
-                className="text-xs leading-[1.7] text-slate-400 font-sans"
-              >
+              <li key={i} className="text-xs leading-[1.7] text-slate-400 font-sans">
                 {item}
               </li>
             ))}
@@ -80,10 +77,7 @@ export function CommitGuidePanel(): React.JSX.Element {
           </div>
           <ul className="m-0 pl-4 flex flex-col gap-1">
             {COMMIT_GUIDE.noCommit.map((item, i) => (
-              <li
-                key={i}
-                className="text-xs leading-[1.7] text-slate-400 font-sans"
-              >
+              <li key={i} className="text-xs leading-[1.7] text-slate-400 font-sans">
                 {item}
               </li>
             ))}

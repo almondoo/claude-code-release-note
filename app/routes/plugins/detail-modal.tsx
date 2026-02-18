@@ -18,7 +18,12 @@ interface DetailModalProps {
   reducedMotion: boolean | null;
 }
 
-export function DetailModal({ plugin, accentColor, onClose, reducedMotion }: DetailModalProps): React.JSX.Element {
+export function DetailModal({
+  plugin,
+  accentColor,
+  onClose,
+  reducedMotion,
+}: DetailModalProps): React.JSX.Element {
   return (
     <DetailModalShell
       accentColor={accentColor}
@@ -79,9 +84,7 @@ export function DetailModal({ plugin, accentColor, onClose, reducedMotion }: Det
           <DetailInfoIcon />
           詳細説明
         </div>
-        <p className="m-0 text-[14px] leading-[1.8] text-slate-400 font-sans">
-          {plugin.detail}
-        </p>
+        <p className="m-0 text-[14px] leading-[1.8] text-slate-400 font-sans">{plugin.detail}</p>
       </div>
 
       {/* When to use */}
@@ -90,9 +93,7 @@ export function DetailModal({ plugin, accentColor, onClose, reducedMotion }: Det
           <TimingIcon />
           使うタイミング
         </div>
-        <p className="m-0 text-[14px] leading-[1.8] text-slate-400 font-sans">
-          {plugin.whenToUse}
-        </p>
+        <p className="m-0 text-[14px] leading-[1.8] text-slate-400 font-sans">{plugin.whenToUse}</p>
       </div>
 
       {/* Setup */}
@@ -101,9 +102,7 @@ export function DetailModal({ plugin, accentColor, onClose, reducedMotion }: Det
           <SettingsIcon />
           セットアップ
         </div>
-        <p className="m-0 text-[14px] leading-[1.8] text-slate-400 font-sans">
-          {plugin.setup}
-        </p>
+        <p className="m-0 text-[14px] leading-[1.8] text-slate-400 font-sans">{plugin.setup}</p>
         {plugin.binary && (
           <div className="flex items-center gap-1.5">
             <span className="text-[12px] text-slate-500 font-sans">必要なバイナリ:</span>

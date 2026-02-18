@@ -1,9 +1,6 @@
 import { AnimatePresence, motion } from "motion/react";
 
-import {
-  BookOpenIcon,
-  ChevronDownIcon,
-} from "~/components/icons";
+import { BookOpenIcon, ChevronDownIcon } from "~/components/icons";
 
 import type { Step } from "./constants";
 import { TAG_COLORS } from "./constants";
@@ -16,7 +13,13 @@ function renderInlineLinks(text: string): React.ReactNode[] {
     const match = part.match(/^\[([^\]]+)\]\(([^)]+)\)$/);
     if (match) {
       return (
-        <a key={i} href={match[2]} target="_blank" rel="noopener noreferrer" style={{ color: "#67E8F9", textDecoration: "underline", textUnderlineOffset: 2 }}>
+        <a
+          key={i}
+          href={match[2]}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ color: "#67E8F9", textDecoration: "underline", textUnderlineOffset: 2 }}
+        >
           {match[1]}
         </a>
       );
@@ -33,7 +36,13 @@ interface StepCardProps {
   reducedMotion: boolean | null;
 }
 
-export function StepCard({ step, accentColor, expanded, onToggle, reducedMotion }: StepCardProps): React.JSX.Element {
+export function StepCard({
+  step,
+  accentColor,
+  expanded,
+  onToggle,
+  reducedMotion,
+}: StepCardProps): React.JSX.Element {
   return (
     <div
       className="bg-surface rounded-xl border border-slate-700 overflow-hidden transition-all"
@@ -46,7 +55,12 @@ export function StepCard({ step, accentColor, expanded, onToggle, reducedMotion 
         role="button"
         tabIndex={0}
         onClick={onToggle}
-        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onToggle(); } }}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            onToggle();
+          }
+        }}
         className="hover-card flex items-center gap-3 cursor-pointer px-5 py-4"
       >
         <div

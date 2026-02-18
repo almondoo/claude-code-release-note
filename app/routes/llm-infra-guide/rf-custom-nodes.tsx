@@ -14,8 +14,18 @@ function handleStyle(color: string): CSSProperties {
   return { background: color, width: 6, height: 6 };
 }
 
-const labelStyle: CSSProperties = { fontSize: 12, fontWeight: 600, color: "#E2E8F0", lineHeight: 1.3 };
-const sublabelStyle: CSSProperties = { fontSize: 10, color: "#94A3B8", lineHeight: 1.3, marginTop: 2 };
+const labelStyle: CSSProperties = {
+  fontSize: 12,
+  fontWeight: 600,
+  color: "#E2E8F0",
+  lineHeight: 1.3,
+};
+const sublabelStyle: CSSProperties = {
+  fontSize: 10,
+  color: "#94A3B8",
+  lineHeight: 1.3,
+  marginTop: 2,
+};
 
 function NodeLabel({ label, sublabel }: { label: string; sublabel?: string }): React.JSX.Element {
   return (
@@ -77,7 +87,12 @@ export function SecurityNode({ data }: NodeProps): React.JSX.Element {
 
 // ── Zone Node (group) ────────────────────────────────────────────────────
 
-const invisibleHandle: CSSProperties = { background: "transparent", border: "none", width: 1, height: 1 };
+const invisibleHandle: CSSProperties = {
+  background: "transparent",
+  border: "none",
+  width: 1,
+  height: 1,
+};
 
 export function ZoneNode({ data }: NodeProps): React.JSX.Element {
   const d = data as NodeData;

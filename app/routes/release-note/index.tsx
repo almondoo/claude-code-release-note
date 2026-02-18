@@ -33,16 +33,14 @@ export default function ReleaseNote(): React.JSX.Element {
 
   const filtered = useMemo(() => {
     const lowerQuery = query.toLowerCase();
-    return RELEASES
-      .map((release) => ({
-        ...release,
-        items: release.items.filter((item) => {
-          const tagMatch = activeTab === "all" || item.tags.includes(activeTab);
-          const queryMatch = !query || item.t.toLowerCase().includes(lowerQuery);
-          return tagMatch && queryMatch;
-        }),
-      }))
-      .filter((release) => release.items.length > 0);
+    return RELEASES.map((release) => ({
+      ...release,
+      items: release.items.filter((item) => {
+        const tagMatch = activeTab === "all" || item.tags.includes(activeTab);
+        const queryMatch = !query || item.t.toLowerCase().includes(lowerQuery);
+        return tagMatch && queryMatch;
+      }),
+    })).filter((release) => release.items.length > 0);
   }, [activeTab, query]);
 
   const totalItems = filtered.reduce((sum, r) => sum + r.items.length, 0);
@@ -50,9 +48,7 @@ export default function ReleaseNote(): React.JSX.Element {
   const activeTabDef = TAB_DEFS.find((t) => t.id === activeTab) ?? TAB_DEFS[0];
   const accentColor = activeTabDef.color;
 
-  const modalRelease = modalVersion
-    ? RELEASES.find((r) => r.v === modalVersion)
-    : null;
+  const modalRelease = modalVersion ? RELEASES.find((r) => r.v === modalVersion) : null;
 
   const modalItems = modalRelease
     ? activeTab === "all"
@@ -97,7 +93,9 @@ export default function ReleaseNote(): React.JSX.Element {
                 }`}
                 style={{
                   border: `1px solid ${active ? tab.color + "60" : "#334155"}`,
-                  background: active ? (TAG_COLORS[tab.id]?.bg ?? "rgba(59, 130, 246, 0.25)") : "#1E293B",
+                  background: active
+                    ? (TAG_COLORS[tab.id]?.bg ?? "rgba(59, 130, 246, 0.25)")
+                    : "#1E293B",
                   color: active ? tab.color : "#64748B",
                 }}
               >
@@ -120,7 +118,12 @@ export default function ReleaseNote(): React.JSX.Element {
           className="flex gap-3 items-center mb-[18px]"
         >
           <div className="flex-1">
-            <SearchInput value={query} onChange={setQuery} placeholder="キーワードで検索..." accentColor={accentColor} />
+            <SearchInput
+              value={query}
+              onChange={setQuery}
+              placeholder="キーワードで検索..."
+              accentColor={accentColor}
+            />
           </div>
           <span className="text-xs text-slate-500 font-medium whitespace-nowrap font-mono">
             {filtered.length}ver / {totalItems}件

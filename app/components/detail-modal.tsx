@@ -1,5 +1,5 @@
-import { useRef } from "react";
 import { motion } from "motion/react";
+import { useRef } from "react";
 
 import { CloseIcon } from "~/components/icons";
 import { useModalLock } from "~/hooks/useModalLock";
@@ -39,7 +39,9 @@ export function DetailModalShell({
       animate={{ opacity: 1 }}
       exit={reducedMotion ? undefined : { opacity: 0 }}
       transition={{ duration: 0.2 }}
-      onClick={(e) => { if (e.target === overlayRef.current) onClose(); }}
+      onClick={(e) => {
+        if (e.target === overlayRef.current) onClose();
+      }}
       className={overlayClassName}
     >
       <motion.div
@@ -76,9 +78,7 @@ export function DetailModalShell({
           >
             {icon}
           </div>
-          <div className="flex-1 min-w-0">
-            {headerContent}
-          </div>
+          <div className="flex-1 min-w-0">{headerContent}</div>
           <button
             onClick={onClose}
             aria-label="閉じる"
@@ -89,9 +89,7 @@ export function DetailModalShell({
         </div>
 
         {/* Body */}
-        <div className={bodyClassName}>
-          {children}
-        </div>
+        <div className={bodyClassName}>{children}</div>
       </motion.div>
     </motion.div>
   );

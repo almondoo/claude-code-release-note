@@ -1,5 +1,5 @@
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useState, useSyncExternalStore } from "react";
 
 import { InfoIcon, LightbulbIcon } from "~/components/icons";
 import { EmptyState } from "~/components/empty-state";
@@ -34,8 +34,7 @@ export function meta(): Array<{
     { title: "Claude Code 設定ガイド" },
     {
       name: "description",
-      content:
-        "Claude Code の設定ファイル・ディレクトリ構成のベストプラクティスガイド",
+      content: "Claude Code の設定ファイル・ディレクトリ構成のベストプラクティスガイド",
     },
   ];
 }
@@ -53,7 +52,11 @@ function renderTabIcon(tab: TabItem): React.ReactNode {
     return <span className="flex items-center scale-[0.8]">{SECTION_ICONS[tab.id]()}</span>;
   }
   if (def.type === "info") {
-    return <span className="flex items-center"><InfoIcon /></span>;
+    return (
+      <span className="flex items-center">
+        <InfoIcon />
+      </span>
+    );
   }
   return null;
 }
@@ -66,11 +69,11 @@ export default function Directory(): React.JSX.Element {
     section: Section;
   } | null>(null);
   const reducedMotion = useReducedMotion();
-  const hasMounted = useRef(false);
-
-  useEffect(() => {
-    hasMounted.current = true;
-  }, []);
+  const hasMounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  );
 
   const lowerQuery = query.toLowerCase();
 
@@ -94,9 +97,7 @@ export default function Directory(): React.JSX.Element {
     );
   }, [isAllTab, activeSection, query, lowerQuery]);
 
-  const isInfoTab = SPECIAL_TABS.includes(
-    activeTab as (typeof SPECIAL_TABS)[number],
-  );
+  const isInfoTab = SPECIAL_TABS.includes(activeTab as (typeof SPECIAL_TABS)[number]);
 
   const openModal = useCallback((entry: Entry, section: Section) => {
     setSelectedEntry({ entry, section });
@@ -169,10 +170,7 @@ export default function Directory(): React.JSX.Element {
                 </div>
                 <ul className="m-0 pl-4 flex flex-col gap-1">
                   {activeSection.bestPractices.map((tip, i) => (
-                    <li
-                      key={i}
-                      className="text-xs leading-[1.7] text-slate-400 font-sans"
-                    >
+                    <li key={i} className="text-xs leading-[1.7] text-slate-400 font-sans">
                       {tip}
                     </li>
                   ))}
@@ -190,7 +188,11 @@ export default function Directory(): React.JSX.Element {
             transition={{ duration: 0.3, delay: 0.15 }}
             className="mb-4"
           >
-            <SearchInput value={query} onChange={setQuery} placeholder="ファイル名やキーワードで検索..." />
+            <SearchInput
+              value={query}
+              onChange={setQuery}
+              placeholder="ファイル名やキーワードで検索..."
+            />
           </motion.div>
         )}
 
@@ -223,10 +225,8 @@ export default function Directory(): React.JSX.Element {
                     className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
                     style={{
                       background:
-                        SECTION_COLORS[activeSection.id]?.bg ||
-                        "rgba(59, 130, 246, 0.25)",
-                      color:
-                        SECTION_COLORS[activeSection.id]?.color || "#3B82F6",
+                        SECTION_COLORS[activeSection.id]?.bg || "rgba(59, 130, 246, 0.25)",
+                      color: SECTION_COLORS[activeSection.id]?.color || "#3B82F6",
                     }}
                   >
                     {SECTION_ICONS[activeSection.id]?.()}
@@ -240,8 +240,7 @@ export default function Directory(): React.JSX.Element {
                         {activeSection.basePath}
                       </code>
                       <span className="text-xs text-slate-500">
-                        {filteredEntries.length} /{" "}
-                        {activeSection.entries.length} エントリ
+                        {filteredEntries.length} / {activeSection.entries.length} エントリ
                       </span>
                     </div>
                     <span className="text-xs text-slate-500 font-sans">
@@ -282,10 +281,7 @@ export default function Directory(): React.JSX.Element {
                         }
                         transition={{
                           duration: 0.2,
-                          delay:
-                            reducedMotion || hasMounted.current
-                              ? 0
-                              : Math.min(i * 0.04, 0.4),
+                          delay: reducedMotion || hasMounted ? 0 : Math.min(i * 0.04, 0.4),
                         }}
                       >
                         <EntryCard
@@ -301,7 +297,10 @@ export default function Directory(): React.JSX.Element {
 
               {/* Empty state */}
               {filteredEntries.length === 0 && (
-                <EmptyState message="条件に一致するエントリはありません" reducedMotion={reducedMotion} />
+                <EmptyState
+                  message="条件に一致するエントリはありません"
+                  reducedMotion={reducedMotion}
+                />
               )}
             </motion.div>
           )}
@@ -316,9 +315,7 @@ export default function Directory(): React.JSX.Element {
           <DetailModal
             entry={selectedEntry.entry}
             section={selectedEntry.section}
-            accentColor={
-              SECTION_COLORS[selectedEntry.section.id]?.color || "#3B82F6"
-            }
+            accentColor={SECTION_COLORS[selectedEntry.section.id]?.color || "#3B82F6"}
             onClose={closeModal}
             reducedMotion={reducedMotion}
           />

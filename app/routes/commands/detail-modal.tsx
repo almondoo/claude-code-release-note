@@ -1,8 +1,4 @@
-import {
-  DetailInfoIcon,
-  TerminalIcon,
-  TimingIcon,
-} from "~/components/icons";
+import { DetailInfoIcon, TerminalIcon, TimingIcon } from "~/components/icons";
 import { DetailModalShell } from "~/components/detail-modal";
 
 import type { ModalData } from "./constants";
@@ -25,7 +21,9 @@ export function getModalFields(data: ModalData): {
       description: data.cmd.description,
       title: (
         <div className="flex items-baseline gap-2 flex-wrap">
-          <code className="font-mono text-base font-bold" style={{ color: accentColor }}>{data.cmd.name}</code>
+          <code className="font-mono text-base font-bold" style={{ color: accentColor }}>
+            {data.cmd.name}
+          </code>
           {data.cmd.args && (
             <span className="text-xs text-slate-500 font-mono">{data.cmd.args}</span>
           )}
@@ -58,7 +56,9 @@ export function getModalFields(data: ModalData): {
       description: data.cmd.description,
       title: (
         <div className="flex items-baseline gap-2 flex-wrap">
-          <code className="font-mono text-base font-bold" style={{ color: CLI_ACCENT }}>{data.cmd.name}</code>
+          <code className="font-mono text-base font-bold" style={{ color: CLI_ACCENT }}>
+            {data.cmd.name}
+          </code>
           {data.cmd.args && (
             <span className="text-xs text-slate-500 font-mono">{data.cmd.args}</span>
           )}
@@ -68,7 +68,11 @@ export function getModalFields(data: ModalData): {
         <div className="flex gap-1.5 mt-2">
           <span
             className="text-[11px] font-semibold rounded"
-            style={{ padding: "2px 8px", background: "rgba(139, 92, 246, 0.15)", color: CLI_ACCENT }}
+            style={{
+              padding: "2px 8px",
+              background: "rgba(139, 92, 246, 0.15)",
+              color: CLI_ACCENT,
+            }}
           >
             CLI {data.kind === "command" ? "Command" : "Flag"}
           </span>
@@ -101,7 +105,11 @@ export function getModalFields(data: ModalData): {
       <div className="flex gap-1.5 mt-2">
         <span
           className="text-[11px] font-semibold rounded"
-          style={{ padding: "2px 8px", background: "rgba(249, 115, 22, 0.15)", color: SHORTCUT_ACCENT }}
+          style={{
+            padding: "2px 8px",
+            background: "rgba(249, 115, 22, 0.15)",
+            color: SHORTCUT_ACCENT,
+          }}
         >
           ショートカット
         </span>
@@ -121,13 +129,23 @@ export function DetailModal({
 }): React.JSX.Element {
   const { accentColor, detail, whenToUse, description, title, extraHeader } = getModalFields(data);
 
-  const icon = data.type === "shortcut" ? (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M18 3a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3H6a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3V6a3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3h12a3 3 0 0 0 3-3 3 3 0 0 0-3-3z" />
-    </svg>
-  ) : (
-    <TerminalIcon />
-  );
+  const icon =
+    data.type === "shortcut" ? (
+      <svg
+        width="18"
+        height="18"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M18 3a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3H6a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3V6a3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3h12a3 3 0 0 0 3-3 3 3 0 0 0-3-3z" />
+      </svg>
+    ) : (
+      <TerminalIcon />
+    );
 
   return (
     <DetailModalShell
@@ -151,9 +169,7 @@ export function DetailModal({
           <DetailInfoIcon />
           詳細説明
         </div>
-        <p className="m-0 text-[14px] leading-[1.8] text-slate-400 font-sans">
-          {detail}
-        </p>
+        <p className="m-0 text-[14px] leading-[1.8] text-slate-400 font-sans">{detail}</p>
       </div>
 
       {/* When to use */}
@@ -162,9 +178,7 @@ export function DetailModal({
           <TimingIcon />
           使うタイミング
         </div>
-        <p className="m-0 text-[14px] leading-[1.8] text-slate-400 font-sans">
-          {whenToUse}
-        </p>
+        <p className="m-0 text-[14px] leading-[1.8] text-slate-400 font-sans">{whenToUse}</p>
       </div>
     </DetailModalShell>
   );

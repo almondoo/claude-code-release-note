@@ -11,10 +11,7 @@ function renderBlock(block: ContentBlock, key: number): React.ReactNode {
   switch (block.type) {
     case "text":
       return (
-        <p
-          key={key}
-          className="text-[14px] text-slate-400 leading-[1.8] m-0"
-        >
+        <p key={key} className="text-[14px] text-slate-400 leading-[1.8] m-0">
           {block.content}
         </p>
       );
@@ -78,10 +75,7 @@ function renderBlock(block: ContentBlock, key: number): React.ReactNode {
                 background: "rgba(15,23,42,0.6)",
               }}
             >
-              <span
-                className="text-[12px] font-mono font-medium"
-                style={{ color: "#94A3B8" }}
-              >
+              <span className="text-[12px] font-mono font-medium" style={{ color: "#94A3B8" }}>
                 {block.filename ?? block.language}
               </span>
               <div className="flex items-center gap-2">
@@ -124,9 +118,7 @@ function renderBlock(block: ContentBlock, key: number): React.ReactNode {
                       >
                         {i + 1}
                       </span>
-                      <span style={{ color: "#E2E8F0" }}>
-                        {line || "\u00A0"}
-                      </span>
+                      <span style={{ color: "#E2E8F0" }}>{line || "\u00A0"}</span>
                     </div>
                   ))}
                 </code>
@@ -135,10 +127,7 @@ function renderBlock(block: ContentBlock, key: number): React.ReactNode {
           </div>
 
           {block.caption && (
-            <span
-              className="text-[12px] italic px-1"
-              style={{ color: "#64748B" }}
-            >
+            <span className="text-[12px] italic px-1" style={{ color: "#64748B" }}>
               {block.caption}
             </span>
           )}
@@ -153,11 +142,7 @@ function renderBlock(block: ContentBlock, key: number): React.ReactNode {
 
 // ── Intro Block Renderer (for shared intro / commonTips) ─────────────────
 
-export function IntroBlockRenderer({
-  block,
-}: {
-  block: ContentBlock;
-}): React.JSX.Element | null {
+export function IntroBlockRenderer({ block }: { block: ContentBlock }): React.JSX.Element | null {
   return renderBlock(block, 0) as React.JSX.Element | null;
 }
 
@@ -169,11 +154,7 @@ interface StepRendererProps {
   accentColor: string;
 }
 
-export function StepRenderer({
-  step,
-  index,
-  accentColor,
-}: StepRendererProps): React.JSX.Element {
+export function StepRenderer({ step, index, accentColor }: StepRendererProps): React.JSX.Element {
   const reducedMotion = useReducedMotion();
 
   return (
@@ -198,10 +179,7 @@ export function StepRenderer({
           {index + 1}
         </div>
         {/* Connecting line */}
-        <div
-          className="w-px flex-1 mt-2"
-          style={{ background: "rgba(100,116,139,0.2)" }}
-        />
+        <div className="w-px flex-1 mt-2" style={{ background: "rgba(100,116,139,0.2)" }} />
       </div>
 
       {/* Step content */}
@@ -214,12 +192,8 @@ export function StepRenderer({
             {step.label}
           </span>
         </div>
-        <h3 className="text-[18px] font-bold text-slate-100 m-0 mb-1.5">
-          {step.title}
-        </h3>
-        <p className="text-[13px] text-slate-500 m-0 mb-5">
-          {step.description}
-        </p>
+        <h3 className="text-[18px] font-bold text-slate-100 m-0 mb-1.5">{step.title}</h3>
+        <p className="text-[13px] text-slate-500 m-0 mb-5">{step.description}</p>
 
         <div className="flex flex-col gap-4">
           {step.blocks.map((block, i) => renderBlock(block, i))}

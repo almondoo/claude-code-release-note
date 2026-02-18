@@ -41,7 +41,9 @@ function Arrow({ direction = "right", label, color = "#475569" }: ArrowProps): R
       <div className="flex flex-col items-center gap-0.5 py-1">
         <div className="w-px h-4" style={{ background: color }} />
         {label && <span className="text-[10px] text-slate-500">{label}</span>}
-        <span style={{ color }} className="text-[11px] leading-none">&darr;</span>
+        <span style={{ color }} className="text-[11px] leading-none">
+          &darr;
+        </span>
       </div>
     );
   }
@@ -49,15 +51,15 @@ function Arrow({ direction = "right", label, color = "#475569" }: ArrowProps): R
     <div className="flex items-center gap-0.5 px-0.5 shrink-0">
       <div className="h-px w-4 md:w-6" style={{ background: color }} />
       {label && <span className="text-[10px] text-slate-500 whitespace-nowrap">{label}</span>}
-      <span style={{ color }} className="text-[11px] leading-none">&rarr;</span>
+      <span style={{ color }} className="text-[11px] leading-none">
+        &rarr;
+      </span>
     </div>
   );
 }
 
 function DiagramCaption({ children }: { children: React.ReactNode }): React.JSX.Element {
-  return (
-    <div className="text-[12px] text-slate-500 text-center mt-2 italic">{children}</div>
-  );
+  return <div className="text-[12px] text-slate-500 text-center mt-2 italic">{children}</div>;
 }
 
 /** Shared background for diagram containers. */
@@ -80,7 +82,14 @@ interface ArchitectureDiagramProps {
   monitoring?: ArchNode;
 }
 
-export function ArchitectureDiagram({ title, caption, sources, middleware, destinations, monitoring }: ArchitectureDiagramProps): React.JSX.Element {
+export function ArchitectureDiagram({
+  title,
+  caption,
+  sources,
+  middleware,
+  destinations,
+  monitoring,
+}: ArchitectureDiagramProps): React.JSX.Element {
   return (
     <div
       className="rounded-xl border border-slate-700 px-5 py-5 flex flex-col gap-4"
@@ -92,24 +101,36 @@ export function ArchitectureDiagram({ title, caption, sources, middleware, desti
       <div className="flex flex-col md:flex-row items-center md:items-start justify-center gap-3 md:gap-2 overflow-x-auto">
         {/* Sources */}
         <div className="flex flex-col gap-2 items-center">
-          <span className="text-[10px] text-slate-500 uppercase tracking-wider font-semibold">ソース</span>
-          {sources.map((s, i) => <DiagramBox key={i} {...s} />)}
+          <span className="text-[10px] text-slate-500 uppercase tracking-wider font-semibold">
+            ソース
+          </span>
+          {sources.map((s, i) => (
+            <DiagramBox key={i} {...s} />
+          ))}
         </div>
 
         <Arrow direction="right" />
 
         {/* Middleware stack */}
         <div className="flex flex-col gap-2 items-center">
-          <span className="text-[10px] text-slate-500 uppercase tracking-wider font-semibold">処理レイヤー</span>
-          {middleware.map((m, i) => <DiagramBox key={i} {...m} />)}
+          <span className="text-[10px] text-slate-500 uppercase tracking-wider font-semibold">
+            処理レイヤー
+          </span>
+          {middleware.map((m, i) => (
+            <DiagramBox key={i} {...m} />
+          ))}
         </div>
 
         <Arrow direction="right" />
 
         {/* Destinations */}
         <div className="flex flex-col gap-2 items-center">
-          <span className="text-[10px] text-slate-500 uppercase tracking-wider font-semibold">LLM API</span>
-          {destinations.map((d, i) => <DiagramBox key={i} {...d} small />)}
+          <span className="text-[10px] text-slate-500 uppercase tracking-wider font-semibold">
+            LLM API
+          </span>
+          {destinations.map((d, i) => (
+            <DiagramBox key={i} {...d} small />
+          ))}
         </div>
       </div>
 
@@ -142,7 +163,11 @@ interface LayerStackDiagramProps {
   layers: LayerDef[];
 }
 
-export function LayerStackDiagram({ title, caption, layers }: LayerStackDiagramProps): React.JSX.Element {
+export function LayerStackDiagram({
+  title,
+  caption,
+  layers,
+}: LayerStackDiagramProps): React.JSX.Element {
   return (
     <div
       className="rounded-xl border border-slate-700 px-5 py-5 flex flex-col gap-3"
@@ -214,7 +239,11 @@ interface ComparisonDiagramProps {
   columns: ComparisonColumn[];
 }
 
-export function ComparisonDiagram({ title, caption, columns }: ComparisonDiagramProps): React.JSX.Element {
+export function ComparisonDiagram({
+  title,
+  caption,
+  columns,
+}: ComparisonDiagramProps): React.JSX.Element {
   return (
     <div
       className="rounded-xl border border-slate-700 px-5 py-5 flex flex-col gap-4"
@@ -241,7 +270,9 @@ export function ComparisonDiagram({ title, caption, columns }: ComparisonDiagram
             <div className="flex flex-col gap-1.5">
               {col.items.map((item, j) => (
                 <div key={j} className="flex items-start gap-2">
-                  <span className="text-[11px] mt-0.5" style={{ color: col.color }}>&bull;</span>
+                  <span className="text-[11px] mt-0.5" style={{ color: col.color }}>
+                    &bull;
+                  </span>
                   <span className="text-[12px] text-slate-400 leading-snug">{item}</span>
                 </div>
               ))}
@@ -249,8 +280,13 @@ export function ComparisonDiagram({ title, caption, columns }: ComparisonDiagram
 
             {/* Footer badge */}
             {col.footer && (
-              <div className="mt-auto pt-2 border-t" style={{ borderColor: `color-mix(in srgb, ${col.color} 20%, transparent)` }}>
-                <span className="text-[11px] font-medium" style={{ color: col.color }}>{col.footer}</span>
+              <div
+                className="mt-auto pt-2 border-t"
+                style={{ borderColor: `color-mix(in srgb, ${col.color} 20%, transparent)` }}
+              >
+                <span className="text-[11px] font-medium" style={{ color: col.color }}>
+                  {col.footer}
+                </span>
               </div>
             )}
           </div>

@@ -1,6 +1,5 @@
 import {
   BookOpenIcon,
-  CheckIcon,
   FolderIcon,
   LightbulbIcon,
   MapPinIcon,
@@ -168,8 +167,7 @@ export function getVcsKey(vcs: boolean | null): "true" | "false" | "null" {
 }
 
 export const SECTIONS: Section[] = directoryData.sections as unknown as Section[];
-export const PRECEDENCE: PrecedenceItem[] =
-  directoryData.precedence as PrecedenceItem[];
+export const PRECEDENCE: PrecedenceItem[] = directoryData.precedence as PrecedenceItem[];
 export const COMMIT_GUIDE = directoryData.commitGuide;
 export const SKILLS_VS_AGENTS = directoryData.skillsVsAgents;
 
@@ -203,9 +201,7 @@ export const TAB_DEFS: TabDef[] = [
   ...SECTIONS.map((s) => ({
     id: s.id,
     label: s.name,
-    shortLabel: s.name
-      .replace("（企業管理者向け）", "")
-      .replace("マネージド設定", "マネージド"),
+    shortLabel: s.name.replace("（企業管理者向け）", "").replace("マネージド設定", "マネージド"),
     color: SECTION_COLORS[s.id]?.color || "#3B82F6",
     type: "section" as const,
   })),
@@ -232,10 +228,7 @@ export const TAB_DEFS: TabDef[] = [
   },
 ];
 
-export const MODAL_SECTION_META: Record<
-  string,
-  { label: string; icon: React.JSX.Element }
-> = {
+export const MODAL_SECTION_META: Record<string, { label: string; icon: React.JSX.Element }> = {
   detail: { label: "詳細", icon: <BookOpenIcon /> },
   usage: { label: "使い方", icon: <TerminalIcon /> },
   location: { label: "配置場所", icon: <MapPinIcon /> },

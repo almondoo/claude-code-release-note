@@ -8,17 +8,19 @@ interface CodeBlockProps {
   caption?: string;
 }
 
-export function CodeBlock({ language, title, code, filename, caption }: CodeBlockProps): React.JSX.Element {
+export function CodeBlock({
+  language,
+  title,
+  code,
+  filename,
+  caption,
+}: CodeBlockProps): React.JSX.Element {
   const lines = code.split("\n");
   const lineNumberWidth = lines.length >= 100 ? 40 : 28;
 
   return (
     <div className="flex flex-col gap-1.5">
-      {title && (
-        <span className="text-[13px] font-bold text-slate-300 px-1">
-          {title}
-        </span>
-      )}
+      {title && <span className="text-[13px] font-bold text-slate-300 px-1">{title}</span>}
 
       <div
         className="rounded-xl overflow-hidden"
@@ -35,7 +37,11 @@ export function CodeBlock({ language, title, code, filename, caption }: CodeBloc
             {filename && (
               <span
                 className="text-[10px] font-mono font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full"
-                style={{ background: "rgba(100,116,139,0.15)", color: "#64748B", border: "1px solid #334155" }}
+                style={{
+                  background: "rgba(100,116,139,0.15)",
+                  color: "#64748B",
+                  border: "1px solid #334155",
+                }}
               >
                 {language}
               </span>
@@ -47,7 +53,12 @@ export function CodeBlock({ language, title, code, filename, caption }: CodeBloc
         <div className="overflow-x-auto">
           <pre
             className="m-0 px-4 py-4"
-            style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13, lineHeight: 1.7, background: "transparent" }}
+            style={{
+              fontFamily: "'JetBrains Mono', monospace",
+              fontSize: 13,
+              lineHeight: 1.7,
+              background: "transparent",
+            }}
           >
             <code>
               {lines.map((line, i) => (

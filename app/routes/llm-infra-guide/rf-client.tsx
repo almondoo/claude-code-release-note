@@ -1,4 +1,4 @@
-import { useState, useEffect, type ReactNode } from "react";
+import { useSyncExternalStore, type ReactNode } from "react";
 import {
   ReactFlow,
   Controls,
@@ -13,9 +13,20 @@ import { customNodeTypes } from "./rf-custom-nodes";
 
 // ── ClientOnly wrapper for SSR safety ────────────────────────────────────
 
-export function ClientOnly({ children, fallback }: { children: ReactNode; fallback?: ReactNode }): ReactNode {
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
+const subscribe = (): (() => void) => () => {};
+
+export function ClientOnly({
+  children,
+  fallback,
+}: {
+  children: ReactNode;
+  fallback?: ReactNode;
+}): ReactNode {
+  const mounted = useSyncExternalStore(
+    subscribe,
+    () => true,
+    () => false,
+  );
   if (!mounted) return fallback ?? null;
   return <>{children}</>;
 }
@@ -54,7 +65,16 @@ function onButtonLeave(e: React.MouseEvent<HTMLButtonElement>, bg: string): void
 
 function ExpandIcon(): React.JSX.Element {
   return (
-    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg
+      width="12"
+      height="12"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
       <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
     </svg>
   );
@@ -62,7 +82,15 @@ function ExpandIcon(): React.JSX.Element {
 
 function CloseIcon(): React.JSX.Element {
   return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+    >
       <path d="M18 6L6 18M6 6l12 12" />
     </svg>
   );
@@ -98,15 +126,10 @@ function FullscreenOverlay({
   const closeBg = "rgba(30,41,59,0.6)";
 
   return (
-    <div
-      className="fixed inset-0 z-[9999] flex flex-col"
-      style={{ background: "#0B1120" }}
-    >
+    <div className="fixed inset-0 z-[9999] flex flex-col" style={{ background: "#0B1120" }}>
       {/* Header */}
       <div className="flex items-center justify-between px-5 py-3 border-b border-slate-800 shrink-0">
-        <span className="text-[14px] font-semibold text-slate-200">
-          {title || "構成図"}
-        </span>
+        <span className="text-[14px] font-semibold text-slate-200">{title || "構成図"}</span>
         <button
           onClick={onClose}
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] text-slate-400 border border-slate-700 cursor-pointer transition-colors"
@@ -152,7 +175,13 @@ function FullscreenOverlay({
 
 // ── Expand button ────────────────────────────────────────────────────────
 
-function ExpandButton({ onClick, className }: { onClick: () => void; className?: string }): React.JSX.Element {
+function ExpandButton({
+  onClick,
+  className,
+}: {
+  onClick: () => void;
+  className?: string;
+}): React.JSX.Element {
   return (
     <button
       onClick={onClick}

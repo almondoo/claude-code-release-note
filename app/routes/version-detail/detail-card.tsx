@@ -125,9 +125,7 @@ export function FallbackCard({ item }: { item: ReleaseItem }): React.JSX.Element
           <Badge key={tag} tag={tag} />
         ))}
       </div>
-      <p className="text-slate-400 text-sm leading-[1.7] m-0 font-sans">
-        {item.t}
-      </p>
+      <p className="text-slate-400 text-sm leading-[1.7] m-0 font-sans">{item.t}</p>
     </div>
   );
 }

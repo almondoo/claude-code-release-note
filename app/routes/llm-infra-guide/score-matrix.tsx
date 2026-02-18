@@ -118,7 +118,9 @@ export function ScoreMatrix({ axes, products }: ScoreMatrixProps): React.JSX.Ele
                 {idx + 1}
               </span>
               <div className="flex flex-col min-w-0">
-                <span className="text-[14px] font-semibold text-slate-200 truncate">{product.name}</span>
+                <span className="text-[14px] font-semibold text-slate-200 truncate">
+                  {product.name}
+                </span>
                 <span className="text-[11px] text-slate-500">{product.recommended}</span>
               </div>
             </div>
@@ -128,13 +130,8 @@ export function ScoreMatrix({ axes, products }: ScoreMatrixProps): React.JSX.Ele
               {axes.map((axis) => (
                 <div key={axis.key} className="flex items-center gap-2">
                   <span className="text-[11px] text-slate-500 w-3">{axis.key}</span>
-                  <ScoreBar
-                    score={product.scores[axis.key] ?? 0}
-                    color={getAxisColor(axis.key)}
-                  />
-                  <span className="text-[12px] text-slate-400 w-3">
-                    {product.scores[axis.key]}
-                  </span>
+                  <ScoreBar score={product.scores[axis.key] ?? 0} color={getAxisColor(axis.key)} />
+                  <span className="text-[12px] text-slate-400 w-3">{product.scores[axis.key]}</span>
                 </div>
               ))}
             </div>

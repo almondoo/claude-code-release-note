@@ -50,13 +50,8 @@ export default function HandsOnHub(): React.JSX.Element {
         <PageHeader
           title={TOPICS_DATA.meta.title}
           description={TOPICS_DATA.meta.description}
-          stats={[
-            { value: TOPICS.length, label: "お題" },
-          ]}
-          gradient={[
-            "rgba(99,102,241,0.08)",
-            "rgba(168,85,247,0.05)",
-          ]}
+          stats={[{ value: TOPICS.length, label: "お題" }]}
+          gradient={["rgba(99,102,241,0.08)", "rgba(168,85,247,0.05)"]}
         />
 
         {/* Search */}
@@ -84,10 +79,7 @@ export default function HandsOnHub(): React.JSX.Element {
             ))}
           </div>
         ) : (
-          <EmptyState
-            message="条件に一致するお題はありません"
-            reducedMotion={reducedMotion}
-          />
+          <EmptyState message="条件に一致するお題はありません" reducedMotion={reducedMotion} />
         )}
 
         {/* Footer */}

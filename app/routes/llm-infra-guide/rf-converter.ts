@@ -14,9 +14,7 @@ const GRID = { x: 180, y: 140, padding: 40 };
 
 // ── Network variant ──────────────────────────────────────────────────────
 
-function convertNetwork(
-  props: Pick<InfraDiagramProps, "zones" | "connections">,
-): FlowData {
+function convertNetwork(props: Pick<InfraDiagramProps, "zones" | "connections">): FlowData {
   const zones = props.zones || [];
   const connections = props.connections || [];
   const nodes: Node[] = [];
@@ -29,10 +27,7 @@ function convertNetwork(
     const itemCount = zone.items.length;
     const zoneW = Math.max(300, itemCount * GRID.x + GRID.padding * 2);
     // Increase height when sublabels are long (text wraps inside nodes)
-    const maxSublabelLen = Math.max(
-      ...zone.items.map((item) => (item.sublabel || "").length),
-      0,
-    );
+    const maxSublabelLen = Math.max(...zone.items.map((item) => (item.sublabel || "").length), 0);
     const zoneH = maxSublabelLen > 20 ? 140 : 120;
 
     nodes.push({
@@ -97,18 +92,13 @@ function convertNetwork(
 
 // ── Dataflow variant ─────────────────────────────────────────────────────
 
-function convertDataflow(
-  props: Pick<InfraDiagramProps, "stages">,
-): FlowData {
+function convertDataflow(props: Pick<InfraDiagramProps, "stages">): FlowData {
   const stages = props.stages || [];
   const nodes: Node[] = [];
   const edges: Edge[] = [];
 
   // Estimate per-item height: short text fits in 50px, long text needs 65px
-  const maxLabelLen = Math.max(
-    ...stages.flatMap((s) => s.items.map((item) => item.length)),
-    0,
-  );
+  const maxLabelLen = Math.max(...stages.flatMap((s) => s.items.map((item) => item.length)), 0);
   const itemSpacing = maxLabelLen > 15 ? 65 : 50;
 
   stages.forEach((stage, si) => {
@@ -153,15 +143,16 @@ function convertDataflow(
 
 // ── CloudArch variant ────────────────────────────────────────────────────
 
-function convertCloudArch(
-  props: Pick<InfraDiagramProps, "layers" | "provider">,
-): FlowData {
+function convertCloudArch(props: Pick<InfraDiagramProps, "layers" | "provider">): FlowData {
   const layers = props.layers || [];
   const nodes: Node[] = [];
   const edges: Edge[] = [];
 
   const PROVIDER_COLORS: Record<string, string> = {
-    aws: "#FF9900", gcp: "#4285F4", azure: "#0078D4", generic: "#64748B",
+    aws: "#FF9900",
+    gcp: "#4285F4",
+    azure: "#0078D4",
+    generic: "#64748B",
   };
   const providerColor = PROVIDER_COLORS[props.provider || "generic"] || "#64748B";
 
@@ -172,10 +163,7 @@ function convertCloudArch(
     const svcCount = layer.services.length;
     const layerW = Math.max(350, svcCount * GRID.x + GRID.padding * 2);
     // Estimate height: sublabels with long descriptions need more room
-    const maxDescLen = Math.max(
-      ...layer.services.map((s) => (s.description || "").length),
-      0,
-    );
+    const maxDescLen = Math.max(...layer.services.map((s) => (s.description || "").length), 0);
     const layerH = maxDescLen > 20 ? 130 : 110;
 
     nodes.push({

@@ -15,7 +15,12 @@ export function CLICard({
       role="button"
       tabIndex={0}
       onClick={onClick}
-      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onClick(); } }}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onClick();
+        }
+      }}
       className="hover-card bg-surface rounded-xl border border-slate-700 flex flex-col gap-2.5 cursor-pointer relative overflow-hidden h-[200px] px-5 py-[18px]"
       style={{ "--accent": CLI_ACCENT } as React.CSSProperties}
     >
@@ -36,7 +41,10 @@ export function CLICard({
       <p className="m-0 text-xs leading-[1.6] text-slate-400 font-sans flex-1 line-clamp-2">
         {cmd.description}
       </p>
-      <span className="text-[11px] font-semibold rounded self-start whitespace-nowrap mt-auto" style={{ padding: "2px 8px", background: "rgba(139, 92, 246, 0.15)", color: CLI_ACCENT }}>
+      <span
+        className="text-[11px] font-semibold rounded self-start whitespace-nowrap mt-auto"
+        style={{ padding: "2px 8px", background: "rgba(139, 92, 246, 0.15)", color: CLI_ACCENT }}
+      >
         {kind === "command" ? "Command" : "Flag"}
       </span>
     </div>

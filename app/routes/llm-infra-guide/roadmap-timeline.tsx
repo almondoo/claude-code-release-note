@@ -38,7 +38,10 @@ function PhaseCard({ phase, index, isLast }: PhaseCardProps): React.JSX.Element 
       </div>
 
       {/* Card */}
-      <div className="rounded-lg border border-slate-700 overflow-hidden" style={{ background: "rgba(30,41,59,0.4)" }}>
+      <div
+        className="rounded-lg border border-slate-700 overflow-hidden"
+        style={{ background: "rgba(30,41,59,0.4)" }}
+      >
         {/* Header */}
         <button
           onClick={() => setExpanded(!expanded)}
@@ -69,7 +72,8 @@ function PhaseCard({ phase, index, isLast }: PhaseCardProps): React.JSX.Element 
           <div className="border-t border-slate-700 px-4 py-3">
             {phase.investment && (
               <div className="text-[12px] text-slate-400 mb-3">
-                <span className="text-slate-500">投資: </span>{phase.investment}
+                <span className="text-slate-500">投資: </span>
+                {phase.investment}
               </div>
             )}
             <div className="flex flex-col gap-2">
@@ -82,9 +86,15 @@ function PhaseCard({ phase, index, isLast }: PhaseCardProps): React.JSX.Element 
                   <span className="text-[13px] text-slate-300 font-medium sm:w-[240px] shrink-0">
                     {item.task}
                   </span>
-                  <span className="text-[12px] text-slate-500 sm:w-[80px] shrink-0">{item.duration}</span>
-                  <span className="text-[12px] text-slate-500 sm:w-[140px] shrink-0">{item.resources}</span>
-                  <span className="text-[12px] ml-auto" style={{ color: c.color }}>{item.effect}</span>
+                  <span className="text-[12px] text-slate-500 sm:w-[80px] shrink-0">
+                    {item.duration}
+                  </span>
+                  <span className="text-[12px] text-slate-500 sm:w-[140px] shrink-0">
+                    {item.resources}
+                  </span>
+                  <span className="text-[12px] ml-auto" style={{ color: c.color }}>
+                    {item.effect}
+                  </span>
                 </div>
               ))}
             </div>

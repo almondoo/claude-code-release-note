@@ -37,7 +37,13 @@ function useScreenMode(): ScreenMode {
 
 // ── Shared Backdrop ─────────────────────────────────────────────────────
 
-function Backdrop({ isOpen, onClick }: { isOpen: boolean; onClick: () => void }): React.JSX.Element {
+function Backdrop({
+  isOpen,
+  onClick,
+}: {
+  isOpen: boolean;
+  onClick: () => void;
+}): React.JSX.Element {
   return (
     <div
       className="fixed inset-0 z-40 transition-opacity duration-300"
@@ -70,6 +76,7 @@ function PanelContent({
   // Scroll to active term when activeTermId changes
   useEffect(() => {
     if (!activeTermId) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setExpandedTermId(activeTermId);
     const el = termRefs.current.get(activeTermId);
     if (el) {
@@ -111,14 +118,8 @@ function PanelContent({
     <div className="flex flex-col gap-3 h-full overflow-hidden">
       {/* Title */}
       <div className="px-1">
-        <h3
-          className="m-0 font-bold text-slate-200 text-[13px]"
-        >
-          用語集
-        </h3>
-        <span className="text-[11px] text-slate-500">
-          {terms.length} 用語
-        </span>
+        <h3 className="m-0 font-bold text-slate-200 text-[13px]">用語集</h3>
+        <span className="text-[11px] text-slate-500">{terms.length} 用語</span>
       </div>
 
       {/* Terms list */}
@@ -149,9 +150,7 @@ function PanelContent({
                         : "border-l-2 border-transparent hover:bg-slate-800/50"
                     }`}
                     style={{
-                      background: isActive
-                        ? "rgba(59,130,246,0.05)"
-                        : undefined,
+                      background: isActive ? "rgba(59,130,246,0.05)" : undefined,
                     }}
                   >
                     {/* Term header */}
@@ -160,9 +159,7 @@ function PanelContent({
                         <span className="text-[13px] font-semibold text-slate-200 leading-tight">
                           {term.term}
                         </span>
-                        <span className="text-[11px] text-slate-500 font-mono">
-                          {term.termEn}
-                        </span>
+                        <span className="text-[11px] text-slate-500 font-mono">{term.termEn}</span>
                       </div>
                       {/* Category badge */}
                       {termCat && (
@@ -198,9 +195,7 @@ function PanelContent({
                             </span>
                             <div className="flex flex-wrap gap-1">
                               {term.relatedTerms.map((relId) => {
-                                const relTerm = terms.find(
-                                  (t) => t.id === relId,
-                                );
+                                const relTerm = terms.find((t) => t.id === relId);
                                 if (!relTerm) return null;
                                 return (
                                   <button
@@ -278,9 +273,7 @@ export function GlossaryPanel({
         >
           {/* Close button */}
           <div className="flex items-center justify-between px-4 py-3 border-b border-slate-800">
-            <span className="text-[13px] font-semibold text-slate-300">
-              用語集
-            </span>
+            <span className="text-[13px] font-semibold text-slate-300">用語集</span>
             <button
               onClick={onClose}
               className="w-8 h-8 rounded-lg flex items-center justify-center bg-transparent border border-slate-700 text-slate-400 cursor-pointer hover:bg-slate-800 hover:text-slate-300 transition-colors"
@@ -436,9 +429,7 @@ export function GlossaryTrigger({
         <path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2V3zM22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7V3z" />
       </svg>
       <span className="text-[13px] font-medium">用語集</span>
-      <span
-        className="rounded-full bg-blue-500/20 text-blue-400 text-[11px] font-bold min-w-[20px] h-5 flex items-center justify-center px-1"
-      >
+      <span className="rounded-full bg-blue-500/20 text-blue-400 text-[11px] font-bold min-w-[20px] h-5 flex items-center justify-center px-1">
         {termCount}
       </span>
     </button>

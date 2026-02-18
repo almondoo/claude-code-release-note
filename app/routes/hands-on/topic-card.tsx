@@ -1,12 +1,7 @@
 import { Link } from "react-router";
 import { motion, useReducedMotion } from "motion/react";
 
-import {
-  type TopicMeta,
-  DIFFICULTY_COLORS,
-  TAG_COLORS,
-  TOPIC_ICONS,
-} from "./constants";
+import { type TopicMeta, DIFFICULTY_COLORS, TAG_COLORS, TOPIC_ICONS } from "./constants";
 
 interface TopicCardProps {
   topic: TopicMeta;

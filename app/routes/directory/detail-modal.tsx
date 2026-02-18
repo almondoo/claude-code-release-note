@@ -10,6 +10,30 @@ import {
 } from "./constants";
 import { BadgeWithTooltip } from "./entry-card";
 
+function ModalSection({
+  id,
+  accentColor,
+  children,
+}: {
+  id: string;
+  accentColor: string;
+  children: React.ReactNode;
+}): React.JSX.Element {
+  const meta = MODAL_SECTION_META[id];
+  return (
+    <div className="flex flex-col gap-2.5">
+      <div
+        className="flex items-center gap-1.5 text-[12px] font-bold tracking-wide uppercase font-mono"
+        style={{ color: accentColor }}
+      >
+        {meta?.icon}
+        {meta?.label}
+      </div>
+      {children}
+    </div>
+  );
+}
+
 export function DetailModal({
   entry,
   section,
@@ -28,31 +52,7 @@ export function DetailModal({
 
   const fullPath = section.basePath + entry.path;
   const detailParagraphs = entry.detail.split("\n\n").filter(Boolean);
-  const usageParagraphs = entry.usage
-    ? entry.usage.split("\n\n").filter(Boolean)
-    : [];
-
-  function ModalSection({
-    id,
-    children,
-  }: {
-    id: string;
-    children: React.ReactNode;
-  }): React.JSX.Element {
-    const meta = MODAL_SECTION_META[id];
-    return (
-      <div className="flex flex-col gap-2.5">
-        <div
-          className="flex items-center gap-1.5 text-[12px] font-bold tracking-wide uppercase font-mono"
-          style={{ color: accentColor }}
-        >
-          {meta?.icon}
-          {meta?.label}
-        </div>
-        {children}
-      </div>
-    );
-  }
+  const usageParagraphs = entry.usage ? entry.usage.split("\n\n").filter(Boolean) : [];
 
   return (
     <DetailModalShell
@@ -70,9 +70,7 @@ export function DetailModal({
           >
             {entry.path}
           </code>
-          <div className="text-sm font-semibold text-slate-100 mt-1 font-sans">
-            {entry.name}
-          </div>
+          <div className="text-sm font-semibold text-slate-100 mt-1 font-sans">{entry.name}</div>
           <div className="flex gap-1.5 mt-2 flex-wrap">
             <BadgeWithTooltip {...recommendCfg} />
             <BadgeWithTooltip {...vcsCfg} />
@@ -86,19 +84,16 @@ export function DetailModal({
         </>
       }
     >
-      <ModalSection id="detail">
+      <ModalSection id="detail" accentColor={accentColor}>
         {detailParagraphs.map((p, i) => (
-          <p
-            key={i}
-            className="m-0 text-[14px] leading-[1.8] text-slate-400 font-sans"
-          >
+          <p key={i} className="m-0 text-[14px] leading-[1.8] text-slate-400 font-sans">
             {p}
           </p>
         ))}
       </ModalSection>
 
       {usageParagraphs.length > 0 && (
-        <ModalSection id="usage">
+        <ModalSection id="usage" accentColor={accentColor}>
           <div
             className="rounded-[10px] flex flex-col gap-2"
             style={{
@@ -108,10 +103,7 @@ export function DetailModal({
             }}
           >
             {usageParagraphs.map((p, i) => (
-              <p
-                key={i}
-                className="m-0 text-xs leading-[1.8] text-slate-400 font-sans"
-              >
+              <p key={i} className="m-0 text-xs leading-[1.8] text-slate-400 font-sans">
                 {p}
               </p>
             ))}
@@ -119,43 +111,30 @@ export function DetailModal({
         </ModalSection>
       )}
 
-      <ModalSection id="location">
+      <ModalSection id="location" accentColor={accentColor}>
         <div
           className="bg-slate-900 rounded-[10px] border border-slate-700 flex flex-col gap-2"
           style={{ padding: "14px 16px" }}
         >
           <div className="flex items-center gap-2">
-            <span className="text-[12px] text-slate-500 font-mono">
-              パス:
-            </span>
-            <code
-              className="font-mono text-[14px] font-semibold"
-              style={{ color: accentColor }}
-            >
+            <span className="text-[12px] text-slate-500 font-mono">パス:</span>
+            <code className="font-mono text-[14px] font-semibold" style={{ color: accentColor }}>
               {fullPath}
             </code>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-[12px] text-slate-500 font-mono">
-              スコープ:
-            </span>
-            <span className="text-xs text-slate-100 font-sans">
-              {section.name}
-            </span>
+            <span className="text-[12px] text-slate-500 font-mono">スコープ:</span>
+            <span className="text-xs text-slate-100 font-sans">{section.name}</span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-[12px] text-slate-500 font-mono">
-              ベースパス:
-            </span>
-            <code className="font-mono text-xs text-slate-400">
-              {section.basePath}
-            </code>
+            <span className="text-[12px] text-slate-500 font-mono">ベースパス:</span>
+            <code className="font-mono text-xs text-slate-400">{section.basePath}</code>
           </div>
         </div>
       </ModalSection>
 
       {entry.bestPractice && (
-        <ModalSection id="bestPractices">
+        <ModalSection id="bestPractices" accentColor={accentColor}>
           <div
             className="rounded-[10px]"
             style={{

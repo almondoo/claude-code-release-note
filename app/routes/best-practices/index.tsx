@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef, useCallback } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 
 import { EmptyState } from "~/components/empty-state";
@@ -46,11 +46,6 @@ export default function BestPractices(): React.JSX.Element {
   const [activeTab, setActiveTab] = useState<string>("all");
   const [modalItemId, setModalItemId] = useState<string | null>(null);
   const reducedMotion = useReducedMotion();
-  const hasMounted = useRef(false);
-
-  if (!hasMounted.current) {
-    hasMounted.current = true;
-  }
 
   const lowerQuery = query.toLowerCase();
   const isAllTab = activeTab === "all";
@@ -67,7 +62,7 @@ export default function BestPractices(): React.JSX.Element {
             item.title.toLowerCase().includes(lowerQuery) ||
             item.summary.toLowerCase().includes(lowerQuery) ||
             item.content.toLowerCase().includes(lowerQuery) ||
-            item.tags.some((t) => t.toLowerCase().includes(lowerQuery))
+            item.tags.some((t) => t.toLowerCase().includes(lowerQuery)),
         ),
       }))
       .filter((section) => section.items.length > 0);
@@ -79,7 +74,7 @@ export default function BestPractices(): React.JSX.Element {
   const closeModal = useCallback(() => setModalItemId(null), []);
 
   const modalItem = modalItemId
-    ? SECTIONS.flatMap((s) => s.items).find((i) => i.id === modalItemId) ?? null
+    ? (SECTIONS.flatMap((s) => s.items).find((i) => i.id === modalItemId) ?? null)
     : null;
   const modalSection = modalItemId ? ITEM_SECTION_MAP.get(modalItemId) : null;
 
@@ -135,7 +130,10 @@ export default function BestPractices(): React.JSX.Element {
         {/* Section cards */}
         <div className="flex flex-col gap-8">
           {filteredSections.map((section) => {
-            const colors = SECTION_COLORS[section.id] || { color: "#3B82F6", bg: "rgba(59,130,246,0.15)" };
+            const colors = SECTION_COLORS[section.id] || {
+              color: "#3B82F6",
+              bg: "rgba(59,130,246,0.15)",
+            };
             return (
               <div key={section.id}>
                 {/* Section header */}
@@ -160,8 +158,15 @@ export default function BestPractices(): React.JSX.Element {
                         layout={!reducedMotion}
                         initial={reducedMotion ? false : { opacity: 0, y: 15 }}
                         animate={{ opacity: 1, y: 0 }}
-                        exit={reducedMotion ? undefined : { opacity: 0, scale: 0.96, transition: { duration: 0.15 } }}
-                        transition={{ duration: 0.2, delay: reducedMotion ? 0 : Math.min(i * 0.04, 0.4) }}
+                        exit={
+                          reducedMotion
+                            ? undefined
+                            : { opacity: 0, scale: 0.96, transition: { duration: 0.15 } }
+                        }
+                        transition={{
+                          duration: 0.2,
+                          delay: reducedMotion ? 0 : Math.min(i * 0.04, 0.4),
+                        }}
                       >
                         <ItemCard
                           item={item}
@@ -180,7 +185,10 @@ export default function BestPractices(): React.JSX.Element {
 
         {/* Empty state */}
         {visibleItemCount === 0 && (
-          <EmptyState message="条件に一致するプラクティスはありません" reducedMotion={reducedMotion} />
+          <EmptyState
+            message="条件に一致するプラクティスはありません"
+            reducedMotion={reducedMotion}
+          />
         )}
 
         {/* Footer */}

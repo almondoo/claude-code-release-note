@@ -32,10 +32,7 @@ export function SkillsVsAgentsPanel(): React.JSX.Element {
             border: "1px solid rgba(103, 232, 249, 0.125)",
           }}
         >
-          <div
-            className="text-[14px] font-bold mb-2 font-mono"
-            style={{ color: "#67E8F9" }}
-          >
+          <div className="text-[14px] font-bold mb-2 font-mono" style={{ color: "#67E8F9" }}>
             skills/
           </div>
           <p
@@ -45,16 +42,11 @@ export function SkillsVsAgentsPanel(): React.JSX.Element {
             {SKILLS_VS_AGENTS.skills.description}
           </p>
           <ul className="m-0 pl-4 flex flex-col gap-1">
-            {SKILLS_VS_AGENTS.skills.characteristics.map(
-              (c: string, i: number) => (
-                <li
-                  key={i}
-                  className="text-[12px] leading-[1.6] text-slate-500 font-sans"
-                >
-                  {c}
-                </li>
-              ),
-            )}
+            {SKILLS_VS_AGENTS.skills.characteristics.map((c: string, i: number) => (
+              <li key={i} className="text-[12px] leading-[1.6] text-slate-500 font-sans">
+                {c}
+              </li>
+            ))}
           </ul>
         </div>
         <div
@@ -65,10 +57,7 @@ export function SkillsVsAgentsPanel(): React.JSX.Element {
             border: "1px solid rgba(196, 181, 253, 0.125)",
           }}
         >
-          <div
-            className="text-[14px] font-bold mb-2 font-mono"
-            style={{ color: "#C4B5FD" }}
-          >
+          <div className="text-[14px] font-bold mb-2 font-mono" style={{ color: "#C4B5FD" }}>
             agents/
           </div>
           <p
@@ -78,16 +67,11 @@ export function SkillsVsAgentsPanel(): React.JSX.Element {
             {SKILLS_VS_AGENTS.agents.description}
           </p>
           <ul className="m-0 pl-4 flex flex-col gap-1">
-            {SKILLS_VS_AGENTS.agents.characteristics.map(
-              (c: string, i: number) => (
-                <li
-                  key={i}
-                  className="text-[12px] leading-[1.6] text-slate-500 font-sans"
-                >
-                  {c}
-                </li>
-              ),
-            )}
+            {SKILLS_VS_AGENTS.agents.characteristics.map((c: string, i: number) => (
+              <li key={i} className="text-[12px] leading-[1.6] text-slate-500 font-sans">
+                {c}
+              </li>
+            ))}
           </ul>
         </div>
       </div>

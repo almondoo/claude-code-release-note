@@ -49,7 +49,12 @@ export function VersionCard({
       role="button"
       tabIndex={0}
       onClick={onClick}
-      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onClick(); } }}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onClick();
+        }
+      }}
       className="hover-card bg-surface rounded-xl border border-slate-700 flex flex-col gap-[10px] cursor-pointer relative overflow-hidden h-[200px]"
       style={{ padding: "18px 20px", "--accent": accentColor } as React.CSSProperties}
     >
@@ -92,9 +97,7 @@ export function VersionCard({
           </span>
         ))}
         {items.length > 2 && (
-          <span className="text-slate-500 text-[12px]">
-            他 {items.length - 2} 件...
-          </span>
+          <span className="text-slate-500 text-[12px]">他 {items.length - 2} 件...</span>
         )}
       </div>
 

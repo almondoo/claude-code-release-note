@@ -1,5 +1,5 @@
-import { Link, useLocation } from "react-router";
 import { motion, useReducedMotion } from "motion/react";
+import { Link, useLocation } from "react-router";
 import { ArrowLeftIcon } from "~/components/icons";
 
 const ALL_PAGES = [
@@ -42,10 +42,7 @@ export function PageHeader({
 
   const navLinks = ALL_PAGES.filter((p) => p.to !== currentPath);
 
-  const [g1, g2] = gradient ?? [
-    "rgba(59,130,246,0.08)",
-    "rgba(168,85,247,0.05)",
-  ];
+  const [g1, g2] = gradient ?? ["rgba(59,130,246,0.08)", "rgba(168,85,247,0.05)"];
 
   const m = reducedMotion
     ? { initial: undefined, animate: undefined, transition: undefined }
@@ -68,9 +65,7 @@ export function PageHeader({
         <div className="text-xs font-semibold text-slate-500 tracking-[3px] uppercase mb-3 font-mono">
           CLAUDE CODE
         </div>
-        <h1 className="text-[29px] font-bold m-0 mb-2.5 text-slate-100 tracking-tight">
-          {title}
-        </h1>
+        <h1 className="text-[29px] font-bold m-0 mb-2.5 text-slate-100 tracking-tight">{title}</h1>
         {description && (
           <p className="text-sm text-slate-400 m-0 mb-3.5 max-w-[520px] mx-auto leading-relaxed">
             {description}
@@ -80,8 +75,7 @@ export function PageHeader({
           <div className="flex justify-center items-baseline gap-6 text-[14px] text-slate-400 flex-wrap">
             {stats?.map((stat, i) => (
               <span key={i}>
-                <strong className="text-slate-100">{stat.value}</strong>{" "}
-                {stat.label}
+                <strong className="text-slate-100">{stat.value}</strong> {stat.label}
               </span>
             ))}
             {extraStats}

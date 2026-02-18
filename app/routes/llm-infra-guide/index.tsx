@@ -47,8 +47,7 @@ export function meta(): Array<{
     { title: "エンタープライズLLM基盤の構築ガイド" },
     {
       name: "description",
-      content:
-        "アーキテクチャ設計から運用まで — エンタープライズLLM基盤の実践的構築ガイド",
+      content: "アーキテクチャ設計から運用まで — エンタープライズLLM基盤の実践的構築ガイド",
     },
   ];
 }
@@ -63,9 +62,7 @@ function renderBlock(
   onTermClick?: (termId: string) => void,
 ): React.ReactNode {
   const gl = (text: string) =>
-    glossaryTerms && onTermClick
-      ? parseGlossaryLinks(text, glossaryTerms, onTermClick)
-      : text;
+    glossaryTerms && onTermClick ? parseGlossaryLinks(text, glossaryTerms, onTermClick) : text;
 
   switch (block.type) {
     case "text":
@@ -135,9 +132,7 @@ function renderBlock(
           >
             {block.title}
           </h3>
-          {block.blocks.map((b, i) =>
-            renderBlock(b, i, accentColor, glossaryTerms, onTermClick),
-          )}
+          {block.blocks.map((b, i) => renderBlock(b, i, accentColor, glossaryTerms, onTermClick))}
         </div>
       );
 
@@ -145,9 +140,7 @@ function renderBlock(
       return <DiagramBlock key={key} data={block.data} />;
 
     case "scoreMatrix":
-      return (
-        <ScoreMatrix key={key} axes={block.axes} products={block.products} />
-      );
+      return <ScoreMatrix key={key} axes={block.axes} products={block.products} />;
 
     case "securityCombos":
       return <SecurityCombos key={key} combos={block.combos} />;
@@ -156,13 +149,7 @@ function renderBlock(
       return <DecisionFlow key={key} nodes={block.nodes} />;
 
     case "timeline":
-      return (
-        <RoadmapTimeline
-          key={key}
-          phases={block.phases}
-          staffing={block.staffing}
-        />
-      );
+      return <RoadmapTimeline key={key} phases={block.phases} staffing={block.staffing} />;
 
     case "sources":
       return <SourceList key={key} categories={block.categories} />;
@@ -189,9 +176,7 @@ function renderBlock(
           title={block.title}
           steps={block.steps}
           accentColor={accentColor}
-          renderBlock={(b, i, c) =>
-            renderBlock(b, i, c, glossaryTerms, onTermClick)
-          }
+          renderBlock={(b, i, c) => renderBlock(b, i, c, glossaryTerms, onTermClick)}
         />
       );
 
@@ -286,11 +271,7 @@ function LazySection({
 
   return (
     <div ref={sentinelRef}>
-      <MobileSectionMarker
-        index={index}
-        sectionId={section.id}
-        chapterTitle={chapterTitle}
-      />
+      <MobileSectionMarker index={index} sectionId={section.id} chapterTitle={chapterTitle} />
       <SurveySectionWrapper
         id={section.id}
         title={section.title}
@@ -317,9 +298,7 @@ function LazySection({
 // ── Main Page ─────────────────────────────────────────────────────────────
 
 export default function LlmSurveyPage(): React.JSX.Element {
-  const [activeSectionId, setActiveSectionId] = useState(
-    SURVEY.sections[0]?.id || "",
-  );
+  const [activeSectionId, setActiveSectionId] = useState(SURVEY.sections[0]?.id || "");
   const [glossaryOpen, setGlossaryOpen] = useState(false);
   const [activeTermId, setActiveTermId] = useState<string | null>(null);
   const sectionRefs = useRef<Map<string, HTMLElement>>(new Map());
@@ -433,10 +412,7 @@ export default function LlmSurveyPage(): React.JSX.Element {
               <div key={chapter.id}>
                 {chIdx > 0 && <ChapterDivider color={chapter.color} />}
 
-                <ChapterWrapper
-                  chapter={chapter}
-                  sectionTitles={sectionTitles}
-                >
+                <ChapterWrapper chapter={chapter} sectionTitles={sectionTitles}>
                   {chapter.sectionIds.map((sid) => {
                     const entry = sectionMap.get(sid);
                     if (!entry) return <div key={sid} />;
@@ -470,19 +446,14 @@ export default function LlmSurveyPage(): React.JSX.Element {
         </div>
 
         {/* Glossary floating trigger (hidden on xl) */}
-        <GlossaryTrigger
-          onClick={() => setGlossaryOpen(true)}
-          termCount={glossaryTerms.length}
-        />
+        <GlossaryTrigger onClick={() => setGlossaryOpen(true)} termCount={glossaryTerms.length} />
 
         {/* Footer */}
         <Footer>
           <p className="m-0 mb-1 text-[12px] text-slate-500">
             本ガイドの情報は2026年2月時点の調査に基づいています。最終的な意思決定の前に各ベンダーの最新情報を直接確認してください。
           </p>
-          <p className="m-0 text-slate-500/50">
-            エンタープライズLLM基盤の構築ガイド
-          </p>
+          <p className="m-0 text-slate-500/50">エンタープライズLLM基盤の構築ガイド</p>
         </Footer>
       </div>
     </div>

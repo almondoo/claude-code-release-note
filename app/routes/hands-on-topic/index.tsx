@@ -49,13 +49,9 @@ function ApproachTabs({
               onClick={() => onSelect(a.id)}
               className="flex-1 py-4 px-5 text-left transition-all border-none cursor-pointer"
               style={{
-                background: isActive
-                  ? "rgba(99,102,241,0.12)"
-                  : "transparent",
+                background: isActive ? "rgba(99,102,241,0.12)" : "transparent",
                 borderRight:
-                  a !== approaches[approaches.length - 1]
-                    ? "1px solid rgba(51,65,85,0.5)"
-                    : "none",
+                  a !== approaches[approaches.length - 1] ? "1px solid rgba(51,65,85,0.5)" : "none",
               }}
             >
               <div className="flex items-center gap-2 mb-1">
@@ -96,9 +92,7 @@ export default function HandsOnTopic(): React.JSX.Element {
 
   const topic = topicId ? TOPIC_MAP[topicId] : undefined;
 
-  const [activeApproachId, setActiveApproachId] = useState(
-    () => topic?.approaches?.[0]?.id ?? "",
-  );
+  const [activeApproachId, setActiveApproachId] = useState(() => topic?.approaches?.[0]?.id ?? "");
 
   if (!topic) {
     return <Navigate to="/hands-on" replace />;
@@ -109,8 +103,7 @@ export default function HandsOnTopic(): React.JSX.Element {
 
   const hasApproaches = topic.approaches && topic.approaches.length > 0;
   const activeApproach = hasApproaches
-    ? topic.approaches!.find((a) => a.id === activeApproachId) ??
-      topic.approaches![0]
+    ? (topic.approaches!.find((a) => a.id === activeApproachId) ?? topic.approaches![0])
     : null;
 
   const steps = activeApproach ? activeApproach.steps : (topic.steps ?? []);
@@ -174,8 +167,7 @@ export default function HandsOnTopic(): React.JSX.Element {
               </span>
               <span className="text-[11px] text-slate-500">
                 {stepCount} ステップ
-                {hasApproaches &&
-                  ` × ${topic.approaches!.length} アプローチ`}
+                {hasApproaches && ` × ${topic.approaches!.length} アプローチ`}
               </span>
             </div>
             <h1 className="text-[24px] font-bold text-slate-100 m-0 mb-2 leading-snug">
@@ -218,12 +210,7 @@ export default function HandsOnTopic(): React.JSX.Element {
             className="mb-10"
           >
             {steps.map((step, i) => (
-              <StepRenderer
-                key={step.id}
-                step={step}
-                index={i}
-                accentColor={accentColor}
-              />
+              <StepRenderer key={step.id} step={step} index={i} accentColor={accentColor} />
             ))}
           </motion.div>
         </AnimatePresence>

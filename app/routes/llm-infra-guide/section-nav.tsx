@@ -19,7 +19,11 @@ interface SectionNavProps {
 const sectionToChapter = new Map<string, string>();
 CHAPTERS.forEach((ch) => ch.sectionIds.forEach((sid) => sectionToChapter.set(sid, ch.id)));
 
-export function SectionNav({ sections, activeSectionId, onSectionClick }: SectionNavProps): React.JSX.Element {
+export function SectionNav({
+  sections,
+  activeSectionId,
+  onSectionClick,
+}: SectionNavProps): React.JSX.Element {
   const activeChapterId = sectionToChapter.get(activeSectionId) || CHAPTERS[0].id;
   const [expandedChapter, setExpandedChapter] = useState<string>(activeChapterId);
   const reducedMotion = useReducedMotion();
@@ -64,7 +68,9 @@ export function SectionNav({ sections, activeSectionId, onSectionClick }: Sectio
                   onClick={() => handleChapterClick(ch)}
                   className="w-full flex items-center gap-2.5 py-2 px-2 rounded-lg text-left cursor-pointer border-none transition-all"
                   style={{
-                    background: isActiveChapter ? `color-mix(in srgb, ${ch.color} 10%, transparent)` : "transparent",
+                    background: isActiveChapter
+                      ? `color-mix(in srgb, ${ch.color} 10%, transparent)`
+                      : "transparent",
                   }}
                 >
                   {/* Progress circle */}
@@ -73,7 +79,9 @@ export function SectionNav({ sections, activeSectionId, onSectionClick }: Sectio
                       <circle cx="14" cy="14" r="12" fill="none" stroke="#1E293B" strokeWidth="2" />
                       {progress > 0 && (
                         <circle
-                          cx="14" cy="14" r="12"
+                          cx="14"
+                          cy="14"
+                          r="12"
                           fill="none"
                           stroke={ch.color}
                           strokeWidth="2"
@@ -102,14 +110,22 @@ export function SectionNav({ sections, activeSectionId, onSectionClick }: Sectio
 
                   {/* Expand indicator */}
                   <svg
-                    width="12" height="12" viewBox="0 0 12 12"
+                    width="12"
+                    height="12"
+                    viewBox="0 0 12 12"
                     className="ml-auto shrink-0 transition-transform"
                     style={{
                       transform: isExpanded ? "rotate(90deg)" : "rotate(0deg)",
                       color: "#64748B",
                     }}
                   >
-                    <path d="M4 2l4 4-4 4" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                    <path
+                      d="M4 2l4 4-4 4"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                    />
                   </svg>
                 </button>
 
@@ -129,7 +145,9 @@ export function SectionNav({ sections, activeSectionId, onSectionClick }: Sectio
                           onClick={() => onSectionClick(sid)}
                           className="flex items-center gap-2 py-1.5 px-2 rounded-md text-left cursor-pointer border-none transition-all"
                           style={{
-                            background: isActive ? `color-mix(in srgb, ${theme.color} 10%, transparent)` : "transparent",
+                            background: isActive
+                              ? `color-mix(in srgb, ${theme.color} 10%, transparent)`
+                              : "transparent",
                           }}
                         >
                           <div
@@ -139,9 +157,16 @@ export function SectionNav({ sections, activeSectionId, onSectionClick }: Sectio
                             }}
                           >
                             {Icon ? (
-                              <span className="flex items-center" style={{ transform: "scale(0.55)" }}>{Icon()}</span>
+                              <span
+                                className="flex items-center"
+                                style={{ transform: "scale(0.55)" }}
+                              >
+                                {Icon()}
+                              </span>
                             ) : (
-                              <span className="text-[9px] font-bold">{sections.findIndex((s) => s.id === sid) + 1}</span>
+                              <span className="text-[9px] font-bold">
+                                {sections.findIndex((s) => s.id === sid) + 1}
+                              </span>
                             )}
                           </div>
                           <span
@@ -170,7 +195,11 @@ interface MobileSectionMarkerProps {
   chapterTitle?: string;
 }
 
-export function MobileSectionMarker({ index, sectionId, chapterTitle }: MobileSectionMarkerProps): React.JSX.Element {
+export function MobileSectionMarker({
+  index,
+  sectionId,
+  chapterTitle,
+}: MobileSectionMarkerProps): React.JSX.Element {
   const theme = SECTION_THEMES[sectionId] || { color: "#3B82F6" };
   return (
     <div className="lg:hidden flex items-center gap-3 mb-3">

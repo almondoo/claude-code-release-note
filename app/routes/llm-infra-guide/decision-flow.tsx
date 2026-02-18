@@ -87,8 +87,16 @@ export function DecisionFlow({ nodes }: DecisionFlowProps): React.JSX.Element {
 
             {/* Branches */}
             <div className="flex gap-2 pl-10">
-              <Branch type="yes" targetId={node.yes} target={node.yes ? nodeMap.get(node.yes) : undefined} />
-              <Branch type="no" targetId={node.no} target={node.no ? nodeMap.get(node.no) : undefined} />
+              <Branch
+                type="yes"
+                targetId={node.yes}
+                target={node.yes ? nodeMap.get(node.yes) : undefined}
+              />
+              <Branch
+                type="no"
+                targetId={node.no}
+                target={node.no ? nodeMap.get(node.no) : undefined}
+              />
             </div>
           </div>
         ))}
@@ -96,7 +104,9 @@ export function DecisionFlow({ nodes }: DecisionFlowProps): React.JSX.Element {
 
       {/* Result summary */}
       <div className="mt-2">
-        <h4 className="text-[12px] font-semibold text-slate-500 mb-2 uppercase tracking-wider">判定結果一覧</h4>
+        <h4 className="text-[12px] font-semibold text-slate-500 mb-2 uppercase tracking-wider">
+          判定結果一覧
+        </h4>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
           {results.map((node) => (
             <div

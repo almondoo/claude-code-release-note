@@ -41,15 +41,10 @@ export function PrecedencePanel(): React.JSX.Element {
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-baseline gap-2">
-                    <span
-                      className="text-sm font-semibold"
-                      style={{ color: pc.color }}
-                    >
+                    <span className="text-sm font-semibold" style={{ color: pc.color }}>
                       {item.name}
                     </span>
-                    <span className="text-xs text-slate-500 font-sans">
-                      {item.description}
-                    </span>
+                    <span className="text-xs text-slate-500 font-sans">{item.description}</span>
                   </div>
                 </div>
                 {item.level === 1 && (

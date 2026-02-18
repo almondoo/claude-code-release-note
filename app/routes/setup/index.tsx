@@ -32,24 +32,22 @@ export default function SetupPage(): React.JSX.Element {
 
   const filteredSections = useMemo(() => {
     if (!query) return SECTIONS;
-    return SECTIONS
-      .map((section) => ({
-        ...section,
-        steps: section.steps.filter(
-          (step) =>
-            step.title.toLowerCase().includes(lowerQuery) ||
-            step.description.toLowerCase().includes(lowerQuery) ||
-            step.content.toLowerCase().includes(lowerQuery) ||
-            step.code.some((c) => c.value.toLowerCase().includes(lowerQuery)) ||
-            step.callouts.some((c) => c.text.toLowerCase().includes(lowerQuery))
-        ),
-      }))
-      .filter((section) => section.steps.length > 0);
+    return SECTIONS.map((section) => ({
+      ...section,
+      steps: section.steps.filter(
+        (step) =>
+          step.title.toLowerCase().includes(lowerQuery) ||
+          step.description.toLowerCase().includes(lowerQuery) ||
+          step.content.toLowerCase().includes(lowerQuery) ||
+          step.code.some((c) => c.value.toLowerCase().includes(lowerQuery)) ||
+          step.callouts.some((c) => c.text.toLowerCase().includes(lowerQuery)),
+      ),
+    })).filter((section) => section.steps.length > 0);
   }, [query, lowerQuery]);
 
   const filteredSectionIds = useMemo(
     () => new Set(filteredSections.map((s) => s.id)),
-    [filteredSections]
+    [filteredSections],
   );
 
   const visibleStepCount = filteredSections.reduce((sum, s) => sum + s.steps.length, 0);
@@ -66,7 +64,7 @@ export default function SetupPage(): React.JSX.Element {
           }
         }
       },
-      { rootMargin: "-80px 0px -60% 0px", threshold: 0 }
+      { rootMargin: "-80px 0px -60% 0px", threshold: 0 },
     );
 
     const refs = sectionRefs.current;
@@ -168,7 +166,10 @@ export default function SetupPage(): React.JSX.Element {
           <div className="flex-1 min-w-0">
             <div className="flex flex-col gap-8">
               {filteredSections.map((section, sectionIdx) => {
-                const colors = SECTION_COLORS[section.id] || { color: "#3B82F6", bg: "rgba(59,130,246,0.15)" };
+                const colors = SECTION_COLORS[section.id] || {
+                  color: "#3B82F6",
+                  bg: "rgba(59,130,246,0.15)",
+                };
                 const globalIdx = SECTIONS.findIndex((s) => s.id === section.id);
 
                 return (
@@ -180,7 +181,10 @@ export default function SetupPage(): React.JSX.Element {
                     initial={reducedMotion ? false : { opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true, margin: "-50px" }}
-                    transition={{ duration: 0.4, delay: reducedMotion ? 0 : Math.min(sectionIdx * 0.05, 0.3) }}
+                    transition={{
+                      duration: 0.4,
+                      delay: reducedMotion ? 0 : Math.min(sectionIdx * 0.05, 0.3),
+                    }}
                   >
                     {/* Mobile timeline marker */}
                     <MobileTimelineMarker index={globalIdx} section={section} />
@@ -207,8 +211,15 @@ export default function SetupPage(): React.JSX.Element {
                             layout={!reducedMotion}
                             initial={reducedMotion ? false : { opacity: 0, y: 15 }}
                             animate={{ opacity: 1, y: 0 }}
-                            exit={reducedMotion ? undefined : { opacity: 0, scale: 0.96, transition: { duration: 0.15 } }}
-                            transition={{ duration: 0.2, delay: reducedMotion ? 0 : Math.min(i * 0.04, 0.4) }}
+                            exit={
+                              reducedMotion
+                                ? undefined
+                                : { opacity: 0, scale: 0.96, transition: { duration: 0.15 } }
+                            }
+                            transition={{
+                              duration: 0.2,
+                              delay: reducedMotion ? 0 : Math.min(i * 0.04, 0.4),
+                            }}
                           >
                             <StepCard
                               step={step}
@@ -228,7 +239,10 @@ export default function SetupPage(): React.JSX.Element {
 
             {/* Empty state */}
             {visibleStepCount === 0 && (
-              <EmptyState message="条件に一致するステップはありません" reducedMotion={reducedMotion} />
+              <EmptyState
+                message="条件に一致するステップはありません"
+                reducedMotion={reducedMotion}
+              />
             )}
           </div>
         </div>
@@ -254,9 +268,7 @@ export default function SetupPage(): React.JSX.Element {
               GitHub
             </a>
           </p>
-          <p className="m-0 text-slate-500/50">
-            Claude Code セットアップガイド
-          </p>
+          <p className="m-0 text-slate-500/50">Claude Code セットアップガイド</p>
         </Footer>
       </div>
     </div>

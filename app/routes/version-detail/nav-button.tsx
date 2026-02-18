@@ -2,7 +2,15 @@ import { Link } from "react-router";
 
 import { ChevronLeftIcon, ChevronRightIcon } from "~/components/icons";
 
-export function NavButton({ to, label, direction }: { to: string; label: string; direction: "prev" | "next" }): React.JSX.Element {
+export function NavButton({
+  to,
+  label,
+  direction,
+}: {
+  to: string;
+  label: string;
+  direction: "prev" | "next";
+}): React.JSX.Element {
   return (
     <Link
       to={`/version/${to}`}

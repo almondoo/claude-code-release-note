@@ -16,8 +16,19 @@ export function DetailModal({
   onClose: () => void;
   reducedMotion: boolean | null;
 }): React.JSX.Element {
-  const sectionIcon = SECTION_ICONS[SECTIONS.find((s) => s.items.some((i) => i.id === item.id))?.id ?? ""]?.() ?? (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  const sectionIcon = SECTION_ICONS[
+    SECTIONS.find((s) => s.items.some((i) => i.id === item.id))?.id ?? ""
+  ]?.() ?? (
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
       <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
     </svg>
   );
@@ -31,9 +42,7 @@ export function DetailModal({
       icon={sectionIcon}
       headerContent={
         <>
-          <h2 className="text-base font-bold text-slate-100 m-0 leading-snug">
-            {item.title}
-          </h2>
+          <h2 className="text-base font-bold text-slate-100 m-0 leading-snug">{item.title}</h2>
           <p className="text-[14px] text-slate-400 mt-1.5 font-sans leading-[1.6] m-0">
             {item.summary}
           </p>
@@ -78,15 +87,22 @@ export function DetailModal({
             {item.examples.map((ex, i) => (
               <div key={i} className="rounded-lg border border-slate-700 overflow-hidden">
                 <div className="px-4 py-2 bg-slate-800 text-[12px] font-semibold text-slate-300">
-                  {ex.strategy}{ex.detail ? ` — ${ex.detail}` : ""}
+                  {ex.strategy}
+                  {ex.detail ? ` — ${ex.detail}` : ""}
                 </div>
                 <div className="grid grid-cols-2 divide-x divide-slate-700">
                   <div className="p-3">
-                    <span className="block text-[11px] font-bold text-red-400 mb-1 uppercase tracking-wider">Before</span>
-                    <span className="text-[13px] text-slate-400 leading-relaxed italic">{ex.before}</span>
+                    <span className="block text-[11px] font-bold text-red-400 mb-1 uppercase tracking-wider">
+                      Before
+                    </span>
+                    <span className="text-[13px] text-slate-400 leading-relaxed italic">
+                      {ex.before}
+                    </span>
                   </div>
                   <div className="p-3">
-                    <span className="block text-[11px] font-bold text-green-400 mb-1 uppercase tracking-wider">After</span>
+                    <span className="block text-[11px] font-bold text-green-400 mb-1 uppercase tracking-wider">
+                      After
+                    </span>
                     <span className="text-[13px] text-slate-300 leading-relaxed">{ex.after}</span>
                   </div>
                 </div>
@@ -104,7 +120,10 @@ export function DetailModal({
           </h3>
           <div className="flex flex-col gap-2.5">
             {item.steps.map((step, i) => (
-              <div key={i} className="rounded-lg border border-slate-700 p-4 flex gap-3 items-start">
+              <div
+                key={i}
+                className="rounded-lg border border-slate-700 p-4 flex gap-3 items-start"
+              >
                 <div
                   className="w-7 h-7 rounded-full flex items-center justify-center shrink-0 text-xs font-bold"
                   style={{ background: accentColor + "18", color: accentColor }}
@@ -113,9 +132,13 @@ export function DetailModal({
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="text-sm font-semibold text-slate-100 mb-1">{step.phase}</div>
-                  <div className="text-[13px] text-slate-400 leading-relaxed mb-2">{step.description}</div>
+                  <div className="text-[13px] text-slate-400 leading-relaxed mb-2">
+                    {step.description}
+                  </div>
                   <pre className="m-0 p-3 bg-[#0B1120] rounded-md overflow-x-auto text-[13px] leading-relaxed border border-slate-800">
-                    <code className="font-mono text-slate-300 whitespace-pre-wrap">{step.example}</code>
+                    <code className="font-mono text-slate-300 whitespace-pre-wrap">
+                      {step.example}
+                    </code>
                   </pre>
                 </div>
               </div>
@@ -132,7 +155,10 @@ export function DetailModal({
           </h3>
           <ul className="m-0 pl-0 list-none flex flex-col gap-1.5">
             {item.tips.map((tip, i) => (
-              <li key={i} className="flex gap-2 items-start text-[14px] text-slate-300 leading-relaxed">
+              <li
+                key={i}
+                className="flex gap-2 items-start text-[14px] text-slate-300 leading-relaxed"
+              >
                 <span className="text-slate-500 shrink-0 mt-[2px]">•</span>
                 <span>{tip}</span>
               </li>
@@ -159,7 +185,10 @@ export function DetailModal({
             </h4>
             <ul className="m-0 pl-0 list-none flex flex-col gap-1.5">
               {item.include.map((inc, i) => (
-                <li key={i} className="flex gap-1.5 items-start text-[13px] text-slate-300 leading-relaxed">
+                <li
+                  key={i}
+                  className="flex gap-1.5 items-start text-[13px] text-slate-300 leading-relaxed"
+                >
                   <span className="text-green-400 shrink-0">+</span>
                   <span>{inc}</span>
                 </li>
@@ -172,7 +201,10 @@ export function DetailModal({
             </h4>
             <ul className="m-0 pl-0 list-none flex flex-col gap-1.5">
               {item.exclude.map((exc, i) => (
-                <li key={i} className="flex gap-1.5 items-start text-[13px] text-slate-300 leading-relaxed">
+                <li
+                  key={i}
+                  className="flex gap-1.5 items-start text-[13px] text-slate-300 leading-relaxed"
+                >
                   <span className="text-red-400 shrink-0">-</span>
                   <span>{exc}</span>
                 </li>
@@ -190,11 +222,16 @@ export function DetailModal({
           </h3>
           <div className="flex flex-col gap-1.5">
             {item.locations.map((loc, i) => (
-              <div key={i} className="flex gap-3 items-start rounded-lg border border-slate-700 p-3">
+              <div
+                key={i}
+                className="flex gap-3 items-start rounded-lg border border-slate-700 p-3"
+              >
                 <code className="font-mono text-[13px] text-purple-300 shrink-0 bg-purple-500/10 px-2 py-0.5 rounded">
                   {loc.path}
                 </code>
-                <span className="text-[13px] text-slate-400 leading-relaxed">{loc.description}</span>
+                <span className="text-[13px] text-slate-400 leading-relaxed">
+                  {loc.description}
+                </span>
               </div>
             ))}
           </div>
@@ -213,7 +250,9 @@ export function DetailModal({
                 Session A（ライター）
               </h4>
               {item.writerReviewer.writer.map((w, i) => (
-                <p key={i} className="m-0 mt-1.5 text-[13px] text-slate-300 leading-relaxed italic">{w}</p>
+                <p key={i} className="m-0 mt-1.5 text-[13px] text-slate-300 leading-relaxed italic">
+                  {w}
+                </p>
               ))}
             </div>
             <div className="rounded-lg border border-orange-500/20 p-4">
@@ -221,7 +260,9 @@ export function DetailModal({
                 Session B（レビュアー）
               </h4>
               {item.writerReviewer.reviewer.map((r, i) => (
-                <p key={i} className="m-0 mt-1.5 text-[13px] text-slate-300 leading-relaxed italic">{r}</p>
+                <p key={i} className="m-0 mt-1.5 text-[13px] text-slate-300 leading-relaxed italic">
+                  {r}
+                </p>
               ))}
             </div>
           </div>
@@ -230,7 +271,10 @@ export function DetailModal({
 
       {/* Anti-pattern fix */}
       {item.fix && (
-        <div className="rounded-lg px-4 py-3 flex gap-3 items-start" style={{ background: "rgba(16, 185, 129, 0.08)", borderLeft: "3px solid #10B981" }}>
+        <div
+          className="rounded-lg px-4 py-3 flex gap-3 items-start"
+          style={{ background: "rgba(16, 185, 129, 0.08)", borderLeft: "3px solid #10B981" }}
+        >
           <span className="text-[11px] font-bold uppercase tracking-wider shrink-0 mt-0.5 font-mono text-green-400">
             Fix
           </span>

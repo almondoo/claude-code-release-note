@@ -34,10 +34,7 @@ export function ChapterWrapper({ chapter, children, sectionTitles }: ChapterWrap
       <div className="flex items-center gap-3 mb-6 mt-2">
         <span className="text-2xl">{icon}</span>
         <div className="flex items-center gap-3 flex-1 min-w-0">
-          <h2
-            className="text-[20px] font-bold m-0"
-            style={{ color: chapter.color }}
-          >
+          <h2 className="text-[20px] font-bold m-0" style={{ color: chapter.color }}>
             {chapter.title}
           </h2>
           <span
@@ -87,7 +84,9 @@ export function ChapterWrapper({ chapter, children, sectionTitles }: ChapterWrap
               {i > 0 && (
                 <div className="py-6 flex items-center gap-4">
                   <div className="flex-1 h-px" style={{ background: `${chapter.color}20` }} />
-                  <span className="text-[10px] text-slate-600 font-mono">{i + 1}/{children.length}</span>
+                  <span className="text-[10px] text-slate-600 font-mono">
+                    {i + 1}/{children.length}
+                  </span>
                   <div className="flex-1 h-px" style={{ background: `${chapter.color}20` }} />
                 </div>
               )}

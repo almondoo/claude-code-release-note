@@ -4,16 +4,16 @@ Claude Code のリリースノートを日本語で閲覧できる Web アプリ
 
 ## 技術スタック
 
-| カテゴリ | 技術 |
-|---|---|
-| フレームワーク | [React Router v7](https://reactrouter.com/) (SSR モード) |
-| UI ライブラリ | [React](https://react.dev/) 19 |
-| アニメーション | [Motion](https://motion.dev/) |
-| 言語 | TypeScript 5.9 |
-| ビルドツール | [Vite](https://vite.dev/) 7 |
-| パッケージマネージャ | pnpm |
-| フォント | Noto Sans JP / JetBrains Mono (Google Fonts) |
-| スタイリング | インラインスタイル (`CSSProperties`) — CSS フレームワーク不使用 |
+| カテゴリ             | 技術                                                            |
+| -------------------- | --------------------------------------------------------------- |
+| フレームワーク       | [React Router v7](https://reactrouter.com/) (SSR モード)        |
+| UI ライブラリ        | [React](https://react.dev/) 19                                  |
+| アニメーション       | [Motion](https://motion.dev/)                                   |
+| 言語                 | TypeScript 5.9                                                  |
+| ビルドツール         | [Vite](https://vite.dev/) 7                                     |
+| パッケージマネージャ | pnpm                                                            |
+| フォント             | Noto Sans JP / JetBrains Mono (Google Fonts)                    |
+| スタイリング         | インラインスタイル (`CSSProperties`) — CSS フレームワーク不使用 |
 
 ## リリースノート収録バージョン
 

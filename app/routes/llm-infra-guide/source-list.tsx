@@ -32,7 +32,11 @@ export function SourceList({ categories }: SourceListProps): React.JSX.Element {
       {categories.map((cat) => {
         const isOpen = expandedCat.has(cat.name);
         return (
-          <div key={cat.name} className="rounded-lg border border-slate-700 overflow-hidden" style={{ background: "rgba(30,41,59,0.3)" }}>
+          <div
+            key={cat.name}
+            className="rounded-lg border border-slate-700 overflow-hidden"
+            style={{ background: "rgba(30,41,59,0.3)" }}
+          >
             <button
               onClick={() => toggleCat(cat.name)}
               className="w-full flex items-center justify-between px-4 py-2.5 text-left cursor-pointer border-none bg-transparent"
@@ -58,8 +62,12 @@ export function SourceList({ categories }: SourceListProps): React.JSX.Element {
                     rel="noopener noreferrer"
                     className="text-[13px] text-blue-400 no-underline py-1 px-2 rounded transition-colors"
                     style={{ display: "block" }}
-                    onMouseEnter={(e) => { (e.target as HTMLElement).style.background = "rgba(59,130,246,0.08)"; }}
-                    onMouseLeave={(e) => { (e.target as HTMLElement).style.background = "transparent"; }}
+                    onMouseEnter={(e) => {
+                      (e.target as HTMLElement).style.background = "rgba(59,130,246,0.08)";
+                    }}
+                    onMouseLeave={(e) => {
+                      (e.target as HTMLElement).style.background = "transparent";
+                    }}
                   >
                     {link.title} &rarr;
                   </a>
