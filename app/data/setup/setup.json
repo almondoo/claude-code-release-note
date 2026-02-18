@@ -44,7 +44,10 @@
               "text": "ネイティブインストールはバックグラウンドで自動更新されるため、常に最新版を利用できます。Homebrew / WinGet / npm の場合は手動更新が必要です。"
             }
           ],
-          "tags": ["必須", "初心者向け"]
+          "tags": [
+            "必須",
+            "初心者向け"
+          ]
         }
       ]
     },
@@ -77,7 +80,10 @@
               "text": "初回起動時にブラウザでログインするだけで認証完了です。API プランや企業利用では API キー・Bedrock・Vertex AI 経由の認証も選択できます。"
             }
           ],
-          "tags": ["必須", "初心者向け"]
+          "tags": [
+            "必須",
+            "初心者向け"
+          ]
         }
       ]
     },
@@ -98,7 +104,11 @@
               "text": "CLAUDE.md はプロジェクトのルートに配置します。Git で管理することでチーム全体で共有できます。"
             }
           ],
-          "tags": ["必須", "初心者向け", "チーム向け"]
+          "tags": [
+            "必須",
+            "初心者向け",
+            "チーム向け"
+          ]
         },
         {
           "id": "claude-md-init",
@@ -129,7 +139,10 @@
               "text": "/init は何度でも実行できます。既存の CLAUDE.md を上書きする前に確認されます。初回は /init での自動生成がおすすめです。"
             }
           ],
-          "tags": ["必須", "初心者向け"]
+          "tags": [
+            "必須",
+            "初心者向け"
+          ]
         },
         {
           "id": "claude-md-writing",
@@ -149,7 +162,11 @@
               "text": "機密情報（API キー、パスワード等）を CLAUDE.md に含めないでください。Git で共有される可能性があります。"
             }
           ],
-          "tags": ["必須", "中級者向け", "チーム向け"]
+          "tags": [
+            "必須",
+            "中級者向け",
+            "チーム向け"
+          ]
         },
         {
           "id": "claude-md-hierarchy",
@@ -164,7 +181,10 @@
             }
           ],
           "callouts": [],
-          "tags": ["中級者向け", "チーム向け"]
+          "tags": [
+            "中級者向け",
+            "チーム向け"
+          ]
         },
         {
           "id": "claude-md-rules",
@@ -184,93 +204,127 @@
               "text": "ルールファイル内の YAML フロントマターで適用条件（globs）を指定します。"
             }
           ],
-          "tags": ["上級者向け", "チーム向け"]
+          "tags": [
+            "上級者向け",
+            "チーム向け"
+          ]
         }
       ]
     },
     {
-      "id": "hooks",
-      "name": "フック設定",
-      "description": "Claude Code のライフサイクルイベントにカスタムスクリプトを接続",
+      "id": "first-steps",
+      "name": "まずは使ってみる",
+      "description": "実際に動かして感覚をつかもう",
       "steps": [
         {
-          "id": "hooks-overview",
-          "title": "フックの概要",
-          "description": "フックシステムの仕組み",
-          "content": "フックは Claude Code のライフサイクルイベント（ツール呼び出し前後、通知時など）にカスタムシェルコマンドを接続する機能です。\n\nコードレビュー、自動フォーマット、通知など、ワークフローの自動化に活用できます。",
-          "code": [],
+          "id": "try-analysis",
+          "title": "最初のタスクを試してみる",
+          "description": "Claude Code の基本操作を体験する",
+          "content": "インストールと CLAUDE.md の設定が終わったら、実際に Claude Code を動かしてみましょう。プロジェクトのディレクトリで `claude` を起動して、日本語で話しかけるだけです。\n\n特別な構文は必要ありません。「このファイルを修正して」「バグを直して」「テストを追加して」など、自然な言葉で依頼できます。",
+          "code": [
+            {
+              "lang": "bash",
+              "label": "まずプロジェクトを分析させてみよう",
+              "value": "cd your-project\nclaude\n\n# セッション内で話しかけてみましょう:\n> このプロジェクトの構造を説明して\n> package.json を見て、使っている技術スタックを教えて\n> README.md を日本語で書き直して",
+              "recommended": true
+            },
+            {
+              "lang": "bash",
+              "label": "コードを書かせてみよう",
+              "value": "> utils/format.ts に日付フォーマット関数を追加して\n> この関数のユニットテストを書いて\n> src/Button.tsx をアクセシビリティ対応にして"
+            },
+            {
+              "lang": "bash",
+              "label": "バグを直させてみよう",
+              "value": "# エラーメッセージをそのまま貼り付けてOK\n> TypeError: Cannot read properties of undefined (reading 'map')\n> users.map(u => u.name) でエラーが出ています。直してください"
+            }
+          ],
+          "callouts": [
+            {
+              "type": "tip",
+              "text": "失敗を恐れずに何でも試してみましょう。Claude は変更前に確認を求めるので安心です。/undo で最後の操作を元に戻せます。"
+            }
+          ],
+          "tags": [
+            "必須",
+            "初心者向け"
+          ]
+        },
+        {
+          "id": "try-workflow",
+          "title": "典型的な開発フロー",
+          "description": "日常の開発タスクでの使い方パターン",
+          "content": "Claude Code は「依頼 → 確認 → 次の依頼」のサイクルで使います。一度に全てを依頼するより、段階的に進めるのがコツです。\n\n以下のように、自然な会話の流れで作業を進められます。",
+          "code": [
+            {
+              "lang": "bash",
+              "label": "バグ修正の流れ",
+              "value": "# Step 1: エラーを貼り付けて原因を調べる\n> TypeError: Cannot read properties of undefined\n> この行で起きています: users.map(u => u.name)\n\n# Step 2: 修正を依頼\n> 原因がわかりました。users が undefined の場合を処理して\n\n# Step 3: テストも追加\n> この修正のテストケースも書いて"
+            },
+            {
+              "lang": "bash",
+              "label": "新機能追加の流れ",
+              "value": "# Step 1: 既存コードを理解させる\n> src/api/users.ts の構造を説明して\n\n# Step 2: 同じパターンで機能を追加\n> 同じパターンで、ユーザー検索 API を追加して\n\n# Step 3: 確認してコミット\n> 変更内容を確認して、コミットメッセージを提案して"
+            }
+          ],
           "callouts": [
             {
               "type": "info",
-              "text": "フックは settings.json で定義します。プロジェクトスコープまたはユーザースコープで設定できます。"
+              "text": "フックや MCP を設定しなくても、この段階で十分に使えます。まずは日常の開発に取り入れてみてください。フックと MCP は後から追加できます。"
             }
           ],
-          "tags": ["上級者向け"]
-        },
+          "tags": [
+            "初心者向け",
+            "中級者向け"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "skills",
+      "name": "スキル設定",
+      "description": "カスタムスラッシュコマンドでワークフローを自動化",
+      "steps": [
         {
-          "id": "hooks-definition",
-          "title": "フックの定義方法",
-          "description": "settings.json でフックを設定",
-          "content": "フックは `.claude/settings.json` の `hooks` プロパティで定義します。各フックには、マッチャー（どのツールに対して発火するか）とコマンド（実行するシェルコマンド）を指定します。",
+          "id": "skills-overview",
+          "title": "スキルの概要",
+          "description": "SKILL.md を配置するだけでカスタムコマンドを追加",
+          "content": "スキルは Claude Code に独自のスラッシュコマンドを追加する機能です。.claude/skills/<スキル名>/SKILL.md にファイルを配置するだけで、セッション内で /スキル名 として呼び出せます。\n\nプロジェクト固有のスキルは .claude/skills/ に、全プロジェクトで使いたいスキルは ~/.claude/skills/ に配置します。",
           "code": [
             {
-              "lang": "json",
-              "label": ".claude/settings.json",
-              "value": "{\n  \"hooks\": {\n    \"PreToolUse\": [\n      {\n        \"matcher\": \"Bash\",\n        \"hooks\": [\n          {\n            \"type\": \"command\",\n            \"command\": \"echo 'Bash tool is about to run'\"\n          }\n        ]\n      }\n    ]\n  }\n}"
+              "lang": "text",
+              "label": "スキルのディレクトリ構成",
+              "value": ".claude/skills/<スキル名>/SKILL.md  # プロジェクト固有\n~/.claude/skills/<スキル名>/SKILL.md  # ユーザーグローバル"
             }
           ],
           "callouts": [
             {
-              "type": "warning",
-              "text": "フックコマンドはシェルで実行されます。信頼できるコマンドのみ設定してください。"
+              "type": "info",
+              "text": "スキル・MCP・フックの詳細設定は「カスタマイズガイド」(/customization) で解説しています。"
             }
           ],
-          "tags": ["上級者向け"]
+          "tags": [
+            "上級者向け"
+          ]
         },
         {
-          "id": "hooks-examples",
-          "title": "PreToolUse / PostToolUse の実例",
-          "description": "実践的なフック設定パターン",
-          "content": "PreToolUse はツール実行前に、PostToolUse はツール実行後に発火します。よくある使用例を紹介します。",
+          "id": "skills-create",
+          "title": "SKILL.md の基本構成",
+          "description": "YAML フロントマター + Markdown 本文でスキルを定義",
+          "content": "スキルは YAML フロントマターと Markdown 本文の 2 部構成です。name と description を記述し、本文に Claude への指示を書きます。",
           "code": [
             {
-              "lang": "json",
-              "label": "ファイル編集後に自動フォーマット",
-              "value": "{\n  \"hooks\": {\n    \"PostToolUse\": [\n      {\n        \"matcher\": \"Write|Edit\",\n        \"hooks\": [\n          {\n            \"type\": \"command\",\n            \"command\": \"npx prettier --write $CLAUDE_FILE_PATH\"\n          }\n        ]\n      }\n    ]\n  }\n}"
-            },
-            {
-              "lang": "json",
-              "label": "危険なコマンドをブロック",
-              "value": "{\n  \"hooks\": {\n    \"PreToolUse\": [\n      {\n        \"matcher\": \"Bash\",\n        \"hooks\": [\n          {\n            \"type\": \"command\",\n            \"command\": \"if echo \\\"$CLAUDE_TOOL_INPUT\\\" | grep -q 'rm -rf'; then echo 'BLOCK: dangerous command detected' >&2; exit 2; fi\"\n          }\n        ]\n      }\n    ]\n  }\n}"
+              "lang": "markdown",
+              "label": ".claude/skills/review/SKILL.md",
+              "value": "---\nname: review\ndescription: コードレビューを実行する\n---\n\ngit diff の内容を確認し、コーディング規約・セキュリティ・テストを評価してください。",
+              "recommended": true
             }
           ],
-          "callouts": [
-            {
-              "type": "tip",
-              "text": "exit 2 を返すとツール実行がブロックされ、Claude にフィードバックが返されます。"
-            }
-          ],
-          "tags": ["上級者向け"]
-        },
-        {
-          "id": "hooks-notification",
-          "title": "通知フック",
-          "description": "Notification イベントで通知を受け取る",
-          "content": "Notification フックを使うと、Claude が長時間のタスクを完了した際に OS 通知やサウンドを鳴らすことができます。",
-          "code": [
-            {
-              "lang": "json",
-              "label": "macOS 通知の例",
-              "value": "{\n  \"hooks\": {\n    \"Notification\": [\n      {\n        \"matcher\": \"\",\n        \"hooks\": [\n          {\n            \"type\": \"command\",\n            \"command\": \"osascript -e 'display notification \\\"$CLAUDE_NOTIFICATION\\\" with title \\\"Claude Code\\\"'\"\n          }\n        ]\n      }\n    ]\n  }\n}"
-            }
-          ],
-          "callouts": [
-            {
-              "type": "tip",
-              "text": "Linux では notify-send、Windows (WSL) では wsl-notify-send が使えます。"
-            }
-          ],
-          "tags": ["上級者向け"]
+          "callouts": [],
+          "tags": [
+            "上級者向け",
+            "チーム向け"
+          ]
         }
       ]
     },
@@ -282,97 +336,94 @@
         {
           "id": "mcp-overview",
           "title": "MCP の概要",
-          "description": "Model Context Protocol とは",
-          "content": "MCP (Model Context Protocol) は Claude Code に外部ツールやデータソースを接続するためのプロトコルです。\n\nMCP サーバーを設定することで、データベースクエリ、API 呼び出し、ブラウザ操作など、Claude Code の機能を大幅に拡張できます。",
-          "code": [],
-          "callouts": [
-            {
-              "type": "info",
-              "text": "MCP サーバーは stdio または SSE トランスポートで通信します。"
-            }
-          ],
-          "tags": ["上級者向け"]
-        },
-        {
-          "id": "mcp-add",
-          "title": "MCP サーバーの追加",
-          "description": "claude mcp add コマンドで追加",
-          "content": "Claude Code の CLI から `claude mcp add` コマンドで MCP サーバーを登録できます。\n\nスコープとして `-s user`（ユーザー全体）または `-s project`（プロジェクト固有）を指定できます。トランスポート方式は stdio と SSE の2種類があります。",
+          "description": "GitHub / DB / ブラウザ等を自然言語で操作",
+          "content": "MCP (Model Context Protocol) は Claude Code に外部ツールやデータソースを接続するための標準プロトコルです。GitHub、データベース、ブラウザなどを自然言語で操作できるようになります。\n\nMCP サーバーの詳細な設定方法・スコープ・認証・エンタープライズ管理については「カスタマイズガイド」を参照してください。",
           "code": [
             {
               "lang": "bash",
-              "label": "stdio トランスポート（ローカル実行）",
-              "value": "# ローカルプロセスとして起動\nclaude mcp add my-server -s project -- npx @example/mcp-server\n\n# 環境変数付き\nclaude mcp add my-server -s project -e API_KEY=xxx -- npx @example/mcp-server",
+              "label": "MCP サーバーの基本的な追加",
+              "value": "# stdio トランスポート（ローカル実行）\nclaude mcp add my-server -s project -- npx @example/mcp-server\n\n# HTTP トランスポート（リモートサーバー）\nclaude mcp add my-remote -s project --transport http --url https://mcp.example.com",
               "recommended": true
-            },
-            {
-              "lang": "bash",
-              "label": "SSE トランスポート（リモートサーバー）",
-              "value": "# リモートの MCP サーバーに接続\nclaude mcp add my-remote-server -s project --transport sse --url https://example.com/mcp"
-            },
-            {
-              "lang": "bash",
-              "label": "登録済みサーバーの管理",
-              "value": "# サーバー一覧の確認\nclaude mcp list\n\n# サーバーの削除\nclaude mcp remove my-server\n\n# サーバーのリセット（再起動）\nclaude mcp reset"
             }
           ],
           "callouts": [
             {
               "type": "info",
-              "text": "ほとんどのケースでは stdio トランスポートが推奨です。リモートのサーバーに接続する場合のみ SSE を使用してください。"
+              "text": "スコープ・トランスポート・OAuth 認証・.mcp.json の詳細は「カスタマイズガイド」(/customization) で解説しています。"
             }
           ],
-          "tags": ["上級者向け"]
+          "tags": [
+            "上級者向け"
+          ]
         },
         {
-          "id": "mcp-desktop-import",
-          "title": "Claude Desktop からインポート",
-          "description": "既存の MCP 設定を再利用",
-          "content": "Claude Desktop で既に MCP サーバーを設定している場合、その設定を Claude Code にインポートできます。",
+          "id": "mcp-manage",
+          "title": "MCP サーバーの管理",
+          "description": "list / remove / reset で管理",
+          "content": "登録済み MCP サーバーの確認・削除は以下のコマンドで行います。",
           "code": [
             {
               "lang": "bash",
-              "label": "Desktop 設定のインポート",
-              "value": "claude mcp add-from-claude-desktop"
+              "label": "管理コマンド",
+              "value": "claude mcp list            # 一覧表示\nclaude mcp get <name>      # 詳細確認\nclaude mcp remove <name>   # 削除"
             }
           ],
-          "callouts": [
-            {
-              "type": "tip",
-              "text": "インポート後、claude mcp list で正しく認識されているか確認してください。"
-            }
-          ],
-          "tags": ["上級者向け"]
-        },
+          "callouts": [],
+          "tags": [
+            "上級者向け"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hooks",
+      "name": "フック設定",
+      "description": "Claude Code のライフサイクルイベントにカスタムスクリプトを接続",
+      "steps": [
         {
-          "id": "mcp-examples",
-          "title": "おすすめの MCP サーバー",
-          "description": "よく使われる MCP サーバーの設定例",
-          "content": "実用的な MCP サーバーの設定例を紹介します。",
+          "id": "hooks-overview",
+          "title": "フックの概要",
+          "description": "ツール実行前後にカスタム処理を自動実行",
+          "content": "フックは Claude Code のライフサイクルイベントにカスタムシェルコマンドを接続する機能です。\n\n主な活用場面:\n- ファイル保存のたびに prettier / ESLint を自動実行\n- 危険なコマンドを実行前にブロック\n- タスク完了時に OS 通知を送る\n\n14 種のイベント・3 タイプ（command / prompt / agent）の詳細は「カスタマイズガイド」を参照してください。",
           "code": [
             {
-              "lang": "bash",
-              "label": "ファイルシステム MCP",
-              "value": "claude mcp add filesystem -s project -- npx -y @modelcontextprotocol/server-filesystem /path/to/dir"
-            },
-            {
-              "lang": "bash",
-              "label": "GitHub MCP",
-              "value": "claude mcp add github -s user -e GITHUB_TOKEN=ghp_xxx -- npx -y @modelcontextprotocol/server-github"
-            },
-            {
-              "lang": "bash",
-              "label": "PostgreSQL MCP",
-              "value": "claude mcp add postgres -s project -- npx -y @modelcontextprotocol/server-postgres postgresql://localhost:5432/mydb"
+              "lang": "json",
+              "label": ".claude/settings.json の基本構造",
+              "value": "{\n  \"hooks\": {\n    \"PostToolUse\": [\n      {\n        \"matcher\": \"Write|Edit\",\n        \"hooks\": [{ \"type\": \"command\", \"command\": \"npx prettier --write $CLAUDE_FILE_PATH\" }]\n      }\n    ]\n  }\n}",
+              "recommended": true
             }
           ],
           "callouts": [
             {
               "type": "info",
-              "text": "MCP サーバーの公式一覧は github.com/modelcontextprotocol/servers で確認できます。"
+              "text": "フックの全イベント・終了コード制御・非同期実行・ベストプラクティスは「カスタマイズガイド」(/customization) で解説しています。"
             }
           ],
-          "tags": ["上級者向け"]
+          "tags": [
+            "上級者向け"
+          ]
+        },
+        {
+          "id": "hooks-definition",
+          "title": "フックの基本設定",
+          "description": "settings.json でイベント・マッチャー・コマンドを定義",
+          "content": "フックは .claude/settings.json の hooks プロパティで定義します。exit 0 で許可、exit 2 でブロックしてフィードバックを返します。",
+          "code": [
+            {
+              "lang": "bash",
+              "label": "rm -rf をブロックする PreToolUse フック",
+              "value": "# hooks スクリプト例\nINPUT=$(cat)  # stdin から JSON を受信\nCMD=$(echo \"$INPUT\" | jq -r '.tool_input.command // \"\"')\nif echo \"$CMD\" | grep -q 'rm -rf'; then\n  echo 'rm -rf は禁止されています' >&2\n  exit 2  # ブロック\nfi\nexit 0  # 許可"
+            }
+          ],
+          "callouts": [
+            {
+              "type": "warning",
+              "text": "フックコマンドはシェルで実行されます。信頼できるコマンドのみ設定してください。"
+            }
+          ],
+          "tags": [
+            "上級者向け"
+          ]
         }
       ]
     },
@@ -399,7 +450,9 @@
               "text": "VS Code の場合、ターミナルから直接 claude コマンドを実行しても同様に使えます。"
             }
           ],
-          "tags": ["初心者向け"]
+          "tags": [
+            "初心者向け"
+          ]
         },
         {
           "id": "ide-jetbrains",
@@ -414,7 +467,9 @@
             }
           ],
           "callouts": [],
-          "tags": ["初心者向け"]
+          "tags": [
+            "初心者向け"
+          ]
         },
         {
           "id": "ide-vim",
@@ -434,7 +489,9 @@
               "text": "Claude Code はターミナルネイティブなので、どのエディタとも組み合わせて使えます。"
             }
           ],
-          "tags": ["中級者向け"]
+          "tags": [
+            "中級者向け"
+          ]
         }
       ]
     },
@@ -455,7 +512,10 @@
               "text": "bypassPermissions モードは信頼できる環境（CI/CD パイプライン等）でのみ使用してください。"
             }
           ],
-          "tags": ["必須", "初心者向け"]
+          "tags": [
+            "必須",
+            "初心者向け"
+          ]
         },
         {
           "id": "permissions-settings",
@@ -475,7 +535,10 @@
               "text": "ワイルドカード（*）を使って、パターンマッチングで権限を設定できます。"
             }
           ],
-          "tags": ["中級者向け", "チーム向け"]
+          "tags": [
+            "中級者向け",
+            "チーム向け"
+          ]
         },
         {
           "id": "permissions-ci",
@@ -495,7 +558,10 @@
               "text": "CI/CD での権限スキップは、コンテナやサンドボックス環境内で使用してください。"
             }
           ],
-          "tags": ["CI/CD", "上級者向け"]
+          "tags": [
+            "CI/CD",
+            "上級者向け"
+          ]
         }
       ]
     },
@@ -522,7 +588,10 @@
               "text": "コンテキストウィンドウの使用量が多くなったら /compact を実行すると、コストと精度のバランスが改善されます。"
             }
           ],
-          "tags": ["初心者向け", "中級者向け"]
+          "tags": [
+            "初心者向け",
+            "中級者向け"
+          ]
         },
         {
           "id": "tips-prompting",
@@ -536,7 +605,10 @@
               "text": "画像やスクリーンショットも入力として渡せます。UI の修正依頼に便利です。"
             }
           ],
-          "tags": ["初心者向け", "中級者向け"]
+          "tags": [
+            "初心者向け",
+            "中級者向け"
+          ]
         },
         {
           "id": "tips-models",
@@ -551,7 +623,9 @@
             }
           ],
           "callouts": [],
-          "tags": ["中級者向け"]
+          "tags": [
+            "中級者向け"
+          ]
         },
         {
           "id": "tips-non-interactive",
@@ -571,7 +645,10 @@
               "text": "--output-format json を使うと、プログラムで処理しやすい形式で出力されます。"
             }
           ],
-          "tags": ["CI/CD", "上級者向け"]
+          "tags": [
+            "CI/CD",
+            "上級者向け"
+          ]
         },
         {
           "id": "tips-custom-commands",
@@ -591,7 +668,10 @@
               "text": "$ARGUMENTS プレースホルダーを使うと、コマンド実行時に引数を渡せます。"
             }
           ],
-          "tags": ["チーム向け", "上級者向け"]
+          "tags": [
+            "チーム向け",
+            "上級者向け"
+          ]
         }
       ]
     },
@@ -618,7 +698,9 @@
               "text": "/doctor は最初に試すべきトラブルシューティングツールです。"
             }
           ],
-          "tags": ["初心者向け"]
+          "tags": [
+            "初心者向け"
+          ]
         },
         {
           "id": "ts-auth",
@@ -638,7 +720,9 @@
               "text": "API キーが漏洩した可能性がある場合は、直ちに console.anthropic.com で無効化してください。"
             }
           ],
-          "tags": ["初心者向け"]
+          "tags": [
+            "初心者向け"
+          ]
         },
         {
           "id": "ts-mcp",
@@ -653,7 +737,9 @@
             }
           ],
           "callouts": [],
-          "tags": ["上級者向け"]
+          "tags": [
+            "上級者向け"
+          ]
         },
         {
           "id": "ts-performance",
@@ -673,7 +759,9 @@
               "text": ".claudeignore は .gitignore と同じ構文です。大きなディレクトリを除外すると起動が速くなります。"
             }
           ],
-          "tags": ["初心者向け"]
+          "tags": [
+            "初心者向け"
+          ]
         },
         {
           "id": "ts-errors",
@@ -693,7 +781,9 @@
               "text": "解決しない場合は github.com/anthropics/claude-code/issues で Issue を報告してください。"
             }
           ],
-          "tags": ["初心者向け"]
+          "tags": [
+            "初心者向け"
+          ]
         }
       ]
     },
@@ -720,7 +810,10 @@
               "text": "CLAUDE.md と .claude/settings.json はリポジトリにコミットし、.claude/settings.local.json は .gitignore に追加してください。"
             }
           ],
-          "tags": ["中級者向け", "チーム向け"]
+          "tags": [
+            "中級者向け",
+            "チーム向け"
+          ]
         },
         {
           "id": "bp-security",
@@ -740,7 +833,10 @@
               "text": "生成されたコードは必ずレビューしてからコミットしてください。セキュリティ脆弱性が含まれる可能性があります。"
             }
           ],
-          "tags": ["チーム向け", "CI/CD"]
+          "tags": [
+            "チーム向け",
+            "CI/CD"
+          ]
         },
         {
           "id": "bp-cost",
@@ -760,7 +856,9 @@
               "text": "Max プランなら定額なので、コストを気にせず活用できます。"
             }
           ],
-          "tags": ["中級者向け"]
+          "tags": [
+            "中級者向け"
+          ]
         },
         {
           "id": "bp-cicd",
@@ -780,7 +878,10 @@
               "text": "API キーは GitHub Secrets に保存し、ワークフローファイルに直接記述しないでください。"
             }
           ],
-          "tags": ["CI/CD", "チーム向け"]
+          "tags": [
+            "CI/CD",
+            "チーム向け"
+          ]
         }
       ]
     }

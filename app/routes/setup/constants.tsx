@@ -1,16 +1,6 @@
+import type { Callout } from "~/components/callout-box";
+import type { CodeBlock } from "~/components/code-block-view";
 import setupData from "~/data/setup/setup.json";
-
-export interface CodeBlock {
-  lang: string;
-  label: string;
-  value: string;
-  recommended?: boolean;
-}
-
-export interface Callout {
-  type: "info" | "warning" | "tip" | "important";
-  text: string;
-}
 
 export interface Step {
   id: string;
@@ -36,6 +26,8 @@ export const SECTION_COLORS: Record<string, { color: string; bg: string }> = {
   installation: { color: "#6EE7B7", bg: "rgba(16, 185, 129, 0.15)" },
   "initial-setup": { color: "#67E8F9", bg: "rgba(6, 182, 212, 0.15)" },
   "claude-md": { color: "#C4B5FD", bg: "rgba(139, 92, 246, 0.15)" },
+  "first-steps": { color: "#86EFAC", bg: "rgba(34, 197, 94, 0.15)" },
+  skills: { color: "#F9A8D4", bg: "rgba(244, 114, 182, 0.15)" },
   hooks: { color: "#FDBA74", bg: "rgba(249, 115, 22, 0.15)" },
   mcp: { color: "#5EEAD4", bg: "rgba(20, 184, 166, 0.15)" },
   ide: { color: "#3B82F6", bg: "rgba(59, 130, 246, 0.25)" },
@@ -92,6 +84,41 @@ export const SECTION_ICONS: Record<string, () => React.JSX.Element> = {
       <polyline points="14 2 14 8 20 8" />
       <line x1="16" y1="13" x2="8" y2="13" />
       <line x1="16" y1="17" x2="8" y2="17" />
+    </svg>
+  ),
+  "first-steps": () => (
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <polygon points="5 3 19 12 5 21 5 3" />
+    </svg>
+  ),
+  skills: () => (
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M14.5 10c-.83 0-1.5-.67-1.5-1.5v-5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5z" />
+      <path d="M20.5 10H19V8.5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z" />
+      <path d="M9.5 14c.83 0 1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5S8 21.33 8 20.5v-5c0-.83.67-1.5 1.5-1.5z" />
+      <path d="M3.5 14H5v1.5c0 .83-.67 1.5-1.5 1.5S2 16.33 2 15.5 2.67 14 3.5 14z" />
+      <path d="M14 14.5c0-.83.67-1.5 1.5-1.5h5c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5h-5c-.83 0-1.5-.67-1.5-1.5z" />
+      <path d="M15.5 19H14v1.5c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5-.67-1.5-1.5-1.5z" />
+      <path d="M10 9.5C10 8.67 9.33 8 8.5 8h-5C2.67 8 2 8.67 2 9.5S2.67 11 3.5 11h5c.83 0 1.5-.67 1.5-1.5z" />
+      <path d="M8.5 5H10V3.5C10 2.67 9.33 2 8.5 2S7 2.67 7 3.5 7.67 5 8.5 5z" />
     </svg>
   ),
   hooks: () => (
@@ -207,19 +234,4 @@ export const TAG_COLORS: Record<string, { color: string; bg: string }> = {
   上級者向け: { color: "#C4B5FD", bg: "rgba(139, 92, 246, 0.15)" },
   チーム向け: { color: "#67E8F9", bg: "rgba(6, 182, 212, 0.15)" },
   "CI/CD": { color: "#FDBA74", bg: "rgba(249, 115, 22, 0.15)" },
-};
-
-export const CALLOUT_STYLES: Record<
-  string,
-  { color: string; bg: string; border: string; label: string }
-> = {
-  info: { color: "#60A5FA", bg: "rgba(59, 130, 246, 0.08)", border: "#3B82F6", label: "Info" },
-  warning: { color: "#FBBF24", bg: "rgba(234, 179, 8, 0.08)", border: "#EAB308", label: "Warning" },
-  tip: { color: "#34D399", bg: "rgba(16, 185, 129, 0.08)", border: "#10B981", label: "Tip" },
-  important: {
-    color: "#F87171",
-    bg: "rgba(239, 68, 68, 0.08)",
-    border: "#EF4444",
-    label: "Important",
-  },
 };
