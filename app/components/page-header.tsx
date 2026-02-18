@@ -6,7 +6,7 @@ const ALL_PAGES = [
   { to: "/", label: "リリースノート" },
   { to: "/commands", label: "コマンド一覧" },
   { to: "/plugins", label: "公式プラグイン" },
-  { to: "/directory", label: "ディレクトリ構成" },
+  { to: "/directory", label: "設定ガイド" },
   { to: "/setup", label: "セットアップ" },
   { to: "/best-practices", label: "ベストプラクティス" },
   { to: "/llm-infra-guide", label: "LLM構築ガイド" },
