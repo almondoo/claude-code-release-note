@@ -1,0 +1,110 @@
+{
+  "id": "tips",
+  "name": "Tips & Tricks",
+  "description": "Claude Code を最大限に活用するコツ",
+  "steps": [
+    {
+      "id": "tips-context",
+      "title": "コンテキスト管理",
+      "description": "効果的なコンテキストの使い方",
+      "content": "Claude Code のパフォーマンスは、与えるコンテキストの質に大きく依存します。\n\n- プロジェクトルートから起動する: 関連ファイルが自動的に認識されます\n- CLAUDE.md でプロジェクト情報を提供する\n- `/compact` でコンテキストを圧縮して、長いセッションでも精度を維持する\n- 新しいタスクには `/clear` でリフレッシュする",
+      "code": [
+        {
+          "lang": "bash",
+          "label": "コンテキスト管理コマンド",
+          "value": "# コンテキストの圧縮\n> /compact\n\n# セッションのクリア\n> /clear\n\n# コンテキストの使用量を確認\n> /cost"
+        }
+      ],
+      "callouts": [
+        {
+          "type": "tip",
+          "text": "コンテキストウィンドウの使用量が多くなったら /compact を実行すると、コストと精度のバランスが改善されます。"
+        }
+      ],
+      "tags": [
+        "初心者向け",
+        "中級者向け"
+      ]
+    },
+    {
+      "id": "tips-prompting",
+      "title": "効果的なプロンプト",
+      "description": "より良い結果を得るためのプロンプト技法",
+      "content": "Claude Code に効果的に指示を出すためのポイント:\n\n- 具体的な結果を述べる: 「ログイン機能を追加して」→「JWT 認証によるログインエンドポイントを追加して」\n- ステップバイステップで依頼する: 大きなタスクは分割して依頼する\n- 参照ファイルを示す: 「auth.ts のパターンに従って」など既存コードを参照させる\n- 制約を明示する: 「既存のテストを壊さないで」など制約を伝える",
+      "code": [],
+      "callouts": [
+        {
+          "type": "tip",
+          "text": "画像やスクリーンショットも入力として渡せます。UI の修正依頼に便利です。"
+        }
+      ],
+      "tags": [
+        "初心者向け",
+        "中級者向け"
+      ]
+    },
+    {
+      "id": "tips-models",
+      "title": "モデルの使い分け",
+      "description": "タスクに応じたモデル選択",
+      "content": "Claude Code では複数のモデルが利用できます。タスクの複雑さに応じて使い分けましょう。\n\n- Opus: 複雑なアーキテクチャ設計、大規模リファクタリングに最適\n- Sonnet: 日常的なコーディング、バグ修正に最適（デフォルト）\n- Haiku: 簡単な質問、コード読解に最適（高速・低コスト）",
+      "code": [
+        {
+          "lang": "bash",
+          "label": "モデルの切り替え",
+          "value": "# セッション内でモデルを切り替え\n> /model\n\n# 起動時にモデルを指定\nclaude --model opus"
+        }
+      ],
+      "callouts": [],
+      "tags": [
+        "中級者向け"
+      ]
+    },
+    {
+      "id": "tips-non-interactive",
+      "title": "非対話モード",
+      "description": "スクリプトやパイプラインでの活用",
+      "content": "Claude Code は非対話モードで使用することもできます。`-p` フラグでプロンプトを直接渡し、結果を標準出力に出力します。\n\nシェルスクリプトや CI/CD パイプラインに組み込んで活用できます。",
+      "code": [
+        {
+          "lang": "bash",
+          "label": "非対話モードの使用",
+          "value": "# プロンプトを直接渡す\nclaude -p \"このリポジトリの構造を説明して\"\n\n# パイプで入力を渡す\ncat error.log | claude -p \"このエラーの原因と修正方法を教えて\"\n\n# JSON 出力\nclaude -p \"package.json の依存関係をリストアップ\" --output-format json"
+        }
+      ],
+      "callouts": [
+        {
+          "type": "info",
+          "text": "--output-format json を使うと、プログラムで処理しやすい形式で出力されます。"
+        }
+      ],
+      "tags": [
+        "CI/CD",
+        "上級者向け"
+      ]
+    },
+    {
+      "id": "tips-custom-commands",
+      "title": "カスタムスラッシュコマンド",
+      "description": "独自のスラッシュコマンドを定義",
+      "content": "`.claude/commands/` ディレクトリに Markdown ファイルを配置すると、カスタムスラッシュコマンドとして使えます。\n\nチーム共通のワークフロー（コードレビュー、デプロイ手順など）をコマンド化できます。",
+      "code": [
+        {
+          "lang": "markdown",
+          "label": ".claude/commands/review.md",
+          "value": "---\ndescription: コードレビューを実行\n---\n\n以下の手順でコードレビューを行ってください:\n\n1. git diff で変更を確認\n2. コーディング規約への準拠を確認\n3. セキュリティ上の問題がないか確認\n4. テストが十分か確認\n5. 改善提案をリストアップ"
+        }
+      ],
+      "callouts": [
+        {
+          "type": "tip",
+          "text": "$ARGUMENTS プレースホルダーを使うと、コマンド実行時に引数を渡せます。"
+        }
+      ],
+      "tags": [
+        "チーム向け",
+        "上級者向け"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,124 @@
+{
+  "id": "claude-md",
+  "name": "CLAUDE.md の設定",
+  "description": "プロジェクトのカスタム指示を定義する",
+  "steps": [
+    {
+      "id": "claude-md-overview",
+      "title": "CLAUDE.md とは",
+      "description": "プロジェクト固有の指示ファイル",
+      "content": "CLAUDE.md は Claude Code にプロジェクト固有のコンテキストや指示を与えるファイルです。コーディング規約、アーキテクチャの説明、頻出コマンドなどを記述します。\n\nClaude はセッション開始時にこのファイルを自動的に読み込み、指示に従って動作します。",
+      "code": [],
+      "callouts": [
+        {
+          "type": "info",
+          "text": "CLAUDE.md はプロジェクトのルートに配置します。Git で管理することでチーム全体で共有できます。"
+        }
+      ],
+      "tags": [
+        "必須",
+        "初心者向け",
+        "チーム向け"
+      ]
+    },
+    {
+      "id": "claude-md-init",
+      "title": "CLAUDE.md の生成方法",
+      "description": "対話的にまたは手動で CLAUDE.md を作成する",
+      "content": "CLAUDE.md を作成する方法はいくつかあります。プロジェクトの状況に応じて選択してください。",
+      "code": [
+        {
+          "lang": "bash",
+          "label": "/init コマンドで自動生成",
+          "value": "claude\n# セッション内で:\n> /init",
+          "recommended": true
+        },
+        {
+          "lang": "bash",
+          "label": "手動で作成",
+          "value": "# プロジェクトルートに CLAUDE.md を作成\ntouch CLAUDE.md\n\n# エディタで開いて編集\ncode CLAUDE.md  # VS Code の場合"
+        },
+        {
+          "lang": "bash",
+          "label": "Claude Code に依頼して生成",
+          "value": "claude\n# セッション内で:\n> このプロジェクトを分析して CLAUDE.md を作成してください"
+        }
+      ],
+      "callouts": [
+        {
+          "type": "tip",
+          "text": "/init は何度でも実行できます。既存の CLAUDE.md を上書きする前に確認されます。初回は /init での自動生成がおすすめです。"
+        }
+      ],
+      "tags": [
+        "必須",
+        "初心者向け"
+      ]
+    },
+    {
+      "id": "claude-md-writing",
+      "title": "効果的な書き方",
+      "description": "CLAUDE.md のベストプラクティス",
+      "content": "効果的な CLAUDE.md を書くポイント:\n\n- 簡潔に書く: 長すぎる指示は効果が下がります\n- 具体的に書く: 「コードをきれいに」ではなく「ESLint ルールに従う」\n- コマンドを明記: ビルド、テスト、リントのコマンドを書く\n- 技術スタックを明記: 使用フレームワーク、言語バージョンなど",
+      "code": [
+        {
+          "lang": "markdown",
+          "label": "CLAUDE.md の例",
+          "value": "# CLAUDE.md\n\n## プロジェクト概要\nReact + TypeScript のWebアプリ。Vite でビルド。\n\n## コマンド\n- `pnpm run dev` — 開発サーバー\n- `pnpm run test` — テスト実行\n- `pnpm run lint` — リント\n\n## コーディング規約\n- 関数コンポーネントのみ使用\n- CSS Modules を使用\n- テストは Vitest で記述"
+        }
+      ],
+      "callouts": [
+        {
+          "type": "warning",
+          "text": "機密情報（API キー、パスワード等）を CLAUDE.md に含めないでください。Git で共有される可能性があります。"
+        }
+      ],
+      "tags": [
+        "必須",
+        "中級者向け",
+        "チーム向け"
+      ]
+    },
+    {
+      "id": "claude-md-hierarchy",
+      "title": "階層構造",
+      "description": "ディレクトリごとの CLAUDE.md",
+      "content": "CLAUDE.md は複数の階層に配置できます。Claude はプロジェクトルートから作業ディレクトリまでの全ての CLAUDE.md をマージして読み込みます。\n\n優先順位: ユーザー設定 (~/.claude/CLAUDE.md) < プロジェクトルート (CLAUDE.md) < サブディレクトリ (src/CLAUDE.md)",
+      "code": [
+        {
+          "lang": "bash",
+          "label": "階層構造の例",
+          "value": "project/\n├── CLAUDE.md              # プロジェクト全体の指示\n├── src/\n│   └── CLAUDE.md          # src 以下に特化した指示\n└── tests/\n    └── CLAUDE.md          # テストに特化した指示"
+        }
+      ],
+      "callouts": [],
+      "tags": [
+        "中級者向け",
+        "チーム向け"
+      ]
+    },
+    {
+      "id": "claude-md-rules",
+      "title": ".claude/rules/ ディレクトリ",
+      "description": "条件付きルールファイル",
+      "content": ".claude/rules/ ディレクトリにルールファイルを配置すると、ファイルパスのグロブパターンに基づいて条件付きでルールが適用されます。\n\n例えば、TypeScript ファイル編集時のみ適用されるルールや、テストファイル用のルールを分離できます。",
+      "code": [
+        {
+          "lang": "bash",
+          "label": "ルールディレクトリの構造",
+          "value": ".claude/\n└── rules/\n    ├── typescript.md      # *.ts, *.tsx に適用\n    ├── testing.md         # *.test.*, *.spec.* に適用\n    └── docs.md            # *.md に適用"
+        }
+      ],
+      "callouts": [
+        {
+          "type": "info",
+          "text": "ルールファイル内の YAML フロントマターで適用条件（globs）を指定します。"
+        }
+      ],
+      "tags": [
+        "上級者向け",
+        "チーム向け"
+      ]
+    }
+  ]
+}

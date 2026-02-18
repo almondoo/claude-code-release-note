@@ -1,6 +1,17 @@
 import type { Callout } from "~/components/callout-box";
 import type { CodeBlock } from "~/components/code-block-view";
-import setupData from "~/data/setup/setup.json";
+import installationSection from "~/data/setup/setup-installation.json";
+import initialSetupSection from "~/data/setup/setup-initial-setup.json";
+import claudeMdSection from "~/data/setup/setup-claude-md.json";
+import firstStepsSection from "~/data/setup/setup-first-steps.json";
+import skillsSection from "~/data/setup/setup-skills.json";
+import mcpSection from "~/data/setup/setup-mcp.json";
+import hooksSection from "~/data/setup/setup-hooks.json";
+import ideSection from "~/data/setup/setup-ide.json";
+import permissionsSection from "~/data/setup/setup-permissions.json";
+import tipsSection from "~/data/setup/setup-tips.json";
+import troubleshootingSection from "~/data/setup/setup-troubleshooting.json";
+import bestPracticesSection from "~/data/setup/setup-best-practices.json";
 
 export interface Step {
   id: string;
@@ -19,7 +30,20 @@ export interface SetupSection {
   steps: Step[];
 }
 
-export const SECTIONS = setupData.sections as SetupSection[];
+export const SECTIONS = [
+  installationSection,
+  initialSetupSection,
+  claudeMdSection,
+  firstStepsSection,
+  skillsSection,
+  mcpSection,
+  hooksSection,
+  ideSection,
+  permissionsSection,
+  tipsSection,
+  troubleshootingSection,
+  bestPracticesSection,
+] as SetupSection[];
 export const TOTAL_STEPS = SECTIONS.reduce((sum, s) => sum + s.steps.length, 0);
 
 export const SECTION_COLORS: Record<string, { color: string; bg: string }> = {

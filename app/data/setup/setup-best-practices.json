@@ -1,0 +1,98 @@
+{
+  "id": "best-practices",
+  "name": "ベストプラクティス",
+  "description": "Claude Code を最大限に活用するための推奨事項",
+  "steps": [
+    {
+      "id": "bp-team",
+      "title": "チーム開発での活用",
+      "description": "チームで Claude Code を使うためのガイドライン",
+      "content": "チームで Claude Code を効果的に使うためのポイント:\n\n- CLAUDE.md をリポジトリにコミットしてチーム全体で共有する\n- settings.json でプロジェクト共通の権限設定を定義する\n- カスタムコマンドでチームのワークフローを標準化する\n- .claudeignore で不要なファイルの読み込みを防ぐ",
+      "code": [
+        {
+          "lang": "bash",
+          "label": "チーム向けセットアップ手順",
+          "value": "# 1. CLAUDE.md を作成\nclaude\n> /init\n\n# 2. 設定ファイルをコミット\ngit add CLAUDE.md .claude/settings.json .claudeignore\ngit commit -m \"Add Claude Code configuration\""
+        }
+      ],
+      "callouts": [
+        {
+          "type": "important",
+          "text": "CLAUDE.md と .claude/settings.json はリポジトリにコミットし、.claude/settings.local.json は .gitignore に追加してください。"
+        }
+      ],
+      "tags": [
+        "中級者向け",
+        "チーム向け"
+      ]
+    },
+    {
+      "id": "bp-security",
+      "title": "セキュリティ",
+      "description": "安全に Claude Code を使うための注意点",
+      "content": "セキュリティを維持するためのベストプラクティス:\n\n- API キーを CLAUDE.md や settings.json に含めない\n- 権限設定で危険なコマンド（rm -rf、git push --force など）を deny リストに追加する\n- CI/CD ではサンドボックス環境内で実行する\n- 定期的に API キーをローテーションする",
+      "code": [
+        {
+          "lang": "bash",
+          "label": ".gitignore に追加すべきファイル",
+          "value": "# .gitignore\n.claude/settings.local.json\n.claude/credentials.json\n.env\n.env.local"
+        }
+      ],
+      "callouts": [
+        {
+          "type": "warning",
+          "text": "生成されたコードは必ずレビューしてからコミットしてください。セキュリティ脆弱性が含まれる可能性があります。"
+        }
+      ],
+      "tags": [
+        "チーム向け",
+        "CI/CD"
+      ]
+    },
+    {
+      "id": "bp-cost",
+      "title": "コスト最適化",
+      "description": "API 利用コストを抑えるための工夫",
+      "content": "API プランを使用している場合のコスト最適化:\n\n- /compact を定期的に使ってトークン使用量を抑える\n- 簡単なタスクには Haiku モデルを使う\n- .claudeignore で不要なファイルの読み込みを減らす\n- 大きなファイルの全文読み込みを避ける（行範囲を指定する）",
+      "code": [
+        {
+          "lang": "bash",
+          "label": "コスト確認",
+          "value": "# セッション中のコスト確認\n> /cost\n\n# 軽量モデルの使用\n> /model haiku"
+        }
+      ],
+      "callouts": [
+        {
+          "type": "tip",
+          "text": "Max プランなら定額なので、コストを気にせず活用できます。"
+        }
+      ],
+      "tags": [
+        "中級者向け"
+      ]
+    },
+    {
+      "id": "bp-cicd",
+      "title": "CI/CD 統合",
+      "description": "GitHub Actions 等への組み込み",
+      "content": "Claude Code を CI/CD パイプラインに統合することで、コードレビュー、テスト生成、ドキュメント更新などを自動化できます。",
+      "code": [
+        {
+          "lang": "yaml",
+          "label": "GitHub Actions の例",
+          "value": "name: Claude Code Review\non: [pull_request]\njobs:\n  review:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-node@v4\n        with:\n          node-version: '20'\n      - run: npm install -g @anthropic-ai/claude-code\n      - run: |\n          claude -p \"PR の変更をレビューして改善点を指摘して\" \\\n            --dangerously-skip-permissions\n        env:\n          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}"
+        }
+      ],
+      "callouts": [
+        {
+          "type": "important",
+          "text": "API キーは GitHub Secrets に保存し、ワークフローファイルに直接記述しないでください。"
+        }
+      ],
+      "tags": [
+        "CI/CD",
+        "チーム向け"
+      ]
+    }
+  ]
+}

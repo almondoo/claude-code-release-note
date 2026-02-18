@@ -1,0 +1,52 @@
+{
+  "id": "hooks",
+  "name": "フック設定",
+  "description": "Claude Code のライフサイクルイベントにカスタムスクリプトを接続",
+  "steps": [
+    {
+      "id": "hooks-overview",
+      "title": "フックの概要",
+      "description": "ツール実行前後にカスタム処理を自動実行",
+      "content": "フックは Claude Code のライフサイクルイベントにカスタムシェルコマンドを接続する機能です。\n\n主な活用場面:\n- ファイル保存のたびに prettier / ESLint を自動実行\n- 危険なコマンドを実行前にブロック\n- タスク完了時に OS 通知を送る\n\n14 種のイベント・3 タイプ（command / prompt / agent）の詳細は「カスタマイズガイド」を参照してください。",
+      "code": [
+        {
+          "lang": "json",
+          "label": ".claude/settings.json の基本構造",
+          "value": "{\n  \"hooks\": {\n    \"PostToolUse\": [\n      {\n        \"matcher\": \"Write|Edit\",\n        \"hooks\": [{ \"type\": \"command\", \"command\": \"npx prettier --write $CLAUDE_FILE_PATH\" }]\n      }\n    ]\n  }\n}",
+          "recommended": true
+        }
+      ],
+      "callouts": [
+        {
+          "type": "info",
+          "text": "フックの全イベント・終了コード制御・非同期実行・ベストプラクティスは「カスタマイズガイド」(/customization) で解説しています。"
+        }
+      ],
+      "tags": [
+        "上級者向け"
+      ]
+    },
+    {
+      "id": "hooks-definition",
+      "title": "フックの基本設定",
+      "description": "settings.json でイベント・マッチャー・コマンドを定義",
+      "content": "フックは .claude/settings.json の hooks プロパティで定義します。exit 0 で許可、exit 2 でブロックしてフィードバックを返します。",
+      "code": [
+        {
+          "lang": "bash",
+          "label": "rm -rf をブロックする PreToolUse フック",
+          "value": "# hooks スクリプト例\nINPUT=$(cat)  # stdin から JSON を受信\nCMD=$(echo \"$INPUT\" | jq -r '.tool_input.command // \"\"')\nif echo \"$CMD\" | grep -q 'rm -rf'; then\n  echo 'rm -rf は禁止されています' >&2\n  exit 2  # ブロック\nfi\nexit 0  # 許可"
+        }
+      ],
+      "callouts": [
+        {
+          "type": "warning",
+          "text": "フックコマンドはシェルで実行されます。信頼できるコマンドのみ設定してください。"
+        }
+      ],
+      "tags": [
+        "上級者向け"
+      ]
+    }
+  ]
+}

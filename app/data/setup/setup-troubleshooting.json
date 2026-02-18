@@ -1,0 +1,112 @@
+{
+  "id": "troubleshooting",
+  "name": "トラブルシューティング",
+  "description": "よくある問題と解決方法",
+  "steps": [
+    {
+      "id": "ts-doctor",
+      "title": "/doctor コマンド",
+      "description": "環境の自動診断",
+      "content": "問題が発生した場合、まず `/doctor` コマンドで環境を診断しましょう。Node.js バージョン、認証状態、MCP サーバーの接続状況などを自動チェックします。",
+      "code": [
+        {
+          "lang": "bash",
+          "label": "環境診断の実行",
+          "value": "claude\n> /doctor"
+        }
+      ],
+      "callouts": [
+        {
+          "type": "tip",
+          "text": "/doctor は最初に試すべきトラブルシューティングツールです。"
+        }
+      ],
+      "tags": [
+        "初心者向け"
+      ]
+    },
+    {
+      "id": "ts-auth",
+      "title": "認証の問題",
+      "description": "認証エラーの対処",
+      "content": "認証に関する一般的な問題と解決策:\n\n- トークンの期限切れ: `claude auth logout` → `claude auth login` で再認証\n- API キーの無効化: 新しいキーを console.anthropic.com で発行\n- ネットワーク制限: プロキシ設定を確認",
+      "code": [
+        {
+          "lang": "bash",
+          "label": "認証の再設定",
+          "value": "# 現在の認証状態を確認\nclaude auth status\n\n# ログアウトして再認証\nclaude auth logout\nclaude auth login"
+        }
+      ],
+      "callouts": [
+        {
+          "type": "warning",
+          "text": "API キーが漏洩した可能性がある場合は、直ちに console.anthropic.com で無効化してください。"
+        }
+      ],
+      "tags": [
+        "初心者向け"
+      ]
+    },
+    {
+      "id": "ts-mcp",
+      "title": "MCP サーバーの問題",
+      "description": "MCP 接続トラブルの対処",
+      "content": "MCP サーバーが正常に動作しない場合の確認ポイント:\n\n- サーバープロセスが起動しているか確認\n- 必要な依存関係がインストールされているか確認\n- 環境変数が正しく設定されているか確認\n- ログ出力を確認",
+      "code": [
+        {
+          "lang": "bash",
+          "label": "MCP サーバーのデバッグ",
+          "value": "# MCP サーバーの一覧と状態確認\nclaude mcp list\n\n# サーバーの再起動\nclaude mcp reset\n\n# 問題のあるサーバーを削除して再追加\nclaude mcp remove problematic-server\nclaude mcp add problematic-server -- npx @example/server"
+        }
+      ],
+      "callouts": [],
+      "tags": [
+        "上級者向け"
+      ]
+    },
+    {
+      "id": "ts-performance",
+      "title": "パフォーマンスの問題",
+      "description": "動作が遅い場合の対処",
+      "content": "Claude Code の動作が遅い場合のチェックポイント:\n\n- コンテキストが大きすぎないか → `/compact` で圧縮\n- 大きなリポジトリで不要なファイルが読み込まれていないか → .claudeignore で除外\n- ネットワーク遅延 → 接続環境を確認\n- MCP サーバーの応答遅延 → 不要なサーバーを無効化",
+      "code": [
+        {
+          "lang": "bash",
+          "label": ".claudeignore の例",
+          "value": "# .claudeignore\nnode_modules/\ndist/\nbuild/\n*.log\n.git/\ncoverage/"
+        }
+      ],
+      "callouts": [
+        {
+          "type": "tip",
+          "text": ".claudeignore は .gitignore と同じ構文です。大きなディレクトリを除外すると起動が速くなります。"
+        }
+      ],
+      "tags": [
+        "初心者向け"
+      ]
+    },
+    {
+      "id": "ts-errors",
+      "title": "エラーの対処",
+      "description": "一般的なエラーメッセージと解決策",
+      "content": "よくあるエラーメッセージとその対処法:\n\n- \"Context window full\": /compact または /clear を実行\n- \"Rate limit exceeded\": しばらく待ってからリトライ\n- \"Tool execution failed\": 権限設定を確認\n- \"Network error\": インターネット接続を確認",
+      "code": [
+        {
+          "lang": "bash",
+          "label": "一般的なリカバリー手順",
+          "value": "# Claude Code の更新\nnpm update -g @anthropic-ai/claude-code\n\n# キャッシュのクリア\nclaude config reset\n\n# デバッグモードで起動\nclaude --debug"
+        }
+      ],
+      "callouts": [
+        {
+          "type": "info",
+          "text": "解決しない場合は github.com/anthropics/claude-code/issues で Issue を報告してください。"
+        }
+      ],
+      "tags": [
+        "初心者向け"
+      ]
+    }
+  ]
+}

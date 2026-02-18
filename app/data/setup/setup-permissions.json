@@ -1,0 +1,70 @@
+{
+  "id": "permissions",
+  "name": "権限管理",
+  "description": "ツールの実行権限を制御する",
+  "steps": [
+    {
+      "id": "permissions-model",
+      "title": "権限モデルの理解",
+      "description": "Claude Code の権限システム",
+      "content": "Claude Code は安全性のために、ファイル編集やシェルコマンド実行などに対する権限管理機能を備えています。\n\n3 つのモードがあります:\n- plan モード: 計画の承認が必要\n- default モード: 書き込み操作に承認が必要\n- bypassPermissions モード: すべてのツールを自動承認（CI/CD 向け）",
+      "code": [],
+      "callouts": [
+        {
+          "type": "warning",
+          "text": "bypassPermissions モードは信頼できる環境（CI/CD パイプライン等）でのみ使用してください。"
+        }
+      ],
+      "tags": [
+        "必須",
+        "初心者向け"
+      ]
+    },
+    {
+      "id": "permissions-settings",
+      "title": "settings.json での設定",
+      "description": "細かい権限のカスタマイズ",
+      "content": "`.claude/settings.json` で特定のツールやコマンドの自動承認リストを設定できます。頻繁に使うコマンドを登録しておくと、作業効率が向上します。",
+      "code": [
+        {
+          "lang": "json",
+          "label": ".claude/settings.json の例",
+          "value": "{\n  \"permissions\": {\n    \"allow\": [\n      \"Bash(npm run test*)\",\n      \"Bash(npm run lint*)\",\n      \"Bash(git status)\",\n      \"Bash(git diff*)\",\n      \"Read\",\n      \"Glob\",\n      \"Grep\"\n    ],\n    \"deny\": [\n      \"Bash(rm -rf*)\",\n      \"Bash(git push --force*)\"\n    ]\n  }\n}"
+        }
+      ],
+      "callouts": [
+        {
+          "type": "tip",
+          "text": "ワイルドカード（*）を使って、パターンマッチングで権限を設定できます。"
+        }
+      ],
+      "tags": [
+        "中級者向け",
+        "チーム向け"
+      ]
+    },
+    {
+      "id": "permissions-ci",
+      "title": "CI/CD 用の設定",
+      "description": "自動化パイプラインでの権限設定",
+      "content": "CI/CD パイプラインでは、対話的な承認ができないため、適切な権限設定が必要です。`--dangerously-skip-permissions` フラグまたは環境変数で設定します。",
+      "code": [
+        {
+          "lang": "bash",
+          "label": "CI/CD での実行例",
+          "value": "# 非対話モードで実行\nclaude -p \"テストを実行して結果を報告\" --dangerously-skip-permissions\n\n# 環境変数での設定\nexport CLAUDE_CODE_SKIP_PERMISSIONS=true\nclaude -p \"コードレビューを実行\""
+        }
+      ],
+      "callouts": [
+        {
+          "type": "important",
+          "text": "CI/CD での権限スキップは、コンテナやサンドボックス環境内で使用してください。"
+        }
+      ],
+      "tags": [
+        "CI/CD",
+        "上級者向け"
+      ]
+    }
+  ]
+}
