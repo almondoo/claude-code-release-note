@@ -1,7 +1,5 @@
 import { TAG_COLORS, TAG_LABELS } from "~/components/badge";
-import releases20x from "~/data/releases/releases-2.0.x.json";
-import releases21x from "~/data/releases/releases-2.1.x.json";
-import versionDetails21x from "~/data/releases/version-details-2.1.x.json";
+import { RELEASES, VERSION_DETAILS } from "~/data/releases";
 
 export interface ReleaseItem {
   t: string;
@@ -19,15 +17,11 @@ export interface TabDef {
   color: string;
 }
 
-export const RELEASES: ReleaseVersion[] = [...releases20x, ...releases21x].reverse();
+export { RELEASES };
 
 export const ALL_TAGS = Object.keys(TAG_COLORS);
 
-const versionDetails = {
-  ...versionDetails21x,
-};
-
-export const VERSION_DETAILS_AVAILABLE = new Set(Object.keys(versionDetails));
+export const VERSION_DETAILS_AVAILABLE = new Set(Object.keys(VERSION_DETAILS));
 
 export const totalAll = RELEASES.reduce((sum, r) => sum + r.items.length, 0);
 

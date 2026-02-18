@@ -1,4 +1,6 @@
-import commandsData from "~/data/commands/commands.json";
+import categoriesData from "~/data/commands/commands-categories.json";
+import cliData from "~/data/commands/commands-cli.json";
+import shortcutsData from "~/data/commands/commands-shortcuts.json";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -42,10 +44,10 @@ export type ModalData =
 // Data (from JSON)
 // ---------------------------------------------------------------------------
 
-export const CATEGORIES: Category[] = commandsData.categories;
-export const CLI_COMMANDS: Command[] = commandsData.cli.commands;
-export const CLI_FLAGS: Command[] = commandsData.cli.flags;
-export const SHORTCUTS: Shortcut[] = commandsData.shortcuts;
+export const CATEGORIES: Category[] = categoriesData.categories;
+export const CLI_COMMANDS: Command[] = cliData.cli.commands;
+export const CLI_FLAGS: Command[] = cliData.cli.flags;
+export const SHORTCUTS: Shortcut[] = shortcutsData.shortcuts;
 
 // ---------------------------------------------------------------------------
 // Colors & Icons

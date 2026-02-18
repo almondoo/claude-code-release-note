@@ -1,0 +1,221 @@
+{
+  "id": "mcp",
+  "name": "MCP",
+  "description": "Model Context Protocol で外部ツール・データソースを Claude Code に接続する",
+  "items": [
+    {
+      "id": "mcp-overview",
+      "title": "MCP とは",
+      "description": "外部ツール・データソースへの接続標準。GitHub / DB / ブラウザ / Slack 等を Claude Code から自然言語で操作できる。",
+      "content": "MCP（Model Context Protocol）は Claude Code に外部ツールやデータソースを接続するためのオープン標準プロトコルです。MCP サーバーを設定すると、Claude Code はそのサーバーが提供するツールを呼び出せます。\n\n主な活用場面:\n- GitHub / GitLab: PR・Issue・コードの操作\n- データベース: SQL クエリを自然言語で実行\n- ブラウザ操作: Web スクレイピング・E2E テスト補助\n- Slack / Notion: チャット・ドキュメント管理の自動化\n- ファイルシステム: 指定ディレクトリ内の安全な操作",
+      "code": [
+        {
+          "lang": "text",
+          "label": "MCP のアーキテクチャ",
+          "value": "┌──────────────────────────────────┐\n│   Claude Code（クライアント）     │\n│                                  │\n│  「このPRにコメントして」         │\n│  「DBのユーザー数を教えて」       │\n└──────────────┬───────────────────┘\n               │ MCP プロトコル\n               │ (HTTP / SSE / stdio)\n       ┌───────┴────────┐\n       │                │\n       ▼                ▼\n ┌───────────┐    ┌───────────┐\n │  GitHub   │    │ Postgres  │\n │ MCPサーバー│    │ MCPサーバー│\n └─────┬─────┘    └─────┬─────┘\n       │                │\n       ▼                ▼\n  GitHub API      PostgreSQL DB"
+        }
+      ],
+      "callouts": [
+        {
+          "type": "info",
+          "text": "MCP サーバーの公式一覧は github.com/modelcontextprotocol/servers で確認できます。コミュニティ製も含めると数百種類のサーバーが利用可能です。"
+        }
+      ],
+      "tags": ["上級者向け"]
+    },
+    {
+      "id": "mcp-transport",
+      "title": "3 つのトランスポート",
+      "description": "HTTP（推奨・リモート向け）、SSE（非推奨・レガシー）、stdio（ローカルプロセス向け）の使い分け。",
+      "content": "MCP サーバーとの通信方式（トランスポート）は 3 種類あります。\n\nHTTP: 推奨。リモートサーバーへの接続に使用。--header でカスタムヘッダーを追加可能。\nstdio: ローカルプロセスとして起動するサーバーに使用。最もシンプルな方式。\nSSE: 非推奨（レガシー互換）。既存の SSE サーバーとの互換性のために残されています。",
+      "code": [
+        {
+          "lang": "bash",
+          "label": "各トランスポートの追加方法",
+          "value": "# HTTP（推奨・リモートサーバー）\nclaude mcp add my-remote -s project \\\n  --transport http \\\n  --url https://mcp.example.com/endpoint \\\n  --header \"Authorization: Bearer ${API_TOKEN}\"\n\n# stdio（ローカルプロセス）\nclaude mcp add my-local -s project \\\n  -- npx -y @example/mcp-server\n\n# SSE（非推奨・レガシー）\nclaude mcp add my-sse -s project \\\n  --transport sse \\\n  --url https://mcp.example.com/sse",
+          "recommended": true
+        }
+      ],
+      "callouts": [
+        {
+          "type": "warning",
+          "text": "SSE トランスポートは非推奨です。新規構築では HTTP トランスポートを使用してください。"
+        }
+      ],
+      "tags": ["上級者向け"]
+    },
+    {
+      "id": "mcp-scopes",
+      "title": "スコープの使い分け",
+      "description": "local（デフォルト）・project（チーム共有・.mcp.json）・user（全プロジェクト共通）。優先度: local > project > user。",
+      "content": "MCP サーバーの設定には 3 つのスコープがあります。\n\nlocal（デフォルト）: ~/.claude.json 内のプロジェクトパス配下に保存。そのマシンでそのプロジェクトを開いた場合のみ有効。\nproject: .mcp.json ファイルに保存。Git でチームと共有可能。\nuser: ~/.claude.json に保存。全プロジェクトで共通。\n\n優先度: local > project > user の順で、同名サーバーは上位が優先されます。",
+      "code": [
+        {
+          "lang": "bash",
+          "label": "--scope で指定する例",
+          "value": "# local スコープ（デフォルト、省略可能）\nclaude mcp add my-server -s local -- npx @example/server\n\n# project スコープ（.mcp.json に保存、チーム共有可）\nclaude mcp add my-server -s project -- npx @example/server\n\n# user スコープ（全プロジェクト共通）\nclaude mcp add my-server -s user -- npx @example/server",
+          "recommended": true
+        }
+      ],
+      "callouts": [
+        {
+          "type": "tip",
+          "text": "チームで共有するサーバーは -s project で .mcp.json に保存し、機密情報（API キー）は環境変数で渡して .mcp.json に直接書かないようにしましょう。"
+        }
+      ],
+      "tags": ["上級者向け", "チーム向け"]
+    },
+    {
+      "id": "mcp-json",
+      "title": ".mcp.json の設定",
+      "description": "プロジェクトスコープの設定ファイル。環境変数展開（${VAR:-default}）でセキュアに管理できる。",
+      "content": ".mcp.json はプロジェクトルートに配置するチーム共有の MCP 設定ファイルです。mcpServers オブジェクトでサーバーを定義します。\n\n環境変数展開構文 ${VAR} または ${VAR:-デフォルト値} が使えます。展開可能な場所: command, args, env, url, headers フィールド。\n\n初回利用時に Claude Code は承認を求めます。claude mcp reset-project-choices でリセット可能です。",
+      "code": [
+        {
+          "lang": "json",
+          "label": ".mcp.json の例（環境変数展開）",
+          "value": "{\n  \"mcpServers\": {\n    \"github\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"@modelcontextprotocol/server-github\"],\n      \"env\": {\n        \"GITHUB_TOKEN\": \"${GITHUB_TOKEN}\"\n      }\n    },\n    \"postgres\": {\n      \"command\": \"npx\",\n      \"args\": [\n        \"-y\",\n        \"@modelcontextprotocol/server-postgres\",\n        \"${DATABASE_URL:-postgresql://localhost:5432/dev}\"\n      ]\n    },\n    \"remote-api\": {\n      \"url\": \"${MCP_SERVER_URL}\",\n      \"headers\": {\n        \"Authorization\": \"Bearer ${API_TOKEN}\"\n      }\n    }\n  }\n}",
+          "recommended": true
+        }
+      ],
+      "callouts": [
+        {
+          "type": "important",
+          "text": ".mcp.json を Git にコミットする場合は、API キー等の機密情報を直接書かず、必ず ${ENV_VAR} 形式で参照してください。"
+        }
+      ],
+      "tags": ["上級者向け", "チーム向け"]
+    },
+    {
+      "id": "mcp-manage",
+      "title": "サーバーの管理",
+      "description": "claude mcp list / get / remove コマンドと /mcp でセッション内のステータス確認・認証。",
+      "content": "登録済み MCP サーバーの管理コマンド一覧です。セッション内では /mcp コマンドで接続状態の確認や OAuth 認証を行えます。\n\nlist_changed 通知に対応したサーバーは、ツール定義が動的に更新されます。追加した MCP ツールを claude mcp add-json で JSON 文字列として直接登録することもできます。",
+      "code": [
+        {
+          "lang": "bash",
+          "label": "MCP 管理コマンド一覧",
+          "value": "# サーバー一覧表示\nclaude mcp list\n\n# サーバー詳細確認\nclaude mcp get <server-name>\n\n# サーバー削除\nclaude mcp remove <server-name>\n\n# JSON 文字列で直接追加\nclaude mcp add-json <name> '{\"command\":\"npx\",\"args\":[\"@example/server\"]}'\n\n# Claude Desktop からインポート\nclaude mcp add-from-claude-desktop\n\n# プロジェクト承認をリセット\nclaude mcp reset-project-choices"
+        }
+      ],
+      "callouts": [
+        {
+          "type": "info",
+          "text": "セッション内で /mcp と入力すると、接続中のサーバー一覧と各サーバーの状態を確認できます。OAuth 認証もここで行います。"
+        }
+      ],
+      "tags": ["上級者向け"]
+    },
+    {
+      "id": "mcp-auth",
+      "title": "OAuth 認証",
+      "description": "OAuth 2.0 対応リモートサーバーへの認証。/mcp でブラウザ認証。Dynamic Client Registration 非対応サーバーは事前登録が必要。",
+      "content": "OAuth 2.0 対応のリモート MCP サーバーには、/mcp コマンドでブラウザ認証フローを開始できます。トークンはキーチェーンに安全に保管され、自動でリフレッシュされます。\n\nDynamic Client Registration に対応していないサーバーの場合は、事前にクライアント ID とシークレットを取得して --client-id、--client-secret、--callback-port フラグで指定します。",
+      "code": [
+        {
+          "lang": "bash",
+          "label": "事前登録型 OAuth の設定",
+          "value": "# Dynamic Client Registration 非対応サーバーの場合\nclaude mcp add my-oauth-server \\\n  --transport http \\\n  --url https://mcp.example.com \\\n  --client-id your-client-id \\\n  --client-secret your-client-secret \\\n  --callback-port 3000\n\n# 認証フロー開始（セッション内）\n> /mcp"
+        }
+      ],
+      "callouts": [
+        {
+          "type": "info",
+          "text": "認証トークンは OS のキーチェーンに安全に保管されます。有効期限が切れると自動でリフレッシュされます。"
+        }
+      ],
+      "tags": ["上級者向け"]
+    },
+    {
+      "id": "mcp-toolsearch",
+      "title": "Tool Search",
+      "description": "MCP ツールが多い場合の自動最適化。ツール定義がコンテキストの 10% を超えると自動有効化。ENABLE_TOOL_SEARCH で制御。",
+      "content": "MCP ツールが多数登録されている場合、Tool Search 機能が自動で有効化されます。ツール定義がコンテキストの 10% を超えると起動し、関連するツールのみを動的に検索・ロードします。\n\nENABLE_TOOL_SEARCH 環境変数で制御できます: auto（デフォルト）、auto:N（N トークン超で有効化）、true（常に有効）、false（無効）。\n\nMCP サーバー開発者向け: server instructions を詳細に記述すると Tool Search の精度が向上します。",
+      "code": [
+        {
+          "lang": "bash",
+          "label": "Tool Search の制御",
+          "value": "# auto モード（デフォルト）: 10% 超で自動有効化\nexport ENABLE_TOOL_SEARCH=auto\n\n# 50000 トークン超で有効化\nexport ENABLE_TOOL_SEARCH=auto:50000\n\n# 常に有効\nexport ENABLE_TOOL_SEARCH=true\n\n# 無効化（全ツールを常にロード）\nexport ENABLE_TOOL_SEARCH=false"
+        }
+      ],
+      "callouts": [
+        {
+          "type": "tip",
+          "text": "特定のサーバーで Tool Search を無効にしたい場合は、disallowedTools に MCPSearch を追加してください。"
+        }
+      ],
+      "tags": ["上級者向け"]
+    },
+    {
+      "id": "mcp-serve",
+      "title": "Claude Code を MCP サーバーとして使う",
+      "description": "claude mcp serve で Claude Code 自身を MCP サーバーとして起動。他アプリから Read / Edit / Glob 等を利用できる。",
+      "content": "claude mcp serve コマンドで、Claude Code 自身を MCP サーバーとして起動できます。他のアプリケーション（Claude Desktop など）から Claude Code のビルトインツール（Read、Edit、Glob、Grep など）を利用できるようになります。\n\n実行パスの注意: claude コマンドのフルパスを which claude で確認して指定することを推奨します。",
+      "code": [
+        {
+          "lang": "json",
+          "label": "claude_desktop_config.json の設定例",
+          "value": "{\n  \"mcpServers\": {\n    \"claude-code\": {\n      \"command\": \"/usr/local/bin/claude\",\n      \"args\": [\"mcp\", \"serve\"],\n      \"env\": {\n        \"ANTHROPIC_API_KEY\": \"${ANTHROPIC_API_KEY}\"\n      }\n    }\n  }\n}",
+          "recommended": true
+        },
+        {
+          "lang": "bash",
+          "label": "claude コマンドのパス確認",
+          "value": "# フルパスを確認してから設定に使用\nwhich claude\n# => /usr/local/bin/claude"
+        }
+      ],
+      "callouts": [
+        {
+          "type": "info",
+          "text": "claude mcp serve で提供されるツールは Read, Write, Edit, Glob, Grep, Bash 等です。Claude Desktop から直接ファイル操作が可能になります。"
+        }
+      ],
+      "tags": ["上級者向け"]
+    },
+    {
+      "id": "mcp-managed",
+      "title": "エンタープライズ管理",
+      "description": "managed-mcp.json による排他制御と allowedMcpServers / deniedMcpServers ポリシー。denylist が最優先。",
+      "content": "エンタープライズ環境では 2 つの方法で MCP サーバーを一元管理できます。\n\n方式 1 - managed-mcp.json: 管理者が配置したファイルが排他的に使用されます。ユーザーは独自サーバーを追加できません。\n\n方式 2 - ポリシー制御: allowedMcpServers（許可リスト）と deniedMcpServers（禁止リスト）で細かく制御。denylist が最優先です。",
+      "code": [
+        {
+          "lang": "text",
+          "label": "managed-mcp.json の配置場所",
+          "value": "# macOS\n/Library/Application Support/ClaudeCode/managed-mcp.json\n\n# Linux\n/etc/claude-code/managed-mcp.json"
+        },
+        {
+          "lang": "json",
+          "label": "ポリシー制御の設定例（managed-settings.json）",
+          "value": "{\n  \"allowedMcpServers\": [\n    {\n      \"serverName\": \"company-github\",\n      \"serverCommand\": \"npx @company/github-mcp-server\"\n    }\n  ],\n  \"deniedMcpServers\": [\n    {\n      \"serverUrl\": \"https://untrusted.example.com\"\n    }\n  ]\n}"
+        }
+      ],
+      "callouts": [
+        {
+          "type": "important",
+          "text": "deniedMcpServers は allowedMcpServers より優先されます。セキュリティポリシーとして明示的に禁止するサーバーは denylist に追加してください。"
+        }
+      ],
+      "tags": ["上級者向け", "チーム向け"]
+    },
+    {
+      "id": "mcp-bestpractices",
+      "title": "ベストプラクティス",
+      "description": "MCP_TIMEOUT・MAX_MCP_OUTPUT_TOKENS による調整。--mcp-debug でデバッグ。Windows では cmd /c ラッパーが必要。",
+      "content": "MCP を安定して運用するためのベストプラクティスをまとめます。\n\nタイムアウト: MCP_TIMEOUT 環境変数でサーバー起動のタイムアウトを設定（デフォルト: 10 秒）。\n出力制限: MAX_MCP_OUTPUT_TOKENS でツール出力の最大トークン数を制限（デフォルト: 25000）。\nセキュリティ: サードパーティ MCP サーバーはプロンプトインジェクションのリスクがあります。信頼できるソースのみ使用してください。\nWindows: stdio サーバーは cmd /c ラッパーが必要な場合があります。",
+      "code": [
+        {
+          "lang": "bash",
+          "label": "デバッグと環境変数設定",
+          "value": "# デバッグモードで起動\nclaude --mcp-debug\n\n# タイムアウト設定（ミリ秒）\nexport MCP_TIMEOUT=30000\n\n# 出力トークン制限\nexport MAX_MCP_OUTPUT_TOKENS=50000\n\n# Windows での stdio サーバー設定例\n# \"command\": \"cmd\"\n# \"args\": [\"/c\", \"npx\", \"-y\", \"@example/mcp-server\"]"
+        }
+      ],
+      "callouts": [
+        {
+          "type": "warning",
+          "text": "サードパーティの MCP サーバーはプロンプトインジェクション攻撃のベクターになり得ます。ツール説明が異常に長い・Claude に特定の行動を強制しようとする場合は注意してください。"
+        }
+      ],
+      "tags": ["上級者向け"]
+    }
+  ]
+}

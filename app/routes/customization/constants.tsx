@@ -1,6 +1,8 @@
 import type { Callout } from "~/components/callout-box";
 import type { CodeBlock } from "~/components/code-block-view";
-import customizationData from "~/data/customization/customization.json";
+import skillsTab from "~/data/customization/customization-skills.json";
+import mcpTab from "~/data/customization/customization-mcp.json";
+import hooksTab from "~/data/customization/customization-hooks.json";
 
 export interface CustomizationItem {
   id: string;
@@ -19,7 +21,7 @@ export interface CustomizationTab {
   items: CustomizationItem[];
 }
 
-export const TABS = customizationData.tabs as CustomizationTab[];
+export const TABS = [skillsTab, mcpTab, hooksTab] as CustomizationTab[];
 
 export const TOTAL_ITEMS = TABS.reduce((sum, t) => sum + t.items.length, 0);
 

@@ -1,0 +1,232 @@
+{
+  "id": "skills",
+  "name": "スキル",
+  "description": "SKILL.md ファイルで Claude Code にカスタムコマンドと独自の振る舞いを追加する",
+  "items": [
+    {
+      "id": "skills-overview",
+      "title": "スキルとは",
+      "description": "Claude Code に独自の機能を追加する Agent Skills オープン標準。SKILL.md ファイルを配置するだけで /スキル名 として呼び出せる。",
+      "content": "スキルは Claude Code に独自のスラッシュコマンドと動作を追加するための仕組みです。Agent Skills オープン標準に準拠しており、SKILL.md ファイルを特定のディレクトリに配置するだけで動作します。\n\nユーザーが /スキル名 と入力するか、Claude が関連するスキルを自動で検出・読み込んで実行します。スキルはプロジェクト固有のワークフロー、チームの作業手順、繰り返し使う指示のテンプレート化に最適です。",
+      "code": [
+        {
+          "lang": "markdown",
+          "label": "最小限の SKILL.md（.claude/skills/greet/SKILL.md）",
+          "value": "---\nname: greet\ndescription: ユーザーを名前で挨拶する\n---\n\n$ARGUMENTS に含まれる名前を使って、日本語で丁寧に挨拶してください。",
+          "recommended": true
+        }
+      ],
+      "callouts": [
+        {
+          "type": "info",
+          "text": "Claude はセッション内で関連するスキルを自動で検出し、コンテキストに応じて読み込みます。ユーザーが明示的に /スキル名 で呼び出すことも可能です。"
+        }
+      ],
+      "tags": ["上級者向け"]
+    },
+    {
+      "id": "skills-placement",
+      "title": "スキルの配置場所",
+      "description": "4 つのスコープ（Enterprise > Personal > Project > Plugin）で管理。同名スキルは Enterprise が最優先。",
+      "content": "スキルは 4 つのスコープで配置でき、優先度は Enterprise > Personal > Project > Plugin の順です。同名スキルが複数存在する場合、より上位のスコープが使われます。\n\nモノレポ環境では、サブディレクトリの .claude/skills/ も自動で検出されます。--add-dir フラグで追加ディレクトリを指定することもできます。\n\n後方互換として .claude/commands/ も引き続き有効です。",
+      "code": [
+        {
+          "lang": "text",
+          "label": "スコープ別の配置パス",
+          "value": "# Enterprise スコープ（管理ポリシー）\n/Library/Application Support/ClaudeCode/skills/  # macOS\n/etc/claude-code/skills/                        # Linux\n\n# Personal スコープ（全プロジェクト共通）\n~/.claude/skills/<スキル名>/SKILL.md\n\n# Project スコープ（プロジェクト固有）\n.claude/skills/<スキル名>/SKILL.md\n\n# Plugin スコープ（プラグイン経由）\n# プラグインの skills/ ディレクトリ"
+        }
+      ],
+      "callouts": [
+        {
+          "type": "tip",
+          "text": "チーム全体で使うスキルは ~/.claude/skills/ に、プロジェクト固有のものは .claude/skills/ に配置し、.gitignore を使い分けてください。"
+        }
+      ],
+      "tags": ["上級者向け", "チーム向け"]
+    },
+    {
+      "id": "skills-create",
+      "title": "SKILL.md の書き方",
+      "description": "YAML フロントマター + Markdown 本文の 2 部構成。name は 64 文字以内、description は Claude がトリガー判断に使用。",
+      "content": "SKILL.md は YAML フロントマターと Markdown 本文の 2 部構成です。フロントマターには name（省略時はディレクトリ名、64 文字以内、小文字英数字とハイフンのみ）と description（1024 文字以内）を記述します。\n\n本文が Claude への指示内容になります。リファレンス型（知識・規約を提供）とタスク型（手順を実行させる）の 2 パターンがあります。",
+      "code": [
+        {
+          "lang": "markdown",
+          "label": "タスク型スキル（.claude/skills/review/SKILL.md）",
+          "value": "---\nname: review\ndescription: コードレビューを実行する。git diff の内容を確認し、コーディング規約・セキュリティ・テストカバレッジを評価する\n---\n\n以下の手順でコードレビューを行ってください:\n\n1. `git diff HEAD` で変更内容を確認する\n2. コーディング規約への準拠を確認する\n3. セキュリティ上の問題がないか確認する\n4. テストが十分か確認する\n5. 改善提案をリストアップする",
+          "recommended": true
+        },
+        {
+          "lang": "markdown",
+          "label": "リファレンス型スキル（~/.claude/skills/team-guide/SKILL.md）",
+          "value": "---\nname: team-guide\ndescription: チームのコーディング規約と開発ガイドラインを参照する\nuser-invocable: false\n---\n\n# チーム開発ガイドライン\n\n- コミットメッセージ: Conventional Commits 形式\n- ブランチ名: feature/, fix/, docs/ プレフィックス\n- PR: 必ず 1 名以上のレビュアーを指定する\n- テスト: カバレッジ 80% 以上を維持する"
+        }
+      ],
+      "callouts": [
+        {
+          "type": "info",
+          "text": "description フィールドに具体的なキーワードを含めると、Claude がスキルを自動で検出しやすくなります。"
+        }
+      ],
+      "tags": ["上級者向け"]
+    },
+    {
+      "id": "skills-frontmatter",
+      "title": "フロントマター全フィールド",
+      "description": "name, description, argument-hint, user-invocable, disable-model-invocation, allowed-tools, model, context, agent, hooks の全 10 フィールドの仕様。",
+      "content": "SKILL.md のフロントマターで指定できる全フィールドの一覧です。フィールド名はハイフン区切りです（アンダースコアではありません）。\n\n呼び出し制御の 3 パターン:\n- デフォルト: ユーザーも Claude も呼び出し可能\n- disable-model-invocation: true → ユーザーのみ（デプロイ等の副作用あるスキル向け）\n- user-invocable: false → Claude のみ（バックグラウンド知識向け）",
+      "code": [
+        {
+          "lang": "yaml",
+          "label": "全フィールドのリファレンス",
+          "value": "---\n# 基本情報\nname: my-skill              # スキル名（64文字以内、小文字英数字+ハイフン）\ndescription: スキルの説明    # Claude のトリガー判断に使用（1024文字以内）\nargument-hint: \"[引数の説明]\" # /スキル名 の引数ヒント\n\n# 呼び出し制御\nuser-invocable: true         # false: Claude のみが呼び出し可能\ndisable-model-invocation: false # true: ユーザーのみが呼び出し可能\n\n# ツール制限\nallowed-tools:               # このスキル内で使用可能なツール\n  - Bash\n  - Read\n  - Edit\n\n# 実行設定\nmodel: claude-sonnet-4-5    # 使用モデル（省略時はセッションのモデル）\ncontext: fork                # fork: サブエージェントとして実行\nagent: Explore               # 使用するエージェントタイプ\n\n# フック（スキル内のライフサイクル）\nhooks: {}                    # スキル固有のフック設定\n---"
+        }
+      ],
+      "callouts": [
+        {
+          "type": "important",
+          "text": "フィールド名はハイフン区切り（user-invocable, disable-model-invocation）です。アンダースコアは無効です。"
+        }
+      ],
+      "tags": ["上級者向け"]
+    },
+    {
+      "id": "skills-arguments",
+      "title": "引数の受け渡し",
+      "description": "$ARGUMENTS プレースホルダーでユーザー入力をスキルに渡す。インデックスアクセスや環境変数も利用可能。",
+      "content": "スキルはユーザーからの引数を $ARGUMENTS プレースホルダーで受け取れます。インデックスアクセス（$ARGUMENTS[0] または $1）で個別の引数を参照することもできます。\n\n$ARGUMENTS が本文にない場合、引数は自動的に末尾に追加されます。また、${CLAUDE_SESSION_ID} などのセッション変数も利用できます。",
+      "code": [
+        {
+          "lang": "markdown",
+          "label": "複数引数を使うスキル（.claude/skills/migrate/SKILL.md）",
+          "value": "---\nname: migrate\ndescription: コンポーネントを移行する。引数: [コンポーネント名] [移行先ディレクトリ]\nargument-hint: \"[component-name] [target-dir]\"\n---\n\n以下のコンポーネントを移行してください:\n- コンポーネント名: $ARGUMENTS[0]\n- 移行先: $ARGUMENTS[1]\n\n手順:\n1. 元のファイルを $ARGUMENTS[1] にコピーする\n2. import パスを更新する\n3. 旧ファイルを削除する\n4. テストを実行して動作確認する",
+          "recommended": true
+        },
+        {
+          "lang": "bash",
+          "label": "呼び出し例",
+          "value": "# セッション内で引数付き呼び出し\n> /migrate Button src/components/ui\n\n# $ARGUMENTS[0] = \"Button\"\n# $ARGUMENTS[1] = \"src/components/ui\""
+        }
+      ],
+      "callouts": [
+        {
+          "type": "tip",
+          "text": "${CLAUDE_SESSION_ID} で現在のセッション ID を取得できます。非同期処理や外部ツールとの連携に活用できます。"
+        }
+      ],
+      "tags": ["上級者向け"]
+    },
+    {
+      "id": "skills-invocation",
+      "title": "呼び出し制御",
+      "description": "disable-model-invocation でデプロイ等の副作用スキルをユーザー専用に。user-invocable: false で Claude 専用知識に。",
+      "content": "スキルの呼び出し元を制御することで、副作用のある操作を安全に管理できます。\n\ndisable-model-invocation: true を設定すると、Claude がそのスキルを自律的に呼び出せなくなります。ユーザーが明示的に /スキル名 と入力した場合のみ実行されます。デプロイやデータベース操作など、慎重を要するスキルに適しています。\n\nuser-invocable: false はその逆で、ユーザーが /スキル名 で呼び出せず、Claude のみが内部的に参照します。バックグラウンド知識やコンテキスト提供に適しています。",
+      "code": [
+        {
+          "lang": "yaml",
+          "label": "ユーザー専用スキル（副作用あり）",
+          "value": "---\nname: deploy\ndescription: 本番環境にデプロイする\ndisable-model-invocation: true\nallowed-tools:\n  - Bash\n---\n\n本番環境へのデプロイを実行します。\n\n1. `pnpm run build` でビルドを確認\n2. `git push origin main` でコードをプッシュ\n3. デプロイスクリプトを実行: `./scripts/deploy.sh`"
+        },
+        {
+          "lang": "yaml",
+          "label": "Claude 専用知識スキル",
+          "value": "---\nname: api-conventions\ndescription: このプロジェクトの API 設計規約と命名ルール\nuser-invocable: false\n---\n\n# API 設計規約\n\n- エンドポイントは RESTful 設計に従う\n- レスポンスは { data, error, meta } の構造\n- エラーコードは HTTP ステータスコードと一致させる"
+        }
+      ],
+      "callouts": [
+        {
+          "type": "warning",
+          "text": "disable-model-invocation と user-invocable: false を同時に設定すると、誰も呼び出せなくなります。"
+        }
+      ],
+      "tags": ["上級者向け", "チーム向け"]
+    },
+    {
+      "id": "skills-subagent",
+      "title": "サブエージェント実行",
+      "description": "context: fork でサブエージェントとして独立実行。agent フィールドで Explore / Plan / general-purpose 等を指定。",
+      "content": "context: fork を設定すると、スキルはメインの会話から独立したサブエージェントとして実行されます。会話履歴にアクセスせず、独立したコンテキストで動作します。\n\nagent フィールドで実行エージェントの種類を指定できます: Explore（リサーチ特化）、Plan（設計特化）、general-purpose（汎用）、またはカスタムエージェント名。\n\nmodel フィールドでサブエージェントが使用するモデルを個別に指定することも可能です。",
+      "code": [
+        {
+          "lang": "markdown",
+          "label": "Explore エージェントでリサーチするスキル",
+          "value": "---\nname: research\ndescription: コードベースをリサーチして依存関係の分析レポートを生成する\ncontext: fork\nagent: Explore\nmodel: claude-haiku-4-5-20251001\n---\n\n以下のコードベース分析を実施してください:\n\n1. package.json の依存関係を確認する\n2. 各主要ライブラリの用途を特定する\n3. セキュリティ上の懸念がある依存関係を検出する\n4. アップデート推奨パッケージをリストアップする\n\n結果をマークダウン形式でまとめてください。",
+          "recommended": true
+        }
+      ],
+      "callouts": [
+        {
+          "type": "info",
+          "text": "サブエージェントは独立した会話コンテキストで実行されるため、メインセッションの履歴は参照されません。長時間タスクや重い分析に適しています。"
+        }
+      ],
+      "tags": ["上級者向け"]
+    },
+    {
+      "id": "skills-dynamic",
+      "title": "動的コンテキスト注入",
+      "description": "!`command` 構文でシェルコマンドの実行結果をスキルに注入。Claude に届く前に前処理として実行される。",
+      "content": "SKILL.md 本文内で `` !`command` `` 構文を使うと、スキル呼び出し時にシェルコマンドが実行され、その結果が本文に展開されてから Claude に渡されます。\n\nClaude が受け取るのは展開後のテキストのみです。動的な情報（PR の差分、現在の git 状態、環境情報など）をスキル実行時に自動で取得する際に便利です。",
+      "code": [
+        {
+          "lang": "markdown",
+          "label": "PR 情報を動的注入するスキル（.claude/skills/pr-summary/SKILL.md）",
+          "value": "---\nname: pr-summary\ndescription: 現在の PR の差分を要約する\n---\n\n以下の PR 差分を日本語で要約し、変更の目的・影響範囲・注意点をまとめてください:\n\n```diff\n!`gh pr diff`\n```\n\n現在のブランチ: !`git branch --show-current`",
+          "recommended": true
+        }
+      ],
+      "callouts": [
+        {
+          "type": "warning",
+          "text": "!`command` 構文はシェルで実行されます。信頼できるコマンドのみ使用し、ユーザー入力を直接コマンドに渡さないでください。"
+        }
+      ],
+      "tags": ["上級者向け"]
+    },
+    {
+      "id": "skills-files",
+      "title": "サポートファイルの活用",
+      "description": "SKILL.md は 500 行以内推奨。詳細なリファレンスは reference.md 等に分離してリンクで参照。",
+      "content": "スキルはディレクトリ構造を活用して、メインの SKILL.md と補助ファイルを分けて管理できます。SKILL.md は 500 行以内を推奨し、詳細な仕様や大きなコード例は別ファイルに分離して SKILL.md からリンクで参照します。\n\nスクリプトファイルを scripts/ サブディレクトリに置くことも可能です。",
+      "code": [
+        {
+          "lang": "text",
+          "label": "スキルのディレクトリ構成例",
+          "value": ".claude/skills/codebase-visualizer/\n├── SKILL.md           # メインファイル（Claude への指示）\n├── reference.md       # 詳細な仕様リファレンス\n├── examples.md        # コード例集\n└── scripts/\n    └── generate.py    # ヘルパースクリプト"
+        },
+        {
+          "lang": "markdown",
+          "label": "別ファイルを参照する SKILL.md",
+          "value": "---\nname: codebase-visualizer\ndescription: コードベースの依存関係グラフを生成する\n---\n\nコードベースの依存関係を分析して可視化します。\n\n詳細な仕様は [reference.md](reference.md) を参照してください。\nコード例は [examples.md](examples.md) を参照してください。\n\n処理手順:\n1. scripts/generate.py を実行してグラフデータを収集\n2. D3.js 形式の JSON を生成\n3. 結果を依存関係.md として保存"
+        }
+      ],
+      "callouts": [
+        {
+          "type": "tip",
+          "text": "SKILL.md が長くなると Claude のコンテキスト消費が増えます。500 行を超える場合は reference.md 等に分割することを推奨します。"
+        }
+      ],
+      "tags": ["上級者向け", "チーム向け"]
+    },
+    {
+      "id": "skills-bestpractices",
+      "title": "ベストプラクティス",
+      "description": "description にキーワードを含める。スキルが多い場合のバジェット管理。スキルが発火しない・しすぎる場合の対処法。",
+      "content": "スキルを効果的に使うためのベストプラクティスをまとめます。\n\ndescription フィールドには具体的なキーワードを含めると、Claude が自動でスキルを検出・発火させやすくなります。\n\nスキルが多すぎる場合、コンテキストの 2% というバジェット制限があります。/context コマンドで除外されているスキルを確認でき、SLASH_COMMAND_TOOL_CHAR_BUDGET 環境変数で上限を変更できます。",
+      "code": [
+        {
+          "lang": "bash",
+          "label": "スキルのデバッグとバジェット確認",
+          "value": "# セッション内でコンテキスト使用状況を確認\n> /context\n\n# バジェット上限を変更（デフォルト: コンテキストの 2%）\nexport SLASH_COMMAND_TOOL_CHAR_BUDGET=50000\n\n# スキルが発火しない場合: description を改善する\n# スキルが多すぎる場合: バジェットを増やすか、スキルを整理する"
+        }
+      ],
+      "callouts": [
+        {
+          "type": "tip",
+          "text": "description に「〜する時」「〜が必要な場合」などのトリガーキーワードを含めると、Claude がより正確にスキルを判断できます。"
+        }
+      ],
+      "tags": ["上級者向け"]
+    }
+  ]
+}

@@ -25,8 +25,11 @@ Claude Code のリリースノートを日本語で閲覧できる Web アプリ
 `https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md` (英語の元データ) → `app/data/releases/` (日本語に翻訳済みの JSON) → `app/routes/release-note/` (表示)
 
 - データファイルはページ単位のディレクトリで管理: `app/data/{ページ名}/`
-- リリースデータはバージョン範囲ごとに分割: `releases-2.0.x.json`, `releases-2.1.x.json`
-- 詳細データも同様: `version-details-2.1.x.json`
+- リリースデータはバージョン範囲ごとに分割（10刻み）:
+  - `releases-2.0.x.json` (凍結済み)
+  - `releases-2.1.0x.json` (v2.1.0〜2.1.9), `releases-2.1.1x.json` (v2.1.10〜2.1.19), ...
+  - すべてのリリースファイルは `app/data/releases/index.ts` で結合・エクスポート
+- 詳細データも10刻みで分割: `version-details-2.1.2x.json`, `version-details-2.1.3x.json`, ...
 - 各アイテムは `t` (テキスト) と `tags` (カテゴリタグ配列) を持つ
 - **一覧データ（releases-*.json）と詳細データ（version-details-*.json）は同じタグ体系を使用すること**
 - タグは2軸構造（全12種類）:
@@ -48,6 +51,15 @@ Claude Code のリリースノートを日本語で閲覧できる Web アプリ
 ### パスエイリアス
 
 `~/` は `./app/` にマッピング (`tsconfig.json` の paths + vite-tsconfig-paths)
+
+### 新バージョン追加時の手順
+
+1. 該当する10刻みの `releases-2.1.Nx.json` にバージョンデータを追加
+2. 詳細データがある場合は `version-details-2.1.Nx.json` にも追加
+3. 新しい10刻みが必要な場合（例: v2.1.50〜）は新ファイルを作成し `app/data/releases/index.ts` にインポートを1行追加
+4. コード（`constants.tsx`）の変更は基本不要
+
+**ファイルサイズの目安**: JSONファイルは50KB以下を維持すること
 
 ## 作業ルール
 

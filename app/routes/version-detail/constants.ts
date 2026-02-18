@@ -1,6 +1,4 @@
-import releases20x from "~/data/releases/releases-2.0.x.json";
-import releases21x from "~/data/releases/releases-2.1.x.json";
-import versionDetails21x from "~/data/releases/version-details-2.1.x.json";
+import { RELEASES, VERSION_DETAILS as VERSION_DETAILS_DATA } from "~/data/releases";
 
 export interface ReleaseItem {
   t: string;
@@ -14,10 +12,8 @@ export interface DetailItem {
   category: string;
 }
 
-export const RELEASES = [...releases20x, ...releases21x].reverse();
-export const VERSION_DETAILS: Record<string, DetailItem[]> = {
-  ...versionDetails21x,
-};
+export { RELEASES };
+export const VERSION_DETAILS: Record<string, DetailItem[]> = VERSION_DETAILS_DATA as Record<string, DetailItem[]>;
 
 export function getAdjacentVersions(version: string): { prev: string | null; next: string | null } {
   const idx = RELEASES.findIndex((r) => r.v === version);

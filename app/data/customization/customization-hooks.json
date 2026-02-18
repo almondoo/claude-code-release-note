@@ -1,0 +1,263 @@
+{
+  "id": "hooks",
+  "name": "フック",
+  "description": "ライフサイクルイベントにカスタム処理を挿入してワークフローを自動化する",
+  "items": [
+    {
+      "id": "hooks-overview",
+      "title": "フックとは",
+      "description": "ツール実行前後・セッション開始終了等 14 種のイベントにカスタム処理を挿入。command / prompt / agent の 3 タイプ。",
+      "content": "フックは Claude Code のライフサイクルイベントにカスタム処理を挿入する機能です。3 つのタイプがあります:\n\n- command: シェルコマンドを実行（最も一般的）\n- prompt: LLM に yes/no 判定を委任\n- agent: サブエージェントで検証\n\n主な活用場面:\n- ファイル保存のたびに prettier / ESLint を自動実行\n- 危険なコマンド（rm -rf など）を実行前にブロック\n- タスク完了時に OS 通知・Slack 通知を送る\n- セッション開始時にコンテキストを注入",
+      "code": [
+        {
+          "lang": "text",
+          "label": "利用可能な 14 種のフックイベント",
+          "value": "# ツール系\nPreToolUse         # ツール実行直前（ブロック可能）\nPostToolUse        # ツール実行直後\nPostToolUseFailure # ツール実行失敗後\nPermissionRequest  # 権限確認時（ブロック可能）\n\n# セッション系\nSessionStart       # セッション開始時\nSessionEnd         # セッション終了時\nUserPromptSubmit   # ユーザー入力送信時（ブロック可能）\nStop               # Claude が応答完了時（ブロック可能）\n\n# エージェント系\nSubagentStart      # サブエージェント開始時\nSubagentStop       # サブエージェント終了時\nTeammateIdle       # チームメート待機状態\nTaskCompleted      # タスク完了時\n\n# 通知系\nNotification       # Claude から通知があった時"
+        }
+      ],
+      "callouts": [
+        {
+          "type": "info",
+          "text": "フックは .claude/settings.json（プロジェクトスコープ）または ~/.claude/settings.json（ユーザースコープ）で設定します。"
+        }
+      ],
+      "tags": ["上級者向け"]
+    },
+    {
+      "id": "hooks-config",
+      "title": "設定ファイルと構成",
+      "description": "3 層のネスト構造（イベント → マッチャーグループ → ハンドラー）。6 種の設定場所でスコープを使い分け。",
+      "content": "フックの設定は 3 層のネスト構造になっています:\n1. イベント名（PreToolUse, PostToolUse 等）\n2. マッチャーグループ（どのツールに発火するか）\n3. ハンドラー（実行するコマンド等）\n\n設定可能な 6 つの場所（スコープ）:\n- ~/.claude/settings.json（ユーザーグローバル）\n- .claude/settings.json（プロジェクト共有）\n- .claude/settings.local.json（プロジェクトローカル、非共有）\n- 管理ポリシー\n- Plugin hooks/hooks.json\n- スキル・エージェントのフロントマター",
+      "code": [
+        {
+          "lang": "json",
+          "label": ".claude/settings.json の基本構造",
+          "value": "{\n  \"hooks\": {\n    \"PreToolUse\": [\n      {\n        \"matcher\": \"Bash\",\n        \"hooks\": [\n          {\n            \"type\": \"command\",\n            \"command\": \"echo 'Bash 実行前'\",\n            \"timeout\": 10\n          }\n        ]\n      }\n    ],\n    \"PostToolUse\": [\n      {\n        \"matcher\": \"Write|Edit\",\n        \"hooks\": [\n          {\n            \"type\": \"command\",\n            \"command\": \"npx prettier --write $CLAUDE_FILE_PATH\"\n          }\n        ]\n      }\n    ]\n  }\n}",
+          "recommended": true
+        }
+      ],
+      "callouts": [
+        {
+          "type": "tip",
+          "text": "プロジェクト固有でチームに共有しないフックは .claude/settings.local.json（.gitignore に追加済み）に書くと安全です。"
+        }
+      ],
+      "tags": ["上級者向け"]
+    },
+    {
+      "id": "hooks-matchers",
+      "title": "マッチャーパターン",
+      "description": "正規表現でツール名をマッチ。MCP ツールは mcp__server__tool パターン。\"*\" / \"\" / 省略で全マッチ。",
+      "content": "matcher フィールドでどのツール・イベントに発火するかを正規表現で指定します。\n\n基本パターン:\n- 単一ツール: \"Bash\"\n- 複数ツール（OR）: \"Edit|Write\"\n- 全ツール: \"*\" または \"\" または省略\n- MCP ツール: \"mcp__server__tool\" または \"mcp__.*\"\n\nPreToolUse のマッチ対象: Bash, Edit, Write, Read, Glob, Grep, Task, WebFetch, WebSearch + MCP ツール",
+      "code": [
+        {
+          "lang": "json",
+          "label": "マッチャーパターンの例",
+          "value": "{\n  \"hooks\": {\n    \"PreToolUse\": [\n      {\n        \"matcher\": \"Bash\",\n        \"hooks\": [{ \"type\": \"command\", \"command\": \"./check-bash.sh\" }]\n      },\n      {\n        \"matcher\": \"Edit|Write\",\n        \"hooks\": [{ \"type\": \"command\", \"command\": \"./validate-file.sh\" }]\n      },\n      {\n        \"matcher\": \"mcp__github__.*\",\n        \"hooks\": [{ \"type\": \"command\", \"command\": \"./log-mcp-github.sh\" }]\n      },\n      {\n        \"matcher\": \"\",\n        \"hooks\": [{ \"type\": \"command\", \"command\": \"./log-all-tools.sh\" }]\n      }\n    ]\n  }\n}"
+        }
+      ],
+      "callouts": [
+        {
+          "type": "info",
+          "text": "MCP ツール名のパターンは mcp__サーバー名__ツール名 です。例: mcp__github__create_issue"
+        }
+      ],
+      "tags": ["上級者向け"]
+    },
+    {
+      "id": "hooks-command",
+      "title": "コマンド型フック",
+      "description": "type: command でシェルコマンドを実行。stdin で JSON 入力を受信。$CLAUDE_PROJECT_DIR 等のパス変数が使える。",
+      "content": "最も一般的なフックタイプです。type: \"command\" でシェルコマンドを実行します。\n\n共通フィールド:\n- type: \"command\"（必須）\n- command: 実行するコマンド\n- timeout: タイムアウト秒数\n- statusMessage: Claude に表示するメッセージ\n- once: true で 1 セッションに 1 回のみ実行\n- async: true でバックグラウンド実行\n\nフックは stdin から JSON 形式のイベントデータを受け取ります。環境変数 $CLAUDE_PROJECT_DIR、${CLAUDE_PLUGIN_ROOT} 等でパスを参照できます。",
+      "code": [
+        {
+          "lang": "json",
+          "label": "ファイル変更後に自動 lint",
+          "value": "{\n  \"hooks\": {\n    \"PostToolUse\": [\n      {\n        \"matcher\": \"Write|Edit\",\n        \"hooks\": [\n          {\n            \"type\": \"command\",\n            \"command\": \"cd $CLAUDE_PROJECT_DIR && npx eslint --fix $CLAUDE_FILE_PATH 2>&1\",\n            \"timeout\": 30,\n            \"statusMessage\": \"ESLint を実行中...\"\n          }\n        ]\n      }\n    ]\n  }\n}",
+          "recommended": true
+        }
+      ],
+      "callouts": [
+        {
+          "type": "info",
+          "text": "$CLAUDE_FILE_PATH は編集されたファイルのパス、$CLAUDE_PROJECT_DIR はプロジェクトルートのパスです。"
+        }
+      ],
+      "tags": ["上級者向け"]
+    },
+    {
+      "id": "hooks-exitcodes",
+      "title": "終了コードと出力制御",
+      "description": "exit 0: 成功。exit 2: ブロック（stderr が Claude へのフィードバック）。JSON で continue / stopReason / suppressOutput を制御。",
+      "content": "フックの終了コードで Claude の動作を制御できます。\n\nexit 0: 成功。stdout の JSON を処理（continue, stopReason, systemMessage, suppressOutput）。\nexit 2: ブロック。stderr の内容が Claude またはユーザーへのフィードバックとして返されます。\nその他: 非ブロッキングエラー（警告として扱われる）。\n\nブロック可能なイベント: PreToolUse, PermissionRequest, UserPromptSubmit, Stop\nブロック不可能なイベント: PostToolUse, Notification, SessionStart, SessionEnd",
+      "code": [
+        {
+          "lang": "bash",
+          "label": "終了コードと JSON 出力の例",
+          "value": "#!/bin/bash\n# PreToolUse フック: rm -rf をブロック\n\nINPUT=$(cat)  # stdin から JSON を読む\nCOMMAND=$(echo \"$INPUT\" | jq -r '.tool_input.command // \"\"')\n\nif echo \"$COMMAND\" | grep -qE 'rm\\s+-rf'; then\n  echo 'rm -rf は危険なため実行をブロックしました' >&2\n  exit 2  # ブロック\nfi\n\n# 追加コンテキストを Claude に提供（exit 0）\necho '{\"additionalContext\": \"コマンドは安全です\"}'\nexit 0",
+          "recommended": true
+        }
+      ],
+      "callouts": [
+        {
+          "type": "tip",
+          "text": "exit 2 のメッセージは stderr に書いてください。stdout は JSON として解釈されます。"
+        }
+      ],
+      "tags": ["上級者向け"]
+    },
+    {
+      "id": "hooks-pretooluse",
+      "title": "PreToolUse の詳細",
+      "description": "ツール実行直前に発火。permissionDecision で allow/deny/ask、updatedInput で入力を修正、additionalContext でコンテキスト注入。",
+      "content": "PreToolUse は各ツール実行の直前に発火します。JSON 出力で細かい制御が可能です。\n\nhookSpecificOutput の決定制御:\n- permissionDecision: \"allow\"（許可）、\"deny\"（拒否）、\"ask\"（ユーザー確認）\n- permissionDecisionReason: 理由テキスト\n- updatedInput: ツールへの入力を上書き修正する\n- additionalContext: Claude へ追加コンテキストを注入\n\nstdin の JSON スキーマ:\n- tool_name: ツール名\n- tool_input: ツールへの入力（Bash なら command フィールド等）",
+      "code": [
+        {
+          "lang": "bash",
+          "label": "rm -rf をブロックする PreToolUse フック",
+          "value": "#!/bin/bash\n# .claude/hooks/check-dangerous.sh\n\nINPUT=$(cat)\nTOOL=$(echo \"$INPUT\" | jq -r '.tool_name')\nCMD=$(echo \"$INPUT\" | jq -r '.tool_input.command // \"\"')\n\nif [ \"$TOOL\" = \"Bash\" ] && echo \"$CMD\" | grep -qE 'rm\\s+-rf\\s+/'  ; then\n  echo '/ ルートへの rm -rf は禁止されています' >&2\n  exit 2\nfi\n\nexit 0",
+          "recommended": true
+        },
+        {
+          "lang": "json",
+          "label": "updatedInput でコマンドを修正する例（JSON 出力）",
+          "value": "{\n  \"hookSpecificOutput\": {\n    \"permissionDecision\": \"allow\",\n    \"updatedInput\": {\n      \"command\": \"ls -la --color=auto\"\n    },\n    \"additionalContext\": \"ls コマンドに --color=auto を追加しました\"\n  }\n}"
+        }
+      ],
+      "callouts": [
+        {
+          "type": "warning",
+          "text": "updatedInput を使う場合は、ツールの入力スキーマに準拠した形式で指定してください。不正な入力はエラーになります。"
+        }
+      ],
+      "tags": ["上級者向け"]
+    },
+    {
+      "id": "hooks-posttooluse",
+      "title": "PostToolUse の詳細",
+      "description": "ツール成功後に発火。tool_input + tool_response を受信。decision: block でフィードバック。MCP 出力の差し替えも可能。",
+      "content": "PostToolUse はツールが成功した後に発火します。tool_input（ツールへの入力）と tool_response（ツールの出力）の両方を受信できます。\n\ndecision: \"block\" を JSON 出力に含めると、Claude にフィードバックを返しつつ次の処理をブロックできます。\n\nPostToolUseFailure はツールがエラーになった時に発火します。error フィールドでエラー内容を取得できます。\n\nudpatedMCPToolOutput: MCP ツールの出力を差し替えることができます（MCP ツールの PostToolUse のみ）。",
+      "code": [
+        {
+          "lang": "bash",
+          "label": "ファイル編集後の自動フォーマット",
+          "value": "#!/bin/bash\n# PostToolUse: Write/Edit 後に prettier を実行\n\nINPUT=$(cat)\nTOOL=$(echo \"$INPUT\" | jq -r '.tool_name')\nFILE=$(echo \"$INPUT\" | jq -r '.tool_input.file_path // .tool_input.path // \"\"')\n\nif [ \"$TOOL\" = \"Write\" ] || [ \"$TOOL\" = \"Edit\" ]; then\n  if [ -n \"$FILE\" ] && [[ \"$FILE\" =~ \\.(ts|tsx|js|jsx|json|css|md)$ ]]; then\n    npx prettier --write \"$FILE\" 2>/dev/null\n  fi\nfi\n\nexit 0"
+        }
+      ],
+      "callouts": [
+        {
+          "type": "info",
+          "text": "PostToolUse は exit 2 でもブロック可能ですが、ツールはすでに実行済みです。フィードバックとして使い、ツール自体をブロックしたい場合は PreToolUse を使ってください。"
+        }
+      ],
+      "tags": ["上級者向け"]
+    },
+    {
+      "id": "hooks-session",
+      "title": "セッション系イベント",
+      "description": "SessionStart で初期コンテキスト注入。UserPromptSubmit でユーザー入力をブロック・加工。SessionEnd でクリーンアップ。",
+      "content": "セッションのライフサイクルに対応するイベントです。\n\nSessionStart: セッション開始時に発火。source フィールドで起動方法（startup/resume/clear/compact）を確認できます。additionalContext で初期コンテキストを注入可能。CLAUDE_ENV_FILE 環境変数で環境変数ファイルを指定して永続化できます。\n\nUserPromptSubmit: ユーザーがメッセージを送信した時に発火。ブロック可能。prompt フィールドで入力内容を確認できます。\n\nSessionEnd: セッション終了時に発火。reason フィールドで終了理由（clear/logout/prompt_input_exit/other）を確認できます。クリーンアップ処理に使います。",
+      "code": [
+        {
+          "lang": "bash",
+          "label": "SessionStart でコンテキストを注入",
+          "value": "#!/bin/bash\n# SessionStart フック: 環境情報を自動注入\n\nDATE=$(date '+%Y-%m-%d %H:%M')\nBRANCH=$(git branch --show-current 2>/dev/null || echo 'N/A')\nGIT_STATUS=$(git status --short 2>/dev/null | head -5 || echo '')\n\necho \"{\n  \\\"additionalContext\\\": \\\"現在の日時: $DATE\\\\nブランチ: $BRANCH\\\\n変更ファイル:\\\\n$GIT_STATUS\\\"\n}\"\nexit 0"
+        }
+      ],
+      "callouts": [
+        {
+          "type": "tip",
+          "text": "CLAUDE_ENV_FILE=/path/to/.env を SessionStart フックで設定すると、環境変数をセッション全体で永続化できます。"
+        }
+      ],
+      "tags": ["上級者向け"]
+    },
+    {
+      "id": "hooks-agent-events",
+      "title": "エージェント系イベント",
+      "description": "SubagentStart / SubagentStop / TeammateIdle / TaskCompleted でマルチエージェント実行を制御。",
+      "content": "マルチエージェント環境でのライフサイクルを制御するイベントです。\n\nSubagentStart: サブエージェント開始時。agent_id, agent_type を受信。additionalContext でコンテキスト注入可能。\n\nSubagentStop: サブエージェント終了時。agent_transcript_path でトランスクリプトを取得できます。\n\nTeammateIdle: チームメートが待機状態になった時。exit 2 で追加作業の指示を返せます。\n\nTaskCompleted: タスクが完了した時。task_id, task_subject を受信。exit 2 でタスク完了をブロックできます。",
+      "code": [
+        {
+          "lang": "bash",
+          "label": "SubagentStop でトランスクリプトをログ保存",
+          "value": "#!/bin/bash\n# SubagentStop: サブエージェントのトランスクリプトを保存\n\nINPUT=$(cat)\nAGENT_ID=$(echo \"$INPUT\" | jq -r '.agent_id')\nTRANSCRIPT=$(echo \"$INPUT\" | jq -r '.agent_transcript_path // \"\"')\n\nif [ -n \"$TRANSCRIPT\" ] && [ -f \"$TRANSCRIPT\" ]; then\n  mkdir -p .claude/logs\n  cp \"$TRANSCRIPT\" \".claude/logs/agent-${AGENT_ID}.jsonl\"\nfi\n\nexit 0"
+        }
+      ],
+      "callouts": [
+        {
+          "type": "info",
+          "text": "TeammateIdle フックで exit 2 を返すと、チームメートへのメッセージとして stderr の内容が送信されます。"
+        }
+      ],
+      "tags": ["上級者向け"]
+    },
+    {
+      "id": "hooks-prompt-agent",
+      "title": "プロンプト型・エージェント型フック",
+      "description": "prompt 型は LLM に yes/no を委任。agent 型は Read/Grep/Glob 等のツールで検証（最大 50 ターン）。Stop フックでのタスク検証に最適。",
+      "content": "command 以外のフックタイプです。\n\nprompt 型: type: \"prompt\" でLLM が yes/no の判定を行います。$ARGUMENTS でイベント入力を注入し、LLM のレスポンス（{ok: true/false, reason}）で決定します。\n\nagent 型: type: \"agent\" でサブエージェントが Read、Grep、Glob 等のツールを使って検証します。最大 50 ターンまで実行可能。Stop フックで「全タスクが完了しているか確認してから停止する」という使い方に最適です。",
+      "code": [
+        {
+          "lang": "json",
+          "label": "Stop フックでタスク完了を確認（agent 型）",
+          "value": "{\n  \"hooks\": {\n    \"Stop\": [\n      {\n        \"matcher\": \"\",\n        \"hooks\": [\n          {\n            \"type\": \"agent\",\n            \"command\": \"TodoRead ツールで未完了タスクを確認し、全て完了していれば停止を許可してください。未完了のタスクがあれば、それを完了させてから停止してください。\"\n          }\n        ]\n      }\n    ]\n  }\n}"
+        }
+      ],
+      "callouts": [
+        {
+          "type": "warning",
+          "text": "agent 型フックは Stop フックで使う場合、stop_hook_active のチェックを入れて無限ループを防いでください（後述のベストプラクティス参照）。"
+        }
+      ],
+      "tags": ["上級者向け"]
+    },
+    {
+      "id": "hooks-async",
+      "title": "非同期フック",
+      "description": "async: true でバックグラウンド実行。Claude をブロックせず次の処理へ進む。systemMessage / additionalContext は次ターンで配信。",
+      "content": "async: true を設定すると、フックがバックグラウンドで実行されます。Claude は結果を待たずに次の処理に進めます。\n\n主な使用場面: テストスイートの実行、外部サービスへの通知、ログ記録など、時間がかかるが結果を即座に必要としない処理。\n\n制約:\n- command 型のみ対応\n- 決定制御（permissionDecision 等）は不可\n- 重複排除なし（同時に複数起動される可能性あり）\n- systemMessage/additionalContext は次のターンで配信される",
+      "code": [
+        {
+          "lang": "json",
+          "label": "ファイル変更後にテストを非同期実行",
+          "value": "{\n  \"hooks\": {\n    \"PostToolUse\": [\n      {\n        \"matcher\": \"Write|Edit\",\n        \"hooks\": [\n          {\n            \"type\": \"command\",\n            \"async\": true,\n            \"command\": \"cd $CLAUDE_PROJECT_DIR && pnpm test --passWithNoTests 2>&1 | tail -20 > .claude/last-test-result.txt\"\n          }\n        ]\n      }\n    ]\n  }\n}",
+          "recommended": true
+        }
+      ],
+      "callouts": [
+        {
+          "type": "info",
+          "text": "非同期フックは Claude の応答速度に影響しません。長時間かかる処理（ビルド、テストスイート全体）に適しています。"
+        }
+      ],
+      "tags": ["上級者向け"]
+    },
+    {
+      "id": "hooks-bestpractices",
+      "title": "ベストプラクティス",
+      "description": "入力バリデーション必須。変数はクォート。Stop フックの無限ループは stop_hook_active で防止。claude --debug でデバッグ。",
+      "content": "フックを安全・安定して運用するためのベストプラクティスです。\n\nセキュリティ:\n- ユーザー入力を直接コマンドに渡さない（インジェクション対策）\n- 変数は必ずダブルクォートで囲む（\"$VAR\"）\n- パストラバーサルを防ぐため、ファイルパスを検証する\n- 機密ファイル（.env, 秘密鍵）へのアクセスを避ける\n\nStop フックの無限ループ防止:\n- $CLAUDE_STOP_HOOK_ACTIVE 環境変数を確認して、Stop フック自体が Stop を再トリガーしないようにする\n\nデバッグ:\n- claude --debug でフックの実行ログを確認\n- Ctrl+O で verbose モードに切り替え",
+      "code": [
+        {
+          "lang": "bash",
+          "label": "Stop フックの無限ループ防止",
+          "value": "#!/bin/bash\n# Stop フック: stop_hook_active をチェックして無限ループを防止\n\nif [ \"${CLAUDE_STOP_HOOK_ACTIVE}\" = \"true\" ]; then\n  # Stop フック自体から呼び出されている場合はスキップ\n  exit 0\nfi\n\n# 通常の Stop 処理\nINPUT=$(cat)\n# ... 処理 ...\n\nexit 0",
+          "recommended": true
+        },
+        {
+          "lang": "bash",
+          "label": "全フック無効化（デバッグ用）",
+          "value": "# 設定ファイルで全フックを無効化\n# .claude/settings.json\n{\n  \"disableAllHooks\": true\n}"
+        }
+      ],
+      "callouts": [
+        {
+          "type": "important",
+          "text": "セッション中に設定ファイルを変更してもフックは即時反映されません。セキュリティ設計上、変更は次のセッションから有効です。"
+        }
+      ],
+      "tags": ["上級者向け"]
+    }
+  ]
+}
