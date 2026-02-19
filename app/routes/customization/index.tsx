@@ -12,6 +12,7 @@ import type { CustomizationItem } from "./constants";
 import { matchesQuery, TAB_COLORS, TAB_ICONS, TABS, TOTAL_ITEMS } from "./constants";
 import { CustomizationCard } from "./customization-card";
 import { DetailModal } from "./detail-modal";
+import { GuidedReader } from "./guided-reader";
 
 export function meta(): Array<{ title?: string; name?: string; content?: string }> {
   return [
@@ -43,6 +44,8 @@ export default function CustomizationPage(): React.JSX.Element {
   const [query, setQuery] = useState("");
   const [activeTab, setActiveTab] = useState<string>(TABS[0].id);
   const [modalItem, setModalItem] = useState<CustomizationItem | null>(null);
+  const [guidedMode, setGuidedMode] = useState(false);
+  const [guideIndex, setGuideIndex] = useState(0);
   const reducedMotion = useReducedMotion();
   const hasMounted = useSyncExternalStore(
     () => () => {},
@@ -72,6 +75,8 @@ export default function CustomizationPage(): React.JSX.Element {
   const handleTabChange = useCallback((id: string) => {
     setActiveTab(id);
     setQuery("");
+    setGuidedMode(false);
+    setGuideIndex(0);
   }, []);
 
   function cardMotionProps(index: number): Record<string, unknown> {
@@ -125,6 +130,25 @@ export default function CustomizationPage(): React.JSX.Element {
 
         <div className="flex items-center gap-2.5 mb-4 px-1">
           <span className="text-[14px] text-slate-500 font-medium">{filteredItems.length} 件表示中</span>
+          <div className="flex-1" />
+          <button
+            onClick={() => {
+              setGuidedMode(true);
+              setGuideIndex(0);
+            }}
+            style={{
+              background: accentColor + "18",
+              border: `1px solid ${accentColor}40`,
+              color: accentColor,
+              borderRadius: "10px",
+              padding: "6px 14px",
+              fontSize: 13,
+              fontWeight: 600,
+              cursor: "pointer",
+            }}
+          >
+            ▶ 順に読む
+          </button>
         </div>
 
         <AnimatePresence mode="popLayout">
@@ -168,6 +192,22 @@ export default function CustomizationPage(): React.JSX.Element {
             tabId={activeTab}
             accentColor={accentColor}
             onClose={closeModal}
+            reducedMotion={reducedMotion}
+          />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {guidedMode && (
+          <GuidedReader
+            items={activeTabDef.items}
+            currentIndex={guideIndex}
+            accentColor={accentColor}
+            tabId={activeTab}
+            tabName={activeTabDef.name}
+            onClose={() => setGuidedMode(false)}
+            onNext={() => setGuideIndex((i) => Math.min(i + 1, activeTabDef.items.length - 1))}
+            onPrev={() => setGuideIndex((i) => Math.max(i - 1, 0))}
             reducedMotion={reducedMotion}
           />
         )}
