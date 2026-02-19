@@ -1,5 +1,10 @@
 import { useReducedMotion } from "motion/react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { redirect } from "react-router";
+
+export function loader() {
+  return redirect("/");
+}
 
 import { Footer } from "~/components/footer";
 import { PageHeader } from "~/components/page-header";
