@@ -1,4 +1,4 @@
-import { DetailInfoIcon, TerminalIcon, TimingIcon } from "~/components/icons";
+import { InfoIcon, TerminalIcon, TimingIcon } from "~/components/icons";
 import { DetailModalShell } from "~/components/detail-modal";
 
 import type { ModalData } from "./constants";
@@ -166,7 +166,7 @@ export function DetailModal({
       {/* Detail */}
       <div className="flex flex-col gap-2.5">
         <div className="flex items-center gap-1.5 text-cyan-300 text-[12px] font-bold tracking-wide uppercase font-mono">
-          <DetailInfoIcon />
+          <InfoIcon />
           詳細説明
         </div>
         <p className="m-0 text-[14px] leading-[1.8] text-slate-400 font-sans">{detail}</p>

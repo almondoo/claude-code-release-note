@@ -6,6 +6,7 @@ import { Footer } from "~/components/footer";
 import { ArrowLeftIcon } from "~/components/icons";
 
 import { RELEASES, VERSION_DETAILS, getAdjacentVersions } from "./constants";
+import { computeSortedTagCounts } from "../release-note/version-card";
 import { DetailCard, FallbackCard } from "./detail-card";
 import { NavButton } from "./nav-button";
 
@@ -29,13 +30,7 @@ export default function VersionDetail(): React.JSX.Element {
     );
   }
 
-  const tagCounts: Record<string, number> = {};
-  for (const item of release.items) {
-    for (const tag of item.tags) {
-      tagCounts[tag] = (tagCounts[tag] ?? 0) + 1;
-    }
-  }
-  const sortedTags = Object.entries(tagCounts).sort((a, b) => b[1] - a[1]);
+  const sortedTags = computeSortedTagCounts(release.items);
 
   const m = reducedMotion
     ? { initial: undefined, animate: undefined, transition: undefined }

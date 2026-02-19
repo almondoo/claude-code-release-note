@@ -1,8 +1,8 @@
 import {
-  DetailInfoIcon,
   DownloadIcon,
   ExternalLinkIcon,
   GitHubIcon,
+  InfoIcon,
   PluginIcon,
   SettingsIcon,
   TimingIcon,
@@ -81,7 +81,7 @@ export function DetailModal({
       {/* Detail */}
       <div className="flex flex-col gap-2.5">
         <div className="flex items-center gap-1.5 text-[12px] font-bold tracking-wide uppercase font-mono text-cyan-300">
-          <DetailInfoIcon />
+          <InfoIcon />
           詳細説明
         </div>
         <p className="m-0 text-[14px] leading-[1.8] text-slate-400 font-sans">{plugin.detail}</p>

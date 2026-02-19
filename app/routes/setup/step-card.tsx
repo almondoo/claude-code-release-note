@@ -4,8 +4,8 @@ import { BookOpenIcon, ChevronDownIcon } from "~/components/icons";
 
 import type { Step } from "./constants";
 import { TAG_COLORS } from "./constants";
-import { CodeBlockView } from "./code-block-view";
-import { CalloutBox } from "./callout-box";
+import { CodeBlockView } from "~/components/code-block-view";
+import { CalloutBox } from "~/components/callout-box";
 
 function renderInlineLinks(text: string): React.ReactNode[] {
   const parts = text.split(/(\[[^\]]+\]\([^)]+\))/g);
