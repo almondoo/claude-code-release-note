@@ -148,6 +148,17 @@
           "bestPractice": "/keybindings-help で設定ヘルプを確認してからカスタマイズする。デフォルトのキーバインドと競合しないよう注意する。",
           "vcs": false,
           "recommended": "optional"
+        },
+        {
+          "path": "backups/",
+          "type": "directory",
+          "name": "設定バックアップ",
+          "description": "Claude Code が自動作成する設定ファイルのバックアップ",
+          "detail": "Claude Code が設定ファイルを変更する際に自動的にバックアップを作成するディレクトリ。v2.1.47 以降、バックアップファイルはホームディレクトリに散在する代わりにここに集約されるようになった。\n\n設定ファイルが誤って変更・破損した場合に、このディレクトリのバックアップから復元できる。Claude Code が自動的に作成・管理するため、手動で触る必要は基本的にない。",
+          "usage": "設定ファイルが破損した場合に、バックアップから手動でリストアする。定期的に古いバックアップを整理してディスクスペースを節約することも可能。",
+          "bestPractice": "自動管理に任せる。定期的に古いバックアップを整理してディスクスペースを節約する。",
+          "vcs": false,
+          "recommended": "optional"
         }
       ],
       "bestPractices": [
@@ -292,7 +303,7 @@
           "type": "directory",
           "name": "フックスクリプト",
           "description": "フック用スクリプト置き場（慣習的な配置場所）",
-          "detail": "settings.json のフック設定から参照するスクリプトを配置する慣習的なディレクトリ。14種類のフックイベントに対応: SessionStart、UserPromptSubmit、PreToolUse、PermissionRequest、PostToolUse、PostToolUseFailure、Notification、SubagentStart、SubagentStop、Stop、TeammateIdle、TaskCompleted、PreCompact、SessionEnd。\n\n3つのフック型: command（シェルコマンド実行、async 対応）、prompt（LLM による単発評価）、agent（マルチターンのサブエージェント検証）。共通フィールド: `once`（スキル専用・セッション内1回のみ実行）、`statusMessage`（実行中スピナーメッセージ）、`timeout`（タイムアウト秒数）。各フックは stdin で JSON コンテキストを受け取り、終了コード 0 で許可、2 でブロック（イベントによってブロック挙動が異なる）。マッチャーでツール名やイベント種別をフィルタできる。SessionStart フックでは `CLAUDE_ENV_FILE` 環境変数を使って後続の Bash コマンドへ環境変数を永続化できる。スキルやエージェントのフロントマターでもフックを定義可能。",
+          "detail": "settings.json のフック設定から参照するスクリプトを配置する慣習的なディレクトリ。15種類のフックイベントに対応: SessionStart、UserPromptSubmit、PreToolUse、PermissionRequest、PostToolUse、PostToolUseFailure、Notification、SubagentStart、SubagentStop、Stop、TeammateIdle、TaskCompleted、ConfigChange、PreCompact、SessionEnd。\n\n3つのフック型: command（シェルコマンド実行、async 対応）、prompt（LLM による単発評価）、agent（マルチターンのサブエージェント検証）。共通フィールド: `once`（スキル専用・セッション内1回のみ実行）、`statusMessage`（実行中スピナーメッセージ）、`timeout`（タイムアウト秒数）。各フックは stdin で JSON コンテキストを受け取り、終了コード 0 で許可、2 でブロック（イベントによってブロック挙動が異なる）。マッチャーでツール名やイベント種別をフィルタできる。SessionStart フックでは `CLAUDE_ENV_FILE` 環境変数を使って後続の Bash コマンドへ環境変数を永続化できる。スキルやエージェントのフロントマターでもフックを定義可能。ConfigChange フックはセッション中に設定ファイルが変更された際に発火し、エンタープライズセキュリティ監査や設定変更のブロックに活用できる。",
           "usage": "例: .claude/hooks/pre-bash.sh で Bash コマンド実行前に危険なコマンドをチェック、.claude/hooks/post-write.sh でファイル書き込み後に自動フォーマットを実行。$CLAUDE_PROJECT_DIR でプロジェクトルートを参照。/hooks コマンドで対話的に管理も可能。",
           "bestPractice": "スクリプトに実行権限（chmod +x）を必ず付与する。$CLAUDE_PROJECT_DIR で相対パスを使い、チーム全員の環境で動作させる。disableAllHooks: true で一時的に全フック無効化も可能。",
           "vcs": true,
@@ -317,6 +328,17 @@
           "detail": "自動的に .gitignore に追加されるローカル専用のエージェントメモリ。エージェント定義で memory: local と指定したエージェントが使用する。個人的な作業コンテキストを保持するのに適している。チームには共有されないため、個人的な試行錯誤の記録も気兼ねなく保存できる。",
           "usage": "自分だけのデバッグ履歴、個人的な作業メモ、ローカル環境固有の情報を保存する。project スコープとの使い分け: チームで共有すべき学びは agent-memory/（project）、個人的なメモは agent-memory-local/（local）に保存する。",
           "bestPractice": "個人的な作業メモやデバッグ履歴に使い、チーム共有すべき学びは agent-memory/ に書く。定期的に不要なメモリを整理する。",
+          "vcs": false,
+          "recommended": "optional"
+        },
+        {
+          "path": "worktrees/",
+          "type": "directory",
+          "name": "Git Worktree",
+          "description": "`--worktree` フラグで自動作成される隔離された git worktree",
+          "detail": "`claude --worktree <name>`（または `-w <name>`）フラグで起動すると、`.claude/worktrees/<name>/` に独立した git worktree が自動作成される。名前を省略すると自動生成される。公式 CLI reference での指定パス: `<repo>/.claude/worktrees/<name>`。\n\nWorktree はメインの作業ツリーとは切り離された一時的な Git 作業環境で、同じリポジトリを複数のブランチで並行して作業できる。実験的な変更を安全に試せるため、メインブランチを汚さずにタスクを分離できる。サブエージェントの `isolation: \"worktree\"` オプションと組み合わせると、エージェントが一時 worktree 内で独立して作業し、タスク完了後に自動クリーンアップされる。",
+          "usage": "`claude -w feature-auth` で起動すると `.claude/worktrees/feature-auth/` に worktree が作成される。作業完了後は worktree を削除して変更を破棄するか、通常の git 操作でメインブランチにマージする。",
+          "bestPractice": "実験的な変更や長期タスクの分離に活用する。セッション終了後に不要な worktree は削除してディスクスペースを節約する。このディレクトリは .gitignore に追加するのを推奨。",
           "vcs": false,
           "recommended": "optional"
         }
@@ -446,6 +468,7 @@
       "settings.local.json（自動 gitignore）",
       "CLAUDE.local.md（自動 gitignore）",
       "agent-memory-local/（自動 gitignore）",
+      ".claude/worktrees/（自動生成される git worktree）",
       "~/.claude/ 配下すべて（個人設定）",
       "~/.claude.json（個人 MCP 設定・OAuth トークン含む）"
     ]
