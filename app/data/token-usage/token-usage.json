@@ -1,0 +1,499 @@
+{
+  "sections": [
+    {
+      "id": "builtin",
+      "name": "ビルトイン",
+      "description": "プロキシ不要で使える標準的な方法",
+      "items": [
+        {
+          "id": "cost-command",
+          "title": "/cost コマンド",
+          "summary": "セッション内のトークン使用量とコストをリアルタイム確認",
+          "content": "API 従量課金ユーザー向けのビルトインコマンド。現在のセッションで消費したトークン数とその推定コストをリアルタイムで確認できます。\n\nセッション中にいつでも入力するだけで、input tokens・output tokens・cache tokens の内訳が表示されます。プロキシや外部ツールは不要です。",
+          "tags": ["初心者向け", "API"],
+          "difficulty": "easy",
+          "targetUsers": "API利用者（従量課金）",
+          "code": [
+            {
+              "lang": "bash",
+              "label": "チャット中に入力",
+              "value": "> /cost"
+            }
+          ],
+          "callouts": [
+            {
+              "type": "info",
+              "text": "Max/Pro サブスクリプションの場合は /stats コマンドを使用してください"
+            }
+          ],
+          "tips": [
+            "セッション単位の使用量のみ表示される",
+            "セッションを跨いだ累計は確認できない"
+          ],
+          "links": []
+        },
+        {
+          "id": "stats-command",
+          "title": "/stats コマンド",
+          "summary": "使用量グラフと期間フィルタで月次・週次のトレンドを把握",
+          "content": "Max または Pro サブスクリプション向けのビルトインコマンド。使用量の推移グラフや期間別フィルタが利用でき、月次・週次での消費量トレンドを視覚的に確認できます。\n\nAPI キーで直接接続している場合は /cost を使用してください。",
+          "tags": ["初心者向け", "サブスクリプション"],
+          "difficulty": "easy",
+          "targetUsers": "Max/Pro サブスクライバー",
+          "code": [
+            {
+              "lang": "bash",
+              "label": "チャット中に入力",
+              "value": "> /stats"
+            }
+          ],
+          "callouts": [
+            {
+              "type": "info",
+              "text": "API キー（従量課金）で利用している場合は /cost コマンドを使用してください"
+            }
+          ],
+          "tips": [
+            "サブスクリプションのプランごとに表示内容が異なる場合がある"
+          ],
+          "links": []
+        },
+        {
+          "id": "ccusage",
+          "title": "ccusage",
+          "summary": "ローカルの JSONL ログを分析してトークン使用量を集計",
+          "content": "ccusage はローカルに保存された Claude Code のセッションログ（~/.claude/projects/ 配下の JSONL ファイル）を解析し、トークン使用量を集計・レポートするサードパーティ CLI ツールです。\n\nnpx で即座に実行でき、インストール不要。日別・モデル別の内訳やコスト推計も確認できます。",
+          "tags": ["初心者向け", "API"],
+          "difficulty": "easy",
+          "targetUsers": "ローカルログを分析したい開発者",
+          "code": [
+            {
+              "lang": "bash",
+              "label": "即時実行（インストール不要）",
+              "value": "npx ccusage@latest"
+            },
+            {
+              "lang": "bash",
+              "label": "日別レポート",
+              "value": "npx ccusage@latest --daily"
+            },
+            {
+              "lang": "bash",
+              "label": "モデル別集計",
+              "value": "npx ccusage@latest --model"
+            }
+          ],
+          "callouts": [
+            {
+              "type": "tip",
+              "text": "GitHub: ryoppippi/ccusage — スター数急増中のコミュニティツールです"
+            }
+          ],
+          "tips": [
+            "~/.claude/projects/ 以下のすべての JSONL ファイルが対象",
+            "過去のセッションも遡って集計できる",
+            "オフラインで動作する"
+          ],
+          "links": [
+            { "label": "ccusage GitHub", "url": "https://github.com/ryoppippi/ccusage" }
+          ]
+        },
+        {
+          "id": "jsonl-analysis",
+          "title": "JSONL ログ直接分析",
+          "summary": "~/.claude/projects/ の生ログをスクリプトで自由に集計",
+          "content": "Claude Code はセッションのすべてのやり取りを ~/.claude/projects/<project-hash>/<session-id>.jsonl に保存しています。各行が JSON オブジェクトで、API レスポンスには usage フィールドが含まれます。\n\n自作スクリプトで集計することで、任意の期間・条件で分析できます。",
+          "tags": ["中級者向け", "API"],
+          "difficulty": "medium",
+          "targetUsers": "カスタム分析が必要な開発者",
+          "code": [
+            {
+              "lang": "bash",
+              "label": "ログファイル一覧",
+              "value": "ls ~/.claude/projects/"
+            },
+            {
+              "lang": "python",
+              "label": "Python で usage を集計",
+              "value": "import json, glob\n\ntotal = {\"input\": 0, \"output\": 0, \"cache_read\": 0, \"cache_creation\": 0}\nfor f in glob.glob(\"~/.claude/projects/**/*.jsonl\", recursive=True):\n    for line in open(f).readlines():\n        try:\n            obj = json.loads(line)\n            u = obj.get(\"usage\") or obj.get(\"message\", {}).get(\"usage\", {})\n            total[\"input\"] += u.get(\"input_tokens\", 0)\n            total[\"output\"] += u.get(\"output_tokens\", 0)\n            total[\"cache_read\"] += u.get(\"cache_read_input_tokens\", 0)\n            total[\"cache_creation\"] += u.get(\"cache_creation_input_tokens\", 0)\n        except:\n            pass\nprint(total)"
+            }
+          ],
+          "callouts": [
+            {
+              "type": "warning",
+              "text": "ログには会話内容が含まれます。機密情報の取り扱いに注意してください"
+            }
+          ],
+          "tips": [
+            "usage フィールドは各レスポンスの最上位または message.usage に格納される",
+            "ccusage を使うとこの作業が不要になる"
+          ],
+          "links": []
+        }
+      ]
+    },
+    {
+      "id": "proxy",
+      "name": "プロキシベース",
+      "description": "リバースプロキシ経由でリアルタイム監視",
+      "items": [
+        {
+          "id": "mitmproxy",
+          "title": "mitmproxy",
+          "summary": "リバースプロキシでリアルタイムに API トラフィックを監視・ログ取得",
+          "content": "mitmproxy のリバースプロキシモードを使うと、Claude Code と Anthropic API の間に割り込んでリクエスト・レスポンスをリアルタイムで監視できます。\n\nWeb UI（mitmweb）でレスポンスの usage オブジェクトを確認でき、フィルタやエクスポートも可能です。",
+          "tags": ["中級者向け", "API"],
+          "difficulty": "medium",
+          "targetUsers": "API トラフィックを詳細に調査したい開発者",
+          "code": [
+            {
+              "lang": "bash",
+              "label": "mitmproxy インストール",
+              "value": "brew install mitmproxy  # macOS\npip install mitmproxy   # その他"
+            },
+            {
+              "lang": "bash",
+              "label": "リバースプロキシとして起動",
+              "value": "mitmweb --mode reverse:https://api.anthropic.com --listen-port 8080"
+            },
+            {
+              "lang": "bash",
+              "label": "Claude Code に向ける",
+              "value": "export ANTHROPIC_BASE_URL=http://localhost:8080\nclaude"
+            }
+          ],
+          "callouts": [
+            {
+              "type": "warning",
+              "text": "HTTPS を復号するため、TLS 証明書の警告が出る場合があります。本番環境への使用は避けてください"
+            }
+          ],
+          "tips": [
+            "Web UI は http://localhost:8081 で確認できる",
+            "フィルタ: ~u /v1/messages でメッセージ API のみ表示",
+            "レスポンスの usage フィールドでトークン数を確認できる"
+          ],
+          "links": [
+            { "label": "mitmproxy 公式", "url": "https://mitmproxy.org" }
+          ]
+        },
+        {
+          "id": "claude-code-proxy",
+          "title": "claude-code-proxy",
+          "summary": "SQLite ログ + Web ダッシュボード付きの専用プロキシ",
+          "content": "claude-code-proxy は Claude Code 向けに設計されたリバースプロキシで、すべての API リクエストと usage データを SQLite に保存し、Web ダッシュボードで可視化します。\n\nセッション別・日別のトークン使用量グラフや累計コスト表示に対応しています。",
+          "tags": ["中級者向け", "API"],
+          "difficulty": "medium",
+          "targetUsers": "ダッシュボードで使用量を管理したい個人開発者",
+          "code": [
+            {
+              "lang": "bash",
+              "label": "インストールと起動",
+              "value": "npx claude-code-proxy@latest"
+            },
+            {
+              "lang": "bash",
+              "label": "環境変数を設定して Claude Code を起動",
+              "value": "export ANTHROPIC_BASE_URL=http://localhost:3000\nclaude"
+            }
+          ],
+          "callouts": [
+            {
+              "type": "tip",
+              "text": "ダッシュボードはデフォルトで http://localhost:3001 で確認できます"
+            }
+          ],
+          "tips": [
+            "データは ~/.claude-code-proxy/ に SQLite で保存される",
+            "セッションをまたいだ累計コストを追跡できる"
+          ],
+          "links": []
+        },
+        {
+          "id": "claude-code-tracer",
+          "title": "claude-code-tracer",
+          "summary": "LLM インタラクションの可視化に特化したプロキシツール",
+          "content": "claude-code-tracer は LLM との対話を詳細にトレースするプロキシです。トークン使用量だけでなく、ツール呼び出しのシーケンスやレイテンシも可視化できます。\n\nデバッグや最適化に役立つトレース UI を提供します。",
+          "tags": ["中級者向け", "API"],
+          "difficulty": "medium",
+          "targetUsers": "LLM の動作を詳細に分析したい開発者",
+          "code": [
+            {
+              "lang": "bash",
+              "label": "起動",
+              "value": "npx claude-code-tracer@latest"
+            },
+            {
+              "lang": "bash",
+              "label": "Claude Code に向ける",
+              "value": "export ANTHROPIC_BASE_URL=http://localhost:4000\nclaude"
+            }
+          ],
+          "callouts": [],
+          "tips": [
+            "ツール呼び出しのフローチャートが可視化される",
+            "各リクエストのレイテンシも計測できる"
+          ],
+          "links": []
+        },
+        {
+          "id": "litellm",
+          "title": "LiteLLM",
+          "summary": "チーム向け LLM ゲートウェイ。認証・レート制限・使用量ログを一元管理",
+          "content": "LiteLLM は複数の LLM プロバイダーを統一インターフェースで利用できるゲートウェイです。Claude Code の公式ドキュメントでも推奨されており、チーム全員の使用量を一元管理できます。\n\nAPI キーの共有・失効管理、チームメンバーごとのレート制限、使用量ダッシュボードなどエンタープライズ機能を提供します。",
+          "tags": ["チーム向け", "API"],
+          "difficulty": "advanced",
+          "targetUsers": "チーム・組織の管理者",
+          "code": [
+            {
+              "lang": "bash",
+              "label": "Docker で起動",
+              "value": "docker run -d -p 4000:4000 ghcr.io/berriai/litellm:main-latest \\\n  --model anthropic/claude-opus-4-6 \\\n  --api_key $ANTHROPIC_API_KEY"
+            },
+            {
+              "lang": "bash",
+              "label": "Claude Code に向ける",
+              "value": "export ANTHROPIC_BASE_URL=http://localhost:4000\nexport ANTHROPIC_API_KEY=sk-...  # LiteLLM で発行したキー\nclaude"
+            },
+            {
+              "lang": "json",
+              "label": "settings.json で apiKeyHelper を設定（動的キー取得）",
+              "value": "{\n  \"apiKeyHelper\": \"cat ~/.litellm_virtual_key\"\n}"
+            },
+            {
+              "lang": "bash",
+              "label": "ANTHROPIC_CUSTOM_HEADERS でタグを付与（コスト追跡用）",
+              "value": "export ANTHROPIC_CUSTOM_HEADERS='{\"x-litellm-tag\": \"project:myapp,env:dev\"}'\nclaude"
+            }
+          ],
+          "callouts": [
+            {
+              "type": "info",
+              "text": "Claude Code 公式ドキュメントの「Using with LiteLLM Proxy」セクションで詳細が説明されています"
+            }
+          ],
+          "tips": [
+            "チームメンバーごとに仮想 API キーを発行できる",
+            "Prometheus メトリクスでモニタリング可能",
+            "PostgreSQL に使用量データを永続化できる",
+            "チーム全体の一元管理・予算設定の詳細は「チームプロキシ一元管理」を参照"
+          ],
+          "links": [
+            { "label": "LiteLLM 公式ドキュメント", "url": "https://docs.litellm.ai" },
+            { "label": "LiteLLM × Claude Code チュートリアル", "url": "https://docs.litellm.ai/docs/tutorials/claude_code_customer_tracking" }
+          ]
+        },
+        {
+          "id": "ccflare",
+          "title": "ccflare",
+          "summary": "複数アカウントのロードバランシングとリアルタイム分析ダッシュボード付きのOSSプロキシ",
+          "content": "ccflare は Claude Code 向けに特化した OSS のプロキシツールです。複数の Anthropic アカウントをロードバランシングしてレート制限を分散し、リアルタイム分析ダッシュボードでトークン使用量を可視化できます。\n\n10ms 未満の低オーバーヘッドが特徴で、個人から複数アカウントを管理する開発者まで対応しています。",
+          "tags": ["中級者向け", "API"],
+          "difficulty": "medium",
+          "targetUsers": "複数アカウントを管理したい開発者",
+          "code": [
+            {
+              "lang": "bash",
+              "label": "Claude Code に向ける",
+              "value": "export ANTHROPIC_BASE_URL=https://your-ccflare-endpoint\nclaude"
+            }
+          ],
+          "callouts": [],
+          "tips": [
+            "複数の Anthropic API キーを設定してロードバランシング",
+            "リアルタイムダッシュボードでトークン使用量を確認",
+            "10ms 未満のオーバーヘッドで低レイテンシ"
+          ],
+          "links": [
+            { "label": "ccflare 公式サイト", "url": "https://ccflare.com/" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "organization",
+      "name": "組織・チーム管理",
+      "description": "組織レベルの使用量追跡とコスト管理",
+      "items": [
+        {
+          "id": "analytics-api",
+          "title": "Claude Code Analytics API",
+          "summary": "組織全体の使用量を REST API で取得。Anthropic Console で有効化",
+          "content": "Claude Code は組織向けに使用量レポート API を提供しています。Anthropic Console から有効化すると、REST エンドポイントで組織全体のトークン使用量・コスト・アクティブユーザー数などを取得できます。\n\n独自のダッシュボードや請求システムとの連携が可能です。",
+          "tags": ["チーム向け", "API"],
+          "difficulty": "advanced",
+          "targetUsers": "組織管理者・IT 部門",
+          "code": [
+            {
+              "lang": "bash",
+              "label": "使用量データの取得",
+              "value": "curl https://api.anthropic.com/v1/organizations/usage \\\n  -H \"x-api-key: $ANTHROPIC_API_KEY\" \\\n  -H \"anthropic-version: 2023-06-01\""
+            }
+          ],
+          "callouts": [
+            {
+              "type": "info",
+              "text": "Anthropic Console の「Settings > API Usage」から有効化できます"
+            }
+          ],
+          "tips": [
+            "日別・モデル別・ユーザー別の内訳を取得可能",
+            "CSV エクスポートも Console から実行できる"
+          ],
+          "links": []
+        },
+        {
+          "id": "workspace-cost",
+          "title": "ワークスペースコスト追跡",
+          "summary": "Claude Console 認証時に自動でワークスペース単位のコストを追跡",
+          "content": "Claude Code を Anthropic Console のアカウントで認証（claude login）すると、使用量がワークスペースに自動的に記録されます。\n\nConsole の「Usage」画面でプロジェクト別・期間別の消費コストを確認でき、アラートしきい値の設定も可能です。",
+          "tags": ["初心者向け", "サブスクリプション"],
+          "difficulty": "easy",
+          "targetUsers": "Anthropic Console ユーザー",
+          "code": [
+            {
+              "lang": "bash",
+              "label": "Console アカウントでログイン",
+              "value": "claude login"
+            }
+          ],
+          "callouts": [
+            {
+              "type": "tip",
+              "text": "API キー（ANTHROPIC_API_KEY 環境変数）を使っている場合は Console の「API Keys」ページで使用量を確認できます"
+            }
+          ],
+          "tips": [
+            "ログイン後は自動追跡されるため追加設定は不要",
+            "予算アラートを設定すると閾値超過時にメール通知が届く"
+          ],
+          "links": []
+        },
+        {
+          "id": "team-proxy-management",
+          "title": "チームプロキシ一元管理（LiteLLM）",
+          "summary": "LiteLLM で仮想キーを発行し、ダッシュボードでチーム全員の使用量を一元管理",
+          "content": "LiteLLM のチーム管理機能を使うと、管理者が LiteLLM サーバーを運用し、各開発者に仮想キーを発行して、ダッシュボードで全員の使用量を一元管理できます。\n\n個人ごとの予算制限・レート制限も設定でき、管理者は API を通じて詳細な使用レポートを取得できます。",
+          "tags": ["チーム向け", "API"],
+          "difficulty": "advanced",
+          "targetUsers": "チーム管理者・テックリード",
+          "code": [
+            {
+              "lang": "bash",
+              "label": "チームを作成",
+              "value": "curl -X POST http://localhost:4000/team/new \\\n  -H \"Authorization: Bearer $LITELLM_MASTER_KEY\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"team_alias\": \"engineering\", \"max_budget\": 100}'"
+            },
+            {
+              "lang": "bash",
+              "label": "ユーザーを追加して仮想キーを発行",
+              "value": "curl -X POST http://localhost:4000/key/generate \\\n  -H \"Authorization: Bearer $LITELLM_MASTER_KEY\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"team_id\": \"team-xxx\", \"user_id\": \"alice\", \"max_budget\": 10, \"duration\": \"30d\"}'"
+            },
+            {
+              "lang": "bash",
+              "label": "各開発者の環境変数設定",
+              "value": "export ANTHROPIC_BASE_URL=http://litellm.company.internal:4000\nexport ANTHROPIC_API_KEY=sk-...  # 発行された仮想キー\nclaude"
+            },
+            {
+              "lang": "bash",
+              "label": "使用量を確認（管理者）",
+              "value": "# チーム全体の使用量\ncurl http://localhost:4000/team/info?team_id=team-xxx \\\n  -H \"Authorization: Bearer $LITELLM_MASTER_KEY\"\n\n# ユーザー別の使用量\ncurl http://localhost:4000/user/info?user_id=alice \\\n  -H \"Authorization: Bearer $LITELLM_MASTER_KEY\""
+            }
+          ],
+          "callouts": [
+            {
+              "type": "warning",
+              "text": "チーム使用量の永続化には PostgreSQL が必要です。SQLite はデフォルトですがチーム機能には非推奨"
+            },
+            {
+              "type": "info",
+              "text": "ユーザー予算とチーム予算の両方を設定した場合、先に上限に達した方が優先されます"
+            }
+          ],
+          "tips": [
+            "ダッシュボード（http://localhost:4000/ui）でメンバー全員の使用量をリアルタイム確認",
+            "仮想キーに有効期限（duration）を設定すると自動失効する",
+            "Prometheus メトリクスと組み合わせると Grafana で可視化できる"
+          ],
+          "links": [
+            { "label": "LiteLLM チーム管理ドキュメント", "url": "https://docs.litellm.ai/docs/proxy/multi_tenant_architecture" }
+          ]
+        },
+        {
+          "id": "otel-monitoring",
+          "title": "OpenTelemetry モニタリング",
+          "summary": "プロキシ不要で Grafana 等にトークン使用量をエクスポート（公式サポート）",
+          "content": "Claude Code は OpenTelemetry (OTel) によるモニタリングを公式サポートしています。環境変数を設定するだけで、プロキシを経由せずにトークン使用量・コスト・セッション数などのメトリクスを Grafana、Datadog、Jaeger などの OTel 対応バックエンドにエクスポートできます。\n\nチーム全体への設定配布には managed settings を使うと便利です。",
+          "tags": ["チーム向け", "API"],
+          "difficulty": "advanced",
+          "targetUsers": "インフラ・SRE チーム",
+          "code": [
+            {
+              "lang": "bash",
+              "label": "OTel エクスポーターを有効化",
+              "value": "export CLAUDE_CODE_ENABLE_TELEMETRY=1\nexport OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4318\nexport OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf\nclaude"
+            },
+            {
+              "lang": "json",
+              "label": "managed settings で全ユーザーに配布（/etc/claude-code/settings.json）",
+              "value": "{\n  \"env\": {\n    \"CLAUDE_CODE_ENABLE_TELEMETRY\": \"1\",\n    \"OTEL_EXPORTER_OTLP_ENDPOINT\": \"http://otel-collector.internal:4318\",\n    \"OTEL_EXPORTER_OTLP_PROTOCOL\": \"http/protobuf\",\n    \"OTEL_RESOURCE_ATTRIBUTES\": \"team=backend,department=engineering\"\n  }\n}"
+            }
+          ],
+          "callouts": [
+            {
+              "type": "tip",
+              "text": "Claude Code の公式機能です。プロキシ不要でチーム全体の使用量を監視できます"
+            }
+          ],
+          "tips": [
+            "エクスポートされるメトリクス: claude_code.token.usage, claude_code.cost.usage, claude_code.session.count など",
+            "OTEL_RESOURCE_ATTRIBUTES でチーム・部門・プロジェクトを識別できる",
+            "OTel Collector 経由で複数バックエンド（Grafana + Datadog）に同時送信できる"
+          ],
+          "links": [
+            { "label": "Claude Code モニタリングガイド", "url": "https://github.com/anthropics/claude-code-monitoring-guide" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "reference",
+      "name": "リファレンス",
+      "description": "環境変数・API レスポンス構造などの技術情報",
+      "items": [
+        {
+          "id": "env-vars",
+          "title": "プロキシ関連の環境変数",
+          "summary": "ANTHROPIC_BASE_URL, HTTPS_PROXY など、プロキシ設定に使う環境変数リファレンス",
+          "content": "Claude Code はいくつかの環境変数でプロキシ設定を制御できます。リバースプロキシを使ったトークン計測を行う場合は ANTHROPIC_BASE_URL が最も重要です。\n\nまた API レスポンスの usage フィールドの構造を理解しておくと、独自プロキシやスクリプトでの集計が容易になります。",
+          "tags": ["中級者向け", "API"],
+          "difficulty": "medium",
+          "targetUsers": "プロキシを自作・カスタマイズしたい開発者",
+          "code": [
+            {
+              "lang": "bash",
+              "label": "主要な環境変数",
+              "value": "# API エンドポイントを変更（リバースプロキシ用）\nexport ANTHROPIC_BASE_URL=http://localhost:8080\n\n# 通常の HTTP/HTTPS プロキシ\nexport HTTPS_PROXY=http://proxy.example.com:8080\n\n# mTLS 設定\nexport ANTHROPIC_CLIENT_CERT=/path/to/cert.pem\nexport ANTHROPIC_CLIENT_KEY=/path/to/key.pem"
+            },
+            {
+              "lang": "json",
+              "label": "API レスポンスの usage フィールド",
+              "value": "{\n  \"usage\": {\n    \"input_tokens\": 1024,\n    \"output_tokens\": 256,\n    \"cache_creation_input_tokens\": 512,\n    \"cache_read_input_tokens\": 2048\n  }\n}"
+            }
+          ],
+          "callouts": [
+            {
+              "type": "info",
+              "text": "cache_read_input_tokens が多いほどコスト効率が高い（キャッシュ利用料金は通常の約 10%）"
+            }
+          ],
+          "tips": [
+            "ANTHROPIC_BASE_URL はプロトコルを含む完全な URL で指定する",
+            "プロキシを経由しても usage フィールドはそのまま転送される",
+            "cache_creation_input_tokens はキャッシュ書き込みコスト（通常より高め）"
+          ],
+          "links": []
+        }
+      ]
+    }
+  ]
+}

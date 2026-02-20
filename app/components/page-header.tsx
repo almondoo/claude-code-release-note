@@ -11,6 +11,7 @@ const ALL_PAGES = [
   { to: "/customization", label: "カスタマイズ" },
   { to: "/best-practices", label: "ベストプラクティス" },
   { to: "/hands-on", label: "ハンズオン" },
+  { to: "/token-usage", label: "トークン計測" },
 ];
 
 interface Stat {
