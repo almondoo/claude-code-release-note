@@ -30,8 +30,8 @@ Claude Code の新バージョンのリリース情報を CHANGELOG と Docs か
 |---|---|---|
 | 1. 重複チェック | `releases-X.Y.x.json` の末尾で最新バージョン確認 | ローカル |
 | 2. 変更項目取得 | CHANGELOG から対象バージョンを抽出 | GitHub |
-| 3. 詳細情報取得 | Docs から技術的背景を補完 | Anthropic Docs |
-| 4. 翻訳・タグ付与 | 日本語に翻訳し、タグ・カテゴリを付与 | — |
+| 3. 詳細情報取得 | Docs から技術的背景を補完し、リンク先 URL も特定 | Anthropic Docs |
+| 4. 翻訳・タグ付与 | 日本語に翻訳し、タグ・カテゴリを付与。detail にドキュメントリンクを埋め込み | — |
 | 5. JSON 更新 | `releases-X.Y.x.json` と `version-details-X.Y.x.json` に追記 | ローカル |
 | 6. 報告 | 追加内容をユーザーに報告 | — |
 
@@ -57,6 +57,9 @@ CHANGELOG の各変更項目について、該当する機能の技術的背景�
 
 - CHANGELOG だけでは1行の要約しか得られないため、Docs を参照して詳細な解説を書くこと
 - Docs に該当情報がない場合は、CHANGELOG の内容と一般的な技術知識から `detail` を構成する
+- 各変更項目に関連する公式ドキュメントページの URL を特定し、`detail` テキスト末尾にインラインリンクとして埋め込む（後述のリンク記法参照）
+- URL にはフラグメント（`#section-name`）を付与し、該当セクションに直接遷移できるようにする
+- URL が存在しない・アクセスできない場合はリンクを追加しない
 
 ## releases-X.Y.x.json のフォーマット
 
@@ -78,11 +81,34 @@ CHANGELOG の各変更項目について、該当する機能の技術的背景�
   {
     "t": "releases-X.Y.x.json の t と同一",
     "tags": ["タグ1", "タグ2"],
-    "detail": "技術的背景・影響範囲・ユーザーメリットを含む詳細解説",
+    "detail": "技術的背景・影響範囲・ユーザーメリットを含む詳細解説。詳しくは[公式ドキュメント](https://docs.anthropic.com/en/docs/claude-code/hooks#worktreecreate)を参照してください。",
     "category": "分類カテゴリ"
   }
 ]
 ```
+
+`detail` 内では Markdown のインラインリンク記法 `[ラベル](URL#fragment)` が使用可能。レンダリング時にシアン色の下線付きリンクとして表示される。
+
+**フラグメント付き URL を使うこと:** ページ全体ではなく該当セクションに直接遷移できるよう、URL にはフラグメント（`#section-name`）を付与する。Docs ページの見出しから適切なフラグメントを特定し、`https://docs.anthropic.com/en/docs/claude-code/hooks#worktreecreate` のように記述する。
+
+### ドキュメントリンクを入れる基準
+
+**リンクを入れる:** ユーザーが detail を読んだ後に「具体的な使い方・設定方法を知りたい」と思うアイテム
+
+- 新しい CLI コマンド・サブコマンドの追加（例: `claude auth login` → CLI リファレンス）
+- 新しい設定項目・環境変数の追加（例: `CLAUDE_CODE_SIMPLE` → settings の環境変数セクション）
+- hooks の新イベント追加・動作変更（例: `WorktreeCreate` → hooks の該当イベントセクション）
+- MCP・プラグインの設定や機能追加（例: MCP コネクター対応 → MCP 設定ドキュメント）
+- パーミッション・セキュリティモデルの変更（例: パーミッション分類器改善 → セキュリティドキュメント）
+- 新しいプラットフォーム対応（例: Windows ARM64 → インストール手順）
+
+**リンクを入れない:**
+
+- 内部的なバグ修正（ユーザーが追加の設定や操作を必要としない）
+- パフォーマンス最適化・メモリリーク修正
+- レンダリング・表示の修正
+- 特定の Docs ページ・セクションに対応しない変更
+- 対応する Docs URL が存在しない・アクセスできない場合
 
 ## タグ一覧
 
@@ -111,6 +137,25 @@ CHANGELOG の各変更項目について、該当する機能の技術的背景�
 - 変更種別の接頭辞: `Fixed` → `修正:`, `Added` → `追加:`, `Improved` → `改善:`, `Changed` → `変更:`, `Removed` → `削除:`
 - `t` フィールドは1行で簡潔に
 - `detail` フィールドでは: 何が問題だったか、どう変わったか、ユーザーへのメリット、技術的背景を記述
+- `detail` 内のドキュメントリンクのラベルは日本語で記述（例:「公式ドキュメント」「hooks のドキュメント」「CLI リファレンス」「セキュリティドキュメント」）
+
+### 公式ドキュメント URL 一覧（リンク先候補）
+
+| 機能領域 | ベース URL | 主なフラグメント |
+|---|---|---|
+| 概要・インストール | `.../overview` | `#get-started` |
+| CLI リファレンス | `.../cli-usage` | `#cli-commands`, `#cli-flags` |
+| Hooks | `.../hooks` | `#hook-events`, `#sessionstart`, `#pretooluse`, `#posttooluse`, `#stop`, `#worktreecreate`, `#configchange`, `#exit-code-output` |
+| MCP | `.../mcp` | `#installing-mcp-servers`, `#use-mcp-servers-from-claudeai`, `#managed-mcp-configuration` |
+| 設定 | `.../settings` | `#environment-variables`, `#permission-settings`, `#plugin-settings` |
+| セキュリティ | `.../security` | `#permission-based-architecture`, `#mcp-security` |
+| IDE 連携 | `.../ide-integrations` | — |
+| プラグイン（作成） | `.../plugins` | `#share-your-plugins`, `#quickstart` |
+| プラグイン（利用） | `.../discover-plugins` | `#install-plugins`, `#manage-installed-plugins` |
+
+ベース URL のプレフィックスは `https://docs.anthropic.com/en/docs/claude-code`。
+
+> 実装時に URL の有効性を確認すること。無効な URL はリンクとして追加しない。フラグメントは Docs ページの見出しから特定する（見出しテキストを lowercase + ハイフン区切りに変換）。
 
 ## Common Mistakes
 
