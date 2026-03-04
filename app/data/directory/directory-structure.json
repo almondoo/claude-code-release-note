@@ -11,8 +11,8 @@
           "type": "file",
           "name": "グローバル設定",
           "description": "ユーザー全体の権限・ツール許可・フック設定",
-          "detail": "全プロジェクトに適用される基本設定ファイル。permissions.allow / permissions.deny / permissions.ask でツールの許可・確認・拒否パターンを定義する。permissions.additionalDirectories で追加の作業ディレクトリを指定し、permissions.defaultMode でデフォルトの権限モードを設定できる。フック設定（hooks）、サンドボックス設定（sandbox）、アトリビューション設定（attribution）、プラグイン設定（enabledPlugins / extraKnownMarketplaces）、MCP 制御（enableAllProjectMcpServers / enabledMcpjsonServers / disabledMcpjsonServers 等）、UI 設定（spinnerVerbs / spinnerTipsEnabled / spinnerTipsOverride / statusLine / terminalProgressBarEnabled / prefersReducedMotion / outputStyle 等）も記述可能。モデル関連設定（model, availableModels で使用可能モデルを制限、alwaysThinkingEnabled で拡張思考をデフォルト有効化）、language で Claude の応答言語を指定できる。apiKeyHelper でAPI キーの動的生成、autoUpdatesChannel で更新チャネル（stable / latest）の指定、cleanupPeriodDays でセッション自動削除期間の設定、fileSuggestion で @ メンションのファイル補完カスタマイズも可能。\n\nプロジェクト設定（.claude/settings.json）との関係では、deny → ask → allow の順で全階層の設定がマージされて評価される。JSON スキーマ（$schema: https://json.schemastore.org/claude-code-settings.json）を設定するとエディタで自動補完が効く。",
-          "usage": "permissions.deny に \"Bash(rm -rf *)\" のようなパターンを追加すると、全プロジェクトで危険なコマンドをブロックできる。sandbox.enabled: true でサンドボックスを有効化し、attribution でコミット・PR のアトリビューションをカスタマイズできる。env オブジェクトで全セッション共通の環境変数を定義することも可能。",
+          "detail": "全プロジェクトに適用される基本設定ファイル。permissions.allow / permissions.deny / permissions.ask でツールの許可・確認・拒否パターンを定義する。permissions.additionalDirectories で追加の作業ディレクトリを指定し、permissions.defaultMode でデフォルトの権限モードを設定できる。permissions.disableBypassPermissionsMode で --dangerously-skip-permissions の使用を制限可能。\n\nフック設定（hooks / disableAllHooks）、サンドボックス設定（sandbox: enabled / autoAllowBashIfSandboxed / excludedCommands / allowUnsandboxedCommands に加え、filesystem の allowWrite / denyWrite / denyRead、network の allowedDomains / allowManagedDomainsOnly / allowUnixSockets / allowLocalBinding 等の詳細制御が可能）、アトリビューション設定（attribution: commit / pr でコミット・PR のアトリビューションをカスタマイズ）、プラグイン設定（enabledPlugins / extraKnownMarketplaces）、MCP 制御（enableAllProjectMcpServers / enabledMcpjsonServers / disabledMcpjsonServers / allowedMcpServers / deniedMcpServers 等）も記述可能。HTTP フック設定（allowedHttpHookUrls で許可する URL パターン、httpHookAllowedEnvVars でフックに渡す環境変数を制御）。UI 設定（spinnerVerbs / spinnerTipsEnabled / spinnerTipsOverride / statusLine / terminalProgressBarEnabled / prefersReducedMotion / outputStyle / showTurnDuration 等）。モデル関連設定（model, availableModels で使用可能モデルを制限、alwaysThinkingEnabled で拡張思考をデフォルト有効化、fastModePerSessionOptIn でセッション毎の Fast モードオプトイン）、language で Claude の応答言語を指定できる。apiKeyHelper でAPI キーの動的生成、otelHeadersHelper で OTEL ヘッダーの動的生成、autoUpdatesChannel で更新チャネル（stable / latest）の指定、cleanupPeriodDays でセッション自動削除期間の設定、fileSuggestion で @ メンションのファイル補完カスタマイズ、autoMemoryEnabled でオートメモリの有効/無効切替、claudeMdExcludes でモノレポ内の不要な CLAUDE.md をスキップ、teammateMode でエージェントチームの表示方式（auto / in-process / tmux）、companyAnnouncements で全ユーザーへのお知らせ表示、forceLoginMethod / forceLoginOrgUUID でログイン方法の強制、awsAuthRefresh / awsCredentialExport で AWS 認証の更新コマンドも指定可能。\n\nプロジェクト設定（.claude/settings.json）との関係では、deny → ask → allow の順で全階層の設定がマージされて評価される。配列型の設定（permissions 等）はスコープ間でマージされる。JSON スキーマ（$schema: https://json.schemastore.org/claude-code-settings.json）を設定するとエディタで自動補完が効く。",
+          "usage": "permissions.deny に \"Bash(rm -rf *)\" のようなパターンを追加すると、全プロジェクトで危険なコマンドをブロックできる。sandbox で Bash コマンドのサンドボックス化（ファイルシステム・ネットワーク制御）を設定し、attribution でコミット・PR のアトリビューションをカスタマイズできる。env オブジェクトで全セッション共通の環境変数を定義することも可能。claudeMdExcludes でモノレポ内の他チームの CLAUDE.md をスキップ可能。",
           "bestPractice": "deny ルールで .env や秘密鍵など機密ファイルへのアクセスをブロックし、allow は最小限に。$schema を設定してエディタ補完を活用する。プロジェクト設定と競合しないよう、グローバルでは共通設定のみ定義する。",
           "vcs": false,
           "recommended": "recommended"
@@ -33,7 +33,7 @@
           "type": "file",
           "name": "グローバル指示ファイル",
           "description": "全プロジェクト共通の指示（メモリファイル）",
-          "detail": "すべてのプロジェクトで Claude が自動的に読み込む指示ファイル。個人的なコーディングスタイルの好みや、常に適用したいルールを記載する。Claude はこのファイルの内容をシステムプロンプトの一部として毎回読み込むため、短く具体的に書くのが効果的。\n\nこのファイルが大きくなりすぎるとコンテキストウィンドウを圧迫する。目安として 200 行以内に収め、それ以上になったら rules/ ディレクトリでモジュラー化するのが推奨。@path/to/file 記法で他のファイルをインポートすることも可能（再帰5段階まで）。初回のインポートでは承認ダイアログが表示される。",
+          "detail": "すべてのプロジェクトで Claude が自動的に読み込む指示ファイル。個人的なコーディングスタイルの好みや、常に適用したいルールを記載する。Claude はこのファイルの内容をシステムプロンプトの一部として毎回読み込むため、短く具体的に書くのが効果的。\n\nこのファイルが大きくなりすぎるとコンテキストウィンドウを圧迫する。目安として 200 行以内に収め、それ以上になったら rules/ ディレクトリでモジュラー化するのが推奨。@path/to/file 記法で他のファイルをインポートすることも可能（再帰5段階まで）。初回のインポートでは承認ダイアログが表示される。/compact 後も CLAUDE.md はディスクから再読み込みされるため内容が失われることはない。",
           "usage": "記載例：「コミットメッセージは日本語で書く」「変数名はキャメルケースを使う」「console.log ではなく構造化ロギングを使う」など。",
           "bestPractice": "200行以内に収め、肥大化したら rules/ で分割する。曖昧な指示より「2スペースインデント使用」のような具体的・再現可能な指示を書く。",
           "vcs": false,
@@ -55,8 +55,8 @@
           "type": "directory",
           "name": "グローバルカスタムエージェント",
           "description": "ユーザーレベルのカスタムサブエージェント",
-          "detail": "独立したコンテキストウィンドウで動く特化型 AI エージェントを定義するディレクトリ。各エージェントは .md ファイルで定義し、YAML フロントマターで動作を設定できる。\n\nフロントマター: name（識別名）、description（用途の説明）、tools / disallowedTools（ツール許可・拒否）、model（sonnet / opus / haiku / inherit）、permissionMode（default / acceptEdits / dontAsk / bypassPermissions / plan / delegate）、maxTurns（最大ターン数）、skills（プリロードするスキル）、mcpServers（MCP サーバー）、hooks（ライフサイクルフック）、memory（永続メモリスコープ: user / project / local）、background（常にバックグラウンドで実行）、isolation（worktree で git worktree 隔離実行）。Claude が Task ツールを使うとき、ここに定義されたエージェントが subagent_type の選択肢として自動的に表示される。",
-          "usage": "「Read と Grep だけ使える読み取り専用リサーチャー」や「Bash も使える自動テストランナー」といった特化型エージェントを作れる。memory: user を設定すると、エージェントが会話をまたいで学習した知識を ~/.claude/agent-memory/ に蓄積する。background: true で常にバックグラウンド実行、isolation: worktree で隔離された git worktree 内で作業させることも可能。/agents コマンドで対話的に管理も可能。",
+          "detail": "独立したコンテキストウィンドウで動く特化型 AI エージェントを定義するディレクトリ。各エージェントは .md ファイルで定義し、YAML フロントマターで動作を設定できる。ビルトインサブエージェント（Explore: 高速読み取り専用、Plan: プランモード用リサーチ、general-purpose: 全ツール対応）に加え、カスタムエージェントをここに配置する。\n\nフロントマター: name（識別名）、description（用途の説明）、tools / disallowedTools（ツール許可・拒否。Agent(type) 構文でスポーン可能なサブエージェントも制限可能）、model（sonnet / opus / haiku / inherit）、permissionMode（default / acceptEdits / dontAsk / bypassPermissions / plan）、maxTurns（最大ターン数）、skills（プリロードするスキル）、mcpServers（MCP サーバー）、hooks（ライフサイクルフック）、memory（永続メモリスコープ: user / project / local）、background（常にバックグラウンドで実行）、isolation（worktree で git worktree 隔離実行）。Claude が Agent ツール（旧 Task ツール）を使うとき、ここに定義されたエージェントが subagent_type の選択肢として自動的に表示される。",
+          "usage": "「Read と Grep だけ使える読み取り専用リサーチャー」や「Bash も使える自動テストランナー」といった特化型エージェントを作れる。memory: user を設定すると、エージェントが会話をまたいで学習した知識を ~/.claude/agent-memory/ に蓄積する。background: true で常にバックグラウンド実行、isolation: worktree で隔離された git worktree 内で作業させることも可能。/agents コマンドで対話的に作成・管理可能。--agents CLI フラグでセッション限定のエージェントを JSON で定義することもできる。プラグインもエージェントをバンドルして配布可能。",
           "bestPractice": "tools / disallowedTools で使えるツールを最小限に制限し、最小権限の原則を守る。description を詳しく書くと Claude が適切に委譲できる。",
           "vcs": false,
           "recommended": "advanced"
@@ -66,8 +66,8 @@
           "type": "file",
           "name": "グローバルスキル",
           "description": "ユーザーレベルの再利用可能なスキル",
-          "detail": "SKILL.md と補助ファイルで構成される再利用可能なプロンプト・ワークフロー。Agent Skills オープン標準に準拠。SKILL.md の YAML フロントマターで動作を設定できる。\n\nフロントマター: name（表示名）、description（用途の説明）、argument-hint（引数ヒント）、disable-model-invocation（Claude の自動呼び出しを禁止）、user-invocable（/ メニュー非表示）、allowed-tools（ツール許可）、model（使用モデル）、context（fork でサブエージェント実行）、agent（context: fork 時のエージェント型）、hooks（スキルのライフサイクルフック）。$ARGUMENTS / $ARGUMENTS[N] / $N で引数を受け取り、${CLAUDE_SESSION_ID} でセッション ID を利用でき、!`command` で動的コンテキストを注入できる。",
-          "usage": "context: fork + agent: Explore でリサーチスキルを作ったり、disable-model-invocation: true でデプロイスキルをユーザー専用にしたりできる。補助ファイル（テンプレート、スクリプト等）を同じディレクトリに配置して参照可能。",
+          "detail": "SKILL.md と補助ファイルで構成される再利用可能なプロンプト・ワークフロー。Agent Skills オープン標準に準拠。SKILL.md の YAML フロントマターで動作を設定できる。バンドルスキル（/simplify: コード品質レビュー、/batch: 大規模並列変更、/debug: セッションデバッグ）が組み込みで提供される。\n\nフロントマター: name（表示名）、description（用途の説明）、argument-hint（引数ヒント）、disable-model-invocation（Claude の自動呼び出しを禁止）、user-invocable（/ メニュー非表示）、allowed-tools（ツール許可）、model（使用モデル）、context（fork でサブエージェント実行）、agent（context: fork 時のエージェント型）、hooks（スキルのライフサイクルフック）。$ARGUMENTS / $ARGUMENTS[N] / $N で引数を受け取り、${CLAUDE_SESSION_ID} でセッション ID を利用でき、!`command` で動的コンテキストを注入できる。スキル説明のコンテキスト予算は SLASH_COMMAND_TOOL_CHAR_BUDGET で調整可能（デフォルト: コンテキストウィンドウの 2%）。",
+          "usage": "context: fork + agent: Explore でリサーチスキルを作ったり、disable-model-invocation: true でデプロイスキルをユーザー専用にしたりできる。補助ファイル（テンプレート、スクリプト等）を同じディレクトリに配置して参照可能。permissions.deny に Skill(name) を追加して特定スキルの使用を制限できる。",
           "bestPractice": "SKILL.md は 500 行以内に抑え、詳細なリファレンスは別ファイルに分離する。description を書いて Claude が自動的に見つけられるようにする。",
           "vcs": false,
           "recommended": "advanced"
@@ -99,7 +99,7 @@
           "type": "directory",
           "name": "オートメモリ",
           "description": "Claude が自動的に保存するプロジェクト別の学習メモ",
-          "detail": "Claude がセッション中に自動的に学んだパターン・知見・コマンド・好みなどを記録するディレクトリ。プロジェクトごとに独立した領域が作られ、<project> はリポジトリルートから導出される。git worktree ごとに別のメモリディレクトリが使われる。\n\nMEMORY.md がエントリポイントで、毎セッションの起動時に先頭 200 行がシステムプロンプトに読み込まれる。トピックファイル（debugging.md, patterns.md 等）は起動時には読み込まれず、Claude が必要に応じてオンデマンドで読む。CLAUDE_CODE_DISABLE_AUTO_MEMORY=1 で無効化、=0 で強制有効化。",
+          "detail": "Claude がセッション中に自動的に学んだパターン・知見・コマンド・好みなどを記録するディレクトリ。プロジェクトごとに独立した領域が作られ、<project> は git リポジトリから導出される（同一リポジトリの全 worktree・サブディレクトリで共有）。git リポジトリ外ではプロジェクトルートが使われる。\n\nMEMORY.md がエントリポイントで、毎セッションの起動時に先頭 200 行がシステムプロンプトに読み込まれる。トピックファイル（debugging.md, patterns.md 等）は起動時には読み込まれず、Claude が必要に応じてオンデマンドで読む。CLAUDE_CODE_DISABLE_AUTO_MEMORY=1 で無効化、=0 で強制有効化。プロジェクト設定の autoMemoryEnabled: false でも無効化可能。/memory コマンドでトグルも可能。",
           "usage": "/memory コマンドでエディタからメモリファイルを編集できる。「pnpm を使うことを覚えて」のように Claude に直接依頼してメモリに保存させることも可能。",
           "bestPractice": "MEMORY.md は 200 行以内に収め、詳細はトピックファイルに分離する。定期的に /memory で整理し、古い情報を削除する。",
           "vcs": false,
@@ -179,8 +179,8 @@
           "type": "file",
           "name": "プロジェクト指示ファイル",
           "description": "プロジェクトルートの指示ファイル（チームと共有）",
-          "detail": "プロジェクト固有のビルドコマンド、テストコマンド、コーディング規約、アーキテクチャの説明などを記載するファイル。チームメンバー全員が同じ指示を受け取れるよう VCS にコミットする。曖昧な指示（「コードを綺麗に書く」）より、具体的な指示（「関数は30行以内」）のほうが効果的。\n\n@path/to/file 記法でファイルをインポート可能（再帰5段階まで）。これを使うと、既存の CONTRIBUTING.md やコーディング規約ドキュメントを直接参照できる。マークダウン見出し（# コマンド、# アーキテクチャ 等）でセクション分けすると、Claude が構造を理解しやすくなる。.claude/CLAUDE.md にも同名ファイルを置ける。両方存在する場合はどちらも読み込まれる。サブディレクトリの CLAUDE.md は、Claude がそのディレクトリのファイルを読んだときにオンデマンドで読み込まれる。",
-          "usage": "記載例：「pnpm run test で全テスト実行」「API エンドポイントは /api/v2/ プレフィックスを使う」「エラーハンドリングは Result 型パターンを使う」など。/init コマンドで自動生成することも可能。",
+          "detail": "プロジェクト固有のビルドコマンド、テストコマンド、コーディング規約、アーキテクチャの説明などを記載するファイル。チームメンバー全員が同じ指示を受け取れるよう VCS にコミットする。曖昧な指示（「コードを綺麗に書く」）より、具体的な指示（「関数は30行以内」）のほうが効果的。\n\n@path/to/file 記法でファイルをインポート可能（再帰5段階まで）。これを使うと、既存の CONTRIBUTING.md やコーディング規約ドキュメントを直接参照できる。マークダウン見出し（# コマンド、# アーキテクチャ 等）でセクション分けすると、Claude が構造を理解しやすくなる。.claude/CLAUDE.md にも同名ファイルを置ける。両方存在する場合はどちらも読み込まれる。サブディレクトリの CLAUDE.md は、Claude がそのディレクトリのファイルを読んだときにオンデマンドで読み込まれる。大規模モノレポでは claudeMdExcludes 設定で他チームの CLAUDE.md をスキップ可能。--add-dir で追加したディレクトリの CLAUDE.md は CLAUDE_CODE_ADDITIONAL_DIRECTORIES_CLAUDE_MD=1 で読み込みを有効化できる。",
+          "usage": "記載例：「pnpm run test で全テスト実行」「API エンドポイントは /api/v2/ プレフィックスを使う」「エラーハンドリングは Result 型パターンを使う」など。/init コマンドで自動生成・改善提案も可能。/memory で読み込み済みファイルの一覧確認と編集ができる。",
           "bestPractice": "ビルド・テスト・リントのコマンドを必ず記載する。@記法で既存の CONTRIBUTING.md を参照し、情報の重複を避ける。見出しでセクション分けして構造化する。",
           "vcs": true,
           "recommended": "recommended"
@@ -201,9 +201,9 @@
           "type": "file",
           "name": "MCP サーバー設定",
           "description": "MCP（Model Context Protocol）サーバーの設定ファイル",
-          "detail": "プロジェクトで使用する MCP サーバーの接続情報を定義するファイル。MCP サーバーは Claude に外部ツール（データベース接続、API 呼び出し、ブラウザ操作など）を提供する仕組み。JSON 形式で mcpServers オブジェクトの中にサーバー定義を記述する。3つのトランスポートに対応: HTTP（推奨）、SSE（非推奨）、stdio。環境変数の展開（${VAR} / ${VAR:-default}）を command, args, env, url, headers で使用可能。\n\nユーザーレベルの MCP 設定は ~/.claude.json に書くが、プロジェクト固有のものはここに定義する。チームで共有するために VCS にコミットするのが推奨。プロジェクトスコープのサーバーは初回使用時に承認ダイアログが表示される。",
-          "usage": "claude mcp add --scope project で追加。認証情報は直接書かず、環境変数展開（${API_KEY}）や apiKeyHelper スクリプトで動的に取得する。OAuth 2.0 認証は /mcp コマンドでブラウザログインフローを実行。",
-          "bestPractice": "API キーは ${VAR} で環境変数展開するか、apiKeyHelper で動的に取得する。HTTP トランスポートを推奨（SSE は非推奨）。チーム共有するために VCS にコミットする。",
+          "detail": "プロジェクトで使用する MCP サーバーの接続情報を定義するファイル。MCP サーバーは Claude に外部ツール（データベース接続、API 呼び出し、ブラウザ操作など）を提供する仕組み。JSON 形式で mcpServers オブジェクトの中にサーバー定義を記述する。3つのトランスポートに対応: HTTP（推奨）、SSE（非推奨）、stdio。環境変数の展開（${VAR} / ${VAR:-default}）を command, args, env, url, headers で使用可能。\n\n3つのスコープ: local（デフォルト、~/.claude.json に保存、個人×プロジェクト）、project（.mcp.json に保存、チーム共有）、user（~/.claude.json に保存、全プロジェクト共通）。project スコープで追加するとこのファイルが作成・更新される。初回使用時に承認ダイアログが表示される。MCP Tool Search 機能により、ツール定義がコンテキストの 10% を超えると自動的にオンデマンド読み込みに切り替わる（ENABLE_TOOL_SEARCH で制御）。MCP リソースは @ メンションで参照可能。プラグインも .mcp.json や plugin.json 内で MCP サーバーをバンドルでき、プラグイン有効化時に自動起動する。OAuth 2.0 認証では事前登録済みクレデンシャル（--client-id / --client-secret）にも対応し、ブラウザリダイレクト失敗時は手動 URL 貼り付けフォールバックも可能。",
+          "usage": "claude mcp add --scope project で追加。認証情報は直接書かず、環境変数展開（${API_KEY}）や apiKeyHelper スクリプトで動的に取得する。OAuth 2.0 認証は /mcp コマンドでブラウザログインフローを実行。claude mcp add-json で JSON 設定を直接追加、claude mcp add-from-claude-desktop で Claude Desktop から設定をインポートすることも可能。",
+          "bestPractice": "API キーは ${VAR} で環境変数展開するか、apiKeyHelper で動的に取得する。HTTP トランスポートを推奨（SSE は非推奨）。チーム共有するために VCS にコミットする。claude mcp reset-project-choices で承認選択をリセット可能。",
           "vcs": true,
           "recommended": "optional"
         }
@@ -226,7 +226,7 @@
           "type": "file",
           "name": "プロジェクト共有設定",
           "description": "チームで共有するプロジェクト設定（VCS にコミット）",
-          "detail": "プロジェクト全体で統一したい権限設定やフックを定義するファイル。VCS にコミットしてチーム全員に同じルールを適用する。設定の評価順序は deny → ask → allow で、全階層（Managed → Local → Project → User）の設定がマージされる。deny ルールは常に最優先。\n\nここで deny したものは、ユーザー設定で allow されていてもブロックされる。逆に allow したツールでも、ユーザーのグローバル設定で deny されていればブロックされない（deny は全階層で最優先）。",
+          "detail": "プロジェクト全体で統一したい権限設定やフックを定義するファイル。VCS にコミットしてチーム全員に同じルールを適用する。設定の評価順序は deny → ask → allow で、全階層（Managed → CLI → Local → Project → User）の設定がマージされる。配列型の設定は階層間でマージされる。deny ルールは常に最優先。\n\nここで deny したものは、ユーザー設定で allow されていてもブロックされる。逆に allow したツールでも、ユーザーのグローバル設定で deny されていればブロックされない（deny は全階層で最優先）。autoMemoryEnabled でオートメモリを制御、claudeMdExcludes でモノレポ内の不要な CLAUDE.md をスキップ可能。",
           "usage": "「このプロジェクトでは本番DBへの直接接続を禁止」のような安全策を定義できる。フック設定も可能で、例えば PreToolUse フックで Bash コマンド実行前にリンターを走らせたり、PostToolUse フックで Write ツール使用後に自動フォーマットをかけるといった自動化ができる。",
           "bestPractice": "deny ルールを最優先で定義し、チームの安全策を確実に適用する。フックで自動フォーマットやリンターを設定するとコード品質を自動維持できる。",
           "vcs": true,
@@ -270,8 +270,8 @@
           "type": "directory",
           "name": "プロジェクトカスタムエージェント",
           "description": "プロジェクト固有のカスタムサブエージェント",
-          "detail": "プロジェクトに特化したエージェントを定義するディレクトリ。各エージェントは .md ファイルで定義し、YAML フロントマターで動作を設定できる。フロントマター: name、description、tools / disallowedTools、model、permissionMode、maxTurns、skills（プリロード）、mcpServers、hooks、memory、background（常にバックグラウンド実行）、isolation（worktree で git worktree 隔離実行）。\n\nClaude が Task ツールを使うとき、ここに定義されたエージェントが subagent_type の選択肢として自動表示される。VCS にコミットすることで、チーム全員が同じエージェントセットを利用でき、プロジェクト固有のベストプラクティスを自動化できる。/agents コマンドで対話的に作成・管理も可能。",
-          "usage": "特定のフレームワークに精通した「フロントエンド専門エージェント」や、セキュリティ観点でのコードレビューに特化した「セキュリティレビューエージェント」を定義できる。skills フィールドでスキルをプリロードし、memory: project でプロジェクト知識を蓄積させる。background: true で常にバックグラウンド実行、isolation: worktree で隔離作業が可能。",
+          "detail": "プロジェクトに特化したエージェントを定義するディレクトリ。各エージェントは .md ファイルで定義し、YAML フロントマターで動作を設定できる。フロントマター: name、description、tools / disallowedTools（Agent(type) 構文でスポーン制限も可能）、model、permissionMode、maxTurns、skills（プリロード）、mcpServers、hooks、memory、background（常にバックグラウンド実行）、isolation（worktree で git worktree 隔離実行）。\n\nClaude が Agent ツール（旧 Task ツール）を使うとき、ここに定義されたエージェントが subagent_type の選択肢として自動表示される。VCS にコミットすることで、チーム全員が同じエージェントセットを利用でき、プロジェクト固有のベストプラクティスを自動化できる。/agents コマンドで対話的に作成・管理可能。permissions.deny に Agent(agent-name) を追加すると特定エージェントの使用を禁止できる。",
+          "usage": "特定のフレームワークに精通した「フロントエンド専門エージェント」や、セキュリティ観点でのコードレビューに特化した「セキュリティレビューエージェント」を定義できる。skills フィールドでスキルをプリロードし、memory: project でプロジェクト知識を蓄積させる。background: true で常にバックグラウンド実行、isolation: worktree で隔離作業が可能。PreToolUse フックで Bash コマンドの事前検証など条件付きルールも定義可能。",
           "bestPractice": "tools / disallowedTools でスコープを制限する。description を詳しく書くと Claude が適切に委譲できる。汎用エージェントはグローバル、プロジェクト特化はここに配置。",
           "vcs": true,
           "recommended": "optional"
@@ -281,7 +281,7 @@
           "type": "file",
           "name": "プロジェクトスキル",
           "description": "プロジェクト固有のスキル",
-          "detail": "プロジェクトに特化した再利用可能なワークフローを定義する。SKILL.md に処理内容を記述し、補助ファイル（テンプレート、設定ファイル等）を同じディレクトリに配置する。フロントマター: name、description、argument-hint、disable-model-invocation、user-invocable、allowed-tools、model、context（fork でサブエージェント実行）、agent、hooks。\n\n$ARGUMENTS / $ARGUMENTS[N] / $N で引数、${CLAUDE_SESSION_ID} でセッション ID、!`command` で動的コンテキストを注入できる。VCS にコミットしてチームで共有できる。サブディレクトリの .claude/skills/ も自動検出される（モノレポ対応）。",
+          "detail": "プロジェクトに特化した再利用可能なワークフローを定義する。SKILL.md に処理内容を記述し、補助ファイル（テンプレート、設定ファイル等）を同じディレクトリに配置する。フロントマター: name、description、argument-hint、disable-model-invocation、user-invocable、allowed-tools、model、context（fork でサブエージェント実行）、agent、hooks。\n\n$ARGUMENTS / $ARGUMENTS[N] / $N で引数、${CLAUDE_SESSION_ID} でセッション ID、!`command` で動的コンテキストを注入できる。VCS にコミットしてチームで共有できる。サブディレクトリの .claude/skills/ も自動検出される（モノレポ対応）。--add-dir で追加したディレクトリ内のスキルも自動読み込みされ、セッション中の変更もライブ反映される。プラグインも skills/ ディレクトリでスキルをバンドルして配布可能。",
           "usage": "例えば「新しい API エンドポイントを追加する」スキルを定義し、テンプレートを補助ファイルとして含めることで、一貫性のあるコード生成が可能になる。hooks フロントマターで PreToolUse フックを定義してセキュリティチェックを組み込むこともできる。",
           "bestPractice": "SKILL.md は 500 行以内に収め、補助ファイルを活用する。チームの定型ワークフローをスキル化して品質を標準化する。",
           "vcs": true,
@@ -292,7 +292,7 @@
           "type": "directory",
           "name": "モジュラールール",
           "description": "トピック別 .md ファイルでルールを分割管理",
-          "detail": "CLAUDE.md を分割してモジュラー管理するためのディレクトリ。Claude はこのディレクトリ内のすべての .md ファイルを自動的に読み込む。サブディレクトリでグループ化も可能（例: frontend/, backend/, infra/）。大規模プロジェクトでは、チーム別にルールを分けて管理するのが効果的。\n\npaths フロントマターを使うとファイルパス条件付きルールを定義できる。例えば testing.md のフロントマターに paths: [\"**/*.test.ts\", \"**/*.spec.ts\"] と書くと、テストファイルを編集するときだけそのルールが適用される。ブレース展開（{ts,tsx}）も対応。シンボリックリンクを使って、複数プロジェクト間で共通ルールを共有することも可能（循環リンクは自動検出）。",
+          "detail": "CLAUDE.md を分割してモジュラー管理するためのディレクトリ。Claude はこのディレクトリ内のすべての .md ファイルを自動的に読み込む。サブディレクトリでグループ化も可能（例: frontend/, backend/, infra/）。大規模プロジェクトでは、チーム別にルールを分けて管理するのが効果的。\n\npaths フロントマターを使うとファイルパス条件付きルールを定義できる。例えば testing.md のフロントマターに paths: [\"**/*.test.ts\", \"**/*.spec.ts\"] と書くと、テストファイルを編集するときだけそのルールが適用される。ブレース展開（{ts,tsx}）も対応。paths がないルールは起動時に無条件で読み込まれる（.claude/CLAUDE.md と同じ優先度）。シンボリックリンクを使って、複数プロジェクト間で共通ルールを共有することも可能（循環リンクは自動検出）。タスク固有の指示には skills/ を使うのが適切で、rules/ は常時または条件付きで適用するルールに使う。",
           "usage": "1ファイル1トピック（例: testing.md, api-design.md, error-handling.md）で管理し、保守性と可読性を向上させる。",
           "bestPractice": "1ファイル1トピック。paths フロントマターでファイルパス条件付きルールを活用し、不要なルール読み込みを減らす。サブディレクトリで team 別に分割も有効。",
           "vcs": true,
@@ -303,7 +303,7 @@
           "type": "directory",
           "name": "フックスクリプト",
           "description": "フック用スクリプト置き場（慣習的な配置場所）",
-          "detail": "settings.json のフック設定から参照するスクリプトを配置する慣習的なディレクトリ。17種類のフックイベントに対応: SessionStart、UserPromptSubmit、PreToolUse、PermissionRequest、PostToolUse、PostToolUseFailure、Notification、SubagentStart、SubagentStop、Stop、TeammateIdle、TaskCompleted、ConfigChange、WorktreeCreate、WorktreeRemove、PreCompact、SessionEnd。\n\n3つのフック型: command（シェルコマンド実行、async 対応）、prompt（LLM による単発評価）、agent（マルチターンのサブエージェント検証）。共通フィールド: `once`（スキル専用・セッション内1回のみ実行）、`statusMessage`（実行中スピナーメッセージ）、`timeout`（タイムアウト秒数）。各フックは stdin で JSON コンテキストを受け取り、終了コード 0 で許可、2 でブロック（イベントによってブロック挙動が異なる）。マッチャーでツール名やイベント種別をフィルタできる。SessionStart フックでは `CLAUDE_ENV_FILE` 環境変数を使って後続の Bash コマンドへ環境変数を永続化できる。スキルやエージェントのフロントマターでもフックを定義可能。WorktreeCreate / WorktreeRemove フックは --worktree や isolation: worktree での worktree 作成・削除時に発火し、デフォルトの git 動作を置き換える。ConfigChange フックはセッション中に設定ファイルが変更された際に発火し、エンタープライズセキュリティ監査や設定変更のブロックに活用できる。",
+          "detail": "settings.json のフック設定から参照するスクリプトを配置する慣習的なディレクトリ。17種類のフックイベントに対応: SessionStart、UserPromptSubmit、PreToolUse、PermissionRequest、PostToolUse、PostToolUseFailure、Notification、SubagentStart、SubagentStop、Stop、TeammateIdle、TaskCompleted、ConfigChange、WorktreeCreate、WorktreeRemove、PreCompact、SessionEnd。\n\n4つのフック型: command（シェルコマンド実行、async 対応）、HTTP（URL に JSON を POST し、レスポンス JSON で制御。allowedHttpHookUrls で許可 URL を制限、httpHookAllowedEnvVars でフックに渡す環境変数を指定）、prompt（LLM による単発評価）、agent（マルチターンのサブエージェント検証）。共通フィールド: `once`（スキル専用・セッション内1回のみ実行）、`statusMessage`（実行中スピナーメッセージ）、`timeout`（タイムアウト秒数）。各フックは JSON コンテキストを受け取り、終了コード 0 で許可、2 でブロック（イベントによってブロック挙動が異なる）。マッチャーでツール名やイベント種別をフィルタできる。SessionStart フックでは `CLAUDE_ENV_FILE` 環境変数を使って後続の Bash コマンドへ環境変数を永続化できる。スキルやエージェントのフロントマターでもフックを定義可能。WorktreeCreate / WorktreeRemove フックは --worktree や isolation: worktree での worktree 作成・削除時に発火し、デフォルトの git 動作を置き換える。ConfigChange フックはセッション中に設定ファイルが変更された際に発火し、エンタープライズセキュリティ監査や設定変更のブロックに活用できる。",
           "usage": "例: .claude/hooks/pre-bash.sh で Bash コマンド実行前に危険なコマンドをチェック、.claude/hooks/post-write.sh でファイル書き込み後に自動フォーマットを実行。$CLAUDE_PROJECT_DIR でプロジェクトルートを参照。/hooks コマンドで対話的に管理も可能。",
           "bestPractice": "スクリプトに実行権限（chmod +x）を必ず付与する。$CLAUDE_PROJECT_DIR で相対パスを使い、チーム全員の環境で動作させる。disableAllHooks: true で一時的に全フック無効化も可能。",
           "vcs": true,
@@ -361,8 +361,8 @@
           "type": "file",
           "name": "ユーザー MCP 設定",
           "description": "ユーザースコープの MCP 設定・OAuth・キャッシュ",
-          "detail": "ユーザーレベルの MCP サーバー設定、OAuth 認証情報、キャッシュデータなどが格納されるファイル。Claude Code が自動的に管理するため、直接編集する機会は少ない。プロジェクト横断で使いたい MCP サーバー（例: Slack 連携、GitHub 連携、ブラウザ自動化など）はここに定義する。MCP のローカルスコープ（プロジェクト固有の個人設定）もこのファイルのプロジェクトパス配下に保存される。\n\n注意: OAuth トークンなどの認証情報も含まれるため、このファイルは絶対に VCS にコミットしないこと。",
-          "usage": "claude mcp add コマンドで MCP サーバーを追加すると、自動的にこのファイルが更新される。--scope user でユーザースコープ（全プロジェクト共通）、--scope local（デフォルト）でローカルスコープ（現在のプロジェクト専用）として追加される。",
+          "detail": "ユーザーレベルの MCP サーバー設定、OAuth 認証情報、キャッシュデータなどが格納されるファイル。Claude Code が自動的に管理するため、直接編集する機会は少ない。user スコープの MCP サーバー（全プロジェクト共通）と local スコープの MCP サーバー（プロジェクト固有の個人設定）がこのファイルに保存される。\n\n注意: OAuth トークンやクライアントシークレット（システムキーチェーン/資格情報ファイルに保存）などの認証情報も関連するため、このファイルは絶対に VCS にコミットしないこと。",
+          "usage": "claude mcp add コマンドで MCP サーバーを追加すると、自動的にこのファイルが更新される。--scope user でユーザースコープ（全プロジェクト共通）、--scope local（デフォルト）でローカルスコープ（現在のプロジェクト専用の個人設定）として追加される。claude.ai で設定した MCP サーバーも ENABLE_CLAUDEAI_MCP_SERVERS 環境変数が有効な場合に自動利用される。",
           "bestPractice": "直接編集せず claude mcp add コマンドを使う。OAuth トークンを含むため絶対に VCS にコミットしない。手動編集が必要な場合はバックアップを取ってから行う。",
           "vcs": false,
           "recommended": "optional"
@@ -383,8 +383,8 @@
           "type": "file",
           "name": "マネージド設定",
           "description": "管理者が強制する設定（macOS / Linux・WSL / Windows の OS 固有パス）",
-          "detail": "企業のセキュリティポリシーに基づいた設定を強制するためのファイル。設定の優先順位では最上位（レベル1）に位置し、ユーザーやプロジェクトの設定ではオーバーライドできない。配置場所は OS によって異なる: macOS は /Library/Application Support/ClaudeCode/、Linux/WSL は /etc/claude-code/、Windows は C:\\Program Files\\ClaudeCode\\。管理者専用の設定キー: allowManagedHooksOnly（ユーザー/プロジェクト/プラグインフックを禁止）、allowManagedPermissionRulesOnly（権限ルールをマネージドのみに制限）、allowedMcpServers / deniedMcpServers（MCP サーバーの許可/拒否リスト）、allowManagedMcpServersOnly（マネージド MCP のみ許可）、strictKnownMarketplaces（プラグインマーケットプレイスの許可リスト）、blockedMarketplaces（マーケットプレイスのブロックリスト）。\n\n一般の開発者がこのファイルを作成・編集することは通常ない。企業の IT 管理者やセキュリティチームが管理する。",
-          "usage": "permissions.deny で機密操作をブロックしたり、allowedMcpServers で承認済み MCP サーバーのみを許可する。MDM（モバイルデバイス管理）ツールで配布するのが一般的。allowManagedHooksOnly: true でユーザー定義フックを無効化できる。",
+          "detail": "企業のセキュリティポリシーに基づいた設定を強制するためのファイル。設定の優先順位では最上位（レベル1）に位置し、ユーザーやプロジェクトの設定ではオーバーライドできない。配置場所は OS によって異なる: macOS は /Library/Application Support/ClaudeCode/（または com.anthropic.claudecode plist ドメイン）、Linux/WSL は /etc/claude-code/、Windows は C:\\Program Files\\ClaudeCode\\（または HKLM\\SOFTWARE\\Policies\\ClaudeCode レジストリキー）。管理者専用の設定キー: allowManagedHooksOnly（ユーザー/プロジェクト/プラグインフックを禁止）、allowManagedPermissionRulesOnly（権限ルールをマネージドのみに制限）、disableBypassPermissionsMode（--dangerously-skip-permissions の使用を禁止）、allowedMcpServers / deniedMcpServers（MCP サーバーの許可/拒否リスト。serverName / serverCommand / serverUrl の3種類のマッチングに対応。serverUrl はワイルドカード * でドメインパターン指定可能）、allowManagedMcpServersOnly（マネージド MCP のみ許可）、strictKnownMarketplaces（プラグインマーケットプレイスの許可リスト）、blockedMarketplaces（マーケットプレイスのブロックリスト）、companyAnnouncements（全ユーザーに表示するお知らせ配列）、allowedHttpHookUrls（許可する HTTP フック URL パターン）、httpHookAllowedEnvVars（HTTP フックに渡す環境変数リスト）、network.allowManagedDomainsOnly（マネージドのネットワークドメインのみ許可）。\n\n一般の開発者がこのファイルを作成・編集することは通常ない。企業の IT 管理者やセキュリティチームが管理する。macOS plist や Windows レジストリでも設定を配布可能。",
+          "usage": "permissions.deny で機密操作をブロックしたり、allowedMcpServers で承認済み MCP サーバーのみを許可する。MDM（モバイルデバイス管理）ツールで配布するのが一般的。allowManagedHooksOnly: true でユーザー定義フックを無効化できる。companyAnnouncements で社内ガイドラインの URL 等を全員に通知可能。",
           "bestPractice": "MDM ツールで配布し、ユーザーの直接編集を避ける。deny ルールでセキュリティポリシーを強制し、過度に制約せず業務効率とのバランスを取る。",
           "vcs": null,
           "recommended": "advanced"
@@ -394,7 +394,7 @@
           "type": "file",
           "name": "マネージド MCP 設定",
           "description": "管理者が強制する MCP サーバー設定",
-          "detail": "企業全体で使用する MCP サーバーの設定を管理者が定義するファイル。このファイルが存在すると、MCP サーバーの排他制御が有効になり、ユーザーは独自の MCP サーバーを追加・変更できなくなる。配置場所は managed-settings.json と同じ OS 固有のパス。.mcp.json と同じ JSON 形式。\n\nallowedMcpServers / deniedMcpServers（managed-settings.json 内）と組み合わせて使うことも可能。managed-mcp.json が存在する場合でも、これらのフィルタは適用される。",
+          "detail": "企業全体で使用する MCP サーバーの設定を管理者が定義するファイル。このファイルが存在すると排他制御が有効になり、ユーザーは claude mcp add や設定ファイルで独自の MCP サーバーを追加できなくなる。配置場所は managed-settings.json と同じ OS 固有のパス。.mcp.json と同じ JSON 形式。\n\nmanaged-settings.json 内の allowedMcpServers / deniedMcpServers と組み合わせて使用可能。managed-mcp.json が存在する場合でもこれらのフィルタは適用され、マネージドサーバー自体もフィルタリングされる。ポリシーベースの制御（allowlist/denylist）と排他制御（managed-mcp.json）は併用可能で、前者はユーザーにサーバー追加を許可しつつ制限をかけ、後者は完全に管理者のみに制御を委ねる。",
           "usage": "社内の共通ツール（内部 API ゲートウェイ、社内ドキュメント検索、監査ログ収集など）を MCP サーバーとして全社員に強制配布する。",
           "bestPractice": "apiKeyHelper で社内の秘密管理サービスから認証情報を動的取得する。API キーのハードコードは絶対に避ける。",
           "vcs": null,
@@ -478,22 +478,24 @@
       "description": "再利用可能なプロンプト・ワークフロー",
       "characteristics": [
         "SKILL.md + 補助ファイルで構成（Agent Skills 標準準拠）",
-        "context: fork でサブエージェントとして独立実行可能",
+        "context: fork でサブエージェントとして独立実行可能（agent フィールドで実行エージェント型を指定）",
         "ユーザーが /skill-name で呼び出し、または Claude が自動検出",
         "フロントマターで hooks / allowed-tools / model を設定可能",
         "$ARGUMENTS で引数、!`command` で動的コンテキスト注入",
-        "disable-model-invocation で手動専用に制限可能"
+        "disable-model-invocation で手動専用、user-invocable: false でモデル専用に制限可能",
+        "バンドルスキル（/simplify, /batch, /debug）が組み込みで提供"
       ]
     },
     "agents": {
       "description": "独立したコンテキストで動く特化型 AI",
       "characteristics": [
-        "tools / disallowedTools でツール制限、permissionMode で権限設定",
-        "Claude が Task ツールから自動的に委譲、または明示的に指定",
+        "tools / disallowedTools でツール制限（Agent(type) でスポーン制限も可能）、permissionMode で権限設定",
+        "Claude が Agent ツール（旧 Task ツール）から自動的に委譲、または明示的に指定",
         "独立したコンテキストウィンドウで動作（フォアグラウンド/バックグラウンド）",
         "memory（user / project / local）で会話をまたいだ学習が可能",
         "skills フィールドでスキルをプリロード可能",
-        "hooks / mcpServers でエージェント固有のフック・ツールを定義"
+        "hooks / mcpServers でエージェント固有のフック・ツールを定義",
+        "--agents CLI フラグでセッション限定エージェントを JSON 定義可能"
       ]
     }
   }
