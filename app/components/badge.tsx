@@ -55,7 +55,7 @@ export function Badge({ tag, small }: BadgeProps): React.JSX.Element {
   return (
     <span
       className={`inline-flex items-center whitespace-nowrap font-semibold tracking-wide ${
-        small ? "px-[7px] py-px text-[11px]" : "px-[9px] py-[2px] text-[12px]"
+        small ? "px-[5px] py-px text-[10px]" : "px-[9px] py-[2px] text-[12px]"
       }`}
       style={{
         borderRadius: "6px",

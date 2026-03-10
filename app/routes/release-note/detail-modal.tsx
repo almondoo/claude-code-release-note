@@ -79,8 +79,8 @@ export function DetailModal({
                 className="modal-item rounded-lg transition-colors"
                 style={{ padding: "10px 12px" }}
               >
-                <div className="flex gap-2 items-start">
-                  <div className="flex gap-[3px] flex-wrap shrink-0 pt-[2px]">
+                <div className="flex flex-col gap-1">
+                  <div className="flex gap-[3px] flex-wrap">
                     {item.tags.map((tag) => (
                       <Badge key={tag} tag={tag} small />
                     ))}

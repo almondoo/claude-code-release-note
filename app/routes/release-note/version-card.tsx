@@ -55,7 +55,7 @@ export function VersionCard({
           onClick();
         }
       }}
-      className="hover-card bg-surface rounded-xl border border-slate-700 flex flex-col gap-[10px] cursor-pointer relative overflow-hidden h-[200px]"
+      className="hover-card bg-surface rounded-xl border border-slate-700 flex flex-col gap-[10px] cursor-pointer relative overflow-hidden min-h-[200px]"
       style={{ padding: "18px 20px", "--accent": accentColor } as React.CSSProperties}
     >
       {/* Accent line */}
