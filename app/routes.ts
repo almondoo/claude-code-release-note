@@ -13,4 +13,5 @@ export default [
   route("llm-infra-guide", "routes/llm-infra-guide/index.tsx"),
   route("hands-on", "routes/hands-on/index.tsx"),
   route("hands-on/:topic", "routes/hands-on-topic/index.tsx"),
+  route("env-vars", "routes/env-vars/index.tsx"),
 ] satisfies RouteConfig;

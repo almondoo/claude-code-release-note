@@ -12,6 +12,7 @@ const ALL_PAGES = [
   { to: "/best-practices", label: "ベストプラクティス" },
   { to: "/hands-on", label: "ハンズオン" },
   { to: "/token-usage", label: "トークン計測" },
+  { to: "/env-vars", label: "環境変数" },
 ];
 
 interface Stat {
