@@ -1,12 +1,13 @@
-import { useState, useMemo, useCallback } from "react";
-import { motion, AnimatePresence, useReducedMotion } from "motion/react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 
 import { EmptyState } from "~/components/empty-state";
 import { Footer } from "~/components/footer";
+import { ItemGrid } from "~/components/item-grid";
 import { PageHeader } from "~/components/page-header";
 import { SearchInput } from "~/components/search-input";
 import { TabBar } from "~/components/tab-bar";
 import type { TabItem } from "~/components/tab-bar";
+import { usePageState } from "~/hooks/usePageState";
 
 import {
   SECTIONS,
@@ -42,46 +43,27 @@ function renderTabIcon(tab: TabItem): React.ReactNode {
 }
 
 export default function BestPractices(): React.JSX.Element {
-  const [query, setQuery] = useState("");
-  const [activeTab, setActiveTab] = useState<string>("all");
-  const [modalItemId, setModalItemId] = useState<string | null>(null);
+  const {
+    query,
+    setQuery,
+    activeTab,
+    handleTabChange,
+    filteredSections,
+    modalItem: modalItemId,
+    openModal,
+    closeModal,
+  } = usePageState({
+    sections: SECTIONS.map((s) => ({ id: s.id, name: s.name, items: s.items })),
+    searchFields: (item) => [item.title, item.summary, item.content, ...item.tags],
+  });
   const reducedMotion = useReducedMotion();
-
-  const lowerQuery = query.toLowerCase();
-  const isAllTab = activeTab === "all";
-  const activeSection = SECTIONS.find((s) => s.id === activeTab);
-
-  const filteredSections = useMemo(() => {
-    const sections = isAllTab ? SECTIONS : activeSection ? [activeSection] : [];
-    if (!query) return sections;
-    return sections
-      .map((section) => ({
-        ...section,
-        items: section.items.filter(
-          (item) =>
-            item.title.toLowerCase().includes(lowerQuery) ||
-            item.summary.toLowerCase().includes(lowerQuery) ||
-            item.content.toLowerCase().includes(lowerQuery) ||
-            item.tags.some((t) => t.toLowerCase().includes(lowerQuery)),
-        ),
-      }))
-      .filter((section) => section.items.length > 0);
-  }, [isAllTab, activeSection, query, lowerQuery]);
 
   const visibleItemCount = filteredSections.reduce((sum, s) => sum + s.items.length, 0);
 
-  const openModal = useCallback((itemId: string) => setModalItemId(itemId), []);
-  const closeModal = useCallback(() => setModalItemId(null), []);
-
-  const modalItem = modalItemId
+  const modalItemData = modalItemId
     ? (SECTIONS.flatMap((s) => s.items).find((i) => i.id === modalItemId) ?? null)
     : null;
   const modalSection = modalItemId ? ITEM_SECTION_MAP.get(modalItemId) : null;
-
-  const handleTabChange = useCallback((id: string) => {
-    setActiveTab(id);
-    setQuery("");
-  }, []);
 
   const m = reducedMotion
     ? { initial: undefined, animate: undefined, transition: undefined }
@@ -150,34 +132,19 @@ export default function BestPractices(): React.JSX.Element {
                 </div>
 
                 {/* Cards */}
-                <div className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-3.5">
-                  <AnimatePresence mode="popLayout">
-                    {section.items.map((item, i) => (
-                      <motion.div
-                        key={item.id}
-                        layout={!reducedMotion}
-                        initial={reducedMotion ? false : { opacity: 0, y: 15 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={
-                          reducedMotion
-                            ? undefined
-                            : { opacity: 0, scale: 0.96, transition: { duration: 0.15 } }
-                        }
-                        transition={{
-                          duration: 0.2,
-                          delay: reducedMotion ? 0 : Math.min(i * 0.04, 0.4),
-                        }}
-                      >
-                        <ItemCard
-                          item={item}
-                          accentColor={colors.color}
-                          sectionName={section.name}
-                          onClick={() => openModal(item.id)}
-                        />
-                      </motion.div>
-                    ))}
-                  </AnimatePresence>
-                </div>
+                <ItemGrid
+                  items={section.items}
+                  keyExtractor={(item) => item.id}
+                  renderItem={(item) => (
+                    <ItemCard
+                      item={item}
+                      accentColor={colors.color}
+                      sectionName={section.name}
+                      onClick={() => openModal(item.id)}
+                    />
+                  )}
+                  reducedMotion={reducedMotion}
+                />
               </div>
             );
           })}
@@ -197,9 +164,9 @@ export default function BestPractices(): React.JSX.Element {
 
       {/* Modal */}
       <AnimatePresence>
-        {modalItem && modalSection && (
+        {modalItemData && modalSection && (
           <DetailModal
-            item={modalItem}
+            item={modalItemData}
             sectionName={modalSection.sectionName}
             accentColor={SECTION_COLORS[modalSection.sectionId]?.color || "#3B82F6"}
             onClose={closeModal}

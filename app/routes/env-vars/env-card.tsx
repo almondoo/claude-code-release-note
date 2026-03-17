@@ -1,3 +1,4 @@
+import { BaseCard } from "~/components/base-card";
 import type { EnvVar } from "./constants";
 
 export function EnvCard({
@@ -14,27 +15,7 @@ export function EnvCard({
   onClick: () => void;
 }): React.JSX.Element {
   return (
-    <div
-      role="button"
-      tabIndex={0}
-      onClick={onClick}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault();
-          onClick();
-        }
-      }}
-      className="hover-card bg-surface rounded-xl border border-slate-700 flex flex-col gap-2.5 cursor-pointer relative overflow-hidden h-[160px]"
-      style={{ padding: "18px 20px", ["--accent" as string]: accentColor }}
-    >
-      <div
-        className="absolute top-0 left-0 right-0 rounded-t-xl"
-        style={{
-          height: "3px",
-          background: `linear-gradient(90deg, ${accentColor}, ${accentColor}40)`,
-        }}
-      />
-
+    <BaseCard accentColor={accentColor} onClick={onClick} className="gap-2.5 h-[160px]" style={{ padding: "18px 20px" }}>
       <code
         className="font-mono text-[13px] font-bold overflow-hidden text-ellipsis whitespace-nowrap"
         style={{ color: accentColor }}
@@ -62,6 +43,6 @@ export function EnvCard({
           </span>
         )}
       </div>
-    </div>
+    </BaseCard>
   );
 }

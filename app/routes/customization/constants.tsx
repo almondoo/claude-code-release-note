@@ -1,8 +1,11 @@
 import type { Callout } from "~/components/callout-box";
 import type { CodeBlock } from "~/components/code-block-view";
+import { CodeIcon, LinkIcon } from "~/components/icons";
 import skillsTab from "~/data/customization/customization-skills.json";
 import mcpTab from "~/data/customization/customization-mcp.json";
 import hooksTab from "~/data/customization/customization-hooks.json";
+import { PALETTE } from "~/theme/colors";
+import { matchesQuery } from "~/utils/search";
 
 export interface CustomizationItem {
   id: string;
@@ -53,46 +56,15 @@ export const TAB_ICONS: Record<string, () => React.JSX.Element> = {
       <path d="M8.5 5H10V3.5C10 2.67 9.33 2 8.5 2S7 2.67 7 3.5 7.67 5 8.5 5z" />
     </svg>
   ),
-  mcp: () => (
-    <svg
-      width="16"
-      height="16"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
-      <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
-    </svg>
-  ),
-  hooks: () => (
-    <svg
-      width="16"
-      height="16"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <polyline points="16 18 22 12 16 6" />
-      <polyline points="8 6 2 12 8 18" />
-    </svg>
-  ),
+  mcp: () => <LinkIcon width={16} height={16} />,
+  hooks: () => <CodeIcon width={16} height={16} />,
 };
 
 export const DEFAULT_TAG_COLOR = { color: "#94A3B8", bg: "rgba(148, 163, 184, 0.15)" };
 
 export const TAG_COLORS: Record<string, { color: string; bg: string }> = {
-  上級者向け: { color: "#C4B5FD", bg: "rgba(139, 92, 246, 0.15)" },
-  チーム向け: { color: "#67E8F9", bg: "rgba(6, 182, 212, 0.15)" },
+  上級者向け: PALETTE.purple,
+  チーム向け: PALETTE.cyan,
 };
 
-export function matchesQuery(fields: (string | null)[], lowerQuery: string): boolean {
-  if (!lowerQuery) return true;
-  return fields.some((f) => f != null && f.toLowerCase().includes(lowerQuery));
-}
+export { matchesQuery };

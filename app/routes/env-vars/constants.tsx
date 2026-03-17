@@ -1,4 +1,5 @@
 import envData from "~/data/env-vars/env-vars.json";
+import { PALETTE } from "~/theme/colors";
 
 export interface EnvLink {
   label: string;
@@ -24,15 +25,15 @@ export interface EnvCategory {
 }
 
 export const CATEGORY_COLORS: Record<string, { color: string; bg: string }> = {
-  auth: { color: "#C4B5FD", bg: "rgba(139, 92, 246, 0.15)" },
+  auth: PALETTE.purple,
   model: { color: "#93C5FD", bg: "rgba(59, 130, 246, 0.15)" },
-  provider: { color: "#6EE7B7", bg: "rgba(16, 185, 129, 0.15)" },
-  "bash-context": { color: "#5EEAD4", bg: "rgba(20, 184, 166, 0.15)" },
-  mcp: { color: "#67E8F9", bg: "rgba(6, 182, 212, 0.15)" },
-  ui: { color: "#FDBA74", bg: "rgba(249, 115, 22, 0.15)" },
-  telemetry: { color: "#FCA5A5", bg: "rgba(239, 68, 68, 0.15)" },
-  proxy: { color: "#FDE68A", bg: "rgba(234, 179, 8, 0.15)" },
-  misc: { color: "#94A3B8", bg: "rgba(100, 116, 139, 0.15)" },
+  provider: PALETTE.green,
+  "bash-context": PALETTE.teal,
+  mcp: PALETTE.cyan,
+  ui: PALETTE.orange,
+  telemetry: PALETTE.red,
+  proxy: PALETTE.yellow,
+  misc: PALETTE.slate,
 };
 
 export const CATEGORIES: EnvCategory[] = envData.categories as unknown as EnvCategory[];

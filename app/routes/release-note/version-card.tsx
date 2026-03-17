@@ -1,4 +1,5 @@
 import { TAG_COLORS, TAG_LABELS } from "~/components/badge";
+import { BaseCard } from "~/components/base-card";
 import { ExternalLinkIcon } from "~/components/icons";
 
 import type { ReleaseItem } from "./constants";
@@ -45,25 +46,7 @@ export function VersionCard({
   const hasDetails = VERSION_DETAILS_AVAILABLE.has(version);
 
   return (
-    <div
-      role="button"
-      tabIndex={0}
-      onClick={onClick}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault();
-          onClick();
-        }
-      }}
-      className="hover-card bg-surface rounded-xl border border-slate-700 flex flex-col gap-[10px] cursor-pointer relative overflow-hidden min-h-[200px]"
-      style={{ padding: "18px 20px", "--accent": accentColor } as React.CSSProperties}
-    >
-      {/* Accent line */}
-      <div
-        className="absolute top-0 left-0 right-0 h-[3px]"
-        style={{ background: `linear-gradient(90deg, ${accentColor}, ${accentColor}60)` }}
-      />
-
+    <BaseCard accentColor={accentColor} onClick={onClick} className="gap-[10px] min-h-[200px]" style={{ padding: "18px 20px" }} gradientOpacity="60">
       {/* Version header */}
       <div className="flex items-center justify-between">
         <span className="font-mono text-base font-bold text-slate-100 tracking-tight">
@@ -108,6 +91,6 @@ export function VersionCard({
           詳細あり
         </div>
       )}
-    </div>
+    </BaseCard>
   );
 }

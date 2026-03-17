@@ -1,12 +1,14 @@
-import { useState, useMemo, useCallback } from "react";
+import { useState, useCallback } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 
 import { BoltIcon } from "~/components/icons.js";
 import { EmptyState } from "~/components/empty-state.js";
+import { ItemGrid } from "~/components/item-grid";
 import { PageHeader } from "~/components/page-header";
 import { SearchInput } from "~/components/search-input.js";
 import { TabBar } from "~/components/tab-bar";
 import type { TabItem } from "~/components/tab-bar";
+import { usePageState } from "~/hooks/usePageState";
 
 import {
   CATEGORIES,
@@ -45,36 +47,33 @@ function renderTabIcon(tab: TabItem): React.ReactNode {
 }
 
 export default function Plugins(): React.JSX.Element {
-  const [query, setQuery] = useState("");
-  const [activeTab, setActiveTab] = useState<string>("all");
+  const {
+    query,
+    setQuery,
+    activeTab,
+    handleTabChange,
+    filteredItems: filteredPlugins,
+  } = usePageState<Plugin>({
+    sections: CATEGORIES.map((c) => ({ id: c.id, name: c.name, items: c.plugins })),
+    searchFields: (p) => [
+      p.name,
+      p.displayName,
+      p.description,
+      p.detail,
+      p.whenToUse,
+      ...(p.binary ? [p.binary] : []),
+    ],
+  });
+
+  // Custom modal state (plugin + color pair)
   const [selectedPlugin, setSelectedPlugin] = useState<{
     plugin: Plugin;
     accentColor: string;
   } | null>(null);
   const reducedMotion = useReducedMotion();
 
-  const lowerQuery = query.toLowerCase();
-  const isAllTab = activeTab === "all";
-  const activeCategory = CATEGORIES.find((c) => c.id === activeTab);
   const isQuickStart = activeTab === "quickstart";
-
-  const filteredPlugins = useMemo(() => {
-    const plugins = isAllTab
-      ? CATEGORIES.flatMap((c) => c.plugins)
-      : activeCategory
-        ? activeCategory.plugins
-        : [];
-    if (!query) return plugins;
-    return plugins.filter(
-      (p) =>
-        p.name.toLowerCase().includes(lowerQuery) ||
-        p.displayName.toLowerCase().includes(lowerQuery) ||
-        p.description.toLowerCase().includes(lowerQuery) ||
-        p.detail.toLowerCase().includes(lowerQuery) ||
-        p.whenToUse.toLowerCase().includes(lowerQuery) ||
-        (p.binary && p.binary.toLowerCase().includes(lowerQuery)),
-    );
-  }, [isAllTab, activeCategory, query, lowerQuery]);
+  const isAllTab = activeTab === "all";
 
   const openModal = useCallback((plugin: Plugin, accentColor: string) => {
     setSelectedPlugin({ plugin, accentColor });
@@ -82,11 +81,6 @@ export default function Plugins(): React.JSX.Element {
 
   const closeModal = useCallback(() => {
     setSelectedPlugin(null);
-  }, []);
-
-  const handleTabChange = useCallback((id: string) => {
-    setActiveTab(id);
-    setQuery("");
   }, []);
 
   const m = reducedMotion
@@ -156,38 +150,23 @@ export default function Plugins(): React.JSX.Element {
               </div>
 
               {/* Card grid */}
-              <div className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-3.5">
-                <AnimatePresence mode="popLayout">
-                  {filteredPlugins.map((plugin, i) => {
-                    const color = isAllTab
-                      ? PLUGIN_CATEGORY_MAP.get(plugin.name)?.color || "#3B82F6"
-                      : CATEGORY_COLORS[activeTab]?.color || "#3B82F6";
-                    return (
-                      <motion.div
-                        key={plugin.name}
-                        layout={!reducedMotion}
-                        initial={reducedMotion ? false : { opacity: 0, y: 15 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={
-                          reducedMotion
-                            ? undefined
-                            : { opacity: 0, scale: 0.96, transition: { duration: 0.15 } }
-                        }
-                        transition={{
-                          duration: 0.2,
-                          delay: reducedMotion ? 0 : Math.min(i * 0.04, 0.4),
-                        }}
-                      >
-                        <PluginCard
-                          plugin={plugin}
-                          accentColor={color}
-                          onClick={() => openModal(plugin, color)}
-                        />
-                      </motion.div>
-                    );
-                  })}
-                </AnimatePresence>
-              </div>
+              <ItemGrid
+                items={filteredPlugins}
+                keyExtractor={(plugin) => plugin.name}
+                renderItem={(plugin) => {
+                  const color = isAllTab
+                    ? PLUGIN_CATEGORY_MAP.get(plugin.name)?.color || "#3B82F6"
+                    : CATEGORY_COLORS[activeTab]?.color || "#3B82F6";
+                  return (
+                    <PluginCard
+                      plugin={plugin}
+                      accentColor={color}
+                      onClick={() => openModal(plugin, color)}
+                    />
+                  );
+                }}
+                reducedMotion={reducedMotion}
+              />
 
               {/* Empty state */}
               {filteredPlugins.length === 0 && (

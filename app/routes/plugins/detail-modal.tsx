@@ -9,6 +9,7 @@ import {
 } from "~/components/icons.js";
 import { CopyButton } from "~/components/copy-button";
 import { DetailModalShell } from "~/components/detail-modal";
+import { SectionHeading } from "~/components/section-heading";
 import type { Plugin } from "./constants";
 
 interface DetailModalProps {
@@ -80,28 +81,19 @@ export function DetailModal({
 
       {/* Detail */}
       <div className="flex flex-col gap-2.5">
-        <div className="flex items-center gap-1.5 text-[12px] font-bold tracking-wide uppercase font-mono text-cyan-300">
-          <InfoIcon />
-          詳細説明
-        </div>
+        <SectionHeading icon={<InfoIcon />} label="詳細説明" color="#67E8F9" />
         <p className="m-0 text-[14px] leading-[1.8] text-slate-400 font-sans">{plugin.detail}</p>
       </div>
 
       {/* When to use */}
       <div className="flex flex-col gap-2.5">
-        <div className="flex items-center gap-1.5 text-[12px] font-bold tracking-wide uppercase font-mono text-orange-300">
-          <TimingIcon />
-          使うタイミング
-        </div>
+        <SectionHeading icon={<TimingIcon />} label="使うタイミング" color="#FDBA74" />
         <p className="m-0 text-[14px] leading-[1.8] text-slate-400 font-sans">{plugin.whenToUse}</p>
       </div>
 
       {/* Setup */}
       <div className="flex flex-col gap-2.5">
-        <div className="flex items-center gap-1.5 text-[12px] font-bold tracking-wide uppercase font-mono text-teal-300">
-          <SettingsIcon />
-          セットアップ
-        </div>
+        <SectionHeading icon={<SettingsIcon />} label="セットアップ" color="#5EEAD4" />
         <p className="m-0 text-[14px] leading-[1.8] text-slate-400 font-sans">{plugin.setup}</p>
         {plugin.binary && (
           <div className="flex items-center gap-1.5">

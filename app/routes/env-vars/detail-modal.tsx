@@ -1,28 +1,8 @@
 import { DetailModalShell } from "~/components/detail-modal";
+import { ModalSection } from "~/components/modal-section";
+import { ParagraphList } from "~/components/paragraph-list";
 import type { EnvCategory, EnvVar } from "./constants";
 import { CATEGORY_COLORS } from "./constants";
-
-function ModalSection({
-  label,
-  accentColor,
-  children,
-}: {
-  label: string;
-  accentColor: string;
-  children: React.ReactNode;
-}): React.JSX.Element {
-  return (
-    <div className="flex flex-col gap-2.5">
-      <div
-        className="text-[12px] font-bold tracking-wide uppercase font-mono"
-        style={{ color: accentColor }}
-      >
-        {label}
-      </div>
-      {children}
-    </div>
-  );
-}
 
 export function DetailModal({
   envVar,
@@ -37,8 +17,6 @@ export function DetailModal({
   onClose: () => void;
   reducedMotion: boolean | null;
 }): React.JSX.Element {
-  const detailParagraphs = envVar.detail.split("\n\n").filter(Boolean);
-
   return (
     <DetailModalShell
       accentColor={accentColor}
@@ -86,11 +64,10 @@ export function DetailModal({
       }
     >
       <ModalSection label="説明" accentColor={accentColor}>
-        {detailParagraphs.map((p, i) => (
-          <p key={i} className="m-0 text-[14px] leading-[1.8] text-slate-400 font-sans">
-            {p}
-          </p>
-        ))}
+        <ParagraphList
+          content={envVar.detail}
+          className="m-0 text-[14px] leading-[1.8] text-slate-400 font-sans"
+        />
       </ModalSection>
 
       {envVar.values && (

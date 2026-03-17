@@ -1,6 +1,7 @@
 import { useCallback, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
+import { BaseCard } from "~/components/base-card";
 import { FileIcon, FolderIcon } from "~/components/icons";
 import type { Entry } from "./constants";
 import { RECOMMEND_CONFIG, VCS_CONFIG, getVcsKey } from "./constants";
@@ -69,27 +70,7 @@ export function EntryCard({
   const vcsCfg = VCS_CONFIG[getVcsKey(entry.vcs)];
 
   return (
-    <div
-      role="button"
-      tabIndex={0}
-      onClick={onClick}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault();
-          onClick();
-        }
-      }}
-      className="hover-card bg-surface rounded-xl border border-slate-700 flex flex-col gap-2.5 cursor-pointer relative overflow-hidden h-[200px]"
-      style={{ padding: "18px 20px", ["--accent" as string]: accentColor }}
-    >
-      <div
-        className="absolute top-0 left-0 right-0 rounded-t-xl"
-        style={{
-          height: "3px",
-          background: `linear-gradient(90deg, ${accentColor}, ${accentColor}40)`,
-        }}
-      />
-
+    <BaseCard accentColor={accentColor} onClick={onClick} className="gap-2.5 h-[200px]" style={{ padding: "18px 20px" }}>
       <div className="flex items-center gap-2">
         <span className="shrink-0 flex items-center" style={{ color: accentColor }}>
           {entry.type === "directory" ? <FolderIcon /> : <FileIcon />}
@@ -114,6 +95,6 @@ export function EntryCard({
         <BadgeWithTooltip {...recommendCfg} />
         <BadgeWithTooltip {...vcsCfg} />
       </div>
-    </div>
+    </BaseCard>
   );
 }

@@ -1,4 +1,5 @@
 import { DetailModalShell } from "~/components/detail-modal";
+import { ParagraphList } from "~/components/paragraph-list";
 import { CodeBlockView } from "~/components/code-block-view";
 import { CalloutBox } from "~/components/callout-box";
 
@@ -89,11 +90,7 @@ export function DetailModal({
       }
     >
       {/* Content paragraphs */}
-      {item.content.split("\n\n").map((paragraph, i) => (
-        <p key={i} className="m-0 text-[14px] leading-[1.8] text-slate-300 font-sans">
-          {paragraph}
-        </p>
-      ))}
+      <ParagraphList content={item.content} />
 
       {/* Callouts */}
       {item.callouts.map((callout, i) => (

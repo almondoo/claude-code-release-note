@@ -1,13 +1,15 @@
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import { useCallback, useMemo, useState, useSyncExternalStore } from "react";
+import { useCallback, useState, useSyncExternalStore } from "react";
 
 import { InfoIcon, LightbulbIcon } from "~/components/icons";
 import { EmptyState } from "~/components/empty-state";
 import { Footer } from "~/components/footer";
+import { ItemGrid } from "~/components/item-grid";
 import { PageHeader } from "~/components/page-header";
 import { SearchInput } from "~/components/search-input";
 import { TabBar } from "~/components/tab-bar";
 import type { TabItem } from "~/components/tab-bar";
+import { usePageState } from "~/hooks/usePageState";
 
 import type { Entry, Section } from "./constants";
 import {
@@ -62,8 +64,18 @@ function renderTabIcon(tab: TabItem): React.ReactNode {
 }
 
 export default function Directory(): React.JSX.Element {
-  const [activeTab, setActiveTab] = useState<string>("all");
-  const [query, setQuery] = useState("");
+  const {
+    query,
+    setQuery,
+    activeTab,
+    handleTabChange,
+    filteredItems: filteredEntries,
+  } = usePageState<Entry>({
+    sections: SECTIONS.map((s) => ({ id: s.id, name: s.name, items: s.entries })),
+    searchFields: (e) => [e.path, e.name, e.description, e.detail, e.usage],
+  });
+
+  // Custom modal state (entry + section pair)
   const [selectedEntry, setSelectedEntry] = useState<{
     entry: Entry;
     section: Section;
@@ -75,28 +87,8 @@ export default function Directory(): React.JSX.Element {
     () => false,
   );
 
-  const lowerQuery = query.toLowerCase();
-
   const isAllTab = activeTab === "all";
   const activeSection = SECTIONS.find((s) => s.id === activeTab);
-
-  const filteredEntries = useMemo(() => {
-    const entries = isAllTab
-      ? SECTIONS.flatMap((s) => s.entries)
-      : activeSection
-        ? activeSection.entries
-        : [];
-    return entries.filter(
-      (e) =>
-        !query ||
-        e.path.toLowerCase().includes(lowerQuery) ||
-        e.name.toLowerCase().includes(lowerQuery) ||
-        e.description.toLowerCase().includes(lowerQuery) ||
-        e.detail.toLowerCase().includes(lowerQuery) ||
-        e.usage.toLowerCase().includes(lowerQuery),
-    );
-  }, [isAllTab, activeSection, query, lowerQuery]);
-
   const isInfoTab = SPECIAL_TABS.includes(activeTab as (typeof SPECIAL_TABS)[number]);
 
   const openModal = useCallback((entry: Entry, section: Section) => {
@@ -105,11 +97,6 @@ export default function Directory(): React.JSX.Element {
 
   const closeModal = useCallback(() => {
     setSelectedEntry(null);
-  }, []);
-
-  const handleTabChange = useCallback((id: string) => {
-    setActiveTab(id);
-    setQuery("");
   }, []);
 
   const m = reducedMotion
@@ -259,41 +246,26 @@ export default function Directory(): React.JSX.Element {
               )}
 
               {/* Card grid */}
-              <div className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-3.5">
-                <AnimatePresence mode="popLayout">
-                  {filteredEntries.map((entry, i) => {
-                    const section = isAllTab ? getSectionForEntry(entry) : activeSection!;
-                    const color = SECTION_COLORS[section.id]?.color || "#3B82F6";
-                    return (
-                      <motion.div
-                        key={`${section.id}-${entry.path}`}
-                        layout={!reducedMotion}
-                        initial={reducedMotion ? false : { opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={
-                          reducedMotion
-                            ? undefined
-                            : {
-                                opacity: 0,
-                                scale: 0.96,
-                                transition: { duration: 0.15 },
-                              }
-                        }
-                        transition={{
-                          duration: 0.2,
-                          delay: reducedMotion || hasMounted ? 0 : Math.min(i * 0.04, 0.4),
-                        }}
-                      >
-                        <EntryCard
-                          entry={entry}
-                          accentColor={color}
-                          onClick={() => openModal(entry, section)}
-                        />
-                      </motion.div>
-                    );
-                  })}
-                </AnimatePresence>
-              </div>
+              <ItemGrid
+                items={filteredEntries}
+                keyExtractor={(entry) => {
+                  const section = isAllTab ? getSectionForEntry(entry) : activeSection!;
+                  return `${section.id}-${entry.path}`;
+                }}
+                renderItem={(entry) => {
+                  const section = isAllTab ? getSectionForEntry(entry) : activeSection!;
+                  const color = SECTION_COLORS[section.id]?.color || "#3B82F6";
+                  return (
+                    <EntryCard
+                      entry={entry}
+                      accentColor={color}
+                      onClick={() => openModal(entry, section)}
+                    />
+                  );
+                }}
+                reducedMotion={reducedMotion}
+                hasMounted={hasMounted}
+              />
 
               {/* Empty state */}
               {filteredEntries.length === 0 && (

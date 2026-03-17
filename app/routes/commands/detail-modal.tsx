@@ -1,5 +1,6 @@
 import { InfoIcon, TerminalIcon, TimingIcon } from "~/components/icons";
 import { DetailModalShell } from "~/components/detail-modal";
+import { SectionHeading } from "~/components/section-heading";
 
 import type { ModalData } from "./constants";
 import { CLI_ACCENT, SHORTCUT_ACCENT } from "./constants";
@@ -165,19 +166,13 @@ export function DetailModal({
     >
       {/* Detail */}
       <div className="flex flex-col gap-2.5">
-        <div className="flex items-center gap-1.5 text-cyan-300 text-[12px] font-bold tracking-wide uppercase font-mono">
-          <InfoIcon />
-          詳細説明
-        </div>
+        <SectionHeading icon={<InfoIcon />} label="詳細説明" color="#67E8F9" />
         <p className="m-0 text-[14px] leading-[1.8] text-slate-400 font-sans">{detail}</p>
       </div>
 
       {/* When to use */}
       <div className="flex flex-col gap-2.5">
-        <div className="flex items-center gap-1.5 text-orange-300 text-[12px] font-bold tracking-wide uppercase font-mono">
-          <TimingIcon />
-          使うタイミング
-        </div>
+        <SectionHeading icon={<TimingIcon />} label="使うタイミング" color="#FDBA74" />
         <p className="m-0 text-[14px] leading-[1.8] text-slate-400 font-sans">{whenToUse}</p>
       </div>
     </DetailModalShell>

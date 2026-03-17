@@ -3,29 +3,9 @@ import { motion, AnimatePresence } from "motion/react";
 
 import { ChevronDownIcon } from "~/components/icons";
 import { Badge, TAG_COLORS_BY_LABEL, TAG_LABELS } from "~/components/badge";
+import { renderInlineLinks } from "~/utils/render-inline-links";
 
 import type { ReleaseItem, DetailItem } from "./constants";
-
-function renderInlineLinks(text: string): React.ReactNode[] {
-  const parts = text.split(/(\[[^\]]+\]\([^)]+\))/g);
-  return parts.map((part, i) => {
-    const match = part.match(/^\[([^\]]+)\]\(([^)]+)\)$/);
-    if (match) {
-      return (
-        <a
-          key={i}
-          href={match[2]}
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{ color: "#67E8F9", textDecoration: "underline", textUnderlineOffset: 2 }}
-        >
-          {match[1]}
-        </a>
-      );
-    }
-    return part;
-  });
-}
 
 const DEFAULT_CATEGORY_COLOR = { bg: "rgba(59, 130, 246, 0.1)", text: "#60A5FA" };
 

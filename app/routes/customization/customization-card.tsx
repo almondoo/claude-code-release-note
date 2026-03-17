@@ -1,3 +1,4 @@
+import { BaseCard } from "~/components/base-card";
 import type { CustomizationItem } from "./constants";
 import { DEFAULT_TAG_COLOR, TAG_COLORS } from "./constants";
 
@@ -11,23 +12,7 @@ export function CustomizationCard({
   onClick: () => void;
 }): React.JSX.Element {
   return (
-    <div
-      role="button"
-      tabIndex={0}
-      onClick={onClick}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault();
-          onClick();
-        }
-      }}
-      className="hover-card bg-surface rounded-xl border border-slate-700 flex flex-col gap-2.5 cursor-pointer relative overflow-hidden px-5 py-[18px]"
-      style={{ "--accent": accentColor } as React.CSSProperties}
-    >
-      <div
-        className="absolute top-0 left-0 right-0 h-[3px] rounded-t-xl"
-        style={{ background: `linear-gradient(90deg, ${accentColor}, ${accentColor}40)` }}
-      />
+    <BaseCard accentColor={accentColor} onClick={onClick} className="gap-2.5 px-5 py-[18px]">
       <h3
         className="font-sans text-sm font-bold m-0 leading-snug"
         style={{ color: accentColor }}
@@ -53,6 +38,6 @@ export function CustomizationCard({
           })}
         </div>
       )}
-    </div>
+    </BaseCard>
   );
 }

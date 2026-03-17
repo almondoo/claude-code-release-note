@@ -1,12 +1,14 @@
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import { useCallback, useMemo, useState, useSyncExternalStore } from "react";
+import { useCallback, useState, useSyncExternalStore } from "react";
 
 import { EmptyState } from "~/components/empty-state";
 import { Footer } from "~/components/footer";
+import { ItemGrid } from "~/components/item-grid";
 import { PageHeader } from "~/components/page-header";
 import { SearchInput } from "~/components/search-input";
 import { TabBar } from "~/components/tab-bar";
 import type { TabItem } from "~/components/tab-bar";
+import { usePageState } from "~/hooks/usePageState";
 
 import type { EnvCategory, EnvVar } from "./constants";
 import { CATEGORIES, CATEGORY_COLORS, TOTAL, getCategoryForVar } from "./constants";
@@ -33,8 +35,18 @@ const tabItems: TabItem[] = [
 ];
 
 export default function EnvVars(): React.JSX.Element {
-  const [activeTab, setActiveTab] = useState<string>("all");
-  const [query, setQuery] = useState("");
+  const {
+    query,
+    setQuery,
+    activeTab,
+    handleTabChange,
+    filteredItems: filteredVars,
+  } = usePageState<EnvVar>({
+    sections: CATEGORIES.map((c) => ({ id: c.id, name: c.name, items: c.vars })),
+    searchFields: (v) => [v.name, v.description, v.detail],
+  });
+
+  // Custom modal state (envVar + category pair)
   const [selected, setSelected] = useState<{ envVar: EnvVar; category: EnvCategory } | null>(null);
   const reducedMotion = useReducedMotion();
   const hasMounted = useSyncExternalStore(
@@ -43,24 +55,8 @@ export default function EnvVars(): React.JSX.Element {
     () => false,
   );
 
-  const lowerQuery = query.toLowerCase();
   const isAllTab = activeTab === "all";
   const activeCategory = CATEGORIES.find((c) => c.id === activeTab);
-
-  const filteredVars = useMemo(() => {
-    const vars = isAllTab
-      ? CATEGORIES.flatMap((c) => c.vars)
-      : activeCategory
-        ? activeCategory.vars
-        : [];
-    return vars.filter(
-      (v) =>
-        !query ||
-        v.name.toLowerCase().includes(lowerQuery) ||
-        v.description.toLowerCase().includes(lowerQuery) ||
-        v.detail.toLowerCase().includes(lowerQuery),
-    );
-  }, [isAllTab, activeCategory, query, lowerQuery]);
 
   const openModal = useCallback((envVar: EnvVar, category: EnvCategory) => {
     setSelected({ envVar, category });
@@ -68,11 +64,6 @@ export default function EnvVars(): React.JSX.Element {
 
   const closeModal = useCallback(() => {
     setSelected(null);
-  }, []);
-
-  const handleTabChange = useCallback((id: string) => {
-    setActiveTab(id);
-    setQuery("");
   }, []);
 
   const m = reducedMotion
@@ -139,40 +130,26 @@ export default function EnvVars(): React.JSX.Element {
               </div>
             )}
 
-            <div className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-3.5">
-              <AnimatePresence mode="popLayout">
-                {filteredVars.map((v, i) => {
-                  const category = isAllTab ? getCategoryForVar(v) : activeCategory!;
-                  const color = CATEGORY_COLORS[category.id]?.color || "#3B82F6";
-                  const bg = CATEGORY_COLORS[category.id]?.bg || "rgba(59,130,246,0.15)";
-                  return (
-                    <motion.div
-                      key={v.name}
-                      layout={!reducedMotion}
-                      initial={reducedMotion ? false : { opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={
-                        reducedMotion
-                          ? undefined
-                          : { opacity: 0, scale: 0.96, transition: { duration: 0.15 } }
-                      }
-                      transition={{
-                        duration: 0.2,
-                        delay: reducedMotion || hasMounted ? 0 : Math.min(i * 0.04, 0.4),
-                      }}
-                    >
-                      <EnvCard
-                        envVar={v}
-                        categoryName={category.name}
-                        accentColor={color}
-                        categoryBg={bg}
-                        onClick={() => openModal(v, category)}
-                      />
-                    </motion.div>
-                  );
-                })}
-              </AnimatePresence>
-            </div>
+            <ItemGrid
+              items={filteredVars}
+              keyExtractor={(v) => v.name}
+              renderItem={(v) => {
+                const category = isAllTab ? getCategoryForVar(v) : activeCategory!;
+                const color = CATEGORY_COLORS[category.id]?.color || "#3B82F6";
+                const bg = CATEGORY_COLORS[category.id]?.bg || "rgba(59,130,246,0.15)";
+                return (
+                  <EnvCard
+                    envVar={v}
+                    categoryName={category.name}
+                    accentColor={color}
+                    categoryBg={bg}
+                    onClick={() => openModal(v, category)}
+                  />
+                );
+              }}
+              reducedMotion={reducedMotion}
+              hasMounted={hasMounted}
+            />
 
             {filteredVars.length === 0 && (
               <EmptyState

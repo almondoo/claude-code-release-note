@@ -1,3 +1,4 @@
+import { BaseCard } from "~/components/base-card";
 import type { Command } from "./constants";
 
 export function CommandCard({
@@ -12,23 +13,7 @@ export function CommandCard({
   onClick: () => void;
 }): React.JSX.Element {
   return (
-    <div
-      role="button"
-      tabIndex={0}
-      onClick={onClick}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault();
-          onClick();
-        }
-      }}
-      className="hover-card bg-surface rounded-xl border border-slate-700 flex flex-col gap-2.5 cursor-pointer relative overflow-hidden h-[200px] px-5 py-[18px]"
-      style={{ "--accent": accentColor } as React.CSSProperties}
-    >
-      <div
-        className="absolute top-0 left-0 right-0 h-[3px] rounded-t-xl"
-        style={{ background: `linear-gradient(90deg, ${accentColor}, ${accentColor}40)` }}
-      />
+    <BaseCard accentColor={accentColor} onClick={onClick} className="gap-2.5 h-[200px] px-5 py-[18px]">
       <div className="flex items-baseline gap-2">
         <code
           className="font-mono text-sm font-bold whitespace-nowrap"
@@ -55,6 +40,6 @@ export function CommandCard({
       >
         {categoryName}
       </span>
-    </div>
+    </BaseCard>
   );
 }

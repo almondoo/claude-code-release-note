@@ -1,5 +1,7 @@
 import { FileIcon, FolderIcon } from "~/components/icons";
 import { DetailModalShell } from "~/components/detail-modal";
+import { ParagraphList } from "~/components/paragraph-list";
+import { SectionHeading } from "~/components/section-heading";
 import type { Entry, Section } from "./constants";
 import {
   MODAL_SECTION_META,
@@ -22,13 +24,7 @@ function ModalSection({
   const meta = MODAL_SECTION_META[id];
   return (
     <div className="flex flex-col gap-2.5">
-      <div
-        className="flex items-center gap-1.5 text-[12px] font-bold tracking-wide uppercase font-mono"
-        style={{ color: accentColor }}
-      >
-        {meta?.icon}
-        {meta?.label}
-      </div>
+      <SectionHeading icon={meta?.icon} label={meta?.label ?? ""} color={accentColor} />
       {children}
     </div>
   );
@@ -51,8 +47,6 @@ export function DetailModal({
   const vcsCfg = VCS_CONFIG[getVcsKey(entry.vcs)];
 
   const fullPath = section.basePath + entry.path;
-  const detailParagraphs = entry.detail.split("\n\n").filter(Boolean);
-  const usageParagraphs = entry.usage ? entry.usage.split("\n\n").filter(Boolean) : [];
 
   return (
     <DetailModalShell
@@ -85,14 +79,13 @@ export function DetailModal({
       }
     >
       <ModalSection id="detail" accentColor={accentColor}>
-        {detailParagraphs.map((p, i) => (
-          <p key={i} className="m-0 text-[14px] leading-[1.8] text-slate-400 font-sans">
-            {p}
-          </p>
-        ))}
+        <ParagraphList
+          content={entry.detail}
+          className="m-0 text-[14px] leading-[1.8] text-slate-400 font-sans"
+        />
       </ModalSection>
 
-      {usageParagraphs.length > 0 && (
+      {entry.usage && (
         <ModalSection id="usage" accentColor={accentColor}>
           <div
             className="rounded-[10px] flex flex-col gap-2"
@@ -102,11 +95,10 @@ export function DetailModal({
               padding: "14px 16px",
             }}
           >
-            {usageParagraphs.map((p, i) => (
-              <p key={i} className="m-0 text-xs leading-[1.8] text-slate-400 font-sans">
-                {p}
-              </p>
-            ))}
+            <ParagraphList
+              content={entry.usage}
+              className="m-0 text-xs leading-[1.8] text-slate-400 font-sans"
+            />
           </div>
         </ModalSection>
       )}

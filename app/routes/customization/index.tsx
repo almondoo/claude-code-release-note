@@ -1,6 +1,8 @@
 import { useCallback, useMemo, useState, useSyncExternalStore } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 
+import { ItemGrid } from "~/components/item-grid";
+
 import { EmptyState } from "~/components/empty-state";
 import { Footer } from "~/components/footer";
 import { PageHeader } from "~/components/page-header";
@@ -79,19 +81,6 @@ export default function CustomizationPage(): React.JSX.Element {
     setGuideIndex(0);
   }, []);
 
-  function cardMotionProps(index: number): Record<string, unknown> {
-    return {
-      layout: !reducedMotion,
-      initial: reducedMotion ? false : hasMounted ? { opacity: 0 } : { opacity: 0, y: 15 },
-      animate: { opacity: 1, y: 0 },
-      exit: reducedMotion ? undefined : { opacity: 0, scale: 0.96, transition: { duration: 0.15 } },
-      transition: {
-        duration: 0.2,
-        delay: reducedMotion || hasMounted ? 0 : Math.min(index * 0.04, 0.4),
-      },
-    };
-  }
-
   return (
     <div className="min-h-screen bg-slate-900 font-sans text-slate-100">
       <div className="max-w-[1400px] mx-auto px-4 py-8">
@@ -159,19 +148,19 @@ export default function CustomizationPage(): React.JSX.Element {
             exit={reducedMotion ? undefined : { opacity: 0 }}
             transition={{ duration: 0.15 }}
           >
-            <div className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-3.5">
-              <AnimatePresence mode="popLayout">
-                {filteredItems.map((item, i) => (
-                  <motion.div key={item.id} {...cardMotionProps(i)}>
-                    <CustomizationCard
-                      item={item}
-                      accentColor={accentColor}
-                      onClick={() => openModal(item)}
-                    />
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-            </div>
+            <ItemGrid
+              items={filteredItems}
+              keyExtractor={(item) => item.id}
+              renderItem={(item) => (
+                <CustomizationCard
+                  item={item}
+                  accentColor={accentColor}
+                  onClick={() => openModal(item)}
+                />
+              )}
+              reducedMotion={reducedMotion}
+              hasMounted={hasMounted}
+            />
 
             {filteredItems.length === 0 && (
               <EmptyState

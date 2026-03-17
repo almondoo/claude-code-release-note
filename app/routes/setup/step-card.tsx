@@ -1,32 +1,12 @@
 import { AnimatePresence, motion } from "motion/react";
 
 import { BookOpenIcon, ChevronDownIcon } from "~/components/icons";
+import { renderInlineLinks } from "~/utils/render-inline-links";
 
 import type { Step } from "./constants";
 import { TAG_COLORS } from "./constants";
 import { CodeBlockView } from "~/components/code-block-view";
 import { CalloutBox } from "~/components/callout-box";
-
-function renderInlineLinks(text: string): React.ReactNode[] {
-  const parts = text.split(/(\[[^\]]+\]\([^)]+\))/g);
-  return parts.map((part, i) => {
-    const match = part.match(/^\[([^\]]+)\]\(([^)]+)\)$/);
-    if (match) {
-      return (
-        <a
-          key={i}
-          href={match[2]}
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{ color: "#67E8F9", textDecoration: "underline", textUnderlineOffset: 2 }}
-        >
-          {match[1]}
-        </a>
-      );
-    }
-    return part;
-  });
-}
 
 interface StepCardProps {
   step: Step;

@@ -11,6 +11,8 @@ import {
   UserIcon,
   WrenchIcon,
 } from "~/components/icons";
+import { PALETTE } from "~/theme/colors";
+import { matchesQuery } from "~/utils/search";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -67,14 +69,14 @@ const DEFAULT_COLOR = "#3B82F6";
 
 export const CATEGORY_COLORS: Record<string, { color: string; bg: string }> = {
   popular: { color: "#FCD34D", bg: "rgba(252, 211, 77, 0.15)" },
-  essential: { color: "#6EE7B7", bg: "rgba(16, 185, 129, 0.15)" },
-  session: { color: "#67E8F9", bg: "rgba(6, 182, 212, 0.15)" },
-  config: { color: "#FDBA74", bg: "rgba(249, 115, 22, 0.15)" },
-  memory: { color: DEFAULT_COLOR, bg: "rgba(59, 130, 246, 0.25)" },
-  integration: { color: "#5EEAD4", bg: "rgba(20, 184, 166, 0.15)" },
-  agent: { color: "#C4B5FD", bg: "rgba(139, 92, 246, 0.15)" },
-  utility: { color: "#F472B6", bg: "rgba(244, 114, 182, 0.15)" },
-  account: { color: "#FDE68A", bg: "rgba(234, 179, 8, 0.15)" },
+  essential: PALETTE.green,
+  session: PALETTE.cyan,
+  config: PALETTE.orange,
+  memory: PALETTE.blueDark,
+  integration: PALETTE.teal,
+  agent: PALETTE.purple,
+  utility: PALETTE.pinkBright,
+  account: PALETTE.yellow,
 };
 
 export function getCategoryColor(id: string): string {
@@ -152,10 +154,7 @@ export const TAB_DEFS: TabDef[] = [
 ];
 
 // ---------------------------------------------------------------------------
-// Utilities
+// Re-export shared utility
 // ---------------------------------------------------------------------------
 
-export function matchesQuery(fields: (string | null)[], lowerQuery: string): boolean {
-  if (!lowerQuery) return true;
-  return fields.some((f) => f != null && f.toLowerCase().includes(lowerQuery));
-}
+export { matchesQuery };

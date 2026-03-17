@@ -1,4 +1,5 @@
 import topicsData from "~/data/hands-on/hands-on-topics.json";
+import { PALETTE } from "~/theme/colors";
 
 // ── Types ────────────────────────────────────────────────────────────────
 
@@ -34,12 +35,12 @@ export const DIFFICULTY_COLORS: Record<Difficulty, { color: string; bg: string; 
 };
 
 export const TAG_COLORS: Record<string, { color: string; bg: string }> = {
-  Agent: { color: "#A5B4FC", bg: "rgba(99,102,241,0.15)" },
-  チーム開発: { color: "#67E8F9", bg: "rgba(6,182,212,0.15)" },
-  タスク管理: { color: "#6EE7B7", bg: "rgba(16,185,129,0.15)" },
+  Agent: PALETTE.indigo,
+  チーム開発: PALETTE.cyan,
+  タスク管理: PALETTE.green,
   セッション: { color: "#93C5FD", bg: "rgba(59,130,246,0.15)" },
-  並列処理: { color: "#FDBA74", bg: "rgba(249,115,22,0.15)" },
-  高度: { color: "#FCA5A5", bg: "rgba(239,68,68,0.15)" },
+  並列処理: PALETTE.orange,
+  高度: PALETTE.red,
 };
 
 // ── Icons ────────────────────────────────────────────────────────────────

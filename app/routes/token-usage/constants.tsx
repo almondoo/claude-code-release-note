@@ -1,6 +1,8 @@
 import tuData from "~/data/token-usage/token-usage.json";
 import type { CodeBlock } from "~/components/code-block-view";
 import type { Callout } from "~/components/callout-box";
+import { TeamIcon } from "~/components/icons";
+import { PALETTE } from "~/theme/colors";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -40,10 +42,10 @@ export const SECTIONS = tuData.sections as TUSection[];
 export const TOTAL_ITEMS = SECTIONS.reduce((sum, s) => sum + s.items.length, 0);
 
 export const SECTION_COLORS: Record<string, { color: string; bg: string }> = {
-  builtin: { color: "#6EE7B7", bg: "rgba(16, 185, 129, 0.15)" },
-  proxy: { color: "#67E8F9", bg: "rgba(6, 182, 212, 0.15)" },
-  organization: { color: "#C4B5FD", bg: "rgba(139, 92, 246, 0.15)" },
-  reference: { color: "#FDBA74", bg: "rgba(249, 115, 22, 0.15)" },
+  builtin: PALETTE.green,
+  proxy: PALETTE.cyan,
+  organization: PALETTE.purple,
+  reference: PALETTE.orange,
 };
 
 export const SECTION_ICONS: Record<string, () => React.JSX.Element> = {
@@ -76,23 +78,7 @@ export const SECTION_ICONS: Record<string, () => React.JSX.Element> = {
       <path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83" />
     </svg>
   ),
-  organization: () => (
-    <svg
-      width="18"
-      height="18"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-      <circle cx="9" cy="7" r="4" />
-      <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-      <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-    </svg>
-  ),
+  organization: () => <TeamIcon />,
   reference: () => (
     <svg
       width="18"
@@ -114,11 +100,11 @@ export const SECTION_ICONS: Record<string, () => React.JSX.Element> = {
 };
 
 export const TAG_COLORS: Record<string, { color: string; bg: string }> = {
-  初心者向け: { color: "#6EE7B7", bg: "rgba(16, 185, 129, 0.15)" },
+  初心者向け: PALETTE.green,
   中級者向け: { color: "#FCD34D", bg: "rgba(234, 179, 8, 0.15)" },
-  上級者向け: { color: "#FCA5A5", bg: "rgba(239, 68, 68, 0.15)" },
-  API: { color: "#67E8F9", bg: "rgba(6, 182, 212, 0.15)" },
-  サブスクリプション: { color: "#C4B5FD", bg: "rgba(139, 92, 246, 0.15)" },
+  上級者向け: PALETTE.red,
+  API: PALETTE.cyan,
+  サブスクリプション: PALETTE.purple,
   チーム向け: { color: "#93C5FD", bg: "rgba(59, 130, 246, 0.2)" },
 };
 

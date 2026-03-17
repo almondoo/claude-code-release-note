@@ -1,4 +1,6 @@
 import { DetailModalShell } from "~/components/detail-modal";
+import { HeaderTags } from "~/components/header-tags";
+import { ParagraphList } from "~/components/paragraph-list";
 
 import type { BPItem } from "./constants";
 import { SECTIONS, SECTION_ICONS, TAG_COLORS } from "./constants";
@@ -46,36 +48,12 @@ export function DetailModal({
           <p className="text-[14px] text-slate-400 mt-1.5 font-sans leading-[1.6] m-0">
             {item.summary}
           </p>
-          <div className="flex gap-1.5 mt-2 flex-wrap">
-            <span
-              className="text-[11px] font-semibold rounded"
-              style={{ padding: "2px 8px", background: accentColor + "18", color: accentColor }}
-            >
-              {sectionName}
-            </span>
-            {item.tags.map((tag) => (
-              <span
-                key={tag}
-                className="text-[11px] font-semibold rounded"
-                style={{
-                  padding: "2px 8px",
-                  background: TAG_COLORS[tag]?.bg ?? "rgba(100,116,139,0.15)",
-                  color: TAG_COLORS[tag]?.color ?? "#94A3B8",
-                }}
-              >
-                {tag}
-              </span>
-            ))}
-          </div>
+          <HeaderTags sectionName={sectionName} accentColor={accentColor} tags={item.tags} tagColors={TAG_COLORS} />
         </>
       }
     >
       {/* Content paragraphs */}
-      {item.content.split("\n\n").map((paragraph, i) => (
-        <p key={i} className="m-0 text-[14px] leading-[1.8] text-slate-300 font-sans">
-          {paragraph}
-        </p>
-      ))}
+      <ParagraphList content={item.content} />
 
       {/* Before/After examples table */}
       {item.examples && item.examples.length > 0 && (
