@@ -10,6 +10,7 @@ const ALL_PAGES = [
   { to: "/setup", label: "セットアップ" },
   { to: "/customization", label: "カスタマイズ" },
   { to: "/best-practices", label: "ベストプラクティス" },
+  { to: "/prompting", label: "プロンプト" },
   { to: "/hands-on", label: "ハンズオン" },
   { to: "/token-usage", label: "トークン計測" },
   { to: "/env-vars", label: "環境変数" },

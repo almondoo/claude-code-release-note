@@ -9,6 +9,7 @@ interface Section<T> {
 interface UsePageStateOptions<T> {
   sections: Section<T>[];
   searchFields: (item: T) => string[];
+  tabSectionMap?: Record<string, string[]>;
 }
 
 interface UsePageStateReturn<T> {
@@ -39,11 +40,13 @@ export function usePageState<T>(
   const closeModal = useCallback(() => setModalItem(null), []);
 
   const filteredSections = useMemo(() => {
-    const { sections, searchFields } = options;
+    const { sections, searchFields, tabSectionMap } = options;
     const isAllTab = activeTab === "all";
     const target = isAllTab
       ? sections
-      : sections.filter((s) => s.id === activeTab);
+      : tabSectionMap && tabSectionMap[activeTab]
+        ? sections.filter((s) => tabSectionMap[activeTab].includes(s.id))
+        : sections.filter((s) => s.id === activeTab);
     if (!query) return target;
     const lq = query.toLowerCase();
     return target

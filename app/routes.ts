@@ -14,5 +14,6 @@ export default [
   route("hands-on", "routes/hands-on/index.tsx"),
   route("hands-on/:topic", "routes/hands-on-topic/index.tsx"),
   route("env-vars", "routes/env-vars/index.tsx"),
+  route("prompting", "routes/prompting/index.tsx"),
   route("skill-best-practices", "routes/skill-best-practices/index.tsx"),
 ] satisfies RouteConfig;

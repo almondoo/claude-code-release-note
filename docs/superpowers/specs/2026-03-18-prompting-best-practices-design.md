@@ -272,6 +272,10 @@ JSON データ内のセクション `id` フィールドとタブ `id` は別物
 - **`steps` フィールド**: skill-best-practices にある `{ phase, description, example }[]` は本ページでは不要のため除外。
 - **番号バッジ**: `SECTION_INDEX_MAP` は不要（セットアップページのような番号付きバッジは使わない）。
 
+## 実装時の制約
+
+- **git 操作禁止**: 実装中に git commit, push, branch 作成などの git 操作は行わない。コード変更のみ行い、git 操作はユーザーが別途行う。
+
 ## 翻訳方針
 
 - 説明文・概要はすべて日本語
