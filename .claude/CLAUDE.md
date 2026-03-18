@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## プロジェクト概要
 
-Claude Code のリリースノートを日本語で閲覧できる Web アプリケーション。React Router v7 (SSR モード) で構築された単一ページアプリ。
+Claude Code のリリースノートを日本語で閲覧できる Web アプリケーション。React Router v7 (SSR モード) で構築。
 
 ## コマンド
 
@@ -39,13 +39,15 @@ Claude Code のリリースノートを日本語で閲覧できる Web アプリ
 
 ### ルーティング
 
-- `app/routes.ts` — ルート定義。インデックスルートとして `release-note.tsx` を1つだけ登録
-- `app/root.tsx` — ルートレイアウト (lang="ja"、Google Fonts: Noto Sans JP + JetBrains Mono)
+- `app/routes.ts` — 全ルート定義（インデックスは `release-note.tsx`）
+- `app/root.tsx` — ルートレイアウト (lang="ja"、Google Fonts: IBM Plex Sans + Noto Sans JP + JetBrains Mono)
 
 ### UI
 
-- CSS フレームワーク不使用。すべてインラインスタイル (`CSSProperties`) で記述
-- 主要コンポーネント: `ReleaseNote` (ページ本体)、`VersionCard` (バージョンごとの折りたたみカード)、`Badge` (タグバッジ)
+- Tailwind CSS v4 を使用（`app/app.css` で `@import "tailwindcss"`）
+- 動的な色指定（アクセントカラー等）のみ `style` 属性を使用
+- 共通コンポーネント (`app/components/`): `PageHeader`, `TabBar`, `SearchInput`, `BaseCard`, `ItemGrid`, `DetailModalShell`, `EmptyState`, `Footer`, `ParagraphList`, `HeaderTags` 等
+- 共通フック: `usePageState` — タブフィルタ・検索・モーダル状態を管理
 - タグによるフィルタリングとキーワード検索機能あり
 
 ### パスエイリアス
@@ -61,19 +63,16 @@ Claude Code のリリースノートを日本語で閲覧できる Web アプリ
 
 **ファイルサイズの目安**: JSONファイルは50KB以下を維持すること
 
-## 作業ルール
+## JSONデータの記述ルール
 
-- 仕様が不明確な場合や、複数の選択肢があって判断に迷う場合は、自己判断で進めずに必ず `AskUserQuestion` ツールを使ってユーザーに確認すること
+- サイトは日本語閲覧用のため、JSONデータ内の説明文・例示（before/after）・コードブロックのコメントもすべて日本語で記述する
+- コード構文（Python, bash 等）やファイル名・パス名はそのまま英語で可
+- `ParagraphList` コンポーネントは `\n\n` で段落分割するため、content フィールド内のリストや手順は `\n\n` で区切って1項目1段落にする。`\n` 単体は HTML の `<p>` 内で空白扱いになり改行されない
 
-## 実装原則（YAGNI / KISS）
+## 新規ページ追加時の注意
 
-**今必要なものだけをシンプルに実装する。**
-
-- JSONデータの追加・変更が主な作業。コード変更が不要なら変更しない
-- インラインスタイルで表現できるUIを、新しいコンポーネントに切り出さない
-- 同じロジックが3箇所以上で使われるまで関数化・コンポーネント化しない
-- 「将来使うかもしれない」タグ・フィルタ・フィールドをデータに追加しない
-- 実装を追加する前に確認する: **今この瞬間、実際のUIで使われるか？** → No なら作らない
+- `app/routes.ts` にルート追加
+- `app/components/page-header.tsx` の `ALL_PAGES` 配列にナビゲーションリンクを追加
 
 ## 参考リンク
 
