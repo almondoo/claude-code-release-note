@@ -67,6 +67,21 @@
 
 ## 3. データ構造の変更
 
+### TypeScript 型定義の変更
+
+`constants.tsx` の `SetupSection` インターフェースに `phase` と `order` フィールドを追加:
+
+```typescript
+export interface SetupSection {
+  id: string;
+  name: string;
+  description: string;
+  phase: number;   // 追加: 1, 2, or 3
+  order: number;   // 追加: フェーズ内の順番 (1-based)
+  steps: Step[];
+}
+```
+
 ### JSON セクションスキーマ
 
 各セクション JSON に `phase` と `order` フィールドを追加:
@@ -168,17 +183,150 @@ export const PHASES = [
   { id: 2, label: "活用", description: "日常的に使いこなす" },
   { id: 3, label: "カスタマイズ", description: "さらに深く使う" },
 ] as const;
+
+// フェーズの色定義（見出しのアクセントカラー）
+export const PHASE_COLORS: Record<number, { color: string; bg: string }> = {
+  1: { color: "#6EE7B7", bg: "rgba(16,185,129,0.08)" },   // green 系
+  2: { color: "#C4B5FD", bg: "rgba(139,92,246,0.08)" },   // purple 系
+  3: { color: "#FDBA74", bg: "rgba(249,115,22,0.08)" },    // orange 系
+};
 ```
 
 ### 4.3 タブの変更
 
-既存のセクション別タブに加え、フェーズフィルタタブを追加:
+`tabSectionMap` を使って Phase タブからセクション群へのマッピングを定義:
 
-- すべて | Phase 1 | Phase 2 | Phase 3 | (セクション名...)
+```typescript
+export const TAB_SECTION_MAP: Record<string, string[]> = {
+  "phase-1": ["intro", "installation", "authentication", "first-steps"],
+  "phase-2": ["claude-md", "ide", "tips", "permissions"],
+  "phase-3": ["customization", "troubleshooting"],
+};
+
+export const TAB_DEFS: TabItem[] = [
+  { id: "all", label: "すべて", color: "#3B82F6" },
+  { id: "phase-1", label: "Phase 1: 導入", color: PHASE_COLORS[1].color },
+  { id: "phase-2", label: "Phase 2: 活用", color: PHASE_COLORS[2].color },
+  { id: "phase-3", label: "Phase 3: カスタマイズ", color: PHASE_COLORS[3].color },
+  ...SECTIONS.map((s) => ({
+    id: s.id,
+    label: `${s.phase}-${s.order} ${s.name}`,
+    color: SECTION_COLORS[s.id]?.color || "#3B82F6",
+  })),
+];
+```
+
+`usePageState` に `tabSectionMap` を渡す:
+
+```typescript
+const { ... } = usePageState({
+  sections: SECTIONS.map((s) => ({ id: s.id, name: s.name, items: s.steps })),
+  searchFields: (item) => [...],
+  tabSectionMap: TAB_SECTION_MAP,
+});
+```
 
 ### 4.4 セクションヘッダーの番号表記
 
-セクションヘッダーの番号バッジを `1` → `1-1`、`2` → `1-2` のように変更し、フェーズ内の順序を視覚的に表現。
+セクションヘッダーの番号バッジを `1` → `1-1`、`2` → `1-2` のように変更。`SECTION_INDEX_MAP` を廃止し、JSON の `phase` + `order` フィールドから直接表示文字列を生成:
+
+```typescript
+// 旧: SECTION_INDEX_MAP[section.id] → 0-based index → "1"
+// 新: section の phase + order → "1-2"
+const sectionData = SECTIONS.find(s => s.id === section.id);
+const badge = sectionData ? `${sectionData.phase}-${sectionData.order}` : "";
+```
+
+### 4.5 フェーズグループ見出しのレンダリングロジック
+
+`index.tsx` でセクションをフェーズごとにグループ化して表示:
+
+```typescript
+// filteredSections をフェーズ番号でグループ化
+const groupedByPhase = useMemo(() => {
+  const groups = new Map<number, typeof filteredSections>();
+  for (const section of filteredSections) {
+    const sectionData = SECTIONS.find(s => s.id === section.id);
+    const phase = sectionData?.phase ?? 1;
+    if (!groups.has(phase)) groups.set(phase, []);
+    groups.get(phase)!.push(section);
+  }
+  return groups;
+}, [filteredSections]);
+```
+
+**エッジケース対応:**
+- 検索やタブフィルタでフェーズ内の全セクションが除外された場合 → そのフェーズの見出しを非表示
+- Phase タブが選択されている場合 → フェーズ見出しは表示する（1フェーズのみなので冗長だが、コンテキストとして有用）
+- セクション個別タブが選択されている場合 → フェーズ見出しは非表示（1セクションのみ表示なので不要）
+
+### 4.6 SECTION_COLORS と SECTION_ICONS の更新
+
+新しいセクション ID に対応する色とアイコンを定義。不要なエントリを削除:
+
+```typescript
+// constants.tsx
+export const SECTION_COLORS: Record<string, { color: string; bg: string }> = {
+  intro: PALETTE.blue,                    // 新規: はじめに
+  installation: PALETTE.green,            // 維持
+  authentication: PALETTE.cyan,           // 新規（旧 initial-setup の色を継承）
+  "first-steps": { color: "#86EFAC", bg: "rgba(34, 197, 94, 0.15)" }, // 維持
+  "claude-md": PALETTE.purple,            // 維持
+  ide: PALETTE.blueDark,                  // 維持
+  tips: PALETTE.pinkBright,               // 維持
+  permissions: PALETTE.yellow,            // 維持
+  customization: PALETTE.indigo,          // 新規（旧 best-practices の色を継承）
+  troubleshooting: PALETTE.red,           // 維持
+  // 削除: initial-setup, skills, hooks, mcp, best-practices
+};
+```
+
+```typescript
+// section-icons.tsx
+// 追加するアイコン:
+//   intro: 情報アイコン（i マーク / circle-info）
+//   authentication: 鍵アイコン（key / lock-open）
+//   customization: 設定アイコン（sliders / settings）
+// 削除するアイコン:
+//   initial-setup, skills, hooks, mcp, best-practices
+```
+
+### 4.7 タグ体系
+
+既存のタグ体系（`必須`, `初心者向け`, `中級者向け`, `上級者向け`, `チーム向け`, `CI/CD`）はそのまま維持。`TAG_COLORS` の変更は不要。
+
+### 4.8 メタ情報とヘッダーの更新
+
+`index.tsx` の `meta()` と `PageHeader` を新しい構成に合わせて更新:
+
+```typescript
+export function meta() {
+  return [
+    { title: "Claude Code セットアップガイド" },  // 維持
+    { name: "description", content: "導入から活用、カスタマイズまで。Claude Code を始めるためのステップバイステップガイド。" },
+  ];
+}
+
+// PageHeader
+<PageHeader
+  title="セットアップガイド"
+  description="導入から活用、カスタマイズまで。3つのフェーズで Claude Code を使いこなそう。"
+  stats={[
+    { value: PHASES.length, label: "フェーズ" },
+    { value: SECTIONS.length, label: "セクション" },
+    { value: TOTAL_ITEMS, label: "ステップ" },
+  ]}
+  gradient={["rgba(139,92,246,0.08)", "rgba(16,185,129,0.05)"]}
+/>
+```
+
+### 4.9 ステップ ID とブックマーク互換性
+
+旧セクション内のステップ ID が変更される場合がある（`first-run` → `login` 等）。URLクエリパラメータによるモーダル直接リンク機能は現在存在しないため、ステップ ID 変更による後方互換性の問題はない。新しいステップには意味的に明確な ID を付与する。
+
+### 4.10 ルーティングとナビゲーション
+
+`/setup` ルートは変更なし（`app/routes.ts` の変更不要）。`page-header.tsx` の `ALL_PAGES` も変更不要（セットアップの表示名・パスは同一）。
 
 ---
 
@@ -466,12 +614,42 @@ export const PHASES = [
 - `app/data/setup/setup-best-practices.json`
 
 ### UI ファイル
-- `app/routes/setup/constants.tsx` — **更新**（フェーズ定義追加、セクション色・アイコン更新）
-- `app/routes/setup/index.tsx` — **更新**（フェーズグループ見出し、タブ変更）
+- `app/routes/setup/constants.tsx` — **更新**（型定義変更、フェーズ定義追加、SECTION_COLORS/TAB_DEFS/SECTION_INDEX_MAP 更新、tabSectionMap 追加）
+- `app/routes/setup/section-icons.tsx` — **更新**（新セクション ID のアイコン追加、旧 ID のアイコン削除）
+- `app/routes/setup/index.tsx` — **更新**（フェーズグループ見出し、タブ変更、meta/PageHeader 更新）
+
+### 変更不要ファイル
+- `app/routes.ts` — 変更不要（`/setup` ルートは既存のまま）
+- `app/components/page-header.tsx` — 変更不要（ALL_PAGES のセットアップリンクは同一）
+- `app/hooks/usePageState.ts` — 変更不要（既に `tabSectionMap` をサポート済み）
+
+### 前提条件
+- `/customization` ルートは既に存在する（Phase 3 からのリンク先として使用）
 
 ---
 
-## 8. テスト計画
+## 8. ファイルサイズ見積もり
+
+CLAUDE.md の制約: 各 JSON ファイルは 50KB 以下。
+
+| ファイル | 推定ステップ数 | 推定サイズ |
+|---|:---:|---|
+| setup-intro.json | 3 | ~5KB |
+| setup-installation.json | 3 | ~8KB |
+| setup-authentication.json | 3 | ~6KB |
+| setup-first-steps.json | 4 | ~10KB |
+| setup-claude-md.json | 4 | ~8KB |
+| setup-ide.json | 3 | ~8KB |
+| setup-tips.json | 4 | ~8KB |
+| setup-permissions.json | 3 | ~7KB |
+| setup-customization.json | 3 | ~6KB |
+| setup-troubleshooting.json | 5 | ~10KB |
+
+全ファイル 50KB 以下の見込み。最大は setup-first-steps.json と setup-troubleshooting.json（各 ~10KB）。
+
+---
+
+## 9. テスト計画
 
 テストフレームワークは未導入のため、手動確認:
 
