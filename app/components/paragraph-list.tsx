@@ -45,14 +45,14 @@ export const renderInlineMarkdown = (text: string): React.ReactNode[] => {
 /*  リスト項目パーサー                                                  */
 /* ------------------------------------------------------------------ */
 
-type ParsedListItem = {
+export type ParsedListItem = {
   type: "ul" | "ol";
   depth: number;
   text: string;
 };
 
 /** 段落が箇条書き / 番号リストなら解析して返す */
-const parseListLine = (text: string): ParsedListItem | null => {
+export const parseListLine = (text: string): ParsedListItem | null => {
   // Unordered: - or ・ (optional leading spaces for nesting)
   const ulMatch = text.match(/^(\s*)(?:[-・])\s*(.+)$/s);
   if (ulMatch) {
@@ -122,7 +122,7 @@ const HEADING_STYLES: Record<number, string> = {
   3: "text-[14px] font-semibold text-slate-300 m-0",
 };
 
-const parseHeading = (paragraph: string): { level: number; text: string } | null => {
+export const parseHeading = (paragraph: string): { level: number; text: string } | null => {
   const match = paragraph.match(/^(#{1,3})\s+(.+)$/);
   if (!match) return null;
   return { level: match[1].length, text: match[2] };
@@ -132,13 +132,13 @@ const parseHeading = (paragraph: string): { level: number; text: string } | null
 /*  ブロック解析 & ParagraphList                                        */
 /* ------------------------------------------------------------------ */
 
-type Block =
+export type Block =
   | { kind: "paragraph"; text: string }
   | { kind: "heading"; level: number; text: string }
   | { kind: "list"; items: ParsedListItem[] };
 
 /** content を \n\n で分割し、連続するリスト項目をグルーピングしたブロック列を返す */
-const parseBlocks = (content: string): Block[] => {
+export const parseBlocks = (content: string): Block[] => {
   const paragraphs = content.split("\n\n");
   const blocks: Block[] = [];
   let currentList: ParsedListItem[] | null = null;
