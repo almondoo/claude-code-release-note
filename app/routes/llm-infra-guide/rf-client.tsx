@@ -15,13 +15,13 @@ import { customNodeTypes } from "./rf-custom-nodes";
 
 const subscribe = (): (() => void) => () => {};
 
-export function ClientOnly({
+export const ClientOnly = ({
   children,
   fallback,
 }: {
   children: ReactNode;
   fallback?: ReactNode;
-}): ReactNode {
+}): ReactNode => {
   const mounted = useSyncExternalStore(
     subscribe,
     () => true,
@@ -29,7 +29,7 @@ export function ClientOnly({
   );
   if (!mounted) return fallback ?? null;
   return <>{children}</>;
-}
+};
 
 // ── Shared constants ─────────────────────────────────────────────────────
 
@@ -51,19 +51,19 @@ const EXPAND_BUTTON_HOVER_BG = "rgba(51,65,85,0.9)";
 
 // ── Shared hover handlers ────────────────────────────────────────────────
 
-function onButtonEnter(e: React.MouseEvent<HTMLButtonElement>): void {
+const onButtonEnter = (e: React.MouseEvent<HTMLButtonElement>): void => {
   e.currentTarget.style.background = EXPAND_BUTTON_HOVER_BG;
   e.currentTarget.style.color = "#E2E8F0";
-}
+};
 
-function onButtonLeave(e: React.MouseEvent<HTMLButtonElement>, bg: string): void {
+const onButtonLeave = (e: React.MouseEvent<HTMLButtonElement>, bg: string): void => {
   e.currentTarget.style.background = bg;
   e.currentTarget.style.color = "#94A3B8";
-}
+};
 
 // ── Expand / Close icons ─────────────────────────────────────────────────
 
-function ExpandIcon(): React.JSX.Element {
+const ExpandIcon = (): React.JSX.Element => {
   return (
     <svg
       width="12"
@@ -78,9 +78,9 @@ function ExpandIcon(): React.JSX.Element {
       <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
     </svg>
   );
-}
+};
 
-function CloseIcon(): React.JSX.Element {
+const CloseIcon = (): React.JSX.Element => {
   return (
     <svg
       width="14"
@@ -94,11 +94,11 @@ function CloseIcon(): React.JSX.Element {
       <path d="M18 6L6 18M6 6l12 12" />
     </svg>
   );
-}
+};
 
 // ── Fullscreen overlay ───────────────────────────────────────────────────
 
-function FullscreenOverlay({
+const FullscreenOverlay = ({
   nodes,
   edges,
   title,
@@ -110,11 +110,11 @@ function FullscreenOverlay({
   title?: string;
   caption?: string;
   onClose: () => void;
-}): React.JSX.Element {
+}): React.JSX.Element => {
   useEffect(() => {
-    function handler(e: KeyboardEvent): void {
+    const handler = (e: KeyboardEvent): void => {
       if (e.key === "Escape") onClose();
-    }
+    };
     document.addEventListener("keydown", handler);
     document.body.style.overflow = "hidden";
     return () => {
@@ -171,17 +171,17 @@ function FullscreenOverlay({
       )}
     </div>
   );
-}
+};
 
 // ── Expand button ────────────────────────────────────────────────────────
 
-function ExpandButton({
+const ExpandButton = ({
   onClick,
   className,
 }: {
   onClick: () => void;
   className?: string;
-}): React.JSX.Element {
+}): React.JSX.Element => {
   return (
     <button
       onClick={onClick}
@@ -194,7 +194,7 @@ function ExpandButton({
       拡大表示
     </button>
   );
-}
+};
 
 // ── ReactFlow diagram component ──────────────────────────────────────────
 
@@ -206,13 +206,13 @@ export interface ReactFlowDiagramProps {
   height?: number;
 }
 
-export function ReactFlowDiagram({
+export const ReactFlowDiagram = ({
   nodes,
   edges,
   title,
   caption,
   height = 500,
-}: ReactFlowDiagramProps): React.JSX.Element {
+}: ReactFlowDiagramProps): React.JSX.Element => {
   const [fullscreen, setFullscreen] = useState(false);
 
   return (
@@ -284,4 +284,4 @@ export function ReactFlowDiagram({
       )}
     </>
   );
-}
+};

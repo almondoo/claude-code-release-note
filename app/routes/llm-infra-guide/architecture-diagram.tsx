@@ -12,7 +12,7 @@ interface DiagramBoxProps {
   small?: boolean;
 }
 
-function DiagramBox({ label, sublabel, color, small }: DiagramBoxProps): React.JSX.Element {
+const DiagramBox = ({ label, sublabel, color, small }: DiagramBoxProps): React.JSX.Element => {
   return (
     <div
       className="rounded-lg border-2 flex flex-col items-center justify-center text-center gap-0.5 shrink-0"
@@ -27,7 +27,7 @@ function DiagramBox({ label, sublabel, color, small }: DiagramBoxProps): React.J
       {sublabel && <span className="text-[10px] text-slate-500 leading-tight">{sublabel}</span>}
     </div>
   );
-}
+};
 
 interface ArrowProps {
   direction?: "right" | "down";
@@ -35,7 +35,11 @@ interface ArrowProps {
   color?: string;
 }
 
-function Arrow({ direction = "right", label, color = "#475569" }: ArrowProps): React.JSX.Element {
+const Arrow = ({
+  direction = "right",
+  label,
+  color = "#475569",
+}: ArrowProps): React.JSX.Element => {
   if (direction === "down") {
     return (
       <div className="flex flex-col items-center gap-0.5 py-1">
@@ -56,11 +60,11 @@ function Arrow({ direction = "right", label, color = "#475569" }: ArrowProps): R
       </span>
     </div>
   );
-}
+};
 
-function DiagramCaption({ children }: { children: React.ReactNode }): React.JSX.Element {
+const DiagramCaption = ({ children }: { children: React.ReactNode }): React.JSX.Element => {
   return <div className="text-[12px] text-slate-500 text-center mt-2 italic">{children}</div>;
-}
+};
 
 /** Shared background for diagram containers. */
 const DIAGRAM_BG = "rgba(15,23,42,0.6)" as const;
@@ -82,14 +86,14 @@ interface ArchitectureDiagramProps {
   monitoring?: ArchNode;
 }
 
-export function ArchitectureDiagram({
+export const ArchitectureDiagram = ({
   title,
   caption,
   sources,
   middleware,
   destinations,
   monitoring,
-}: ArchitectureDiagramProps): React.JSX.Element {
+}: ArchitectureDiagramProps): React.JSX.Element => {
   return (
     <div
       className="rounded-xl border border-slate-700 px-5 py-5 flex flex-col gap-4"
@@ -147,7 +151,7 @@ export function ArchitectureDiagram({
       {caption && <DiagramCaption>{caption}</DiagramCaption>}
     </div>
   );
-}
+};
 
 // ── Layer Stack Diagram (vertical) ───────────────────────────────────────
 
@@ -163,11 +167,11 @@ interface LayerStackDiagramProps {
   layers: LayerDef[];
 }
 
-export function LayerStackDiagram({
+export const LayerStackDiagram = ({
   title,
   caption,
   layers,
-}: LayerStackDiagramProps): React.JSX.Element {
+}: LayerStackDiagramProps): React.JSX.Element => {
   return (
     <div
       className="rounded-xl border border-slate-700 px-5 py-5 flex flex-col gap-3"
@@ -221,7 +225,7 @@ export function LayerStackDiagram({
       {caption && <DiagramCaption>{caption}</DiagramCaption>}
     </div>
   );
-}
+};
 
 // ── Comparison Columns Diagram ───────────────────────────────────────────
 
@@ -239,11 +243,11 @@ interface ComparisonDiagramProps {
   columns: ComparisonColumn[];
 }
 
-export function ComparisonDiagram({
+export const ComparisonDiagram = ({
   title,
   caption,
   columns,
-}: ComparisonDiagramProps): React.JSX.Element {
+}: ComparisonDiagramProps): React.JSX.Element => {
   return (
     <div
       className="rounded-xl border border-slate-700 px-5 py-5 flex flex-col gap-4"
@@ -296,7 +300,7 @@ export function ComparisonDiagram({
       {caption && <DiagramCaption>{caption}</DiagramCaption>}
     </div>
   );
-}
+};
 
 // ── Unified Diagram Block (dispatches to correct variant) ────────────────
 
@@ -315,7 +319,7 @@ export interface DiagramData {
   columns?: ComparisonColumn[];
 }
 
-export function DiagramBlock({ data }: { data: DiagramData }): React.JSX.Element {
+export const DiagramBlock = ({ data }: { data: DiagramData }): React.JSX.Element => {
   const { title, caption } = data;
 
   switch (data.variant) {
@@ -335,4 +339,4 @@ export function DiagramBlock({ data }: { data: DiagramData }): React.JSX.Element
     case "comparison":
       return <ComparisonDiagram title={title} caption={caption} columns={data.columns ?? []} />;
   }
-}
+};

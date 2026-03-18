@@ -6,12 +6,12 @@ import type { GlossaryTerm } from "./constants";
  * - Matched terms render as styled spans showing the Japanese name (`term.term`).
  * - Unrecognised IDs are rendered as plain text (the raw ID string).
  */
-export function parseGlossaryLinks(
+export const parseGlossaryLinks = (
   text: string,
   terms: GlossaryTerm[],
   onTermClick: (termId: string) => void,
   renderText?: (text: string) => React.ReactNode[],
-): React.ReactNode {
+): React.ReactNode => {
   const pattern = /\{\{([^}]+)\}\}/g;
   const parts: React.ReactNode[] = [];
   let lastIndex = 0;
@@ -77,4 +77,4 @@ export function parseGlossaryLinks(
   }
 
   return parts.length === 1 ? parts[0] : <>{parts}</>;
-}
+};

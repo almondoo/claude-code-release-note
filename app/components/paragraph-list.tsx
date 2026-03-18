@@ -2,7 +2,7 @@
  * インライン Markdown をレンダリングする。
  * 対応: **太字**, `コード`, [リンク](url)
  */
-export function renderInlineMarkdown(text: string): React.ReactNode[] {
+export const renderInlineMarkdown = (text: string): React.ReactNode[] => {
   const pattern = /(\*\*[^*]+\*\*|`[^`]+`|\[[^\]]+\]\([^)]+\))/g;
   const parts = text.split(pattern);
   return parts.map((part, i) => {
@@ -39,15 +39,15 @@ export function renderInlineMarkdown(text: string): React.ReactNode[] {
     }
     return part;
   });
-}
+};
 
 /**
  * 段落が "- " で始まるリスト項目かどうかを判定し、
  * リスト項目ならインデント付きで表示する。
  */
-function isListItem(paragraph: string): boolean {
+const isListItem = (paragraph: string): boolean => {
   return paragraph.startsWith("- ");
-}
+};
 
 const HEADING_STYLES: Record<number, string> = {
   1: "text-[18px] font-bold text-slate-100 m-0",
@@ -55,13 +55,13 @@ const HEADING_STYLES: Record<number, string> = {
   3: "text-[14px] font-semibold text-slate-300 m-0",
 };
 
-function parseHeading(paragraph: string): { level: number; text: string } | null {
+const parseHeading = (paragraph: string): { level: number; text: string } | null => {
   const match = paragraph.match(/^(#{1,3})\s+(.+)$/);
   if (!match) return null;
   return { level: match[1].length, text: match[2] };
-}
+};
 
-export function ParagraphList({
+export const ParagraphList = ({
   content,
   className,
   renderText,
@@ -69,7 +69,7 @@ export function ParagraphList({
   content: string;
   className?: string;
   renderText?: (paragraph: string) => React.ReactNode;
-}): React.JSX.Element {
+}): React.JSX.Element => {
   const baseClass = className ?? "m-0 text-[14px] leading-[1.8] text-slate-400 font-sans";
 
   return (
@@ -107,4 +107,4 @@ export function ParagraphList({
       })}
     </>
   );
-}
+};

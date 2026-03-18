@@ -23,14 +23,14 @@ import { PluginCard } from "./plugin-card";
 import { DetailModal } from "./detail-modal";
 import { QuickStartPanel } from "./quick-start-panel";
 
-export function meta(): Array<{ title?: string; name?: string; content?: string }> {
+export const meta = (): Array<{ title?: string; name?: string; content?: string }> => {
   return [
     { title: "Claude Code 公式プラグイン一覧" },
     { name: "description", content: "Claude Code の公式プラグインの詳細と使い方" },
   ];
-}
+};
 
-function renderTabIcon(tab: TabItem): React.ReactNode {
+const renderTabIcon = (tab: TabItem): React.ReactNode => {
   const def = TAB_DEFS.find((t) => t.id === tab.id);
   if (!def) return null;
   if (def.type === "category" && CATEGORY_ICONS[tab.id]) {
@@ -44,9 +44,9 @@ function renderTabIcon(tab: TabItem): React.ReactNode {
     );
   }
   return null;
-}
+};
 
-export default function Plugins(): React.JSX.Element {
+const Plugins = (): React.JSX.Element => {
   const {
     query,
     setQuery,
@@ -219,4 +219,6 @@ export default function Plugins(): React.JSX.Element {
       </AnimatePresence>
     </div>
   );
-}
+};
+
+export default Plugins;

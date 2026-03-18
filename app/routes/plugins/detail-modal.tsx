@@ -20,12 +20,12 @@ interface DetailModalProps {
   reducedMotion: boolean | null;
 }
 
-export function DetailModal({
+export const DetailModal = ({
   plugin,
   accentColor,
   onClose,
   reducedMotion,
-}: DetailModalProps): React.JSX.Element {
+}: DetailModalProps): React.JSX.Element => {
   return (
     <DetailModalShell
       accentColor={accentColor}
@@ -107,4 +107,4 @@ export function DetailModal({
       </div>
     </DetailModalShell>
   );
-}
+};

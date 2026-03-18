@@ -1,6 +1,6 @@
 import { SKILLS_VS_AGENTS } from "./constants";
 
-export function SkillsVsAgentsPanel(): React.JSX.Element {
+export const SkillsVsAgentsPanel = (): React.JSX.Element => {
   return (
     <div className="bg-surface rounded-xl border border-slate-700 p-6">
       <div
@@ -77,4 +77,4 @@ export function SkillsVsAgentsPanel(): React.JSX.Element {
       </div>
     </div>
   );
-}
+};

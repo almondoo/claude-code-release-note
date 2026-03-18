@@ -11,7 +11,7 @@ interface SurveySectionProps {
   skipMotion?: boolean;
 }
 
-export function SurveySection({
+export const SurveySection = ({
   id,
   title,
   description,
@@ -19,7 +19,7 @@ export function SurveySection({
   sectionRef,
   children,
   skipMotion,
-}: SurveySectionProps): React.JSX.Element {
+}: SurveySectionProps): React.JSX.Element => {
   const reducedMotion = useReducedMotion();
   const theme = SECTION_THEMES[id] || { color: "#3B82F6", bg: "rgba(59,130,246,0.12)" };
   const Icon = SECTION_ICONS[id];
@@ -55,4 +55,4 @@ export function SurveySection({
       <div className="flex flex-col gap-6">{children}</div>
     </motion.section>
   );
-}
+};

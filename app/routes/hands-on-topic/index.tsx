@@ -10,22 +10,22 @@ import { StepRenderer, IntroBlockRenderer } from "./step-renderer";
 
 // ── Meta ──────────────────────────────────────────────────────────────────
 
-export function meta({
+export const meta = ({
   params,
 }: {
   params: { topic: string };
-}): Array<{ title?: string; name?: string; content?: string }> {
+}): Array<{ title?: string; name?: string; content?: string }> => {
   const topic = TOPIC_MAP[params.topic];
   return [
     {
       title: `${topic?.title ?? "ハンズオン"} - Claude Code ハンズオン`,
     },
   ];
-}
+};
 
 // ── Approach Tab Bar ──────────────────────────────────────────────────────
 
-function ApproachTabs({
+const ApproachTabs = ({
   approaches,
   activeId,
   onSelect,
@@ -33,7 +33,7 @@ function ApproachTabs({
   approaches: Approach[];
   activeId: string;
   onSelect: (id: string) => void;
-}): React.JSX.Element {
+}): React.JSX.Element => {
   return (
     <div className="mb-8">
       <div
@@ -82,11 +82,11 @@ function ApproachTabs({
       </div>
     </div>
   );
-}
+};
 
 // ── Main Page ─────────────────────────────────────────────────────────────
 
-export default function HandsOnTopic(): React.JSX.Element {
+const HandsOnTopic = (): React.JSX.Element => {
   const { topic: topicId } = useParams();
   const reducedMotion = useReducedMotion();
 
@@ -300,4 +300,6 @@ export default function HandsOnTopic(): React.JSX.Element {
       </div>
     </div>
   );
-}
+};
+
+export default HandsOnTopic;

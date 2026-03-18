@@ -27,11 +27,11 @@ import { EntryCard } from "./entry-card";
 import { PrecedencePanel } from "./precedence-panel";
 import { SkillsVsAgentsPanel } from "./skills-vs-agents-panel";
 
-export function meta(): Array<{
+export const meta = (): Array<{
   title?: string;
   name?: string;
   content?: string;
-}> {
+}> => {
   return [
     { title: "Claude Code 設定ガイド" },
     {
@@ -39,7 +39,7 @@ export function meta(): Array<{
       content: "Claude Code の設定ファイル・ディレクトリ構成のベストプラクティスガイド",
     },
   ];
-}
+};
 
 const tabItems: TabItem[] = TAB_DEFS.map((t) => ({
   id: t.id,
@@ -47,7 +47,7 @@ const tabItems: TabItem[] = TAB_DEFS.map((t) => ({
   color: t.color,
 }));
 
-function renderTabIcon(tab: TabItem): React.ReactNode {
+const renderTabIcon = (tab: TabItem): React.ReactNode => {
   const def = TAB_DEFS.find((t) => t.id === tab.id);
   if (!def) return null;
   if (def.type === "section" && SECTION_ICONS[tab.id]) {
@@ -61,9 +61,9 @@ function renderTabIcon(tab: TabItem): React.ReactNode {
     );
   }
   return null;
-}
+};
 
-export default function Directory(): React.JSX.Element {
+const Directory = (): React.JSX.Element => {
   const {
     query,
     setQuery,
@@ -295,4 +295,6 @@ export default function Directory(): React.JSX.Element {
       </AnimatePresence>
     </div>
   );
-}
+};
+
+export default Directory;

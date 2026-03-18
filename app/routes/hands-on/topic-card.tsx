@@ -8,7 +8,7 @@ interface TopicCardProps {
   index: number;
 }
 
-export function TopicCard({ topic, index }: TopicCardProps): React.JSX.Element {
+export const TopicCard = ({ topic, index }: TopicCardProps): React.JSX.Element => {
   const reducedMotion = useReducedMotion();
   const diff = DIFFICULTY_COLORS[topic.difficulty];
   const IconRenderer = TOPIC_ICONS[topic.icon];
@@ -106,4 +106,4 @@ export function TopicCard({ topic, index }: TopicCardProps): React.JSX.Element {
       </Link>
     </motion.div>
   );
-}
+};

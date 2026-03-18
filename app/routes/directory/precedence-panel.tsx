@@ -1,6 +1,6 @@
 import { PRECEDENCE, PRECEDENCE_COLORS } from "./constants";
 
-export function PrecedencePanel(): React.JSX.Element {
+export const PrecedencePanel = (): React.JSX.Element => {
   return (
     <div className="flex flex-col gap-4">
       <div className="bg-surface rounded-xl border border-slate-700 p-6">
@@ -76,4 +76,4 @@ export function PrecedencePanel(): React.JSX.Element {
       </div>
     </div>
   );
-}
+};

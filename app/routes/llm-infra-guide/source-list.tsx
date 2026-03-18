@@ -3,20 +3,20 @@ import type { SourceCategory, ChecklistCategory } from "./constants";
 
 // ── Shared set-toggle hook ──────────────────────────────────────────────
 
-function useToggleSet<T>(initial: T[] = []): [Set<T>, (item: T) => void] {
+const useToggleSet = <T,>(initial: T[] = []): [Set<T>, (item: T) => void] => {
   const [set, setSet] = useState<Set<T>>(() => new Set(initial));
 
-  function toggle(item: T): void {
+  const toggle = (item: T): void => {
     setSet((prev) => {
       const next = new Set(prev);
       if (next.has(item)) next.delete(item);
       else next.add(item);
       return next;
     });
-  }
+  };
 
   return [set, toggle];
-}
+};
 
 // ── Source List ───────────────────────────────────────────────────────────
 
@@ -24,7 +24,7 @@ interface SourceListProps {
   categories: SourceCategory[];
 }
 
-export function SourceList({ categories }: SourceListProps): React.JSX.Element {
+export const SourceList = ({ categories }: SourceListProps): React.JSX.Element => {
   const [expandedCat, toggleCat] = useToggleSet([categories[0]?.name]);
 
   return (
@@ -79,7 +79,7 @@ export function SourceList({ categories }: SourceListProps): React.JSX.Element {
       })}
     </div>
   );
-}
+};
 
 // ── Checklist ─────────────────────────────────────────────────────────────
 
@@ -87,7 +87,7 @@ interface ChecklistProps {
   categories: ChecklistCategory[];
 }
 
-export function Checklist({ categories }: ChecklistProps): React.JSX.Element {
+export const Checklist = ({ categories }: ChecklistProps): React.JSX.Element => {
   const [checked, toggleItem] = useToggleSet<string>();
 
   const total = categories.reduce((sum, c) => sum + c.items.length, 0);
@@ -151,4 +151,4 @@ export function Checklist({ categories }: ChecklistProps): React.JSX.Element {
       ))}
     </div>
   );
-}
+};

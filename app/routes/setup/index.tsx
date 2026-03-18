@@ -20,11 +20,12 @@ import {
   TAB_DEFS,
   TAB_SECTION_MAP,
   ITEM_SECTION_MAP,
+  TAG_COLORS,
 } from "./constants";
-import { ItemCard } from "./item-card";
+import { SummaryCard } from "~/components/summary-card";
 import { DetailModal } from "./detail-modal";
 
-export function meta(): Array<{ title?: string; name?: string; content?: string }> {
+export const meta = (): Array<{ title?: string; name?: string; content?: string }> => {
   return [
     { title: "Claude Code セットアップガイド" },
     {
@@ -33,16 +34,16 @@ export function meta(): Array<{ title?: string; name?: string; content?: string 
         "導入から活用、カスタマイズまで。Claude Code を始めるためのステップバイステップガイド。",
     },
   ];
-}
+};
 
-function renderTabIcon(tab: TabItem): React.ReactNode {
+const renderTabIcon = (tab: TabItem): React.ReactNode => {
   if (SECTION_ICONS[tab.id]) {
     return <span className="flex items-center scale-[0.8]">{SECTION_ICONS[tab.id]()}</span>;
   }
   return null;
-}
+};
 
-export default function SetupPage(): React.JSX.Element {
+const SetupPage = (): React.JSX.Element => {
   const {
     query,
     setQuery,
@@ -191,11 +192,14 @@ export default function SetupPage(): React.JSX.Element {
                         items={section.items}
                         keyExtractor={(item) => item.id}
                         renderItem={(item) => (
-                          <ItemCard
-                            item={item}
+                          <SummaryCard
+                            title={item.title}
+                            description={item.description}
+                            tags={item.tags}
                             accentColor={colors.color}
                             sectionName={section.name}
                             onClick={() => openModal(item.id)}
+                            tagColors={TAG_COLORS}
                           />
                         )}
                         reducedMotion={reducedMotion}
@@ -231,4 +235,6 @@ export default function SetupPage(): React.JSX.Element {
       </AnimatePresence>
     </div>
   );
-}
+};
+
+export default SetupPage;

@@ -1,7 +1,7 @@
 import { CheckIcon } from "~/components/icons";
 import { COMMIT_GUIDE } from "./constants";
 
-export function CommitGuidePanel(): React.JSX.Element {
+export const CommitGuidePanel = (): React.JSX.Element => {
   return (
     <div className="bg-surface rounded-xl border border-slate-700 p-6">
       <div
@@ -86,4 +86,4 @@ export function CommitGuidePanel(): React.JSX.Element {
       </div>
     </div>
   );
-}
+};

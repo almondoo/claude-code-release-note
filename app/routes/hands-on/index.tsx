@@ -11,11 +11,11 @@ import { TopicCard } from "./topic-card";
 
 // ── Meta ──────────────────────────────────────────────────────────────────
 
-export function meta(): Array<{
+export const meta = (): Array<{
   title?: string;
   name?: string;
   content?: string;
-}> {
+}> => {
   return [
     { title: "Claude Code ハンズオン" },
     {
@@ -23,11 +23,11 @@ export function meta(): Array<{
       content: TOPICS_DATA.meta.description,
     },
   ];
-}
+};
 
 // ── Main Page ─────────────────────────────────────────────────────────────
 
-export default function HandsOnHub(): React.JSX.Element {
+const HandsOnHub = (): React.JSX.Element => {
   const [query, setQuery] = useState("");
   const reducedMotion = useReducedMotion();
 
@@ -87,4 +87,6 @@ export default function HandsOnHub(): React.JSX.Element {
       </div>
     </div>
   );
-}
+};
+
+export default HandsOnHub;

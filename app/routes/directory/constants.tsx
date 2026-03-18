@@ -132,10 +132,10 @@ export const VCS_CONFIG = {
   },
 };
 
-export function getVcsKey(vcs: boolean | null): "true" | "false" | "null" {
+export const getVcsKey = (vcs: boolean | null): "true" | "false" | "null" => {
   if (vcs === null) return "null";
   return String(vcs) as "true" | "false";
-}
+};
 
 export const SECTIONS: Section[] = directoryData.sections as unknown as Section[];
 export const PRECEDENCE: PrecedenceItem[] = directoryData.precedence as PrecedenceItem[];
@@ -150,12 +150,12 @@ for (const s of SECTIONS) {
     ENTRY_SECTION_MAP.set(e.path + "@" + s.id, s);
   }
 }
-export function getSectionForEntry(entry: Entry): Section {
+export const getSectionForEntry = (entry: Entry): Section => {
   for (const s of SECTIONS) {
     if (s.entries.includes(entry)) return s;
   }
   return SECTIONS[0];
-}
+};
 
 export const PRECEDENCE_COLORS: Record<string, { color: string; bg: string }> = {
   red: PALETTE.red,

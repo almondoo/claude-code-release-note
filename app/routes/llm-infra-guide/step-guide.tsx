@@ -28,7 +28,7 @@ const DIFFICULTY_META: Record<Difficulty, { dots: number; color: string; label: 
   hard: { dots: 3, color: "#EF4444", label: "Hard" },
 };
 
-function DifficultyIndicator({ level }: { level: Difficulty }): React.JSX.Element {
+const DifficultyIndicator = ({ level }: { level: Difficulty }): React.JSX.Element => {
   const { dots, color, label } = DIFFICULTY_META[level];
 
   return (
@@ -47,11 +47,11 @@ function DifficultyIndicator({ level }: { level: Difficulty }): React.JSX.Elemen
       </span>
     </span>
   );
-}
+};
 
 // ── Step Card ───────────────────────────────────────────────────────────────
 
-function StepCard({
+const StepCard = ({
   step,
   index,
   isLast,
@@ -65,7 +65,7 @@ function StepCard({
   defaultExpanded: boolean;
   accentColor: string;
   renderBlock: StepGuideProps["renderBlock"];
-}) {
+}) => {
   const [expanded, setExpanded] = useState(defaultExpanded);
   const reducedMotion = useReducedMotion();
   const contentRef = useRef<HTMLDivElement>(null);
@@ -157,16 +157,16 @@ function StepCard({
       </div>
     </div>
   );
-}
+};
 
 // ── StepGuide ───────────────────────────────────────────────────────────────
 
-export function StepGuide({
+export const StepGuide = ({
   title,
   steps,
   accentColor = "#3B82F6",
   renderBlock,
-}: StepGuideProps): React.JSX.Element {
+}: StepGuideProps): React.JSX.Element => {
   return (
     <div className="flex flex-col">
       {title && (
@@ -192,4 +192,4 @@ export function StepGuide({
       </div>
     </div>
   );
-}
+};

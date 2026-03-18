@@ -8,13 +8,13 @@ interface ItemGridProps<T> {
   hasMounted?: boolean;
 }
 
-export function ItemGrid<T>({
+export const ItemGrid = <T,>({
   items,
   renderItem,
   keyExtractor,
   reducedMotion,
   hasMounted = false,
-}: ItemGridProps<T>): React.JSX.Element {
+}: ItemGridProps<T>): React.JSX.Element => {
   return (
     <div className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-3.5">
       <AnimatePresence mode="popLayout">
@@ -44,4 +44,4 @@ export function ItemGrid<T>({
       </AnimatePresence>
     </div>
   );
-}
+};

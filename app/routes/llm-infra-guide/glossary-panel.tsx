@@ -17,33 +17,33 @@ type ScreenMode = "xl" | "lg" | "mobile";
 
 // ── useScreenMode hook ───────────────────────────────────────────────────
 
-function useScreenMode(): ScreenMode {
+const useScreenMode = (): ScreenMode => {
   const [mode, setMode] = useState<ScreenMode>("xl");
 
   useEffect(() => {
-    function detect(): void {
+    const detect = (): void => {
       const w = window.innerWidth;
       if (w >= 1280) setMode("xl");
       else if (w >= 1024) setMode("lg");
       else setMode("mobile");
-    }
+    };
     detect();
     window.addEventListener("resize", detect);
     return () => window.removeEventListener("resize", detect);
   }, []);
 
   return mode;
-}
+};
 
 // ── Shared Backdrop ─────────────────────────────────────────────────────
 
-function Backdrop({
+const Backdrop = ({
   isOpen,
   onClick,
 }: {
   isOpen: boolean;
   onClick: () => void;
-}): React.JSX.Element {
+}): React.JSX.Element => {
   return (
     <div
       className="fixed inset-0 z-40 transition-opacity duration-300"
@@ -55,11 +55,11 @@ function Backdrop({
       onClick={onClick}
     />
   );
-}
+};
 
 // ── Panel Content (shared) ───────────────────────────────────────────────
 
-function PanelContent({
+const PanelContent = ({
   terms,
   categories,
   activeTermId,
@@ -69,7 +69,7 @@ function PanelContent({
   categories: GlossaryCategory[];
   activeTermId: string | null;
   onTermClick: (termId: string) => void;
-}): React.JSX.Element {
+}): React.JSX.Element => {
   const [expandedTermId, setExpandedTermId] = useState<string | null>(null);
   const termRefs = useRef<Map<string, HTMLDivElement>>(new Map());
 
@@ -224,18 +224,18 @@ function PanelContent({
       </div>
     </div>
   );
-}
+};
 
 // ── GlossaryPanel ────────────────────────────────────────────────────────
 
-export function GlossaryPanel({
+export const GlossaryPanel = ({
   terms,
   categories,
   isOpen,
   onClose,
   activeTermId,
   onTermClick,
-}: GlossaryPanelProps): React.JSX.Element | null {
+}: GlossaryPanelProps): React.JSX.Element | null => {
   const screenMode = useScreenMode();
   const reducedMotion = useReducedMotion();
 
@@ -321,11 +321,11 @@ export function GlossaryPanel({
       </div>
     </MobileBottomSheet>
   );
-}
+};
 
 // ── Mobile Bottom Sheet ──────────────────────────────────────────────────
 
-function MobileBottomSheet({
+const MobileBottomSheet = ({
   isOpen,
   onClose,
   children,
@@ -333,7 +333,7 @@ function MobileBottomSheet({
   isOpen: boolean;
   onClose: () => void;
   children: React.ReactNode;
-}) {
+}) => {
   const sheetRef = useRef<HTMLDivElement>(null);
   const dragStartY = useRef<number | null>(null);
   const currentTranslateY = useRef(0);
@@ -388,17 +388,17 @@ function MobileBottomSheet({
       </div>
     </>
   );
-}
+};
 
 // ── GlossaryTrigger (floating button) ────────────────────────────────────
 
-export function GlossaryTrigger({
+export const GlossaryTrigger = ({
   onClick,
   termCount,
 }: {
   onClick: () => void;
   termCount: number;
-}): React.JSX.Element | null {
+}): React.JSX.Element | null => {
   const screenMode = useScreenMode();
 
   if (screenMode === "xl") {
@@ -434,4 +434,4 @@ export function GlossaryTrigger({
       </span>
     </button>
   );
-}
+};

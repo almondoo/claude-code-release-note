@@ -2,13 +2,13 @@ import { BaseCard } from "~/components/base-card";
 import type { Shortcut } from "./constants";
 import { SHORTCUT_ACCENT } from "./constants";
 
-export function ShortcutCard({
+export const ShortcutCard = ({
   shortcut,
   onClick,
 }: {
   shortcut: Shortcut;
   onClick: () => void;
-}): React.JSX.Element {
+}): React.JSX.Element => {
   return (
     <BaseCard
       accentColor={SHORTCUT_ACCENT}
@@ -32,4 +32,4 @@ export function ShortcutCard({
       </p>
     </BaseCard>
   );
-}
+};

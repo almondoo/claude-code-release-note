@@ -7,7 +7,7 @@ import { ParagraphList } from "~/components/paragraph-list";
 import type { Step } from "./constants";
 import { SECTIONS, SECTION_ICONS, TAG_COLORS } from "./constants";
 
-export function DetailModal({
+export const DetailModal = ({
   item,
   sectionName,
   accentColor,
@@ -19,7 +19,7 @@ export function DetailModal({
   accentColor: string;
   onClose: () => void;
   reducedMotion: boolean | null;
-}): React.JSX.Element {
+}): React.JSX.Element => {
   const sectionIcon = SECTION_ICONS[
     SECTIONS.find((s) => s.steps.some((st) => st.id === item.id))?.id ?? ""
   ]?.() ?? (
@@ -84,4 +84,4 @@ export function DetailModal({
       )}
     </DetailModalShell>
   );
-}
+};

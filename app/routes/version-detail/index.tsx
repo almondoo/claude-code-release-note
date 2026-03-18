@@ -10,7 +10,7 @@ import { computeSortedTagCounts } from "../release-note/version-card";
 import { DetailCard, FallbackCard } from "./detail-card";
 import { NavButton } from "./nav-button";
 
-export default function VersionDetail(): React.JSX.Element {
+const VersionDetail = (): React.JSX.Element => {
   const { version } = useParams();
   const reducedMotion = useReducedMotion();
 
@@ -136,4 +136,6 @@ export default function VersionDetail(): React.JSX.Element {
       </div>
     </div>
   );
-}
+};
+
+export default VersionDetail;

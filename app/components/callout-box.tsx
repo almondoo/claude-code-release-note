@@ -20,7 +20,7 @@ export const CALLOUT_STYLES: Record<
   },
 };
 
-export function CalloutBox({ callout }: { callout: Callout }): React.JSX.Element {
+export const CalloutBox = ({ callout }: { callout: Callout }): React.JSX.Element => {
   const style = CALLOUT_STYLES[callout.type] || CALLOUT_STYLES.info;
   return (
     <div
@@ -41,4 +41,4 @@ export function CalloutBox({ callout }: { callout: Callout }): React.JSX.Element
       </span>
     </div>
   );
-}
+};

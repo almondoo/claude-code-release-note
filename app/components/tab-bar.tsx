@@ -15,13 +15,13 @@ interface TabBarProps {
   reducedMotion: boolean | null;
 }
 
-export function TabBar({
+export const TabBar = ({
   tabs,
   activeTab,
   onTabChange,
   renderIcon,
   reducedMotion,
-}: TabBarProps): React.JSX.Element {
+}: TabBarProps): React.JSX.Element => {
   const ref = useRef<HTMLDivElement>(null);
 
   return (
@@ -55,4 +55,4 @@ export function TabBar({
       })}
     </motion.div>
   );
-}
+};

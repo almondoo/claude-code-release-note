@@ -8,7 +8,7 @@ import type { ReleaseItem } from "./constants";
 import { VERSION_DETAILS_AVAILABLE } from "./constants";
 import { computeSortedTagCounts, TagCountBadge } from "./version-card";
 
-export function DetailModal({
+export const DetailModal = ({
   version,
   items,
   onClose,
@@ -18,7 +18,7 @@ export function DetailModal({
   items: ReleaseItem[];
   onClose: () => void;
   reducedMotion: boolean | null;
-}): React.JSX.Element {
+}): React.JSX.Element => {
   const hasDetails = VERSION_DETAILS_AVAILABLE.has(version);
   const sortedTags = computeSortedTagCounts(items);
 
@@ -83,4 +83,4 @@ export function DetailModal({
       </Link>
     </DetailModalShell>
   );
-}
+};

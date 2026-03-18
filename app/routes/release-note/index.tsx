@@ -11,14 +11,14 @@ import { RELEASES, TAB_DEFS, TAG_ICONS, totalAll } from "./constants";
 import { DetailModal } from "./detail-modal";
 import { VersionCard } from "./version-card";
 
-export function meta(): Array<{ title?: string; name?: string; content?: string }> {
+export const meta = (): Array<{ title?: string; name?: string; content?: string }> => {
   return [
     { title: "Claude Code リリースノート" },
     { name: "description", content: "Claude Code の全バージョンのリリースノートを閲覧できます" },
   ];
-}
+};
 
-export default function ReleaseNote(): React.JSX.Element {
+const ReleaseNote = (): React.JSX.Element => {
   const [activeTab, setActiveTab] = useState("all");
   const [query, setQuery] = useState("");
   const [modalVersion, setModalVersion] = useState<string | null>(null);
@@ -177,4 +177,6 @@ export default function ReleaseNote(): React.JSX.Element {
       </AnimatePresence>
     </div>
   );
-}
+};
+
+export default ReleaseNote;

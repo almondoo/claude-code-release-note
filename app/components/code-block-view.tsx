@@ -7,7 +7,7 @@ export interface CodeBlock {
   recommended?: boolean;
 }
 
-export function CodeBlockView({ block }: { block: CodeBlock }): React.JSX.Element {
+export const CodeBlockView = ({ block }: { block: CodeBlock }): React.JSX.Element => {
   return (
     <div
       className="rounded-lg overflow-hidden border"
@@ -54,4 +54,4 @@ export function CodeBlockView({ block }: { block: CodeBlock }): React.JSX.Elemen
       </pre>
     </div>
   );
-}
+};

@@ -6,7 +6,7 @@ interface EmptyStateProps {
   reducedMotion: boolean | null;
 }
 
-export function EmptyState({ message, reducedMotion }: EmptyStateProps): React.JSX.Element {
+export const EmptyState = ({ message, reducedMotion }: EmptyStateProps): React.JSX.Element => {
   return (
     <motion.div
       initial={reducedMotion ? false : { opacity: 0, scale: 0.95 }}
@@ -20,4 +20,4 @@ export function EmptyState({ message, reducedMotion }: EmptyStateProps): React.J
       <p className="text-slate-500 text-sm m-0">{message}</p>
     </motion.div>
   );
-}
+};

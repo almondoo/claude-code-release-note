@@ -8,12 +8,12 @@ interface SearchInputProps {
   accentColor?: string;
 }
 
-export function SearchInput({
+export const SearchInput = ({
   value,
   onChange,
   placeholder,
   accentColor = "#3B82F6",
-}: SearchInputProps): React.JSX.Element {
+}: SearchInputProps): React.JSX.Element => {
   const [focused, setFocused] = useState(false);
   return (
     <div
@@ -35,4 +35,4 @@ export function SearchInput({
       />
     </div>
   );
-}
+};

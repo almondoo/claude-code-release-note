@@ -1,7 +1,7 @@
 import { BaseCard } from "~/components/base-card";
 import type { EnvVar } from "./constants";
 
-export function EnvCard({
+export const EnvCard = ({
   envVar,
   categoryName,
   accentColor,
@@ -13,7 +13,7 @@ export function EnvCard({
   accentColor: string;
   categoryBg: string;
   onClick: () => void;
-}): React.JSX.Element {
+}): React.JSX.Element => {
   return (
     <BaseCard
       accentColor={accentColor}
@@ -50,4 +50,4 @@ export function EnvCard({
       </div>
     </BaseCard>
   );
-}
+};

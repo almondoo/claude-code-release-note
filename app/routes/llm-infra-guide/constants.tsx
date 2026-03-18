@@ -254,7 +254,7 @@ export const HIGHLIGHT_STYLES: Record<
 
 // ── Section icon SVG renderers ───────────────────────────────────────────
 
-function iconSvg(d: string) {
+const iconSvg = (d: string) => {
   return (
     <svg
       width="18"
@@ -269,7 +269,7 @@ function iconSvg(d: string) {
       <path d={d} />
     </svg>
   );
-}
+};
 
 export const SECTION_ICONS: Record<string, () => React.JSX.Element> = {
   "guide-overview": () =>

@@ -1,7 +1,7 @@
 import { BaseCard } from "~/components/base-card";
 import type { Command } from "./constants";
 
-export function CommandCard({
+export const CommandCard = ({
   cmd,
   accentColor,
   categoryName,
@@ -11,7 +11,7 @@ export function CommandCard({
   accentColor: string;
   categoryName: string;
   onClick: () => void;
-}): React.JSX.Element {
+}): React.JSX.Element => {
   return (
     <BaseCard
       accentColor={accentColor}
@@ -46,4 +46,4 @@ export function CommandCard({
       </span>
     </BaseCard>
   );
-}
+};

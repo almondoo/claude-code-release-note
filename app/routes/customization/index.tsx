@@ -16,7 +16,7 @@ import { CustomizationCard } from "./customization-card";
 import { DetailModal } from "./detail-modal";
 import { GuidedReader } from "./guided-reader";
 
-export function meta(): Array<{ title?: string; name?: string; content?: string }> {
+export const meta = (): Array<{ title?: string; name?: string; content?: string }> => {
   return [
     { title: "Claude Code カスタマイズガイド" },
     {
@@ -24,7 +24,7 @@ export function meta(): Array<{ title?: string; name?: string; content?: string 
       content: "スキル・MCP・フックで Claude Code を自分好みにカスタマイズする完全ガイド",
     },
   ];
-}
+};
 
 const TAB_DEFS: TabItem[] = TABS.map((tab) => ({
   id: tab.id,
@@ -32,7 +32,7 @@ const TAB_DEFS: TabItem[] = TABS.map((tab) => ({
   color: TAB_COLORS[tab.id] ?? "#94A3B8",
 }));
 
-function renderTabIcon(tab: TabItem): React.ReactNode {
+const renderTabIcon = (tab: TabItem): React.ReactNode => {
   const Icon = TAB_ICONS[tab.id];
   if (!Icon) return null;
   return (
@@ -40,9 +40,9 @@ function renderTabIcon(tab: TabItem): React.ReactNode {
       <Icon />
     </span>
   );
-}
+};
 
-export default function CustomizationPage(): React.JSX.Element {
+const CustomizationPage = (): React.JSX.Element => {
   const [query, setQuery] = useState("");
   const [activeTab, setActiveTab] = useState<string>(TABS[0].id);
   const [modalItem, setModalItem] = useState<CustomizationItem | null>(null);
@@ -202,4 +202,6 @@ export default function CustomizationPage(): React.JSX.Element {
       </AnimatePresence>
     </div>
   );
-}
+};
+
+export default CustomizationPage;

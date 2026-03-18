@@ -2,7 +2,7 @@ import { BaseCard } from "~/components/base-card";
 import type { CustomizationItem } from "./constants";
 import { DEFAULT_TAG_COLOR, TAG_COLORS } from "./constants";
 
-export function CustomizationCard({
+export const CustomizationCard = ({
   item,
   accentColor,
   onClick,
@@ -10,7 +10,7 @@ export function CustomizationCard({
   item: CustomizationItem;
   accentColor: string;
   onClick: () => void;
-}): React.JSX.Element {
+}): React.JSX.Element => {
   return (
     <BaseCard accentColor={accentColor} onClick={onClick} className="gap-2.5 px-5 py-[18px]">
       <h3 className="font-sans text-sm font-bold m-0 leading-snug" style={{ color: accentColor }}>
@@ -37,4 +37,4 @@ export function CustomizationCard({
       )}
     </BaseCard>
   );
-}
+};

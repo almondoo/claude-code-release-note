@@ -35,7 +35,7 @@ export interface InfraDiagramProps {
 
 // ── Height calculation ───────────────────────────────────────────────────
 
-function computeDiagramHeight(props: InfraDiagramProps): number {
+const computeDiagramHeight = (props: InfraDiagramProps): number => {
   if (props.variant === "dataflow") {
     const stages = props.stages ?? [];
     const maxItems = Math.max(...stages.map((s) => s.items.length), 1);
@@ -53,11 +53,11 @@ function computeDiagramHeight(props: InfraDiagramProps): number {
   const layers = props.layers ?? [];
   const hasLong = layers.some((l) => l.services.some((s) => (s.description ?? "").length > 20));
   return Math.max(250, (layers.length || 1) * (hasLong ? 180 : 150));
-}
+};
 
 // ── Unified Export ────────────────────────────────────────────────────────
 
-export function InfraDiagram(props: InfraDiagramProps): React.JSX.Element {
+export const InfraDiagram = (props: InfraDiagramProps): React.JSX.Element => {
   const { nodes, edges } = useMemo(() => convertInfraDiagram(props), [props]);
 
   const height = useMemo(() => computeDiagramHeight(props), [props]);
@@ -82,4 +82,4 @@ export function InfraDiagram(props: InfraDiagramProps): React.JSX.Element {
       />
     </ClientOnly>
   );
-}
+};

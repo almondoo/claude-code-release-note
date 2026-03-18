@@ -9,7 +9,7 @@ import type { ReleaseItem, DetailItem } from "./constants";
 
 const DEFAULT_CATEGORY_COLOR = { bg: "rgba(59, 130, 246, 0.1)", text: "#60A5FA" };
 
-export function CategoryBadge({ category }: { category: string }): React.JSX.Element {
+export const CategoryBadge = ({ category }: { category: string }): React.JSX.Element => {
   const colors = TAG_COLORS_BY_LABEL[category] ?? DEFAULT_CATEGORY_COLOR;
 
   return (
@@ -25,9 +25,9 @@ export function CategoryBadge({ category }: { category: string }): React.JSX.Ele
       {category}
     </span>
   );
-}
+};
 
-export function DetailCard({
+export const DetailCard = ({
   item,
   index,
   reducedMotion,
@@ -35,19 +35,19 @@ export function DetailCard({
   item: DetailItem;
   index: number;
   reducedMotion: boolean | null;
-}): React.JSX.Element {
+}): React.JSX.Element => {
   const [isOpen, setIsOpen] = useState(false);
 
-  function toggle() {
+  const toggle = () => {
     setIsOpen((prev) => !prev);
-  }
+  };
 
-  function handleKeyDown(e: React.KeyboardEvent) {
+  const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
       toggle();
     }
-  }
+  };
 
   return (
     <motion.div
@@ -117,9 +117,9 @@ export function DetailCard({
       </AnimatePresence>
     </motion.div>
   );
-}
+};
 
-export function FallbackCard({ item }: { item: ReleaseItem }): React.JSX.Element {
+export const FallbackCard = ({ item }: { item: ReleaseItem }): React.JSX.Element => {
   return (
     <div className="bg-surface rounded-xl border border-slate-700 px-[18px] py-4">
       <div className="flex gap-1.5 flex-wrap mb-2">
@@ -130,4 +130,4 @@ export function FallbackCard({ item }: { item: ReleaseItem }): React.JSX.Element
       <p className="text-slate-400 text-sm leading-[1.7] m-0 font-sans">{item.t}</p>
     </div>
   );
-}
+};

@@ -24,7 +24,7 @@ import { DetailModal } from "./detail-modal";
 // Meta
 // ---------------------------------------------------------------------------
 
-export function meta(): Array<{ title?: string; name?: string; content?: string }> {
+export const meta = (): Array<{ title?: string; name?: string; content?: string }> => {
   return [
     { title: "Claude Code トークン使用量計測ガイド" },
     {
@@ -32,20 +32,20 @@ export function meta(): Array<{ title?: string; name?: string; content?: string 
       content: "Claude Code のトークン使用量を計測・監視するための方法まとめ",
     },
   ];
-}
+};
 
 // ---------------------------------------------------------------------------
 // Main page
 // ---------------------------------------------------------------------------
 
-function renderTabIcon(tab: TabItem): React.ReactNode {
+const renderTabIcon = (tab: TabItem): React.ReactNode => {
   if (SECTION_ICONS[tab.id]) {
     return <span className="flex items-center scale-[0.8]">{SECTION_ICONS[tab.id]()}</span>;
   }
   return null;
-}
+};
 
-export default function TokenUsage(): React.JSX.Element {
+const TokenUsage = (): React.JSX.Element => {
   const {
     query,
     setQuery,
@@ -176,4 +176,6 @@ export default function TokenUsage(): React.JSX.Element {
       </AnimatePresence>
     </div>
   );
-}
+};
+
+export default TokenUsage;

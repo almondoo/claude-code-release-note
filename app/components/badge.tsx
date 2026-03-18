@@ -50,7 +50,7 @@ interface BadgeProps {
   small?: boolean;
 }
 
-export function Badge({ tag, small }: BadgeProps): React.JSX.Element {
+export const Badge = ({ tag, small }: BadgeProps): React.JSX.Element => {
   const colors = TAG_COLORS[tag];
   return (
     <span
@@ -68,4 +68,4 @@ export function Badge({ tag, small }: BadgeProps): React.JSX.Element {
       {TAG_LABELS[tag] ?? tag}
     </span>
   );
-}
+};

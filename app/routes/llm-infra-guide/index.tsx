@@ -2,9 +2,9 @@ import { useReducedMotion } from "motion/react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { redirect } from "react-router";
 
-export function loader() {
+export const loader = () => {
   return redirect("/");
-}
+};
 
 import { Footer } from "~/components/footer";
 import { PageHeader } from "~/components/page-header";
@@ -44,11 +44,11 @@ const GLOSSARY: GlossaryData = glossaryRaw as unknown as GlossaryData;
 
 // ── Meta ──────────────────────────────────────────────────────────────────
 
-export function meta(): Array<{
+export const meta = (): Array<{
   title?: string;
   name?: string;
   content?: string;
-}> {
+}> => {
   return [
     { title: "エンタープライズLLM基盤の構築ガイド" },
     {
@@ -56,17 +56,17 @@ export function meta(): Array<{
       content: "アーキテクチャ設計から運用まで — エンタープライズLLM基盤の実践的構築ガイド",
     },
   ];
-}
+};
 
 // ── Block Renderer ────────────────────────────────────────────────────────
 
-function renderBlock(
+const renderBlock = (
   block: ContentBlock,
   key: number,
   accentColor?: string,
   glossaryTerms?: GlossaryData["terms"],
   onTermClick?: (termId: string) => void,
-): React.ReactNode {
+): React.ReactNode => {
   const gl = (text: string) =>
     glossaryTerms && onTermClick
       ? parseGlossaryLinks(text, glossaryTerms, onTermClick, renderInlineMarkdown)
@@ -235,11 +235,11 @@ function renderBlock(
     default:
       return null;
   }
-}
+};
 
 // ── Lazy Section ──────────────────────────────────────────────────────────
 
-function LazySection({
+const LazySection = ({
   section,
   index,
   sectionRef,
@@ -255,7 +255,7 @@ function LazySection({
   onTermClick: (termId: string) => void;
   chapterTitle?: string;
   skipMotion?: boolean;
-}) {
+}) => {
   const [visible, setVisible] = useState(false);
   const sentinelRef = useRef<HTMLDivElement>(null);
 
@@ -301,11 +301,11 @@ function LazySection({
       </SurveySectionWrapper>
     </div>
   );
-}
+};
 
 // ── Main Page ─────────────────────────────────────────────────────────────
 
-export default function LlmSurveyPage(): React.JSX.Element {
+const LlmSurveyPage = (): React.JSX.Element => {
   const [activeSectionId, setActiveSectionId] = useState(SURVEY.sections[0]?.id || "");
   const [glossaryOpen, setGlossaryOpen] = useState(false);
   const [activeTermId, setActiveTermId] = useState<string | null>(null);
@@ -466,4 +466,6 @@ export default function LlmSurveyPage(): React.JSX.Element {
       </div>
     </div>
   );
-}
+};
+
+export default LlmSurveyPage;

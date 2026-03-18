@@ -4,7 +4,7 @@ import { ParagraphList } from "~/components/paragraph-list";
 import type { EnvCategory, EnvVar } from "./constants";
 import { CATEGORY_COLORS } from "./constants";
 
-export function DetailModal({
+export const DetailModal = ({
   envVar,
   category,
   accentColor,
@@ -16,7 +16,7 @@ export function DetailModal({
   accentColor: string;
   onClose: () => void;
   reducedMotion: boolean | null;
-}): React.JSX.Element {
+}): React.JSX.Element => {
   return (
     <DetailModalShell
       accentColor={accentColor}
@@ -138,4 +138,4 @@ export function DetailModal({
       )}
     </DetailModalShell>
   );
-}
+};

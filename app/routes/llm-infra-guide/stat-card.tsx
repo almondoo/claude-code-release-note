@@ -13,7 +13,12 @@ const TREND_ICONS: Record<Trend, { char: string; color: string }> = {
   neutral: { char: "\u2192", color: "#64748B" },
 };
 
-export function StatCard({ label, value, trend, accentColor }: StatCardProps): React.JSX.Element {
+export const StatCard = ({
+  label,
+  value,
+  trend,
+  accentColor,
+}: StatCardProps): React.JSX.Element => {
   const t = trend ? TREND_ICONS[trend] : null;
   return (
     <div
@@ -35,4 +40,4 @@ export function StatCard({ label, value, trend, accentColor }: StatCardProps): R
       </div>
     </div>
   );
-}
+};

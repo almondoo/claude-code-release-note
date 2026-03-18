@@ -4,16 +4,16 @@ import { TAG_COLORS, DIFFICULTY_LABELS } from "./constants";
 
 const DIFFICULTY_LEVELS: TUItem["difficulty"][] = ["easy", "medium", "advanced"];
 
-function isDotFilled(
+const isDotFilled = (
   dotLevel: TUItem["difficulty"],
   itemDifficulty: TUItem["difficulty"],
-): boolean {
+): boolean => {
   const idx = DIFFICULTY_LEVELS.indexOf(dotLevel);
   const itemIdx = DIFFICULTY_LEVELS.indexOf(itemDifficulty);
   return idx <= itemIdx;
-}
+};
 
-export function ItemCard({
+export const ItemCard = ({
   item,
   accentColor,
   sectionName,
@@ -23,7 +23,7 @@ export function ItemCard({
   accentColor: string;
   sectionName: string;
   onClick: () => void;
-}): React.JSX.Element {
+}): React.JSX.Element => {
   const difficulty = DIFFICULTY_LABELS[item.difficulty];
 
   return (
@@ -55,4 +55,4 @@ export function ItemCard({
       }
     />
   );
-}
+};

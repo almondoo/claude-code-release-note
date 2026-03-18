@@ -5,7 +5,13 @@ import { ExternalLinkIcon } from "~/components/icons";
 import type { ReleaseItem } from "./constants";
 import { VERSION_DETAILS_AVAILABLE } from "./constants";
 
-export function TagCountBadge({ tag, count }: { tag: string; count: number }): React.JSX.Element {
+export const TagCountBadge = ({
+  tag,
+  count,
+}: {
+  tag: string;
+  count: number;
+}): React.JSX.Element => {
   return (
     <span
       className="inline-flex items-center gap-[3px] px-[7px] py-[2px] rounded text-[11px] font-semibold"
@@ -19,9 +25,9 @@ export function TagCountBadge({ tag, count }: { tag: string; count: number }): R
       <span className="opacity-50">{count}</span>
     </span>
   );
-}
+};
 
-export function computeSortedTagCounts(items: ReleaseItem[]): [string, number][] {
+export const computeSortedTagCounts = (items: ReleaseItem[]): [string, number][] => {
   const tagCounts: Record<string, number> = {};
   for (const item of items) {
     for (const tag of item.tags) {
@@ -29,9 +35,9 @@ export function computeSortedTagCounts(items: ReleaseItem[]): [string, number][]
     }
   }
   return Object.entries(tagCounts).sort((a, b) => b[1] - a[1]);
-}
+};
 
-export function VersionCard({
+export const VersionCard = ({
   version,
   items,
   accentColor,
@@ -41,7 +47,7 @@ export function VersionCard({
   items: ReleaseItem[];
   accentColor: string;
   onClick: () => void;
-}): React.JSX.Element {
+}): React.JSX.Element => {
   const sortedTags = computeSortedTagCounts(items);
   const hasDetails = VERSION_DETAILS_AVAILABLE.has(version);
 
@@ -99,4 +105,4 @@ export function VersionCard({
       )}
     </BaseCard>
   );
-}
+};

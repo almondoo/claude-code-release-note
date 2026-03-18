@@ -2,7 +2,7 @@ import { BaseCard } from "~/components/base-card";
 import type { Command } from "./constants";
 import { CLI_ACCENT } from "./constants";
 
-export function CLICard({
+export const CLICard = ({
   cmd,
   kind,
   onClick,
@@ -10,7 +10,7 @@ export function CLICard({
   cmd: Command;
   kind: "command" | "flag";
   onClick: () => void;
-}): React.JSX.Element {
+}): React.JSX.Element => {
   return (
     <BaseCard
       accentColor={CLI_ACCENT}
@@ -38,4 +38,4 @@ export function CLICard({
       </span>
     </BaseCard>
   );
-}
+};

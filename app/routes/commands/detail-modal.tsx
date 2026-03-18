@@ -6,14 +6,16 @@ import { ParagraphList } from "~/components/paragraph-list";
 import type { ModalData } from "./constants";
 import { CLI_ACCENT, SHORTCUT_ACCENT } from "./constants";
 
-export function getModalFields(data: ModalData): {
+export const getModalFields = (
+  data: ModalData,
+): {
   accentColor: string;
   detail: string;
   whenToUse: string;
   description: string;
   title: React.ReactNode;
   extraHeader: React.ReactNode;
-} {
+} => {
   if (data.type === "command") {
     const { accentColor } = data;
     return {
@@ -118,9 +120,9 @@ export function getModalFields(data: ModalData): {
       </div>
     ),
   };
-}
+};
 
-export function DetailModal({
+export const DetailModal = ({
   data,
   onClose,
   reducedMotion,
@@ -128,7 +130,7 @@ export function DetailModal({
   data: ModalData;
   onClose: () => void;
   reducedMotion: boolean | null;
-}): React.JSX.Element {
+}): React.JSX.Element => {
   const { accentColor, detail, whenToUse, description, title, extraHeader } = getModalFields(data);
 
   const icon =
@@ -178,4 +180,4 @@ export function DetailModal({
       </div>
     </DetailModalShell>
   );
-}
+};

@@ -2,7 +2,7 @@ import { Link } from "react-router";
 
 import { ChevronLeftIcon, ChevronRightIcon } from "~/components/icons";
 
-export function NavButton({
+export const NavButton = ({
   to,
   label,
   direction,
@@ -10,7 +10,7 @@ export function NavButton({
   to: string;
   label: string;
   direction: "prev" | "next";
-}): React.JSX.Element {
+}): React.JSX.Element => {
   return (
     <Link
       to={`/version/${to}`}
@@ -27,4 +27,4 @@ export function NavButton({
       </div>
     </Link>
   );
-}
+};

@@ -1,7 +1,7 @@
 import { BoltIcon } from "~/components/icons.js";
 import { QUICKSTART_STEPS } from "./constants";
 
-export function QuickStartPanel(): React.JSX.Element {
+export const QuickStartPanel = (): React.JSX.Element => {
   return (
     <div className="bg-surface rounded-xl border border-slate-700 p-6">
       <div className="text-[14px] font-bold tracking-wide uppercase font-mono mb-5 flex items-center gap-2 text-teal-300">
@@ -30,4 +30,4 @@ export function QuickStartPanel(): React.JSX.Element {
       </div>
     </div>
   );
-}
+};

@@ -7,7 +7,7 @@ import { CalloutBox } from "~/components/callout-box";
 import type { TUItem } from "./constants";
 import { SECTIONS, SECTION_ICONS, TAG_COLORS, DIFFICULTY_LABELS } from "./constants";
 
-export function DetailModal({
+export const DetailModal = ({
   item,
   sectionName,
   accentColor,
@@ -19,7 +19,7 @@ export function DetailModal({
   accentColor: string;
   onClose: () => void;
   reducedMotion: boolean | null;
-}): React.JSX.Element {
+}): React.JSX.Element => {
   const sectionId = SECTIONS.find((s) => s.items.some((i) => i.id === item.id))?.id ?? "";
   const sectionIcon = SECTION_ICONS[sectionId]?.() ?? (
     <svg
@@ -151,4 +151,4 @@ export function DetailModal({
       )}
     </DetailModalShell>
   );
-}
+};

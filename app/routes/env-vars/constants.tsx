@@ -47,6 +47,6 @@ for (const c of CATEGORIES) {
     VAR_CATEGORY_MAP.set(v.name, c);
   }
 }
-export function getCategoryForVar(v: EnvVar): EnvCategory {
+export const getCategoryForVar = (v: EnvVar): EnvCategory => {
   return VAR_CATEGORY_MAP.get(v.name) ?? CATEGORIES[0];
-}
+};

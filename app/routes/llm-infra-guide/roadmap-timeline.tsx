@@ -16,7 +16,7 @@ interface PhaseCardProps {
   isLast: boolean;
 }
 
-function PhaseCard({ phase, index, isLast }: PhaseCardProps): React.JSX.Element {
+const PhaseCard = ({ phase, index, isLast }: PhaseCardProps): React.JSX.Element => {
   const [expanded, setExpanded] = useState(index === 0);
   const c = PHASE_COLORS[index % PHASE_COLORS.length];
 
@@ -103,7 +103,7 @@ function PhaseCard({ phase, index, isLast }: PhaseCardProps): React.JSX.Element 
       </div>
     </div>
   );
-}
+};
 
 // ── Roadmap Timeline ─────────────────────────────────────────────────────
 
@@ -112,7 +112,7 @@ interface RoadmapTimelineProps {
   staffing?: StaffingRow[];
 }
 
-export function RoadmapTimeline({ phases, staffing }: RoadmapTimelineProps): React.JSX.Element {
+export const RoadmapTimeline = ({ phases, staffing }: RoadmapTimelineProps): React.JSX.Element => {
   return (
     <div className="flex flex-col gap-4">
       {phases.map((phase, i) => (
@@ -139,4 +139,4 @@ export function RoadmapTimeline({ phases, staffing }: RoadmapTimelineProps): Rea
       ) : null}
     </div>
   );
-}
+};

@@ -33,7 +33,7 @@ interface GuidedReaderProps {
   reducedMotion: boolean | null;
 }
 
-export function GuidedReader({
+export const GuidedReader = ({
   items,
   currentIndex,
   accentColor,
@@ -43,7 +43,7 @@ export function GuidedReader({
   onNext,
   onPrev,
   reducedMotion,
-}: GuidedReaderProps): React.JSX.Element {
+}: GuidedReaderProps): React.JSX.Element => {
   const [direction, setDirection] = useState(0);
   const item = items[currentIndex];
   const isFirst = currentIndex === 0;
@@ -55,7 +55,7 @@ export function GuidedReader({
   useModalLock(onClose);
 
   useEffect(() => {
-    function handleKeyDown(e: KeyboardEvent): void {
+    const handleKeyDown = (e: KeyboardEvent): void => {
       if (e.key === "ArrowRight") {
         setDirection(1);
         onNext();
@@ -63,24 +63,24 @@ export function GuidedReader({
         setDirection(-1);
         onPrev();
       }
-    }
+    };
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [onNext, onPrev]);
 
-  function handleNext(): void {
+  const handleNext = (): void => {
     if (isLast) {
       onClose();
     } else {
       setDirection(1);
       onNext();
     }
-  }
+  };
 
-  function handlePrev(): void {
+  const handlePrev = (): void => {
     setDirection(-1);
     onPrev();
-  }
+  };
 
   return (
     <motion.div
@@ -277,4 +277,4 @@ export function GuidedReader({
       </motion.div>
     </motion.div>
   );
-}
+};

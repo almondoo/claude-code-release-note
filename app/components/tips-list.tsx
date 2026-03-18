@@ -1,6 +1,6 @@
 import { renderInlineMarkdown } from "~/components/paragraph-list";
 
-export function TipsList({ tips }: { tips: string[] }): React.JSX.Element {
+export const TipsList = ({ tips }: { tips: string[] }): React.JSX.Element => {
   return (
     <div className="flex flex-col gap-2.5">
       <h3 className="text-[12px] font-bold uppercase tracking-wider text-orange-300 font-mono m-0">
@@ -16,4 +16,4 @@ export function TipsList({ tips }: { tips: string[] }): React.JSX.Element {
       </ul>
     </div>
   );
-}
+};

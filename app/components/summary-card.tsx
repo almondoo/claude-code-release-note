@@ -15,7 +15,7 @@ interface SummaryCardProps {
   headerExtra?: React.ReactNode;
 }
 
-export function SummaryCard({
+export const SummaryCard = ({
   title,
   description,
   tags,
@@ -24,7 +24,7 @@ export function SummaryCard({
   onClick,
   tagColors,
   headerExtra,
-}: SummaryCardProps): React.JSX.Element {
+}: SummaryCardProps): React.JSX.Element => {
   return (
     <BaseCard
       accentColor={accentColor}
@@ -67,4 +67,4 @@ export function SummaryCard({
       </div>
     </BaseCard>
   );
-}
+};

@@ -23,7 +23,7 @@ interface BranchProps {
   target: FlowNode | undefined;
 }
 
-function Branch({ type, targetId, target }: BranchProps): React.JSX.Element | null {
+const Branch = ({ type, targetId, target }: BranchProps): React.JSX.Element | null => {
   if (!targetId) return null;
   const s = BRANCH_STYLES[type];
   const label = type === "yes" ? "Yes" : "No";
@@ -49,7 +49,7 @@ function Branch({ type, targetId, target }: BranchProps): React.JSX.Element | nu
       )}
     </div>
   );
-}
+};
 
 // ── Decision Flow ───────────────────────────────────────────────────────
 
@@ -57,7 +57,7 @@ interface DecisionFlowProps {
   nodes: FlowNode[];
 }
 
-export function DecisionFlow({ nodes }: DecisionFlowProps): React.JSX.Element {
+export const DecisionFlow = ({ nodes }: DecisionFlowProps): React.JSX.Element => {
   const nodeMap = new Map(nodes.map((n) => [n.id, n]));
   const questions = nodes.filter((n) => n.question);
   const results = nodes.filter((n) => n.result);
@@ -121,4 +121,4 @@ export function DecisionFlow({ nodes }: DecisionFlowProps): React.JSX.Element {
       </div>
     </div>
   );
-}
+};

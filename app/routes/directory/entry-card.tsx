@@ -6,7 +6,7 @@ import { FileIcon, FolderIcon } from "~/components/icons";
 import type { Entry } from "./constants";
 import { RECOMMEND_CONFIG, VCS_CONFIG, getVcsKey } from "./constants";
 
-export function BadgeWithTooltip({
+export const BadgeWithTooltip = ({
   label,
   color,
   bg,
@@ -16,7 +16,7 @@ export function BadgeWithTooltip({
   color: string;
   bg: string;
   title: string;
-}): React.JSX.Element {
+}): React.JSX.Element => {
   const ref = useRef<HTMLSpanElement>(null);
   const [pos, setPos] = useState<{ x: number; y: number } | null>(null);
 
@@ -55,9 +55,9 @@ export function BadgeWithTooltip({
         )}
     </>
   );
-}
+};
 
-export function EntryCard({
+export const EntryCard = ({
   entry,
   accentColor,
   onClick,
@@ -65,7 +65,7 @@ export function EntryCard({
   entry: Entry;
   accentColor: string;
   onClick: () => void;
-}): React.JSX.Element {
+}): React.JSX.Element => {
   const recommendCfg = RECOMMEND_CONFIG[entry.recommended];
   const vcsCfg = VCS_CONFIG[getVcsKey(entry.vcs)];
 
@@ -102,4 +102,4 @@ export function EntryCard({
       </div>
     </BaseCard>
   );
-}
+};

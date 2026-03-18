@@ -15,7 +15,7 @@ import { CATEGORIES, CATEGORY_COLORS, TOTAL, getCategoryForVar } from "./constan
 import { DetailModal } from "./detail-modal";
 import { EnvCard } from "./env-card";
 
-export function meta(): Array<{ title?: string; name?: string; content?: string }> {
+export const meta = (): Array<{ title?: string; name?: string; content?: string }> => {
   return [
     { title: "Claude Code 環境変数リファレンス" },
     {
@@ -23,7 +23,7 @@ export function meta(): Array<{ title?: string; name?: string; content?: string 
       content: "Claude Code の全環境変数の一覧と設定方法",
     },
   ];
-}
+};
 
 const tabItems: TabItem[] = [
   { id: "all", label: "すべて", color: "#3B82F6" },
@@ -34,7 +34,7 @@ const tabItems: TabItem[] = [
   })),
 ];
 
-export default function EnvVars(): React.JSX.Element {
+const EnvVars = (): React.JSX.Element => {
   const {
     query,
     setQuery,
@@ -176,4 +176,6 @@ export default function EnvVars(): React.JSX.Element {
       </AnimatePresence>
     </div>
   );
-}
+};
+
+export default EnvVars;

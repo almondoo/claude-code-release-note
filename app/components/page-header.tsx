@@ -31,14 +31,14 @@ interface PageHeaderProps {
   children?: React.ReactNode;
 }
 
-export function PageHeader({
+export const PageHeader = ({
   title,
   description,
   stats,
   extraStats,
   gradient,
   children,
-}: PageHeaderProps): React.JSX.Element {
+}: PageHeaderProps): React.JSX.Element => {
   const location = useLocation();
   const reducedMotion = useReducedMotion();
   const currentPath = location.pathname;
@@ -105,4 +105,4 @@ export function PageHeader({
       </div>
     </motion.div>
   );
-}
+};

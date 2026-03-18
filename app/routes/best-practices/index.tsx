@@ -16,33 +16,34 @@ import {
   SECTION_ICONS,
   TAB_DEFS,
   ITEM_SECTION_MAP,
+  TAG_COLORS,
 } from "./constants";
-import { ItemCard } from "./item-card";
+import { SummaryCard } from "~/components/summary-card";
 import { DetailModal } from "./detail-modal";
 
 // ---------------------------------------------------------------------------
 // Meta
 // ---------------------------------------------------------------------------
 
-export function meta(): Array<{ title?: string; name?: string; content?: string }> {
+export const meta = (): Array<{ title?: string; name?: string; content?: string }> => {
   return [
     { title: "Claude Code ベストプラクティス" },
     { name: "description", content: "Claude Code を最大限に活用するためのヒントとパターン" },
   ];
-}
+};
 
 // ---------------------------------------------------------------------------
 // Main page
 // ---------------------------------------------------------------------------
 
-function renderTabIcon(tab: TabItem): React.ReactNode {
+const renderTabIcon = (tab: TabItem): React.ReactNode => {
   if (SECTION_ICONS[tab.id]) {
     return <span className="flex items-center scale-[0.8]">{SECTION_ICONS[tab.id]()}</span>;
   }
   return null;
-}
+};
 
-export default function BestPractices(): React.JSX.Element {
+const BestPractices = (): React.JSX.Element => {
   const {
     query,
     setQuery,
@@ -136,11 +137,14 @@ export default function BestPractices(): React.JSX.Element {
                   items={section.items}
                   keyExtractor={(item) => item.id}
                   renderItem={(item) => (
-                    <ItemCard
-                      item={item}
+                    <SummaryCard
+                      title={item.title}
+                      description={item.summary}
+                      tags={item.tags}
                       accentColor={colors.color}
                       sectionName={section.name}
                       onClick={() => openModal(item.id)}
+                      tagColors={TAG_COLORS}
                     />
                   )}
                   reducedMotion={reducedMotion}
@@ -176,4 +180,6 @@ export default function BestPractices(): React.JSX.Element {
       </AnimatePresence>
     </div>
   );
-}
+};
+
+export default BestPractices;

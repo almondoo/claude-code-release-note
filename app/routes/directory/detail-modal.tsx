@@ -12,7 +12,7 @@ import {
 } from "./constants";
 import { BadgeWithTooltip } from "./entry-card";
 
-function ModalSection({
+const ModalSection = ({
   id,
   accentColor,
   children,
@@ -20,7 +20,7 @@ function ModalSection({
   id: string;
   accentColor: string;
   children: React.ReactNode;
-}): React.JSX.Element {
+}): React.JSX.Element => {
   const meta = MODAL_SECTION_META[id];
   return (
     <div className="flex flex-col gap-2.5">
@@ -28,9 +28,9 @@ function ModalSection({
       {children}
     </div>
   );
-}
+};
 
-export function DetailModal({
+export const DetailModal = ({
   entry,
   section,
   accentColor,
@@ -42,7 +42,7 @@ export function DetailModal({
   accentColor: string;
   onClose: () => void;
   reducedMotion: boolean | null;
-}): React.JSX.Element {
+}): React.JSX.Element => {
   const recommendCfg = RECOMMEND_CONFIG[entry.recommended];
   const vcsCfg = VCS_CONFIG[getVcsKey(entry.vcs)];
 
@@ -140,4 +140,4 @@ export function DetailModal({
       )}
     </DetailModalShell>
   );
-}
+};

@@ -10,9 +10,9 @@ export interface NodeData {
   [key: string]: unknown;
 }
 
-function handleStyle(color: string): CSSProperties {
+const handleStyle = (color: string): CSSProperties => {
   return { background: color, width: 6, height: 6 };
-}
+};
 
 const labelStyle: CSSProperties = {
   fontSize: 12,
@@ -27,18 +27,24 @@ const sublabelStyle: CSSProperties = {
   marginTop: 2,
 };
 
-function NodeLabel({ label, sublabel }: { label: string; sublabel?: string }): React.JSX.Element {
+const NodeLabel = ({
+  label,
+  sublabel,
+}: {
+  label: string;
+  sublabel?: string;
+}): React.JSX.Element => {
   return (
     <>
       <div style={labelStyle}>{label}</div>
       {sublabel && <div style={sublabelStyle}>{sublabel}</div>}
     </>
   );
-}
+};
 
 // ── Service Node ─────────────────────────────────────────────────────────
 
-export function ServiceNode({ data }: NodeProps): React.JSX.Element {
+export const ServiceNode = ({ data }: NodeProps): React.JSX.Element => {
   const d = data as NodeData;
   const color = d.color || "#3B82F6";
   return (
@@ -58,11 +64,11 @@ export function ServiceNode({ data }: NodeProps): React.JSX.Element {
       <Handle type="source" position={Position.Bottom} style={handleStyle(color)} />
     </div>
   );
-}
+};
 
 // ── Security Node ────────────────────────────────────────────────────────
 
-export function SecurityNode({ data }: NodeProps): React.JSX.Element {
+export const SecurityNode = ({ data }: NodeProps): React.JSX.Element => {
   const d = data as NodeData;
   const color = d.color || "#EF4444";
   return (
@@ -83,7 +89,7 @@ export function SecurityNode({ data }: NodeProps): React.JSX.Element {
       <Handle type="source" position={Position.Bottom} style={handleStyle(color)} />
     </div>
   );
-}
+};
 
 // ── Zone Node (group) ────────────────────────────────────────────────────
 
@@ -94,7 +100,7 @@ const invisibleHandle: CSSProperties = {
   height: 1,
 };
 
-export function ZoneNode({ data }: NodeProps): React.JSX.Element {
+export const ZoneNode = ({ data }: NodeProps): React.JSX.Element => {
   const d = data as NodeData;
   const color = d.color || "#64748B";
   return (
@@ -130,11 +136,11 @@ export function ZoneNode({ data }: NodeProps): React.JSX.Element {
       <Handle type="source" position={Position.Right} id="right" style={invisibleHandle} />
     </div>
   );
-}
+};
 
 // ── Decision Node ────────────────────────────────────────────────────────
 
-export function DecisionNode({ data }: NodeProps): React.JSX.Element {
+export const DecisionNode = ({ data }: NodeProps): React.JSX.Element => {
   const d = data as NodeData;
   const color = d.color || "#F59E0B";
   return (
@@ -179,7 +185,7 @@ export function DecisionNode({ data }: NodeProps): React.JSX.Element {
       <Handle type="source" position={Position.Left} id="left" style={handleStyle(color)} />
     </div>
   );
-}
+};
 
 // ── Result Node ──────────────────────────────────────────────────────────
 
@@ -189,7 +195,7 @@ interface ResultNodeData {
   [key: string]: unknown;
 }
 
-export function ResultNode({ data }: NodeProps): React.JSX.Element {
+export const ResultNode = ({ data }: NodeProps): React.JSX.Element => {
   const d = data as ResultNodeData;
   const colorMap = { success: "#10B981", error: "#EF4444", warning: "#F59E0B" };
   const color = colorMap[d.variant || "success"];
@@ -207,7 +213,7 @@ export function ResultNode({ data }: NodeProps): React.JSX.Element {
       <div style={{ fontSize: 11, fontWeight: 600, color, lineHeight: 1.3 }}>{d.label}</div>
     </div>
   );
-}
+};
 
 // ── Node type registry ───────────────────────────────────────────────────
 

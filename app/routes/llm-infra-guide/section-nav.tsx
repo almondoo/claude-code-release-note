@@ -19,18 +19,18 @@ interface SectionNavProps {
 const sectionToChapter = new Map<string, string>();
 CHAPTERS.forEach((ch) => ch.sectionIds.forEach((sid) => sectionToChapter.set(sid, ch.id)));
 
-export function SectionNav({
+export const SectionNav = ({
   sections,
   activeSectionId,
   onSectionClick,
-}: SectionNavProps): React.JSX.Element {
+}: SectionNavProps): React.JSX.Element => {
   const activeChapterId = sectionToChapter.get(activeSectionId) || CHAPTERS[0].id;
   const [expandedChapter, setExpandedChapter] = useState<string>(activeChapterId);
   const reducedMotion = useReducedMotion();
 
   const sectionMap = new Map(sections.map((s) => [s.id, s]));
 
-  function handleChapterClick(ch: Chapter) {
+  const handleChapterClick = (ch: Chapter) => {
     if (expandedChapter === ch.id) {
       setExpandedChapter("");
     } else {
@@ -38,7 +38,7 @@ export function SectionNav({
       // Scroll to first section of the chapter
       onSectionClick(ch.sectionIds[0]);
     }
-  }
+  };
 
   return (
     <motion.nav
@@ -187,7 +187,7 @@ export function SectionNav({
       </div>
     </motion.nav>
   );
-}
+};
 
 interface MobileSectionMarkerProps {
   index: number;
@@ -195,11 +195,11 @@ interface MobileSectionMarkerProps {
   chapterTitle?: string;
 }
 
-export function MobileSectionMarker({
+export const MobileSectionMarker = ({
   index,
   sectionId,
   chapterTitle,
-}: MobileSectionMarkerProps): React.JSX.Element {
+}: MobileSectionMarkerProps): React.JSX.Element => {
   const theme = SECTION_THEMES[sectionId] || { color: "#3B82F6" };
   return (
     <div className="lg:hidden flex items-center gap-3 mb-3">
@@ -222,4 +222,4 @@ export function MobileSectionMarker({
       />
     </div>
   );
-}
+};

@@ -29,7 +29,7 @@ import { CLICard } from "./cli-card";
 import { ShortcutCard } from "./shortcut-card";
 import { DetailModal } from "./detail-modal";
 
-export function meta(): Array<{ title?: string; name?: string; content?: string }> {
+export const meta = (): Array<{ title?: string; name?: string; content?: string }> => {
   return [
     { title: "Claude Code コマンド一覧" },
     {
@@ -37,9 +37,9 @@ export function meta(): Array<{ title?: string; name?: string; content?: string 
       content: "Claude Code の全スラッシュコマンドと CLI オプションのリファレンス",
     },
   ];
-}
+};
 
-function renderTabIcon(tab: TabItem): React.ReactNode {
+const renderTabIcon = (tab: TabItem): React.ReactNode => {
   const def = TAB_DEFS.find((t) => t.id === tab.id);
   if (!def) return null;
 
@@ -61,17 +61,17 @@ function renderTabIcon(tab: TabItem): React.ReactNode {
     );
   }
   return null;
-}
+};
 
-function getSlashCommands(activeTab: string): Command[] {
+const getSlashCommands = (activeTab: string): Command[] => {
   if (activeTab === "popular") return POPULAR_COMMANDS;
   if (activeTab === "all") return CATEGORIES.flatMap((c) => c.commands);
 
   const category = CATEGORIES.find((c) => c.id === activeTab);
   return category ? category.commands : [];
-}
+};
 
-function getCatInfo(activeTab: string, cmdName: string): { name: string; color: string } {
+const getCatInfo = (activeTab: string, cmdName: string): { name: string; color: string } => {
   if (activeTab === "all" || activeTab === "popular") {
     return CMD_CATEGORY_MAP.get(cmdName) ?? { name: "", color: getCategoryColor(activeTab) };
   }
@@ -81,9 +81,9 @@ function getCatInfo(activeTab: string, cmdName: string): { name: string; color: 
     name: category?.name ?? "",
     color: getCategoryColor(activeTab),
   };
-}
+};
 
-export default function Commands(): React.JSX.Element {
+const Commands = (): React.JSX.Element => {
   const [query, setQuery] = useState("");
   const [activeTab, setActiveTab] = useState<string>("popular");
   const [modalData, setModalData] = useState<ModalData | null>(null);
@@ -146,7 +146,7 @@ export default function Commands(): React.JSX.Element {
     setQuery("");
   }, []);
 
-  function cardMotionProps(index: number): Record<string, unknown> {
+  const cardMotionProps = (index: number): Record<string, unknown> => {
     return {
       layout: !reducedMotion,
       initial: reducedMotion ? false : hasMounted ? { opacity: 0 } : { opacity: 0, y: 15 },
@@ -157,7 +157,7 @@ export default function Commands(): React.JSX.Element {
         delay: reducedMotion || hasMounted ? 0 : Math.min(index * 0.04, 0.4),
       },
     };
-  }
+  };
 
   return (
     <div className="min-h-screen bg-slate-900 font-sans text-slate-100">
@@ -281,4 +281,6 @@ export default function Commands(): React.JSX.Element {
       </AnimatePresence>
     </div>
   );
-}
+};
+
+export default Commands;

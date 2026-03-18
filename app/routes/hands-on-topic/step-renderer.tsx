@@ -8,7 +8,7 @@ import { HIGHLIGHT_STYLES } from "./constants";
 
 // ── Block Renderer ───────────────────────────────────────────────────────
 
-function renderBlock(block: ContentBlock, key: number): React.ReactNode {
+const renderBlock = (block: ContentBlock, key: number): React.ReactNode => {
   switch (block.type) {
     case "text":
       return (
@@ -71,13 +71,17 @@ function renderBlock(block: ContentBlock, key: number): React.ReactNode {
     default:
       return null;
   }
-}
+};
 
 // ── Intro Block Renderer (for shared intro / commonTips) ─────────────────
 
-export function IntroBlockRenderer({ block }: { block: ContentBlock }): React.JSX.Element | null {
+export const IntroBlockRenderer = ({
+  block,
+}: {
+  block: ContentBlock;
+}): React.JSX.Element | null => {
   return renderBlock(block, 0) as React.JSX.Element | null;
-}
+};
 
 // ── Step Renderer ────────────────────────────────────────────────────────
 
@@ -87,7 +91,11 @@ interface StepRendererProps {
   accentColor: string;
 }
 
-export function StepRenderer({ step, index, accentColor }: StepRendererProps): React.JSX.Element {
+export const StepRenderer = ({
+  step,
+  index,
+  accentColor,
+}: StepRendererProps): React.JSX.Element => {
   const reducedMotion = useReducedMotion();
 
   return (
@@ -134,4 +142,4 @@ export function StepRenderer({ step, index, accentColor }: StepRendererProps): R
       </div>
     </motion.div>
   );
-}
+};

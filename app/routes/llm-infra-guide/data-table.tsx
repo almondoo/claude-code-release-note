@@ -18,13 +18,13 @@ const stickyColumnStyle: React.CSSProperties = {
   zIndex: 1,
 };
 
-export function DataTable({
+export const DataTable = ({
   caption,
   headers,
   rows,
   footnote,
   accentColor,
-}: DataTableProps): React.JSX.Element {
+}: DataTableProps): React.JSX.Element => {
   const headerBg = accentColor ? `color-mix(in srgb, ${accentColor} 8%, #1E293B)` : "#1E293B";
 
   return (
@@ -78,9 +78,9 @@ export function DataTable({
       )}
     </div>
   );
-}
+};
 
-function formatCell(cell: string): React.ReactNode {
+const formatCell = (cell: string): React.ReactNode => {
   const fmt = CELL_FORMATS[cell];
   if (fmt)
     return (
@@ -91,4 +91,4 @@ function formatCell(cell: string): React.ReactNode {
     );
   if (cell.includes("\u2605")) return <span style={{ color: "#F59E0B" }}>{cell}</span>;
   return cell;
-}
+};

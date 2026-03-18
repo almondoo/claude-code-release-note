@@ -79,9 +79,9 @@ export const CATEGORY_COLORS: Record<string, { color: string; bg: string }> = {
   account: PALETTE.yellow,
 };
 
-export function getCategoryColor(id: string): string {
+export const getCategoryColor = (id: string): string => {
   return CATEGORY_COLORS[id]?.color ?? DEFAULT_COLOR;
-}
+};
 
 export const CLI_ACCENT = "#C4B5FD";
 export const SHORTCUT_ACCENT = "#FDBA74";

@@ -7,7 +7,7 @@ interface HighlightBoxProps {
   content: React.ReactNode;
 }
 
-export function HighlightBox({ variant, title, content }: HighlightBoxProps): React.JSX.Element {
+export const HighlightBox = ({ variant, title, content }: HighlightBoxProps): React.JSX.Element => {
   const style = HIGHLIGHT_STYLES[variant];
   return (
     <div
@@ -28,4 +28,4 @@ export function HighlightBox({ variant, title, content }: HighlightBoxProps): Re
       <span className="text-[14px] text-slate-300 leading-[1.8] font-sans">{content}</span>
     </div>
   );
-}
+};

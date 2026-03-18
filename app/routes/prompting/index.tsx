@@ -17,15 +17,16 @@ import {
   TAB_DEFS,
   TAB_SECTION_MAP,
   ITEM_SECTION_MAP,
+  TAG_COLORS,
 } from "./constants";
-import { ItemCard } from "./item-card";
+import { SummaryCard } from "~/components/summary-card";
 import { DetailModal } from "./detail-modal";
 
 // ---------------------------------------------------------------------------
 // Meta
 // ---------------------------------------------------------------------------
 
-export function meta(): Array<{ title?: string; name?: string; content?: string }> {
+export const meta = (): Array<{ title?: string; name?: string; content?: string }> => {
   return [
     { title: "Claude Code プロンプト ベストプラクティス" },
     {
@@ -33,22 +34,22 @@ export function meta(): Array<{ title?: string; name?: string; content?: string 
       content: "Claude の最新モデルにおけるプロンプトエンジニアリングの包括的ガイド",
     },
   ];
-}
+};
 
 // ---------------------------------------------------------------------------
 // Main page
 // ---------------------------------------------------------------------------
 
-function renderTabIcon(tab: TabItem): React.ReactNode {
+const renderTabIcon = (tab: TabItem): React.ReactNode => {
   // タブIDに対応する最初のセクションのアイコンを表示
   const sectionIds = TAB_SECTION_MAP[tab.id];
   if (sectionIds && sectionIds[0] && SECTION_ICONS[sectionIds[0]]) {
     return <span className="flex items-center scale-[0.8]">{SECTION_ICONS[sectionIds[0]]()}</span>;
   }
   return null;
-}
+};
 
-export default function PromptingBestPractices(): React.JSX.Element {
+const PromptingBestPractices = (): React.JSX.Element => {
   const {
     query,
     setQuery,
@@ -143,11 +144,14 @@ export default function PromptingBestPractices(): React.JSX.Element {
                   items={section.items}
                   keyExtractor={(item) => item.id}
                   renderItem={(item) => (
-                    <ItemCard
-                      item={item}
+                    <SummaryCard
+                      title={item.title}
+                      description={item.summary}
+                      tags={item.tags}
                       accentColor={colors.color}
                       sectionName={section.name}
                       onClick={() => openModal(item.id)}
+                      tagColors={TAG_COLORS}
                     />
                   )}
                   reducedMotion={reducedMotion}
@@ -183,4 +187,6 @@ export default function PromptingBestPractices(): React.JSX.Element {
       </AnimatePresence>
     </div>
   );
-}
+};
+
+export default PromptingBestPractices;

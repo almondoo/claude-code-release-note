@@ -42,6 +42,10 @@ Claude Code のリリースノートを日本語で閲覧できる Web アプリ
 - `app/routes.ts` — 全ルート定義（インデックスは `release-note.tsx`）
 - `app/root.tsx` — ルートレイアウト (lang="ja"、Google Fonts: IBM Plex Sans + Noto Sans JP + JetBrains Mono)
 
+### コーディングスタイル
+
+- React コンポーネントおよび関数は `function` 宣言ではなくアロー関数で統一: `export const Foo = () => { ... };`
+
 ### UI
 
 - Tailwind CSS v4 を使用（`app/app.css` で `@import "tailwindcss"`）

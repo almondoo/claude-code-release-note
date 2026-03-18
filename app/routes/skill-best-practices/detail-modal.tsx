@@ -8,7 +8,7 @@ import { TipsList } from "~/components/tips-list";
 import type { BPItem } from "./constants";
 import { SECTIONS, SECTION_ICONS, TAG_COLORS } from "./constants";
 
-export function DetailModal({
+export const DetailModal = ({
   item,
   sectionName,
   accentColor,
@@ -20,7 +20,7 @@ export function DetailModal({
   accentColor: string;
   onClose: () => void;
   reducedMotion: boolean | null;
-}): React.JSX.Element {
+}): React.JSX.Element => {
   const sectionIcon = SECTION_ICONS[
     SECTIONS.find((s) => s.items.some((i) => i.id === item.id))?.id ?? ""
   ]?.() ?? (
@@ -106,4 +106,4 @@ export function DetailModal({
       {item.code && <CodeBlockView block={{ lang: "text", label: "コード", value: item.code }} />}
     </DetailModalShell>
   );
-}
+};

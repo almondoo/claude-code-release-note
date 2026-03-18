@@ -1,4 +1,4 @@
-export function SectionHeading({
+export const SectionHeading = ({
   icon,
   label,
   color,
@@ -6,7 +6,7 @@ export function SectionHeading({
   icon: React.ReactNode;
   label: string;
   color: string;
-}): React.JSX.Element {
+}): React.JSX.Element => {
   return (
     <div
       className="flex items-center gap-1.5 text-[12px] font-bold tracking-wide uppercase font-mono"
@@ -16,4 +16,4 @@ export function SectionHeading({
       {label}
     </div>
   );
-}
+};

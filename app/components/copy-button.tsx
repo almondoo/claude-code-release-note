@@ -2,16 +2,16 @@ import { useState } from "react";
 
 import { CheckIcon, CopyIcon } from "~/components/icons";
 
-export function CopyButton({ text }: { text: string }): React.JSX.Element {
+export const CopyButton = ({ text }: { text: string }): React.JSX.Element => {
   const [copied, setCopied] = useState(false);
 
-  function handleCopy(e: React.MouseEvent) {
+  const handleCopy = (e: React.MouseEvent) => {
     e.stopPropagation();
     navigator.clipboard.writeText(text).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     });
-  }
+  };
 
   return (
     <button
@@ -27,4 +27,4 @@ export function CopyButton({ text }: { text: string }): React.JSX.Element {
       {copied ? "Copied" : "Copy"}
     </button>
   );
-}
+};

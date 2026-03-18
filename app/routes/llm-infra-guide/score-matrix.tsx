@@ -13,7 +13,7 @@ interface ScoreBarProps {
   color: string;
 }
 
-function ScoreBar({ score, max = 5, color }: ScoreBarProps): React.JSX.Element {
+const ScoreBar = ({ score, max = 5, color }: ScoreBarProps): React.JSX.Element => {
   return (
     <div className="flex gap-0.5">
       {Array.from({ length: max }, (_, i) => (
@@ -28,7 +28,7 @@ function ScoreBar({ score, max = 5, color }: ScoreBarProps): React.JSX.Element {
       ))}
     </div>
   );
-}
+};
 
 // ── Axis legend colors ───────────────────────────────────────────────────
 
@@ -41,9 +41,9 @@ const AXIS_COLORS: Record<string, string> = {
 
 const FALLBACK_COLOR = "#64748B";
 
-function getAxisColor(key: string): string {
+const getAxisColor = (key: string): string => {
   return AXIS_COLORS[key] ?? FALLBACK_COLOR;
-}
+};
 
 // ── Score Matrix ─────────────────────────────────────────────────────────
 
@@ -54,7 +54,7 @@ interface ScoreMatrixProps {
 
 type SortKey = "total" | "S" | "C" | "O" | "E";
 
-export function ScoreMatrix({ axes, products }: ScoreMatrixProps): React.JSX.Element {
+export const ScoreMatrix = ({ axes, products }: ScoreMatrixProps): React.JSX.Element => {
   const [sortBy, setSortBy] = useState<SortKey>("total");
 
   const sortKeys: SortKey[] = ["total", ...axes.map((a) => a.key as SortKey)];
@@ -145,7 +145,7 @@ export function ScoreMatrix({ axes, products }: ScoreMatrixProps): React.JSX.Ele
       </div>
     </div>
   );
-}
+};
 
 // ── Security Combos ──────────────────────────────────────────────────────
 
@@ -153,7 +153,7 @@ interface SecurityCombosProps {
   combos: SecurityCombo[];
 }
 
-export function SecurityCombos({ combos }: SecurityCombosProps): React.JSX.Element {
+export const SecurityCombos = ({ combos }: SecurityCombosProps): React.JSX.Element => {
   return (
     <div className="flex flex-col gap-2">
       <h3 className="text-[14px] font-semibold text-slate-300 m-0 px-1">
@@ -180,4 +180,4 @@ export function SecurityCombos({ combos }: SecurityCombosProps): React.JSX.Eleme
       ))}
     </div>
   );
-}
+};

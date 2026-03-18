@@ -17,7 +17,7 @@ const CHAPTER_ICONS: Record<string, string> = {
   "ch-decision": "🧭",
 };
 
-export function ChapterWrapper({ chapter, children, sectionTitles }: ChapterWrapperProps) {
+export const ChapterWrapper = ({ chapter, children, sectionTitles }: ChapterWrapperProps) => {
   const [activeTab, setActiveTab] = useState(0);
   const reducedMotion = useReducedMotion();
   const icon = CHAPTER_ICONS[chapter.id] || "📋";
@@ -97,11 +97,11 @@ export function ChapterWrapper({ chapter, children, sectionTitles }: ChapterWrap
       )}
     </motion.div>
   );
-}
+};
 
 // ── Chapter divider between chapters ─────────────────────────────────────
 
-export function ChapterDivider({ color }: { color: string }) {
+export const ChapterDivider = ({ color }: { color: string }) => {
   return (
     <div className="py-10 flex items-center gap-4">
       <div
@@ -112,4 +112,4 @@ export function ChapterDivider({ color }: { color: string }) {
       />
     </div>
   );
-}
+};

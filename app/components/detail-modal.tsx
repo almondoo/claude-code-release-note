@@ -17,7 +17,7 @@ interface DetailModalShellProps {
   bodyClassName?: string;
 }
 
-export function DetailModalShell({
+export const DetailModalShell = ({
   accentColor,
   onClose,
   reducedMotion,
@@ -28,7 +28,7 @@ export function DetailModalShell({
   children,
   overlayClassName = "fixed inset-0 z-[1000] bg-black/60 backdrop-blur-[4px] flex items-center justify-center p-6",
   bodyClassName = "p-6 overflow-y-auto flex-1 flex flex-col gap-5",
-}: DetailModalShellProps): React.JSX.Element {
+}: DetailModalShellProps): React.JSX.Element => {
   const overlayRef = useRef<HTMLDivElement>(null);
   useModalLock(onClose);
 
@@ -93,4 +93,4 @@ export function DetailModalShell({
       </motion.div>
     </motion.div>
   );
-}
+};

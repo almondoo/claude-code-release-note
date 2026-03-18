@@ -11,7 +11,7 @@ interface HeroSectionProps {
   keyStats: KeyStat[];
 }
 
-function AnimatedCounter({
+const AnimatedCounter = ({
   value,
   prefix,
   unit,
@@ -21,7 +21,7 @@ function AnimatedCounter({
   prefix?: string;
   unit: string;
   duration?: number;
-}) {
+}) => {
   const [current, setCurrent] = useState(0);
   const reducedMotion = useReducedMotion();
   const ref = useRef<HTMLDivElement>(null);
@@ -67,15 +67,15 @@ function AnimatedCounter({
       </span>
     </div>
   );
-}
+};
 
-export function HeroSection({
+export const HeroSection = ({
   title,
   date,
   audience,
   premise,
   keyStats,
-}: HeroSectionProps): React.JSX.Element {
+}: HeroSectionProps): React.JSX.Element => {
   const reducedMotion = useReducedMotion();
 
   return (
@@ -128,4 +128,4 @@ export function HeroSection({
       </div>
     </motion.div>
   );
-}
+};

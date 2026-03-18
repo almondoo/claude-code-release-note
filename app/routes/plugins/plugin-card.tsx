@@ -8,7 +8,11 @@ interface PluginCardProps {
   onClick: () => void;
 }
 
-export function PluginCard({ plugin, accentColor, onClick }: PluginCardProps): React.JSX.Element {
+export const PluginCard = ({
+  plugin,
+  accentColor,
+  onClick,
+}: PluginCardProps): React.JSX.Element => {
   return (
     <BaseCard
       accentColor={accentColor}
@@ -39,4 +43,4 @@ export function PluginCard({ plugin, accentColor, onClick }: PluginCardProps): R
       </div>
     </BaseCard>
   );
-}
+};

@@ -5,11 +5,11 @@ export interface BeforeAfterExample {
   after: string;
 }
 
-export function BeforeAfterExamples({
+export const BeforeAfterExamples = ({
   examples,
 }: {
   examples: BeforeAfterExample[];
-}): React.JSX.Element {
+}): React.JSX.Element => {
   return (
     <div className="flex flex-col gap-3">
       <h3 className="text-[12px] font-bold uppercase tracking-wider text-cyan-300 font-mono m-0">
@@ -45,4 +45,4 @@ export function BeforeAfterExamples({
       </div>
     </div>
   );
-}
+};

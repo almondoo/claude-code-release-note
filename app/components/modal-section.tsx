@@ -1,4 +1,4 @@
-export function ModalSection({
+export const ModalSection = ({
   label,
   accentColor,
   children,
@@ -6,7 +6,7 @@ export function ModalSection({
   label: string;
   accentColor: string;
   children: React.ReactNode;
-}): React.JSX.Element {
+}): React.JSX.Element => {
   return (
     <div className="flex flex-col gap-2.5">
       <div
@@ -18,4 +18,4 @@ export function ModalSection({
       {children}
     </div>
   );
-}
+};

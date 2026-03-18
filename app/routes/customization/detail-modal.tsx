@@ -6,7 +6,7 @@ import { ParagraphList } from "~/components/paragraph-list";
 import type { CustomizationItem } from "./constants";
 import { DEFAULT_TAG_COLOR, TAB_ICONS, TAG_COLORS } from "./constants";
 
-export function DetailModal({
+export const DetailModal = ({
   item,
   tabId,
   accentColor,
@@ -18,7 +18,7 @@ export function DetailModal({
   accentColor: string;
   onClose: () => void;
   reducedMotion: boolean | null;
-}): React.JSX.Element {
+}): React.JSX.Element => {
   const IconComponent = TAB_ICONS[tabId];
 
   return (
@@ -88,4 +88,4 @@ export function DetailModal({
       )}
     </DetailModalShell>
   );
-}
+};

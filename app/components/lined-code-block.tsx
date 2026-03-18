@@ -8,13 +8,13 @@ interface LinedCodeBlockProps {
   caption?: string;
 }
 
-export function LinedCodeBlock({
+export const LinedCodeBlock = ({
   language,
   title,
   code,
   filename,
   caption,
-}: LinedCodeBlockProps): React.JSX.Element {
+}: LinedCodeBlockProps): React.JSX.Element => {
   const lines = code.split("\n");
   const lineNumberWidth = lines.length >= 100 ? 40 : 28;
 
@@ -84,4 +84,4 @@ export function LinedCodeBlock({
       )}
     </div>
   );
-}
+};

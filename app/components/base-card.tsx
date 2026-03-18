@@ -7,14 +7,14 @@ interface BaseCardProps {
   children: React.ReactNode;
 }
 
-export function BaseCard({
+export const BaseCard = ({
   accentColor,
   onClick,
   className,
   style,
   gradientOpacity = "40",
   children,
-}: BaseCardProps): React.JSX.Element {
+}: BaseCardProps): React.JSX.Element => {
   return (
     <div
       role="button"
@@ -38,4 +38,4 @@ export function BaseCard({
       {children}
     </div>
   );
-}
+};

@@ -1,4 +1,4 @@
-export function HeaderTags({
+export const HeaderTags = ({
   sectionName,
   accentColor,
   tags,
@@ -8,7 +8,7 @@ export function HeaderTags({
   accentColor?: string;
   tags?: string[];
   tagColors: Record<string, { color: string; bg: string }>;
-}): React.JSX.Element {
+}): React.JSX.Element => {
   return (
     <div className="flex gap-1.5 mt-2 flex-wrap">
       {sectionName && accentColor && (
@@ -38,4 +38,4 @@ export function HeaderTags({
       ))}
     </div>
   );
-}
+};
