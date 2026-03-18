@@ -2,12 +2,14 @@
   "id": "installation",
   "name": "インストール",
   "description": "Claude Code のインストール手順",
+  "phase": 1,
+  "order": 2,
   "steps": [
     {
       "id": "install",
-      "title": "Claude Code のインストール",
+      "title": "Claude Code をインストールする",
       "description": "ネイティブインストーラーまたはパッケージマネージャーでインストールします",
-      "content": "Claude Code をインストールするには、以下のいずれかの方法を使います。ネイティブインストールが推奨です（バックグラウンドで自動更新されます）。\n\nHomebrew / WinGet 経由のインストールでは自動更新されないため、定期的に手動でアップグレードしてください。\n\nOS ごとの詳しいインストール手順は [公式ドキュメント](https://code.claude.com/docs/en/overview) を参照してください。",
+      "content": "Claude Code をインストールするには、以下のいずれかの方法を使います。\n\nネイティブインストールが推奨です。バックグラウンドで自動更新されるため、常に最新版を利用できます。\n\nHomebrew や WinGet 経由でもインストールできますが、自動更新はされないため定期的に手動でアップグレードしてください。",
       "code": [
         {
           "lang": "bash",
@@ -21,6 +23,11 @@
           "value": "irm https://claude.ai/install.ps1 | iex"
         },
         {
+          "lang": "cmd",
+          "label": "ネイティブインストール (Windows CMD)",
+          "value": "curl -fsSL https://claude.ai/install.cmd -o install.cmd && install.cmd && del install.cmd"
+        },
+        {
           "lang": "bash",
           "label": "Homebrew (macOS / Linux)",
           "value": "brew install --cask claude-code"
@@ -29,23 +36,80 @@
           "lang": "powershell",
           "label": "WinGet (Windows)",
           "value": "winget install Anthropic.ClaudeCode"
+        }
+      ],
+      "callouts": [
+        {
+          "type": "warning",
+          "text": "npm (`npm install -g @anthropic-ai/claude-code`) によるインストールは非推奨です。ネイティブインストーラーを使用してください。"
+        }
+      ],
+      "tags": ["必須", "初心者向け"]
+    },
+    {
+      "id": "windows-notes",
+      "title": "Windows ユーザー向け補足",
+      "description": "Windows 固有の注意点と設定方法",
+      "content": "Windows で Claude Code を使うには Git for Windows が必要です。まだインストールしていない場合は https://git-scm.com からダウンロードしてインストールしてください。\n\nPowerShell と CMD（コマンドプロンプト）ではインストールコマンドが異なります。お使いの環境に合ったコマンドを選んでください。\n\nGit Bash が見つからないというエラーが出る場合は、環境変数 `CLAUDE_CODE_GIT_BASH_PATH` に Git Bash の実行ファイルのパスを設定してください。\n\nWSL（Windows Subsystem for Linux）を利用している場合は、WSL 内で Linux 向けのネイティブインストールコマンドを実行できます。",
+      "code": [
+        {
+          "lang": "powershell",
+          "label": "Git Bash パスの設定例 (PowerShell)",
+          "value": "$env:CLAUDE_CODE_GIT_BASH_PATH = \"C:\\Program Files\\Git\\bin\\bash.exe\""
         },
         {
           "lang": "bash",
-          "label": "npm でインストール",
-          "value": "npm install -g @anthropic-ai/claude-code"
+          "label": "WSL 内でのインストール",
+          "value": "curl -fsSL https://claude.ai/install.sh | bash"
+        }
+      ],
+      "callouts": [
+        {
+          "type": "important",
+          "text": "Git for Windows がインストールされていないと Claude Code は正常に動作しません。必ず事前にインストールしてください。"
+        }
+      ],
+      "tags": ["初心者向け"]
+    },
+    {
+      "id": "verify-update",
+      "title": "確認とアップデート",
+      "description": "インストールの確認方法と更新手順",
+      "content": "インストールが完了したら、バージョンを確認して正しくインストールされたかチェックしましょう。\n\n`claude --version` でインストール済みのバージョンが表示されます。\n\n`claude doctor` を実行すると、環境の診断が行われ、問題がある場合は修正方法が提示されます。\n\n安定版チャンネルを明示的に指定してインストールすることもできます。\n\nネイティブインストールの場合は自動更新されるため、手動での更新は不要です。Homebrew や WinGet でインストールした場合は、それぞれのパッケージマネージャーで更新してください。",
+      "code": [
+        {
+          "lang": "bash",
+          "label": "バージョン確認",
+          "value": "claude --version"
+        },
+        {
+          "lang": "bash",
+          "label": "環境診断",
+          "value": "claude doctor"
+        },
+        {
+          "lang": "bash",
+          "label": "安定版チャンネルを指定してインストール",
+          "value": "curl -fsSL https://claude.ai/install.sh | bash -s stable"
+        },
+        {
+          "lang": "bash",
+          "label": "Homebrew でアップデート",
+          "value": "brew upgrade claude-code"
+        },
+        {
+          "lang": "powershell",
+          "label": "WinGet でアップデート",
+          "value": "winget upgrade Anthropic.ClaudeCode"
         }
       ],
       "callouts": [
         {
           "type": "tip",
-          "text": "ネイティブインストールはバックグラウンドで自動更新されるため、常に最新版を利用できます。Homebrew / WinGet / npm の場合は手動更新が必要です。"
+          "text": "ネイティブインストールではバックグラウンドで自動更新されるため、手動でのアップデート操作は不要です。"
         }
       ],
-      "tags": [
-        "必須",
-        "初心者向け"
-      ]
+      "tags": ["必須", "初心者向け"]
     }
   ]
 }

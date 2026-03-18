@@ -1,0 +1,69 @@
+{
+  "id": "customization",
+  "name": "カスタマイズ概要",
+  "description": "スキル・MCP・フックの概要と詳細ガイドへの案内",
+  "phase": 3,
+  "order": 1,
+  "steps": [
+    {
+      "id": "skills-overview",
+      "title": "スキル（カスタムコマンド）",
+      "description": "SKILL.md を配置するだけでスラッシュコマンドを追加",
+      "content": "スキルは Claude Code に独自のスラッシュコマンドを追加する機能です。`.claude/skills/<スキル名>/SKILL.md` にファイルを配置するだけで、セッション内で `/スキル名` として呼び出せます。\n\nスキルファイルは YAML フロントマターと Markdown 本文の 2 部構成です。フロントマターでスキルのメタ情報を定義し、本文に Claude への指示を記述します。\n\nプロジェクト固有のスキルは `.claude/skills/` に、全プロジェクトで使いたいスキルは `~/.claude/skills/` に配置します。",
+      "code": [
+        {
+          "lang": "markdown",
+          "label": "SKILL.md の基本構造",
+          "value": "---\nname: review\ndescription: コードレビューを実行する\nuser-invocable: true\n---\n\n以下の手順でコードレビューを行ってください:\n\n1. git diff で変更内容を確認\n2. コーディング規約への準拠をチェック\n3. セキュリティ上の問題がないか確認\n4. 改善提案をリストアップ"
+        }
+      ],
+      "callouts": [
+        {
+          "type": "info",
+          "text": "スキルの詳細な作成方法は [カスタマイズガイド](/customization) で解説しています。"
+        }
+      ],
+      "tags": ["上級者向け"]
+    },
+    {
+      "id": "mcp-overview",
+      "title": "MCP（外部ツール連携）",
+      "description": "Model Context Protocol で外部ツールやデータソースを接続",
+      "content": "MCP（Model Context Protocol）は Claude Code に外部ツールやデータソースを接続するための標準プロトコルです。GitHub、データベース、ブラウザなどを自然言語で操作できるようになります。\n\n`claude mcp add` コマンドで MCP サーバーを登録し、`claude mcp list` で登録済みサーバーを確認できます。",
+      "code": [
+        {
+          "lang": "bash",
+          "label": "MCP サーバーの追加と確認",
+          "value": "# MCP サーバーを追加（プロジェクトスコープ）\nclaude mcp add <name> -s project -- <command>\n\n# 登録済み MCP サーバーの一覧を表示\nclaude mcp list"
+        }
+      ],
+      "callouts": [
+        {
+          "type": "info",
+          "text": "MCP のスコープ・トランスポート・OAuth 認証・.mcp.json の詳細は [カスタマイズガイド](/customization) で解説しています。"
+        }
+      ],
+      "tags": ["上級者向け"]
+    },
+    {
+      "id": "hooks-overview",
+      "title": "フック（自動化）",
+      "description": "ライフサイクルイベントにカスタムスクリプトを接続",
+      "content": "フックは Claude Code のライフサイクルイベントにカスタムシェルコマンドを接続する機能です。ツール実行の前後やセッション開始時などに、任意のスクリプトを自動実行できます。\n\n例えば、ファイル保存時に prettier を自動実行して、コードフォーマットを常に統一することができます。\n\nフックは `.claude/settings.json` の `hooks` プロパティで定義します。",
+      "code": [
+        {
+          "lang": "json",
+          "label": ".claude/settings.json でのフック定義例",
+          "value": "{\n  \"hooks\": {\n    \"PostToolUse\": [\n      {\n        \"matcher\": \"Write|Edit\",\n        \"hooks\": [\n          {\n            \"type\": \"command\",\n            \"command\": \"npx prettier --write $CLAUDE_FILE_PATH\"\n          }\n        ]\n      }\n    ]\n  }\n}"
+        }
+      ],
+      "callouts": [
+        {
+          "type": "info",
+          "text": "フックの全イベント・終了コード制御・ベストプラクティスは [カスタマイズガイド](/customization) で解説しています。"
+        }
+      ],
+      "tags": ["上級者向け"]
+    }
+  ]
+}

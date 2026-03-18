@@ -2,51 +2,58 @@
   "id": "ide",
   "name": "IDE 連携",
   "description": "エディタとの統合設定",
+  "phase": 2,
+  "order": 2,
   "steps": [
     {
       "id": "ide-vscode",
       "title": "VS Code 拡張",
-      "description": "VS Code との統合",
-      "content": "VS Code 向けの Claude Code 拡張を使うと、エディタ内で直接 Claude Code を操作できます。ターミナルパネルに統合され、コンテキストの共有がシームレスになります。",
+      "description": "VS Code との統合セットアップ",
+      "content": "VS Code 向けの Claude Code 拡張を使うと、エディタ内で直接 Claude Code を操作できます。インライン diff の表示、@メンションによるファイル参照、複数タブでの並行作業、権限モードの選択など、豊富な機能が統合されています。\n\nVS Code 1.98.0 以上が必要です。バージョンが古い場合は先にアップデートしてください。\n\nインストールは、VS Code のマーケットプレイスで「Claude Code」と検索するか、CLI からコマンドでインストールできます。\n\nCursor エディタを使っている場合も同じ拡張が利用可能です。Cursor の拡張マーケットプレイスから `cursor:extension/anthropic.claude-code` でインストールできます。\n\n主なキーボードショートカット:\n\nCmd+Esc — Claude Code パネルとエディタのフォーカス切替\n\nOption+K — エディタ内で @メンションを挿入\n\nCmd+Shift+Esc — 新しい Claude Code タブを開く",
       "code": [
         {
           "lang": "bash",
           "label": "VS Code 拡張のインストール",
-          "value": "# VS Code のマーケットプレイスから\n# 「Claude Code」で検索してインストール\n\n# または CLI から\ncode --install-extension anthropic.claude-code"
+          "value": "# VS Code のマーケットプレイスから\n# 「Claude Code」で検索してインストール\n\n# または CLI からインストール\ncode --install-extension anthropic.claude-code"
         }
       ],
       "callouts": [
         {
           "type": "tip",
-          "text": "VS Code の場合、ターミナルから直接 claude コマンドを実行しても同様に使えます。"
+          "text": "Cursor ユーザーは cursor:extension/anthropic.claude-code からもインストールできます。"
+        },
+        {
+          "type": "info",
+          "text": "VS Code 1.98.0 以上が必要です。バージョンは「ヘルプ > バージョン情報」で確認できます。"
         }
       ],
-      "tags": [
-        "初心者向け"
-      ]
+      "tags": ["初心者向け"]
     },
     {
       "id": "ide-jetbrains",
-      "title": "JetBrains 拡張",
-      "description": "IntelliJ / WebStorm 等との統合",
-      "content": "JetBrains IDE（IntelliJ IDEA、WebStorm、PyCharm 等）用のプラグインが提供されています。IDE のターミナルから Claude Code を起動すると、プロジェクトコンテキストが自動的に認識されます。",
+      "title": "JetBrains IDE プラグイン",
+      "description": "IntelliJ IDEA / PyCharm / WebStorm 等との統合",
+      "content": "JetBrains IDE 用の Claude Code プラグインが提供されています。IntelliJ IDEA、PyCharm、WebStorm、GoLand、PhpStorm、Android Studio に対応しています。\n\nインストール手順:\n\nIDE の Settings（設定）を開く\n\nPlugins → Marketplace タブで「Claude Code [Beta]」を検索\n\n「Install」をクリックしてインストール\n\nIDE を再起動して有効化\n\n起動方法:\n\nMac: Cmd+Esc\n\nWindows / Linux: Ctrl+Esc\n\n主な機能:\n\nIDE 内での diff 表示 — 変更内容をエディタ上で直接確認できます\n\n選択コンテキスト共有 — エディタで選択したコードを Claude Code に自動で共有します\n\nファイル参照（Cmd+Option+K） — ファイルを指定して Claude Code に渡せます",
       "code": [
         {
           "lang": "bash",
-          "label": "JetBrains プラグインの設定",
-          "value": "# JetBrains Marketplace から\n# 「Claude Code」で検索してインストール\n\n# プラグイン設定でパスを確認\n# Settings > Tools > Claude Code"
+          "label": "JetBrains プラグインのインストール",
+          "value": "# JetBrains IDE の Settings を開く\n# Plugins > Marketplace タブで\n# 「Claude Code [Beta]」を検索してインストール\n# インストール後、IDE を再起動"
         }
       ],
-      "callouts": [],
-      "tags": [
-        "初心者向け"
-      ]
+      "callouts": [
+        {
+          "type": "important",
+          "text": "リモート開発（Remote Development）を使用する場合、プラグインはリモートホスト側にインストールする必要があります。"
+        }
+      ],
+      "tags": ["初心者向け"]
     },
     {
-      "id": "ide-vim",
-      "title": "Vim / Neovim",
-      "description": "ターミナルベースのエディタ連携",
-      "content": "Vim / Neovim ユーザーは、ターミナルを分割して Claude Code を並行して使うワークフローが推奨です。tmux や WezTerm のペイン分割が便利です。",
+      "id": "ide-terminal",
+      "title": "ターミナルベースの連携",
+      "description": "Vim / Neovim やその他エディタとの連携",
+      "content": "Claude Code はターミナルネイティブなツールなので、どのエディタとも組み合わせて使えます。特定の IDE 拡張がなくても、ターミナルを並べて作業するだけで十分に活用できます。\n\nVim / Neovim ユーザーは、tmux のペイン分割で Claude Code を並行利用するワークフローがおすすめです。エディタとClaude Code を左右に並べて、コードを書きながら指示を出せます。\n\nNeovim のビルトインターミナル機能を使えば、エディタ内で直接 Claude Code を起動することも可能です。\n\nローカル環境のセットアップなしで使いたい場合は、Web 版の claude.ai/code も利用できます。ブラウザから直接アクセスするだけで、インストール不要で Claude Code の機能を試せます。",
       "code": [
         {
           "lang": "bash",
@@ -57,12 +64,10 @@
       "callouts": [
         {
           "type": "tip",
-          "text": "Claude Code はターミナルネイティブなので、どのエディタとも組み合わせて使えます。"
+          "text": "claude.ai/code にアクセスすれば、ローカルセットアップなしで Web ブラウザから Claude Code を試せます。"
         }
       ],
-      "tags": [
-        "中級者向け"
-      ]
+      "tags": ["中級者向け"]
     }
   ]
 }

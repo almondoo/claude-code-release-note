@@ -18,25 +18,37 @@ export interface SetupSection {
   id: string;
   name: string;
   description: string;
+  phase: number;
+  order: number;
   steps: Step[];
 }
 
 export const SECTIONS = RAW_SECTIONS as SetupSection[];
 export const TOTAL_ITEMS = SECTIONS.reduce((sum, s) => sum + s.steps.length, 0);
 
+export const PHASES = [
+  { id: 1, label: "導入", description: "ここまでで使い始められます" },
+  { id: 2, label: "活用", description: "日常的に使いこなす" },
+  { id: 3, label: "カスタマイズ", description: "さらに深く使う" },
+] as const;
+
+export const PHASE_COLORS: Record<number, { color: string; bg: string }> = {
+  1: { color: "#6EE7B7", bg: "rgba(16,185,129,0.08)" },
+  2: { color: "#C4B5FD", bg: "rgba(139,92,246,0.08)" },
+  3: { color: "#FDBA74", bg: "rgba(249,115,22,0.08)" },
+};
+
 export const SECTION_COLORS: Record<string, { color: string; bg: string }> = {
+  intro: PALETTE.blue,
   installation: PALETTE.green,
-  "initial-setup": PALETTE.cyan,
-  "claude-md": PALETTE.purple,
+  authentication: PALETTE.cyan,
   "first-steps": { color: "#86EFAC", bg: "rgba(34, 197, 94, 0.15)" },
-  skills: PALETTE.pink,
-  hooks: PALETTE.orange,
-  mcp: PALETTE.teal,
+  "claude-md": PALETTE.purple,
   ide: PALETTE.blueDark,
-  permissions: PALETTE.yellow,
   tips: PALETTE.pinkBright,
+  permissions: PALETTE.yellow,
+  customization: PALETTE.indigo,
   troubleshooting: PALETTE.red,
-  "best-practices": PALETTE.indigo,
 };
 
 export { SECTION_ICONS } from "./section-icons";
@@ -50,11 +62,20 @@ export const TAG_COLORS: Record<string, { color: string; bg: string }> = {
   "CI/CD": PALETTE.orange,
 };
 
+export const TAB_SECTION_MAP: Record<string, string[]> = {
+  "phase-1": ["intro", "installation", "authentication", "first-steps"],
+  "phase-2": ["claude-md", "ide", "tips", "permissions"],
+  "phase-3": ["customization", "troubleshooting"],
+};
+
 export const TAB_DEFS: TabItem[] = [
   { id: "all", label: "すべて", color: "#3B82F6" },
-  ...SECTIONS.map((s, i) => ({
+  { id: "phase-1", label: "Phase 1: 導入", color: PHASE_COLORS[1].color },
+  { id: "phase-2", label: "Phase 2: 活用", color: PHASE_COLORS[2].color },
+  { id: "phase-3", label: "Phase 3: カスタマイズ", color: PHASE_COLORS[3].color },
+  ...SECTIONS.map((s) => ({
     id: s.id,
-    label: `${i + 1}. ${s.name}`,
+    label: `${s.phase}-${s.order} ${s.name}`,
     color: SECTION_COLORS[s.id]?.color || "#3B82F6",
   })),
 ];
@@ -65,8 +86,3 @@ for (const section of SECTIONS) {
     ITEM_SECTION_MAP.set(step.id, { sectionName: section.name, sectionId: section.id });
   }
 }
-
-export const SECTION_INDEX_MAP: Record<string, number> = {};
-SECTIONS.forEach((s, i) => {
-  SECTION_INDEX_MAP[s.id] = i;
-});

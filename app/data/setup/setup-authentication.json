@@ -1,0 +1,83 @@
+{
+  "id": "authentication",
+  "name": "認証と初回起動",
+  "description": "ログインとアカウント設定",
+  "phase": 1,
+  "order": 3,
+  "steps": [
+    {
+      "id": "login",
+      "title": "Claude Code にログインする",
+      "description": "初回起動時のブラウザ認証または API キーでの認証",
+      "content": "インストール後、プロジェクトのディレクトリで `claude` コマンドを実行すると、ブラウザが自動的に開いて Anthropic アカウントでのログインが求められます。画面の指示に従ってログインすれば認証完了です。\n\nブラウザが自動で開かない場合は、ターミナルに表示される URL を確認してください。`c` キーを押すと URL がクリップボードにコピーされるので、手動でブラウザに貼り付けてアクセスできます。\n\nAPI キーを使って認証することもできます。環境変数 `ANTHROPIC_API_KEY` にキーを設定してから `claude` を起動してください。\n\n認証情報の保存先は OS によって異なります。macOS では Keychain に安全に保存されます。Linux および Windows（WSL 含む）では `~/.claude/.credentials.json` に保存されます。",
+      "code": [
+        {
+          "lang": "bash",
+          "label": "プロジェクトで起動（初回はログイン画面が開く）",
+          "value": "cd your-project\nclaude",
+          "recommended": true
+        },
+        {
+          "lang": "bash",
+          "label": "API キーで認証する場合",
+          "value": "export ANTHROPIC_API_KEY=sk-ant-xxxxx\nclaude"
+        }
+      ],
+      "callouts": [
+        {
+          "type": "tip",
+          "text": "ブラウザが自動で開かない場合は、ターミナル上で `c` キーを押すと認証 URL がクリップボードにコピーされます。"
+        },
+        {
+          "type": "info",
+          "text": "macOS では認証情報は Keychain に保存されます。Linux / Windows では ~/.claude/.credentials.json に保存されます。"
+        }
+      ],
+      "tags": ["必須", "初心者向け"]
+    },
+    {
+      "id": "plans",
+      "title": "利用可能なプラン",
+      "description": "Claude Code を利用できるプランの種類と特徴",
+      "content": "Claude Code を利用するには、対応するプランのアカウントが必要です。無料プランでは Claude Code は利用できません。\n\n**個人向けプラン**: Claude Pro または Claude Max サブスクリプションで利用できます。Max プランではより多くの使用量が含まれます。\n\n**企業向けプラン**: Claude for Teams または Claude Enterprise で利用できます。チームでの共同利用や管理機能が含まれます。\n\n**API 課金（Claude Console）**: Anthropic Console でアカウントを作成し、API キーを発行して利用します。使用量に応じた従量課金です。\n\n**クラウドプロバイダー経由**: Amazon Bedrock、Google Vertex AI、Microsoft Foundry 経由でも利用できます。既存のクラウド契約に統合したい場合に便利です。",
+      "code": [],
+      "callouts": [
+        {
+          "type": "warning",
+          "text": "無料プラン（claude.ai の Free プラン）では Claude Code は利用できません。いずれかの有料プランまたは API アカウントが必要です。"
+        }
+      ],
+      "tags": ["必須", "初心者向け"]
+    },
+    {
+      "id": "verify-auth",
+      "title": "認証の確認",
+      "description": "認証状態の確認・再認証・ログアウトの方法",
+      "content": "Claude Code のセッション内で `/status` コマンドを実行すると、現在ログインしているアカウント情報や利用中のプランを確認できます。\n\n`/login` コマンドで再認証を行えます。別のアカウントに切り替えたい場合に使います。\n\n`/logout` コマンドでログアウトできます。共有マシンでの作業後など、認証情報をクリアしたい場合に使います。",
+      "code": [
+        {
+          "lang": "bash",
+          "label": "セッション内で認証状態を確認",
+          "value": "/status"
+        },
+        {
+          "lang": "bash",
+          "label": "再認証（アカウント切り替え）",
+          "value": "/login"
+        },
+        {
+          "lang": "bash",
+          "label": "ログアウト",
+          "value": "/logout"
+        }
+      ],
+      "callouts": [
+        {
+          "type": "tip",
+          "text": "/status でアカウント情報やプランの種類を確認できます。認証に問題がある場合はまず /status を試してください。"
+        }
+      ],
+      "tags": ["初心者向け"]
+    }
+  ]
+}

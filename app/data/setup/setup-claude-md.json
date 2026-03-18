@@ -2,12 +2,14 @@
   "id": "claude-md",
   "name": "CLAUDE.md の設定",
   "description": "プロジェクトのカスタム指示を定義する",
+  "phase": 2,
+  "order": 1,
   "steps": [
     {
       "id": "claude-md-overview",
       "title": "CLAUDE.md とは",
       "description": "プロジェクト固有の指示ファイル",
-      "content": "CLAUDE.md は Claude Code にプロジェクト固有のコンテキストや指示を与えるファイルです。コーディング規約、アーキテクチャの説明、頻出コマンドなどを記述します。\n\nClaude はセッション開始時にこのファイルを自動的に読み込み、指示に従って動作します。",
+      "content": "CLAUDE.md は Claude Code にプロジェクト固有のコンテキストや指示を与えるためのファイルです。コーディング規約、アーキテクチャの説明、頻出コマンドなどを記述できます。\n\nClaude はセッション開始時にこのファイルを自動的に読み込み、記述された指示に従って動作します。プロンプトで毎回指示を繰り返す必要がなくなります。\n\nCLAUDE.md はプロジェクトのルートに配置し、Git で管理することでチーム全体で同じ指示を共有できます。新しいメンバーが参加しても、Claude Code が一貫した振る舞いをするようになります。",
       "code": [],
       "callouts": [
         {
@@ -15,23 +17,18 @@
           "text": "CLAUDE.md はプロジェクトのルートに配置します。Git で管理することでチーム全体で共有できます。"
         }
       ],
-      "tags": [
-        "必須",
-        "初心者向け",
-        "チーム向け"
-      ]
+      "tags": ["必須", "初心者向け", "チーム向け"]
     },
     {
       "id": "claude-md-init",
       "title": "CLAUDE.md の生成方法",
       "description": "対話的にまたは手動で CLAUDE.md を作成する",
-      "content": "CLAUDE.md を作成する方法はいくつかあります。プロジェクトの状況に応じて選択してください。",
+      "content": "CLAUDE.md を作成する方法はいくつかあります。プロジェクトの状況に応じて最適な方法を選んでください。\n\n/init コマンドによる自動生成が最も手軽でおすすめです。プロジェクトの構成を分析して、適切な内容を自動的に生成してくれます。\n\n手動で作成する場合は、プロジェクトルートに CLAUDE.md ファイルを新規作成し、エディタで編集します。\n\nClaude Code のセッション内で「このプロジェクトを分析して CLAUDE.md を作成してください」と依頼する方法もあります。Claude がコードベースを読み取り、適切な CLAUDE.md を提案します。\n\nファイルのサイズは 200 行以下が推奨されています。長すぎると指示の効果が薄れるため、重要な情報に絞って記述してください。",
       "code": [
         {
           "lang": "bash",
-          "label": "/init コマンドで自動生成",
-          "value": "claude\n# セッション内で:\n> /init",
-          "recommended": true
+          "label": "/init コマンドで自動生成（推奨）",
+          "value": "claude\n# セッション内で:\n> /init"
         },
         {
           "lang": "bash",
@@ -50,75 +47,57 @@
           "text": "/init は何度でも実行できます。既存の CLAUDE.md を上書きする前に確認されます。初回は /init での自動生成がおすすめです。"
         }
       ],
-      "tags": [
-        "必須",
-        "初心者向け"
-      ]
+      "tags": ["必須", "初心者向け"]
     },
     {
       "id": "claude-md-writing",
       "title": "効果的な書き方",
       "description": "CLAUDE.md のベストプラクティス",
-      "content": "効果的な CLAUDE.md を書くポイント:\n\n- 簡潔に書く: 長すぎる指示は効果が下がります\n- 具体的に書く: 「コードをきれいに」ではなく「ESLint ルールに従う」\n- コマンドを明記: ビルド、テスト、リントのコマンドを書く\n- 技術スタックを明記: 使用フレームワーク、言語バージョンなど",
+      "content": "効果的な CLAUDE.md を書くためのポイントを紹介します。\n\n簡潔かつ具体的に書くことが最も重要です。「コードをきれいに書いて」のような曖昧な指示ではなく、「ESLint ルールに従う」「関数コンポーネントのみ使用する」のように具体的に記述してください。\n\nビルド・テスト・リントのコマンドを明記してください。Claude Code がコマンドを実行する際に正確なコマンドを使えるようになります。\n\n技術スタック（フレームワーク、言語バージョン、パッケージマネージャなど）を明記してください。Claude Code がプロジェクトに適したコードを生成するための重要な情報です。",
       "code": [
         {
           "lang": "markdown",
-          "label": "CLAUDE.md の例",
-          "value": "# CLAUDE.md\n\n## プロジェクト概要\nReact + TypeScript のWebアプリ。Vite でビルド。\n\n## コマンド\n- `pnpm run dev` — 開発サーバー\n- `pnpm run test` — テスト実行\n- `pnpm run lint` — リント\n\n## コーディング規約\n- 関数コンポーネントのみ使用\n- CSS Modules を使用\n- テストは Vitest で記述"
+          "label": "CLAUDE.md のテンプレート例",
+          "value": "# CLAUDE.md\n\n## プロジェクト概要\nReact + TypeScript の Web アプリ。Vite でビルド。\n\n## コマンド\n- `pnpm run dev` — 開発サーバー起動\n- `pnpm run build` — プロダクションビルド\n- `pnpm run test` — テスト実行\n- `pnpm run lint` — リント\n\n## コーディング規約\n- 関数コンポーネントのみ使用（クラスコンポーネント禁止）\n- CSS Modules を使用\n- テストは Vitest で記述\n- インポートは絶対パス（~/）を使用"
         }
       ],
       "callouts": [
         {
           "type": "warning",
-          "text": "機密情報（API キー、パスワード等）を CLAUDE.md に含めないでください。Git で共有される可能性があります。"
+          "text": "機密情報（API キー、パスワード、シークレット等）を CLAUDE.md に含めないでください。Git で共有されるため、漏洩のリスクがあります。"
         }
       ],
-      "tags": [
-        "必須",
-        "中級者向け",
-        "チーム向け"
-      ]
+      "tags": ["必須", "中級者向け", "チーム向け"]
     },
     {
       "id": "claude-md-hierarchy",
       "title": "階層構造",
-      "description": "ディレクトリごとの CLAUDE.md",
-      "content": "CLAUDE.md は複数の階層に配置できます。Claude はプロジェクトルートから作業ディレクトリまでの全ての CLAUDE.md をマージして読み込みます。\n\n優先順位: ユーザー設定 (~/.claude/CLAUDE.md) < プロジェクトルート (CLAUDE.md) < サブディレクトリ (src/CLAUDE.md)",
+      "description": "複数の CLAUDE.md と条件付きルール",
+      "content": "CLAUDE.md は複数の階層に配置できます。Claude はすべての階層の CLAUDE.md をマージして読み込みます。\n\nユーザー設定（~/.claude/CLAUDE.md）は、すべてのプロジェクトに適用される個人的な指示を記述する場所です。\n\nプロジェクトルート（CLAUDE.md）は、プロジェクト全体に適用される指示を記述します。チームで共有する最も一般的な配置場所です。\n\nサブディレクトリ（例: src/CLAUDE.md）には、そのディレクトリ以下に特化した指示を記述できます。よりローカルな CLAUDE.md が優先されます。\n\nさらに、.claude/rules/ ディレクトリを使うと、ファイルパスのパターンに基づいて条件付きでルールを適用できます。YAML フロントマターで globs を指定し、特定の種類のファイルを編集するときだけ適用されるルールを定義できます。",
       "code": [
         {
           "lang": "bash",
           "label": "階層構造の例",
-          "value": "project/\n├── CLAUDE.md              # プロジェクト全体の指示\n├── src/\n│   └── CLAUDE.md          # src 以下に特化した指示\n└── tests/\n    └── CLAUDE.md          # テストに特化した指示"
-        }
-      ],
-      "callouts": [],
-      "tags": [
-        "中級者向け",
-        "チーム向け"
-      ]
-    },
-    {
-      "id": "claude-md-rules",
-      "title": ".claude/rules/ ディレクトリ",
-      "description": "条件付きルールファイル",
-      "content": ".claude/rules/ ディレクトリにルールファイルを配置すると、ファイルパスのグロブパターンに基づいて条件付きでルールが適用されます。\n\n例えば、TypeScript ファイル編集時のみ適用されるルールや、テストファイル用のルールを分離できます。",
-      "code": [
+          "value": "~/.claude/\n└── CLAUDE.md              # ユーザー設定（全プロジェクト共通）\n\nproject/\n├── CLAUDE.md              # プロジェクト全体の指示\n├── src/\n│   └── CLAUDE.md          # src 以下に特化した指示\n└── tests/\n    └── CLAUDE.md          # テストに特化した指示"
+        },
         {
           "lang": "bash",
-          "label": "ルールディレクトリの構造",
+          "label": ".claude/rules/ の構造",
           "value": ".claude/\n└── rules/\n    ├── typescript.md      # *.ts, *.tsx に適用\n    ├── testing.md         # *.test.*, *.spec.* に適用\n    └── docs.md            # *.md に適用"
+        },
+        {
+          "lang": "markdown",
+          "label": "ルールファイルの例（.claude/rules/typescript.md）",
+          "value": "---\nglobs: \"*.ts,*.tsx\"\n---\n\n- 型は明示的に定義する（any 禁止）\n- import type を使用する\n- エラーは unknown 型で catch する"
         }
       ],
       "callouts": [
         {
-          "type": "info",
-          "text": "ルールファイル内の YAML フロントマターで適用条件（globs）を指定します。"
+          "type": "tip",
+          "text": "ルールファイルの YAML フロントマターで globs を指定すると、該当するファイルを操作するときだけそのルールが自動的に適用されます。"
         }
       ],
-      "tags": [
-        "上級者向け",
-        "チーム向け"
-      ]
+      "tags": ["中級者向け", "チーム向け"]
     }
   ]
 }

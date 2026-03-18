@@ -1,70 +1,81 @@
 {
   "id": "permissions",
-  "name": "権限管理",
-  "description": "ツールの実行権限を制御する",
+  "name": "権限と安全性",
+  "description": "ツールの実行権限とセキュリティ設定",
+  "phase": 2,
+  "order": 4,
   "steps": [
     {
       "id": "permissions-model",
       "title": "権限モデルの理解",
-      "description": "Claude Code の権限システム",
-      "content": "Claude Code は安全性のために、ファイル編集やシェルコマンド実行などに対する権限管理機能を備えています。\n\n3 つのモードがあります:\n- plan モード: 計画の承認が必要\n- default モード: 書き込み操作に承認が必要\n- bypassPermissions モード: すべてのツールを自動承認（CI/CD 向け）",
-      "code": [],
+      "description": "4つの権限モードと承認の仕組み",
+      "content": "Claude Code はツールの実行時に権限チェックを行い、必要に応じてユーザーの承認を求めます。用途やリスク許容度に応じて、4つのモードから選択できます。\n\n**plan モード**: すべての操作に対して計画の承認が必要です。Claude が何をしようとしているかを確認してから実行を許可します。\n\n**default モード**: ファイルの読み取りや検索は自動で許可されますが、ファイル編集やシェルコマンドの実行など書き込み操作には承認が必要です。初心者にはこのモードが推奨されます。\n\n**auto-accept edits モード**: ファイル編集を自動で承認します。シェルコマンドの実行には引き続き承認が必要です。コード変更を素早く進めたいときに便利です。\n\n**bypass モード**: すべてのツール実行を自動で承認します。対話的な操作ができない CI/CD パイプラインでの使用を想定しています。",
+      "code": [
+        {
+          "lang": "bash",
+          "label": "CI/CD 環境での bypass モード",
+          "value": "# --dangerously-skip-permissions フラグで全権限をスキップ\nclaude -p \"テストを実行して結果を報告\" --dangerously-skip-permissions"
+        }
+      ],
       "callouts": [
         {
           "type": "warning",
-          "text": "bypassPermissions モードは信頼できる環境（CI/CD パイプライン等）でのみ使用してください。"
+          "text": "bypass モード（--dangerously-skip-permissions）は、コンテナやサンドボックスなど信頼できる隔離環境でのみ使用してください。ローカル開発環境では使用しないでください。"
+        },
+        {
+          "type": "tip",
+          "text": "初めて使う場合は default モードから始めて、慣れてきたら auto-accept edits モードに切り替えるのがおすすめです。"
         }
       ],
-      "tags": [
-        "必須",
-        "初心者向け"
-      ]
+      "tags": ["必須", "初心者向け"]
     },
     {
       "id": "permissions-settings",
       "title": "settings.json での設定",
-      "description": "細かい権限のカスタマイズ",
-      "content": "`.claude/settings.json` で特定のツールやコマンドの自動承認リストを設定できます。頻繁に使うコマンドを登録しておくと、作業効率が向上します。",
+      "description": "許可・拒否リストによる細かい権限制御",
+      "content": "`.claude/settings.json` の `permissions.allow` と `permissions.deny` で、ツールやコマンドごとに自動承認・拒否のルールを定義できます。チームで共有することで、プロジェクト全体の権限ポリシーを統一できます。\n\n**allow（許可リスト）**: 指定したツールやコマンドを承認なしで自動実行します。頻繁に使う安全なコマンドを登録しておくと作業効率が上がります。\n\n**deny（拒否リスト）**: 指定したツールやコマンドの実行を常にブロックします。危険なコマンドを登録して誤操作を防ぎます。\n\n**ワイルドカード対応**: パターンの末尾に `*` を付けることで、前方一致でまとめて指定できます。例えば `Bash(npm run test*)` は `npm run test`、`npm run test:unit`、`npm run test:e2e` などすべてにマッチします。",
       "code": [
         {
           "lang": "json",
-          "label": ".claude/settings.json の例",
-          "value": "{\n  \"permissions\": {\n    \"allow\": [\n      \"Bash(npm run test*)\",\n      \"Bash(npm run lint*)\",\n      \"Bash(git status)\",\n      \"Bash(git diff*)\",\n      \"Read\",\n      \"Glob\",\n      \"Grep\"\n    ],\n    \"deny\": [\n      \"Bash(rm -rf*)\",\n      \"Bash(git push --force*)\"\n    ]\n  }\n}"
+          "label": ".claude/settings.json の推奨設定例",
+          "value": "{\n  \"permissions\": {\n    \"allow\": [\n      \"Read\",\n      \"Glob\",\n      \"Grep\",\n      \"Bash(npm run test*)\",\n      \"Bash(npm run lint*)\",\n      \"Bash(git status)\",\n      \"Bash(git diff*)\",\n      \"Bash(git log*)\"\n    ],\n    \"deny\": [\n      \"Bash(rm -rf*)\",\n      \"Bash(git push --force*)\",\n      \"Bash(git reset --hard*)\"\n    ]\n  }\n}"
         }
       ],
       "callouts": [
         {
           "type": "tip",
-          "text": "ワイルドカード（*）を使って、パターンマッチングで権限を設定できます。"
+          "text": "Read、Glob、Grep はファイルの読み取り・検索のみを行う安全なツールなので、allow に追加しておくと承認の手間が減ります。"
+        },
+        {
+          "type": "info",
+          "text": "deny リストは allow リストより優先されます。両方にマッチする場合、そのコマンドはブロックされます。"
         }
       ],
-      "tags": [
-        "中級者向け",
-        "チーム向け"
-      ]
+      "tags": ["中級者向け", "チーム向け"]
     },
     {
-      "id": "permissions-ci",
-      "title": "CI/CD 用の設定",
-      "description": "自動化パイプラインでの権限設定",
-      "content": "CI/CD パイプラインでは、対話的な承認ができないため、適切な権限設定が必要です。`--dangerously-skip-permissions` フラグまたは環境変数で設定します。",
+      "id": "permissions-security",
+      "title": "安全な使い方",
+      "description": "機密情報の保護とコードレビューの習慣",
+      "content": "Claude Code を安全に使うために、いくつかのセキュリティ上の注意点があります。\n\n**API キーや秘密情報を設定ファイルに含めない**: `CLAUDE.md` や `settings.json` はリポジトリにコミットされるファイルです。API キー、パスワード、トークンなどの機密情報は絶対に記載しないでください。環境変数や `.env` ファイルで管理しましょう。\n\n**.gitignore に追加すべきファイル**: ローカル固有の設定や機密情報を含むファイルは、必ず `.gitignore` に追加してリポジトリに含まれないようにしてください。\n\n**生成されたコードは必ずレビューする**: Claude Code が生成・編集したコードは、コミット前に必ず内容を確認してください。`git diff` でどのような変更が行われたかを把握し、意図しない変更がないか確認する習慣をつけましょう。",
       "code": [
         {
-          "lang": "bash",
-          "label": "CI/CD での実行例",
-          "value": "# 非対話モードで実行\nclaude -p \"テストを実行して結果を報告\" --dangerously-skip-permissions\n\n# 環境変数での設定\nexport CLAUDE_CODE_SKIP_PERMISSIONS=true\nclaude -p \"コードレビューを実行\""
+          "lang": "text",
+          "label": ".gitignore に追加すべきファイル",
+          "value": "# Claude Code のローカル設定\n.claude/settings.local.json\n\n# 環境変数（機密情報を含む）\n.env\n.env.local\n.env.*.local\n\n# Claude Code のセッションデータ\n.claude/todos.json"
         }
       ],
       "callouts": [
         {
           "type": "important",
-          "text": "CI/CD での権限スキップは、コンテナやサンドボックス環境内で使用してください。"
+          "text": "CLAUDE.md にはプロジェクトの指示のみを記載してください。API キーやパスワードなどの機密情報は、環境変数（.env ファイル）で管理しましょう。"
+        },
+        {
+          "type": "tip",
+          "text": "コミット前に git diff で変更内容を確認する習慣をつけると、意図しない変更や機密情報の漏洩を防げます。"
         }
       ],
-      "tags": [
-        "CI/CD",
-        "上級者向け"
-      ]
+      "tags": ["チーム向け"]
     }
   ]
 }

@@ -2,111 +2,146 @@
   "id": "troubleshooting",
   "name": "トラブルシューティング",
   "description": "よくある問題と解決方法",
+  "phase": 3,
+  "order": 2,
   "steps": [
     {
       "id": "ts-doctor",
       "title": "/doctor コマンド",
       "description": "環境の自動診断",
-      "content": "問題が発生した場合、まず `/doctor` コマンドで環境を診断しましょう。Node.js バージョン、認証状態、MCP サーバーの接続状況などを自動チェックします。",
+      "content": "問題が発生した場合、まず doctor コマンドで環境を診断しましょう。認証状態、MCP サーバーの接続状況などを自動でチェックしてくれます。\n\nセッション外（ターミナルから直接）では `claude doctor` コマンドを実行します。\n\nセッション内（Claude Code の対話中）では `/doctor` と入力します。\n\n診断結果に問題が表示された場合は、指示に従って対処してください。",
       "code": [
         {
           "lang": "bash",
-          "label": "環境診断の実行",
-          "value": "claude\n> /doctor"
+          "label": "セッション外での実行",
+          "value": "claude doctor"
+        },
+        {
+          "lang": "bash",
+          "label": "セッション内での実行",
+          "value": "/doctor"
         }
       ],
       "callouts": [
         {
           "type": "tip",
-          "text": "/doctor は最初に試すべきトラブルシューティングツールです。"
+          "text": "/doctor は最初に試すべきトラブルシューティングツールです。何か困ったらまずこれを実行しましょう。"
         }
       ],
-      "tags": [
-        "初心者向け"
-      ]
+      "tags": ["初心者向け"]
     },
     {
       "id": "ts-auth",
       "title": "認証の問題",
       "description": "認証エラーの対処",
-      "content": "認証に関する一般的な問題と解決策:\n\n- トークンの期限切れ: `claude auth logout` → `claude auth login` で再認証\n- API キーの無効化: 新しいキーを console.anthropic.com で発行\n- ネットワーク制限: プロキシ設定を確認",
+      "content": "認証に関するよくある問題と解決策をまとめます。\n\nトークンの期限切れや認証エラーが出た場合は、セッション内で `/login` を実行して再認証してください。旧コマンド `claude auth login` は廃止されています。\n\nログアウトしたい場合は、セッション内で `/logout` を実行します。旧コマンド `claude auth logout` も廃止されています。\n\n認証時にブラウザが自動で開かない場合は、`c` キーを押すと認証 URL がクリップボードにコピーされます。コピーした URL をブラウザに貼り付けて認証を完了してください。\n\nAPI キーが漏洩した可能性がある場合は、直ちに console.anthropic.com にアクセスして該当キーを無効化してください。",
       "code": [
         {
           "lang": "bash",
-          "label": "認証の再設定",
-          "value": "# 現在の認証状態を確認\nclaude auth status\n\n# ログアウトして再認証\nclaude auth logout\nclaude auth login"
+          "label": "セッション内での再認証",
+          "value": "# セッション内で実行\n/login"
+        },
+        {
+          "lang": "bash",
+          "label": "セッション内でのログアウト",
+          "value": "# セッション内で実行\n/logout"
         }
       ],
       "callouts": [
         {
           "type": "warning",
           "text": "API キーが漏洩した可能性がある場合は、直ちに console.anthropic.com で無効化してください。"
+        },
+        {
+          "type": "important",
+          "text": "旧コマンド claude auth login / claude auth logout は廃止されました。セッション内で /login / /logout を使用してください。"
         }
       ],
-      "tags": [
-        "初心者向け"
-      ]
+      "tags": ["初心者向け"]
     },
     {
-      "id": "ts-mcp",
-      "title": "MCP サーバーの問題",
-      "description": "MCP 接続トラブルの対処",
-      "content": "MCP サーバーが正常に動作しない場合の確認ポイント:\n\n- サーバープロセスが起動しているか確認\n- 必要な依存関係がインストールされているか確認\n- 環境変数が正しく設定されているか確認\n- ログ出力を確認",
+      "id": "ts-install",
+      "title": "インストールの問題",
+      "description": "インストール時のトラブル対処",
+      "content": "インストール後に `command not found: claude` と表示される場合は、PATH に `~/.local/bin` が含まれていない可能性があります。シェルの設定ファイルに追加してください。\n\n設定ファイルを編集した後は、ターミナルを再起動するか `source` コマンドで設定を再読み込みしてください。\n\nWindows をお使いの場合は、Git for Windows のインストールが必要です。Git Bash のパスが自動検出されない場合は、環境変数 `CLAUDE_CODE_GIT_BASH_PATH` を設定してください。\n\nAlpine Linux をお使いの場合は、追加パッケージのインストールが必要です。",
       "code": [
         {
           "lang": "bash",
-          "label": "MCP サーバーのデバッグ",
-          "value": "# MCP サーバーの一覧と状態確認\nclaude mcp list\n\n# サーバーの再起動\nclaude mcp reset\n\n# 問題のあるサーバーを削除して再追加\nclaude mcp remove problematic-server\nclaude mcp add problematic-server -- npx @example/server"
-        }
-      ],
-      "callouts": [],
-      "tags": [
-        "上級者向け"
-      ]
-    },
-    {
-      "id": "ts-performance",
-      "title": "パフォーマンスの問題",
-      "description": "動作が遅い場合の対処",
-      "content": "Claude Code の動作が遅い場合のチェックポイント:\n\n- コンテキストが大きすぎないか → `/compact` で圧縮\n- 大きなリポジトリで不要なファイルが読み込まれていないか → .claudeignore で除外\n- ネットワーク遅延 → 接続環境を確認\n- MCP サーバーの応答遅延 → 不要なサーバーを無効化",
-      "code": [
+          "label": "PATH に ~/.local/bin を追加",
+          "value": "# bash の場合\necho 'export PATH=\"$HOME/.local/bin:$PATH\"' >> ~/.bashrc\nsource ~/.bashrc\n\n# zsh の場合\necho 'export PATH=\"$HOME/.local/bin:$PATH\"' >> ~/.zshrc\nsource ~/.zshrc"
+        },
         {
           "lang": "bash",
-          "label": ".claudeignore の例",
-          "value": "# .claudeignore\nnode_modules/\ndist/\nbuild/\n*.log\n.git/\ncoverage/"
+          "label": "Windows: Git Bash のパス設定",
+          "value": "set CLAUDE_CODE_GIT_BASH_PATH=\"C:\\Program Files\\Git\\bin\\bash.exe\""
+        },
+        {
+          "lang": "bash",
+          "label": "Alpine Linux: 必要パッケージのインストール",
+          "value": "apk add libgcc libstdc++ ripgrep"
         }
       ],
       "callouts": [
         {
           "type": "tip",
-          "text": ".claudeignore は .gitignore と同じ構文です。大きなディレクトリを除外すると起動が速くなります。"
+          "text": "ターミナルを再起動するのが最も確実です。source コマンドは現在のセッションにのみ反映されます。"
         }
       ],
-      "tags": [
-        "初心者向け"
-      ]
+      "tags": ["初心者向け"]
     },
     {
-      "id": "ts-errors",
-      "title": "エラーの対処",
-      "description": "一般的なエラーメッセージと解決策",
-      "content": "よくあるエラーメッセージとその対処法:\n\n- \"Context window full\": /compact または /clear を実行\n- \"Rate limit exceeded\": しばらく待ってからリトライ\n- \"Tool execution failed\": 権限設定を確認\n- \"Network error\": インターネット接続を確認",
+      "id": "ts-performance",
+      "title": "パフォーマンスの問題",
+      "description": "動作が遅い場合の対処",
+      "content": "Claude Code の動作が遅い場合のチェックポイントと対処法をまとめます。\n\nコンテキストが大きくなりすぎた場合は、`/compact` コマンドでコンテキストを圧縮できます。長い会話を続けていると自動的にコンテキストが膨らむため、定期的な実行をおすすめします。\n\n大きなリポジトリで不要なファイルが読み込まれている場合は、`.claudeignore` ファイルをプロジェクトルートに作成して除外パターンを指定してください。`.gitignore` と同じ構文で記述できます。\n\n使用していない MCP サーバーが接続されていると、応答が遅くなることがあります。不要なサーバーは無効化してください。\n\nネットワーク接続が不安定な場合も応答が遅くなります。接続環境を確認してください。",
       "code": [
         {
           "lang": "bash",
-          "label": "一般的なリカバリー手順",
-          "value": "# Claude Code の更新\nnpm update -g @anthropic-ai/claude-code\n\n# キャッシュのクリア\nclaude config reset\n\n# デバッグモードで起動\nclaude --debug"
+          "label": "コンテキストの圧縮",
+          "value": "# セッション内で実行\n/compact"
+        },
+        {
+          "lang": "bash",
+          "label": ".claudeignore の記述例",
+          "value": "# .claudeignore（プロジェクトルートに作成）\nnode_modules/\ndist/\nbuild/\n*.log\n.git/\ncoverage/"
+        }
+      ],
+      "callouts": [
+        {
+          "type": "tip",
+          "text": ".claudeignore は .gitignore と同じ構文です。大きなディレクトリを除外すると動作が速くなります。"
+        }
+      ],
+      "tags": ["初心者向け"]
+    },
+    {
+      "id": "ts-errors",
+      "title": "よくあるエラー",
+      "description": "一般的なエラーメッセージと解決策",
+      "content": "よくあるエラーメッセージとその対処法をまとめます。\n\n\"Context window full\" と表示された場合は、コンテキストが上限に達しています。`/compact` でコンテキストを圧縮するか、`/clear` で会話をリセットしてください。\n\n\"Rate limit exceeded\" と表示された場合は、API のレート制限に達しています。しばらく待ってからリトライしてください。\n\n\"Tool execution failed\" と表示された場合は、ツールの実行権限に問題がある可能性があります。権限設定を確認してください。\n\nClaude Code を最新版に更新するには `claude update` コマンドを実行してください。npm での更新ではなく、このネイティブコマンドを使用します。\n\n上記の方法で解決しない場合は、GitHub の Issue で報告してください: https://github.com/anthropics/claude-code/issues",
+      "code": [
+        {
+          "lang": "bash",
+          "label": "コンテキストのリセット",
+          "value": "# セッション内で実行\n/compact\n\n# または会話を完全にリセット\n/clear"
+        },
+        {
+          "lang": "bash",
+          "label": "Claude Code の更新",
+          "value": "claude update"
         }
       ],
       "callouts": [
         {
           "type": "info",
-          "text": "解決しない場合は github.com/anthropics/claude-code/issues で Issue を報告してください。"
+          "text": "解決しない場合は https://github.com/anthropics/claude-code/issues で Issue を報告してください。"
+        },
+        {
+          "type": "important",
+          "text": "Claude Code の更新には claude update を使用してください。npm update ではありません。"
         }
       ],
-      "tags": [
-        "初心者向け"
-      ]
+      "tags": ["初心者向け"]
     }
   ]
 }

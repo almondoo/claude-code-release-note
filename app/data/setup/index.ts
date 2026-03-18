@@ -1,27 +1,23 @@
+import introSection from "~/data/setup/setup-intro.json";
 import installationSection from "~/data/setup/setup-installation.json";
-import initialSetupSection from "~/data/setup/setup-initial-setup.json";
-import claudeMdSection from "~/data/setup/setup-claude-md.json";
+import authenticationSection from "~/data/setup/setup-authentication.json";
 import firstStepsSection from "~/data/setup/setup-first-steps.json";
-import skillsSection from "~/data/setup/setup-skills.json";
-import mcpSection from "~/data/setup/setup-mcp.json";
-import hooksSection from "~/data/setup/setup-hooks.json";
+import claudeMdSection from "~/data/setup/setup-claude-md.json";
 import ideSection from "~/data/setup/setup-ide.json";
-import permissionsSection from "~/data/setup/setup-permissions.json";
 import tipsSection from "~/data/setup/setup-tips.json";
+import permissionsSection from "~/data/setup/setup-permissions.json";
+import customizationSection from "~/data/setup/setup-customization.json";
 import troubleshootingSection from "~/data/setup/setup-troubleshooting.json";
-import bestPracticesSection from "~/data/setup/setup-best-practices.json";
 
 export const SECTIONS = [
+  introSection,
   installationSection,
-  initialSetupSection,
-  claudeMdSection,
+  authenticationSection,
   firstStepsSection,
-  skillsSection,
-  mcpSection,
-  hooksSection,
+  claudeMdSection,
   ideSection,
-  permissionsSection,
   tipsSection,
+  permissionsSection,
+  customizationSection,
   troubleshootingSection,
-  bestPracticesSection,
 ];
