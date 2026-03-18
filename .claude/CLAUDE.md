@@ -9,14 +9,11 @@ Claude Code のリリースノートを日本語で閲覧できる Web アプリ
 ## コマンド
 
 - `pnpm install` — 依存関係のインストール
-- `pnpm run dev` — 開発サーバー起動 (http://localhost:5173)
-- `pnpm run build` — プロダクションビルド
-- `pnpm run start` — ビルド済みアプリの起動
+- `pnpm run dev` — ユーザー専用。**Claude は使用しないこと**
 - `pnpm run typecheck` — 型生成 + TypeScript 型チェック (`react-router typegen && tsc`)
+- `scripts/start-server.sh` — ビルド＋サーバー起動 (http://localhost:4000)。**ブラウザ確認時はこのスクリプトを使うこと**。Stop hook で応答完了時に自動停止される
 
 テストフレームワークは未導入。
-
-**注意**: `pnpm run dev` や `pnpm run start` で起動したサーバーは、作業完了時に必ず停止すること。プロセスを残したままにしない。ブラウザ操作（Chrome MCP）のためにサーバーを起動した場合も、操作完了後に必ずサーバーを停止すること。
 
 ## アーキテクチャ
 

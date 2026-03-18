@@ -26,7 +26,7 @@ export const DetailModalShell = ({
   iconBackground,
   headerContent,
   children,
-  overlayClassName = "fixed inset-0 z-[1000] bg-black/60 backdrop-blur-[4px] flex items-center justify-center p-6",
+  overlayClassName = "fixed inset-0 z-[1000] bg-black/60 flex items-center justify-center p-6",
   bodyClassName = "p-6 overflow-y-auto flex-1 flex flex-col gap-5",
 }: DetailModalShellProps): React.JSX.Element => {
   const overlayRef = useRef<HTMLDivElement>(null);
