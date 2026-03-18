@@ -50,7 +50,12 @@ export function DetailModal({
           <p className="text-[14px] text-slate-400 mt-1.5 font-sans leading-[1.6] m-0">
             {item.description}
           </p>
-          <HeaderTags sectionName={sectionName} accentColor={accentColor} tags={item.tags} tagColors={TAG_COLORS} />
+          <HeaderTags
+            sectionName={sectionName}
+            accentColor={accentColor}
+            tags={item.tags}
+            tagColors={TAG_COLORS}
+          />
         </>
       }
     >

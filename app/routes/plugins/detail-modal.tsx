@@ -9,6 +9,7 @@ import {
 } from "~/components/icons.js";
 import { CopyButton } from "~/components/copy-button";
 import { DetailModalShell } from "~/components/detail-modal";
+import { ParagraphList } from "~/components/paragraph-list";
 import { SectionHeading } from "~/components/section-heading";
 import type { Plugin } from "./constants";
 
@@ -82,19 +83,19 @@ export function DetailModal({
       {/* Detail */}
       <div className="flex flex-col gap-2.5">
         <SectionHeading icon={<InfoIcon />} label="詳細説明" color="#67E8F9" />
-        <p className="m-0 text-[14px] leading-[1.8] text-slate-400 font-sans">{plugin.detail}</p>
+        <ParagraphList content={plugin.detail} />
       </div>
 
       {/* When to use */}
       <div className="flex flex-col gap-2.5">
         <SectionHeading icon={<TimingIcon />} label="使うタイミング" color="#FDBA74" />
-        <p className="m-0 text-[14px] leading-[1.8] text-slate-400 font-sans">{plugin.whenToUse}</p>
+        <ParagraphList content={plugin.whenToUse} />
       </div>
 
       {/* Setup */}
       <div className="flex flex-col gap-2.5">
         <SectionHeading icon={<SettingsIcon />} label="セットアップ" color="#5EEAD4" />
-        <p className="m-0 text-[14px] leading-[1.8] text-slate-400 font-sans">{plugin.setup}</p>
+        <ParagraphList content={plugin.setup} />
         {plugin.binary && (
           <div className="flex items-center gap-1.5">
             <span className="text-[12px] text-slate-500 font-sans">必要なバイナリ:</span>

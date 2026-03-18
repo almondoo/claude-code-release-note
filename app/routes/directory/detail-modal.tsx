@@ -1,6 +1,6 @@
 import { FileIcon, FolderIcon } from "~/components/icons";
 import { DetailModalShell } from "~/components/detail-modal";
-import { ParagraphList } from "~/components/paragraph-list";
+import { ParagraphList, renderInlineMarkdown } from "~/components/paragraph-list";
 import { SectionHeading } from "~/components/section-heading";
 import type { Entry, Section } from "./constants";
 import {
@@ -79,10 +79,7 @@ export function DetailModal({
       }
     >
       <ModalSection id="detail" accentColor={accentColor}>
-        <ParagraphList
-          content={entry.detail}
-          className="m-0 text-[14px] leading-[1.8] text-slate-400 font-sans"
-        />
+        <ParagraphList content={entry.detail} />
       </ModalSection>
 
       {entry.usage && (
@@ -136,7 +133,7 @@ export function DetailModal({
             }}
           >
             <p className="m-0 text-xs leading-[1.7] text-slate-400 font-sans">
-              {entry.bestPractice}
+              {renderInlineMarkdown(entry.bestPractice)}
             </p>
           </div>
         </ModalSection>

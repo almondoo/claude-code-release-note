@@ -1,6 +1,7 @@
 import { DetailModalShell } from "~/components/detail-modal";
 import { CodeBlockView } from "~/components/code-block-view";
 import { CalloutBox } from "~/components/callout-box";
+import { ParagraphList } from "~/components/paragraph-list";
 
 import type { CustomizationItem } from "./constants";
 import { DEFAULT_TAG_COLOR, TAB_ICONS, TAG_COLORS } from "./constants";
@@ -61,9 +62,7 @@ export function DetailModal({
         >
           詳細説明
         </div>
-        <p className="m-0 text-[14px] leading-[1.8] text-slate-400 font-sans whitespace-pre-line">
-          {item.content}
-        </p>
+        <ParagraphList content={item.content} />
       </div>
 
       {item.code.length > 0 && (

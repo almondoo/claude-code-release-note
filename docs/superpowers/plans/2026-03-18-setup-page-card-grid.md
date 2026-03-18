@@ -14,26 +14,27 @@
 
 ## ファイル構成
 
-| 操作 | ファイル | 責務 |
-|------|----------|------|
-| 変更 | `app/routes/setup/constants.tsx` | TAB_DEFS, ITEM_SECTION_MAP, SECTION_INDEX_MAP 追加、TOTAL_STEPS→TOTAL_ITEMS リネーム |
-| 新規 | `app/routes/setup/item-card.tsx` | カードグリッドの個別カード |
-| 新規 | `app/routes/setup/detail-modal.tsx` | モーダル（content + code + callouts 表示） |
-| 書換 | `app/routes/setup/index.tsx` | メインページ（TabBar + ItemGrid + DetailModal 構造に全面書換） |
-| 削除 | `app/routes/setup/step-card.tsx` | アコーディオンカード（不要） |
-| 削除 | `app/routes/setup/quick-start-panel.tsx` | クイックスタート（不要） |
-| 削除 | `app/routes/setup/summary-panel.tsx` | サマリー（不要） |
-| 削除 | `app/routes/setup/timeline-sidebar.tsx` | タイムラインサイドバー（不要） |
-| 削除 | `app/routes/setup/mobile-timeline-marker.tsx` | モバイルマーカー（不要） |
-| 維持 | `app/routes/setup/section-icons.tsx` | セクションアイコン（変更なし） |
-| 維持 | `app/data/setup/*.json` | JSON データ（変更なし） |
-| 維持 | `app/data/setup/index.ts` | データインポート（変更なし） |
+| 操作 | ファイル                                      | 責務                                                                                 |
+| ---- | --------------------------------------------- | ------------------------------------------------------------------------------------ |
+| 変更 | `app/routes/setup/constants.tsx`              | TAB_DEFS, ITEM_SECTION_MAP, SECTION_INDEX_MAP 追加、TOTAL_STEPS→TOTAL_ITEMS リネーム |
+| 新規 | `app/routes/setup/item-card.tsx`              | カードグリッドの個別カード                                                           |
+| 新規 | `app/routes/setup/detail-modal.tsx`           | モーダル（content + code + callouts 表示）                                           |
+| 書換 | `app/routes/setup/index.tsx`                  | メインページ（TabBar + ItemGrid + DetailModal 構造に全面書換）                       |
+| 削除 | `app/routes/setup/step-card.tsx`              | アコーディオンカード（不要）                                                         |
+| 削除 | `app/routes/setup/quick-start-panel.tsx`      | クイックスタート（不要）                                                             |
+| 削除 | `app/routes/setup/summary-panel.tsx`          | サマリー（不要）                                                                     |
+| 削除 | `app/routes/setup/timeline-sidebar.tsx`       | タイムラインサイドバー（不要）                                                       |
+| 削除 | `app/routes/setup/mobile-timeline-marker.tsx` | モバイルマーカー（不要）                                                             |
+| 維持 | `app/routes/setup/section-icons.tsx`          | セクションアイコン（変更なし）                                                       |
+| 維持 | `app/data/setup/*.json`                       | JSON データ（変更なし）                                                              |
+| 維持 | `app/data/setup/index.ts`                     | データインポート（変更なし）                                                         |
 
 ---
 
 ### Task 1: constants.tsx を更新
 
 **Files:**
+
 - Modify: `app/routes/setup/constants.tsx`
 
 - [ ] **Step 1: constants.tsx に TAB_DEFS, ITEM_SECTION_MAP, SECTION_INDEX_MAP を追加し、TOTAL_STEPS を TOTAL_ITEMS にリネーム**
@@ -132,6 +133,7 @@ git commit -m "setup: constants に TAB_DEFS, ITEM_SECTION_MAP, SECTION_INDEX_MA
 ### Task 2: item-card.tsx を新規作成
 
 **Files:**
+
 - Create: `app/routes/setup/item-card.tsx`
 - Reference: `app/routes/best-practices/item-card.tsx`（パターン参照）
 
@@ -156,7 +158,11 @@ export function ItemCard({
   onClick: () => void;
 }): React.JSX.Element {
   return (
-    <BaseCard accentColor={accentColor} onClick={onClick} className="gap-2.5 h-[200px] px-5 py-[18px]">
+    <BaseCard
+      accentColor={accentColor}
+      onClick={onClick}
+      className="gap-2.5 h-[200px] px-5 py-[18px]"
+    >
       <div className="flex items-start gap-2">
         <span className="font-semibold text-sm text-slate-100 leading-snug line-clamp-2">
           {item.title}
@@ -207,6 +213,7 @@ git commit -m "setup: ItemCard コンポーネントを新規作成"
 ### Task 3: detail-modal.tsx を新規作成
 
 **Files:**
+
 - Create: `app/routes/setup/detail-modal.tsx`
 - Reference: `app/routes/best-practices/detail-modal.tsx`（パターン参照）
 
@@ -267,7 +274,12 @@ export function DetailModal({
           <p className="text-[14px] text-slate-400 mt-1.5 font-sans leading-[1.6] m-0">
             {item.description}
           </p>
-          <HeaderTags sectionName={sectionName} accentColor={accentColor} tags={item.tags} tagColors={TAG_COLORS} />
+          <HeaderTags
+            sectionName={sectionName}
+            accentColor={accentColor}
+            tags={item.tags}
+            tagColors={TAG_COLORS}
+          />
         </>
       }
     >
@@ -311,12 +323,14 @@ git commit -m "setup: DetailModal コンポーネントを新規作成（code + 
 ### Task 4: index.tsx を全面書き換え
 
 **Files:**
+
 - Rewrite: `app/routes/setup/index.tsx`
 - Reference: `app/routes/best-practices/index.tsx`（パターン参照）
 
 - [ ] **Step 1: index.tsx を書き換え**
 
 best-practices の index.tsx をベースに、setup 用にカスタマイズ。主な違い:
+
 - `usePageState` の `sections` で `s.steps` → `items` にマッピング
 - `searchFields` で `code`, `callouts` も検索対象に含める
 - セクションヘッダーに番号バッジを追加（`SECTION_INDEX_MAP` 使用）
@@ -487,10 +501,7 @@ export default function SetupPage(): React.JSX.Element {
 
         {/* Empty state */}
         {visibleItemCount === 0 && (
-          <EmptyState
-            message="条件に一致するステップはありません"
-            reducedMotion={reducedMotion}
-          />
+          <EmptyState message="条件に一致するステップはありません" reducedMotion={reducedMotion} />
         )}
 
         {/* Footer */}
@@ -531,6 +542,7 @@ git commit -m "setup: カードグリッド+番号バッジ形式に全面書き
 ### Task 5: 不要ファイルの削除
 
 **Files:**
+
 - Delete: `app/routes/setup/step-card.tsx`
 - Delete: `app/routes/setup/quick-start-panel.tsx`
 - Delete: `app/routes/setup/summary-panel.tsx`
@@ -575,6 +587,7 @@ Expected: PASS（ビルド成功）
 Run: `pnpm run dev`
 
 確認項目:
+
 - http://localhost:5173/setup にアクセス
 - 番号付きタブバーが表示される（「すべて」「1. インストール」「2. 初期設定」...）
 - カードグリッドが表示される

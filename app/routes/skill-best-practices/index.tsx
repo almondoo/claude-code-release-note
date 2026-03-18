@@ -27,7 +27,10 @@ import { DetailModal } from "./detail-modal";
 export function meta(): Array<{ title?: string; name?: string; content?: string }> {
   return [
     { title: "Claude Code スキル ベストプラクティス" },
-    { name: "description", content: "効果的な Agent Skills を作成するためのベストプラクティスガイド" },
+    {
+      name: "description",
+      content: "効果的な Agent Skills を作成するためのベストプラクティスガイド",
+    },
   ];
 }
 

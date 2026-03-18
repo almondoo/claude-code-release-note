@@ -118,7 +118,9 @@ export default function CustomizationPage(): React.JSX.Element {
         )}
 
         <div className="flex items-center gap-2.5 mb-4 px-1">
-          <span className="text-[14px] text-slate-500 font-medium">{filteredItems.length} 件表示中</span>
+          <span className="text-[14px] text-slate-500 font-medium">
+            {filteredItems.length} 件表示中
+          </span>
           <div className="flex-1" />
           <button
             onClick={() => {
@@ -163,10 +165,7 @@ export default function CustomizationPage(): React.JSX.Element {
             />
 
             {filteredItems.length === 0 && (
-              <EmptyState
-                message="条件に一致する項目はありません"
-                reducedMotion={reducedMotion}
-              />
+              <EmptyState message="条件に一致する項目はありません" reducedMotion={reducedMotion} />
             )}
           </motion.div>
         </AnimatePresence>

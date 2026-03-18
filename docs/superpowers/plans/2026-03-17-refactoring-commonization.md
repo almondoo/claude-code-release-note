@@ -15,20 +15,22 @@
 ## ファイル構成
 
 ### 新規作成ファイル
-| ファイル | 責務 |
-|---------|------|
-| `app/theme/colors.ts` | 共通カラーパレット定義 |
-| `app/components/base-card.tsx` | カード共通コンテナ |
-| `app/components/modal-section.tsx` | モーダル内セクション wrapper |
-| `app/components/section-heading.tsx` | アイコン+ラベル見出し |
-| `app/components/paragraph-list.tsx` | 段落分割レンダリング |
-| `app/components/header-tags.tsx` | タグバッジレンダリング |
-| `app/hooks/usePageState.ts` | ページ状態管理フック |
-| `app/components/item-grid.tsx` | アニメーション付きカードグリッド |
-| `app/utils/search.ts` | 検索ユーティリティ |
-| `app/utils/render-inline-links.tsx` | インラインリンクレンダリング |
+
+| ファイル                             | 責務                             |
+| ------------------------------------ | -------------------------------- |
+| `app/theme/colors.ts`                | 共通カラーパレット定義           |
+| `app/components/base-card.tsx`       | カード共通コンテナ               |
+| `app/components/modal-section.tsx`   | モーダル内セクション wrapper     |
+| `app/components/section-heading.tsx` | アイコン+ラベル見出し            |
+| `app/components/paragraph-list.tsx`  | 段落分割レンダリング             |
+| `app/components/header-tags.tsx`     | タグバッジレンダリング           |
+| `app/hooks/usePageState.ts`          | ページ状態管理フック             |
+| `app/components/item-grid.tsx`       | アニメーション付きカードグリッド |
+| `app/utils/search.ts`                | 検索ユーティリティ               |
+| `app/utils/render-inline-links.tsx`  | インラインリンクレンダリング     |
 
 ### 変更ファイル（ステップ順）
+
 - **ステップ1**: 9 constants.tsx + icons.tsx
 - **ステップ2**: 10 カードコンポーネント
 - **ステップ3**: 8 detail-modal.tsx
@@ -40,6 +42,7 @@
 ## Task 1: カラーパレット集約
 
 **Files:**
+
 - Create: `app/theme/colors.ts`
 - Modify: `app/routes/best-practices/constants.tsx`
 - Modify: `app/routes/commands/constants.tsx`
@@ -79,6 +82,7 @@ export type PaletteKey = keyof typeof PALETTE;
 各ファイルで `import { PALETTE } from "~/theme/colors";` を追加し、一致するカラー値を `PALETTE.xxx` に置き換える。ページ固有の色（`#FCD34D`, `#93C5FD`, `#86EFAC` 等）はそのまま残す。
 
 **例: `app/routes/plugins/constants.tsx`**
+
 ```ts
 // Before
 export const CATEGORY_COLORS: Record<string, { color: string; bg: string }> = {
@@ -95,7 +99,7 @@ export const CATEGORY_COLORS: Record<string, { color: string; bg: string }> = {
   "code-review-git": PALETTE.green,
   "external-integrations": PALETTE.teal,
   "output-styles": PALETTE.orange,
-  "community": PALETTE.pinkBright,
+  community: PALETTE.pinkBright,
 };
 ```
 
@@ -106,6 +110,7 @@ export const CATEGORY_COLORS: Record<string, { color: string; bg: string }> = {
 constants.tsx の `SECTION_ICONS` / `CATEGORY_ICONS` / `TOPIC_ICONS` 等のオブジェクト内にインラインで定義されている SVG が、複数ファイルでコピペされている。これらを `icons.tsx` に名前付きエクスポート関数として抽出し、元のインライン定義をインポートに置き換える。
 
 抽出対象（SVGの内容で同一性を確認すること）:
+
 - **チーム/人物アイコン**（`M17 21v-2a4 4 0 0 0-4-4H5...` のパス）: hands-on/constants.tsx, plugins/constants.tsx, token-usage/constants.tsx の `TOPIC_ICONS`/`CATEGORY_ICONS`/`SECTION_ICONS` 内に存在 → `TeamIcon` として抽出
 - **チェック+ドキュメントアイコン**（`M9 11l3 3L22 4` のパス）: hands-on/constants.tsx, plugins/constants.tsx 内に存在 → `CheckDocIcon` として抽出
 - **リンクアイコン**: `LinkIcon` は既に `app/components/icons.tsx` に存在するため、customization/constants.tsx と plugins/constants.tsx のインライン SVG を既存の `LinkIcon` のインポートに置き換える
@@ -121,6 +126,7 @@ Expected: 成功（エラーなし）
 ## Task 2: BaseCard コンポーネント
 
 **Files:**
+
 - Create: `app/components/base-card.tsx`
 - Modify: `app/routes/best-practices/item-card.tsx`
 - Modify: `app/routes/commands/command-card.tsx`
@@ -184,6 +190,7 @@ export function BaseCard({
 各カードのコンテナ div + onKeyDown + アクセントボーダーを `<BaseCard>` に置換。カード固有の `className`（高さ、パディング、gap）と `style`（inline padding）は props で渡す。
 
 **例: `app/routes/best-practices/item-card.tsx`**
+
 ```tsx
 // Before
 <div
@@ -207,18 +214,18 @@ export function BaseCard({
 
 **カード別の差異マッピング:**
 
-| カード | className | style | gradientOpacity |
-|--------|-----------|-------|-----------------|
-| best-practices/item-card | `gap-2.5 h-[200px] px-5 py-[18px]` | — | (default) |
-| commands/command-card | `gap-2.5 h-[200px] px-5 py-[18px]` | — | (default) |
-| commands/cli-card | `gap-2.5 h-[200px] px-5 py-[18px]` | — | (default) |
-| commands/shortcut-card | `gap-2.5 h-[200px] px-5 py-[18px]` | — | (default) |
-| customization/customization-card | `gap-2.5 px-5 py-[18px]` | — | (default) |
-| directory/entry-card | `gap-2.5 h-[200px]` | `{ padding: "18px 20px" }` | (default) |
-| env-vars/env-card | `gap-2.5 h-[160px]` | `{ padding: "18px 20px" }` | (default) |
-| plugins/plugin-card | `gap-2.5 h-[200px] px-5 py-[18px]` | — | (default) |
-| release-note/version-card | `gap-[10px] min-h-[200px]` | `{ padding: "18px 20px" }` | `"60"` |
-| token-usage/item-card | `gap-2.5 h-[200px] px-5 py-[18px]` | — | (default) |
+| カード                           | className                          | style                      | gradientOpacity |
+| -------------------------------- | ---------------------------------- | -------------------------- | --------------- |
+| best-practices/item-card         | `gap-2.5 h-[200px] px-5 py-[18px]` | —                          | (default)       |
+| commands/command-card            | `gap-2.5 h-[200px] px-5 py-[18px]` | —                          | (default)       |
+| commands/cli-card                | `gap-2.5 h-[200px] px-5 py-[18px]` | —                          | (default)       |
+| commands/shortcut-card           | `gap-2.5 h-[200px] px-5 py-[18px]` | —                          | (default)       |
+| customization/customization-card | `gap-2.5 px-5 py-[18px]`           | —                          | (default)       |
+| directory/entry-card             | `gap-2.5 h-[200px]`                | `{ padding: "18px 20px" }` | (default)       |
+| env-vars/env-card                | `gap-2.5 h-[160px]`                | `{ padding: "18px 20px" }` | (default)       |
+| plugins/plugin-card              | `gap-2.5 h-[200px] px-5 py-[18px]` | —                          | (default)       |
+| release-note/version-card        | `gap-[10px] min-h-[200px]`         | `{ padding: "18px 20px" }` | `"60"`          |
+| token-usage/item-card            | `gap-2.5 h-[200px] px-5 py-[18px]` | —                          | (default)       |
 
 - [ ] **Step 3: 型チェック**
 
@@ -230,6 +237,7 @@ Expected: 成功
 ## Task 3a: release-note DetailModal を DetailModalShell ベースにリファクタ
 
 **Files:**
+
 - Modify: `app/routes/release-note/detail-modal.tsx`
 
 - [ ] **Step 1: release-note/detail-modal.tsx を DetailModalShell を使用するよう書き換え**
@@ -274,7 +282,11 @@ export function DetailModal({ version, items, onClose, reducedMotion }: Props) {
       {/* Items list - 既存のまま */}
       <div className="flex flex-col gap-[2px]">
         {items.map((item, i) => (
-          <div key={i} className="modal-item rounded-lg transition-colors" style={{ padding: "10px 12px" }}>
+          <div
+            key={i}
+            className="modal-item rounded-lg transition-colors"
+            style={{ padding: "10px 12px" }}
+          >
             {/* ... 既存の item レンダリング ... */}
           </div>
         ))}
@@ -300,6 +312,7 @@ Expected: 成功
 ## Task 3b: モーダル共通サブコンポーネント抽出
 
 **Files:**
+
 - Create: `app/components/modal-section.tsx`
 - Create: `app/components/section-heading.tsx`
 - Create: `app/components/paragraph-list.tsx`
@@ -315,6 +328,7 @@ Expected: 成功
 - [ ] **Step 1: 4つの共通コンポーネントを作成**
 
 **`app/components/modal-section.tsx`:**
+
 ```tsx
 export function ModalSection({
   label,
@@ -340,6 +354,7 @@ export function ModalSection({
 ```
 
 **`app/components/section-heading.tsx`:**
+
 ```tsx
 export function SectionHeading({
   icon,
@@ -363,6 +378,7 @@ export function SectionHeading({
 ```
 
 **`app/components/paragraph-list.tsx`:**
+
 ```tsx
 export function ParagraphList({
   content,
@@ -378,10 +394,7 @@ export function ParagraphList({
       {content.split("\n\n").map((p, i) => (
         <p
           key={i}
-          className={
-            className ??
-            "m-0 text-[14px] leading-[1.8] text-slate-300 font-sans"
-          }
+          className={className ?? "m-0 text-[14px] leading-[1.8] text-slate-300 font-sans"}
         >
           {renderText ? renderText(p) : p}
         </p>
@@ -392,6 +405,7 @@ export function ParagraphList({
 ```
 
 **`app/components/header-tags.tsx`:**
+
 ```tsx
 import type { ColorPair } from "~/theme/colors";
 
@@ -459,14 +473,16 @@ export function HeaderTags({
 
 ```tsx
 // Before
-{item.content.split("\n\n").map((paragraph, i) => (
-  <p key={i} className="m-0 text-[14px] leading-[1.8] text-slate-300 font-sans">
-    {paragraph}
-  </p>
-))}
+{
+  item.content.split("\n\n").map((paragraph, i) => (
+    <p key={i} className="m-0 text-[14px] leading-[1.8] text-slate-300 font-sans">
+      {paragraph}
+    </p>
+  ));
+}
 
 // After
-<ParagraphList content={item.content} />
+<ParagraphList content={item.content} />;
 ```
 
 - [ ] **Step 5: 7つの detail-modal.tsx のタグレンダリングを HeaderTags に置換**
@@ -500,6 +516,7 @@ Expected: 成功
 ## Task 4: usePageState フック + ItemGrid コンポーネント
 
 **Files:**
+
 - Create: `app/hooks/usePageState.ts`
 - Create: `app/components/item-grid.tsx`
 - Modify: `app/routes/best-practices/index.tsx`
@@ -540,9 +557,7 @@ interface UsePageStateReturn<T> {
   closeModal: () => void;
 }
 
-export function usePageState<T>(
-  options: UsePageStateOptions<T>,
-): UsePageStateReturn<T> {
+export function usePageState<T>(options: UsePageStateOptions<T>): UsePageStateReturn<T> {
   const [query, setQuery] = useState("");
   const [activeTab, setActiveTab] = useState<string>("all");
   const [modalItem, setModalItem] = useState<string | null>(null);
@@ -558,9 +573,7 @@ export function usePageState<T>(
   const filteredSections = useMemo(() => {
     const { sections, searchFields } = options;
     const isAllTab = activeTab === "all";
-    const target = isAllTab
-      ? sections
-      : sections.filter((s) => s.id === activeTab);
+    const target = isAllTab ? sections : sections.filter((s) => s.id === activeTab);
     if (!query) return target;
     const lq = query.toLowerCase();
     return target
@@ -573,10 +586,7 @@ export function usePageState<T>(
       .filter((section) => section.items.length > 0);
   }, [activeTab, query, options]);
 
-  const filteredItems = useMemo(
-    () => filteredSections.flatMap((s) => s.items),
-    [filteredSections],
-  );
+  const filteredItems = useMemo(() => filteredSections.flatMap((s) => s.items), [filteredSections]);
 
   return {
     query,
@@ -619,13 +629,7 @@ export function ItemGrid<T>({
           <motion.div
             key={keyExtractor(item)}
             layout={!reducedMotion}
-            initial={
-              reducedMotion
-                ? false
-                : hasMounted
-                  ? { opacity: 0 }
-                  : { opacity: 0, y: 15 }
-            }
+            initial={reducedMotion ? false : hasMounted ? { opacity: 0 } : { opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             exit={
               reducedMotion
@@ -638,10 +642,7 @@ export function ItemGrid<T>({
             }
             transition={{
               duration: 0.2,
-              delay:
-                reducedMotion || hasMounted
-                  ? 0
-                  : Math.min(i * 0.04, 0.4),
+              delay: reducedMotion || hasMounted ? 0 : Math.min(i * 0.04, 0.4),
             }}
           >
             {renderItem(item, i)}
@@ -705,6 +706,7 @@ Expected: 成功
 ## Task 5: ユーティリティ共通化
 
 **Files:**
+
 - Create: `app/utils/search.ts`
 - Create: `app/utils/render-inline-links.tsx`
 - Modify: `app/routes/commands/constants.tsx`
@@ -716,10 +718,7 @@ Expected: 成功
 - [ ] **Step 1: `app/utils/search.ts` を作成**
 
 ```ts
-export function matchesQuery(
-  fields: (string | undefined)[],
-  lowerQuery: string,
-): boolean {
+export function matchesQuery(fields: (string | undefined)[], lowerQuery: string): boolean {
   return fields.some((f) => f?.toLowerCase().includes(lowerQuery));
 }
 ```
@@ -781,7 +780,7 @@ Run: `git diff --stat`
 
 - [ ] **Step 3: コミット**
 
-変更をステージングしてコミット。新規ファイル（theme/colors.ts, components/*, hooks/*, utils/*）と変更ファイルをすべて含める。
+変更をステージングしてコミット。新規ファイル（theme/colors.ts, components/_, hooks/_, utils/\*）と変更ファイルをすべて含める。
 
 ---
 
@@ -800,9 +799,9 @@ Task 6 は全タスク完了後
 
 ### 推奨並列グループ
 
-| フェーズ | 並列実行可能なタスク |
-|---------|-------------------|
-| フェーズ 1 | Task 1, Task 3a, Task 5 |
-| フェーズ 2 | Task 2, Task 3b |
-| フェーズ 3 | Task 4 |
+| フェーズ   | 並列実行可能なタスク         |
+| ---------- | ---------------------------- |
+| フェーズ 1 | Task 1, Task 3a, Task 5      |
+| フェーズ 2 | Task 2, Task 3b              |
+| フェーズ 3 | Task 4                       |
 | フェーズ 4 | Task 6（最終検証・コミット） |

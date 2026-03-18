@@ -23,7 +23,16 @@ export function DetailModal({
       onClose={onClose}
       reducedMotion={reducedMotion}
       icon={
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <svg
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
           <rect x="3" y="3" width="18" height="18" rx="2" />
           <path d="M3 9h18" />
           <path d="M9 21V9" />
@@ -54,7 +63,11 @@ export function DetailModal({
             {envVar.deprecated && (
               <span
                 className="text-[11px] font-semibold whitespace-nowrap rounded"
-                style={{ padding: "2px 8px", background: "rgba(239, 68, 68, 0.15)", color: "#FCA5A5" }}
+                style={{
+                  padding: "2px 8px",
+                  background: "rgba(239, 68, 68, 0.15)",
+                  color: "#FCA5A5",
+                }}
               >
                 非推奨
               </span>
@@ -64,10 +77,7 @@ export function DetailModal({
       }
     >
       <ModalSection label="説明" accentColor={accentColor}>
-        <ParagraphList
-          content={envVar.detail}
-          className="m-0 text-[14px] leading-[1.8] text-slate-400 font-sans"
-        />
+        <ParagraphList content={envVar.detail} />
       </ModalSection>
 
       {envVar.values && (

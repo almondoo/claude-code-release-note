@@ -15,7 +15,12 @@ export function EnvCard({
   onClick: () => void;
 }): React.JSX.Element {
   return (
-    <BaseCard accentColor={accentColor} onClick={onClick} className="gap-2.5 h-[160px]" style={{ padding: "18px 20px" }}>
+    <BaseCard
+      accentColor={accentColor}
+      onClick={onClick}
+      className="gap-2.5 h-[160px]"
+      style={{ padding: "18px 20px" }}
+    >
       <code
         className="font-mono text-[13px] font-bold overflow-hidden text-ellipsis whitespace-nowrap"
         style={{ color: accentColor }}

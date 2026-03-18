@@ -24,9 +24,7 @@ interface UsePageStateReturn<T> {
   closeModal: () => void;
 }
 
-export function usePageState<T>(
-  options: UsePageStateOptions<T>,
-): UsePageStateReturn<T> {
+export function usePageState<T>(options: UsePageStateOptions<T>): UsePageStateReturn<T> {
   const [query, setQuery] = useState("");
   const [activeTab, setActiveTab] = useState<string>("all");
   const [modalItem, setModalItem] = useState<string | null>(null);
@@ -59,10 +57,7 @@ export function usePageState<T>(
       .filter((section) => section.items.length > 0);
   }, [activeTab, query, options]);
 
-  const filteredItems = useMemo(
-    () => filteredSections.flatMap((s) => s.items),
-    [filteredSections],
-  );
+  const filteredItems = useMemo(() => filteredSections.flatMap((s) => s.items), [filteredSections]);
 
   return {
     query,

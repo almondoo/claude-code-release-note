@@ -27,7 +27,11 @@ import { DetailModal } from "./detail-modal";
 export function meta(): Array<{ title?: string; name?: string; content?: string }> {
   return [
     { title: "Claude Code セットアップガイド" },
-    { name: "description", content: "導入から活用、カスタマイズまで。Claude Code を始めるためのステップバイステップガイド。" },
+    {
+      name: "description",
+      content:
+        "導入から活用、カスタマイズまで。Claude Code を始めるためのステップバイステップガイド。",
+    },
   ];
 }
 
@@ -144,16 +148,11 @@ export default function SetupPage(): React.JSX.Element {
                     }}
                   >
                     <div className="flex items-center gap-2">
-                      <span
-                        className="text-sm font-bold"
-                        style={{ color: phaseColor?.color }}
-                      >
+                      <span className="text-sm font-bold" style={{ color: phaseColor?.color }}>
                         Phase {phaseId}: {phaseInfo.label}
                       </span>
                     </div>
-                    <p className="text-xs text-slate-400 mt-1 m-0">
-                      {phaseInfo.description}
-                    </p>
+                    <p className="text-xs text-slate-400 mt-1 m-0">{phaseInfo.description}</p>
                   </div>
                 )}
 
@@ -164,9 +163,7 @@ export default function SetupPage(): React.JSX.Element {
                     bg: "rgba(59,130,246,0.15)",
                   };
                   const sectionData = SECTIONS.find((s) => s.id === section.id);
-                  const badge = sectionData
-                    ? `${sectionData.phase}-${sectionData.order}`
-                    : "";
+                  const badge = sectionData ? `${sectionData.phase}-${sectionData.order}` : "";
                   return (
                     <div key={section.id} className="mb-6">
                       <div className="flex items-center gap-2.5 mb-3 px-1">
@@ -181,22 +178,14 @@ export default function SetupPage(): React.JSX.Element {
                           {badge}
                         </div>
                         {SECTION_ICONS[section.id] && (
-                          <span
-                            className="flex items-center"
-                            style={{ color: colors.color }}
-                          >
+                          <span className="flex items-center" style={{ color: colors.color }}>
                             {SECTION_ICONS[section.id]()}
                           </span>
                         )}
-                        <h2
-                          className="text-base font-bold m-0"
-                          style={{ color: colors.color }}
-                        >
+                        <h2 className="text-base font-bold m-0" style={{ color: colors.color }}>
                           {section.name}
                         </h2>
-                        <span className="text-xs text-slate-500">
-                          {section.items.length} 件
-                        </span>
+                        <span className="text-xs text-slate-500">{section.items.length} 件</span>
                       </div>
                       <ItemGrid
                         items={section.items}
@@ -221,10 +210,7 @@ export default function SetupPage(): React.JSX.Element {
 
         {/* Empty state */}
         {visibleItemCount === 0 && (
-          <EmptyState
-            message="条件に一致するステップはありません"
-            reducedMotion={reducedMotion}
-          />
+          <EmptyState message="条件に一致するステップはありません" reducedMotion={reducedMotion} />
         )}
 
         {/* Footer */}

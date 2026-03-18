@@ -13,10 +13,7 @@ export function CustomizationCard({
 }): React.JSX.Element {
   return (
     <BaseCard accentColor={accentColor} onClick={onClick} className="gap-2.5 px-5 py-[18px]">
-      <h3
-        className="font-sans text-sm font-bold m-0 leading-snug"
-        style={{ color: accentColor }}
-      >
+      <h3 className="font-sans text-sm font-bold m-0 leading-snug" style={{ color: accentColor }}>
         {item.title}
       </h3>
       <p className="m-0 text-xs leading-[1.6] text-slate-400 font-sans flex-1 line-clamp-2">

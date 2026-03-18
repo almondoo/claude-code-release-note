@@ -1,5 +1,6 @@
 import { DetailModalShell } from "~/components/detail-modal";
 import { ParagraphList } from "~/components/paragraph-list";
+import { TipsList } from "~/components/tips-list";
 import { CodeBlockView } from "~/components/code-block-view";
 import { CalloutBox } from "~/components/callout-box";
 
@@ -110,24 +111,7 @@ export function DetailModal({
       )}
 
       {/* Tips list */}
-      {item.tips.length > 0 && (
-        <div className="flex flex-col gap-2.5">
-          <h3 className="text-[12px] font-bold uppercase tracking-wider text-orange-300 font-mono m-0">
-            ポイント
-          </h3>
-          <ul className="m-0 pl-0 list-none flex flex-col gap-1.5">
-            {item.tips.map((tip, i) => (
-              <li
-                key={i}
-                className="flex gap-2 items-start text-[14px] text-slate-300 leading-relaxed"
-              >
-                <span className="text-slate-500 shrink-0 mt-[2px]">•</span>
-                <span>{tip}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
+      {item.tips.length > 0 && <TipsList tips={item.tips} />}
 
       {/* External links */}
       {item.links.length > 0 && (

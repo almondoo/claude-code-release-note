@@ -10,6 +10,7 @@ export function parseGlossaryLinks(
   text: string,
   terms: GlossaryTerm[],
   onTermClick: (termId: string) => void,
+  renderText?: (text: string) => React.ReactNode[],
 ): React.ReactNode {
   const pattern = /\{\{([^}]+)\}\}/g;
   const parts: React.ReactNode[] = [];
@@ -20,7 +21,12 @@ export function parseGlossaryLinks(
   while ((match = pattern.exec(text)) !== null) {
     // Push plain text before this match
     if (match.index > lastIndex) {
-      parts.push(text.slice(lastIndex, match.index));
+      const plain = text.slice(lastIndex, match.index);
+      if (renderText) {
+        parts.push(...renderText(plain));
+      } else {
+        parts.push(plain);
+      }
     }
 
     const termId = match[1];
@@ -57,12 +63,17 @@ export function parseGlossaryLinks(
 
   // Push remaining plain text
   if (lastIndex < text.length) {
-    parts.push(text.slice(lastIndex));
+    const plain = text.slice(lastIndex);
+    if (renderText) {
+      parts.push(...renderText(plain));
+    } else {
+      parts.push(plain);
+    }
   }
 
-  // If no patterns were found, return the original string as-is
+  // If no patterns were found, return the original string (or rendered text) as-is
   if (parts.length === 0) {
-    return text;
+    return renderText ? <>{renderText(text)}</> : text;
   }
 
   return parts.length === 1 ? parts[0] : <>{parts}</>;

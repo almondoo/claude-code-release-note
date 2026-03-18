@@ -22,13 +22,7 @@ export function ItemGrid<T>({
           <motion.div
             key={keyExtractor(item)}
             layout={!reducedMotion}
-            initial={
-              reducedMotion
-                ? false
-                : hasMounted
-                  ? { opacity: 0 }
-                  : { opacity: 0, y: 15 }
-            }
+            initial={reducedMotion ? false : hasMounted ? { opacity: 0 } : { opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             exit={
               reducedMotion
@@ -41,10 +35,7 @@ export function ItemGrid<T>({
             }
             transition={{
               duration: 0.2,
-              delay:
-                reducedMotion || hasMounted
-                  ? 0
-                  : Math.min(i * 0.04, 0.4),
+              delay: reducedMotion || hasMounted ? 0 : Math.min(i * 0.04, 0.4),
             }}
           >
             {renderItem(item, i)}

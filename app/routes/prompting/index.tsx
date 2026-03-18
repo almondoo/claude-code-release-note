@@ -28,7 +28,10 @@ import { DetailModal } from "./detail-modal";
 export function meta(): Array<{ title?: string; name?: string; content?: string }> {
   return [
     { title: "Claude Code プロンプト ベストプラクティス" },
-    { name: "description", content: "Claude の最新モデルにおけるプロンプトエンジニアリングの包括的ガイド" },
+    {
+      name: "description",
+      content: "Claude の最新モデルにおけるプロンプトエンジニアリングの包括的ガイド",
+    },
   ];
 }
 

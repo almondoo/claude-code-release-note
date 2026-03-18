@@ -13,7 +13,10 @@ export interface DetailItem {
 }
 
 export { RELEASES };
-export const VERSION_DETAILS: Record<string, DetailItem[]> = VERSION_DETAILS_DATA as Record<string, DetailItem[]>;
+export const VERSION_DETAILS: Record<string, DetailItem[]> = VERSION_DETAILS_DATA as Record<
+  string,
+  DetailItem[]
+>;
 
 export function getAdjacentVersions(version: string): { prev: string | null; next: string | null } {
   const idx = RELEASES.findIndex((r) => r.v === version);

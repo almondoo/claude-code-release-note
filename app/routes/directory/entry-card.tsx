@@ -70,7 +70,12 @@ export function EntryCard({
   const vcsCfg = VCS_CONFIG[getVcsKey(entry.vcs)];
 
   return (
-    <BaseCard accentColor={accentColor} onClick={onClick} className="gap-2.5 h-[200px]" style={{ padding: "18px 20px" }}>
+    <BaseCard
+      accentColor={accentColor}
+      onClick={onClick}
+      className="gap-2.5 h-[200px]"
+      style={{ padding: "18px 20px" }}
+    >
       <div className="flex items-center gap-2">
         <span className="shrink-0 flex items-center" style={{ color: accentColor }}>
           {entry.type === "directory" ? <FolderIcon /> : <FileIcon />}

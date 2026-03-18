@@ -13,7 +13,11 @@ export function CommandCard({
   onClick: () => void;
 }): React.JSX.Element {
   return (
-    <BaseCard accentColor={accentColor} onClick={onClick} className="gap-2.5 h-[200px] px-5 py-[18px]">
+    <BaseCard
+      accentColor={accentColor}
+      onClick={onClick}
+      className="gap-2.5 h-[200px] px-5 py-[18px]"
+    >
       <div className="flex items-baseline gap-2">
         <code
           className="font-mono text-sm font-bold whitespace-nowrap"

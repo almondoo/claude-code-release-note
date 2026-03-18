@@ -111,7 +111,6 @@ export function ExternalLinkIcon({ width = 14, height = 14 }: IconProps): React.
   );
 }
 
-
 export function TimingIcon({ width = 14, height = 14 }: IconProps): React.JSX.Element {
   return (
     <svg

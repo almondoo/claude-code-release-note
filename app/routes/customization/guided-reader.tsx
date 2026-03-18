@@ -4,7 +4,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { CodeBlockView } from "~/components/code-block-view";
 import { CalloutBox } from "~/components/callout-box";
 import { useModalLock } from "~/hooks/useModalLock";
-import { renderInlineLinks } from "~/utils/render-inline-links";
+import { ParagraphList } from "~/components/paragraph-list";
 
 import type { CustomizationItem } from "./constants";
 import { TAB_ICONS } from "./constants";
@@ -192,9 +192,7 @@ export function GuidedReader({
                 <h2 className="text-[22px] font-bold text-slate-100 leading-snug m-0 mb-2">
                   {item.title}
                 </h2>
-                <p className="text-[14px] text-slate-400 m-0 leading-relaxed">
-                  {item.description}
-                </p>
+                <p className="text-[14px] text-slate-400 m-0 leading-relaxed">{item.description}</p>
               </div>
 
               {/* Content paragraphs */}
@@ -206,11 +204,7 @@ export function GuidedReader({
                   >
                     詳細説明
                   </div>
-                  {item.content.split("\n\n").map((paragraph, i) => (
-                    <p key={i} className="m-0 text-[14px] leading-[1.8] text-slate-400 font-sans">
-                      {renderInlineLinks(paragraph)}
-                    </p>
-                  ))}
+                  <ParagraphList content={item.content} />
                 </div>
               )}
 

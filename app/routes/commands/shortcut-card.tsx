@@ -10,7 +10,11 @@ export function ShortcutCard({
   onClick: () => void;
 }): React.JSX.Element {
   return (
-    <BaseCard accentColor={SHORTCUT_ACCENT} onClick={onClick} className="gap-2.5 h-[200px] px-5 py-[18px]">
+    <BaseCard
+      accentColor={SHORTCUT_ACCENT}
+      onClick={onClick}
+      className="gap-2.5 h-[200px] px-5 py-[18px]"
+    >
       <kbd
         className="font-mono text-[14px] font-semibold inline-block whitespace-nowrap w-fit"
         style={{

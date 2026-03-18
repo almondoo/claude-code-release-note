@@ -1,6 +1,7 @@
 import { motion, useReducedMotion } from "motion/react";
 
-import { CopyButton } from "~/components/copy-button";
+import { LinedCodeBlock } from "~/components/lined-code-block";
+import { renderInlineMarkdown } from "~/components/paragraph-list";
 
 import type { ContentBlock, Step } from "./constants";
 import { HIGHLIGHT_STYLES } from "./constants";
@@ -12,7 +13,7 @@ function renderBlock(block: ContentBlock, key: number): React.ReactNode {
     case "text":
       return (
         <p key={key} className="text-[14px] text-slate-400 leading-[1.8] m-0">
-          {block.content}
+          {renderInlineMarkdown(block.content)}
         </p>
       );
 
@@ -24,7 +25,7 @@ function renderBlock(block: ContentBlock, key: number): React.ReactNode {
           className="text-[14px] text-slate-400 leading-[1.8] m-0 pl-5 flex flex-col gap-2"
         >
           {block.items.map((item, i) => (
-            <li key={i}>{item}</li>
+            <li key={i}>{renderInlineMarkdown(item)}</li>
           ))}
         </Tag>
       );
@@ -50,90 +51,22 @@ function renderBlock(block: ContentBlock, key: number): React.ReactNode {
             </span>
           )}
           <span className="text-[14px] text-slate-300 leading-[1.8] font-sans">
-            {block.content}
+            {renderInlineMarkdown(block.content)}
           </span>
         </div>
       );
     }
 
-    case "codeBlock": {
-      const lines = block.code.split("\n");
-      const lineNumberWidth = lines.length >= 100 ? 40 : 28;
+    case "codeBlock":
       return (
-        <div key={key} className="flex flex-col gap-1.5">
-          <div
-            className="rounded-xl overflow-hidden"
-            style={{
-              background: "#0A0E27",
-              border: "1px solid #1E293B",
-            }}
-          >
-            <div
-              className="flex items-center justify-between px-4 py-2"
-              style={{
-                borderBottom: "1px solid #1E293B",
-                background: "rgba(15,23,42,0.6)",
-              }}
-            >
-              <span className="text-[12px] font-mono font-medium" style={{ color: "#94A3B8" }}>
-                {block.filename ?? block.language}
-              </span>
-              <div className="flex items-center gap-2">
-                {block.filename && (
-                  <span
-                    className="text-[10px] font-mono font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full"
-                    style={{
-                      background: "rgba(100,116,139,0.15)",
-                      color: "#64748B",
-                      border: "1px solid #334155",
-                    }}
-                  >
-                    {block.language}
-                  </span>
-                )}
-                <CopyButton text={block.code} />
-              </div>
-            </div>
-
-            <div className="overflow-x-auto">
-              <pre
-                className="m-0 px-4 py-4"
-                style={{
-                  fontFamily: "'JetBrains Mono', monospace",
-                  fontSize: 13,
-                  lineHeight: 1.7,
-                  background: "transparent",
-                }}
-              >
-                <code>
-                  {lines.map((line, i) => (
-                    <div key={i} className="flex">
-                      <span
-                        className="select-none text-right shrink-0 pr-4"
-                        style={{
-                          color: "#475569",
-                          minWidth: lineNumberWidth,
-                          userSelect: "none",
-                        }}
-                      >
-                        {i + 1}
-                      </span>
-                      <span style={{ color: "#E2E8F0" }}>{line || "\u00A0"}</span>
-                    </div>
-                  ))}
-                </code>
-              </pre>
-            </div>
-          </div>
-
-          {block.caption && (
-            <span className="text-[12px] italic px-1" style={{ color: "#64748B" }}>
-              {block.caption}
-            </span>
-          )}
-        </div>
+        <LinedCodeBlock
+          key={key}
+          language={block.language}
+          code={block.code}
+          filename={block.filename}
+          caption={block.caption}
+        />
       );
-    }
 
     default:
       return null;

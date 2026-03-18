@@ -10,7 +10,11 @@ interface PluginCardProps {
 
 export function PluginCard({ plugin, accentColor, onClick }: PluginCardProps): React.JSX.Element {
   return (
-    <BaseCard accentColor={accentColor} onClick={onClick} className="gap-2.5 h-[200px] px-5 py-[18px]">
+    <BaseCard
+      accentColor={accentColor}
+      onClick={onClick}
+      className="gap-2.5 h-[200px] px-5 py-[18px]"
+    >
       <div className="flex items-baseline gap-2">
         <code
           className="font-mono text-sm font-bold whitespace-nowrap"

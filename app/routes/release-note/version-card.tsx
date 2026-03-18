@@ -46,7 +46,13 @@ export function VersionCard({
   const hasDetails = VERSION_DETAILS_AVAILABLE.has(version);
 
   return (
-    <BaseCard accentColor={accentColor} onClick={onClick} className="gap-[10px] min-h-[200px]" style={{ padding: "18px 20px" }} gradientOpacity="60">
+    <BaseCard
+      accentColor={accentColor}
+      onClick={onClick}
+      className="gap-[10px] min-h-[200px]"
+      style={{ padding: "18px 20px" }}
+      gradientOpacity="60"
+    >
       {/* Version header */}
       <div className="flex items-center justify-between">
         <span className="font-mono text-base font-bold text-slate-100 tracking-tight">

@@ -2,7 +2,7 @@
  * インライン Markdown をレンダリングする。
  * 対応: **太字**, `コード`, [リンク](url)
  */
-function renderInlineMarkdown(text: string): React.ReactNode[] {
+export function renderInlineMarkdown(text: string): React.ReactNode[] {
   const pattern = /(\*\*[^*]+\*\*|`[^`]+`|\[[^\]]+\]\([^)]+\))/g;
   const parts = text.split(pattern);
   return parts.map((part, i) => {
@@ -49,6 +49,18 @@ function isListItem(paragraph: string): boolean {
   return paragraph.startsWith("- ");
 }
 
+const HEADING_STYLES: Record<number, string> = {
+  1: "text-[18px] font-bold text-slate-100 m-0",
+  2: "text-[16px] font-bold text-slate-200 m-0",
+  3: "text-[14px] font-semibold text-slate-300 m-0",
+};
+
+function parseHeading(paragraph: string): { level: number; text: string } | null {
+  const match = paragraph.match(/^(#{1,3})\s+(.+)$/);
+  if (!match) return null;
+  return { level: match[1].length, text: match[2] };
+}
+
 export function ParagraphList({
   content,
   className,
@@ -58,8 +70,7 @@ export function ParagraphList({
   className?: string;
   renderText?: (paragraph: string) => React.ReactNode;
 }): React.JSX.Element {
-  const baseClass =
-    className ?? "m-0 text-[14px] leading-[1.8] text-slate-300 font-sans";
+  const baseClass = className ?? "m-0 text-[14px] leading-[1.8] text-slate-400 font-sans";
 
   return (
     <>
@@ -69,6 +80,15 @@ export function ParagraphList({
             <p key={i} className={baseClass}>
               {renderText(p)}
             </p>
+          );
+        }
+        const heading = parseHeading(p);
+        if (heading) {
+          const Tag = `h${heading.level + 1}` as "h2" | "h3" | "h4";
+          return (
+            <Tag key={i} className={HEADING_STYLES[heading.level]}>
+              {renderInlineMarkdown(heading.text)}
+            </Tag>
           );
         }
         if (isListItem(p)) {

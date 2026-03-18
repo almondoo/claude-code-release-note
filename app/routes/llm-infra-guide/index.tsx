@@ -23,6 +23,7 @@ import {
 import { DataTable } from "./data-table";
 import { DecisionFlow } from "./decision-flow";
 import { GlossaryPanel, GlossaryTrigger } from "./glossary-panel";
+import { renderInlineMarkdown } from "~/components/paragraph-list";
 import { parseGlossaryLinks } from "./glossary-utils";
 import { HighlightBox } from "./highlight-box";
 import { InfraDiagram } from "./infra-diagram";
@@ -67,7 +68,9 @@ function renderBlock(
   onTermClick?: (termId: string) => void,
 ): React.ReactNode {
   const gl = (text: string) =>
-    glossaryTerms && onTermClick ? parseGlossaryLinks(text, glossaryTerms, onTermClick) : text;
+    glossaryTerms && onTermClick
+      ? parseGlossaryLinks(text, glossaryTerms, onTermClick, renderInlineMarkdown)
+      : renderInlineMarkdown(text);
 
   switch (block.type) {
     case "text":

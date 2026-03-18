@@ -1,10 +1,5 @@
 import bpData from "~/data/best-practices/best-practices.json";
-import {
-  AgentGearIcon,
-  LightbulbIcon,
-  MonitorIcon,
-  TrendingUpIcon,
-} from "~/components/icons";
+import { AgentGearIcon, LightbulbIcon, MonitorIcon, TrendingUpIcon } from "~/components/icons";
 import { PALETTE } from "~/theme/colors";
 
 // ---------------------------------------------------------------------------

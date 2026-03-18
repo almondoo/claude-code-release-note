@@ -2,6 +2,7 @@ import { Link } from "react-router";
 
 import { Badge } from "~/components/badge";
 import { DetailModalShell } from "~/components/detail-modal";
+import { renderInlineMarkdown } from "~/components/paragraph-list";
 
 import type { ReleaseItem } from "./constants";
 import { VERSION_DETAILS_AVAILABLE } from "./constants";
@@ -62,7 +63,7 @@ export function DetailModal({
                 ))}
               </div>
               <span className="text-slate-100 text-[14px] leading-relaxed break-words font-sans">
-                {item.t}
+                {renderInlineMarkdown(item.t)}
               </span>
             </div>
           </div>

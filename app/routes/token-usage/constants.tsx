@@ -139,4 +139,3 @@ for (const section of SECTIONS) {
     ITEM_SECTION_MAP.set(item.id, { sectionName: section.name, sectionId: section.id });
   }
 }
-

@@ -1,10 +1,4 @@
-import {
-  CheckDocIcon,
-  CodeIcon,
-  LinkIcon,
-  TeamIcon,
-  WrenchIcon,
-} from "~/components/icons";
+import { CheckDocIcon, CodeIcon, LinkIcon, TeamIcon, WrenchIcon } from "~/components/icons";
 import pluginsData from "~/data/plugins/plugins.json";
 import { PALETTE } from "~/theme/colors";
 

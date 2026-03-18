@@ -27,7 +27,10 @@ import { DetailModal } from "./detail-modal";
 export function meta(): Array<{ title?: string; name?: string; content?: string }> {
   return [
     { title: "Claude Code トークン使用量計測ガイド" },
-    { name: "description", content: "Claude Code のトークン使用量を計測・監視するための方法まとめ" },
+    {
+      name: "description",
+      content: "Claude Code のトークン使用量を計測・監視するための方法まとめ",
+    },
   ];
 }
 
@@ -152,10 +155,7 @@ export default function TokenUsage(): React.JSX.Element {
 
         {/* Empty state */}
         {visibleItemCount === 0 && (
-          <EmptyState
-            message="条件に一致する手法はありません"
-            reducedMotion={reducedMotion}
-          />
+          <EmptyState message="条件に一致する手法はありません" reducedMotion={reducedMotion} />
         )}
 
         {/* Footer */}

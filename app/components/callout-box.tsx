@@ -1,3 +1,5 @@
+import { renderInlineMarkdown } from "~/components/paragraph-list";
+
 export interface Callout {
   type: "info" | "warning" | "tip" | "important";
   text: string;
@@ -34,7 +36,9 @@ export function CalloutBox({ callout }: { callout: Callout }): React.JSX.Element
       >
         {style.label}
       </span>
-      <span className="text-[14px] text-slate-300 leading-relaxed font-sans">{callout.text}</span>
+      <span className="text-[14px] text-slate-300 leading-relaxed font-sans">
+        {renderInlineMarkdown(callout.text)}
+      </span>
     </div>
   );
 }

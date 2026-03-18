@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "motion/react";
 
 import { ChevronDownIcon } from "~/components/icons";
 import { Badge, TAG_COLORS_BY_LABEL, TAG_LABELS } from "~/components/badge";
-import { renderInlineLinks } from "~/utils/render-inline-links";
+import { ParagraphList } from "~/components/paragraph-list";
 
 import type { ReleaseItem, DetailItem } from "./constants";
 
@@ -106,9 +106,10 @@ export function DetailCard({
           >
             <div className="px-[18px] pb-[18px] border-t border-slate-700/25">
               <div className="mt-4 p-4 bg-slate-900 rounded-lg border border-slate-700/40">
-                <p className="text-slate-400 text-[14px] leading-[1.9] m-0 font-sans whitespace-pre-wrap break-words">
-                  {renderInlineLinks(item.detail)}
-                </p>
+                <ParagraphList
+                  content={item.detail}
+                  className="text-slate-400 text-[14px] leading-[1.9] m-0 font-sans break-words"
+                />
               </div>
             </div>
           </motion.div>

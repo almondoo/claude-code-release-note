@@ -11,6 +11,7 @@
 **Spec:** `docs/superpowers/specs/2026-03-18-setup-page-redesign-design.md`
 
 **制約:**
+
 - **Git 操作は全実装完了後に最後にまとめて行う**（途中コミット禁止）
 - **agent-teams スキルを使い teammate を並列スポーンさせること**
 - テストフレームワーク未導入のため TDD は不可。typecheck + build で検証
@@ -20,11 +21,13 @@
 ## ファイル構成
 
 ### 新規作成
+
 - `app/data/setup/setup-intro.json` — Phase 1: はじめに
 - `app/data/setup/setup-authentication.json` — Phase 1: 認証と初回起動
 - `app/data/setup/setup-customization.json` — Phase 3: カスタマイズ概要
 
 ### 更新
+
 - `app/data/setup/setup-installation.json` — Phase 1: インストール
 - `app/data/setup/setup-first-steps.json` — Phase 1: まずは使ってみる
 - `app/data/setup/setup-claude-md.json` — Phase 2: CLAUDE.md
@@ -38,6 +41,7 @@
 - `app/routes/setup/index.tsx` — フェーズ見出し・タブ・ヘッダー
 
 ### 削除
+
 - `app/data/setup/setup-initial-setup.json`
 - `app/data/setup/setup-skills.json`
 - `app/data/setup/setup-mcp.json`
@@ -88,6 +92,7 @@
 **タグは既存の 6 種から選択:** `必須`, `初心者向け`, `中級者向け`, `上級者向け`, `チーム向け`, `CI/CD`
 
 **コンテンツのルール（CLAUDE.md より）:**
+
 - サイトは日本語閲覧用のため、説明文・コードブロックのコメントもすべて日本語
 - コード構文やファイル名・パス名はそのまま英語
 - `content` フィールド内のリストは `\n\n` で区切って 1 項目 1 段落にする
@@ -97,6 +102,7 @@
 ### Task 1: setup-intro.json（新規作成）
 
 **Files:**
+
 - Create: `app/data/setup/setup-intro.json`
 
 - [ ] **Step 1: setup-intro.json を作成**
@@ -130,6 +136,7 @@
 ### Task 2: setup-installation.json（更新）
 
 **Files:**
+
 - Modify: `app/data/setup/setup-installation.json`
 
 - [ ] **Step 1: setup-installation.json を書き換え**
@@ -161,6 +168,7 @@
 ### Task 3: setup-authentication.json（新規作成）
 
 **Files:**
+
 - Create: `app/data/setup/setup-authentication.json`
 
 - [ ] **Step 1: setup-authentication.json を作成**
@@ -192,6 +200,7 @@
 ### Task 4: setup-first-steps.json（更新）
 
 **Files:**
+
 - Modify: `app/data/setup/setup-first-steps.json`
 
 - [ ] **Step 1: setup-first-steps.json を書き換え**
@@ -225,6 +234,7 @@
 ### Task 5: setup-claude-md.json（更新）
 
 **Files:**
+
 - Modify: `app/data/setup/setup-claude-md.json`
 
 - [ ] **Step 1: setup-claude-md.json を書き換え**
@@ -255,6 +265,7 @@
 ### Task 6: setup-ide.json（更新）
 
 **Files:**
+
 - Modify: `app/data/setup/setup-ide.json`
 
 - [ ] **Step 1: setup-ide.json を書き換え**
@@ -288,6 +299,7 @@
 ### Task 7: setup-tips.json（更新）
 
 **Files:**
+
 - Modify: `app/data/setup/setup-tips.json`
 
 - [ ] **Step 1: setup-tips.json を書き換え**
@@ -320,6 +332,7 @@
 ### Task 8: setup-permissions.json（更新）
 
 **Files:**
+
 - Modify: `app/data/setup/setup-permissions.json`
 
 - [ ] **Step 1: setup-permissions.json を書き換え**
@@ -348,6 +361,7 @@
 ### Task 9: setup-customization.json（新規作成）
 
 **Files:**
+
 - Create: `app/data/setup/setup-customization.json`
 
 - [ ] **Step 1: setup-customization.json を作成**
@@ -380,6 +394,7 @@
 ### Task 10: setup-troubleshooting.json（更新）
 
 **Files:**
+
 - Modify: `app/data/setup/setup-troubleshooting.json`
 
 - [ ] **Step 1: setup-troubleshooting.json を書き換え**
@@ -423,6 +438,7 @@
 ### Task 11: index.ts 更新 + 旧ファイル削除
 
 **Files:**
+
 - Modify: `app/data/setup/index.ts`
 - Delete: `app/data/setup/setup-initial-setup.json`
 - Delete: `app/data/setup/setup-skills.json`
@@ -477,6 +493,7 @@ rm app/data/setup/setup-best-practices.json
 ### Task 12: constants.tsx 更新
 
 **Files:**
+
 - Modify: `app/routes/setup/constants.tsx`
 
 - [ ] **Step 1: SetupSection 型に phase と order を追加**
@@ -558,6 +575,7 @@ export const TAB_DEFS: TabItem[] = [
 ### Task 13: section-icons.tsx 更新
 
 **Files:**
+
 - Modify: `app/routes/setup/section-icons.tsx`
 
 - [ ] **Step 1: 旧アイコンを削除し新アイコンを追加**
@@ -605,6 +623,7 @@ customization: () => (
 ### Task 14: index.tsx 更新
 
 **Files:**
+
 - Modify: `app/routes/setup/index.tsx`
 
 - [ ] **Step 1: インポートを更新**
@@ -638,7 +657,11 @@ import {
 export function meta(): Array<{ title?: string; name?: string; content?: string }> {
   return [
     { title: "Claude Code セットアップガイド" },
-    { name: "description", content: "導入から活用、カスタマイズまで。Claude Code を始めるためのステップバイステップガイド。" },
+    {
+      name: "description",
+      content:
+        "導入から活用、カスタマイズまで。Claude Code を始めるためのステップバイステップガイド。",
+    },
   ];
 }
 ```
@@ -718,16 +741,11 @@ const showPhaseHeaders = activeTab === "all" || activeTab.startsWith("phase-");
             }}
           >
             <div className="flex items-center gap-2">
-              <span
-                className="text-sm font-bold"
-                style={{ color: phaseColor?.color }}
-              >
+              <span className="text-sm font-bold" style={{ color: phaseColor?.color }}>
                 Phase {phaseId}: {phaseInfo.label}
               </span>
             </div>
-            <p className="text-xs text-slate-400 mt-1 m-0">
-              {phaseInfo.description}
-            </p>
+            <p className="text-xs text-slate-400 mt-1 m-0">{phaseInfo.description}</p>
           </div>
         )}
 
@@ -738,9 +756,7 @@ const showPhaseHeaders = activeTab === "all" || activeTab.startsWith("phase-");
             bg: "rgba(59,130,246,0.15)",
           };
           const sectionData = SECTIONS.find((s) => s.id === section.id);
-          const badge = sectionData
-            ? `${sectionData.phase}-${sectionData.order}`
-            : "";
+          const badge = sectionData ? `${sectionData.phase}-${sectionData.order}` : "";
           return (
             <div key={section.id} className="mb-6">
               <div className="flex items-center gap-2.5 mb-3 px-1">
@@ -756,22 +772,14 @@ const showPhaseHeaders = activeTab === "all" || activeTab.startsWith("phase-");
                   {badge}
                 </div>
                 {SECTION_ICONS[section.id] && (
-                  <span
-                    className="flex items-center"
-                    style={{ color: colors.color }}
-                  >
+                  <span className="flex items-center" style={{ color: colors.color }}>
                     {SECTION_ICONS[section.id]()}
                   </span>
                 )}
-                <h2
-                  className="text-base font-bold m-0"
-                  style={{ color: colors.color }}
-                >
+                <h2 className="text-base font-bold m-0" style={{ color: colors.color }}>
                   {section.name}
                 </h2>
-                <span className="text-xs text-slate-500">
-                  {section.items.length} 件
-                </span>
+                <span className="text-xs text-slate-500">{section.items.length} 件</span>
               </div>
               <ItemGrid
                 items={section.items}
@@ -818,6 +826,7 @@ Expected: ビルド成功
 Run: `pnpm run dev`
 
 手動で以下を確認:
+
 1. `/setup` ページが正常表示
 2. フェーズ見出し（Phase 1/2/3）が表示される
 3. セクション番号が `1-1`, `1-2` 等の形式で表示される
