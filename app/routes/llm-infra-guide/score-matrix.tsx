@@ -67,7 +67,7 @@ export const ScoreMatrix = ({ axes, products }: ScoreMatrixProps): React.JSX.Ele
   return (
     <div className="flex flex-col gap-3">
       {/* Axis legend */}
-      <div className="flex flex-wrap gap-3 text-[12px] text-slate-400">
+      <div className="flex flex-wrap gap-3 text-[12px] text-slate-300">
         {axes.map((axis) => (
           <span key={axis.key} className="flex items-center gap-1.5">
             <span
@@ -131,7 +131,7 @@ export const ScoreMatrix = ({ axes, products }: ScoreMatrixProps): React.JSX.Ele
                 <div key={axis.key} className="flex items-center gap-2">
                   <span className="text-[11px] text-slate-500 w-3">{axis.key}</span>
                   <ScoreBar score={product.scores[axis.key] ?? 0} color={getAxisColor(axis.key)} />
-                  <span className="text-[12px] text-slate-400 w-3">{product.scores[axis.key]}</span>
+                  <span className="text-[12px] text-slate-300 w-3">{product.scores[axis.key]}</span>
                 </div>
               ))}
             </div>
@@ -169,7 +169,7 @@ export const SecurityCombos = ({ combos }: SecurityCombosProps): React.JSX.Eleme
             {combo.name}
           </span>
           <ScoreBar score={combo.security} color="#EF4444" />
-          <div className="flex gap-3 text-[12px] text-slate-400 ml-auto">
+          <div className="flex gap-3 text-[12px] text-slate-300 ml-auto">
             <span>コスト: {combo.cost}</span>
             <span>運用負荷: {combo.ops}</span>
           </div>

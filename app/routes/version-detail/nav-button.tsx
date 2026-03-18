@@ -14,7 +14,7 @@ export const NavButton = ({
   return (
     <Link
       to={`/version/${to}`}
-      className={`nav-button flex items-center gap-2 py-2.5 px-4 rounded-lg bg-surface border border-slate-700 text-slate-400 no-underline text-[14px] font-sans transition-all ${
+      className={`nav-button flex items-center gap-2 py-2.5 px-4 rounded-lg bg-surface border border-slate-700 text-slate-300 no-underline text-[14px] font-sans transition-all ${
         direction === "next" ? "flex-row-reverse" : ""
       }`}
     >

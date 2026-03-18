@@ -132,7 +132,7 @@ const FullscreenOverlay = ({
         <span className="text-[14px] font-semibold text-slate-200">{title || "構成図"}</span>
         <button
           onClick={onClose}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] text-slate-400 border border-slate-700 cursor-pointer transition-colors"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] text-slate-300 border border-slate-700 cursor-pointer transition-colors"
           style={{ background: closeBg }}
           onMouseEnter={onButtonEnter}
           onMouseLeave={(e) => onButtonLeave(e, closeBg)}
@@ -185,7 +185,7 @@ const ExpandButton = ({
   return (
     <button
       onClick={onClick}
-      className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] text-slate-400 border border-slate-700 cursor-pointer ${className || ""}`}
+      className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] text-slate-300 border border-slate-700 cursor-pointer ${className || ""}`}
       style={{ background: EXPAND_BUTTON_BG }}
       onMouseEnter={onButtonEnter}
       onMouseLeave={(e) => onButtonLeave(e, EXPAND_BUTTON_BG)}

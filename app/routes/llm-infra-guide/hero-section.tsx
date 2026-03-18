@@ -101,7 +101,7 @@ export const HeroSection = ({
         <h1 className="text-[25px] md:text-[29px] font-bold m-0 mb-2.5 text-slate-100 tracking-tight leading-tight">
           {title}
         </h1>
-        <p className="text-sm text-slate-400 m-0 mb-5 max-w-[600px] mx-auto leading-relaxed">
+        <p className="text-sm text-slate-300 m-0 mb-5 max-w-[600px] mx-auto leading-relaxed">
           {date} | {audience} | {premise}
         </p>
 

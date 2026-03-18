@@ -153,7 +153,7 @@ const SetupPage = (): React.JSX.Element => {
                         Phase {phaseId}: {phaseInfo.label}
                       </span>
                     </div>
-                    <p className="text-xs text-slate-400 mt-1 m-0">{phaseInfo.description}</p>
+                    <p className="text-xs text-slate-300 mt-1 m-0">{phaseInfo.description}</p>
                   </div>
                 )}
 

@@ -114,7 +114,7 @@ const StepCard = ({
                 {step.label}
               </span>
               {step.duration && (
-                <span className="bg-[#1E293B] rounded-full px-2 text-[11px] text-slate-400 leading-[20px]">
+                <span className="bg-[#1E293B] rounded-full px-2 text-[11px] text-slate-300 leading-[20px]">
                   {step.duration}
                 </span>
               )}
@@ -150,7 +150,7 @@ const StepCard = ({
           }}
         >
           <div className="border-t border-slate-700 px-4 py-4 flex flex-col gap-4">
-            <p className="text-[13px] text-slate-400 leading-[1.8] m-0">{step.description}</p>
+            <p className="text-[13px] text-slate-300 leading-[1.8] m-0">{step.description}</p>
             {step.blocks?.map((block, i) => renderBlock(block, i, accentColor))}
           </div>
         </div>

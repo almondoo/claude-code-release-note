@@ -37,7 +37,7 @@ export const DetailModal = ({
           <code className="font-mono text-base font-bold break-all" style={{ color: accentColor }}>
             {plugin.displayName}
           </code>
-          <div className="text-[14px] text-slate-400 mt-1.5 font-sans leading-relaxed">
+          <div className="text-[14px] text-slate-300 mt-1.5 font-sans leading-relaxed">
             {plugin.description}
           </div>
           <div className="flex gap-1.5 mt-2 flex-wrap">

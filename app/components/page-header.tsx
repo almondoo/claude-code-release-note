@@ -71,12 +71,12 @@ export const PageHeader = ({
         </div>
         <h1 className="text-[29px] font-bold m-0 mb-2.5 text-slate-100 tracking-tight">{title}</h1>
         {description && (
-          <p className="text-sm text-slate-400 m-0 mb-3.5 max-w-[520px] mx-auto leading-relaxed">
+          <p className="text-sm text-slate-300 m-0 mb-3.5 max-w-[520px] mx-auto leading-relaxed">
             {description}
           </p>
         )}
         {(stats || extraStats) && (
-          <div className="flex justify-center items-baseline gap-6 text-[14px] text-slate-400 flex-wrap">
+          <div className="flex justify-center items-baseline gap-6 text-[14px] text-slate-300 flex-wrap">
             {stats?.map((stat, i) => (
               <span key={i}>
                 <strong className="text-slate-100">{stat.value}</strong> {stat.label}

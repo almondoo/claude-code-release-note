@@ -64,7 +64,7 @@ export const PrecedencePanel = (): React.JSX.Element => {
           })}
         </div>
         <div
-          className="mt-4 rounded-lg text-xs leading-[1.7] text-slate-400 font-sans"
+          className="mt-4 rounded-lg text-xs leading-[1.7] text-slate-300 font-sans"
           style={{
             padding: "12px 14px",
             background: "rgba(15, 23, 42, 0.5)",

@@ -89,7 +89,7 @@ const ReleaseNote = (): React.JSX.Element => {
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
                 className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-[14px] font-semibold cursor-pointer transition-all font-sans whitespace-nowrap shrink-0 ${
-                  active ? "" : "hover:bg-surface-hover hover:text-slate-400"
+                  active ? "" : "hover:bg-surface-hover hover:text-slate-300"
                 }`}
                 style={{
                   border: `1px solid ${active ? tab.color + "60" : "#334155"}`,

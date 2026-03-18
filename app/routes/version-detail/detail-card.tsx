@@ -108,7 +108,7 @@ export const DetailCard = ({
               <div className="mt-4 p-4 bg-slate-900 rounded-lg border border-slate-700/40">
                 <ParagraphList
                   content={item.detail}
-                  className="text-slate-400 text-[14px] leading-[1.9] m-0 font-sans break-words"
+                  className="text-slate-300 text-[14px] leading-[1.9] m-0 font-sans break-words"
                 />
               </div>
             </div>
@@ -127,7 +127,7 @@ export const FallbackCard = ({ item }: { item: ReleaseItem }): React.JSX.Element
           <Badge key={tag} tag={tag} />
         ))}
       </div>
-      <p className="text-slate-400 text-sm leading-[1.7] m-0 font-sans">{item.t}</p>
+      <p className="text-slate-300 text-sm leading-[1.7] m-0 font-sans">{item.t}</p>
     </div>
   );
 };

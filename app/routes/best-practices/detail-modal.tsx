@@ -48,7 +48,7 @@ export const DetailModal = ({
       headerContent={
         <>
           <h2 className="text-base font-bold text-slate-100 m-0 leading-snug">{item.title}</h2>
-          <p className="text-[14px] text-slate-400 mt-1.5 font-sans leading-[1.6] m-0">
+          <p className="text-[14px] text-slate-300 mt-1.5 font-sans leading-[1.6] m-0">
             {item.summary}
           </p>
           <HeaderTags
@@ -88,7 +88,7 @@ export const DetailModal = ({
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="text-sm font-semibold text-slate-100 mb-1">{step.phase}</div>
-                  <div className="text-[13px] text-slate-400 leading-relaxed mb-2">
+                  <div className="text-[13px] text-slate-300 leading-relaxed mb-2">
                     {renderInlineMarkdown(step.description)}
                   </div>
                   <CodeBlockView block={{ lang: "text", label: step.phase, value: step.example }} />
@@ -158,7 +158,7 @@ export const DetailModal = ({
                 <code className="font-mono text-[13px] text-purple-300 shrink-0 bg-purple-500/10 px-2 py-0.5 rounded">
                   {loc.path}
                 </code>
-                <span className="text-[13px] text-slate-400 leading-relaxed">
+                <span className="text-[13px] text-slate-300 leading-relaxed">
                   {renderInlineMarkdown(loc.description)}
                 </span>
               </div>

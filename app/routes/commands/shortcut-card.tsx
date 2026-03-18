@@ -27,7 +27,7 @@ export const ShortcutCard = ({
       >
         {shortcut.key}
       </kbd>
-      <p className="m-0 text-xs leading-[1.6] text-slate-400 font-sans flex-1 line-clamp-2">
+      <p className="m-0 text-xs leading-[1.6] text-slate-300 font-sans flex-1 line-clamp-2">
         {shortcut.description}
       </p>
     </BaseCard>

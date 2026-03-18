@@ -48,7 +48,7 @@ export const DetailModal = ({
           >
             {envVar.name}
           </code>
-          <div className="text-sm text-slate-400 mt-1 font-sans">{envVar.description}</div>
+          <div className="text-sm text-slate-300 mt-1 font-sans">{envVar.description}</div>
           <div className="flex gap-1.5 mt-2 flex-wrap">
             <span
               className="text-[11px] font-semibold whitespace-nowrap rounded"

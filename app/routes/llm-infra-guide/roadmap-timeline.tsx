@@ -71,7 +71,7 @@ const PhaseCard = ({ phase, index, isLast }: PhaseCardProps): React.JSX.Element 
         {expanded && (
           <div className="border-t border-slate-700 px-4 py-3">
             {phase.investment && (
-              <div className="text-[12px] text-slate-400 mb-3">
+              <div className="text-[12px] text-slate-300 mb-3">
                 <span className="text-slate-500">投資: </span>
                 {phase.investment}
               </div>
@@ -121,7 +121,7 @@ export const RoadmapTimeline = ({ phases, staffing }: RoadmapTimelineProps): Rea
 
       {staffing?.length ? (
         <div className="mt-2">
-          <h4 className="text-[13px] font-semibold text-slate-400 mb-2 px-1">必要人材とスキル</h4>
+          <h4 className="text-[13px] font-semibold text-slate-300 mb-2 px-1">必要人材とスキル</h4>
           <div className="flex flex-col gap-1">
             {staffing.map((row, i) => (
               <div
@@ -130,7 +130,7 @@ export const RoadmapTimeline = ({ phases, staffing }: RoadmapTimelineProps): Rea
                 style={{ background: "rgba(30,41,59,0.3)" }}
               >
                 <span className="text-slate-300 font-medium sm:w-[80px] shrink-0">{row.phase}</span>
-                <span className="text-slate-400 sm:w-[240px] shrink-0">{row.skills}</span>
+                <span className="text-slate-300 sm:w-[240px] shrink-0">{row.skills}</span>
                 <span className="text-slate-500">{row.team}</span>
               </div>
             ))}

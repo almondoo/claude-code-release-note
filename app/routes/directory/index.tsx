@@ -157,7 +157,7 @@ const Directory = (): React.JSX.Element => {
                 </div>
                 <ul className="m-0 pl-4 flex flex-col gap-1">
                   {activeSection.bestPractices.map((tip, i) => (
-                    <li key={i} className="text-xs leading-[1.7] text-slate-400 font-sans">
+                    <li key={i} className="text-xs leading-[1.7] text-slate-300 font-sans">
                       {tip}
                     </li>
                   ))}

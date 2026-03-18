@@ -22,7 +22,7 @@ export const CodeBlockView = ({ block }: { block: CodeBlock }): React.JSX.Elemen
         }}
       >
         <div className="flex items-center gap-2 min-w-0">
-          <span className="text-[12px] text-slate-400 font-mono truncate">{block.label}</span>
+          <span className="text-[12px] text-slate-300 font-mono truncate">{block.label}</span>
           {block.recommended && (
             <span
               className="inline-flex items-center gap-1 text-[11px] font-bold rounded px-1.5 py-[1px] shrink-0"

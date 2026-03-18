@@ -184,7 +184,7 @@ export const ParagraphList = ({
   className?: string;
   renderText?: (paragraph: string) => React.ReactNode;
 }): React.JSX.Element => {
-  const baseClass = className ?? "m-0 text-[14px] leading-[1.8] text-slate-400 font-sans";
+  const baseClass = className ?? "m-0 text-[14px] leading-[1.8] text-slate-300 font-sans";
 
   if (renderText) {
     return (
@@ -212,7 +212,7 @@ export const ParagraphList = ({
           );
         }
         if (block.kind === "list") {
-          const textClass = "text-[14px] leading-[1.8] text-slate-400 font-sans";
+          const textClass = "text-[14px] leading-[1.8] text-slate-300 font-sans";
           return (
             <div key={i} className="m-0">
               {renderNestedList(block.items, 0, block.items[0].depth, textClass, `list-${i}`).element}

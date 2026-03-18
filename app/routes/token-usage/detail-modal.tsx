@@ -48,7 +48,7 @@ export const DetailModal = ({
       headerContent={
         <>
           <h2 className="text-base font-bold text-slate-100 m-0 leading-snug">{item.title}</h2>
-          <p className="text-[14px] text-slate-400 mt-1.5 font-sans leading-[1.6] m-0">
+          <p className="text-[14px] text-slate-300 mt-1.5 font-sans leading-[1.6] m-0">
             {item.summary}
           </p>
           <div className="flex gap-1.5 mt-2 flex-wrap items-center">
@@ -116,7 +116,7 @@ export const DetailModal = ({
       {/* External links */}
       {item.links.length > 0 && (
         <div className="flex flex-col gap-2">
-          <h3 className="text-[12px] font-bold uppercase tracking-wider text-slate-400 font-mono m-0">
+          <h3 className="text-[12px] font-bold uppercase tracking-wider text-slate-300 font-mono m-0">
             リンク
           </h3>
           <div className="flex flex-col gap-1.5">

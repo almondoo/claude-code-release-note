@@ -16,7 +16,7 @@ export const CustomizationCard = ({
       <h3 className="font-sans text-sm font-bold m-0 leading-snug" style={{ color: accentColor }}>
         {item.title}
       </h3>
-      <p className="m-0 text-xs leading-[1.6] text-slate-400 font-sans flex-1 line-clamp-2">
+      <p className="m-0 text-xs leading-[1.6] text-slate-300 font-sans flex-1 line-clamp-2">
         {item.description}
       </p>
       {item.tags.length > 0 && (

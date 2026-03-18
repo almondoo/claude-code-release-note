@@ -61,7 +61,7 @@ export const TopicCard = ({ topic, index }: TopicCardProps): React.JSX.Element =
         </h3>
 
         {/* Description */}
-        <p className="text-[13px] text-slate-400 m-0 mb-4 leading-relaxed flex-1">
+        <p className="text-[13px] text-slate-300 m-0 mb-4 leading-relaxed flex-1">
           {topic.description}
         </p>
 

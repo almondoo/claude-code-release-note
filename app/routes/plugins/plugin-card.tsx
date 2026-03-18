@@ -32,7 +32,7 @@ export const PluginCard = ({
           </span>
         )}
       </div>
-      <p className="m-0 text-xs leading-relaxed text-slate-400 font-sans flex-1 line-clamp-2">
+      <p className="m-0 text-xs leading-relaxed text-slate-300 font-sans flex-1 line-clamp-2">
         {plugin.description}
       </p>
       <div className="flex items-center gap-2 mt-auto">

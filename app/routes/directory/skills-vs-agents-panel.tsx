@@ -36,7 +36,7 @@ export const SkillsVsAgentsPanel = (): React.JSX.Element => {
             skills/
           </div>
           <p
-            className="text-xs text-slate-400 leading-[1.6] font-sans"
+            className="text-xs text-slate-300 leading-[1.6] font-sans"
             style={{ margin: "0 0 10px" }}
           >
             {SKILLS_VS_AGENTS.skills.description}
@@ -61,7 +61,7 @@ export const SkillsVsAgentsPanel = (): React.JSX.Element => {
             agents/
           </div>
           <p
-            className="text-xs text-slate-400 leading-[1.6] font-sans"
+            className="text-xs text-slate-300 leading-[1.6] font-sans"
             style={{ margin: "0 0 10px" }}
           >
             {SKILLS_VS_AGENTS.agents.description}

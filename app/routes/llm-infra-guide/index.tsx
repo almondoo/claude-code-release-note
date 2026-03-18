@@ -75,7 +75,7 @@ const renderBlock = (
   switch (block.type) {
     case "text":
       return (
-        <p key={key} className="text-[14px] text-slate-400 leading-[1.8] m-0">
+        <p key={key} className="text-[14px] text-slate-300 leading-[1.8] m-0">
           {gl(block.content)}
         </p>
       );
@@ -97,7 +97,7 @@ const renderBlock = (
       return (
         <ListTag
           key={key}
-          className="text-[14px] text-slate-400 leading-[1.8] m-0 pl-5 flex flex-col gap-2.5"
+          className="text-[14px] text-slate-300 leading-[1.8] m-0 pl-5 flex flex-col gap-2.5"
         >
           {block.items.map((item, i) => (
             <li key={i}>{gl(item)}</li>

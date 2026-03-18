@@ -176,14 +176,14 @@ const PanelContent = ({
                     </div>
 
                     {/* Short description (always visible) */}
-                    <p className="text-[12px] text-slate-400 leading-relaxed m-0 mt-1.5">
+                    <p className="text-[12px] text-slate-300 leading-relaxed m-0 mt-1.5">
                       {term.short}
                     </p>
 
                     {/* Expanded content */}
                     {isExpanded && (
                       <div className="mt-3 pt-3 border-t border-slate-700/50 flex flex-col gap-2.5">
-                        <p className="text-[12px] text-slate-400 leading-[1.7] m-0">
+                        <p className="text-[12px] text-slate-300 leading-[1.7] m-0">
                           {term.description}
                         </p>
 
@@ -276,7 +276,7 @@ export const GlossaryPanel = ({
             <span className="text-[13px] font-semibold text-slate-300">用語集</span>
             <button
               onClick={onClose}
-              className="w-8 h-8 rounded-lg flex items-center justify-center bg-transparent border border-slate-700 text-slate-400 cursor-pointer hover:bg-slate-800 hover:text-slate-300 transition-colors"
+              className="w-8 h-8 rounded-lg flex items-center justify-center bg-transparent border border-slate-700 text-slate-300 cursor-pointer hover:bg-slate-800 hover:text-slate-300 transition-colors"
               aria-label="閉じる"
             >
               <svg

@@ -105,14 +105,14 @@ export const Checklist = ({ categories }: ChecklistProps): React.JSX.Element => 
             }}
           />
         </div>
-        <span className="text-[12px] text-slate-400 shrink-0">
+        <span className="text-[12px] text-slate-300 shrink-0">
           {done}/{total}
         </span>
       </div>
 
       {categories.map((cat) => (
         <div key={cat.name}>
-          <h4 className="text-[13px] font-semibold text-slate-400 mb-1.5 px-1">{cat.name}</h4>
+          <h4 className="text-[13px] font-semibold text-slate-300 mb-1.5 px-1">{cat.name}</h4>
           <div className="flex flex-col gap-0.5">
             {cat.items.map((item) => {
               const key = `${cat.name}:${item}`;

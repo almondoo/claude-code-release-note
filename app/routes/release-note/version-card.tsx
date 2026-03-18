@@ -86,7 +86,7 @@ export const VersionCard = ({
         {items.slice(0, 2).map((item, i) => (
           <span
             key={i}
-            className="text-slate-400 text-xs leading-normal overflow-hidden text-ellipsis whitespace-nowrap font-sans"
+            className="text-slate-300 text-xs leading-normal overflow-hidden text-ellipsis whitespace-nowrap font-sans"
           >
             {item.t}
           </span>

@@ -29,7 +29,7 @@ export const DataTable = ({
 
   return (
     <div className="flex flex-col gap-1.5">
-      {caption && <span className="text-[13px] font-semibold text-slate-400 px-1">{caption}</span>}
+      {caption && <span className="text-[13px] font-semibold text-slate-300 px-1">{caption}</span>}
       <div className="survey-table-wrap rounded-lg border border-slate-700 overflow-hidden">
         <div className="overflow-x-auto scrollbar-none">
           <table className="w-full border-collapse text-[14px] min-w-[500px]">
@@ -52,7 +52,7 @@ export const DataTable = ({
                   {row.map((cell, ci) => (
                     <td
                       key={ci}
-                      className="px-3 py-2 text-slate-400 border-b border-slate-700/50 whitespace-nowrap"
+                      className="px-3 py-2 text-slate-300 border-b border-slate-700/50 whitespace-nowrap"
                       style={
                         ci === 0
                           ? {

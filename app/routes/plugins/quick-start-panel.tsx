@@ -21,7 +21,7 @@ export const QuickStartPanel = (): React.JSX.Element => {
                   {step.cmd}
                 </code>
               </div>
-              <span className="text-[14px] text-slate-400 font-sans leading-relaxed">
+              <span className="text-[14px] text-slate-300 font-sans leading-relaxed">
                 {step.desc}
               </span>
             </div>

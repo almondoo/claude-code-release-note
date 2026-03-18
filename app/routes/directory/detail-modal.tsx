@@ -94,7 +94,7 @@ export const DetailModal = ({
           >
             <ParagraphList
               content={entry.usage}
-              className="m-0 text-xs leading-[1.8] text-slate-400 font-sans"
+              className="m-0 text-xs leading-[1.8] text-slate-300 font-sans"
             />
           </div>
         </ModalSection>
@@ -117,7 +117,7 @@ export const DetailModal = ({
           </div>
           <div className="flex items-center gap-2">
             <span className="text-[12px] text-slate-500 font-mono">ベースパス:</span>
-            <code className="font-mono text-xs text-slate-400">{section.basePath}</code>
+            <code className="font-mono text-xs text-slate-300">{section.basePath}</code>
           </div>
         </div>
       </ModalSection>
@@ -132,7 +132,7 @@ export const DetailModal = ({
               padding: "14px 16px",
             }}
           >
-            <p className="m-0 text-xs leading-[1.7] text-slate-400 font-sans">
+            <p className="m-0 text-xs leading-[1.7] text-slate-300 font-sans">
               {renderInlineMarkdown(entry.bestPractice)}
             </p>
           </div>

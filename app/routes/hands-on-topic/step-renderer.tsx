@@ -12,7 +12,7 @@ const renderBlock = (block: ContentBlock, key: number): React.ReactNode => {
   switch (block.type) {
     case "text":
       return (
-        <p key={key} className="text-[14px] text-slate-400 leading-[1.8] m-0">
+        <p key={key} className="text-[14px] text-slate-300 leading-[1.8] m-0">
           {renderInlineMarkdown(block.content)}
         </p>
       );
@@ -22,7 +22,7 @@ const renderBlock = (block: ContentBlock, key: number): React.ReactNode => {
       return (
         <Tag
           key={key}
-          className="text-[14px] text-slate-400 leading-[1.8] m-0 pl-5 flex flex-col gap-2"
+          className="text-[14px] text-slate-300 leading-[1.8] m-0 pl-5 flex flex-col gap-2"
         >
           {block.items.map((item, i) => (
             <li key={i}>{renderInlineMarkdown(item)}</li>

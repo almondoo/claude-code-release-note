@@ -37,7 +37,7 @@ export const SummaryCard = ({
         </span>
         {headerExtra}
       </div>
-      <p className="m-0 text-xs leading-[1.6] text-slate-400 font-sans flex-1 line-clamp-3">
+      <p className="m-0 text-xs leading-[1.6] text-slate-300 font-sans flex-1 line-clamp-3">
         {description}
       </p>
       <div className="flex items-center gap-1.5 mt-auto flex-wrap">

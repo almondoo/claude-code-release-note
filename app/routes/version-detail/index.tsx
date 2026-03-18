@@ -77,7 +77,7 @@ const VersionDetail = (): React.JSX.Element => {
               v{version}
             </h1>
             <div className="flex gap-3 flex-wrap items-center mb-3">
-              <span className="text-[14px] text-slate-400">
+              <span className="text-[14px] text-slate-300">
                 <strong className="text-slate-100">{release.items.length}</strong> 件の変更
               </span>
               {details && (

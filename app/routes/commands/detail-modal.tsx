@@ -160,7 +160,7 @@ export const DetailModal = ({
       headerContent={
         <>
           {title}
-          <div className="text-[14px] text-slate-400 mt-1.5 font-sans leading-[1.6]">
+          <div className="text-[14px] text-slate-300 mt-1.5 font-sans leading-[1.6]">
             {description}
           </div>
           {extraHeader}

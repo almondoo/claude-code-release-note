@@ -277,7 +277,7 @@ export const ComparisonDiagram = ({
                   <span className="text-[11px] mt-0.5" style={{ color: col.color }}>
                     &bull;
                   </span>
-                  <span className="text-[12px] text-slate-400 leading-snug">{item}</span>
+                  <span className="text-[12px] text-slate-300 leading-snug">{item}</span>
                 </div>
               ))}
             </div>

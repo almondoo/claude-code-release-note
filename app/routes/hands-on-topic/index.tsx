@@ -277,7 +277,7 @@ const HandsOnTopic = (): React.JSX.Element => {
             </svg>
             このハンズオンで学んだこと
           </h2>
-          <ul className="text-[14px] text-slate-400 leading-[1.8] m-0 pl-5 flex flex-col gap-2">
+          <ul className="text-[14px] text-slate-300 leading-[1.8] m-0 pl-5 flex flex-col gap-2">
             {topic.summary.map((item, i) => (
               <li key={i}>{item}</li>
             ))}

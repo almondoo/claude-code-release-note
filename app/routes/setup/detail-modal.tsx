@@ -47,7 +47,7 @@ export const DetailModal = ({
       headerContent={
         <>
           <h2 className="text-base font-bold text-slate-100 m-0 leading-snug">{item.title}</h2>
-          <p className="text-[14px] text-slate-400 mt-1.5 font-sans leading-[1.6] m-0">
+          <p className="text-[14px] text-slate-300 mt-1.5 font-sans leading-[1.6] m-0">
             {item.description}
           </p>
           <HeaderTags

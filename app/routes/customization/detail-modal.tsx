@@ -33,7 +33,7 @@ export const DetailModal = ({
           <div className="font-sans text-base font-bold text-slate-100 leading-snug">
             {item.title}
           </div>
-          <div className="text-[13px] text-slate-400 mt-1 font-sans leading-[1.6]">
+          <div className="text-[13px] text-slate-300 mt-1 font-sans leading-[1.6]">
             {item.description}
           </div>
           {item.tags.length > 0 && (
