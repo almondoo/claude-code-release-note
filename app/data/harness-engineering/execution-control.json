@@ -1,0 +1,201 @@
+[
+  {
+    "id": "hooks",
+    "name": "Hooks",
+    "description": "決定論的な強制実行 — 交渉の余地のないルールをコードで100%確実に適用",
+    "items": [
+      {
+        "id": "hooks-events",
+        "title": "イベント一覧（19+）",
+        "summary": "Hooks は19以上のイベントをサポート。PreToolUse がプライマリセキュリティレイヤーで、ツール実行をブロック・許可・修正できる。Stop は応答完了後に継続を強制できる。",
+        "content": "各イベントは共通フィールド（`session_id`、`transcript_path`、`cwd`、`permission_mode`、`hook_event_name`）を stdin（コマンド）または POST ボディ（HTTP）で受け取る。\n\n**PreToolUse** は `tool_name`、`tool_input`（オブジェクト）、`tool_use_id` を追加。**PostToolUse** は `tool_name`、`tool_input`、`tool_response`（exit_code, output を含むオブジェクト）を追加。**UserPromptSubmit** は `prompt`（文字列）を追加。**Stop/SubagentStop** は `stop_hook_active`（前の Stop フックが既に続行した場合 true）を追加。",
+        "tags": ["実行制御"],
+        "tables": [
+          {
+            "title": "主要イベント一覧",
+            "headers": ["イベント", "発火タイミング", "ブロック可能？", "全ハンドラ対応？"],
+            "rows": [
+              ["Setup", "--init、--init-only、--maintenance 経由", "不可", "Command のみ"],
+              ["SessionStart", "新規セッション、resume、clear、compact", "不可", "Command のみ"],
+              ["SessionEnd", "セッション終了（exit、sigint、error）", "不可", "Command のみ"],
+              ["UserPromptSubmit", "プロンプト送信時、処理前", "可（ブロック）", "全4タイプ"],
+              ["PreToolUse", "ツール実行前 — プライマリセキュリティレイヤー", "可（allow/deny/ask）", "全4タイプ"],
+              ["PostToolUse", "ツール正常完了後", "可（やり直し強制）", "全4タイプ"],
+              ["Stop", "メインエージェント応答完了", "可（継続強制）", "全4タイプ"],
+              ["SubagentStop", "サブエージェント完了", "可（継続強制）", "全4タイプ"],
+              ["TaskCompleted", "タスク完了マーク時", "可（完了ブロック）", "全4タイプ"]
+            ]
+          }
+        ]
+      },
+      {
+        "id": "hooks-matchers",
+        "title": "入力スキーマとマッチャー構文",
+        "summary": "マッチャーは正規表現文字列。ツール名は PascalCase で大文字小文字を区別する。MCP ツールは mcp__servername__toolname の形式。",
+        "content": "マッチャーは**正規表現文字列**で、ツールイベントでは `tool_name`、SessionStart では `source`、Notification では `type` に対してテストされる。\n\nツール名は **PascalCase で大文字小文字を区別する**: `Bash`、`Edit`、`Write`、`Read`、`Glob`、`Grep`、`MultiEdit`、`WebSearch`、`WebFetch`、`NotebookEdit`。MCP ツールは `mcp__servername__toolname` の形式。\n\nマッチャーを省略するか `\"*\"` を使用すると全イベントにマッチする。",
+        "tags": ["実行制御"],
+        "code": "// マッチャーの例\n\"Bash\"           // 完全一致\n\"Edit|Write\"     // いずれかにマッチ\n\"mcp__.*\"        // 全 MCP ツール\n\"Notebook.*\"     // プレフィックスマッチ"
+      },
+      {
+        "id": "hooks-handlers",
+        "title": "4つのハンドラタイプ",
+        "summary": "Command（シェル）、Prompt（単発LLM評価）、Agent（50ターンのサブエージェント）、HTTP（エンドポイントへPOST）の4タイプ。それぞれタイムアウトと用途が異なる。",
+        "content": "**Command** (`type: \"command\"`): JSON を stdin で受け取るシェルコマンド。Exit 0 = 成功（stdout を JSON パース）。Exit 2 = ブロックエラー（stderr を Claude にフィード、stdout 無視）。デフォルトタイムアウト: **600秒**。`\"async\": true` でノンブロッキング実行。\n\n**Prompt** (`type: \"prompt\"`): 単発 LLM 評価。`$ARGUMENTS` プレースホルダーが完全な JSON 入力に置換される。デフォルトは「高速モデル」（Haiku 相当）で `model` フィールドで上書き可能。`{\"ok\": true}` で許可、`{\"ok\": false, \"reason\": \"...\"}` でブロック。デフォルトタイムアウト: **30秒**。\n\n**Agent** (`type: \"agent\"`): 最大**50ターン**のマルチターンサブエージェントで Read、Grep、Glob ツールにアクセス可能。デフォルトタイムアウト: **60秒**。コード検査が必要な検証に最適。\n\n**HTTP** (`type: \"http\"`): イベント JSON をエンドポイントに POST。Command フックと同じレスポンス形式。ヘッダー変数補間には `allowedEnvVars` リストが必要（v2.1.51+）。SessionStart/Setup イベントでは**非対応**。",
+        "tags": ["実行制御"],
+        "tables": [
+          {
+            "title": "ハンドラタイプの比較",
+            "headers": ["タイプ", "実行方法", "タイムアウト", "最適な用途"],
+            "rows": [
+              ["Command", "シェルコマンド（stdin で JSON 受信）", "600秒", "フォーマット、リント、ファイル検証"],
+              ["Prompt", "単発 LLM 評価", "30秒", "セマンティックチェック（コミットメッセージ品質等）"],
+              ["Agent", "50ターンのサブエージェント", "60秒", "コード検査が必要な検証"],
+              ["HTTP", "エンドポイントへ POST", "600秒", "外部サービス連携、監査ログ"]
+            ]
+          }
+        ]
+      },
+      {
+        "id": "hooks-output",
+        "title": "PreToolUse 出力フォーマット",
+        "summary": "トップレベルの decision/reason は非推奨。hookSpecificOutput 内の permissionDecision を使用する。updatedInput でツール入力を透過的に変更可能。",
+        "content": "トップレベルの `decision`/`reason` フィールドは**非推奨**。新しいスキーマを使用すること。\n\n`permissionDecision` の値: `\"allow\"`、`\"deny\"`、`\"ask\"`（ユーザープロンプトを強制）。旧 \"approve\"/\"block\" は \"allow\"/\"deny\" にマッピングされる。\n\n`updatedInput` フィールド（v2.0.10+）でツール入力を実行前に透過的に変更可能。",
+        "tags": ["実行制御"],
+        "code": "{\n  \"hookSpecificOutput\": {\n    \"hookEventName\": \"PreToolUse\",\n    \"permissionDecision\": \"allow\",\n    \"permissionDecisionReason\": \"安全な読み取り操作\",\n    \"updatedInput\": { \"command\": \"modified-command\" },\n    \"additionalContext\": \"Claude への追加コンテキスト\"\n  }\n}"
+      },
+      {
+        "id": "hooks-env",
+        "title": "環境変数と設定優先順位",
+        "summary": "フックで利用可能な環境変数は $CLAUDE_PROJECT_DIR 等。$CLAUDE_TOOL_NAME のバグにより stdin から JSON を読むことを推奨。設定はスタートアップ時にスナップショットされる。",
+        "content": "信頼性の高い環境変数: `$CLAUDE_PROJECT_DIR`、`$CLAUDE_ENV_FILE`（SessionStart/Setup のみ — `export VAR=value` を書き込んで永続化）、`$CLAUDE_SESSION_ID`（v2.1.9+）、`$CLAUDE_CODE_REMOTE`。\n\n`$CLAUDE_TOOL_NAME` と `$CLAUDE_TOOL_PARAMS` にはバグが報告されている（GitHub issues #5489, #9567）。推奨アプローチは環境変数に頼らず **stdin から JSON を読む**こと。\n\n**フックはスタートアップ時にスナップショットされる。** セッション中に設定ファイルを編集しても即座には反映されない。同一イベントにマッチするすべてのフックは**並行実行**される。",
+        "tags": ["実行制御"],
+        "tables": [
+          {
+            "title": "フック設定の優先順位（高い順）",
+            "headers": ["優先度", "ソース"],
+            "rows": [
+              ["1（最高）", "Enterprise 管理（上書き不可。allowManagedHooksOnly で他の全フックをブロック可能）"],
+              ["2", "CLI フラグ（セッション限定）"],
+              ["3", ".claude/settings.local.json（個人・プロジェクト固有）"],
+              ["4", ".claude/settings.json（チーム共有）"],
+              ["5（最低）", "~/.claude/settings.json（ユーザーグローバル）"]
+            ]
+          }
+        ]
+      },
+      {
+        "id": "hooks-gotchas",
+        "title": "Gotchas と実践例",
+        "summary": "Exit 2 は stdout を無視する、シェルプロファイルの干渉、Stop フックの無限ループなど、実装時に注意すべきポイントと実践的な使用例。",
+        "content": "フック実装時に注意すべきポイントと、実際のチーム・プロジェクトでの使用例をまとめる。",
+        "tags": ["実行制御"],
+        "gotchas": [
+          "Exit 2 は stdout を無視する — JSON を返しつつ Exit 2 で終了しようとしないこと",
+          "シェルプロファイルの干渉: ~/.zshrc が起動時に出力すると、フック stdout の前に追加され JSON パースが壊れる。if [[ $- == *i* ]]; then ... fi でガードする",
+          "スクリプトは実行可能にする必要がある（chmod +x）",
+          "continue: false は decision フィールドより優先される",
+          "Stop フック無限ループ: 常に stop_hook_active をチェックし、true なら exit 0 で終了する",
+          "Edit/Write ツールを PreToolUse フックでブロックしないこと — Claude が無限リトライループに入る。代わりに PostToolUse ヒントを使う"
+        ],
+        "realWorld": [
+          "Trail of Bits: rm -rf をブロック（trash を提案）、main/master への直接プッシュをブロック、全 Bash コマンドをタイムスタンプ付きで監査ログ、デスクトップ通知",
+          "Boris Cherny: 編集後のコード自動フォーマット（PostToolUse）、決定論的検証のための Agent Stop フック、/tmp/agent-pre-commit-pass をチェックする git commit ラッパー（PreToolUse）",
+          "GitButler: Edit|Write の PreToolUse/PostToolUse フックでセッションごとのブランチに変更を分離",
+          "共通パターン: ファイル書き込み時の自動フォーマット（prettier/black）、破壊的コマンドのブロック、編集後の型チェック（tsc --noEmit）、機密ファイル保護、PermissionRequest フックによる安全な操作の自動承認"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "permissions",
+    "name": "パーミッションシステム",
+    "description": "権限管理 — 4つのモードと6段階の評価順序でツール実行を制御",
+    "items": [
+      {
+        "id": "permissions-modes",
+        "title": "4つの権限モード",
+        "summary": "Default（都度確認）、AcceptEdits（編集自動承認）、Plan（読み取り専用）、Bypass（全自動承認だが deny ルールとフックは有効）。SDK では dontAsk モードも利用可能。",
+        "content": "4つのモードでツール実行の権限を制御する。Bypass モードでも deny ルールとフックは有効であり、完全にバイパスされるわけではない。SDK 専用の `dontAsk` モードは、権限プロンプトを拒否に変換する。",
+        "tags": ["実行制御"],
+        "tables": [
+          {
+            "title": "権限モード",
+            "headers": ["モード", "値", "動作"],
+            "rows": [
+              ["Default", "default", "各ツールの初回使用時にユーザーに確認"],
+              ["Accept Edits", "acceptEdits", "ファイル編集を自動承認。その他は確認"],
+              ["Plan", "plan", "読み取り専用 — ファイル変更やコマンド実行不可"],
+              ["Bypass", "bypassPermissions", "全ツール使用を自動承認。deny ルールとフックは引き続き有効"],
+              ["Don't Ask（SDK専用）", "dontAsk", "権限プロンプトを拒否に変換"]
+            ]
+          }
+        ]
+      },
+      {
+        "id": "permissions-evaluation",
+        "title": "評価順序",
+        "summary": "6段階の評価: deny → PreToolUse フック → ask → アクティブモード → allow → フォールバック。deny はどの設定レベルでも絶対で上書き不可。",
+        "content": "権限は以下の順序で評価される。**重要**: どの設定レベルでの deny も、他のレベルやフックで上書きすることはできない。deny は絶対的。\n\n1. **deny ルールをチェック** — 全設定スコープからマージ。マッチすると bypassPermissions でも**ブロック**\n\n2. **PreToolUse フックを実行** — allow、deny、ask、またはパススルーが可能\n\n3. **ask ルールをチェック** — マッチするとユーザーに確認\n\n4. **アクティブ権限モードを適用** — bypassPermissions は承認、plan は変更を拒否 等\n\n5. **allow ルールをチェック** — マッチすると承認\n\n6. **フォールバック** — CLI ではユーザーにインタラクティブに確認、SDK dontAsk では拒否",
+        "tags": ["実行制御"]
+      },
+      {
+        "id": "permissions-patterns",
+        "title": "パターン構文",
+        "summary": "Bash(npm run *)、Read(**/.env)、WebFetch(domain:example.com) などの構文でツール使用パターンをマッチ。スペースの位置が重要。",
+        "content": "パーミッションパターンでツール使用を制御する。**`*` の前のスペース**が重要: `Bash(git diff *)` は \"git diff \"（スペース付き）で始まるコマンドのみにマッチし、`git diff-index` のようなコマンドを防ぐ。",
+        "tags": ["実行制御"],
+        "tables": [
+          {
+            "title": "パターン構文の例",
+            "headers": ["パターン", "マッチ対象"],
+            "rows": [
+              ["Bash(npm run *)", "\"npm run\" で始まるコマンド"],
+              ["Bash(git diff:*)", "git diff と任意の引数"],
+              ["Read(./.env)", "特定の .env ファイル"],
+              ["Read(**/.env)", "任意ディレクトリの .env"],
+              ["Write(./production.config.*)", "本番設定ファイル"],
+              ["WebFetch(domain:example.com)", "特定ドメインへのフェッチ"],
+              ["mcp__github__*", "全 GitHub MCP ツール"],
+              ["Agent(my-custom-agent)", "特定のサブエージェント"]
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "mcp",
+    "name": "MCP 統合",
+    "description": "外部ツール連携 — Model Context Protocol でサードパーティツールを統合",
+    "items": [
+      {
+        "id": "mcp-config",
+        "title": ".mcp.json 設定",
+        "summary": "プロジェクトルートの .mcp.json で MCP サーバーを定義。local（~/.claude.json）、project（.mcp.json）、user（~/.claude.json）の3スコープ。",
+        "content": "MCP サーバーは3つのスコープで設定可能: **local**（`~/.claude.json`）、**project**（`.mcp.json`、プロジェクトルート）、**user**（`~/.claude.json`）。\n\n`--mcp-config` で複数の設定を指定可能。`--strict-mcp-config` は他のすべての設定を無視する。",
+        "tags": ["実行制御"],
+        "code": "{\n  \"mcpServers\": {\n    \"server-name\": {\n      \"type\": \"stdio\",\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"@modelcontextprotocol/server-filesystem\", \"/path\"],\n      \"env\": { \"API_KEY\": \"value\" },\n      \"serverInstructions\": \"Tool Search 用の説明\"\n    }\n  }\n}"
+      },
+      {
+        "id": "mcp-tool-search",
+        "title": "Tool Search によるコンテキスト肥大化の解消",
+        "summary": "MCP 定義がコンテキストの10%超を消費すると自動でアクティブ化。85%のトークンオーバーヘッド削減（72K → 8.5K）を実現。Haiku は非対応。",
+        "content": "MCP 定義がコンテキストの**10%超**を消費すると自動でアクティブ化される。軽量なインデックスを構築し、ツールをオンデマンドで読み込む。\n\n結果: **85%のトークンオーバーヘッド削減**（Anthropic のテストで72K → 8.5K）。Tool Search により Opus 4 の精度が49%から74%に向上。\n\n設定: `ENABLE_TOOL_SEARCH=auto`（デフォルト）、`auto:5`（5%閾値）、`true`（常時）、`false`（無効）。**Haiku は Tool Search 非対応**。",
+        "tags": ["実行制御", "コンテキスト"],
+        "tips": [
+          "Tool Search を有効にする（Sonnet/Opus 4+ ではデフォルト有効）",
+          "未使用のサーバーを無効化する",
+          "単純な操作には MCP より CLI ツール（gh, aws）を優先する — 永続的な定義オーバーヘッドがない",
+          "serverInstructions を追加して Tool Search の精度を向上させる"
+        ]
+      },
+      {
+        "id": "mcp-optimization",
+        "title": "MCP の最適化",
+        "summary": "デフォルト最大出力は25,000トークン（10,000で警告）。サーバーは要約を返すよう設定し、2段階の検索→取得パターンを使用する。",
+        "content": "**MAX_MCP_OUTPUT_TOKENS**: デフォルト最大 **25,000トークン**。10,000トークンで警告。`MAX_MCP_OUTPUT_TOKENS=50000` で変更可能。\n\nベストプラクティス: サーバーが要約を返すよう設定し、2段階の「検索→取得」パターンを使用する。1-2サーバーから始めてスケールアップする。\n\n実用的なサーバー数の上限は **5〜8**。あるプロジェクトでは MCP ツールだけで82Kトークン（200K の41%）を消費した事例がある。",
+        "tags": ["実行制御", "コンテキスト"]
+      }
+    ]
+  }
+]

@@ -75,6 +75,10 @@ Claude Code のリリースノートを日本語で閲覧できる Web アプリ
 - `app/routes.ts` にルート追加
 - `app/components/page-header.tsx` の `ALL_PAGES` 配列にナビゲーションリンクを追加
 
+## Git 操作
+
+- コミットは全ての実装が完了してから行う（実装途中でのコミットは禁止）
+
 ## 参考リンク
 
 - Claude Code の公式 Changelog: https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md

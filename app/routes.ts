@@ -16,4 +16,5 @@ export default [
   route("env-vars", "routes/env-vars/index.tsx"),
   route("prompting", "routes/prompting/index.tsx"),
   route("skill-best-practices", "routes/skill-best-practices/index.tsx"),
+  route("harness-engineering", "routes/harness-engineering/index.tsx"),
 ] satisfies RouteConfig;

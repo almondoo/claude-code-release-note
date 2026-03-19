@@ -1,0 +1,145 @@
+[
+  {
+    "id": "subagents",
+    "name": "サブエージェント",
+    "description": "分離コンテキストでの並列作業 — 各サブエージェントが独立したコンテキストウィンドウを持つ",
+    "items": [
+      {
+        "id": "subagents-frontmatter",
+        "title": "Frontmatter フィールド",
+        "summary": ".claude/agents/*.md で定義。name, description, tools, model, permissionMode, isolation, skills, memory など多数のフィールドをサポート。Markdown 本文がシステムプロンプトになる。",
+        "content": "`.claude/agents/*.md` でサブエージェントを定義する。Markdown 本文がエージェントの**システムプロンプト**になり、デフォルトの Claude Code システムプロンプトを置き換える。ただし CLAUDE.md とプロジェクトメモリは引き続き読み込まれる。\n\n`description` に \"PROACTIVELY\" を含めると自動呼び出しがトリガーされる。`skills` フィールドにリストされたスキルは、エージェント起動時に完全な SKILL.md 内容が**即座に注入**される（遅延読み込みではない）。",
+        "tags": ["エージェント"],
+        "tables": [
+          {
+            "title": "サブエージェントの Frontmatter フィールド",
+            "headers": ["フィールド", "型", "説明"],
+            "rows": [
+              ["name", "string", "一意識別子（kebab-case）。ファイル名を上書き"],
+              ["description", "string", "いつ・どう呼び出すか。\"PROACTIVELY\" で自動呼び出し"],
+              ["tools", "string/array", "ツール許可リスト（カンマ区切り）。省略 = 全ツール継承"],
+              ["disallowedTools", "string/array", "許可リスト評価後に拒否するツール"],
+              ["model", "string", "haiku, sonnet, opus, inherit（デフォルト）、または正確なモデルバージョン"],
+              ["permissionMode", "string", "default, acceptEdits, dontAsk, bypassPermissions, plan"],
+              ["isolation", "string", "worktree で Git ワークツリーを分離"],
+              ["background", "boolean", "true で非同期実行"],
+              ["skills", "array", "即座にプリロードするスキル名"],
+              ["memory", "string", "user, project, local — エージェントごとの永続 MEMORY.md"],
+              ["maxTurns", "integer", "停止までの最大エージェントターン数"],
+              ["mcpServers", "array/object", "このサブエージェントで利用可能な MCP サーバー"],
+              ["hooks", "object", "このサブエージェントにスコープされたライフサイクルフック"]
+            ]
+          }
+        ]
+      },
+      {
+        "id": "subagents-scoping",
+        "title": "ツールスコーピングとコンテキスト",
+        "summary": "各サブエージェントは独立した200K/1Mトークンのコンテキストウィンドウを持つ。要約のみが親に返される。最大10の同時サブエージェントが実行可能。",
+        "content": "組み込みツール: **Read, Write, Edit, MultiEdit, Bash, Grep, Glob, Agent**（v2.1.63 で Task から改名。Task はエイリアスとして引き続き動作）、**WebSearch, WebFetch**。\n\n`tools` を省略すると全ツールを継承。明示的にリストすると指定ツールのみ。`mcpServers` フィールドで利用可能な MCP サーバーをスコーピングする。\n\n各サブエージェントは独立した **200K/1M トークンのコンテキストウィンドウ**（構成不可 — 標準 Claude コンテキスト）を取得する。操作は親のコンテキストを汚染しない。**要約のみ**が親に返される。最大**10の同時サブエージェント**が実行可能。\n\nサブエージェントは `Agent(agent_type)` が tools フィールドで許可されていれば、Agent ツールを通じて他のサブエージェントを呼び出せる。ただし深いネストは推奨されない。メインセッションがオーケストレーションすべき。チェーンではなくグラフを設計する。",
+        "tags": ["エージェント"]
+      },
+      {
+        "id": "subagents-builtin",
+        "title": "組み込みサブエージェントと呼び出し方法",
+        "summary": "Explore（読み取り専用・Haiku）、Plan（戦略提案）、General-purpose（探索+変更）の3タイプ。自動委任、明示的リクエスト、CLI、SDK の4つの呼び出し方法。",
+        "content": "Claude Code は3つの組み込みサブエージェントタイプを搭載: **Explore**（読み取り専用、デフォルト Haiku）、**Plan**（コンテキストを収集してから戦略を提示）、**General-purpose**（探索 + 変更）。Claude はタスクの特性に基づいて自動的にルーティングする。\n\n呼び出し方法は4つ:\n\n1. **自動**: Claude が `description` に基づいて自動委任（特に \"PROACTIVELY\" を含む場合）\n\n2. **明示的リクエスト**: 「code-reviewer サブエージェントを使って」\n\n3. **CLI**: `--agent agent-name` でエージェントをプライマリとして起動。`--agents '{...}'` でインラインアドホックエージェント\n\n4. **SDK**: `query()` コールの `agents` パラメータで指定",
+        "tags": ["エージェント"]
+      }
+    ]
+  },
+  {
+    "id": "skills",
+    "name": "Skills",
+    "description": "オンデマンド知識 — プログレッシブ・ディスクロージャーで必要な時だけコンテキストに読み込む",
+    "items": [
+      {
+        "id": "skills-frontmatter",
+        "title": "SKILL.md Frontmatter",
+        "summary": ".claude/skills/<name>/SKILL.md で定義。name, description, argument-hint, disable-model-invocation, user-invocable, allowed-tools, context, agent, hooks など。",
+        "content": "`.claude/skills/<name>/SKILL.md` のディレクトリ構成が必須。フラットファイルでは動作しない。フロントマターのフィールド名はハイフン区切り（アンダースコアではない）。",
+        "tags": ["エージェント"],
+        "tables": [
+          {
+            "title": "SKILL.md Frontmatter フィールド",
+            "headers": ["フィールド", "型", "デフォルト", "説明"],
+            "rows": [
+              ["name", "string", "ディレクトリ名", "スラッシュコマンド名（小文字/数字/ハイフン、最大64文字）"],
+              ["description", "string", "最初の段落", "何をするか、いつ使うか。自動発見に重要"],
+              ["argument-hint", "string", "なし", "補完ヒント（例: [issue-number]）"],
+              ["disable-model-invocation", "boolean", "false", "true でユーザーのみ呼び出し可能（自動アクティベーション防止）"],
+              ["user-invocable", "boolean", "true", "false で / メニューから非表示"],
+              ["allowed-tools", "string", "なし", "アクティブ時に権限プロンプトなしで許可するツール"],
+              ["model", "string", "継承", "モデル上書き"],
+              ["context", "string", "inherit", "inherit（インライン）または fork（分離サブエージェントコンテキスト）"],
+              ["agent", "string", "general-purpose", "context: fork 時のサブエージェントタイプ"],
+              ["hooks", "object", "なし", "スコープされたライフサイクルフック"]
+            ]
+          }
+        ]
+      },
+      {
+        "id": "skills-progressive",
+        "title": "3段階のプログレッシブ・ディスクロージャー",
+        "summary": "起動時はメタデータのみ（~100トークン/スキル）。呼び出し時に SKILL.md 本文を読み込み。必要に応じて補助ファイルにアクセス。コンテキスト予算を最小限に抑える。",
+        "content": "1. **起動時**: フロントマターのメタデータのみ（~100トークン/スキル）が読み込まれる。description のバジェット: コンテキストウィンドウの**2%**（16,000文字のフォールバック）\n\n2. **呼び出し時**: 完全な SKILL.md 本文がコンテキストに読み込まれる\n\n3. **オンデマンド**: 補助ファイル（テンプレート、スクリプト、リファレンス）は指示が参照した時にアクセスされる\n\nこの段階的な読み込みにより、多数のスキルを登録してもコンテキスト予算への影響を最小限に抑えられる。",
+        "tags": ["エージェント", "コンテキスト"]
+      },
+      {
+        "id": "skills-commands",
+        "title": "Commands の統合",
+        "summary": "Commands は公式に Skills に統合された。.claude/commands/ と .claude/skills/ の両方で /command を作成可能。名前が衝突した場合はスキルが優先。",
+        "content": "**Commands は公式に Skills に統合された。** `.claude/commands/deploy.md` と `.claude/skills/deploy/SKILL.md` の両方が `/deploy` を作成する。既存の `.claude/commands/` ファイルは引き続き動作するが、名前が衝突した場合はスキルが優先される。\n\nCommands はスキルと同じフロントマターに加え、以下をサポート:\n\n- `$ARGUMENTS`: コマンド名の後のすべてのテキスト\n\n- 位置変数: `$1`、`$2`\n\n- シェル実行: `!`git status`` で動的コンテキスト注入\n\n- `@path/to/file` でファイル内容のインクルード\n\nサブディレクトリのコマンドは名前空間構文を使用: `.claude/commands/dev/code-review.md` → `/dev:code-review`",
+        "tags": ["エージェント"]
+      },
+      {
+        "id": "skills-builtin",
+        "title": "組み込みスキル（2026年3月時点）",
+        "summary": "/simplify（3つの並列レビューエージェント）、/review（PR番号対応）、/batch（5-30のワークツリーエージェント）、/loop（定期実行）、/debug、/claude-api。",
+        "content": "2026年3月時点で以下の組み込みスキルが利用可能:\n\n- `/simplify`: 3つの並列レビューエージェントを生成してコードを簡素化\n\n- `/review`: PR レビュー（PR 番号対応）\n\n- `/batch`: 5〜30のワークツリーエージェントで大規模な並列変更\n\n- `/loop`: スケジュールされた定期的なプロンプト実行\n\n- `/debug`: セッションのデバッグ・トラブルシューティング\n\n- `/claude-api`: SDK インポート時に自動アクティベート",
+        "tags": ["エージェント"]
+      }
+    ]
+  },
+  {
+    "id": "agent-teams",
+    "name": "Agent Teams",
+    "description": "チームでの自律的協調 — 複数の Claude Code インスタンスが独立コンテキストでピアツーピア通信",
+    "items": [
+      {
+        "id": "agent-teams-arch",
+        "title": "セットアップとアーキテクチャ",
+        "summary": "1つのチームリード + 複数のチームメイト。各メンバーが独立した1Mトークンコンテキストを持つ。共有タスクリストとピアツーピアメールボックスで協調。v2.1.32+、Opus 4.6 が必要。",
+        "content": "環境変数 `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` または settings.json の `{\"env\": {\"CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS\": \"1\"}}` で有効化。Claude Code v2.1.32+ と Opus 4.6 モデルが必要。\n\n1つの**チームリード**（メインセッション）+ 複数の**チームメイト**（独立した Claude Code インスタンス）で構成。各チームメイトは独自の **1M トークンコンテキストウィンドウ**を持つ。チームメイトはプロジェクトコンテキスト（CLAUDE.md、MCP、スキル）を自動ロードするが、リードの会話履歴は**継承しない**。\n\n**協調チャネル**: 共有タスクリスト（`~/.claude/tasks/` のファイル）とピアツーピアメールボックスメッセージング（`~/.claude/teams/{team-name}/inboxes/`）。タスクは状態遷移: 未割当 → 請求 → 完了。依存チェーンは自動的にアンブロックされる。",
+        "tags": ["エージェント"],
+        "code": "# 有効化\nexport CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1\n\n# UI 操作\n# Shift+Up/Down: チームメイトを循環\n# Enter: チームメイトのセッションを表示\n# Escape: チームメイトの現在のターンを中断\n# Ctrl+T: タスクリスト表示を切り替え"
+      },
+      {
+        "id": "agent-teams-vs-subagents",
+        "title": "Agent Teams vs サブエージェントの使い分け",
+        "summary": "サブエージェントは軽量な火忘れタスク向き。Agent Teams は3つ以上の独立モジュールがピアツーピア通信を必要とする場合に。実用上限は4-5メンバー。",
+        "content": "Agent Teams とサブエージェントは異なるユースケースに最適化されている。Agent Teams はサブエージェントの3〜4倍のトークンコストがかかる。\n\n実用的な最大メンバー数は**4〜5**。それ以上では協調オーバーヘッドが速度向上を食い潰す。",
+        "tags": ["エージェント"],
+        "tables": [
+          {
+            "title": "Agent Teams vs サブエージェントの比較",
+            "headers": ["機能", "サブエージェント", "Agent Teams"],
+            "rows": [
+              ["通信", "親にのみ報告", "ピアツーピアメッセージング"],
+              ["コンテキスト", "要約が親に返る", "完全に独立した1Mコンテキスト"],
+              ["協調", "火忘れ", "タスクリストで自律的"],
+              ["コスト", "低い", "メンバーあたり3〜4倍のトークン"],
+              ["適用場面", "クイックで焦点を絞ったタスク", "3つ以上の独立モジュールが協調を必要とする場合"]
+            ]
+          }
+        ],
+        "gotchas": [
+          "チームメイトとのセッション再開は不可",
+          "ネストされたチームは不可。セッションあたり1チーム",
+          "組み込みファイルロックなし（最後の書き込みが勝つ）",
+          "分割ペインは VS Code ターミナル、Windows Terminal、Ghostty では動作しない"
+        ]
+      }
+    ]
+  }
+]
