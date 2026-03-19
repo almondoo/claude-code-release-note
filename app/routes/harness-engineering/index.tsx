@@ -29,7 +29,7 @@ import { DetailModal } from "./detail-modal";
 
 export const meta = (): Array<{ title?: string; name?: string; content?: string }> => {
   return [
-    { title: "ハーネスエンジニアリング — Claude Code" },
+    { title: "ハーネス＆コンテキストエンジニアリング — Claude Code" },
     {
       name: "description",
       content: "Claude Code のハーネスとコンテキストを最適化するための包括的リファレンス",
@@ -86,8 +86,8 @@ const HarnessEngineering = (): React.JSX.Element => {
       <div className="max-w-[1400px] mx-auto px-4 py-8">
         {/* Header */}
         <PageHeader
-          title="ハーネスエンジニアリング"
-          description="CLAUDE.md・Hooks・サブエージェント・Skills・コンテキスト管理 — Claude Code のハーネスを最適化するための包括的リファレンス。"
+          title="ハーネス＆コンテキストエンジニアリング"
+          description="CLAUDE.md・Hooks・サブエージェント・Skills・コンテキストウィンドウ管理 — Claude Code のハーネス設定とコンテキスト最適化の包括的リファレンス。"
           stats={[
             { value: SECTIONS.length, label: "セクション" },
             { value: TOTAL_ITEMS, label: "トピック" },

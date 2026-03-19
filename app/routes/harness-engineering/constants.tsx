@@ -61,7 +61,7 @@ export const TOTAL_ITEMS = SECTIONS.reduce((sum, s) => sum + s.items.length, 0);
 // ---------------------------------------------------------------------------
 
 export const TAB_SECTION_MAP: Record<string, string[]> = {
-  "config-files": ["claude-md", "rules", "memory", "environment"],
+  "config-files": ["overview", "claude-md", "rules", "memory", "environment"],
   "execution-control": ["hooks", "permissions", "mcp"],
   agents: ["subagents", "skills", "agent-teams"],
   context: ["context-window", "ci-cd", "git-worktree"],
@@ -84,6 +84,7 @@ export const TAB_DEFS: TabDef[] = [
 // ---------------------------------------------------------------------------
 
 export const SECTION_COLORS: Record<string, { color: string; bg: string }> = {
+  overview: PALETTE.cyan,
   "claude-md": PALETTE.orange,
   rules: PALETTE.yellow,
   memory: PALETTE.pink,
@@ -102,6 +103,13 @@ export const SECTION_COLORS: Record<string, { color: string; bg: string }> = {
 };
 
 export const SECTION_ICONS: Record<string, () => React.JSX.Element> = {
+  overview: () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="10" />
+      <line x1="12" y1="16" x2="12" y2="12" />
+      <line x1="12" y1="8" x2="12.01" y2="8" />
+    </svg>
+  ),
   "claude-md": () => (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
