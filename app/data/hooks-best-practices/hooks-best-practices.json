@@ -1,0 +1,489 @@
+{
+  "sections": [
+    {
+      "id": "overview",
+      "name": "概要",
+      "description": "Hooks の基本概念とハンドラタイプ",
+      "items": [
+        {
+          "id": "what-are-hooks",
+          "title": "Hooks とは何か",
+          "summary": "Claude Code のライフサイクルの特定のタイミングで自動実行される、ユーザー定義のシェルコマンド・HTTPエンドポイント・LLMプロンプト・エージェント。",
+          "content": "Hooks は、Claude Code のライフサイクルの特定のタイミングで自動実行される、ユーザー定義のアクションです。LLM に判断を委ねるのではなく、**決定論的（deterministic）に**特定のアクションが必ず実行されることを保証します。\n\nCLAUDE.md の指示は勧告的（advisory）ですが、Hooks は決定的（deterministic）です。「毎回必ず実行する」アクションには Hooks を使いましょう。",
+          "tags": ["重要"],
+          "tips": [
+            "ファイル編集後の自動フォーマット",
+            "危険なコマンドの実行前ブロック",
+            "Claude が入力を待っているときの通知",
+            "セッション開始時のコンテキスト注入",
+            "設定変更の監査ログ記録",
+            "特定の権限プロンプトの自動承認"
+          ]
+        },
+        {
+          "id": "handler-types",
+          "title": "4つのハンドラタイプ",
+          "summary": "command, http, prompt, agent の4つのタイプから用途に応じて選択する。",
+          "content": "Hooks には4つのハンドラタイプがあり、それぞれ異なるユースケースに適しています。決定論的なルール（ファイルパターンのブロックなど）には `command` を使い、判断が必要な場面では `prompt` や `agent` を使い分けましょう。",
+          "tags": ["設定"],
+          "steps": [
+            {
+              "phase": "command",
+              "description": "シェルコマンドを実行。stdin で JSON を受信し、exit code / stdout / stderr で結果を返す。デフォルトタイムアウト: 600秒",
+              "example": "ファイル操作、フォーマット、バリデーション"
+            },
+            {
+              "phase": "http",
+              "description": "HTTP エンドポイントに JSON を POST する。デフォルトタイムアウト: 30秒",
+              "example": "外部サービス連携、チーム共有の監査サービス"
+            },
+            {
+              "phase": "prompt",
+              "description": "Claude モデルへの単一ターンの評価を送信（デフォルト: Haiku）。デフォルトタイムアウト: 30秒",
+              "example": "判断が必要な条件評価"
+            },
+            {
+              "phase": "agent",
+              "description": "ツールアクセス付きサブエージェントを起動する。デフォルトタイムアウト: 60秒",
+              "example": "ファイル検査やテスト実行を伴う検証"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "events",
+      "name": "イベント一覧",
+      "description": "ブロッキング可能なイベントとノンブロッキングイベント",
+      "items": [
+        {
+          "id": "blocking-events",
+          "title": "ブロッキング可能なイベント",
+          "summary": "アクションを阻止できるイベント。危険コマンドのブロック、権限の自動承認、タスク完了の検証に使用。",
+          "content": "ブロッキング可能なイベントでは、hook が exit code 2 を返すことでアクションを阻止できます。セキュリティやバリデーションに不可欠なイベントです。",
+          "tags": ["重要"],
+          "tips": [
+            "`PreToolUse` — ツール実行前に発火。危険コマンドのブロック、入力の書き換えに使用",
+            "`PermissionRequest` — 権限ダイアログ表示時に発火。特定操作の自動承認/拒否に使用",
+            "`UserPromptSubmit` — ユーザーがプロンプトを送信した時に発火。プロンプトのフィルタリングに使用",
+            "`Stop` — Claude が応答を完了した時に発火。タスク完了の検証に使用",
+            "`SubagentStop` — サブエージェント完了時に発火。サブエージェント出力の検証に使用",
+            "`TaskCompleted` — タスクが完了としてマークされる時に発火。完了条件の検証に使用",
+            "`ConfigChange` — 設定ファイル変更時に発火。不正変更のブロックに使用",
+            "`WorktreeCreate` — Worktree 作成時に発火。カスタム worktree ロジックに使用",
+            "`TeammateIdle` — チームメイトがアイドル状態になる時に発火。作業継続の判断に使用",
+            "`Elicitation` / `ElicitationResult` — MCP サーバーがユーザー入力を要求した時に発火"
+          ]
+        },
+        {
+          "id": "non-blocking-events",
+          "title": "ノンブロッキングイベント",
+          "summary": "阻止不可のイベント。コンテキスト注入、ログ記録、通知、クリーンアップに使用。",
+          "content": "ノンブロッキングイベントはアクションを阻止できませんが、情報提供やサイドエフェクト（ログ記録、通知、フォーマット等）に最適です。",
+          "tags": ["設定"],
+          "tips": [
+            "`SessionStart` — セッション開始/再開時に発火。コンテキスト注入、環境変数の設定に使用",
+            "`PostToolUse` — ツール成功後に発火。コードフォーマット、ログ記録に使用",
+            "`PostToolUseFailure` — ツール失敗後に発火。エラー分析、通知に使用",
+            "`Notification` — 通知送信時に発火。デスクトップ通知に使用",
+            "`SubagentStart` — サブエージェント起動時に発火。コンテキスト注入に使用",
+            "`SessionEnd` — セッション終了時に発火。クリーンアップ処理に使用",
+            "`StopFailure` — APIエラーでターン終了時に発火。エラーアラートに使用",
+            "`PreCompact` / `PostCompact` — コンテキスト圧縮の前/後に発火。コンテキスト再注入に使用",
+            "`InstructionsLoaded` — CLAUDE.md 等の読み込み時に発火。監査ログに使用",
+            "`WorktreeRemove` — Worktree 削除時に発火。クリーンアップに使用"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "configuration",
+      "name": "設定と構造",
+      "description": "設定ファイルの配置場所と基本構造",
+      "items": [
+        {
+          "id": "config-locations",
+          "title": "設定ファイルの配置場所と優先順位",
+          "summary": "6つの設定ソースが加算的に評価される。セキュリティはグローバル、プロジェクト固有はローカルに配置。",
+          "content": "Hooks は**加算的（additive）**です。全ソースの hooks が実行されます。優先順位は、設定値の競合時にどちらが勝つかを決定するものです。\n\nセキュリティ関連の hooks はグローバル設定 `~/.claude/settings.json` に、プロジェクト固有のフォーマッターは `.claude/settings.json` に配置してチームで共有、個人的な開発環境設定は `.claude/settings.local.json` に配置しましょう。",
+          "tags": ["設定"],
+          "locations": [
+            { "path": "マネージドポリシー設定", "description": "優先度1（最高）。組織全体に適用。管理者が制御" },
+            { "path": ".claude/settings.local.json", "description": "優先度2。プロジェクト単位。ローカルのみ（gitignore推奨）" },
+            { "path": ".claude/settings.json", "description": "優先度3。プロジェクト単位。Git コミット可能、チーム共有向け" },
+            { "path": "~/.claude/settings.json", "description": "優先度4。全プロジェクト共通。セキュリティ系 hooks の配置先" },
+            { "path": "プラグイン hooks/hooks.json", "description": "優先度5。プラグイン有効時に適用" },
+            { "path": "スキル/エージェント frontmatter", "description": "優先度6。スキル/エージェント実行中のみ有効" }
+          ]
+        },
+        {
+          "id": "config-structure",
+          "title": "設定の基本構造",
+          "summary": "イベント名・Matcher・ハンドラの3層構造。Exit Code でブロッキングを制御する。",
+          "content": "Hooks の設定は、イベント名をキーとし、Matcher パターンとハンドラの配列で構成されます。Matcher は省略・空文字・`\"*\"` で全マッチ、正規表現（`\"Edit|Write\"` 等）も使用可能です（**大文字小文字を区別**）。",
+          "tags": ["設定"],
+          "tips": [
+            "Exit Code `0` — 成功。アクション続行。stdout の JSON が解析される",
+            "Exit Code `2` — ブロッキングエラー。アクションをブロック。stderr が Claude へのフィードバックになる",
+            "Exit Code その他 — ノンブロッキングエラー。続行。stderr は verbose モードで表示"
+          ],
+          "code": "{\n  \"hooks\": {\n    \"イベント名\": [\n      {\n        \"matcher\": \"正規表現パターン（省略可）\",\n        \"hooks\": [\n          {\n            \"type\": \"command\",\n            \"command\": \"実行するコマンド\",\n            \"timeout\": 600,\n            \"statusMessage\": \"検証中...\",\n            \"async\": false\n          }\n        ]\n      }\n    ]\n  }\n}"
+        }
+      ]
+    },
+    {
+      "id": "best-practices",
+      "name": "ベストプラクティス",
+      "description": "Hooks を効果的に使うための10のプラクティス",
+      "items": [
+        {
+          "id": "security-first",
+          "title": "セキュリティファースト",
+          "summary": "最初に危険コマンドブロッカーをグローバル設定に追加。2分で全プロジェクトを保護できる。",
+          "content": "最初に危険コマンドブロッカーをグローバル設定に追加しましょう。`~/.claude/settings.json` に `PreToolUse` の hook を追加し、`Bash` ツールの実行前に危険なパターンをチェックするシェルスクリプトを呼び出します。",
+          "tags": ["セキュリティ", "重要"],
+          "codeBlocks": [
+            {
+              "lang": "json",
+              "label": "~/.claude/settings.json",
+              "value": "{\n  \"hooks\": {\n    \"PreToolUse\": [\n      {\n        \"matcher\": \"Bash\",\n        \"hooks\": [\n          {\n            \"type\": \"command\",\n            \"command\": \"\\\"$HOME\\\"/.claude/hooks/block-dangerous-commands.sh\"\n          }\n        ]\n      }\n    ]\n  }\n}"
+            },
+            {
+              "lang": "bash",
+              "label": "block-dangerous-commands.sh",
+              "value": "#!/bin/bash\nINPUT=$(cat)\nCOMMAND=$(echo \"$INPUT\" | jq -r '.tool_input.command')\n\nDANGEROUS_PATTERNS=(\n  \"rm -rf /\"\n  \"rm -rf ~\"\n  \"drop table\"\n  \"drop database\"\n  \":(){ :|:& };:\"\n  \"> /dev/sda\"\n  \"mkfs\"\n  \"dd if=/dev/zero\"\n  \"chmod -R 777 /\"\n)\n\nfor pattern in \"${DANGEROUS_PATTERNS[@]}\"; do\n  if echo \"$COMMAND\" | grep -qi \"$pattern\"; then\n    echo \"BLOCKED: 危険なコマンドパターン '$pattern' を検出しました\" >&2\n    exit 2\n  fi\ndone\n\nexit 0"
+            }
+          ]
+        },
+        {
+          "id": "separate-scripts",
+          "title": "スクリプトファイルに分離する",
+          "summary": "複雑なロジックはインラインコマンドではなく、別ファイルに分離して保守性を高める。",
+          "content": "複雑なロジックはインラインコマンドではなく、別ファイルに分離しましょう。インラインコマンドは読みにくく、デバッグも困難です。",
+          "tags": ["設定"],
+          "examples": [
+            {
+              "strategy": "スクリプトファイルに分離",
+              "before": "{\n  \"type\": \"command\",\n  \"command\": \"INPUT=$(cat); FILE=$(echo $INPUT | jq -r '.tool_input.file_path'); if [[ $FILE == *.env* ]]; then echo 'blocked' >&2; exit 2; fi\"\n}",
+              "after": "{\n  \"type\": \"command\",\n  \"command\": \"\\\"$CLAUDE_PROJECT_DIR\\\"/.claude/hooks/protect-files.sh\"\n}"
+            }
+          ]
+        },
+        {
+          "id": "jq-parse",
+          "title": "jq で JSON を確実にパースする",
+          "summary": "hook は stdin で JSON を受け取る。jq を使って安全にパースし、// empty でnull対策する。",
+          "content": "hook は stdin で JSON を受け取ります。`jq` を使って安全にパースしましょう。`// empty` を使うことで、フィールドが存在しない場合に `null` 文字列ではなく空文字列を返します。",
+          "tags": ["設定"],
+          "code": "#!/bin/bash\nINPUT=$(cat)\nFILE_PATH=$(echo \"$INPUT\" | jq -r '.tool_input.file_path // empty')\nTOOL_NAME=$(echo \"$INPUT\" | jq -r '.tool_name // empty')"
+        },
+        {
+          "id": "async-processing",
+          "title": "非同期処理を活用する",
+          "summary": "長時間実行されるチェックは async: true で非ブロッキング実行にする。",
+          "content": "テストスイートやセキュリティスキャンなど、長時間実行されるチェックは `async: true` で非ブロッキング実行にしましょう。Claude の応答をブロックせずにバックグラウンドで処理を実行できます。",
+          "tags": ["自動化"],
+          "code": "{\n  \"hooks\": {\n    \"PostToolUse\": [\n      {\n        \"matcher\": \"Edit|Write\",\n        \"hooks\": [\n          {\n            \"type\": \"command\",\n            \"command\": \"\\\"$CLAUDE_PROJECT_DIR\\\"/.claude/hooks/run-full-tests.sh\",\n            \"async\": true,\n            \"statusMessage\": \"バックグラウンドでテスト実行中...\"\n          }\n        ]\n      }\n    ]\n  }\n}"
+        },
+        {
+          "id": "stop-hook-loop",
+          "title": "Stop フックの無限ループを防ぐ",
+          "summary": "Stop フックでは stop_hook_active フィールドをチェックして、無限ループを回避する。",
+          "content": "`Stop` フックが Claude にフィードバックを返すと、Claude はそのフィードバックに応答し、再度 `Stop` イベントが発火します。これにより無限ループが発生する可能性があります。必ず `stop_hook_active` フィールドをチェックしてください。",
+          "tags": ["重要"],
+          "code": "#!/bin/bash\nINPUT=$(cat)\n\n# 重要: Stop フックが既にアクティブなら即座に終了\nif [ \"$(echo \"$INPUT\" | jq -r '.stop_hook_active')\" = \"true\" ]; then\n  exit 0\nfi\n\n# ここに検証ロジックを記述\n# 例: テストが通っているか確認"
+        },
+        {
+          "id": "matcher-scope",
+          "title": "Matcher を最小限に絞る",
+          "summary": "Matcher を広げすぎると意図しない副作用が発生する。特定のツールだけに限定する。",
+          "content": "Matcher を広げすぎると意図しない副作用が発生します。特に `PermissionRequest` の自動承認は、特定のツールに限定することが重要です。",
+          "tags": ["セキュリティ"],
+          "examples": [
+            {
+              "strategy": "Matcher を最小限に",
+              "detail": "全ての権限プロンプトを自動承認するのは危険",
+              "before": "{\n  \"matcher\": \".*\",\n  \"hooks\": [{ \"type\": \"command\", \"command\": \"echo '{\\\"hookSpecificOutput\\\":{...\\\"allow\\\"...}}'\" }]\n}",
+              "after": "{\n  \"matcher\": \"ExitPlanMode\",\n  \"hooks\": [{ \"type\": \"command\", \"command\": \"echo '{\\\"hookSpecificOutput\\\":{...\\\"allow\\\"...}}'\" }]\n}"
+            }
+          ]
+        },
+        {
+          "id": "shell-profile",
+          "title": "シェルプロファイルの干渉を防ぐ",
+          "summary": "~/.zshrc や ~/.bashrc の echo 文が hook の JSON 出力を壊す。インタラクティブシェルに限定する。",
+          "content": "`~/.zshrc` や `~/.bashrc` の `echo` 文が hook の JSON 出力を壊すことがあります。プロファイルの出力はインタラクティブシェルに限定しましょう。",
+          "tags": ["デバッグ"],
+          "code": "# ~/.zshrc に追加\nif [[ $- == *i* ]]; then\n  echo \"Shell ready\"  # インタラクティブシェルでのみ出力\nfi"
+        },
+        {
+          "id": "error-handling",
+          "title": "エラーハンドリングを堅牢にする",
+          "summary": "set -euo pipefail を使い、jq の存在確認やJSON パースエラーを適切に処理する。",
+          "content": "本番で使用する hook スクリプトでは、堅牢なエラーハンドリングを実装しましょう。`set -euo pipefail` でエラー時に即座に停止し、`jq` の存在確認やJSONパースエラーのハンドリングを行います。",
+          "tags": ["設定"],
+          "code": "#!/bin/bash\nset -euo pipefail\n\nINPUT=$(cat) || { echo \"stdin の読み取りに失敗\" >&2; exit 1; }\n\n# jq が利用可能か確認\nif ! command -v jq &> /dev/null; then\n  echo \"jq がインストールされていません\" >&2\n  exit 1\nfi\n\nTOOL_NAME=$(echo \"$INPUT\" | jq -r '.tool_name // empty') || {\n  echo \"JSON パースに失敗\" >&2\n  exit 1\n}"
+        },
+        {
+          "id": "project-dir",
+          "title": "$CLAUDE_PROJECT_DIR を活用する",
+          "summary": "スクリプトのパスは $CLAUDE_PROJECT_DIR 環境変数を使って参照。絶対パスのハードコーディングを避ける。",
+          "content": "スクリプトのパスは `$CLAUDE_PROJECT_DIR` 環境変数を使って参照しましょう。絶対パスのハードコーディングを避けることで、チームメンバー間でのパスの違いを吸収できます。",
+          "tags": ["設定"],
+          "code": "{\n  \"type\": \"command\",\n  \"command\": \"\\\"$CLAUDE_PROJECT_DIR\\\"/.claude/hooks/my-script.sh\"\n}"
+        },
+        {
+          "id": "status-message",
+          "title": "statusMessage でユーザー体験を向上させる",
+          "summary": "hook の実行中に何をしているか表示して、ユーザーの待ち時間のストレスを軽減する。",
+          "content": "hook の実行中に何をしているか表示することで、ユーザーの待ち時間のストレスを軽減できます。`statusMessage` フィールドに短い説明を設定しましょう。",
+          "tags": ["設定"],
+          "code": "{\n  \"type\": \"command\",\n  \"command\": \"./check-security.sh\",\n  \"statusMessage\": \"セキュリティチェック実行中...\"\n}"
+        }
+      ]
+    },
+    {
+      "id": "recipes",
+      "name": "レシピ集",
+      "description": "すぐに使える実践的な Hooks レシピ",
+      "items": [
+        {
+          "id": "desktop-notification",
+          "title": "デスクトップ通知",
+          "summary": "Claude が入力を待っている時にデスクトップ通知を受け取る（macOS / Linux 対応）。",
+          "content": "Claude が入力を待っている時にデスクトップ通知を受け取ります。macOS では `osascript`、Linux では `notify-send` を使用します。",
+          "tags": ["通知"],
+          "codeBlocks": [
+            {
+              "lang": "json",
+              "label": "macOS 版",
+              "value": "{\n  \"hooks\": {\n    \"Notification\": [\n      {\n        \"matcher\": \"\",\n        \"hooks\": [\n          {\n            \"type\": \"command\",\n            \"command\": \"osascript -e 'display notification \\\"Claude Code が入力を待っています\\\" with title \\\"Claude Code\\\"'\"\n          }\n        ]\n      }\n    ]\n  }\n}"
+            },
+            {
+              "lang": "json",
+              "label": "Linux 版",
+              "value": "{\n  \"hooks\": {\n    \"Notification\": [\n      {\n        \"matcher\": \"\",\n        \"hooks\": [\n          {\n            \"type\": \"command\",\n            \"command\": \"notify-send 'Claude Code' 'Claude Code が入力を待っています'\"\n          }\n        ]\n      }\n    ]\n  }\n}"
+            }
+          ]
+        },
+        {
+          "id": "auto-format",
+          "title": "ファイル編集後の自動フォーマット",
+          "summary": "Edit/Write 後に Prettier やその他のフォーマッターを自動実行する。",
+          "content": "ファイル編集後にフォーマッターを自動実行します。言語別に異なるフォーマッターを呼び分けることも可能です。",
+          "tags": ["フォーマット", "自動化"],
+          "codeBlocks": [
+            {
+              "lang": "json",
+              "label": "Prettier（シンプル版）",
+              "value": "{\n  \"hooks\": {\n    \"PostToolUse\": [\n      {\n        \"matcher\": \"Edit|Write\",\n        \"hooks\": [\n          {\n            \"type\": \"command\",\n            \"command\": \"jq -r '.tool_input.file_path' | xargs npx prettier --write 2>/dev/null || true\"\n          }\n        ]\n      }\n    ]\n  }\n}"
+            },
+            {
+              "lang": "bash",
+              "label": "言語別フォーマッター（auto-format.sh）",
+              "value": "#!/bin/bash\nINPUT=$(cat)\nFILE_PATH=$(echo \"$INPUT\" | jq -r '.tool_input.file_path // empty')\n\nif [ -z \"$FILE_PATH\" ]; then exit 0; fi\n\ncase \"$FILE_PATH\" in\n  *.py)    black \"$FILE_PATH\" 2>/dev/null || true ;;\n  *.go)    gofmt -w \"$FILE_PATH\" 2>/dev/null || true ;;\n  *.rs)    rustfmt \"$FILE_PATH\" 2>/dev/null || true ;;\n  *.js|*.ts|*.jsx|*.tsx|*.json|*.css|*.md)\n           npx prettier --write \"$FILE_PATH\" 2>/dev/null || true ;;\nesac\nexit 0"
+            }
+          ]
+        },
+        {
+          "id": "protect-files",
+          "title": "保護ファイルへの編集ブロック",
+          "summary": ".env、ロックファイル、秘密鍵などの保護ファイルへの編集を PreToolUse でブロックする。",
+          "content": "機密ファイルやロックファイルへの意図しない編集を防ぎます。`PreToolUse` で `Edit|Write` ツールをマッチし、ファイルパスが保護パターンに該当する場合は exit code 2 でブロックします。",
+          "tags": ["セキュリティ"],
+          "codeBlocks": [
+            {
+              "lang": "bash",
+              "label": "protect-files.sh",
+              "value": "#!/bin/bash\nINPUT=$(cat)\nFILE_PATH=$(echo \"$INPUT\" | jq -r '.tool_input.file_path // empty')\n\nPROTECTED_PATTERNS=(\n  \".env\"\n  \"package-lock.json\"\n  \"yarn.lock\"\n  \"pnpm-lock.yaml\"\n  \".git/\"\n  \"node_modules/\"\n  \"*.pem\"\n  \"*.key\"\n)\n\nfor pattern in \"${PROTECTED_PATTERNS[@]}\"; do\n  if [[ \"$FILE_PATH\" == *\"$pattern\"* ]]; then\n    echo \"BLOCKED: $FILE_PATH は保護パターン '$pattern' に該当\" >&2\n    exit 2\n  fi\ndone\nexit 0"
+            },
+            {
+              "lang": "json",
+              "label": "settings.json",
+              "value": "{\n  \"hooks\": {\n    \"PreToolUse\": [\n      {\n        \"matcher\": \"Edit|Write\",\n        \"hooks\": [\n          {\n            \"type\": \"command\",\n            \"command\": \"\\\"$CLAUDE_PROJECT_DIR\\\"/.claude/hooks/protect-files.sh\"\n          }\n        ]\n      }\n    ]\n  }\n}"
+            }
+          ]
+        },
+        {
+          "id": "context-injection",
+          "title": "コンテキスト注入",
+          "summary": "セッション開始時やコンテキスト圧縮後にリマインダーやプロジェクト情報を自動注入する。",
+          "content": "セッション開始時やコンテキスト圧縮後に、プロジェクト固有のリマインダーや動的な情報を自動で注入します。`SessionStart` イベントの matcher に `compact` を指定すると、コンテキスト圧縮後にのみ発火します。",
+          "tags": ["自動化"],
+          "codeBlocks": [
+            {
+              "lang": "json",
+              "label": "静的リマインダー",
+              "value": "{\n  \"hooks\": {\n    \"SessionStart\": [\n      {\n        \"matcher\": \"compact\",\n        \"hooks\": [\n          {\n            \"type\": \"command\",\n            \"command\": \"echo 'リマインダー: Bun を使用。コミット前に bun test を実行。'\"\n          }\n        ]\n      }\n    ]\n  }\n}"
+            },
+            {
+              "lang": "bash",
+              "label": "動的コンテキスト注入（inject-context.sh）",
+              "value": "#!/bin/bash\necho \"=== プロジェクトコンテキスト ===\"\necho \"最近のコミット:\"\ngit log --oneline -5 2>/dev/null || echo \"(Git 情報取得不可)\"\necho \"\"\necho \"現在のブランチ: $(git branch --show-current 2>/dev/null || echo 'unknown')\"\necho \"\"\necho \"未コミットの変更:\"\ngit diff --stat 2>/dev/null || echo \"(なし)\""
+            }
+          ]
+        },
+        {
+          "id": "bash-logging",
+          "title": "Bash コマンドのログ記録",
+          "summary": "Claude が実行した全ての Bash コマンドをタイムスタンプ付きで監査ログに記録する。",
+          "content": "Claude が実行した全ての Bash コマンドをタイムスタンプ付きで監査ログに記録します。`PostToolUse` で `Bash` ツールをマッチし、`jq` でログエントリを構築してファイルに追記します。",
+          "tags": ["監査"],
+          "code": "{\n  \"hooks\": {\n    \"PostToolUse\": [\n      {\n        \"matcher\": \"Bash\",\n        \"hooks\": [\n          {\n            \"type\": \"command\",\n            \"command\": \"jq -c '{timestamp: (now | todate), command: .tool_input.command, cwd: .cwd}' >> ~/.claude/command-audit.log\"\n          }\n        ]\n      }\n    ]\n  }\n}"
+        },
+        {
+          "id": "config-audit",
+          "title": "設定変更の監査ログ",
+          "summary": "Claude Code の設定ファイルが変更された時に監査ログを記録する。",
+          "content": "`ConfigChange` イベントで設定ファイルの変更を監視し、タイムスタンプ・変更元・ファイルパスを記録します。",
+          "tags": ["監査"],
+          "code": "{\n  \"hooks\": {\n    \"ConfigChange\": [\n      {\n        \"matcher\": \"\",\n        \"hooks\": [\n          {\n            \"type\": \"command\",\n            \"command\": \"jq -c '{timestamp: (now | todate), source: .source, file: .file_path}' >> ~/claude-config-audit.log\"\n          }\n        ]\n      }\n    ]\n  }\n}"
+        },
+        {
+          "id": "mcp-monitoring",
+          "title": "MCP ツールの監視",
+          "summary": "特定の MCP ツール（GitHub 等）の呼び出しを監視してログに出力する。",
+          "content": "`PreToolUse` の matcher に `mcp__github__.*` を指定すると、GitHub MCP ツールの全呼び出しを監視できます。同様に他の MCP ツールも監視可能です。",
+          "tags": ["監査"],
+          "code": "{\n  \"hooks\": {\n    \"PreToolUse\": [\n      {\n        \"matcher\": \"mcp__github__.*\",\n        \"hooks\": [\n          {\n            \"type\": \"command\",\n            \"command\": \"echo \\\"GitHub ツール呼び出し: $(jq -r '.tool_name')\\\" >&2\"\n          }\n        ]\n      }\n    ]\n  }\n}"
+        },
+        {
+          "id": "prompt-validation",
+          "title": "Prompt フックでタスク完了を検証",
+          "summary": "Stop イベントで prompt タイプの hook を使い、全タスクが完了しているか LLM に検証させる。",
+          "content": "`prompt` タイプの hook を使うと、Claude モデル（デフォルト: Haiku）に判断を委ねることができます。`Stop` イベントで使用して、ユーザーが依頼した全てのタスクが完了しているかを検証します。",
+          "tags": ["自動化"],
+          "code": "{\n  \"hooks\": {\n    \"Stop\": [\n      {\n        \"hooks\": [\n          {\n            \"type\": \"prompt\",\n            \"prompt\": \"ユーザーが依頼した全てのタスクが完了しているか確認してください。未完了のタスクがあれば {\\\"ok\\\": false, \\\"reason\\\": \\\"残りのタスク: ...\\\"} で返してください。\"\n          }\n        ]\n      }\n    ]\n  }\n}"
+        },
+        {
+          "id": "agent-test",
+          "title": "Agent フックでテストを自動実行",
+          "summary": "Stop イベントで agent タイプの hook を使い、テストスイートの実行をサブエージェントに委譲する。",
+          "content": "`agent` タイプの hook はツールアクセス付きのサブエージェントを起動します。ファイルの読み取りやテスト実行など、ツールを使った検証が必要な場合に使います。",
+          "tags": ["自動化"],
+          "code": "{\n  \"hooks\": {\n    \"Stop\": [\n      {\n        \"hooks\": [\n          {\n            \"type\": \"agent\",\n            \"prompt\": \"ユニットテストが全て通ることを確認してください。テストスイートを実行し、結果を確認してください。$ARGUMENTS\",\n            \"timeout\": 120\n          }\n        ]\n      }\n    ]\n  }\n}"
+        },
+        {
+          "id": "http-hook",
+          "title": "HTTP フックで外部サービスに通知",
+          "summary": "HTTP エンドポイントに JSON を POST して外部サービスと連携する。環境変数でトークンを管理。",
+          "content": "`http` タイプの hook は指定した URL に JSON を POST します。`allowedEnvVars` で明示的に許可した環境変数のみヘッダーで使用できます。",
+          "tags": ["自動化"],
+          "code": "{\n  \"hooks\": {\n    \"PostToolUse\": [\n      {\n        \"hooks\": [\n          {\n            \"type\": \"http\",\n            \"url\": \"http://localhost:8080/hooks/tool-use\",\n            \"headers\": {\n              \"Authorization\": \"Bearer $MY_TOKEN\"\n            },\n            \"allowedEnvVars\": [\"MY_TOKEN\"]\n          }\n        ]\n      }\n    ]\n  }\n}"
+        },
+        {
+          "id": "auto-approve",
+          "title": "ExitPlanMode の自動承認",
+          "summary": "PermissionRequest イベントで特定の操作（ExitPlanMode 等）を自動承認する。",
+          "content": "`PermissionRequest` イベントで特定のツールの権限要求を自動承認します。`hookSpecificOutput` に `decision.behavior: \"allow\"` を含む JSON を stdout に出力します。",
+          "tags": ["自動化"],
+          "code": "{\n  \"hooks\": {\n    \"PermissionRequest\": [\n      {\n        \"matcher\": \"ExitPlanMode\",\n        \"hooks\": [\n          {\n            \"type\": \"command\",\n            \"command\": \"echo '{\\\"hookSpecificOutput\\\": {\\\"hookEventName\\\": \\\"PermissionRequest\\\", \\\"decision\\\": {\\\"behavior\\\": \\\"allow\\\"}}}'\"\n          }\n        ]\n      }\n    ]\n  }\n}"
+        },
+        {
+          "id": "session-cleanup",
+          "title": "セッション終了時のクリーンアップ",
+          "summary": "SessionEnd イベントで一時ファイルの削除などのクリーンアップ処理を自動実行する。",
+          "content": "`SessionEnd` イベントでセッション終了時にクリーンアップ処理を実行します。matcher に `clear` を指定すると、`/clear` コマンド実行時のみ発火します。",
+          "tags": ["自動化"],
+          "code": "{\n  \"hooks\": {\n    \"SessionEnd\": [\n      {\n        \"matcher\": \"clear\",\n        \"hooks\": [\n          {\n            \"type\": \"command\",\n            \"command\": \"rm -f /tmp/claude-scratch-*.txt\"\n          }\n        ]\n      }\n    ]\n  }\n}"
+        }
+      ]
+    },
+    {
+      "id": "troubleshooting",
+      "name": "トラブルシューティング",
+      "description": "よくある問題の診断と解決方法",
+      "items": [
+        {
+          "id": "hook-not-firing",
+          "title": "フックが発火しない",
+          "summary": "イベント名、Matcher の大文字小文字、PermissionRequest の制約を確認する。",
+          "content": "フックが発火しない場合、以下を順番に確認してください。",
+          "tags": ["デバッグ"],
+          "tips": [
+            "`/hooks` コマンドで正しいイベントに登録されているか確認",
+            "Matcher パターンが大文字小文字を含め正確にマッチするか確認",
+            "イベントタイプが正しいか確認（`PreToolUse` はツール実行前、`PostToolUse` は実行後）",
+            "`PermissionRequest` は非インタラクティブモード（`-p`）では発火しない → `PreToolUse` を使用"
+          ]
+        },
+        {
+          "id": "hook-error",
+          "title": "フックエラーが出力に表示される",
+          "summary": "手動でテストして原因を特定。実行権限、jq の有無、パスの正確性を確認する。",
+          "content": "hook エラーが発生した場合、手動でテストして原因を特定しましょう。スクリプトに実行権限がない、`jq` がインストールされていない、パスが間違っているなどが主な原因です。",
+          "tags": ["デバッグ"],
+          "code": "echo '{\"tool_name\":\"Bash\",\"tool_input\":{\"command\":\"ls\"}}' | ./my-hook.sh\necho $?  # exit code を確認",
+          "tips": [
+            "スクリプトに実行権限がない → `chmod +x` する",
+            "`jq` がインストールされていない → brew install jq / apt install jq",
+            "パスが間違っている → `$CLAUDE_PROJECT_DIR` を使用"
+          ]
+        },
+        {
+          "id": "json-parse-error",
+          "title": "JSON パースエラー",
+          "summary": "シェルプロファイルの echo 文が JSON 出力を壊している可能性がある。",
+          "content": "hook の JSON 出力が壊れる場合、シェルプロファイル（`~/.zshrc` / `~/.bashrc`）の `echo` 文が原因の可能性があります。プロファイルの出力をインタラクティブシェルに限定してください。",
+          "tags": ["デバッグ"],
+          "code": "# ~/.zshrc に追加\nif [[ $- == *i* ]]; then\n  echo \"Shell ready\"  # インタラクティブシェルでのみ出力\nfi"
+        },
+        {
+          "id": "stop-loop",
+          "title": "Stop フックが無限ループする",
+          "summary": "stop_hook_active フィールドをチェックしていない場合に発生する。",
+          "content": "`Stop` フックが無限ループする場合、`stop_hook_active` フィールドのチェックが欠けています。Stop フックの先頭で必ずこのフィールドを確認してください。",
+          "tags": ["デバッグ"],
+          "code": "#!/bin/bash\nINPUT=$(cat)\n\n# 重要: この行がないと無限ループする\nif [ \"$(echo \"$INPUT\" | jq -r '.stop_hook_active')\" = \"true\" ]; then\n  exit 0\nfi"
+        },
+        {
+          "id": "debug-methods",
+          "title": "デバッグ方法",
+          "summary": "Ctrl+O で verbose モード切り替え、claude --debug で全実行詳細を表示する。",
+          "content": "hook のデバッグには2つの主な方法があります。verbose モードでは hook の出力がトランスクリプトに表示され、debug モードではマッチした hook や exit code など全ての実行詳細が表示されます。",
+          "tags": ["デバッグ"],
+          "tips": [
+            "`Ctrl+O` で verbose モードを切り替え、hook の出力をトランスクリプトで確認",
+            "`claude --debug` で全実行詳細（マッチした hook、exit code 等）を表示"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "security",
+      "name": "セキュリティ",
+      "description": "セキュリティ上の重要な注意点と参考リンク",
+      "items": [
+        {
+          "id": "security-considerations",
+          "title": "セキュリティ上の注意点",
+          "summary": "権限の自動承認は最小限に。保護ファイルリストの維持、監査ログの記録を徹底する。",
+          "content": "Hooks はセキュリティの強化に活用できますが、不適切な設定はセキュリティリスクにもなります。以下の点に注意してください。",
+          "tags": ["セキュリティ", "重要"],
+          "tips": [
+            "**権限の自動承認は最小限に**: `PermissionRequest` の自動承認は特定のツールに限定する",
+            "**保護ファイルリストを維持する**: `.env`, `*.pem`, `*.key` 等の機密ファイルは `PreToolUse` でブロック",
+            "**監査ログを取る**: 本番環境やチーム開発では `PostToolUse` や `ConfigChange` でログを記録",
+            "**マネージドポリシーは最優先**: 組織のマネージドポリシー設定はユーザーやプロジェクトの設定で無効化できない",
+            "**deny ルールは hook より優先**: `PreToolUse` で `allow` を返しても、権限設定の deny ルールが優先される",
+            "**HTTP hook のトークン管理**: `allowedEnvVars` で明示的に許可した環境変数のみヘッダーで使用可能"
+          ]
+        },
+        {
+          "id": "reference-links",
+          "title": "参考リンク",
+          "summary": "公式ドキュメント、ガイド、コミュニティリソースへのリンク集。",
+          "content": "Hooks についてさらに詳しく学ぶための参考リンクです。",
+          "tags": [],
+          "tips": [
+            "公式 Hooks リファレンス — https://code.claude.com/docs/en/hooks — 全イベントスキーマ、JSON フォーマット、詳細仕様",
+            "公式 Hooks ガイド — https://code.claude.com/docs/en/hooks-guide — ユースケース別の設定例",
+            "Bash コマンドバリデータの参考実装 — https://github.com/anthropics/claude-code/blob/main/examples/hooks/bash_command_validator_example.py",
+            "Claude Code Hooks Mastery — https://github.com/disler/claude-code-hooks-mastery",
+            "Awesome Claude Code — https://github.com/hesreallyhim/awesome-claude-code"
+          ]
+        }
+      ]
+    }
+  ]
+}

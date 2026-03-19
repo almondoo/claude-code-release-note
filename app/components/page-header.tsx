@@ -16,6 +16,7 @@ const ALL_PAGES = [
   { to: "/env-vars", label: "環境変数" },
   { to: "/skill-best-practices", label: "スキル設計" },
   { to: "/harness-engineering", label: "ハーネス＆コンテキストエンジニアリング" },
+  { to: "/hooks-best-practices", label: "Hooks" },
 ];
 
 interface Stat {

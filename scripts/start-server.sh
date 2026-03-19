@@ -3,10 +3,10 @@ PORT=4000
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
 
-# 既に起動済みならスキップ
+# 既に起動済みなら kill してから再ビルド
 if lsof -ti:$PORT > /dev/null 2>&1; then
-  echo "http://localhost:$PORT (already running)"
-  exit 0
+  kill $(lsof -ti:$PORT) 2>/dev/null
+  sleep 1
 fi
 
 cd "$PROJECT_DIR" || exit 1
