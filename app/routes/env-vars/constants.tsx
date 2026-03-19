@@ -1,5 +1,20 @@
+import {
+  LockIcon,
+  ServerIcon,
+  LinkIcon,
+  TerminalIcon,
+  PluginIcon,
+  MonitorIcon,
+  TrendingUpIcon,
+  ShieldIcon,
+  SettingsIcon,
+} from "~/components/icons";
 import envData from "~/data/env-vars/env-vars.json";
 import { PALETTE } from "~/theme/colors";
+
+// ---------------------------------------------------------------------------
+// Types
+// ---------------------------------------------------------------------------
 
 export interface EnvLink {
   label: string;
@@ -24,7 +39,21 @@ export interface EnvCategory {
   vars: EnvVar[];
 }
 
-export const CATEGORY_COLORS: Record<string, { color: string; bg: string }> = {
+// ---------------------------------------------------------------------------
+// Constants
+// ---------------------------------------------------------------------------
+
+export const CATEGORIES: EnvCategory[] = envData.categories as unknown as EnvCategory[];
+
+export const SECTIONS = CATEGORIES.map((c) => ({
+  id: c.id,
+  name: c.name,
+  items: c.vars,
+}));
+
+export const TOTAL_ITEMS = SECTIONS.reduce((sum, s) => sum + s.items.length, 0);
+
+export const SECTION_COLORS: Record<string, { color: string; bg: string }> = {
   auth: PALETTE.purple,
   model: { color: "#93C5FD", bg: "rgba(59, 130, 246, 0.15)" },
   provider: PALETTE.green,
@@ -36,17 +65,38 @@ export const CATEGORY_COLORS: Record<string, { color: string; bg: string }> = {
   misc: PALETTE.slate,
 };
 
-export const CATEGORIES: EnvCategory[] = envData.categories as unknown as EnvCategory[];
+export const SECTION_ICONS: Record<string, () => React.JSX.Element> = {
+  auth: () => <LockIcon width={18} height={18} />,
+  model: () => <ServerIcon />,
+  provider: () => <LinkIcon />,
+  "bash-context": () => <TerminalIcon width={18} height={18} />,
+  mcp: () => <PluginIcon />,
+  ui: () => <MonitorIcon />,
+  telemetry: () => <TrendingUpIcon />,
+  proxy: () => <ShieldIcon />,
+  misc: () => <SettingsIcon width={18} height={18} />,
+};
 
-export const ALL_VARS = CATEGORIES.flatMap((c) => c.vars);
-export const TOTAL = ALL_VARS.length;
+export const TAG_COLORS: Record<string, { color: string; bg: string }> = {
+  非推奨: PALETTE.red,
+};
 
-const VAR_CATEGORY_MAP = new Map<string, EnvCategory>();
-for (const c of CATEGORIES) {
-  for (const v of c.vars) {
-    VAR_CATEGORY_MAP.set(v.name, c);
+export const TAB_DEFS = [
+  { id: "all", label: "すべて", color: "#3B82F6" },
+  ...SECTIONS.map((s) => ({
+    id: s.id,
+    label: s.name,
+    color: SECTION_COLORS[s.id]?.color || "#3B82F6",
+  })),
+];
+
+// ---------------------------------------------------------------------------
+// Section-to-item map for lookups
+// ---------------------------------------------------------------------------
+
+export const ITEM_SECTION_MAP = new Map<string, { sectionName: string; sectionId: string }>();
+for (const cat of CATEGORIES) {
+  for (const v of cat.vars) {
+    ITEM_SECTION_MAP.set(v.name, { sectionName: cat.name, sectionId: cat.id });
   }
 }
-export const getCategoryForVar = (v: EnvVar): EnvCategory => {
-  return VAR_CATEGORY_MAP.get(v.name) ?? CATEGORIES[0];
-};

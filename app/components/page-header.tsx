@@ -8,7 +8,6 @@ const ALL_PAGES = [
   { to: "/plugins", label: "公式プラグイン" },
   { to: "/directory", label: "設定ガイド" },
   { to: "/setup", label: "セットアップ" },
-  { to: "/customization", label: "カスタマイズ" },
   { to: "/best-practices", label: "ベストプラクティス" },
   { to: "/prompting", label: "プロンプト" },
   { to: "/hands-on", label: "ハンズオン" },

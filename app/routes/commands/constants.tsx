@@ -8,17 +8,37 @@ import {
   LockIcon,
   SettingsIcon,
   StarIcon,
+  TerminalIcon,
   UserIcon,
   WrenchIcon,
 } from "~/components/icons";
 import { PALETTE } from "~/theme/colors";
-import { matchesQuery } from "~/utils/search";
 
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
 
-export interface Command {
+export interface CommandItem {
+  id: string;
+  title: string;
+  description: string;
+  detail: string;
+  whenToUse: string;
+  args?: string | null;
+  itemType: "slash" | "cli-command" | "cli-flag" | "shortcut";
+}
+
+export interface CommandSection {
+  id: string;
+  name: string;
+  items: CommandItem[];
+}
+
+// ---------------------------------------------------------------------------
+// Raw data
+// ---------------------------------------------------------------------------
+
+interface RawCommand {
   name: string;
   description: string;
   args: string | null;
@@ -26,49 +46,90 @@ export interface Command {
   whenToUse: string;
 }
 
-export interface Category {
+interface RawCategory {
   id: string;
   name: string;
   description: string;
-  commands: Command[];
+  commands: RawCommand[];
 }
 
-export interface Shortcut {
+interface RawShortcut {
   key: string;
   description: string;
   detail: string;
   whenToUse: string;
 }
 
-export interface TabDef {
-  id: string;
-  label: string;
-  color: string;
-  type: "popular" | "slash-category" | "cli" | "shortcuts";
-}
-
-export type ModalData =
-  | { type: "command"; cmd: Command; categoryName: string; accentColor: string }
-  | { type: "cli"; cmd: Command; kind: "command" | "flag" }
-  | { type: "shortcut"; shortcut: Shortcut };
+const RAW_CATEGORIES: RawCategory[] = categoriesData.categories;
+const RAW_CLI_COMMANDS: RawCommand[] = cliData.cli.commands;
+const RAW_CLI_FLAGS: RawCommand[] = cliData.cli.flags;
+const RAW_SHORTCUTS: RawShortcut[] = shortcutsData.shortcuts;
 
 // ---------------------------------------------------------------------------
-// Data (from JSON)
+// Unified sections
 // ---------------------------------------------------------------------------
 
-export const CATEGORIES: Category[] = categoriesData.categories;
-export const CLI_COMMANDS: Command[] = cliData.cli.commands;
-export const CLI_FLAGS: Command[] = cliData.cli.flags;
-export const SHORTCUTS: Shortcut[] = shortcutsData.shortcuts;
+const slashSections: CommandSection[] = RAW_CATEGORIES.map((c) => ({
+  id: c.id,
+  name: c.name,
+  items: c.commands.map((cmd) => ({
+    id: cmd.name,
+    title: cmd.name,
+    description: cmd.description,
+    detail: cmd.detail,
+    whenToUse: cmd.whenToUse,
+    args: cmd.args,
+    itemType: "slash" as const,
+  })),
+}));
+
+const cliSection: CommandSection = {
+  id: "cli",
+  name: "CLI",
+  items: [
+    ...RAW_CLI_COMMANDS.map((cmd) => ({
+      id: `cli:${cmd.name}`,
+      title: cmd.name,
+      description: cmd.description,
+      detail: cmd.detail,
+      whenToUse: cmd.whenToUse,
+      args: cmd.args,
+      itemType: "cli-command" as const,
+    })),
+    ...RAW_CLI_FLAGS.map((cmd) => ({
+      id: `flag:${cmd.name}`,
+      title: cmd.name,
+      description: cmd.description,
+      detail: cmd.detail,
+      whenToUse: cmd.whenToUse,
+      args: cmd.args,
+      itemType: "cli-flag" as const,
+    })),
+  ],
+};
+
+const shortcutsSection: CommandSection = {
+  id: "shortcuts",
+  name: "ショートカット",
+  items: RAW_SHORTCUTS.map((s) => ({
+    id: `shortcut:${s.key}`,
+    title: s.key,
+    description: s.description,
+    detail: s.detail,
+    whenToUse: s.whenToUse,
+    itemType: "shortcut" as const,
+  })),
+};
+
+export const SECTIONS: CommandSection[] = [...slashSections, cliSection, shortcutsSection];
+
+export const TOTAL_ITEMS = SECTIONS.reduce((sum, s) => sum + s.items.length, 0);
 
 // ---------------------------------------------------------------------------
 // Colors & Icons
 // ---------------------------------------------------------------------------
 
-const DEFAULT_COLOR = "#3B82F6";
-
-export const CATEGORY_COLORS: Record<string, { color: string; bg: string }> = {
-  popular: { color: "#FCD34D", bg: "rgba(252, 211, 77, 0.15)" },
+export const SECTION_COLORS: Record<string, { color: string; bg: string }> = {
   essential: PALETTE.green,
   session: PALETTE.cyan,
   config: PALETTE.orange,
@@ -77,17 +138,11 @@ export const CATEGORY_COLORS: Record<string, { color: string; bg: string }> = {
   agent: PALETTE.purple,
   utility: PALETTE.pinkBright,
   account: PALETTE.yellow,
+  cli: { color: "#C4B5FD", bg: "rgba(139, 92, 246, 0.15)" },
+  shortcuts: { color: "#FDBA74", bg: "rgba(249, 115, 22, 0.15)" },
 };
 
-export const getCategoryColor = (id: string): string => {
-  return CATEGORY_COLORS[id]?.color ?? DEFAULT_COLOR;
-};
-
-export const CLI_ACCENT = "#C4B5FD";
-export const SHORTCUT_ACCENT = "#FDBA74";
-
-export const CATEGORY_ICONS: Record<string, () => React.JSX.Element> = {
-  popular: () => <StarIcon />,
+export const SECTION_ICONS: Record<string, () => React.JSX.Element> = {
   essential: () => <StarIcon />,
   session: () => <CornerDownRightIcon />,
   config: () => <SettingsIcon width={18} height={18} />,
@@ -96,65 +151,44 @@ export const CATEGORY_ICONS: Record<string, () => React.JSX.Element> = {
   agent: () => <LockIcon />,
   utility: () => <WrenchIcon />,
   account: () => <UserIcon />,
+  cli: () => <TerminalIcon width={18} height={18} />,
+  shortcuts: () => (
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M18 3a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3H6a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3V6a3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3h12a3 3 0 0 0 3-3 3 3 0 0 0-3-3z" />
+    </svg>
+  ),
 };
 
-// ---------------------------------------------------------------------------
-// Derived data
-// ---------------------------------------------------------------------------
+export const TAG_COLORS: Record<string, { color: string; bg: string }> = {
+  Command: { color: "#C4B5FD", bg: "rgba(139, 92, 246, 0.15)" },
+  Flag: { color: "#C4B5FD", bg: "rgba(139, 92, 246, 0.15)" },
+};
 
-export const TOTAL_SLASH = CATEGORIES.flatMap((c) => c.commands).length;
-export const TOTAL_CLI = CLI_COMMANDS.length + CLI_FLAGS.length;
-
-const ALL_SLASH_COMMANDS = CATEGORIES.flatMap((c) => c.commands);
-
-const POPULAR_COMMAND_NAMES = [
-  "/init",
-  "/model",
-  "/help",
-  "/clear",
-  "/compact",
-  "/resume",
-  "/memory",
-  "/cost",
-  "/plan",
-  "/mcp",
-  "/doctor",
-  "/rewind",
-] as const;
-
-export const POPULAR_COMMANDS: Command[] = POPULAR_COMMAND_NAMES.map((name) =>
-  ALL_SLASH_COMMANDS.find((cmd) => cmd.name === name),
-).filter((cmd): cmd is Command => cmd !== undefined);
-
-export const CMD_CATEGORY_MAP = new Map<string, { name: string; color: string }>();
-for (const cat of CATEGORIES) {
-  for (const cmd of cat.commands) {
-    CMD_CATEGORY_MAP.set(cmd.name, {
-      name: cat.name,
-      color: getCategoryColor(cat.id),
-    });
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Tab definitions
-// ---------------------------------------------------------------------------
-
-export const TAB_DEFS: TabDef[] = [
-  { id: "popular", label: "よく使う", color: "#FCD34D", type: "popular" },
-  { id: "all", label: "すべて", color: DEFAULT_COLOR, type: "slash-category" },
-  ...CATEGORIES.map((c) => ({
-    id: c.id,
-    label: c.name,
-    color: getCategoryColor(c.id),
-    type: "slash-category" as const,
+export const TAB_DEFS = [
+  { id: "all", label: "すべて", color: "#3B82F6" },
+  ...SECTIONS.map((s) => ({
+    id: s.id,
+    label: s.name,
+    color: SECTION_COLORS[s.id]?.color || "#3B82F6",
   })),
-  { id: "cli", label: "CLI", color: "#C4B5FD", type: "cli" },
-  { id: "shortcuts", label: "ショートカット", color: "#FDBA74", type: "shortcuts" },
 ];
 
 // ---------------------------------------------------------------------------
-// Re-export shared utility
+// Section-to-item map for lookups
 // ---------------------------------------------------------------------------
 
-export { matchesQuery };
+export const ITEM_SECTION_MAP = new Map<string, { sectionName: string; sectionId: string }>();
+for (const section of SECTIONS) {
+  for (const item of section.items) {
+    ITEM_SECTION_MAP.set(item.id, { sectionName: section.name, sectionId: section.id });
+  }
+}

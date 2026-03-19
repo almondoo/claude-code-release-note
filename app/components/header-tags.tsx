@@ -11,18 +11,6 @@ export const HeaderTags = ({
 }): React.JSX.Element => {
   return (
     <div className="flex gap-1.5 mt-2 flex-wrap">
-      {sectionName && accentColor && (
-        <span
-          className="text-[11px] font-semibold rounded"
-          style={{
-            padding: "2px 8px",
-            background: accentColor + "18",
-            color: accentColor,
-          }}
-        >
-          {sectionName}
-        </span>
-      )}
       {tags?.map((tag) => (
         <span
           key={tag}

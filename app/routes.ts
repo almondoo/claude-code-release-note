@@ -7,7 +7,6 @@ export default [
   route("plugins", "routes/plugins/index.tsx"),
   route("directory", "routes/directory/index.tsx"),
   route("setup", "routes/setup/index.tsx"),
-  route("customization", "routes/customization/index.tsx"),
   route("best-practices", "routes/best-practices/index.tsx"),
   route("token-usage", "routes/token-usage/index.tsx"),
   route("llm-infra-guide", "routes/llm-infra-guide/index.tsx"),

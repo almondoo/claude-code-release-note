@@ -3,153 +3,48 @@ import { DetailModalShell } from "~/components/detail-modal";
 import { SectionHeading } from "~/components/section-heading";
 import { ParagraphList } from "~/components/paragraph-list";
 
-import type { ModalData } from "./constants";
-import { CLI_ACCENT, SHORTCUT_ACCENT } from "./constants";
-
-export const getModalFields = (
-  data: ModalData,
-): {
-  accentColor: string;
-  detail: string;
-  whenToUse: string;
-  description: string;
-  title: React.ReactNode;
-  extraHeader: React.ReactNode;
-} => {
-  if (data.type === "command") {
-    const { accentColor } = data;
-    return {
-      accentColor,
-      detail: data.cmd.detail,
-      whenToUse: data.cmd.whenToUse,
-      description: data.cmd.description,
-      title: (
-        <div className="flex items-baseline gap-2 flex-wrap">
-          <code className="font-mono text-base font-bold" style={{ color: accentColor }}>
-            {data.cmd.name}
-          </code>
-          {data.cmd.args && (
-            <span className="text-xs text-slate-500 font-mono">{data.cmd.args}</span>
-          )}
-        </div>
-      ),
-      extraHeader: (
-        <div className="flex gap-1.5 mt-2 flex-wrap">
-          <span
-            className="text-[11px] font-semibold rounded"
-            style={{ padding: "2px 8px", background: accentColor + "18", color: accentColor }}
-          >
-            {data.categoryName}
-          </span>
-          <span
-            className="text-[11px] font-semibold rounded"
-            style={{ padding: "2px 8px", background: "rgba(16, 185, 129, 0.15)", color: "#6EE7B7" }}
-          >
-            スラッシュコマンド
-          </span>
-        </div>
-      ),
-    };
-  }
-
-  if (data.type === "cli") {
-    return {
-      accentColor: CLI_ACCENT,
-      detail: data.cmd.detail,
-      whenToUse: data.cmd.whenToUse,
-      description: data.cmd.description,
-      title: (
-        <div className="flex items-baseline gap-2 flex-wrap">
-          <code className="font-mono text-base font-bold" style={{ color: CLI_ACCENT }}>
-            {data.cmd.name}
-          </code>
-          {data.cmd.args && (
-            <span className="text-xs text-slate-500 font-mono">{data.cmd.args}</span>
-          )}
-        </div>
-      ),
-      extraHeader: (
-        <div className="flex gap-1.5 mt-2">
-          <span
-            className="text-[11px] font-semibold rounded"
-            style={{
-              padding: "2px 8px",
-              background: "rgba(139, 92, 246, 0.15)",
-              color: CLI_ACCENT,
-            }}
-          >
-            CLI {data.kind === "command" ? "Command" : "Flag"}
-          </span>
-        </div>
-      ),
-    };
-  }
-
-  // data.type === "shortcut"
-  return {
-    accentColor: SHORTCUT_ACCENT,
-    detail: data.shortcut.detail,
-    whenToUse: data.shortcut.whenToUse,
-    description: data.shortcut.description,
-    title: (
-      <kbd
-        className="font-mono text-sm font-semibold"
-        style={{
-          color: SHORTCUT_ACCENT,
-          background: "rgba(249, 115, 22, 0.15)",
-          padding: "4px 14px",
-          borderRadius: "6px",
-          border: "1px solid #FDBA7430",
-        }}
-      >
-        {data.shortcut.key}
-      </kbd>
-    ),
-    extraHeader: (
-      <div className="flex gap-1.5 mt-2">
-        <span
-          className="text-[11px] font-semibold rounded"
-          style={{
-            padding: "2px 8px",
-            background: "rgba(249, 115, 22, 0.15)",
-            color: SHORTCUT_ACCENT,
-          }}
-        >
-          ショートカット
-        </span>
-      </div>
-    ),
-  };
-};
+import type { CommandItem } from "./constants";
 
 export const DetailModal = ({
-  data,
+  item,
+  sectionName,
+  accentColor,
   onClose,
   reducedMotion,
 }: {
-  data: ModalData;
+  item: CommandItem;
+  sectionName: string;
+  accentColor: string;
   onClose: () => void;
   reducedMotion: boolean | null;
 }): React.JSX.Element => {
-  const { accentColor, detail, whenToUse, description, title, extraHeader } = getModalFields(data);
+  const isShortcut = item.itemType === "shortcut";
 
-  const icon =
-    data.type === "shortcut" ? (
-      <svg
-        width="18"
-        height="18"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        <path d="M18 3a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3H6a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3V6a3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3h12a3 3 0 0 0 3-3 3 3 0 0 0-3-3z" />
-      </svg>
-    ) : (
-      <TerminalIcon />
-    );
+  const icon = isShortcut ? (
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M18 3a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3H6a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3V6a3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3h12a3 3 0 0 0 3-3 3 3 0 0 0-3-3z" />
+    </svg>
+  ) : (
+    <TerminalIcon />
+  );
+
+  const typeLabel =
+    item.itemType === "slash"
+      ? "スラッシュコマンド"
+      : item.itemType === "cli-command"
+        ? "CLI Command"
+        : item.itemType === "cli-flag"
+          ? "CLI Flag"
+          : "ショートカット";
 
   return (
     <DetailModalShell
@@ -159,24 +54,48 @@ export const DetailModal = ({
       icon={icon}
       headerContent={
         <>
-          {title}
-          <div className="text-[14px] text-slate-300 mt-1.5 font-sans leading-[1.6]">
-            {description}
+          <div className="flex items-baseline gap-2 flex-wrap">
+            <code className="font-mono text-base font-bold" style={{ color: accentColor }}>
+              {item.title}
+            </code>
+            {item.args && (
+              <span className="text-xs text-slate-500 font-mono">{item.args}</span>
+            )}
           </div>
-          {extraHeader}
+          <div className="text-[14px] text-slate-300 mt-1.5 font-sans leading-[1.6]">
+            {item.description}
+          </div>
+          <div className="flex gap-1.5 mt-2 flex-wrap">
+            <span
+              className="text-[11px] font-semibold rounded"
+              style={{ padding: "2px 8px", background: accentColor + "18", color: accentColor }}
+            >
+              {sectionName}
+            </span>
+            <span
+              className="text-[11px] font-semibold rounded"
+              style={{
+                padding: "2px 8px",
+                background: "rgba(100, 116, 139, 0.15)",
+                color: "#94A3B8",
+              }}
+            >
+              {typeLabel}
+            </span>
+          </div>
         </>
       }
     >
       {/* Detail */}
       <div className="flex flex-col gap-2.5">
         <SectionHeading icon={<InfoIcon />} label="詳細説明" color="#67E8F9" />
-        <ParagraphList content={detail} />
+        <ParagraphList content={item.detail} />
       </div>
 
       {/* When to use */}
       <div className="flex flex-col gap-2.5">
         <SectionHeading icon={<TimingIcon />} label="使うタイミング" color="#FDBA74" />
-        <ParagraphList content={whenToUse} />
+        <ParagraphList content={item.whenToUse} />
       </div>
     </DetailModalShell>
   );

@@ -2,7 +2,7 @@ import { DetailModalShell } from "~/components/detail-modal";
 import { ModalSection } from "~/components/modal-section";
 import { ParagraphList } from "~/components/paragraph-list";
 import type { EnvCategory, EnvVar } from "./constants";
-import { CATEGORY_COLORS } from "./constants";
+import { SECTION_COLORS } from "./constants";
 
 export const DetailModal = ({
   envVar,
@@ -38,7 +38,7 @@ export const DetailModal = ({
           <path d="M9 21V9" />
         </svg>
       }
-      iconBackground={CATEGORY_COLORS[category.id]?.bg || "rgba(59, 130, 246, 0.25)"}
+      iconBackground={SECTION_COLORS[category.id]?.bg || "rgba(59, 130, 246, 0.25)"}
       bodyClassName="p-6 overflow-y-auto flex-1 flex flex-col gap-6"
       headerContent={
         <>
@@ -54,7 +54,7 @@ export const DetailModal = ({
               className="text-[11px] font-semibold whitespace-nowrap rounded"
               style={{
                 padding: "2px 8px",
-                background: CATEGORY_COLORS[category.id]?.bg,
+                background: SECTION_COLORS[category.id]?.bg,
                 color: accentColor,
               }}
             >

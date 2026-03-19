@@ -9,7 +9,7 @@
         "title": "モデル別ウィンドウサイズ",
         "summary": "Opus 4.6 と Sonnet 4.6 はネイティブ1Mコンテキスト（追加料金なし）。Haiku 4.5 は200K。モデルとコストの選択がコンテキスト戦略に直結する。",
         "content": "Opus 4.6 と Sonnet 4.6 は標準料金で1Mコンテキストを提供する（ロングコンテキストの追加料金なし）。モデル選択はコンテキスト戦略に直結する。",
-        "tags": ["コンテキスト"],
+        "tags": [],
         "tables": [
           {
             "title": "モデル別スペック",
@@ -29,7 +29,7 @@
         "title": "コンパクションの仕組み",
         "summary": "コンテキスト使用率~83.5%で自動トリガー。古いツール出力をクリアし会話を要約。CLAUDE.md とルールはディスクから再読み込みされる。ファイル内容や詳細なやりとりは失われる。",
         "content": "トリガー時、Claude Code は: (1) 古いツール出力をクリア（最大かつ最も価値の低いトークン）、(2) 会話を構造化された要約に圧縮（完了タスク、進行中の作業、変更ファイル、主要な決定）、(3) 要約を新しいベースラインとしてセッションを再開する。\n\n**保持される**: システムプロンプト、CLAUDE.md（ディスクから再読み込み）、アクティブなタスクリスト、直近 N ターンの完全な内容、タスク ID、アーキテクチャ上の決定。\n\n**失われる/圧縮される**: ファイル内容の逐語的な記録、中間的な推論、詳細なやりとり、正確な行番号。\n\nデフォルトトリガー: コンテキスト使用率 **~83.5%**（200K の ~167K）。予約バッファ: **~33K トークン**（16.5%）。`CLAUDE_AUTOCOMPACT_PCT_OVERRIDE`（1〜100）で設定可能。",
-        "tags": ["コンテキスト"],
+        "tags": [],
         "code": "# コンパクションタイミングの設定\nexport CLAUDE_AUTOCOMPACT_PCT_OVERRIDE=90  # より遅くトリガー\nexport CLAUDE_AUTOCOMPACT_PCT_OVERRIDE=70  # より早くトリガー\n\n# カスタムコンパクション指示\n# /compact API変更に焦点を当てて",
         "tips": [
           "/compact focus on ... でカスタムコンパクション指示を指定可能",
@@ -41,7 +41,7 @@
         "title": "コンポーネント別トークンコスト",
         "summary": "新規セッションはユーザー操作前に~20Kトークン（10%）を消費。MCP サーバーが多いと60〜143Kトークンに膨張。画像は (幅×高さ)/750 トークン。",
         "content": "新規モノレポプロジェクトは**~20Kトークン**（10%）がユーザー操作前に消費される。多くの MCP サーバーがあると **60〜143K トークン**に膨張する。\n\n**画像**: `トークン数 = (幅 × 高さ) / 750`。1000×1000px の画像は約 1,334 トークン。リサイズなしの最大値: 最長辺 1568px。",
-        "tags": ["コンテキスト"],
+        "tags": [],
         "tables": [
           {
             "title": "コンポーネント別の典型的なトークン消費",
@@ -63,7 +63,7 @@
         "title": "コンテキスト40%以下を維持する10の戦略",
         "summary": "/clear の積極的な使用、70-75%での手動コンパクト、CLAUDE.md の軽量化、スキルによるオンデマンド読み込み、Tool Search の活用など。",
         "content": "コンテキスト使用率40%を超えると品質劣化が始まる。複数の実践者が独立して60%を超えないことをしきい値として採用している。以下の戦略で40%以下を維持する。",
-        "tags": ["コンテキスト"],
+        "tags": [],
         "tips": [
           "無関係なタスク間で /clear を積極的に使用する",
           "自動コンパクトを待たず 70〜75% で手動 /compact する",
@@ -89,7 +89,7 @@
         "title": "-p フラグと JSON 出力",
         "summary": "claude -p でヘッドレス実行。--output-format json で構造化出力。--json-schema でスキーマ指定。セッション再開やストリームチェーンも可能。",
         "content": "基本的なヘッドレス実行から、JSON 出力、スキーマ指定、セッション再開、ストリームチェーンまで幅広い使い方が可能。",
-        "tags": ["コンテキスト"],
+        "tags": [],
         "code": "# 基本ヘッドレス\nclaude -p \"プロンプト\"\n\n# JSON 出力\nclaude -p \"レビュー\" --output-format json\n\n# スキーマ指定\nclaude -p \"抽出\" --json-schema '{\"type\":\"object\",\"properties\":{\"items\":{\"type\":\"array\"}}}'\n\n# ツール制限\nclaude -p \"分析\" --allowedTools Read,Grep,Glob\n\n# セッション再開\nsession_id=$(claude -p \"レビュー開始\" --output-format json | jq -r '.session_id')\nclaude -p \"続行\" --resume \"$session_id\"\n\n# ストリームチェーン\nclaude --print --output-format stream-json \"分析\" | \\\n  claude --print --input-format stream-json --output-format stream-json \"処理\" | \\\n  claude --print --input-format stream-json \"レポート生成\""
       },
       {
@@ -97,7 +97,7 @@
         "title": "GitHub Actions 連携",
         "summary": "anthropics/claude-code-action@v1 で PR トリガー、@claude メンション、ラベルトリガーなど。/install-github-app でセットアップ。",
         "content": "Anthropic 公式の GitHub Action で CI/CD に Claude Code を統合する。`/install-github-app` コマンドでセットアップ可能。",
-        "tags": ["コンテキスト"],
+        "tags": [],
         "code": "- uses: anthropics/claude-code-action@v1\n  with:\n    anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}\n    trigger_phrase: \"@claude\"\n    claude_args: |\n      --max-turns 10\n      --model claude-sonnet-4-6",
         "tips": [
           "anthropic_api_key、claude_code_oauth_token、prompt、claude_args、trigger_phrase、assignee_trigger、label_trigger、settings（JSON）などの入力パラメータをサポート",
@@ -109,7 +109,7 @@
         "title": "CI のコスト管理",
         "summary": "JSON 出力から cost_usd を抽出して監視。レビューは --max-turns 3-5、生成は最大10。200行のコードレビューは Sonnet で $0.02〜$0.08。",
         "content": "CI 環境でのコスト最適化の指針。",
-        "tags": ["コンテキスト"],
+        "tags": [],
         "tips": [
           "JSON 出力から cost_usd を抽出してコスト監視する",
           "レビューは --max-turns 3-5、生成タスクは最大 10",
@@ -131,7 +131,7 @@
         "title": "組み込みワークツリーサポート",
         "summary": "v2.1.49+ で claude --worktree (-w) をサポート。.claude/worktrees/ に作成され、変更がないワークツリーはセッション終了時に自動削除。",
         "content": "`claude --worktree feature-auth`（または `-w feature-auth`）でワークツリーを作成。`.claude/worktrees/feature-auth/` にブランチ `worktree-feature-auth` としてデフォルトリモートから作成される。各ワークツリーは独立した `.claude/` 設定を持つ。`.claude/worktrees/` を `.gitignore` に追加すること。\n\n**クリーンアップ**: 変更のないワークツリーはセッション終了時に自動削除。変更があるワークツリーは保持/削除を確認。サブエージェントの `isolation: worktree` ワークツリーは、変更がない場合にエージェント終了時に自動クリーンアップされる。",
-        "tags": ["コンテキスト"],
+        "tags": [],
         "code": "claude --worktree feature-auth    # または -w feature-auth"
       },
       {
@@ -139,7 +139,7 @@
         "title": "並列セッション戦略",
         "summary": "Boris Cherny は5つのローカル + 5-10の claude.ai/code を同時実行。incident.io は4-5の並列インスタンスを日常的に使用。推奨は3-4のワークツリーが上限。",
         "content": "Boris Cherny は **5つのローカルインスタンス + 5〜10の claude.ai/code** を同時実行している。incident.io チームは日常的に **4〜5の並列インスタンス**をワークツリーで運用。実用的な推奨は **3〜4の同時ワークツリー**が上限。",
-        "tags": ["コンテキスト"],
+        "tags": [],
         "tips": [
           "ワークツリー名を意図する PR ブランチに合わせる",
           "使い捨て作業には experiment- プレフィックスを使用する",

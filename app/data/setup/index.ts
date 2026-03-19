@@ -6,7 +6,6 @@ import claudeMdSection from "~/data/setup/setup-claude-md.json";
 import ideSection from "~/data/setup/setup-ide.json";
 import tipsSection from "~/data/setup/setup-tips.json";
 import permissionsSection from "~/data/setup/setup-permissions.json";
-import customizationSection from "~/data/setup/setup-customization.json";
 import troubleshootingSection from "~/data/setup/setup-troubleshooting.json";
 
 export const SECTIONS = [
@@ -18,6 +17,5 @@ export const SECTIONS = [
   ideSection,
   tipsSection,
   permissionsSection,
-  customizationSection,
   troubleshootingSection,
 ];

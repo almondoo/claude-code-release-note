@@ -1,14 +1,14 @@
 import {
-  BookOpenIcon,
   FolderIcon,
-  LightbulbIcon,
   LockIcon,
-  MapPinIcon,
   SettingsIcon,
-  TerminalIcon,
 } from "~/components/icons";
 import directoryData from "~/data/directory/directory-structure.json";
 import { PALETTE } from "~/theme/colors";
+
+// ---------------------------------------------------------------------------
+// Types
+// ---------------------------------------------------------------------------
 
 export interface Entry {
   path: string;
@@ -31,20 +31,12 @@ export interface Section {
   bestPractices: string[];
 }
 
-export interface PrecedenceItem {
-  level: number;
-  name: string;
-  description: string;
-  color: string;
-}
+// ---------------------------------------------------------------------------
+// Constants
+// ---------------------------------------------------------------------------
 
-export interface TabDef {
-  id: string;
-  label: string;
-  shortLabel: string;
-  color: string;
-  type: "section" | "info";
-}
+export const SECTIONS: Section[] = directoryData.sections as unknown as Section[];
+export const TOTAL_ITEMS = SECTIONS.reduce((sum, s) => sum + s.entries.length, 0);
 
 export const SECTION_COLORS: Record<string, { color: string; bg: string }> = {
   global: PALETTE.purple,
@@ -137,71 +129,81 @@ export const getVcsKey = (vcs: boolean | null): "true" | "false" | "null" => {
   return String(vcs) as "true" | "false";
 };
 
-export const SECTIONS: Section[] = directoryData.sections as unknown as Section[];
-export const PRECEDENCE: PrecedenceItem[] = directoryData.precedence as PrecedenceItem[];
-export const COMMIT_GUIDE = directoryData.commitGuide;
-export const SKILLS_VS_AGENTS = directoryData.skillsVsAgents;
-
-export const TOTAL = SECTIONS.flatMap((s) => s.entries).length;
-
-const ENTRY_SECTION_MAP = new Map<string, Section>();
-for (const s of SECTIONS) {
-  for (const e of s.entries) {
-    ENTRY_SECTION_MAP.set(e.path + "@" + s.id, s);
-  }
-}
-export const getSectionForEntry = (entry: Entry): Section => {
-  for (const s of SECTIONS) {
-    if (s.entries.includes(entry)) return s;
-  }
-  return SECTIONS[0];
+export const TAG_COLORS: Record<string, { color: string; bg: string }> = {
+  推奨: PALETTE.green,
+  任意: { color: "#64748B", bg: "rgba(100,116,139,0.15)" },
+  上級: PALETTE.purple,
+  "VCS ○": PALETTE.green,
+  "VCS ×": { color: "#64748B", bg: "rgba(100,116,139,0.15)" },
+  "OS 管理": PALETTE.orange,
 };
 
-export const PRECEDENCE_COLORS: Record<string, { color: string; bg: string }> = {
-  red: PALETTE.red,
-  orange: PALETTE.orange,
-  yellow: PALETTE.yellow,
-  green: PALETTE.green,
-  blue: PALETTE.blueDark,
-};
-
-export const SPECIAL_TABS = ["precedence", "commit-guide", "skills-agents"] as const;
-
-export const TAB_DEFS: TabDef[] = [
-  { id: "all", label: "すべて", shortLabel: "すべて", color: "#3B82F6", type: "section" },
+export const TAB_DEFS = [
+  { id: "all", label: "すべて", color: "#3B82F6" },
   ...SECTIONS.map((s) => ({
     id: s.id,
     label: s.name,
-    shortLabel: s.name.replace("（企業管理者向け）", "").replace("マネージド設定", "マネージド"),
     color: SECTION_COLORS[s.id]?.color || "#3B82F6",
-    type: "section" as const,
   })),
-  {
-    id: "precedence",
-    label: "優先順位",
-    shortLabel: "優先順位",
-    color: "#FDBA74",
-    type: "info",
-  },
-  {
-    id: "commit-guide",
-    label: "コミットガイド",
-    shortLabel: "コミット",
-    color: "#5EEAD4",
-    type: "info",
-  },
-  {
-    id: "skills-agents",
-    label: "Skills vs Agents",
-    shortLabel: "Skills/Agents",
-    color: "#C4B5FD",
-    type: "info",
-  },
 ];
 
+// ---------------------------------------------------------------------------
+// Section-to-item map for lookups
+// ---------------------------------------------------------------------------
+
+export const ITEM_SECTION_MAP = new Map<
+  string,
+  { sectionName: string; sectionId: string }
+>();
+for (const s of SECTIONS) {
+  for (const e of s.entries) {
+    ITEM_SECTION_MAP.set(`${s.id}:${e.path}`, {
+      sectionName: s.name,
+      sectionId: s.id,
+    });
+  }
+}
+
+export const getItemId = (sectionId: string, entryPath: string): string =>
+  `${sectionId}:${entryPath}`;
+
+// Keep for detail modal
 export const MODAL_SECTION_META: Record<string, { label: string; icon: React.JSX.Element }> = {
-  detail: { label: "詳細", icon: <BookOpenIcon /> },
-  usage: { label: "使い方", icon: <TerminalIcon /> },
-  location: { label: "配置場所", icon: <MapPinIcon /> },
-  bestPractices: { label: "ベストプラクティス", icon: <LightbulbIcon /> },
+  detail: {
+    label: "詳細",
+    icon: (
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+        <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+      </svg>
+    ),
+  },
+  usage: {
+    label: "使い方",
+    icon: (
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <polyline points="4 17 10 11 4 5" />
+        <line x1="12" y1="19" x2="20" y2="19" />
+      </svg>
+    ),
+  },
+  location: {
+    label: "配置場所",
+    icon: (
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+        <circle cx="12" cy="10" r="3" />
+      </svg>
+    ),
+  },
+  bestPractices: {
+    label: "ベストプラクティス",
+    icon: (
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <line x1="9" y1="18" x2="15" y2="18" />
+        <line x1="10" y1="22" x2="14" y2="22" />
+        <path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14" />
+      </svg>
+    ),
+  },
 };

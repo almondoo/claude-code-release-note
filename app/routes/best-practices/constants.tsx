@@ -146,12 +146,6 @@ export const SECTION_ICONS: Record<string, () => React.JSX.Element> = {
 
 export const TAG_COLORS: Record<string, { color: string; bg: string }> = {
   重要: { color: "#F87171", bg: "rgba(239, 68, 68, 0.15)" },
-  ワークフロー: PALETTE.cyan,
-  プロンプト: PALETTE.purple,
-  環境設定: PALETTE.orange,
-  セッション: PALETTE.blueDark,
-  自動化: PALETTE.teal,
-  アンチパターン: PALETTE.red,
 };
 
 export const TAB_DEFS: TabDef[] = [

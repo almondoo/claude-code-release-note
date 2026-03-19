@@ -208,13 +208,7 @@ export const SECTION_ICONS: Record<string, () => React.JSX.Element> = {
 // Tag colors (for card tags)
 // ---------------------------------------------------------------------------
 
-export const TAG_COLORS: Record<string, { color: string; bg: string }> = {
-  設定ファイル: PALETTE.orange,
-  実行制御: PALETTE.red,
-  エージェント: PALETTE.purple,
-  コンテキスト: PALETTE.cyan,
-  実践ガイド: PALETTE.green,
-};
+export const TAG_COLORS: Record<string, { color: string; bg: string }> = {};
 
 // ---------------------------------------------------------------------------
 // Item → Section lookup

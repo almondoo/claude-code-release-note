@@ -47,7 +47,6 @@ export const SECTION_COLORS: Record<string, { color: string; bg: string }> = {
   ide: PALETTE.blueDark,
   tips: PALETTE.pinkBright,
   permissions: PALETTE.yellow,
-  customization: PALETTE.indigo,
   troubleshooting: PALETTE.red,
 };
 
@@ -65,7 +64,7 @@ export const TAG_COLORS: Record<string, { color: string; bg: string }> = {
 export const TAB_SECTION_MAP: Record<string, string[]> = {
   "phase-1": ["intro", "installation", "authentication", "first-steps"],
   "phase-2": ["claude-md", "ide", "tips", "permissions"],
-  "phase-3": ["customization", "troubleshooting"],
+  "phase-3": ["troubleshooting"],
 };
 
 export const TAB_DEFS: TabItem[] = [

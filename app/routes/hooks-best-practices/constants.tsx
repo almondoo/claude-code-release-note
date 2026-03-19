@@ -171,8 +171,6 @@ export const SECTION_ICONS: Record<string, () => React.JSX.Element> = {
 
 export const TAG_COLORS: Record<string, { color: string; bg: string }> = {
   重要: { color: "#F87171", bg: "rgba(239, 68, 68, 0.15)" },
-  セキュリティ: PALETTE.red,
-  設定: PALETTE.orange,
   デバッグ: PALETTE.yellow,
   自動化: PALETTE.teal,
   通知: PALETTE.blue,

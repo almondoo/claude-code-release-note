@@ -168,12 +168,6 @@ export const SECTION_ICONS: Record<string, () => React.JSX.Element> = {
 };
 
 export const TAG_COLORS: Record<string, { color: string; bg: string }> = {
-  基礎: { color: "#F87171", bg: "rgba(239, 68, 68, 0.15)" },
-  出力: PALETTE.blue,
-  ツール: PALETTE.cyan,
-  思考: PALETTE.purple,
-  エージェント: PALETTE.orange,
-  移行: PALETTE.teal,
   ビジョン: PALETTE.green,
   デザイン: PALETTE.indigo,
 };

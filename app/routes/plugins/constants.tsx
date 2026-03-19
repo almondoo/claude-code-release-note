@@ -2,6 +2,10 @@ import { CheckDocIcon, CodeIcon, LinkIcon, TeamIcon, WrenchIcon } from "~/compon
 import pluginsData from "~/data/plugins/plugins.json";
 import { PALETTE } from "~/theme/colors";
 
+// ---------------------------------------------------------------------------
+// Types
+// ---------------------------------------------------------------------------
+
 export interface Plugin {
   name: string;
   displayName: string;
@@ -21,7 +25,21 @@ export interface Category {
   plugins: Plugin[];
 }
 
-export const CATEGORY_COLORS: Record<string, { color: string; bg: string }> = {
+// ---------------------------------------------------------------------------
+// Constants
+// ---------------------------------------------------------------------------
+
+export const CATEGORIES: Category[] = pluginsData.categories;
+
+export const SECTIONS = CATEGORIES.map((c) => ({
+  id: c.id,
+  name: c.name,
+  items: c.plugins,
+}));
+
+export const TOTAL_ITEMS = SECTIONS.reduce((sum, s) => sum + s.items.length, 0);
+
+export const SECTION_COLORS: Record<string, { color: string; bg: string }> = {
   "code-intelligence": PALETTE.cyan,
   "dev-tools": PALETTE.purple,
   "code-review-git": PALETTE.green,
@@ -30,7 +48,7 @@ export const CATEGORY_COLORS: Record<string, { color: string; bg: string }> = {
   community: PALETTE.pinkBright,
 };
 
-export const CATEGORY_ICONS: Record<string, () => React.JSX.Element> = {
+export const SECTION_ICONS: Record<string, () => React.JSX.Element> = {
   "code-intelligence": () => <CodeIcon />,
   "dev-tools": () => <WrenchIcon />,
   "code-review-git": () => <CheckDocIcon />,
@@ -53,50 +71,26 @@ export const CATEGORY_ICONS: Record<string, () => React.JSX.Element> = {
   community: () => <TeamIcon />,
 };
 
-export const CATEGORIES: Category[] = pluginsData.categories;
-export const TOTAL = CATEGORIES.flatMap((c) => c.plugins).length;
+export const TAG_COLORS: Record<string, { color: string; bg: string }> = {
+  LSP: PALETTE.cyan,
+};
 
-export interface TabDef {
-  id: string;
-  label: string;
-  color: string;
-  type: "category" | "quickstart";
-}
-
-export const TAB_DEFS: TabDef[] = [
-  { id: "all", label: "すべて", color: "#3B82F6", type: "category" },
-  ...CATEGORIES.map((c) => ({
-    id: c.id,
-    label: c.name,
-    color: CATEGORY_COLORS[c.id]?.color || "#3B82F6",
-    type: "category" as const,
+export const TAB_DEFS = [
+  { id: "all", label: "すべて", color: "#3B82F6" },
+  ...SECTIONS.map((s) => ({
+    id: s.id,
+    label: s.name,
+    color: SECTION_COLORS[s.id]?.color || "#3B82F6",
   })),
-  { id: "quickstart", label: "クイックスタート", color: "#5EEAD4", type: "quickstart" },
 ];
 
-export const PLUGIN_CATEGORY_MAP = new Map<string, { color: string }>();
+// ---------------------------------------------------------------------------
+// Section-to-item map for lookups
+// ---------------------------------------------------------------------------
+
+export const ITEM_SECTION_MAP = new Map<string, { sectionName: string; sectionId: string }>();
 for (const cat of CATEGORIES) {
   for (const p of cat.plugins) {
-    PLUGIN_CATEGORY_MAP.set(p.name, {
-      color: CATEGORY_COLORS[cat.id]?.color || "#3B82F6",
-    });
+    ITEM_SECTION_MAP.set(p.name, { sectionName: cat.name, sectionId: cat.id });
   }
 }
-
-export const QUICKSTART_STEPS = [
-  {
-    title: "ブラウズ",
-    cmd: "/plugin",
-    desc: "Discover タブで利用可能なプラグインを閲覧",
-  },
-  {
-    title: "インストール",
-    cmd: "/plugin install <name>@claude-plugins-official",
-    desc: "プラグインをインストール（user / project / local スコープ選択可）",
-  },
-  {
-    title: "管理",
-    cmd: "/plugin",
-    desc: "Installed タブでプラグインの有効化・無効化・削除",
-  },
-];

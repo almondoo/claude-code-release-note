@@ -25,7 +25,7 @@
           "title": "4つのハンドラタイプ",
           "summary": "command, http, prompt, agent の4つのタイプから用途に応じて選択する。",
           "content": "Hooks には4つのハンドラタイプがあり、それぞれ異なるユースケースに適しています。決定論的なルール（ファイルパターンのブロックなど）には `command` を使い、判断が必要な場面では `prompt` や `agent` を使い分けましょう。",
-          "tags": ["設定"],
+          "tags": [],
           "steps": [
             {
               "phase": "command",
@@ -80,7 +80,7 @@
           "title": "ノンブロッキングイベント",
           "summary": "阻止不可のイベント。コンテキスト注入、ログ記録、通知、クリーンアップに使用。",
           "content": "ノンブロッキングイベントはアクションを阻止できませんが、情報提供やサイドエフェクト（ログ記録、通知、フォーマット等）に最適です。",
-          "tags": ["設定"],
+          "tags": [],
           "tips": [
             "`SessionStart` — セッション開始/再開時に発火。コンテキスト注入、環境変数の設定に使用",
             "`PostToolUse` — ツール成功後に発火。コードフォーマット、ログ記録に使用",
@@ -106,7 +106,7 @@
           "title": "設定ファイルの配置場所と優先順位",
           "summary": "6つの設定ソースが加算的に評価される。セキュリティはグローバル、プロジェクト固有はローカルに配置。",
           "content": "Hooks は**加算的（additive）**です。全ソースの hooks が実行されます。優先順位は、設定値の競合時にどちらが勝つかを決定するものです。\n\nセキュリティ関連の hooks はグローバル設定 `~/.claude/settings.json` に、プロジェクト固有のフォーマッターは `.claude/settings.json` に配置してチームで共有、個人的な開発環境設定は `.claude/settings.local.json` に配置しましょう。",
-          "tags": ["設定"],
+          "tags": [],
           "locations": [
             { "path": "マネージドポリシー設定", "description": "優先度1（最高）。組織全体に適用。管理者が制御" },
             { "path": ".claude/settings.local.json", "description": "優先度2。プロジェクト単位。ローカルのみ（gitignore推奨）" },
@@ -121,7 +121,7 @@
           "title": "設定の基本構造",
           "summary": "イベント名・Matcher・ハンドラの3層構造。Exit Code でブロッキングを制御する。",
           "content": "Hooks の設定は、イベント名をキーとし、Matcher パターンとハンドラの配列で構成されます。Matcher は省略・空文字・`\"*\"` で全マッチ、正規表現（`\"Edit|Write\"` 等）も使用可能です（**大文字小文字を区別**）。",
-          "tags": ["設定"],
+          "tags": [],
           "tips": [
             "Exit Code `0` — 成功。アクション続行。stdout の JSON が解析される",
             "Exit Code `2` — ブロッキングエラー。アクションをブロック。stderr が Claude へのフィードバックになる",
@@ -141,7 +141,7 @@
           "title": "セキュリティファースト",
           "summary": "最初に危険コマンドブロッカーをグローバル設定に追加。2分で全プロジェクトを保護できる。",
           "content": "最初に危険コマンドブロッカーをグローバル設定に追加しましょう。`~/.claude/settings.json` に `PreToolUse` の hook を追加し、`Bash` ツールの実行前に危険なパターンをチェックするシェルスクリプトを呼び出します。",
-          "tags": ["セキュリティ", "重要"],
+          "tags": ["重要"],
           "codeBlocks": [
             {
               "lang": "json",
@@ -160,7 +160,7 @@
           "title": "スクリプトファイルに分離する",
           "summary": "複雑なロジックはインラインコマンドではなく、別ファイルに分離して保守性を高める。",
           "content": "複雑なロジックはインラインコマンドではなく、別ファイルに分離しましょう。インラインコマンドは読みにくく、デバッグも困難です。",
-          "tags": ["設定"],
+          "tags": [],
           "examples": [
             {
               "strategy": "スクリプトファイルに分離",
@@ -174,7 +174,7 @@
           "title": "jq で JSON を確実にパースする",
           "summary": "hook は stdin で JSON を受け取る。jq を使って安全にパースし、// empty でnull対策する。",
           "content": "hook は stdin で JSON を受け取ります。`jq` を使って安全にパースしましょう。`// empty` を使うことで、フィールドが存在しない場合に `null` 文字列ではなく空文字列を返します。",
-          "tags": ["設定"],
+          "tags": [],
           "code": "#!/bin/bash\nINPUT=$(cat)\nFILE_PATH=$(echo \"$INPUT\" | jq -r '.tool_input.file_path // empty')\nTOOL_NAME=$(echo \"$INPUT\" | jq -r '.tool_name // empty')"
         },
         {
@@ -198,7 +198,7 @@
           "title": "Matcher を最小限に絞る",
           "summary": "Matcher を広げすぎると意図しない副作用が発生する。特定のツールだけに限定する。",
           "content": "Matcher を広げすぎると意図しない副作用が発生します。特に `PermissionRequest` の自動承認は、特定のツールに限定することが重要です。",
-          "tags": ["セキュリティ"],
+          "tags": [],
           "examples": [
             {
               "strategy": "Matcher を最小限に",
@@ -221,7 +221,7 @@
           "title": "エラーハンドリングを堅牢にする",
           "summary": "set -euo pipefail を使い、jq の存在確認やJSON パースエラーを適切に処理する。",
           "content": "本番で使用する hook スクリプトでは、堅牢なエラーハンドリングを実装しましょう。`set -euo pipefail` でエラー時に即座に停止し、`jq` の存在確認やJSONパースエラーのハンドリングを行います。",
-          "tags": ["設定"],
+          "tags": [],
           "code": "#!/bin/bash\nset -euo pipefail\n\nINPUT=$(cat) || { echo \"stdin の読み取りに失敗\" >&2; exit 1; }\n\n# jq が利用可能か確認\nif ! command -v jq &> /dev/null; then\n  echo \"jq がインストールされていません\" >&2\n  exit 1\nfi\n\nTOOL_NAME=$(echo \"$INPUT\" | jq -r '.tool_name // empty') || {\n  echo \"JSON パースに失敗\" >&2\n  exit 1\n}"
         },
         {
@@ -229,7 +229,7 @@
           "title": "$CLAUDE_PROJECT_DIR を活用する",
           "summary": "スクリプトのパスは $CLAUDE_PROJECT_DIR 環境変数を使って参照。絶対パスのハードコーディングを避ける。",
           "content": "スクリプトのパスは `$CLAUDE_PROJECT_DIR` 環境変数を使って参照しましょう。絶対パスのハードコーディングを避けることで、チームメンバー間でのパスの違いを吸収できます。",
-          "tags": ["設定"],
+          "tags": [],
           "code": "{\n  \"type\": \"command\",\n  \"command\": \"\\\"$CLAUDE_PROJECT_DIR\\\"/.claude/hooks/my-script.sh\"\n}"
         },
         {
@@ -237,7 +237,7 @@
           "title": "statusMessage でユーザー体験を向上させる",
           "summary": "hook の実行中に何をしているか表示して、ユーザーの待ち時間のストレスを軽減する。",
           "content": "hook の実行中に何をしているか表示することで、ユーザーの待ち時間のストレスを軽減できます。`statusMessage` フィールドに短い説明を設定しましょう。",
-          "tags": ["設定"],
+          "tags": [],
           "code": "{\n  \"type\": \"command\",\n  \"command\": \"./check-security.sh\",\n  \"statusMessage\": \"セキュリティチェック実行中...\"\n}"
         }
       ]
@@ -290,7 +290,7 @@
           "title": "保護ファイルへの編集ブロック",
           "summary": ".env、ロックファイル、秘密鍵などの保護ファイルへの編集を PreToolUse でブロックする。",
           "content": "機密ファイルやロックファイルへの意図しない編集を防ぎます。`PreToolUse` で `Edit|Write` ツールをマッチし、ファイルパスが保護パターンに該当する場合は exit code 2 でブロックします。",
-          "tags": ["セキュリティ"],
+          "tags": [],
           "codeBlocks": [
             {
               "lang": "bash",
@@ -459,7 +459,7 @@
           "title": "セキュリティ上の注意点",
           "summary": "権限の自動承認は最小限に。保護ファイルリストの維持、監査ログの記録を徹底する。",
           "content": "Hooks はセキュリティの強化に活用できますが、不適切な設定はセキュリティリスクにもなります。以下の点に注意してください。",
-          "tags": ["セキュリティ", "重要"],
+          "tags": ["重要"],
           "tips": [
             "**権限の自動承認は最小限に**: `PermissionRequest` の自動承認は特定のツールに限定する",
             "**保護ファイルリストを維持する**: `.env`, `*.pem`, `*.key` 等の機密ファイルは `PreToolUse` でブロック",

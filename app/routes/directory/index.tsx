@@ -1,31 +1,30 @@
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import { useCallback, useState, useSyncExternalStore } from "react";
 
-import { InfoIcon, LightbulbIcon } from "~/components/icons";
 import { EmptyState } from "~/components/empty-state";
 import { Footer } from "~/components/footer";
 import { ItemGrid } from "~/components/item-grid";
 import { PageHeader } from "~/components/page-header";
 import { SearchInput } from "~/components/search-input";
+import { SummaryCard } from "~/components/summary-card";
 import { TabBar } from "~/components/tab-bar";
 import type { TabItem } from "~/components/tab-bar";
 import { usePageState } from "~/hooks/usePageState";
 
-import type { Entry, Section } from "./constants";
+import type { Entry } from "./constants";
 import {
+  SECTIONS,
+  TOTAL_ITEMS,
   SECTION_COLORS,
   SECTION_ICONS,
-  SECTIONS,
-  SPECIAL_TABS,
   TAB_DEFS,
-  TOTAL,
-  getSectionForEntry,
+  ITEM_SECTION_MAP,
+  TAG_COLORS,
+  RECOMMEND_CONFIG,
+  VCS_CONFIG,
+  getItemId,
+  getVcsKey,
 } from "./constants";
-import { CommitGuidePanel } from "./commit-guide-panel";
 import { DetailModal } from "./detail-modal";
-import { EntryCard } from "./entry-card";
-import { PrecedencePanel } from "./precedence-panel";
-import { SkillsVsAgentsPanel } from "./skills-vs-agents-panel";
 
 export const meta = (): Array<{
   title?: string;
@@ -41,26 +40,18 @@ export const meta = (): Array<{
   ];
 };
 
-const tabItems: TabItem[] = TAB_DEFS.map((t) => ({
-  id: t.id,
-  label: t.shortLabel,
-  color: t.color,
-}));
-
 const renderTabIcon = (tab: TabItem): React.ReactNode => {
-  const def = TAB_DEFS.find((t) => t.id === tab.id);
-  if (!def) return null;
-  if (def.type === "section" && SECTION_ICONS[tab.id]) {
+  if (SECTION_ICONS[tab.id]) {
     return <span className="flex items-center scale-[0.8]">{SECTION_ICONS[tab.id]()}</span>;
   }
-  if (def.type === "info") {
-    return (
-      <span className="flex items-center">
-        <InfoIcon />
-      </span>
-    );
-  }
   return null;
+};
+
+const getEntryTags = (entry: Entry): string[] => {
+  const tags: string[] = [];
+  tags.push(RECOMMEND_CONFIG[entry.recommended].label);
+  tags.push(VCS_CONFIG[getVcsKey(entry.vcs)].label);
+  return tags;
 };
 
 const Directory = (): React.JSX.Element => {
@@ -69,35 +60,33 @@ const Directory = (): React.JSX.Element => {
     setQuery,
     activeTab,
     handleTabChange,
-    filteredItems: filteredEntries,
+    filteredSections,
+    modalItem: modalItemId,
+    openModal,
+    closeModal,
   } = usePageState<Entry>({
     sections: SECTIONS.map((s) => ({ id: s.id, name: s.name, items: s.entries })),
     searchFields: (e) => [e.path, e.name, e.description, e.detail, e.usage],
   });
-
-  // Custom modal state (entry + section pair)
-  const [selectedEntry, setSelectedEntry] = useState<{
-    entry: Entry;
-    section: Section;
-  } | null>(null);
   const reducedMotion = useReducedMotion();
-  const hasMounted = useSyncExternalStore(
-    () => () => {},
-    () => true,
-    () => false,
-  );
 
-  const isAllTab = activeTab === "all";
-  const activeSection = SECTIONS.find((s) => s.id === activeTab);
-  const isInfoTab = SPECIAL_TABS.includes(activeTab as (typeof SPECIAL_TABS)[number]);
+  const visibleItemCount = filteredSections.reduce((sum, s) => sum + s.items.length, 0);
 
-  const openModal = useCallback((entry: Entry, section: Section) => {
-    setSelectedEntry({ entry, section });
-  }, []);
-
-  const closeModal = useCallback(() => {
-    setSelectedEntry(null);
-  }, []);
+  // Modal resolution
+  const modalEntry = modalItemId
+    ? (() => {
+        for (const s of SECTIONS) {
+          for (const e of s.entries) {
+            if (getItemId(s.id, e.path) === modalItemId) return e;
+          }
+        }
+        return null;
+      })()
+    : null;
+  const modalSectionInfo = modalItemId ? ITEM_SECTION_MAP.get(modalItemId) : null;
+  const modalSection = modalSectionInfo
+    ? (SECTIONS.find((s) => s.id === modalSectionInfo.sectionId) ?? null)
+    : null;
 
   const m = reducedMotion
     ? { initial: undefined, animate: undefined, transition: undefined }
@@ -111,183 +100,104 @@ const Directory = (): React.JSX.Element => {
           title="Claude Code 設定ガイド"
           description="設定ファイルの配置場所・使い方・ベストプラクティスを網羅したガイド"
           stats={[
-            { value: TOTAL, label: "エントリ" },
             { value: SECTIONS.length, label: "セクション" },
+            { value: TOTAL_ITEMS, label: "エントリ" },
           ]}
           gradient={["rgba(139,92,246,0.08)", "rgba(6,182,212,0.05)"]}
         />
 
         {/* Tabs */}
         <TabBar
-          tabs={tabItems}
+          tabs={TAB_DEFS}
           activeTab={activeTab}
           onTabChange={handleTabChange}
           renderIcon={renderTabIcon}
           reducedMotion={reducedMotion}
         />
 
-        {/* Best practices -- only for section tabs */}
-        {!isInfoTab && activeSection && activeSection.bestPractices.length > 0 && (
-          <motion.div
-            initial={m ? false : { opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.3, delay: 0.12 }}
-            className="mb-4"
-          >
-            <div
-              className="rounded-xl border flex gap-3"
-              style={{
-                padding: "14px 18px",
-                background: `${SECTION_COLORS[activeSection.id]?.bg || "rgba(59, 130, 246, 0.08)"}`,
-                borderColor: `${SECTION_COLORS[activeSection.id]?.color || "#3B82F6"}25`,
-              }}
-            >
-              <div
-                className="shrink-0 mt-0.5"
-                style={{ color: SECTION_COLORS[activeSection.id]?.color || "#3B82F6" }}
-              >
-                <LightbulbIcon width={16} height={16} />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div
-                  className="text-[12px] font-bold tracking-wide uppercase font-mono mb-2"
-                  style={{ color: SECTION_COLORS[activeSection.id]?.color || "#3B82F6" }}
-                >
-                  ベストプラクティス
-                </div>
-                <ul className="m-0 pl-4 flex flex-col gap-1">
-                  {activeSection.bestPractices.map((tip, i) => (
-                    <li key={i} className="text-xs leading-[1.7] text-slate-300 font-sans">
-                      {tip}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          </motion.div>
-        )}
+        {/* Search */}
+        <motion.div
+          initial={m ? false : { opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.3, delay: 0.15 }}
+          className="mb-4"
+        >
+          <SearchInput
+            value={query}
+            onChange={setQuery}
+            placeholder="ファイル名やキーワードで検索..."
+          />
+        </motion.div>
 
-        {/* Search -- only for section tabs */}
-        {!isInfoTab && (
-          <motion.div
-            initial={m ? false : { opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.3, delay: 0.15 }}
-            className="mb-4"
-          >
-            <SearchInput
-              value={query}
-              onChange={setQuery}
-              placeholder="ファイル名やキーワードで検索..."
-            />
-          </motion.div>
-        )}
+        {/* Count */}
+        <div className="flex items-center gap-2.5 mb-4 px-1">
+          <span className="text-[14px] text-slate-500 font-medium">
+            {visibleItemCount} / {TOTAL_ITEMS} エントリ
+          </span>
+        </div>
 
-        {/* Tab content */}
-        <AnimatePresence mode="popLayout">
-          {isInfoTab ? (
-            <motion.div
-              key={activeTab}
-              initial={reducedMotion ? false : { opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={reducedMotion ? undefined : { opacity: 0 }}
-              transition={{ duration: 0.15 }}
-            >
-              {activeTab === "precedence" && <PrecedencePanel />}
-              {activeTab === "commit-guide" && <CommitGuidePanel />}
-              {activeTab === "skills-agents" && <SkillsVsAgentsPanel />}
-            </motion.div>
-          ) : (
-            <motion.div
-              key={activeTab}
-              initial={reducedMotion ? false : { opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={reducedMotion ? undefined : { opacity: 0 }}
-              transition={{ duration: 0.15 }}
-            >
-              {/* Section description */}
-              {activeSection && !isAllTab && (
-                <div className="flex items-center gap-2.5 mb-4 px-1">
-                  <div
-                    className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
-                    style={{
-                      background:
-                        SECTION_COLORS[activeSection.id]?.bg || "rgba(59, 130, 246, 0.25)",
-                      color: SECTION_COLORS[activeSection.id]?.color || "#3B82F6",
-                    }}
-                  >
-                    {SECTION_ICONS[activeSection.id]?.()}
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex items-baseline gap-2 flex-wrap">
-                      <code
-                        className="text-xs text-slate-500 font-mono bg-surface rounded"
-                        style={{ padding: "2px 8px" }}
-                      >
-                        {activeSection.basePath}
-                      </code>
-                      <span className="text-xs text-slate-500">
-                        {filteredEntries.length} / {activeSection.entries.length} エントリ
-                      </span>
-                    </div>
-                    <span className="text-xs text-slate-500 font-sans">
-                      {activeSection.description}
+        {/* Section cards */}
+        <div className="flex flex-col gap-8">
+          {filteredSections.map((section) => {
+            const colors = SECTION_COLORS[section.id] || {
+              color: "#3B82F6",
+              bg: "rgba(59,130,246,0.15)",
+            };
+            return (
+              <div key={section.id}>
+                {/* Section header */}
+                <div className="flex items-center gap-2.5 mb-3 px-1">
+                  {SECTION_ICONS[section.id] && (
+                    <span className="flex items-center" style={{ color: colors.color }}>
+                      {SECTION_ICONS[section.id]()}
                     </span>
-                  </div>
+                  )}
+                  <h2 className="text-base font-bold m-0" style={{ color: colors.color }}>
+                    {section.name}
+                  </h2>
+                  <span className="text-xs text-slate-500">{section.items.length} 件</span>
                 </div>
-              )}
 
-              {isAllTab && (
-                <div className="flex items-center gap-2.5 mb-4 px-1">
-                  <span className="text-[14px] text-slate-500 font-medium">
-                    {filteredEntries.length} / {TOTAL} エントリ
-                  </span>
-                </div>
-              )}
-
-              {/* Card grid */}
-              <ItemGrid
-                items={filteredEntries}
-                keyExtractor={(entry) => {
-                  const section = isAllTab ? getSectionForEntry(entry) : activeSection!;
-                  return `${section.id}-${entry.path}`;
-                }}
-                renderItem={(entry) => {
-                  const section = isAllTab ? getSectionForEntry(entry) : activeSection!;
-                  const color = SECTION_COLORS[section.id]?.color || "#3B82F6";
-                  return (
-                    <EntryCard
-                      entry={entry}
-                      accentColor={color}
-                      onClick={() => openModal(entry, section)}
+                {/* Cards */}
+                <ItemGrid
+                  items={section.items}
+                  keyExtractor={(entry) => getItemId(section.id, entry.path)}
+                  renderItem={(entry) => (
+                    <SummaryCard
+                      title={entry.name}
+                      description={entry.description}
+                      tags={getEntryTags(entry)}
+                      accentColor={colors.color}
+                      sectionName={section.name}
+                      onClick={() => openModal(getItemId(section.id, entry.path))}
+                      tagColors={TAG_COLORS}
                     />
-                  );
-                }}
-                reducedMotion={reducedMotion}
-                hasMounted={hasMounted}
-              />
-
-              {/* Empty state */}
-              {filteredEntries.length === 0 && (
-                <EmptyState
-                  message="条件に一致するエントリはありません"
+                  )}
                   reducedMotion={reducedMotion}
                 />
-              )}
-            </motion.div>
-          )}
-        </AnimatePresence>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Empty state */}
+        {visibleItemCount === 0 && (
+          <EmptyState
+            message="条件に一致するエントリはありません"
+            reducedMotion={reducedMotion}
+          />
+        )}
 
         <Footer />
       </div>
 
       {/* Modal */}
       <AnimatePresence>
-        {selectedEntry && (
+        {modalEntry && modalSection && (
           <DetailModal
-            entry={selectedEntry.entry}
-            section={selectedEntry.section}
-            accentColor={SECTION_COLORS[selectedEntry.section.id]?.color || "#3B82F6"}
+            entry={modalEntry}
+            section={modalSection}
+            accentColor={SECTION_COLORS[modalSection.id]?.color || "#3B82F6"}
             onClose={closeModal}
             reducedMotion={reducedMotion}
           />

@@ -1,3 +1,6 @@
+import { useCallback, useRef, useState } from "react";
+import { createPortal } from "react-dom";
+
 import { FileIcon, FolderIcon } from "~/components/icons";
 import { DetailModalShell } from "~/components/detail-modal";
 import { ParagraphList, renderInlineMarkdown } from "~/components/paragraph-list";
@@ -10,7 +13,57 @@ import {
   VCS_CONFIG,
   getVcsKey,
 } from "./constants";
-import { BadgeWithTooltip } from "./entry-card";
+
+export const BadgeWithTooltip = ({
+  label,
+  color,
+  bg,
+  title,
+}: {
+  label: string;
+  color: string;
+  bg: string;
+  title: string;
+}): React.JSX.Element => {
+  const ref = useRef<HTMLSpanElement>(null);
+  const [pos, setPos] = useState<{ x: number; y: number } | null>(null);
+
+  const show = useCallback(() => {
+    const el = ref.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    setPos({ x: rect.left + rect.width / 2, y: rect.top });
+  }, []);
+  const hide = useCallback(() => setPos(null), []);
+
+  return (
+    <>
+      <span
+        ref={ref}
+        className="text-[11px] font-semibold whitespace-nowrap rounded cursor-help"
+        style={{ padding: "2px 8px", background: bg, color }}
+        onMouseEnter={show}
+        onMouseLeave={hide}
+      >
+        {label}
+      </span>
+      {pos &&
+        createPortal(
+          <span
+            className="fixed pointer-events-none px-2.5 py-1.5 rounded-md bg-slate-800 text-slate-200 text-[12px] leading-snug whitespace-nowrap shadow-lg border border-slate-700 z-[9999] -translate-x-1/2"
+            style={{
+              left: pos.x,
+              top: pos.y - 8,
+              transform: "translate(-50%, -100%)",
+            }}
+          >
+            {title}
+          </span>,
+          document.body,
+        )}
+    </>
+  );
+};
 
 const ModalSection = ({
   id,
