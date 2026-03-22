@@ -13,7 +13,7 @@ Claude Code のリリースノートを日本語で閲覧できる Web アプリ
 - `pnpm run typecheck` — 型生成 + TypeScript 型チェック (`react-router typegen && tsc`)
 - `scripts/start-server.sh` — ビルド＋サーバー起動 (http://localhost:4000)。**ブラウザ確認時はこのスクリプトを使うこと**。Stop hook で応答完了時に自動停止される
 
-テストフレームワークは未導入。
+- `pnpm run test` — Vitest によるテスト実行
 
 ## アーキテクチャ
 
