@@ -1,5 +1,18 @@
 # hooks-best-practices — Hooks
 
+## メタデータ
+
+| 項目 | 値 |
+|------|-----|
+| ページ種別 | ガイド型 |
+| アイテム数目安 | 約40件（7セクション） |
+| WebFetch 欠落リスク | 中 |
+
+### 高リスクフィールド
+
+- `code`: JSON 設定例やシェルスクリプト。イベント名やハンドラタイプの正確性が重要
+- `steps[].example`: フックの具体的な設定例。要約で省略されやすい
+
 ## データファイル
 
 `app/data/hooks-best-practices/hooks-best-practices.json`

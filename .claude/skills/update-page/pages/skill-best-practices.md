@@ -1,5 +1,18 @@
 # skill-best-practices — スキル設計
 
+## メタデータ
+
+| 項目 | 値 |
+|------|-----|
+| ページ種別 | ガイド型 |
+| アイテム数目安 | 約37件（9セクション） |
+| WebFetch 欠落リスク | 低（ソースURL1つ） |
+
+### 高リスクフィールド
+
+- `code`: マークダウンコードブロック文字列。フロントマターのフィールド名やディレクトリ構成の正確性が重要
+- `examples[].before` / `examples[].after`: 設定例の比較。要約で簡略化されやすい
+
 ## データファイル
 
 `app/data/skill-best-practices/skill-best-practices.json`

@@ -1,5 +1,18 @@
 # prompting — プロンプト
 
+## メタデータ
+
+| 項目 | 値 |
+|------|-----|
+| ページ種別 | ガイド型 |
+| アイテム数目安 | 約30件（7セクション） |
+| WebFetch 欠落リスク | 低（ソースURL1つ） |
+
+### 高リスクフィールド
+
+- `examples[].before` / `examples[].after`: プロンプト例。具体的な文面が要約で変わりやすい
+- `code[].value`: コード例。要約で省略されやすい
+
 ## データファイル
 
 `app/data/prompting/prompting.json`

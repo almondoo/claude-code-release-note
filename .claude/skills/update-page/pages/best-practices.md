@@ -1,5 +1,18 @@
 # best-practices — ベストプラクティス
 
+## メタデータ
+
+| 項目 | 値 |
+|------|-----|
+| ページ種別 | ガイド型 |
+| アイテム数目安 | 約35件（9セクション） |
+| WebFetch 欠落リスク | 中 |
+
+### 高リスクフィールド
+
+- `examples[].before` / `examples[].after`: before/after のプロンプト例。WebFetch の要約で簡略化・省略されやすい
+- `steps[].example`: 具体的なプロンプト入力例。要約で省略されやすい
+
 ## データファイル
 
 `app/data/best-practices/best-practices.json`
