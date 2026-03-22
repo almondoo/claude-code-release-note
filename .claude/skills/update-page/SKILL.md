@@ -33,6 +33,8 @@ argument-hint: "<page-id> (例: release-note, commands, directory, plugins, env-
 
 ## 共通ワークフロー
 
+**開始時**: 以下のチェックリストを `TaskCreate` ツールで全てタスク化してから、Step 1 から順に1ステップずつ進める。各ステップ完了時に `TaskUpdate` で完了にマークすること。
+
 - [ ] **Step 1: ページ特定** — 引数から page-id を決定。`Read` ツールで `.claude/skills/update-page/pages/<page-id>.md` を読み込む
 - [ ] **Step 2: 既存データ確認** — 現在の JSON ファイルの内容を確認し最新状態を把握。release-note の場合は既存の最新バージョンを確認して重複追加を防止
 - [ ] **Step 3: 公式情報取得** — `pages/*.md` に記載のソース URL から WebFetch で情報取得。**ユーザーが直接情報を提供した場合はこのステップを省略可能**（ただし Step 4 の裏取りは実施する）
