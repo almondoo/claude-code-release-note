@@ -39,14 +39,20 @@
     {
       "key": "Shift + Enter",
       "description": "送信せずに改行を追加します",
-      "detail": "Enter の代わりに改行を入力します。複数行のプロンプトを書く際に必須です。この機能を使うには事前に /terminal-setup の実行が必要です。",
-      "whenToUse": "複数行の指示やコードスニペットを入力したいとき。/terminal-setup を先に実行しておく必要があります。"
+      "detail": "Enter の代わりに改行を入力します。複数行のプロンプトを書く際に必須です。iTerm2、WezTerm、Ghostty、Kitty ではそのまま動作します。VS Code、Alacritty、Zed、Warp など他のターミナルでは事前に /terminal-setup の実行が必要です。",
+      "whenToUse": "複数行の指示やコードスニペットを入力したいとき。対応していないターミナルでは /terminal-setup を先に実行しておく必要があります。"
     },
     {
       "key": "Ctrl + V",
       "description": "画像をターミナルに貼り付けます",
       "detail": "クリップボードの画像を貼り付けて Claude に渡せます。スクリーンショットや図を見せて説明を求めたり、UI のモックアップから実装を依頼したりできます。",
       "whenToUse": "スクリーンショットやエラー画面を Claude に見せたいとき。視覚的な情報を伝える必要がある場合に使います。"
+    },
+    {
+      "key": "Space 長押し",
+      "description": "プッシュ・トゥ・トーク音声ディクテーション",
+      "detail": "スペースキーを長押しして音声を録音し、離すと音声認識でテキストに変換されます。音声ディクテーション機能の有効化が必要です。トランスクリプトはカーソル位置に挿入されます。キー割り当ては keybindings.json の voice:pushToTalk で変更可能です。",
+      "whenToUse": "音声で素早く指示を入力したいとき。長い説明やアイデアをキーボード入力の代わりに口頭で伝えたい場合に便利です。"
     },
     {
       "key": "↑ / ↓",
@@ -73,9 +79,9 @@
       "whenToUse": "長いプロンプトの編集中にカーソルを素早く移動したいとき。"
     },
     {
-      "key": "Option + F / Option + B",
+      "key": "Alt + F / Alt + B",
       "description": "単語単位で前方 / 後方に移動します",
-      "detail": "Option+F で次の単語に、Option+B で前の単語にカーソルを移動します。macOS のターミナル標準のキーバインドです。",
+      "detail": "Alt+F で次の単語に、Alt+B で前の単語にカーソルを移動します。macOS では Option キーを Meta キーとして設定する必要があります（iTerm2: Profiles → Keys → Left/Right Option key を \"Esc+\" に設定）。",
       "whenToUse": "プロンプト内の特定の単語を素早く編集したいとき。"
     },
     {
@@ -139,27 +145,27 @@
       "whenToUse": "誤って削除したテキストを復元したいとき。Ctrl+K や Ctrl+U で削除した後に元に戻す場合に使います。"
     },
     {
-      "key": "Option + Y / Alt + Y",
+      "key": "Alt + Y",
       "description": "ペーストの履歴を循環します（Ctrl+Y 実行後）",
-      "detail": "Ctrl+Y でテキストを貼り付けた後、Alt+Y（macOS では Option+Y）を押すことで、過去に削除したテキストの履歴を循環して選択できます。macOS では Option キーを Meta キーとして設定する必要があります。",
+      "detail": "Ctrl+Y でテキストを貼り付けた後、Alt+Y を押すことで、過去に削除したテキストの履歴を循環して選択できます。macOS では Option キーを Meta キーとして設定する必要があります（iTerm2: Profiles → Keys → Left/Right Option key を \"Esc+\" に設定）。",
       "whenToUse": "Ctrl+K や Ctrl+U で複数回削除したテキストを遡って復元したいとき。Ctrl+Y のペースト後にさらに古い削除テキストに遡りたい場合に使います。"
     },
     {
-      "key": "Option + P",
+      "key": "Alt + P",
       "description": "入力中にモデルを切り替えます",
-      "detail": "プロンプトの入力中にモデル選択メニューを開き、送信前にモデルを切り替えられます。入力途中で「これは Opus に任せよう」と思った場合に、入力を中断せずにモデルを変更できます。",
+      "detail": "プロンプトの入力中にモデル選択メニューを開き、送信前にモデルを切り替えられます。入力途中で「これは Opus に任せよう」と思った場合に、入力を中断せずにモデルを変更できます。macOS では Option+P、Windows/Linux では Alt+P です。",
       "whenToUse": "プロンプトを書いている途中で、タスクの複雑さに応じてモデルを切り替えたいとき。"
     },
     {
-      "key": "Option + T",
+      "key": "Alt + T",
       "description": "拡張思考モードを切り替えます",
-      "detail": "Claude の拡張思考（extended thinking）モードのオン/オフを切り替えます。キーボードから素早く切り替えられるため、タスクの複雑さに応じた使い分けが容易です。",
+      "detail": "Claude の拡張思考（extended thinking）モードのオン/オフを切り替えます。キーボードから素早く切り替えられるため、タスクの複雑さに応じた使い分けが容易です。macOS では Option+T、Windows/Linux では Alt+T です。/terminal-setup を先に実行するとこのショートカットが有効になります。",
       "whenToUse": "深い推論が必要なタスクの前に思考モードを有効にしたり、軽いタスクでは無効にしたいとき。"
     },
     {
-      "key": "Shift + Tab",
+      "key": "Shift + Tab / Alt + M",
       "description": "パーミッションモードを切り替えます",
-      "detail": "自動承認モード・プランモード・通常モードを順に切り替えます。エージェントチームがアクティブな場合は、デリゲートモードも含まれます。Alt+M でも同じ操作が可能です。",
+      "detail": "自動承認モード・プランモード・通常モードを順に切り替えます。エージェントチームがアクティブな場合は、デリゲートモードも含まれます。Shift+Tab または Alt+M で操作できます。",
       "whenToUse": "素早くパーミッションモードを変更したいとき。信頼できるタスクでは自動承認モードに、慎重に進めたい場合はプランモードに切り替えます。"
     }
   ]

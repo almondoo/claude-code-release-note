@@ -14,10 +14,11 @@
 
 | ステップ | 内容 | ソース |
 |---------|------|--------|
-| 1. 公式ドキュメント取得 | スラッシュコマンド・ショートカット | `https://code.claude.com/docs/en/interactive-mode` |
+| 1. コマンドリファレンス | ビルトインコマンドの一覧・説明（最も権威的） | `https://code.claude.com/docs/en/commands` |
+| 2. 公式ドキュメント補完 | ショートカット・入力モード詳細 | `https://code.claude.com/docs/en/interactive-mode` |
 | | CLI コマンド・フラグ | `https://code.claude.com/docs/en/cli-reference` |
-| 2. CHANGELOG で補完 | 公式に未掲載の新コマンド発見用 | `https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md` |
-| 3. 差分確認 | 各 JSON ファイルと公式リストを比較 | ローカル |
+| 3. CHANGELOG で補完 | 公式に未掲載の新コマンド発見用 | `https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md` |
+| 4. 差分確認 | 各 JSON ファイルと公式リストを比較 | ローカル |
 
 **CHANGELOG のみに記載のコマンド:** 公式ドキュメントに未掲載かつ CHANGELOG にのみ記載のコマンドは、バグ修正・機能追加として実際に言及されている場合のみ追加候補とする。確証が得られない場合は `AskUserQuestion` でユーザーに確認する。
 

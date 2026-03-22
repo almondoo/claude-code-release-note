@@ -9,7 +9,8 @@
 | ステップ | 内容 | ソース URL |
 |---------|------|-----------|
 | 1. 公式ベストプラクティス | Claude Code の使い方のベストプラクティス | `https://code.claude.com/docs/en/best-practices` |
-| 2. 差分確認 | 既存データとの比較 | ローカルの `best-practices.json` |
+| 2. よくあるワークフロー | デバッグ・テスト・PR 等の実践パターン | `https://code.claude.com/docs/en/common-workflows` |
+| 3. 差分確認 | 既存データとの比較 | ローカルの `best-practices.json` |
 
 ## データスキーマ
 

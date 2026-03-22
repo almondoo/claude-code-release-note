@@ -20,9 +20,10 @@
 
 | ステップ | 内容 | ソース URL |
 |---------|------|-----------|
-| 1. 概要・インストール | セットアップ全般の手順 | `https://code.claude.com/docs/en/overview` |
-| 2. 設定詳細 | settings.json、パーミッション等 | `https://code.claude.com/docs/en/settings` |
-| 3. 差分確認 | 既存データとの比較 | ローカルの `app/data/setup/setup-*.json` |
+| 1. セットアップガイド | インストール・アップデート・アンインストール手順 | `https://code.claude.com/docs/en/setup` |
+| 2. 概要 | インストール方法の概要・各環境の始め方 | `https://code.claude.com/docs/en/overview` |
+| 3. 設定詳細 | settings.json、パーミッション等 | `https://code.claude.com/docs/en/settings` |
+| 4. 差分確認 | 既存データとの比較 | ローカルの `app/data/setup/setup-*.json` |
 
 ## データスキーマ
 

@@ -8,10 +8,11 @@
 
 | ステップ | 内容 | ソース URL |
 |---------|------|-----------|
-| 1. プラグイン作成ガイド | プラグインの仕組み・構造 | `https://code.claude.com/docs/en/plugins` |
-| 2. プラグイン利用ガイド | インストール・管理方法、公式プラグイン一覧 | `https://code.claude.com/docs/en/discover-plugins` |
-| 3. CHANGELOG で補完 | 新プラグイン追加・変更の発見用 | `https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md` |
-| 4. 差分確認 | 既存データとの比較 | ローカルの `plugins.json` |
+| 1. プラグイン利用ガイド | インストール・管理方法、公式プラグイン一覧 | `https://code.claude.com/docs/en/discover-plugins` |
+| 2. プラグイン作成ガイド | プラグインの仕組み・構造 | `https://code.claude.com/docs/en/plugins` |
+| 3. プラグインリファレンス | 技術仕様・LSPサーバー・デバッグ | `https://code.claude.com/docs/en/plugins-reference` |
+| 4. CHANGELOG で補完 | 新プラグイン追加・変更の発見用 | `https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md` |
+| 5. 差分確認 | 既存データとの比較 | ローカルの `plugins.json` |
 
 ## データスキーマ
 

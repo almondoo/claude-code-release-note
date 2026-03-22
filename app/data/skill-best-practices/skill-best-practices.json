@@ -93,10 +93,10 @@
         {
           "id": "yaml-frontmatter",
           "title": "YAML フロントマター要件",
-          "summary": "name と description は必須。name は64文字以下で小文字+数字+ハイフンのみ。",
-          "content": "SKILL.md のフロントマターには name と description の2つのフィールドが必要です。\n\nname のルール：\n\n・最大64文字\n\n・小文字、数字、ハイフンのみ使用可能\n\n・XMLタグを含めない\n\n・予約語（anthropic、claude）を含めない\n\ndescription のルール：\n\n・空でないこと\n\n・最大1024文字\n\n・XMLタグを含めない\n\n・何をするか、いつ使うかを記述する\n\nSKILL.md のボディ（フロントマター以降の部分）は500行以下に保つのが最適です。この制限を超える場合は、段階的開示パターンを使用してコンテンツを別ファイルに分割してください。",
+          "summary": "すべてのフィールドはオプション。description は推奨。name は64文字以下で小文字+数字+ハイフンのみ。",
+          "content": "SKILL.md のフロントマターには name と description の2つのフィールドが推奨です。すべてのフィールドはオプションですが、description は Claude がスキルの使用タイミングを判断するために推奨されます。\n\nname のルール：\n\n・最大64文字\n\n・小文字、数字、ハイフンのみ使用可能\n\n・XMLタグを含めない\n\n・予約語（anthropic、claude）を含めない\n\ndescription のルール：\n\n・空でないこと\n\n・最大1024文字\n\n・XMLタグを含めない\n\n・何をするか、いつ使うかを記述する\n\nその他の主なフィールド：argument-hint（引数ヒント）、disable-model-invocation（Claude の自動呼び出し禁止）、user-invocable（/ メニュー非表示）、allowed-tools（ツール許可）、model（使用モデル）、effort（effort レベル: low / medium / high / max。セッションの effort レベルをオーバーライドする。max は Opus 4.6 のみ対応）、context（fork でサブエージェント実行）、agent（context: fork 時のエージェント型）、hooks（スキルのライフサイクルフック）。\n\nSKILL.md のボディ（フロントマター以降の部分）は500行以下に保つのが最適です。この制限を超える場合は、段階的開示パターンを使用してコンテンツを別ファイルに分割してください。",
           "tags": [],
-          "code": "---\nname: pdf-processing\ndescription: PDF ファイルからテキストとテーブルを抽出し、フォーム入力とドキュメント結合を行う。PDF 関連の作業時に使用。\n---\n\n# PDF 処理\n\n## クイックスタート\n\npdfplumber でテキスト抽出:\n```python\nimport pdfplumber\nwith pdfplumber.open(\"file.pdf\") as pdf:\n    text = pdf.pages[0].extract_text()\n```\n\n## 高度な機能\n\n**フォーム入力**: [FORMS.md](FORMS.md) を参照\n**API リファレンス**: [REFERENCE.md](REFERENCE.md) を参照"
+          "code": "---\nname: pdf-processing\ndescription: PDF ファイルからテキストとテーブルを抽出し、フォーム入力とドキュメント結合を行う。PDF 関連の作業時に使用。\neffort: high\n---\n\n# PDF 処理\n\n## クイックスタート\n\npdfplumber でテキスト抽出:\n```python\nimport pdfplumber\nwith pdfplumber.open(\"file.pdf\") as pdf:\n    text = pdf.pages[0].extract_text()\n```\n\n## 高度な機能\n\n**フォーム入力**: [FORMS.md](FORMS.md) を参照\n**API リファレンス**: [REFERENCE.md](REFERENCE.md) を参照"
         }
       ]
     },

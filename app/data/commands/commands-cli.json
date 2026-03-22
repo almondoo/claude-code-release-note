@@ -96,7 +96,7 @@
         "name": "claude auth",
         "description": "OAuth 認証の管理（ログイン・ステータス確認・ログアウト）を行います",
         "args": "login / status / logout",
-        "detail": "OAuth ベースの認証を統合管理する CLI サブコマンドです。claude auth login でログイン、claude auth status で認証状態の確認、claude auth logout でサインアウトを行います。",
+        "detail": "OAuth ベースの認証を統合管理する CLI サブコマンドです。claude auth login でログイン（--email でメールアドレスの事前入力、--sso で SSO 認証の強制、--console で API 使用課金の Anthropic Console ログイン）、claude auth status で認証状態の確認（--text で人間が読みやすい形式、終了コード 0 でログイン中、1 で未ログイン）、claude auth logout でサインアウトを行います。",
         "whenToUse": "認証に関する操作を行いたいとき。アカウントの切り替えや認証状態の確認に使います。"
       }
     ],
@@ -235,6 +235,13 @@
         "whenToUse": "Claude にスラッシュを含むテキストを大量に入力する必要がある場合。ドキュメントや設定ファイルの内容をそのまま渡す場面で使います。"
       },
       {
+        "name": "--dangerously-load-development-channels",
+        "description": "承認済みの allowlist にない開発チャネルを有効化します",
+        "args": "plugin:<name>@<marketplace> / server:<name>",
+        "detail": "承認済みの allowlist に含まれていない開発中のチャネルを有効化します。plugin:<name>@<marketplace> と server:<name> 形式のエントリを受け付けます。ローカル開発やテスト用途で、確認プロンプトが表示されます。",
+        "whenToUse": "チャネルプラグインの開発・テスト時に、承認前のチャネルをローカルで試したいとき。"
+      },
+      {
         "name": "--dangerously-skip-permissions",
         "description": "すべての権限プロンプトをスキップします（要注意）",
         "args": null,
@@ -322,8 +329,15 @@
         "name": "--append-system-prompt-file",
         "description": "ファイルからシステムプロンプトへの追加テキストを読み込みます",
         "args": "ファイルパス",
-        "detail": "デフォルトのシステムプロンプトを維持したまま、指定ファイルの内容を追加指示として末尾に付与します。print モードでのみ使用可能です。--append-system-prompt のファイル版です。",
+        "detail": "デフォルトのシステムプロンプトを維持したまま、指定ファイルの内容を追加指示として末尾に付与します。対話モード・非対話モードの両方で使用可能です。--append-system-prompt のファイル版です。",
         "whenToUse": "バージョン管理された追加指示ファイルを使用したいとき。チームで共有する追加ルールをファイルで管理する場合に便利です。"
+      },
+      {
+        "name": "--channels",
+        "description": "（Research preview）セッション中に Claude がリッスンする MCP サーバーのチャネル通知を指定します",
+        "args": "plugin:<name>@<marketplace>（スペース区切り）",
+        "detail": "MCP サーバーのチャネル通知を Claude がリッスンするよう設定します。plugin:<name>@<marketplace> 形式のエントリをスペース区切りで指定します。Claude.ai 認証が必要です。Research preview 機能のため、将来変更される可能性があります。",
+        "whenToUse": "MCP サーバーからのチャネル通知を受信したいとき。プラグインのリアルタイム通知を活用する場合に使います。"
       },
       {
         "name": "--chrome",

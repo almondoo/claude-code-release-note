@@ -8,9 +8,10 @@
 
 | ステップ | 内容 | ソース URL |
 |---------|------|-----------|
-| 1. 公式ドキュメント | 環境変数の一覧・説明・デフォルト値 | `https://code.claude.com/docs/en/settings` (#environment-variables セクション) |
-| 2. CHANGELOG で補完 | 新環境変数追加・変更・非推奨化の発見用 | `https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md` |
-| 3. 差分確認 | 既存データとの比較 | ローカルの `env-vars.json` |
+| 1. 環境変数リファレンス | 環境変数の一覧・説明・デフォルト値（最も権威的） | `https://code.claude.com/docs/en/env-vars` |
+| 2. 設定ドキュメント | settings.json 内の env キーや関連設定の補完 | `https://code.claude.com/docs/en/settings` |
+| 3. CHANGELOG で補完 | 新環境変数追加・変更・非推奨化の発見用 | `https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md` |
+| 4. 差分確認 | 既存データとの比較 | ローカルの `env-vars.json` |
 
 ## データスキーマ
 

@@ -8,8 +8,9 @@
 
 | ステップ | 内容 | ソース URL |
 |---------|------|-----------|
-| 1. 公式ドキュメント取得 | Hooks の仕様・ベストプラクティス | `https://code.claude.com/docs/en/hooks` |
-| 2. 差分確認 | 既存データとの比較 | ローカルの `hooks-best-practices.json` |
+| 1. Hooks リファレンス | Hooks の仕様・イベント・ハンドラタイプ | `https://code.claude.com/docs/en/hooks` |
+| 2. Hooks ガイド | Hooks の実践的な使い方・ベストプラクティス | `https://code.claude.com/docs/en/hooks-guide` |
+| 3. 差分確認 | 既存データとの比較 | ローカルの `hooks-best-practices.json` |
 
 ## データスキーマ
 
@@ -44,7 +45,8 @@
       "description": "説明",
       "example": "具体例"
     }
-  ]
+  ],
+  "code": "JSON または シェルスクリプトのコード例（string型）"
 }
 ```
 
@@ -59,23 +61,40 @@
 | `tags` | 必須 | string[] | タグ配列（空配列可） |
 | `tips` | オプショナル | string[] | 実践的なヒントのリスト |
 | `steps` | オプショナル | object[] | フェーズごとの手順。`phase`, `description`, `example` を持つ |
+| `code` | オプショナル | string | JSON 設定例やシェルスクリプトのコード例 |
 
-**注意:** このページには `code` フィールドや `examples`（before/after）フィールドは存在しない。`steps` フィールドでフェーズごとの説明を行う。
+**注意:** このページには `examples`（before/after）フィールドは存在しない。
 
 ## ページ固有ルール
 
 ### フックイベント名の正確性
 
-公式 Docs と一致するイベント名を使用する:
+公式 Docs と一致するイベント名を使用する。最新のイベント一覧は公式ドキュメント（`/en/hooks`）で確認すること。以下は参考用:
 
-| イベント名 | タイミング | ブロッキング |
-|-----------|-----------|-------------|
-| `SessionStart` | セッション開始時 | No |
-| `PreToolUse` | ツール実行前 | Yes |
-| `PostToolUse` | ツール実行後 | Yes |
-| `Stop` | 応答完了時 | Yes |
-| `WorktreeCreate` | Worktree 作成時 | No |
-| `ConfigChange` | 設定変更時 | No |
+| イベント名 | タイミング | ブロッキング | マッチャー対象 |
+|-----------|-----------|-------------|--------------|
+| `SessionStart` | セッション開始/再開時 | No | startup, resume, clear, compact |
+| `UserPromptSubmit` | ユーザーがプロンプト送信時 | Yes | なし |
+| `PreToolUse` | ツール実行前 | Yes | ツール名 |
+| `PermissionRequest` | パーミッションダイアログ表示時 | Yes | ツール名 |
+| `PostToolUse` | ツール実行成功後 | No | ツール名 |
+| `PostToolUseFailure` | ツール実行失敗後 | No | ツール名 |
+| `Notification` | 通知送信時 | No | 通知タイプ |
+| `SubagentStart` | サブエージェント起動時 | No | エージェントタイプ |
+| `SubagentStop` | サブエージェント完了時 | Yes | エージェントタイプ |
+| `Stop` | メインエージェント応答完了時 | Yes | なし |
+| `StopFailure` | APIエラーでターン終了時 | No | エラータイプ |
+| `TeammateIdle` | チームメンバーがアイドル状態時 | Yes | なし |
+| `TaskCompleted` | タスク完了マーク時 | Yes | なし |
+| `InstructionsLoaded` | CLAUDE.md等ロード時 | No | ロード理由 |
+| `ConfigChange` | 設定変更時 | Yes | 設定ソース |
+| `WorktreeCreate` | Worktree 作成時 | Yes | なし |
+| `WorktreeRemove` | Worktree 削除時 | No | なし |
+| `PreCompact` | コンテキスト圧縮前 | No | トリガー |
+| `PostCompact` | 圧縮完了後 | No | トリガー |
+| `Elicitation` | MCPサーバーがユーザー入力要求時 | Yes | MCPサーバー名 |
+| `ElicitationResult` | ユーザーがエリシテーション応答時 | Yes | MCPサーバー名 |
+| `SessionEnd` | セッション終了時 | No | 終了理由 |
 
 ### ハンドラタイプの正確性
 
@@ -113,6 +132,6 @@
 |------|------|
 | イベント名の誤記（例: `sessionStart` → `SessionStart`） | PascalCase で正確に記述。公式 Docs のイベント名と一致させる |
 | ハンドラタイプの混同（例: `prompt` と `agent` の取り違え） | `prompt` は単一ターン評価、`agent` はツールアクセス付きサブエージェント |
-| ブロッキング/ノンブロッキングの誤分類 | `PreToolUse`, `PostToolUse`, `Stop` はブロッキング。`SessionStart`, `WorktreeCreate`, `ConfigChange` はノンブロッキング |
+| ブロッキング/ノンブロッキングの誤分類 | 上記イベント一覧表のブロッキング列を参照。公式ドキュメントで最新の分類を確認すること |
 | `content` の段落を `\n` で区切る | `\n\n` を使用（ParagraphList の仕様） |
 | 存在しない `code` や `examples` フィールドを追加 | このページでは `tips` と `steps` のみ使用 |

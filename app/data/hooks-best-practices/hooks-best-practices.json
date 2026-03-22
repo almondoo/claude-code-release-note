@@ -44,7 +44,7 @@
             },
             {
               "phase": "agent",
-              "description": "ツールアクセス付きサブエージェントを起動する。デフォルトタイムアウト: 60秒",
+              "description": "ツールアクセス付きサブエージェントを起動する。Read, Grep, Glob, Edit, Bash ツールが使用可能。prompt フィールドで $ARGUMENTS を使い hook 入力 JSON を参照。デフォルトタイムアウト: 60秒",
               "example": "ファイル検査やテスト実行を伴う検証"
             }
           ]
@@ -93,6 +93,65 @@
             "`InstructionsLoaded` — CLAUDE.md 等の読み込み時に発火。監査ログに使用",
             "`WorktreeRemove` — Worktree 削除時に発火。クリーンアップに使用"
           ]
+        },
+        {
+          "id": "event-matchers",
+          "title": "イベントごとの Matcher 対象",
+          "summary": "各イベントの matcher フィールドが何にマッチするかの一覧。正規表現が使用可能で、大文字小文字を区別する。",
+          "content": "matcher はイベントごとにマッチ対象が異なります。省略・空文字・`\"*\"` で全マッチします。正規表現が使用可能ですが、**大文字小文字を区別する**点に注意してください。matcher がサポートされないイベントでは省略します。",
+          "tags": [],
+          "steps": [
+            {
+              "phase": "PreToolUse / PostToolUse / PostToolUseFailure / PermissionRequest",
+              "description": "ツール名にマッチ",
+              "example": "Bash, Edit, Write, Read, Glob, Grep, Agent, WebFetch, mcp__github__.*"
+            },
+            {
+              "phase": "SessionStart",
+              "description": "セッション開始の理由にマッチ",
+              "example": "startup, resume, clear, compact"
+            },
+            {
+              "phase": "SessionEnd",
+              "description": "セッション終了の理由にマッチ",
+              "example": "clear, resume, logout, prompt_input_exit, bypass_permissions_disabled, other"
+            },
+            {
+              "phase": "ConfigChange",
+              "description": "変更された設定の種類にマッチ",
+              "example": "user_settings, project_settings, local_settings, policy_settings, skills"
+            },
+            {
+              "phase": "Notification",
+              "description": "通知の種類にマッチ",
+              "example": "permission_prompt, idle_prompt, auth_success, elicitation_dialog"
+            },
+            {
+              "phase": "SubagentStart / SubagentStop",
+              "description": "エージェントタイプにマッチ",
+              "example": "Bash, Explore, Plan, カスタム名"
+            },
+            {
+              "phase": "StopFailure",
+              "description": "エラータイプにマッチ",
+              "example": "rate_limit, authentication_failed, billing_error, server_error, max_output_tokens, unknown"
+            },
+            {
+              "phase": "PreCompact / PostCompact",
+              "description": "圧縮のトリガーにマッチ",
+              "example": "manual, auto"
+            },
+            {
+              "phase": "InstructionsLoaded",
+              "description": "ロード理由にマッチ",
+              "example": "session_start, nested_traversal, path_glob_match, include, compact"
+            },
+            {
+              "phase": "Elicitation / ElicitationResult",
+              "description": "MCP サーバー名にマッチ",
+              "example": "mcp__memory, mcp__github"
+            }
+          ]
         }
       ]
     },
@@ -128,6 +187,49 @@
             "Exit Code その他 — ノンブロッキングエラー。続行。stderr は verbose モードで表示"
           ],
           "code": "{\n  \"hooks\": {\n    \"イベント名\": [\n      {\n        \"matcher\": \"正規表現パターン（省略可）\",\n        \"hooks\": [\n          {\n            \"type\": \"command\",\n            \"command\": \"実行するコマンド\",\n            \"timeout\": 600,\n            \"statusMessage\": \"検証中...\",\n            \"async\": false\n          }\n        ]\n      }\n    ]\n  }\n}"
+        },
+        {
+          "id": "env-vars",
+          "title": "利用可能な環境変数",
+          "summary": "hook スクリプト内で使用できる環境変数。プロジェクトパスの参照や環境変数の永続化に使用。",
+          "content": "hook スクリプト内ではいくつかの環境変数が自動的に設定されます。特に `CLAUDE_PROJECT_DIR` はスクリプトパスの参照に必須です。`CLAUDE_ENV_FILE` は `SessionStart` hook でのみ利用可能で、Bash ツール実行時に永続化したい環境変数を書き込めます。",
+          "tags": [],
+          "tips": [
+            "`CLAUDE_PROJECT_DIR` — プロジェクトルートのパス。スクリプトパスの参照に使用（スペースを含む場合は引用符で囲む）",
+            "`CLAUDE_ENV_FILE` — SessionStart のみ。export 文を書き込むと Bash ツール実行時に環境変数が設定される",
+            "`CLAUDE_CODE_REMOTE` — Web 環境では `\"true\"` に設定される",
+            "`CLAUDE_PLUGIN_ROOT` — プラグインのインストールディレクトリ",
+            "`CLAUDE_PLUGIN_DATA` — プラグインの永続データディレクトリ"
+          ]
+        },
+        {
+          "id": "decision-patterns",
+          "title": "イベント別の決定制御パターン",
+          "summary": "イベントごとに異なる JSON 出力フォーマットでアクションの許可/拒否を制御する。",
+          "content": "ブロッキング可能なイベントでは、hook の stdout に JSON を出力することでアクションを制御できます。イベントによって出力フォーマットが異なるため、正しいスキーマを使用することが重要です。\n\nexit code 2 + stderr メッセージによるブロックは全ブロッキングイベント共通で使用できます。JSON 出力はより細かい制御（入力の書き換え、権限ルールの追加等）が必要な場合に使用します。",
+          "tags": [],
+          "steps": [
+            {
+              "phase": "PreToolUse",
+              "description": "hookSpecificOutput で allow/deny/ask を指定。updatedInput で入力を書き換え可能",
+              "example": "{\"hookSpecificOutput\": {\"hookEventName\": \"PreToolUse\", \"permissionDecision\": \"allow|deny|ask\"}}"
+            },
+            {
+              "phase": "PermissionRequest",
+              "description": "hookSpecificOutput の decision で allow/deny を指定。権限ルールの追加も可能",
+              "example": "{\"hookSpecificOutput\": {\"hookEventName\": \"PermissionRequest\", \"decision\": {\"behavior\": \"allow|deny\"}}}"
+            },
+            {
+              "phase": "Stop / SubagentStop / UserPromptSubmit",
+              "description": "トップレベルの decision で block を指定し、reason でフィードバックを返す",
+              "example": "{\"decision\": \"block\", \"reason\": \"未完了のタスクがあります\"}"
+            },
+            {
+              "phase": "Elicitation",
+              "description": "hookSpecificOutput の action で accept/decline/cancel を指定。content でレスポンスを返す",
+              "example": "{\"hookSpecificOutput\": {\"hookEventName\": \"Elicitation\", \"action\": \"accept\", \"content\": {\"field\": \"value\"}}}"
+            }
+          ]
         }
       ]
     },
@@ -386,6 +488,22 @@
           "content": "`SessionEnd` イベントでセッション終了時にクリーンアップ処理を実行します。matcher に `clear` を指定すると、`/clear` コマンド実行時のみ発火します。",
           "tags": ["自動化"],
           "code": "{\n  \"hooks\": {\n    \"SessionEnd\": [\n      {\n        \"matcher\": \"clear\",\n        \"hooks\": [\n          {\n            \"type\": \"command\",\n            \"command\": \"rm -f /tmp/claude-scratch-*.txt\"\n          }\n        ]\n      }\n    ]\n  }\n}"
+        },
+        {
+          "id": "env-injection",
+          "title": "SessionStart で環境変数を永続化",
+          "summary": "CLAUDE_ENV_FILE に export 文を書き込むことで、Bash ツール実行時に環境変数を自動設定する。",
+          "content": "`SessionStart` hook では `CLAUDE_ENV_FILE` 環境変数が利用可能です。このファイルに `export` 文を書き込むと、Claude が Bash ツールを実行する際に環境変数が自動的に設定されます。プロジェクト固有の環境設定やツールのパス設定に便利です。",
+          "tags": ["自動化"],
+          "code": "{\n  \"hooks\": {\n    \"SessionStart\": [\n      {\n        \"matcher\": \"\",\n        \"hooks\": [\n          {\n            \"type\": \"command\",\n            \"command\": \"if [ -n \\\"$CLAUDE_ENV_FILE\\\" ]; then echo 'export NODE_ENV=development' >> \\\"$CLAUDE_ENV_FILE\\\"; echo 'export PYTHONPATH=./src' >> \\\"$CLAUDE_ENV_FILE\\\"; fi\"\n          }\n        ]\n      }\n    ]\n  }\n}"
+        },
+        {
+          "id": "worktree-custom",
+          "title": "WorktreeCreate でカスタム worktree を作成",
+          "summary": "WorktreeCreate hook で Git 以外のバージョン管理や独自のディレクトリ構造に対応する。",
+          "content": "`WorktreeCreate` hook は stdout に絶対パスを出力する必要があります。Claude Code はこの出力を worktree のパスとして使用します。Git 以外のバージョン管理システムや独自のディレクトリ構造を使いたい場合に、デフォルトの `git worktree` の動作を置き換えられます。\n\nstdout にはパスのみを出力し、他の出力は stderr にリダイレクトしてください。",
+          "tags": [],
+          "code": "#!/bin/bash\nINPUT=$(cat)\nNAME=$(echo \"$INPUT\" | jq -r '.name')\nDIR=\"$HOME/.claude/worktrees/$NAME\"\nmkdir -p \"$DIR\" >&2\n# stdout にはパスのみ出力（Claude Code がこのパスを使用する）\necho \"$DIR\""
         }
       ]
     },

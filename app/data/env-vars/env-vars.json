@@ -173,6 +173,51 @@
           "deprecated": false
         },
         {
+          "name": "ANTHROPIC_CUSTOM_MODEL_OPTION",
+          "description": "/model ピッカーにカスタムモデルエントリを追加",
+          "detail": "指定したモデルIDを `/model` ピッカーにカスタムエントリとして追加する。組み込みエイリアスを置き換えずに、非標準やゲートウェイ固有のモデルを選択可能にする",
+          "values": "モデルID",
+          "default": null,
+          "example": "export ANTHROPIC_CUSTOM_MODEL_OPTION=my-gateway-model-v1",
+          "links": [
+            {
+              "label": "モデル設定",
+              "url": "https://code.claude.com/docs/en/model-config#environment-variables"
+            }
+          ],
+          "deprecated": false
+        },
+        {
+          "name": "ANTHROPIC_CUSTOM_MODEL_OPTION_DESCRIPTION",
+          "description": "カスタムモデルエントリの表示説明",
+          "detail": "`/model` ピッカーでのカスタムモデルエントリの説明文。未設定時は `Custom model (<model-id>)` がデフォルト",
+          "values": "説明文字列",
+          "default": "Custom model (<model-id>)",
+          "example": "export ANTHROPIC_CUSTOM_MODEL_OPTION_DESCRIPTION=\"社内ゲートウェイ経由モデル\"",
+          "links": [
+            {
+              "label": "モデル設定",
+              "url": "https://code.claude.com/docs/en/model-config#environment-variables"
+            }
+          ],
+          "deprecated": false
+        },
+        {
+          "name": "ANTHROPIC_CUSTOM_MODEL_OPTION_NAME",
+          "description": "カスタムモデルエントリの表示名",
+          "detail": "`/model` ピッカーでのカスタムモデルエントリの表示名。未設定時はモデルIDがデフォルト",
+          "values": "表示名文字列",
+          "default": "モデルID",
+          "example": "export ANTHROPIC_CUSTOM_MODEL_OPTION_NAME=\"My Custom Model\"",
+          "links": [
+            {
+              "label": "モデル設定",
+              "url": "https://code.claude.com/docs/en/model-config#environment-variables"
+            }
+          ],
+          "deprecated": false
+        },
+        {
           "name": "ANTHROPIC_SMALL_FAST_MODEL",
           "description": "[非推奨] バックグラウンドタスク用Haikuモデル名",
           "detail": "非推奨。ANTHROPIC_DEFAULT_HAIKU_MODELを使用すること",
@@ -309,6 +354,16 @@
       "name": "プロバイダ",
       "description": "Bedrock、Vertex AI、Foundryのクラウドプロバイダ設定",
       "vars": [
+        {
+          "name": "ANTHROPIC_BASE_URL",
+          "description": "APIエンドポイントをプロキシ/ゲートウェイ経由にルーティング",
+          "detail": "APIエンドポイントのベースURLをオーバーライドし、プロキシやゲートウェイ経由でリクエストを送信する。\n\n非ファーストパーティホストに設定するとMCPツール検索がデフォルトで無効になる。プロキシが tool_reference ブロックを転送する場合は `ENABLE_TOOL_SEARCH=true` で有効化可能",
+          "values": "URL",
+          "default": null,
+          "example": "export ANTHROPIC_BASE_URL=https://my-proxy.example.com/v1",
+          "links": [],
+          "deprecated": false
+        },
         {
           "name": "ANTHROPIC_FOUNDRY_BASE_URL",
           "description": "FoundryリソースのベースURL",
@@ -471,6 +526,16 @@
       "name": "Bash・コンテキスト",
       "description": "Bashタイムアウト、出力制限、シェル設定、コンテキスト管理",
       "vars": [
+        {
+          "name": "CLAUDECODE",
+          "description": "Claude Codeのシェル環境内かどうかを示すフラグ",
+          "detail": "Claude Codeが起動するシェル環境（Bashツール、tmuxセッション）で `1` に自動設定される。hooks やステータスラインコマンドでは設定されない。\n\nスクリプトがClaude Code内で実行されているかを検出するために使用できる",
+          "values": "\"1\"（自動設定）",
+          "default": null,
+          "example": "if [ \"$CLAUDECODE\" = \"1\" ]; then echo \"Claude Code内で実行中\"; fi",
+          "links": [],
+          "deprecated": false
+        },
         {
           "name": "BASH_DEFAULT_TIMEOUT_MS",
           "description": "Bashコマンドのデフォルトタイムアウト（ms）",
@@ -761,6 +826,16 @@
           "deprecated": false
         },
         {
+          "name": "CLAUDE_CODE_NEW_INIT",
+          "description": "/init でインタラクティブセットアップフローを実行",
+          "detail": "`true` に設定すると `/init` がインタラクティブセットアップフローを実行する。CLAUDE.md、スキル、フックを含むどのファイルを生成するか確認してから、コードベースを探索して書き込む",
+          "values": "\"true\" で有効化",
+          "default": null,
+          "example": "export CLAUDE_CODE_NEW_INIT=true",
+          "links": [],
+          "deprecated": false
+        },
+        {
           "name": "CLAUDE_CODE_DISABLE_FEEDBACK_SURVEY",
           "description": "セッション品質調査を無効化",
           "detail": "サードパーティプロバイダやテレメトリ無効時にも自動無効",
@@ -944,11 +1019,21 @@
         },
         {
           "name": "DISABLE_BUG_COMMAND",
-          "description": "/bugコマンドを無効化",
-          "detail": "/bugコマンドを無効化",
+          "description": "[非推奨] /bugコマンドを無効化（DISABLE_FEEDBACK_COMMANDを使用）",
+          "detail": "非推奨。DISABLE_FEEDBACK_COMMAND の旧名。DISABLE_FEEDBACK_COMMAND の使用を推奨",
           "values": "\"1\" で無効化",
           "default": null,
           "example": "export DISABLE_BUG_COMMAND=1",
+          "links": [],
+          "deprecated": true
+        },
+        {
+          "name": "DISABLE_FEEDBACK_COMMAND",
+          "description": "/feedback コマンドを無効化",
+          "detail": "`/feedback` コマンドを無効化する。旧名 `DISABLE_BUG_COMMAND` も引き続き受け付ける",
+          "values": "\"1\" で無効化",
+          "default": null,
+          "example": "export DISABLE_FEEDBACK_COMMAND=1",
           "links": [],
           "deprecated": false
         },
@@ -1087,6 +1172,31 @@
             {
               "label": "Gitタイムアウト",
               "url": "https://code.claude.com/docs/en/plugin-marketplaces#git-operations-time-out"
+            }
+          ],
+          "deprecated": false
+        },
+        {
+          "name": "CLAUDE_CODE_PLUGIN_SEED_DIR",
+          "description": "読み取り専用のプラグインシードディレクトリのパス",
+          "detail": "コンテナイメージにプリポピュレートされたプラグインディレクトリをバンドルするために使用する。\n\n複数パスの区切り: Unix では `:` 区切り、Windows では `;` 区切り",
+          "values": "ディレクトリパス（複数は区切り文字で指定）",
+          "default": null,
+          "example": "export CLAUDE_CODE_PLUGIN_SEED_DIR=/opt/claude-plugins:/usr/local/share/claude-plugins",
+          "links": [],
+          "deprecated": false
+        },
+        {
+          "name": "CLAUDE_CODE_SKIP_FAST_MODE_NETWORK_ERRORS",
+          "description": "ネットワークエラー時でもファストモードを許可",
+          "detail": "組織ステータスチェックがネットワークエラーで失敗した場合でもファストモードを許可する。企業プロキシがステータスエンドポイントをブロックする環境で有用",
+          "values": "\"1\" で有効化",
+          "default": null,
+          "example": "export CLAUDE_CODE_SKIP_FAST_MODE_NETWORK_ERRORS=1",
+          "links": [
+            {
+              "label": "ファストモード",
+              "url": "https://code.claude.com/docs/en/fast-mode"
             }
           ],
           "deprecated": false
