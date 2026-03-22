@@ -16,6 +16,30 @@ argument-hint: "<page-id> (例: release-note, commands, directory, plugins, env-
 
 公式ドキュメント・CHANGELOG から最新情報を取得し、裏取りした上で各ページの JSON データを更新する。
 
+## チェックリスト
+
+**開始時**: 以下のチェックリストを `TaskCreate` ツールで全てタスク化してから、Step 1 から順に1ステップずつ進める。各ステップ完了時に `TaskUpdate` で完了にマークすること。
+
+- [ ] **Step 1: ページ特定** — 引数から page-id を決定。`Read` ツールで `.claude/skills/update-page/pages/<page-id>.md` を読み込む
+- [ ] **Step 2: 既存データ確認** — 現在の JSON ファイルの内容を確認し最新状態を把握。release-note の場合は既存の最新バージョンを確認して重複追加を防止
+- [ ] **Step 3: 公式情報取得** — `pages/*.md` に記載のソース URL から WebFetch で情報取得。**ユーザーが直接情報を提供した場合はこのステップを省略可能**（ただし Step 4 の裏取りは実施する）
+- [ ] **Step 4: 差分特定＋裏取り** — 既存データと公式情報の差分を特定。公式ドキュメントで裏取り。CHANGELOG のみの情報は確証がなければ `AskUserQuestion` で確認
+  - [ ] 重複検出: ページ固有のキーで既存データの重複を確認（キー: release-note→`v`, commands→`name`, directory→`path`, plugins→`name`, env-vars→`name`, setup→ファイル単位, best-practices/prompting/skill-best-practices/hooks-best-practices→`id`）
+  - [ ] 操作判定: 存在しない→追加 / 存在＋内容異なる→更新 / 存在＋内容同一→スキップ
+- [ ] **Step 5: 翻訳＋JSON更新** — 差分を日本語に翻訳し、ページ固有の JSON スキーマに従ってファイルを更新
+  - [ ] 実行前: `git diff` で未コミット変更がないか確認（ある場合はユーザーに通知）
+  - [ ] 実行後: `git diff` で意図しない変更がないか検証
+  - [ ] エラー時: JSON 構文エラーや型エラーが発生した場合、変更を元に戻す前にユーザーに確認
+- [ ] **Step 6: 検証＋報告** — JSON 構文チェック + `pnpm run typecheck` + 以下の形式で報告
+
+```
+更新結果:
+- 追加: N件（新規追加したアイテム一覧）
+- 更新: N件（内容を更新したアイテム一覧）
+- スキップ: N件（既に最新のため変更なし）
+- 削除: N件（公式から削除されたアイテム。削除前にユーザー確認必須）
+```
+
 ## ページレジストリ
 
 | page-id | ページ名 | データディレクトリ |
@@ -30,56 +54,6 @@ argument-hint: "<page-id> (例: release-note, commands, directory, plugins, env-
 | `prompting` | プロンプト | `app/data/prompting/` |
 | `skill-best-practices` | スキル設計 | `app/data/skill-best-practices/` |
 | `hooks-best-practices` | Hooks | `app/data/hooks-best-practices/` |
-
-## 共通ワークフロー
-
-**開始時**: 以下のチェックリストを `TaskCreate` ツールで全てタスク化してから、Step 1 から順に1ステップずつ進める。各ステップ完了時に `TaskUpdate` で完了にマークすること。
-
-- [ ] **Step 1: ページ特定** — 引数から page-id を決定。`Read` ツールで `.claude/skills/update-page/pages/<page-id>.md` を読み込む
-- [ ] **Step 2: 既存データ確認** — 現在の JSON ファイルの内容を確認し最新状態を把握。release-note の場合は既存の最新バージョンを確認して重複追加を防止
-- [ ] **Step 3: 公式情報取得** — `pages/*.md` に記載のソース URL から WebFetch で情報取得。**ユーザーが直接情報を提供した場合はこのステップを省略可能**（ただし Step 4 の裏取りは実施する）
-- [ ] **Step 4: 差分特定＋裏取り** — 既存データと公式情報の差分を特定。公式ドキュメントで裏取り。CHANGELOG のみの情報は確証がなければ `AskUserQuestion` で確認
-- [ ] **Step 5: 翻訳＋JSON更新** — 差分を日本語に翻訳し、ページ固有の JSON スキーマに従ってファイルを更新。重複検出・操作判定・実行前後確認を実施
-- [ ] **Step 6: 検証＋報告** — JSON 構文チェック + `pnpm run typecheck` + 以下の形式で報告
-
-```
-更新結果:
-- 追加: N件（新規追加したアイテム一覧）
-- 更新: N件（内容を更新したアイテム一覧）
-- スキップ: N件（既に最新のため変更なし）
-- 削除: N件（公式から削除されたアイテム。削除前にユーザー確認必須）
-```
-
-### 重複検出
-
-更新対象のアイテムが既存データに存在するかを、ページ固有のキーで判定:
-
-| page-id | 一意キー | 判定方法 |
-|---------|---------|---------|
-| `release-note` | `v`（バージョン番号） | `releases-*.json` 内に同一 `v` が存在するか |
-| `commands` | `name`（コマンド名） | 各 JSON 内に同一 `name` が存在するか |
-| `directory` | `path`（ファイルパス） | `sections[].entries[]` 内に同一 `path` が存在するか |
-| `plugins` | `name`（プラグイン名） | `categories[].plugins[]` 内に同一 `name` が存在するか |
-| `env-vars` | `name`（変数名） | `categories[].vars[]` 内に同一 `name` が存在するか |
-| `setup` | ファイル単位 | 該当する `setup-*.json` の内容を比較 |
-| `best-practices` | `id` | `sections[].items[]` 内に同一 `id` が存在するか |
-| `prompting` | `id` | `sections[].items[]` 内に同一 `id` が存在するか |
-| `skill-best-practices` | `id` | `sections[].items[]` 内に同一 `id` が存在するか |
-| `hooks-best-practices` | `id` | `sections[].items[]` 内に同一 `id` が存在するか |
-
-### 操作の判定
-
-| 状態 | 操作 |
-|------|------|
-| 存在しない | 追加 |
-| 存在し、内容が異なる | 更新 |
-| 存在し、内容が同一 | スキップ |
-
-### 実行前後の確認
-
-- **実行前**: `git diff` で現在の未コミット変更がないか確認。ある場合はユーザーに通知
-- **実行後**: `git diff` で変更内容を確認し、意図しない変更がないか検証
-- **エラー時**: JSON 構文エラーや型エラーが発生した場合、変更を元に戻す前にユーザーに確認
 
 ## 並列実行戦略
 
