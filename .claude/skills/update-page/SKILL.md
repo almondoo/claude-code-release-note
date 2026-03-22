@@ -31,14 +31,14 @@ argument-hint: "<page-id> (例: release-note, commands, directory, plugins, env-
 | `skill-best-practices` | スキル設計 | `app/data/skill-best-practices/` |
 | `hooks-best-practices` | Hooks | `app/data/hooks-best-practices/` |
 
-## 共通ワークフロー（6ステップ）
+## 共通ワークフロー
 
-1. **ページ特定**: 引数から page-id を決定。`Read` ツールで `.claude/skills/update-page/pages/<page-id>.md` を読み込む
-2. **既存データ確認**: 現在の JSON ファイルの内容を確認し最新状態を把握。release-note の場合は既存の最新バージョンを確認して重複追加を防止
-3. **公式情報取得**: `pages/*.md` に記載のソース URL から WebFetch で情報取得。**ユーザーが直接情報を提供した場合はこのステップを省略可能**（ただし Step 4 の裏取りは実施する）
-4. **差分特定＋裏取り**: 既存データと公式情報の差分を特定。公式ドキュメントで裏取り。CHANGELOG のみの情報は確証がなければ `AskUserQuestion` で確認
-5. **翻訳＋JSON更新**: 差分を日本語に翻訳し、ページ固有の JSON スキーマに従ってファイルを更新。冪等性チェックリスト（後述）に従って安全に適用
-6. **検証＋報告**: JSON 構文チェック + `pnpm run typecheck` + 更新内容をユーザーに報告
+- [ ] **Step 1: ページ特定** — 引数から page-id を決定。`Read` ツールで `.claude/skills/update-page/pages/<page-id>.md` を読み込む
+- [ ] **Step 2: 既存データ確認** — 現在の JSON ファイルの内容を確認し最新状態を把握。release-note の場合は既存の最新バージョンを確認して重複追加を防止
+- [ ] **Step 3: 公式情報取得** — `pages/*.md` に記載のソース URL から WebFetch で情報取得。**ユーザーが直接情報を提供した場合はこのステップを省略可能**（ただし Step 4 の裏取りは実施する）
+- [ ] **Step 4: 差分特定＋裏取り** — 既存データと公式情報の差分を特定。公式ドキュメントで裏取り。CHANGELOG のみの情報は確証がなければ `AskUserQuestion` で確認
+- [ ] **Step 5: 翻訳＋JSON更新** — 差分を日本語に翻訳し、ページ固有の JSON スキーマに従ってファイルを更新。冪等性チェックリスト（後述）に従って安全に適用
+- [ ] **Step 6: 検証＋報告** — JSON 構文チェック + `pnpm run typecheck` + 更新内容をユーザーに報告
 
 ## 冪等性チェックリスト
 
