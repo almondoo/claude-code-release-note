@@ -8,7 +8,7 @@
         {
           "name": "ANTHROPIC_API_KEY",
           "description": "Anthropic API キー（X-Api-Key ヘッダー送信）",
-          "detail": "API認証用キー。X-Api-Keyヘッダーとして送信。対話利用では /login 推奨",
+          "detail": "API認証用キー。X-Api-Keyヘッダーとして送信。設定するとログイン中でもClaude Pro/Max/Team/Enterpriseサブスクリプションの代わりにこのキーが使用される。\n\n非対話モード（-p）ではキーが常に使用される。対話モードでは初回にキー使用の承認を求められる。サブスクリプションを使用するには `unset ANTHROPIC_API_KEY` を実行",
           "values": "APIキー文字列",
           "default": null,
           "example": "export ANTHROPIC_API_KEY=sk-ant-...",
@@ -57,7 +57,12 @@
           "values": "APIキー文字列",
           "default": null,
           "example": "export AWS_BEARER_TOKEN_BEDROCK=key",
-          "links": [],
+          "links": [
+            {
+              "label": "Bedrock APIキー",
+              "url": "https://aws.amazon.com/blogs/machine-learning/accelerate-ai-development-with-amazon-bedrock-api-keys/"
+            }
+          ],
           "deprecated": false
         },
         {
@@ -182,7 +187,7 @@
           "links": [
             {
               "label": "モデル設定",
-              "url": "https://code.claude.com/docs/en/model-config#environment-variables"
+              "url": "https://code.claude.com/docs/en/model-config#add-a-custom-model-option"
             }
           ],
           "deprecated": false
@@ -260,7 +265,7 @@
         {
           "name": "CLAUDE_CODE_EFFORT_LEVEL",
           "description": "モデルのエフォートレベルを設定",
-          "detail": "/effortやeffortLevel設定より優先。Opus 4.6ではmaxも可",
+          "detail": "/effort コマンドと effortLevel 設定より優先。max は Opus 4.6 のみ。auto はモデルのデフォルトを使用",
           "values": "\"low\" | \"medium\" | \"high\" | \"max\" | \"auto\"",
           "default": null,
           "example": "export CLAUDE_CODE_EFFORT_LEVEL=high",
@@ -275,7 +280,7 @@
         {
           "name": "CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING",
           "description": "Opus 4.6・Sonnet 4.6の適応的推論を無効化",
-          "detail": "無効化するとMAX_THINKING_TOKENSの固定バジェットにフォールバック",
+          "detail": "無効化すると MAX_THINKING_TOKENS で制御される固定思考バジェットにフォールバック",
           "values": "\"1\" で無効化",
           "default": null,
           "example": "export CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING=1",
@@ -290,9 +295,9 @@
         {
           "name": "MAX_THINKING_TOKENS",
           "description": "拡張思考のトークンバジェットを上書き",
-          "detail": "デフォルト31,999。0で思考を完全無効化",
+          "detail": "上限はモデルの最大出力トークン数 - 1。0で思考を完全無効化。\n\n適応的推論モデル（Opus 4.6、Sonnet 4.6）では CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING で無効化しない限りバジェットは無視される",
           "values": "トークン数（0で無効化）",
-          "default": "31999",
+          "default": null,
           "example": "export MAX_THINKING_TOKENS=10000",
           "links": [],
           "deprecated": false
@@ -300,9 +305,9 @@
         {
           "name": "CLAUDE_CODE_MAX_OUTPUT_TOKENS",
           "description": "最大出力トークン数",
-          "detail": "増加すると自動コンパクションまでの有効コンテキストが減少",
-          "values": "トークン数（最大64,000）",
-          "default": "32000",
+          "detail": "デフォルトと上限はモデルにより異なる。増加すると自動コンパクションまでの有効コンテキストが減少",
+          "values": "トークン数",
+          "default": null,
           "example": "export CLAUDE_CODE_MAX_OUTPUT_TOKENS=64000",
           "links": [],
           "deprecated": false
@@ -361,7 +366,12 @@
           "values": "URL",
           "default": null,
           "example": "export ANTHROPIC_BASE_URL=https://my-proxy.example.com/v1",
-          "links": [],
+          "links": [
+            {
+              "label": "MCPツール検索",
+              "url": "https://code.claude.com/docs/en/mcp#scale-with-mcp-tool-search"
+            }
+          ],
           "deprecated": false
         },
         {
@@ -569,7 +579,7 @@
         {
           "name": "CLAUDE_AUTOCOMPACT_PCT_OVERRIDE",
           "description": "自動コンパクション発動のコンテキスト容量割合",
-          "detail": "1-100の割合。デフォルト約95%。低い値で早期コンパクション",
+          "detail": "1-100の割合。デフォルト約95%。低い値で早期コンパクション。デフォルト閾値を超える値は効果なし。\n\nメイン会話とサブエージェント両方に適用される。この割合はステータスラインの context_window.used_percentage と連動する",
           "values": "1〜100",
           "default": "95",
           "example": "export CLAUDE_AUTOCOMPACT_PCT_OVERRIDE=50",
@@ -579,7 +589,7 @@
         {
           "name": "CLAUDE_CODE_AUTO_COMPACT_WINDOW",
           "description": "自動コンパクション計算用コンテキスト容量（トークン）",
-          "detail": "デフォルトはモデルのコンテキストウィンドウ（200K/1M）",
+          "detail": "デフォルトはモデルのコンテキストウィンドウ（標準200K、拡張コンテキスト1M）。モデルの実際のコンテキストウィンドウが上限。\n\nCLAUDE_AUTOCOMPACT_PCT_OVERRIDE はこの値の割合として適用される。この変数を設定するとコンパクション閾値がステータスラインの used_percentage から分離される",
           "values": "トークン数",
           "default": "標準モデル: 200000 / 拡張コンテキストモデル: 1000000",
           "example": "export CLAUDE_CODE_AUTO_COMPACT_WINDOW=500000",
@@ -828,7 +838,7 @@
         {
           "name": "CLAUDE_CODE_NEW_INIT",
           "description": "/init でインタラクティブセットアップフローを実行",
-          "detail": "`true` に設定すると `/init` がインタラクティブセットアップフローを実行する。CLAUDE.md、スキル、フックを含むどのファイルを生成するか確認してから、コードベースを探索して書き込む",
+          "detail": "`true` に設定すると `/init` がインタラクティブセットアップフローを実行する。CLAUDE.md、スキル、フックを含むどのファイルを生成するか確認してから、コードベースを探索して書き込む。\n\n未設定時は `/init` がプロンプトなしで自動的にCLAUDE.mdを生成する",
           "values": "\"true\" で有効化",
           "default": null,
           "example": "export CLAUDE_CODE_NEW_INIT=true",
@@ -838,7 +848,7 @@
         {
           "name": "CLAUDE_CODE_DISABLE_FEEDBACK_SURVEY",
           "description": "セッション品質調査を無効化",
-          "detail": "サードパーティプロバイダやテレメトリ無効時にも自動無効",
+          "detail": "DISABLE_TELEMETRY や CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC 設定時にも自動無効化される",
           "values": "\"1\" で無効化",
           "default": null,
           "example": "export CLAUDE_CODE_DISABLE_FEEDBACK_SURVEY=1",
@@ -887,8 +897,8 @@
         },
         {
           "name": "CLAUDE_CODE_DISABLE_GIT_INSTRUCTIONS",
-          "description": "組み込みGitワークフロー指示を除去",
-          "detail": "独自Gitスキル使用時に有用。includeGitInstructions設定より優先",
+          "description": "組み込みGitワークフロー指示とgitステータスを除去",
+          "detail": "組み込みのコミット・PRワークフロー指示とgitステータススナップショットをシステムプロンプトから除去する。独自Gitスキル使用時に有用。設定時は includeGitInstructions 設定より優先",
           "values": "\"1\" で無効化",
           "default": null,
           "example": "export CLAUDE_CODE_DISABLE_GIT_INSTRUCTIONS=1",
@@ -1040,7 +1050,7 @@
         {
           "name": "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC",
           "description": "自動更新・バグ報告・エラー報告・テレメトリを一括無効化",
-          "detail": "DISABLE_AUTOUPDATER/BUG_COMMAND/ERROR_REPORTING/TELEMETRYを一括設定",
+          "detail": "DISABLE_AUTOUPDATER、DISABLE_FEEDBACK_COMMAND、DISABLE_ERROR_REPORTING、DISABLE_TELEMETRY を一括設定",
           "values": "\"1\" で無効化",
           "default": null,
           "example": "export CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1",
@@ -1179,11 +1189,16 @@
         {
           "name": "CLAUDE_CODE_PLUGIN_SEED_DIR",
           "description": "読み取り専用のプラグインシードディレクトリのパス",
-          "detail": "コンテナイメージにプリポピュレートされたプラグインディレクトリをバンドルするために使用する。\n\n複数パスの区切り: Unix では `:` 区切り、Windows では `;` 区切り",
+          "detail": "コンテナイメージにプリポピュレートされたプラグインディレクトリをバンドルするために使用する。起動時にマーケットプレイスを登録し、再クローンなしでキャッシュ済みプラグインを使用する。\n\n複数パスの区切り: Unix では `:` 区切り、Windows では `;` 区切り",
           "values": "ディレクトリパス（複数は区切り文字で指定）",
           "default": null,
           "example": "export CLAUDE_CODE_PLUGIN_SEED_DIR=/opt/claude-plugins:/usr/local/share/claude-plugins",
-          "links": [],
+          "links": [
+            {
+              "label": "コンテナ向けプラグイン事前配置",
+              "url": "https://code.claude.com/docs/en/plugin-marketplaces#pre-populate-plugins-for-containers"
+            }
+          ],
           "deprecated": false
         },
         {
@@ -1214,11 +1229,16 @@
         {
           "name": "CLAUDE_CODE_IDE_SKIP_AUTO_INSTALL",
           "description": "IDE拡張の自動インストールをスキップ",
-          "detail": "IDE拡張機能の自動インストールをスキップ",
+          "detail": "IDE拡張機能の自動インストールをスキップ。autoInstallIdeExtension を false に設定するのと同等",
           "values": "\"1\" で有効化",
           "default": null,
           "example": "export CLAUDE_CODE_IDE_SKIP_AUTO_INSTALL=1",
-          "links": [],
+          "links": [
+            {
+              "label": "グローバル設定",
+              "url": "https://code.claude.com/docs/en/settings#global-config-settings"
+            }
+          ],
           "deprecated": false
         },
         {
@@ -1244,7 +1264,7 @@
         {
           "name": "CLAUDE_CODE_SESSIONEND_HOOKS_TIMEOUT_MS",
           "description": "SessionEndフックの最大実行時間（ms）",
-          "detail": "セッション終了と/clearに適用。各フックのtimeoutもこの値で制限",
+          "detail": "セッション終了、/clear、対話モードの /resume によるセッション切り替えに適用。各フックの timeout もこの値で制限",
           "values": "ミリ秒",
           "default": "1500",
           "example": "export CLAUDE_CODE_SESSIONEND_HOOKS_TIMEOUT_MS=3000",
@@ -1268,8 +1288,8 @@
         },
         {
           "name": "CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS",
-          "description": "anthropic-betaヘッダーを無効化",
-          "detail": "サードパーティプロバイダでヘッダーエラーが出る場合に使用",
+          "description": "anthropic-betaヘッダーとベータツールスキーマを無効化",
+          "detail": "Anthropic固有の anthropic-beta リクエストヘッダーと defer_loading、eager_input_streaming 等のベータツールスキーマフィールドを除去する。\n\nプロキシゲートウェイが「Unexpected value(s) for the anthropic-beta header」や「Extra inputs are not permitted」エラーを返す場合に使用。name、description、input_schema、cache_control 等の標準フィールドは保持される",
           "values": "\"1\" で無効化",
           "default": null,
           "example": "export CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1",

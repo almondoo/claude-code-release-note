@@ -39,12 +39,12 @@
             },
             {
               "phase": "prompt",
-              "description": "Claude モデルへの単一ターンの評価を送信（デフォルト: Haiku）。デフォルトタイムアウト: 30秒",
+              "description": "Claude モデルへの単一ターンの評価を送信（デフォルト: Haiku）。model フィールドで使用モデルを変更可能。デフォルトタイムアウト: 30秒",
               "example": "判断が必要な条件評価"
             },
             {
               "phase": "agent",
-              "description": "ツールアクセス付きサブエージェントを起動する。Read, Grep, Glob, Edit, Bash ツールが使用可能。prompt フィールドで $ARGUMENTS を使い hook 入力 JSON を参照。デフォルトタイムアウト: 60秒",
+              "description": "ツールアクセス付きサブエージェントを起動する。Read, Grep, Glob, Edit, Bash ツールが使用可能。prompt フィールドで $ARGUMENTS を使い hook 入力 JSON を参照。最大50ターンのツール使用が可能。デフォルトタイムアウト: 60秒",
               "example": "ファイル検査やテスト実行を伴う検証"
             }
           ]
@@ -70,7 +70,7 @@
             "`SubagentStop` — サブエージェント完了時に発火。サブエージェント出力の検証に使用",
             "`TaskCompleted` — タスクが完了としてマークされる時に発火。完了条件の検証に使用",
             "`ConfigChange` — 設定ファイル変更時に発火。不正変更のブロックに使用",
-            "`WorktreeCreate` — Worktree 作成時に発火。カスタム worktree ロジックに使用",
+            "`WorktreeCreate` — Worktree 作成時に発火。command タイプのみ対応。カスタム worktree ロジックに使用",
             "`TeammateIdle` — チームメイトがアイドル状態になる時に発火。作業継続の判断に使用",
             "`Elicitation` / `ElicitationResult` — MCP サーバーがユーザー入力を要求した時に発火"
           ]
@@ -82,8 +82,8 @@
           "content": "ノンブロッキングイベントはアクションを阻止できませんが、情報提供やサイドエフェクト（ログ記録、通知、フォーマット等）に最適です。",
           "tags": [],
           "tips": [
-            "`SessionStart` — セッション開始/再開時に発火。コンテキスト注入、環境変数の設定に使用",
-            "`PostToolUse` — ツール成功後に発火。コードフォーマット、ログ記録に使用。MCP ツールの出力を updatedMCPToolOutput で置換可能",
+            "`SessionStart` — セッション開始/再開時に発火。command タイプのみ対応。コンテキスト注入、環境変数の設定に使用",
+            "`PostToolUse` — ツール成功後に発火。コードフォーマット、ログ記録に使用。decision: \"block\" でフィードバック提供可能（アクション自体は阻止不可）。MCP ツールの出力を updatedMCPToolOutput で置換可能",
             "`PostToolUseFailure` — ツール失敗後に発火。エラー分析、通知に使用",
             "`Notification` — 通知送信時に発火。デスクトップ通知に使用",
             "`SubagentStart` — サブエージェント起動時に発火。コンテキスト注入に使用",
@@ -91,7 +91,7 @@
             "`StopFailure` — APIエラーでターン終了時に発火。エラーアラートに使用",
             "`PreCompact` / `PostCompact` — コンテキスト圧縮の前/後に発火。コンテキスト再注入に使用",
             "`InstructionsLoaded` — CLAUDE.md 等の読み込み時に発火。監査ログに使用",
-            "`WorktreeRemove` — Worktree 削除時に発火。クリーンアップに使用"
+            "`WorktreeRemove` — Worktree 削除時に発火。command タイプのみ対応。クリーンアップに使用"
           ]
         },
         {
@@ -104,7 +104,7 @@
             {
               "phase": "PreToolUse / PostToolUse / PostToolUseFailure / PermissionRequest",
               "description": "ツール名にマッチ",
-              "example": "Bash, Edit, Write, Read, Glob, Grep, Agent, WebFetch, mcp__github__.*"
+              "example": "Bash, Edit, Write, Read, Glob, Grep, Agent, WebFetch, WebSearch, Notebook.*, mcp__github__.*"
             },
             {
               "phase": "SessionStart",
@@ -182,10 +182,12 @@
           "content": "Hooks の設定は、イベント名をキーとし、Matcher パターンとハンドラの配列で構成されます。Matcher は省略・空文字・`\"*\"` で全マッチ、正規表現（`\"Edit|Write\"` 等）も使用可能です（**大文字小文字を区別**）。",
           "tags": [],
           "tips": [
-            "Exit Code `0` — 成功。アクション続行。stdout の JSON が解析される",
+            "Exit Code `0` — 成功。アクション続行。stdout の JSON が解析される。`UserPromptSubmit` と `SessionStart` では stdout がコンテキストとして Claude に追加されるが、他のイベントでは verbose モードでのみ表示",
             "Exit Code `2` — ブロッキングエラー。アクションをブロック。stderr が Claude へのフィードバックになる",
             "Exit Code その他 — ノンブロッキングエラー。続行。stderr は verbose モードで表示",
-            "`once: true` — セッション内で一度だけ実行し、その後削除される（スキル内 hooks のみ）"
+            "`once: true` — セッション内で一度だけ実行し、その後削除される（スキル内 hooks のみ）",
+            "マッチした全ての hooks は**並列実行**される。同一のコマンド文字列 / URL は自動的に**重複排除**される",
+            "hooks は Claude Code の作業ディレクトリで実行される"
           ],
           "code": "{\n  \"hooks\": {\n    \"イベント名\": [\n      {\n        \"matcher\": \"正規表現パターン（省略可）\",\n        \"hooks\": [\n          {\n            \"type\": \"command\",\n            \"command\": \"実行するコマンド\",\n            \"timeout\": 600,\n            \"statusMessage\": \"検証中...\",\n            \"async\": false,\n            \"once\": false\n          }\n        ]\n      }\n    ]\n  }\n}"
         },
@@ -201,7 +203,7 @@
             "`CLAUDE_CODE_REMOTE` — Web 環境では `\"true\"` に設定される",
             "`CLAUDE_PLUGIN_ROOT` — プラグインのインストールディレクトリ",
             "`CLAUDE_PLUGIN_DATA` — プラグインの永続データディレクトリ",
-            "`transcript_path` — 全イベントの入力 JSON に含まれる。セッションのトランスクリプトファイル（JSONL 形式）へのパス"
+            "**共通入力フィールド（stdin JSON）**: `session_id`, `transcript_path`, `cwd`, `hook_event_name` が全イベントで利用可能。サブエージェント内では `agent_id`, `agent_type` も含まれる"
           ]
         },
         {
@@ -222,8 +224,8 @@
               "example": "{\"hookSpecificOutput\": {\"hookEventName\": \"PermissionRequest\", \"decision\": {\"behavior\": \"allow|deny\", \"updatedPermissions\": [{\"type\": \"setMode\", \"mode\": \"acceptEdits\", \"destination\": \"session\"}]}}}"
             },
             {
-              "phase": "Stop / SubagentStop / UserPromptSubmit / ConfigChange",
-              "description": "トップレベルの decision で block を指定し、reason でフィードバックを返す",
+              "phase": "Stop / SubagentStop / UserPromptSubmit / PostToolUse / PostToolUseFailure / ConfigChange",
+              "description": "トップレベルの decision で block を指定し、reason でフィードバックを返す。PostToolUse / PostToolUseFailure はアクション実行後のため、ブロックではなくフィードバック提供として機能する",
               "example": "{\"decision\": \"block\", \"reason\": \"未完了のタスクがあります\"}"
             },
             {
@@ -484,7 +486,7 @@
           "id": "auto-approve",
           "title": "ExitPlanMode の自動承認",
           "summary": "PermissionRequest イベントで特定の操作（ExitPlanMode 等）を自動承認する。",
-          "content": "`PermissionRequest` イベントで特定のツールの権限要求を自動承認します。`hookSpecificOutput` に `decision.behavior: \"allow\"` を含む JSON を stdout に出力します。",
+          "content": "`PermissionRequest` イベントで特定のツールの権限要求を自動承認します。`hookSpecificOutput` に `decision.behavior: \"allow\"` を含む JSON を stdout に出力します。\n\n`updatedPermissions` 配列に `setMode` エントリを含めることで、セッションの権限モードを変更することも可能です（例: `acceptEdits`, `bypassPermissions` 等）。`destination: \"session\"` で現在のセッションにのみ適用されます。",
           "tags": ["自動化"],
           "code": "{\n  \"hooks\": {\n    \"PermissionRequest\": [\n      {\n        \"matcher\": \"ExitPlanMode\",\n        \"hooks\": [\n          {\n            \"type\": \"command\",\n            \"command\": \"echo '{\\\"hookSpecificOutput\\\": {\\\"hookEventName\\\": \\\"PermissionRequest\\\", \\\"decision\\\": {\\\"behavior\\\": \\\"allow\\\"}}}'\"\n          }\n        ]\n      }\n    ]\n  }\n}"
         },
@@ -592,7 +594,8 @@
             "**マネージドポリシーは最優先**: 組織のマネージドポリシー設定はユーザーやプロジェクトの設定で無効化できない",
             "**deny ルールは hook より優先**: `PreToolUse` で `allow` を返しても、権限設定の deny ルールが優先される",
             "**HTTP hook のトークン管理**: `allowedEnvVars` で明示的に許可した環境変数のみヘッダーで使用可能",
-            "**disableAllHooks**: settings.json に `\"disableAllHooks\": true` で全 hooks を無効化可能。マネージドポリシーで設定した場合はユーザー/プロジェクト hooks も含め全て無効化"
+            "**disableAllHooks**: settings.json に `\"disableAllHooks\": true` で全 hooks を無効化可能。マネージドポリシーで設定した場合はユーザー/プロジェクト hooks も含め全て無効化",
+            "**allowManagedHooksOnly**: マネージドポリシーで設定するとユーザー・プロジェクト・プラグインの hooks をブロックし、管理者が定義した hooks のみ実行可能にする"
           ]
         },
         {
