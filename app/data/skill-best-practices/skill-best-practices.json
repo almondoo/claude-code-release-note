@@ -1,6 +1,27 @@
 {
   "sections": [
     {
+      "id": "bundled-skills",
+      "name": "バンドルスキル",
+      "description": "Claude Code に同梱される組み込みスキル",
+      "items": [
+        {
+          "id": "bundled-skills-overview",
+          "title": "バンドルスキルの概要",
+          "summary": "Claude Code に同梱されるプロンプトベースのスキル。ビルトインコマンドと異なり、並列エージェント起動やファイル読み取りが可能。",
+          "content": "バンドルスキルは Claude Code に同梱され、すべてのセッションで利用可能です。ビルトインコマンド（固定ロジック）とは異なりプロンプトベースで動作し、並列エージェント起動やファイル読み取りが可能です。\n\n呼び出しは通常のスキルと同じで `/` の後にスキル名を入力します。",
+          "tags": [],
+          "tips": [
+            "/batch <instruction> — 大規模変更を並列実行。5〜30の独立ユニットに分解し、git worktree で並列にエージェント実行→テスト→PR 作成",
+            "/claude-api — Claude API リファレンス（Python, TypeScript 等8言語）と Agent SDK リファレンスをロード。インポート検出時に自動起動",
+            "/debug [description] — セッションのデバッグログを読み取って問題を診断",
+            "/loop [interval] <prompt> — プロンプトを定期的に繰り返し実行。デプロイ監視等に有用",
+            "/simplify [focus] — 最近変更されたファイルの品質レビュー。3つのレビューエージェントを並列起動し修正を適用"
+          ]
+        }
+      ]
+    },
+    {
       "id": "core-principles",
       "name": "コア原則",
       "description": "効果的なスキルの基本的な考え方",
@@ -9,7 +30,7 @@
           "id": "conciseness",
           "title": "簡潔さが鍵",
           "summary": "コンテキストウィンドウは共有リソース。Claude が既に知っていることは書かない。",
-          "content": "コンテキストウィンドウは公共財です。スキルはシステムプロンプト、会話履歴、他のスキルのメタデータ、実際のリクエストとコンテキストを共有します。\n\n起動時にはすべてのスキルのメタデータ（name と description）のみがプリロードされます。Claude は SKILL.md をスキルが関連するときにのみ読み込み、追加ファイルは必要に応じて読み込みます。ただし、SKILL.md の簡潔さは依然として重要です。一度読み込まれると、すべてのトークンが会話履歴や他のコンテキストと競合します。\n\nデフォルトの前提として「Claude は既に非常に賢い」と考えます。Claude がまだ持っていないコンテキストだけを追加してください。各情報について以下を自問します。\n\n・Claude は本当にこの説明が必要か？\n\n・Claude はこれを既に知っていると仮定できるか？\n\n・このパラグラフはトークンコストに見合うか？",
+          "content": "コンテキストウィンドウは公共財です。スキルはシステムプロンプト、会話履歴、他のスキルのメタデータとコンテキストを共有します。\n\n起動時にはすべてのスキルのメタデータ（name と description）のみがプリロードされます。Claude は SKILL.md を関連するときにのみ読み込み、追加ファイルは必要に応じて読み込みます。一度読み込まれると、すべてのトークンが他のコンテキストと競合します。\n\nデフォルトの前提として「Claude は既に非常に賢い」と考え、まだ持っていないコンテキストだけを追加してください。",
           "tags": ["重要"],
           "examples": [
             {
@@ -50,7 +71,7 @@
           "id": "naming-conventions",
           "title": "命名規則",
           "summary": "動名詞形（verb + -ing）で、スキルが提供するアクティビティや能力を明確に表現する。",
-          "content": "一貫した命名パターンを使用して、スキルの参照と議論を容易にします。\n\nname フィールドの制約：\n\n・小文字、数字、ハイフンのみ使用可能\n\n・最大64文字\n\n・予約語（anthropic、claude）は使用不可\n\n・XMLタグは使用不可\n\n一貫した命名のメリット：\n\n・ドキュメントや会話でスキルを参照しやすい\n\n・スキルが何をするかを一目で理解できる\n\n・複数のスキルの整理と検索が容易になる\n\n・プロフェッショナルで一貫性のあるスキルライブラリを維持できる",
+          "content": "一貫した命名パターンを使用して、スキルの参照と議論を容易にします。\n\nname フィールドの制約: 小文字、数字、ハイフンのみ使用可能。最大64文字。予約語（anthropic、claude）と XMLタグは使用不可。\n\n一貫した命名により、スキルの参照、整理、検索が容易になり、プロフェッショナルなスキルライブラリを維持できます。",
           "tags": [],
           "examples": [
             {
@@ -97,6 +118,56 @@
           "content": "SKILL.md のフロントマターには name と description の2つのフィールドが推奨です。すべてのフィールドはオプションですが、description は Claude がスキルの使用タイミングを判断するために推奨されます。\n\nname のルール：\n\n・最大64文字\n\n・小文字、数字、ハイフンのみ使用可能\n\n・XMLタグを含めない\n\n・予約語（anthropic、claude）を含めない\n\ndescription のルール：\n\n・空でないこと\n\n・最大1024文字\n\n・XMLタグを含めない\n\n・何をするか、いつ使うかを記述する\n\nその他の主なフィールド：argument-hint（引数ヒント）、disable-model-invocation（Claude の自動呼び出し禁止）、user-invocable（/ メニュー非表示）、allowed-tools（ツール許可）、model（使用モデル）、effort（effort レベル: low / medium / high / max。セッションの effort レベルをオーバーライドする。max は Opus 4.6 のみ対応）、context（fork でサブエージェント実行）、agent（context: fork 時のエージェント型）、hooks（スキルのライフサイクルフック）。\n\nSKILL.md のボディ（フロントマター以降の部分）は500行以下に保つのが最適です。この制限を超える場合は、段階的開示パターンを使用してコンテンツを別ファイルに分割してください。",
           "tags": [],
           "code": "---\nname: pdf-processing\ndescription: PDF ファイルからテキストとテーブルを抽出し、フォーム入力とドキュメント結合を行う。PDF 関連の作業時に使用。\neffort: high\n---\n\n# PDF 処理\n\n## クイックスタート\n\npdfplumber でテキスト抽出:\n```python\nimport pdfplumber\nwith pdfplumber.open(\"file.pdf\") as pdf:\n    text = pdf.pages[0].extract_text()\n```\n\n## 高度な機能\n\n**フォーム入力**: [FORMS.md](FORMS.md) を参照\n**API リファレンス**: [REFERENCE.md](REFERENCE.md) を参照"
+        },
+        {
+          "id": "invocation-control",
+          "title": "呼び出し制御",
+          "summary": "disable-model-invocation と user-invocable で、スキルを誰が呼び出すかとコンテキストへの読み込み方を制御する。",
+          "content": "デフォルトでは、ユーザーと Claude の両方がスキルを呼び出せます。2つのフロントマターフィールドで制御可能です。\n\ndisable-model-invocation: true はユーザーのみ呼び出し可能にします。デプロイやコミットなど副作用のあるワークフロー向け。description がコンテキストに読み込まれないため自動トリガーされません。\n\nuser-invocable: false は Claude のみ呼び出し可能にします。/ メニューに非表示。背景知識としてのスキル向け。description は常にコンテキストに読み込まれます。",
+          "tags": [],
+          "tips": [
+            "デフォルト — ユーザー・Claude 両方が呼び出し可能。description が常にコンテキストに存在",
+            "disable-model-invocation: true — ユーザーのみ。description はコンテキストに含まれない",
+            "user-invocable: false — Claude のみ。description が常にコンテキストに存在。/ メニューに非表示",
+            "user-invocable は / メニューの表示のみを制御。Claude の自動呼び出しをブロックするには disable-model-invocation: true を使う"
+          ]
+        },
+        {
+          "id": "string-substitutions",
+          "title": "文字列置換",
+          "summary": "スキル内で $ARGUMENTS、$ARGUMENTS[N]、$N、${CLAUDE_SESSION_ID}、${CLAUDE_SKILL_DIR} の動的変数が使用可能。",
+          "content": "スキルはコンテンツ内で動的な値を使用できます。プレースホルダーはスキル実行時に実際の値に置換されます。\n\n$ARGUMENTS — 呼び出し時に渡された全引数。コンテンツに $ARGUMENTS がない場合は末尾に追加されます。\n\n$ARGUMENTS[N] / $N — 0ベースのインデックスで特定の引数を参照（$0 が最初）。\n\n${CLAUDE_SESSION_ID} — 現在のセッション ID。ログやセッション固有ファイルの作成に有用。\n\n${CLAUDE_SKILL_DIR} — SKILL.md があるディレクトリ。バンドルスクリプトの参照に使用。",
+          "tags": [],
+          "code": "---\nname: fix-issue\ndescription: GitHub Issue を修正する\ndisable-model-invocation: true\n---\n\nGitHub Issue $ARGUMENTS を修正してください。\n\n# 複数引数の例: /migrate-component SearchBar React Vue\n# $0=SearchBar, $1=React, $2=Vue"
+        },
+        {
+          "id": "dynamic-context-injection",
+          "title": "動的コンテキスト注入",
+          "summary": "!`<command>` 構文でシェルコマンドを実行し、結果をスキルコンテンツに挿入する。",
+          "content": "!`<command>` 構文を使うと、スキルのコンテンツが Claude に送信される前にシェルコマンドを実行し、出力をプレースホルダーの位置に挿入できます。これは前処理であり、Claude が実行するものではありません。Claude は最終結果のみを受け取ります。\n\nPR の要約、ログの取得、環境情報の注入など、最新のデータをスキルに含めたい場合に有用です。",
+          "tags": [],
+          "code": "## PR コンテキスト\n- PR の差分: !`gh pr diff`\n- PR のコメント: !`gh pr view --comments`\n- 変更ファイル: !`gh pr diff --name-only`\n\n## タスク\nこの PR を要約してください..."
+        },
+        {
+          "id": "subagent-execution",
+          "title": "サブエージェントでの実行",
+          "summary": "context: fork でスキルを隔離されたサブエージェントで実行する。スキルのコンテンツがサブエージェントのプロンプトになる。",
+          "content": "context: fork をフロントマターに追加すると、スキルは隔離されたサブエージェントで実行されます。スキルの内容がプロンプトになり、会話履歴にはアクセスしません。\n\nagent フィールドでサブエージェントタイプを指定します。ビルトイン（Explore、Plan、general-purpose）またはカスタム（.claude/agents/ 内）が使用可能。省略時は general-purpose です。\n\n注意: context: fork は明示的なタスク指示を持つスキルでのみ有効です。ガイドラインのみのスキルでは有意な出力を返しません。",
+          "tags": [],
+          "code": "---\nname: deep-research\ndescription: トピックを徹底的にリサーチする\ncontext: fork\nagent: Explore\n---\n\n$ARGUMENTS を徹底的にリサーチしてください：\n\n1. Glob と Grep で関連ファイルを検索\n2. コードを読んで分析\n3. 具体的なファイル参照とともに発見事項をまとめる"
+        },
+        {
+          "id": "skill-permission-control",
+          "title": "スキルのアクセス制御",
+          "summary": "Claude がどのスキルを呼び出せるかを /permissions で制御する。特定スキルの許可/拒否も可能。",
+          "content": "Claude のスキルアクセスは3つの方法で制御できます。/permissions で Skill ツール全体を deny に追加する方法、Skill(name) で完全一致・Skill(name *) でプレフィックスマッチで個別制御する方法、フロントマターに disable-model-invocation: true を設定する方法です。\n\nスキルの description はコンテキストウィンドウの2%（フォールバック: 16,000文字）のバジェット内でロードされます。バジェット超過時はスキルが除外されます。/context で確認、SLASH_COMMAND_TOOL_CHAR_BUDGET でオーバーライド可能です。",
+          "tags": [],
+          "tips": [
+            "全無効化: /permissions の deny に Skill を追加",
+            "特定の許可: Skill(commit)、Skill(review-pr *)",
+            "特定の拒否: Skill(deploy *)",
+            "description バジェット: コンテキストウィンドウの2%（フォールバック: 16,000文字）"
+          ]
         }
       ]
     },
@@ -155,7 +226,7 @@
           "id": "complex-workflows",
           "title": "複雑なタスクにはワークフローを使う",
           "summary": "明確で順序立てたステップに分割し、チェックリストで進捗を追跡する。",
-          "content": "複雑な操作を明確で順序立てたステップに分割します。特に複雑なワークフローでは、Claude がレスポンスにコピーして進捗をチェックできるチェックリストを提供します。\n\nコード不要のワークフロー（リサーチ合成、コンテンツレビューなど）でも、コード付きのワークフロー（PDF フォーム入力、ドキュメント編集など）でも、このパターンは有効です。\n\n明確なステップは Claude が重要なバリデーションをスキップすることを防ぎます。チェックリストは Claude とユーザーの両方が複数ステップのワークフローの進捗を追跡するのに役立ちます。",
+          "content": "複雑な操作を明確で順序立てたステップに分割します。特に複雑なワークフローでは、Claude がレスポンスにコピーして進捗をチェックできるチェックリストを提供します。\n\n明確なステップは Claude が重要なバリデーションをスキップすることを防ぎます。チェックリストは進捗追跡に役立ちます。",
           "tags": [],
           "code": "## PDF フォーム入力ワークフロー\n\nこのチェックリストをコピーして完了時にチェック：\n\n```\n進捗管理:\n- [ ] ステップ1: フォームを分析 (analyze_form.py を実行)\n- [ ] ステップ2: フィールドマッピングを作成 (fields.json を編集)\n- [ ] ステップ3: マッピングを検証 (validate_fields.py を実行)\n- [ ] ステップ4: フォームに入力 (fill_form.py を実行)\n- [ ] ステップ5: 出力を検証 (verify_output.py を実行)\n```\n\n各ステップの詳細な手順をチェックリストの下に記載する。"
         },
@@ -163,7 +234,7 @@
           "id": "feedback-loops",
           "title": "フィードバックループを実装する",
           "summary": "バリデータ実行 → エラー修正 → 繰り返し。このパターンが出力品質を大幅に向上させる。",
-          "content": "「バリデータ実行 → エラー修正 → 繰り返し」は出力品質を大幅に向上させる一般的なパターンです。\n\nコードなしのスキルでは、スタイルガイドや参照ドキュメントに対してチェックリストで検証します。コード付きのスキルでは、検証スクリプトを使用します。\n\nどちらの場合も重要なポイントは以下の3つです。\n\n・編集後すぐに検証すること\n\n・検証が通らない限り次のステップに進まないこと\n\n・検証が失敗した場合は問題を修正して再検証すること\n\nバリデーションループのメリット：\n\n・エラーを早期に発見できる\n\n・スクリプトによる客観的な検証を提供する\n\n・可逆的な計画と明確なデバッグを可能にする",
+          "content": "「バリデータ実行 → エラー修正 → 繰り返し」は出力品質を大幅に向上させる一般的なパターンです。\n\n重要なポイント: 編集後すぐに検証すること、検証が通らない限り次のステップに進まないこと、検証が失敗した場合は修正して再検証すること。\n\nコードなしのスキルではチェックリストで検証、コード付きのスキルでは検証スクリプトを使用します。",
           "tags": [],
           "steps": [
             {
@@ -273,7 +344,7 @@
           "id": "iterative-development",
           "title": "Claude との反復開発",
           "summary": "Claude A（設計担当）でスキルを作成し、Claude B（テスト担当）で実タスクに使用して改善する。",
-          "content": "最も効果的なスキル開発は Claude 自体を活用します。Claude A（設計担当）でスキルを作成・改善し、Claude B（テスト担当）が実タスクでテストします。\n\n新規スキルの作成手順：\n\n1. スキルなしでタスクを完了 — Claude A と通常のプロンプティングで問題を解決。繰り返し提供する情報に注目する\n\n2. 再利用可能なパターンを特定 — 将来の類似タスクに有用なコンテキストを特定する\n\n3. Claude A にスキル作成を依頼 — 「このパターンをキャプチャするスキルを作成して」\n\n4. 簡潔さをレビュー — 不要な説明を削除。「win rate の説明は削除して、Claude は既に知っている」\n\n5. 情報アーキテクチャを改善 — 参照ファイルの整理を依頼する\n\n6. Claude B で類似タスクをテスト — 実際のユースケースで使用する\n\n7. 観察に基づいて反復 — Claude B の挙動を Claude A にフィードバックする\n\nClaude A がエージェントの指示の書き方を理解し、あなたがドメイン専門知識を提供し、Claude B が実際の使用でギャップを明らかにし、反復改善が仮定ではなく観察に基づくスキルを作ります。",
+          "content": "最も効果的なスキル開発は Claude 自体を活用します。Claude A（設計担当）でスキルを作成・改善し、Claude B（テスト担当）が実タスクでテストします。\n\n手順: 1. スキルなしでタスクを完了し、繰り返し提供する情報に注目 → 2. 再利用可能なパターンを特定 → 3. Claude A にスキル作成を依頼 → 4. 簡潔さをレビューし不要な説明を削除 → 5. 参照ファイルの整理を依頼 → 6. Claude B で類似タスクをテスト → 7. 観察に基づいて反復",
           "tags": [],
           "tips": [
             "Claude B がルールを忘れた場合 → ルールの表現を強化（\"always\" → \"MUST\"）",

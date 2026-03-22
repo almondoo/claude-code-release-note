@@ -9,7 +9,7 @@
           "id": "context-window",
           "title": "コンテキストウィンドウは最も重要なリソース",
           "summary": "Claude のコンテキストウィンドウには全メッセージ、読み取ったファイル、コマンド出力が含まれる。いっぱいになるとパフォーマンスが低下する。",
-          "content": "ほとんどのベストプラクティスは1つの制約に基づいています。Claude のコンテキストウィンドウはすぐにいっぱいになり、いっぱいになるにつれてパフォーマンスが低下します。\n\nClaude のコンテキストウィンドウは、すべてのメッセージ、Claude が読み取ったすべてのファイル、およびすべてのコマンド出力を含む会話全体を保持します。単一のデバッグセッションやコードベース探索でも、数万のトークンを生成・消費する可能性があります。\n\nLLM のパフォーマンスはコンテキストがいっぱいになるにつれて低下します。コンテキストウィンドウがいっぱいになりかけると、Claude は以前の指示を「忘れる」か、より多くの間違いを犯す可能性があります。\n\nカスタムステータスラインを使用して、コンテキスト使用状況を継続的に追跡することを推奨します。これにより、コンテキストがいっぱいになる前に適切なタイミングで /clear や /compact を実行できます。",
+          "content": "ほとんどのベストプラクティスは1つの制約に基づいています。Claude のコンテキストウィンドウはすぐにいっぱいになり、いっぱいになるにつれてパフォーマンスが低下します。\n\nClaude のコンテキストウィンドウは、すべてのメッセージ、Claude が読み取ったすべてのファイル、およびすべてのコマンド出力を含む会話全体を保持します。単一のデバッグセッションやコードベース探索でも、数万のトークンを生成・消費する可能性があります。\n\nLLM のパフォーマンスはコンテキストがいっぱいになるにつれて低下します。コンテキストウィンドウがいっぱいになりかけると、Claude は以前の指示を「忘れる」か、より多くの間違いを犯す可能性があります。\n\nコンテキストウィンドウは管理すべき最も重要なリソースです。カスタムステータスラインを使用してコンテキスト使用状況を継続的に追跡し、トークン使用量の削減戦略も参照してください。",
           "tags": ["重要"]
         }
       ]
@@ -85,6 +85,32 @@
           "summary": "スコープが明確で修正が小さい場合は直接実行。差分を1文で説明できるなら計画は不要。",
           "content": "Plan Mode は便利ですが、オーバーヘッドも追加します。スコープが明確で修正が小さい場合（タイプミスの修正、ログ行の追加、変数の名前変更など）、Claude に直接実行するよう依頼します。\n\n計画は、アプローチについて不確実な場合、変更が複数のファイルを変更する場合、または変更されるコードに不慣れな場合に最も役立ちます。差分を1文で説明できる場合は、計画をスキップします。",
           "tags": []
+        },
+        {
+          "id": "plan-mode-config",
+          "title": "Plan Mode の設定と活用",
+          "summary": "Shift+Tab で Plan Mode を切り替え、--permission-mode plan で起動、ヘッドレスでも使用可能。",
+          "content": "Plan Mode は読み取り専用の操作でコードベースを分析し計画を作成します。コードベースの探索、複雑な変更の計画、コードレビューに最適です。\n\nセッション中に Shift+Tab でパーミッションモードを切り替えられます。Normal Mode → Auto-Accept Mode → Plan Mode の順に切り替わります。\n\n新しいセッションを Plan Mode で開始するには --permission-mode plan フラグを使用します。ヘッドレスモードでも -p と組み合わせて使用可能です。\n\n計画を承認すると、Claude は計画の内容からセッション名を自動的に設定します。Ctrl+G で計画をテキストエディタで直接編集できます。",
+          "tags": [],
+          "tips": [
+            "Shift+Tab でセッション中にモードを切り替え（Normal → Auto-Accept → Plan）",
+            "claude --permission-mode plan で Plan Mode でセッションを開始",
+            "claude --permission-mode plan -p \"...\" でヘッドレスの Plan Mode クエリ",
+            ".claude/settings.json の permissions.defaultMode を \"plan\" に設定してデフォルト化可能"
+          ]
+        },
+        {
+          "id": "reference-files",
+          "title": "@ でファイルやディレクトリを参照する",
+          "summary": "@ でファイルを直接インクルード、ディレクトリのリスト表示、MCP リソースの取得が可能。",
+          "content": "@ を使用してファイルやディレクトリをすばやくインクルードできます。Claude が読み取るのを待つ必要がありません。\n\nファイルパスは相対パスでも絶対パスでも使用可能です。@ ファイル参照は、そのファイルのディレクトリと親ディレクトリの CLAUDE.md もコンテキストに追加します。ディレクトリ参照はファイルの内容ではなくファイルリストを表示します。\n\nMCP リソースも @server:resource の形式で取得できます。1つのメッセージで複数のファイルを参照可能です（例：@file1.js と @file2.js）。",
+          "tags": [],
+          "tips": [
+            "@ でファイルを参照 — コードの場所を説明する代わりに Claude が応答前にファイルを読み取る",
+            "@ でディレクトリを参照 — ファイルの内容ではなくリスト情報を提供",
+            "@server:resource で MCP リソースを取得（例：@github:repos/owner/repo/issues）",
+            "1つのメッセージで複数のファイルを参照可能"
+          ]
         }
       ]
     },
@@ -97,7 +123,7 @@
           "id": "specific-context",
           "title": "プロンプトで具体的なコンテキストを提供する",
           "summary": "指示がより正確であるほど、必要な修正が少なくなる。",
-          "content": "Claude は意図を推測できますが、あなたの心を読むことはできません。特定のファイルを参照し、制約を述べ、例のパターンを指摘します。",
+          "content": "Claude は意図を推測できますが、あなたの心を読むことはできません。特定のファイルを参照し、制約を述べ、例のパターンを指摘します。\n\n曖昧なプロンプトは、探索中でコース修正する余裕がある場合に有用です。「このファイルで何を改善しますか？」のようなプロンプトは、あなたが思いつかなかったことを浮き彫りにできます。",
           "tags": [],
           "examples": [
             {
@@ -266,6 +292,19 @@
           "summary": "/plugin でマーケットプレイスを参照。スキル、ツール、統合を設定なしで追加できる。",
           "content": "プラグインは、コミュニティと Anthropic からの単一のインストール可能なユニットにスキル、フック、subagents、MCP サーバーをバンドルします。型付き言語で作業する場合は、コードインテリジェンスプラグインをインストールして、Claude に正確なシンボルナビゲーションと編集後の自動エラー検出を提供します。",
           "tags": []
+        },
+        {
+          "id": "notification-hooks",
+          "title": "通知フックを設定する",
+          "summary": "Claude が注意を必要とするときにデスクトップ通知を受け取る。Notification フックイベントを設定する。",
+          "content": "長時間のタスクを開始して別のウィンドウに切り替えたとき、Claude が完了したか入力を必要としているかを知るためにデスクトップ通知を設定できます。Notification フックイベントは、Claude がパーミッション待ち、アイドル状態で新しいプロンプトを待っている、認証完了時に発火します。\n\n~/.claude/settings.json に Notification フックを追加し、プラットフォームのネイティブ通知コマンドを呼び出します。matcher フィールドで発火するイベントを絞り込めます。\n\n/hooks で Notification を選択して、フックが正しく設定されていることを確認できます。",
+          "tags": [],
+          "tips": [
+            "macOS: osascript -e 'display notification ...' で通知",
+            "Linux: notify-send で通知",
+            "matcher を permission_prompt / idle_prompt / auth_success / elicitation_dialog で絞り込み可能",
+            "/hooks で設定済みフックを確認"
+          ]
         }
       ]
     },
@@ -299,7 +338,8 @@
             "Esc + Esc / /rewind でチェックポイントを選択後、「Summarize from here」で特定ポイントから会話をコンパクトにできる",
             "自動コンパクションがトリガーされると、Claude は最も重要なもの（コードパターン、ファイル状態、主要な決定）を要約する",
             "/compact <instructions> でより制御された要約が可能。例：/compact Focus on the API changes",
-            "CLAUDE.md でコンパクション動作をカスタマイズ可能 — 例：\"When compacting, always preserve the full list of modified files and any test commands\""
+            "CLAUDE.md でコンパクション動作をカスタマイズ可能 — 例：\"When compacting, always preserve the full list of modified files and any test commands\"",
+            "/btw でサイドクエスチョンを投げる — 回答はオーバーレイに表示され会話履歴に入らないため、コンテキストを増やさずに詳細を確認できる"
           ]
         },
         {
@@ -320,10 +360,30 @@
         {
           "id": "resume-conversations",
           "title": "会話を再開する",
-          "summary": "claude --continue で中断したところから再開。--resume で最近のセッションから選択。",
-          "content": "Claude Code はローカルに会話を保存します。タスクが複数のセッションにまたがる場合、コンテキストを再度説明する必要はありません。\n\n/rename を使用してセッションに説明的な名前を付けます（\"oauth-migration\"、\"debugging-memory-leak\"）。後で見つけやすくするために。セッションをブランチのように扱います。異なるワークストリームは、別の永続的なコンテキストを持つことができます。",
+          "summary": "claude --continue で中断したところから再開。--resume で最近のセッションから選択。--from-pr で PR にリンクされたセッションを再開。",
+          "content": "Claude Code はローカルに会話を保存します。タスクが複数のセッションにまたがる場合、コンテキストを再度説明する必要はありません。\n\n/rename を使用してセッションに説明的な名前を付けます（\"oauth-migration\"、\"debugging-memory-leak\"）。後で見つけやすくするために。セッションをブランチのように扱います。異なるワークストリームは、別の永続的なコンテキストを持つことができます。\n\ngh pr create で PR を作成すると、セッションは自動的にその PR にリンクされます。後で claude --from-pr <number> で再開できます。\n\nセッションピッカー（/resume）では、矢印キーで移動、P でプレビュー、R でリネーム、/ で検索、A で全プロジェクト表示切り替え、B で現在のブランチのセッションをフィルタできます。",
           "tags": [],
-          "code": "claude --continue    # 最も最近の会話を再開\nclaude --resume      # 最近の会話から選択"
+          "tips": [
+            "claude --continue で直近の会話を再開",
+            "claude --resume で最近の会話から選択（名前指定も可能）",
+            "claude --from-pr 123 で PR にリンクされたセッションを再開",
+            "claude -n auth-refactor で起動時にセッション名を設定",
+            "/resume ピッカーで P=プレビュー、R=リネーム、B=ブランチフィルタ"
+          ]
+        },
+        {
+          "id": "extended-thinking",
+          "title": "拡張思考（thinking mode）を活用する",
+          "summary": "デフォルトで有効。effort レベルで思考の深さを調整、ultrathink で一時的に高い推論を実行。",
+          "content": "拡張思考はデフォルトで有効であり、Claude が複雑な問題をステップバイステップで推論してから応答する余地を与えます。Ctrl+O で verbose モードに切り替えると、内部推論を灰色のイタリックテキストとして確認できます。\n\nOpus 4.6 と Sonnet 4.6 は adaptive reasoning をサポートし、固定の thinking トークンバジェットの代わりに effort レベルに基づいて動的に thinking を割り当てます。\n\n複雑なアーキテクチャ決定、難しいバグ、マルチステップの実装計画、異なるアプローチ間のトレードオフ評価に特に有用です。\n\n「think」「think hard」「think more」などのフレーズは通常のプロンプト指示として解釈され、thinking トークンを割り当てません。",
+          "tags": [],
+          "tips": [
+            "/effort で思考の深さを調整、または /model 内で設定",
+            "プロンプトに「ultrathink」を含めると、そのターンだけ effort を high に設定（Opus 4.6, Sonnet 4.6）",
+            "Option+T (macOS) / Alt+T (Windows/Linux) で thinking のオン/オフを切り替え",
+            "/config でグローバルデフォルトの thinking モードを設定",
+            "MAX_THINKING_TOKENS 環境変数で thinking バジェットを制限可能"
+          ]
         }
       ]
     },
@@ -355,6 +415,20 @@
               "Review the rate limiter implementation in @src/middleware/rateLimiter.ts. Look for edge cases, race conditions, and consistency with our existing middleware patterns."
             ]
           }
+        },
+        {
+          "id": "git-worktrees",
+          "title": "Git Worktrees で並列セッションを実行する",
+          "summary": "--worktree フラグで分離されたワークツリーを作成し、複数タスクの同時作業で変更が衝突しないようにする。",
+          "content": "複数タスクを同時に作業する場合、各 Claude セッションが独自のコードベースコピーを持つことで変更の衝突を防ぎます。Git worktrees は同じリポジトリ履歴とリモート接続を共有しながら、独自のファイルとブランチを持つ作業ディレクトリを作成します。\n\n--worktree（-w）フラグで分離されたワークツリーを作成し、Claude をその中で起動します。渡した値がワークツリーのディレクトリ名とブランチ名になります。名前を省略するとランダムな名前が自動生成されます。\n\nワークツリーは <repo>/.claude/worktrees/<name> に作成され、デフォルトのリモートブランチから分岐します。Subagents も isolation: worktree で worktree 分離を使用できます。\n\nワークツリーセッションを終了すると、変更がない場合は自動的にクリーンアップされ、変更がある場合は保持または削除を選択できます。",
+          "tags": [],
+          "tips": [
+            "claude --worktree feature-auth で名前付きワークツリーを作成",
+            "claude --worktree で自動命名されたワークツリーを作成",
+            "Subagent の frontmatter に isolation: worktree を追加してワークツリー分離を使用",
+            ".gitignore に .claude/worktrees/ を追加してメインリポジトリのクリーンさを維持",
+            "セッション中に「work in a worktree」と依頼して自動作成も可能"
+          ]
         },
         {
           "id": "fan-out",

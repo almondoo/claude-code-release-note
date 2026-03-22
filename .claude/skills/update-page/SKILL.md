@@ -20,17 +20,17 @@ argument-hint: "<page-id> (例: release-note, commands, directory, plugins, env-
 
 **開始時**: 以下のチェックリストを `TaskCreate` ツールで全てタスク化してから、Step 1 から順に1ステップずつ進める。各ステップ完了時に `TaskUpdate` で完了にマークすること。
 
-- [ ] **Step 1: ページ特定** — 引数から page-id を決定。`Read` ツールで `.claude/skills/update-page/pages/<page-id>.md` を読み込む
-- [ ] **Step 2: 既存データ確認** — 現在の JSON ファイルの内容を確認し最新状態を把握。release-note の場合は既存の最新バージョンを確認して重複追加を防止
-- [ ] **Step 3: 公式情報取得** — `pages/*.md` に記載のソース URL から WebFetch で情報取得。**ユーザーが直接情報を提供した場合はこのステップを省略可能**（ただし Step 4 の裏取りは実施する）
-- [ ] **Step 4: 差分特定＋裏取り** — 既存データと公式情報の差分を特定。公式ドキュメントで裏取り。CHANGELOG のみの情報は確証がなければ `AskUserQuestion` で確認
-  - [ ] 重複検出: ページ固有のキーで既存データの重複を確認（キー: release-note→`v`, commands→`name`, directory→`path`, plugins→`name`, env-vars→`name`, setup→ファイル単位, best-practices/prompting/skill-best-practices/hooks-best-practices→`id`）
-  - [ ] 操作判定: 存在しない→追加 / 存在＋内容異なる→更新 / 存在＋内容同一→スキップ
-- [ ] **Step 5: 翻訳＋JSON更新** — 差分を日本語に翻訳し、ページ固有の JSON スキーマに従ってファイルを更新
-  - [ ] 実行前: `git diff` で未コミット変更がないか確認（ある場合はユーザーに通知）
-  - [ ] 実行後: `git diff` で意図しない変更がないか検証
-  - [ ] エラー時: JSON 構文エラーや型エラーが発生した場合、変更を元に戻す前にユーザーに確認
-- [ ] **Step 6: 検証＋報告** — JSON 構文チェック + `pnpm run typecheck` + 以下の形式で報告
+1. **ページ特定** — 引数から page-id を決定。`Read` ツールで `.claude/skills/update-page/pages/<page-id>.md` を読み込む
+2. **既存データ確認** — 現在の JSON ファイルの内容を確認し最新状態を把握。release-note の場合は既存の最新バージョンを確認して重複追加を防止
+3. **公式情報取得** — `pages/*.md` に記載のソース URL から WebFetch で情報取得。**ユーザーが直接情報を提供した場合はこのステップを省略可能**（ただし Step 4 の裏取りは実施する）
+4. **差分特定＋裏取り** — 既存データと公式情報の差分を特定。公式ドキュメントで裏取り。CHANGELOG のみの情報は確証がなければ `AskUserQuestion` で確認
+  - 重複検出: ページ固有のキーで既存データの重複を確認（キー: release-note→`v`, commands→`name`, directory→`path`, plugins→`name`, env-vars→`name`, setup→ファイル単位, best-practices/prompting/skill-best-practices/hooks-best-practices→`id`）
+  - 操作判定: 存在しない→追加 / 存在＋内容異なる→更新 / 存在＋内容同一→スキップ
+5. **翻訳＋JSON更新** — 差分を日本語に翻訳し、ページ固有の JSON スキーマに従ってファイルを更新
+  - 実行前: `git diff` で未コミット変更がないか確認（ある場合はユーザーに通知）
+  - 実行後: `git diff` で意図しない変更がないか検証
+  - エラー時: JSON 構文エラーや型エラーが発生した場合、変更を元に戻す前にユーザーに確認
+6. **検証＋報告** — JSON 構文チェック + `pnpm run typecheck` + 以下の形式で報告
 
 ```
 更新結果:

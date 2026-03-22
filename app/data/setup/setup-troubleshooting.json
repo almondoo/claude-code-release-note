@@ -63,7 +63,7 @@
       "id": "ts-install",
       "title": "インストールの問題",
       "description": "インストール時のトラブル対処",
-      "content": "インストール後に `command not found: claude` と表示される場合は、PATH に `~/.local/bin` が含まれていない可能性があります。シェルの設定ファイルに追加してください。\n\n設定ファイルを編集した後は、ターミナルを再起動するか `source` コマンドで設定を再読み込みしてください。\n\nWindows をお使いの場合は、Git for Windows のインストールが必要です。Git Bash のパスが自動検出されない場合は、環境変数 `CLAUDE_CODE_GIT_BASH_PATH` を設定してください。\n\nAlpine Linux をお使いの場合は、追加パッケージのインストールが必要です。",
+      "content": "インストール後に `command not found: claude` と表示される場合は、PATH に `~/.local/bin` が含まれていない可能性があります。シェルの設定ファイルに追加してください。\n\n設定ファイルを編集した後は、ターミナルを再起動するか `source` コマンドで設定を再読み込みしてください。\n\nWindows をお使いの場合は、Git for Windows のインストールが必要です。Git Bash のパスが自動検出されない場合は、settings.json の env で `CLAUDE_CODE_GIT_BASH_PATH` を設定してください。\n\nAlpine Linux（musl ベースのディストリビューション）をお使いの場合は、libgcc、libstdc++、ripgrep のインストールと、settings.json の env で `USE_BUILTIN_RIPGREP` を `\"0\"` に設定する必要があります。",
       "code": [
         {
           "lang": "bash",
@@ -71,14 +71,14 @@
           "value": "# bash の場合\necho 'export PATH=\"$HOME/.local/bin:$PATH\"' >> ~/.bashrc\nsource ~/.bashrc\n\n# zsh の場合\necho 'export PATH=\"$HOME/.local/bin:$PATH\"' >> ~/.zshrc\nsource ~/.zshrc"
         },
         {
-          "lang": "bash",
-          "label": "Windows: Git Bash のパス設定",
-          "value": "set CLAUDE_CODE_GIT_BASH_PATH=\"C:\\Program Files\\Git\\bin\\bash.exe\""
+          "lang": "json",
+          "label": "Windows: Git Bash のパス設定（settings.json の env に追加）",
+          "value": "{\n  \"env\": {\n    \"CLAUDE_CODE_GIT_BASH_PATH\": \"C:\\\\Program Files\\\\Git\\\\bin\\\\bash.exe\"\n  }\n}"
         },
         {
           "lang": "bash",
           "label": "Alpine Linux: 必要パッケージのインストール",
-          "value": "apk add libgcc libstdc++ ripgrep"
+          "value": "# パッケージをインストール\napk add libgcc libstdc++ ripgrep\n\n# settings.json の env に以下を追加:\n# { \"env\": { \"USE_BUILTIN_RIPGREP\": \"0\" } }"
         }
       ],
       "callouts": [

@@ -64,9 +64,9 @@
           "tags": ["重要"],
           "tips": [
             "`PreToolUse` — ツール実行前に発火。危険コマンドのブロック、入力の書き換えに使用",
-            "`PermissionRequest` — 権限ダイアログ表示時に発火。特定操作の自動承認/拒否に使用",
+            "`PermissionRequest` — 権限ダイアログ表示時に発火。特定操作の自動承認/拒否に使用。非インタラクティブモード（-p）では発火しない → `PreToolUse` を使用",
             "`UserPromptSubmit` — ユーザーがプロンプトを送信した時に発火。プロンプトのフィルタリングに使用",
-            "`Stop` — Claude が応答を完了した時に発火。タスク完了の検証に使用",
+            "`Stop` — Claude が応答を完了した時に発火。タスク完了の検証に使用。ユーザー割り込みでは発火しない（API エラー時は StopFailure が発火）",
             "`SubagentStop` — サブエージェント完了時に発火。サブエージェント出力の検証に使用",
             "`TaskCompleted` — タスクが完了としてマークされる時に発火。完了条件の検証に使用",
             "`ConfigChange` — 設定ファイル変更時に発火。不正変更のブロックに使用",
@@ -83,11 +83,11 @@
           "tags": [],
           "tips": [
             "`SessionStart` — セッション開始/再開時に発火。コンテキスト注入、環境変数の設定に使用",
-            "`PostToolUse` — ツール成功後に発火。コードフォーマット、ログ記録に使用",
+            "`PostToolUse` — ツール成功後に発火。コードフォーマット、ログ記録に使用。MCP ツールの出力を updatedMCPToolOutput で置換可能",
             "`PostToolUseFailure` — ツール失敗後に発火。エラー分析、通知に使用",
             "`Notification` — 通知送信時に発火。デスクトップ通知に使用",
             "`SubagentStart` — サブエージェント起動時に発火。コンテキスト注入に使用",
-            "`SessionEnd` — セッション終了時に発火。クリーンアップ処理に使用",
+            "`SessionEnd` — セッション終了時に発火。クリーンアップ処理に使用。デフォルトタイムアウト: 1.5秒（CLAUDE_CODE_SESSIONEND_HOOKS_TIMEOUT_MS で変更可）",
             "`StopFailure` — APIエラーでターン終了時に発火。エラーアラートに使用",
             "`PreCompact` / `PostCompact` — コンテキスト圧縮の前/後に発火。コンテキスト再注入に使用",
             "`InstructionsLoaded` — CLAUDE.md 等の読み込み時に発火。監査ログに使用",
@@ -134,7 +134,7 @@
             {
               "phase": "StopFailure",
               "description": "エラータイプにマッチ",
-              "example": "rate_limit, authentication_failed, billing_error, server_error, max_output_tokens, unknown"
+              "example": "rate_limit, authentication_failed, billing_error, invalid_request, server_error, max_output_tokens, unknown"
             },
             {
               "phase": "PreCompact / PostCompact",
@@ -184,9 +184,10 @@
           "tips": [
             "Exit Code `0` — 成功。アクション続行。stdout の JSON が解析される",
             "Exit Code `2` — ブロッキングエラー。アクションをブロック。stderr が Claude へのフィードバックになる",
-            "Exit Code その他 — ノンブロッキングエラー。続行。stderr は verbose モードで表示"
+            "Exit Code その他 — ノンブロッキングエラー。続行。stderr は verbose モードで表示",
+            "`once: true` — セッション内で一度だけ実行し、その後削除される（スキル内 hooks のみ）"
           ],
-          "code": "{\n  \"hooks\": {\n    \"イベント名\": [\n      {\n        \"matcher\": \"正規表現パターン（省略可）\",\n        \"hooks\": [\n          {\n            \"type\": \"command\",\n            \"command\": \"実行するコマンド\",\n            \"timeout\": 600,\n            \"statusMessage\": \"検証中...\",\n            \"async\": false\n          }\n        ]\n      }\n    ]\n  }\n}"
+          "code": "{\n  \"hooks\": {\n    \"イベント名\": [\n      {\n        \"matcher\": \"正規表現パターン（省略可）\",\n        \"hooks\": [\n          {\n            \"type\": \"command\",\n            \"command\": \"実行するコマンド\",\n            \"timeout\": 600,\n            \"statusMessage\": \"検証中...\",\n            \"async\": false,\n            \"once\": false\n          }\n        ]\n      }\n    ]\n  }\n}"
         },
         {
           "id": "env-vars",
@@ -199,7 +200,8 @@
             "`CLAUDE_ENV_FILE` — SessionStart のみ。export 文を書き込むと Bash ツール実行時に環境変数が設定される",
             "`CLAUDE_CODE_REMOTE` — Web 環境では `\"true\"` に設定される",
             "`CLAUDE_PLUGIN_ROOT` — プラグインのインストールディレクトリ",
-            "`CLAUDE_PLUGIN_DATA` — プラグインの永続データディレクトリ"
+            "`CLAUDE_PLUGIN_DATA` — プラグインの永続データディレクトリ",
+            "`transcript_path` — 全イベントの入力 JSON に含まれる。セッションのトランスクリプトファイル（JSONL 形式）へのパス"
           ]
         },
         {
@@ -211,21 +213,26 @@
           "steps": [
             {
               "phase": "PreToolUse",
-              "description": "hookSpecificOutput で allow/deny/ask を指定。updatedInput で入力を書き換え可能",
+              "description": "hookSpecificOutput で allow/deny/ask を指定。updatedInput で入力を書き換え可能。allow を返しても deny ルール（マネージドポリシー含む）が優先される",
               "example": "{\"hookSpecificOutput\": {\"hookEventName\": \"PreToolUse\", \"permissionDecision\": \"allow|deny|ask\"}}"
             },
             {
               "phase": "PermissionRequest",
-              "description": "hookSpecificOutput の decision で allow/deny を指定。権限ルールの追加も可能",
-              "example": "{\"hookSpecificOutput\": {\"hookEventName\": \"PermissionRequest\", \"decision\": {\"behavior\": \"allow|deny\"}}}"
+              "description": "hookSpecificOutput の decision で allow/deny を指定。updatedPermissions で権限ルールの追加/置換/削除、setMode でモード変更、addDirectories/removeDirectories も可能",
+              "example": "{\"hookSpecificOutput\": {\"hookEventName\": \"PermissionRequest\", \"decision\": {\"behavior\": \"allow|deny\", \"updatedPermissions\": [{\"type\": \"setMode\", \"mode\": \"acceptEdits\", \"destination\": \"session\"}]}}}"
             },
             {
-              "phase": "Stop / SubagentStop / UserPromptSubmit",
+              "phase": "Stop / SubagentStop / UserPromptSubmit / ConfigChange",
               "description": "トップレベルの decision で block を指定し、reason でフィードバックを返す",
               "example": "{\"decision\": \"block\", \"reason\": \"未完了のタスクがあります\"}"
             },
             {
-              "phase": "Elicitation",
+              "phase": "TeammateIdle / TaskCompleted",
+              "description": "exit code 2 でフィードバックを返すか、JSON で continue: false を指定してチームメイト/タスクを停止",
+              "example": "{\"continue\": false, \"stopReason\": \"テストが未通過です\"}"
+            },
+            {
+              "phase": "Elicitation / ElicitationResult",
               "description": "hookSpecificOutput の action で accept/decline/cancel を指定。content でレスポンスを返す",
               "example": "{\"hookSpecificOutput\": {\"hookEventName\": \"Elicitation\", \"action\": \"accept\", \"content\": {\"field\": \"value\"}}}"
             }
@@ -584,7 +591,8 @@
             "**監査ログを取る**: 本番環境やチーム開発では `PostToolUse` や `ConfigChange` でログを記録",
             "**マネージドポリシーは最優先**: 組織のマネージドポリシー設定はユーザーやプロジェクトの設定で無効化できない",
             "**deny ルールは hook より優先**: `PreToolUse` で `allow` を返しても、権限設定の deny ルールが優先される",
-            "**HTTP hook のトークン管理**: `allowedEnvVars` で明示的に許可した環境変数のみヘッダーで使用可能"
+            "**HTTP hook のトークン管理**: `allowedEnvVars` で明示的に許可した環境変数のみヘッダーで使用可能",
+            "**disableAllHooks**: settings.json に `\"disableAllHooks\": true` で全 hooks を無効化可能。マネージドポリシーで設定した場合はユーザー/プロジェクト hooks も含め全て無効化"
           ]
         },
         {
