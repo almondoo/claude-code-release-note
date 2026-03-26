@@ -115,6 +115,67 @@
         }
       ],
       "tags": ["必須", "初心者向け"]
+    },
+    {
+      "id": "migrate-from-npm",
+      "title": "npm からネイティブへの移行",
+      "description": "非推奨の npm インストールからネイティブインストールへの移行手順",
+      "content": "npm によるインストール（`npm install -g @anthropic-ai/claude-code`）は非推奨です。ネイティブインストーラーの方が高速で、依存関係が不要で、バックグラウンドで自動更新されます。\n\n以前 npm でインストールした場合は、以下の手順でネイティブインストールに移行してください。\n\n1. ネイティブバイナリをインストールする\n\n2. npm のグローバルパッケージを削除する\n\n既存の npm インストールから `claude install` を実行して、ネイティブバイナリを並行インストールすることもできます。その後 npm 版を削除してください。\n\n互換性の理由で npm インストールが必要な場合は、Node.js 18 以上が必要です。ただし `sudo npm install -g` は使わないでください。権限の問題やセキュリティリスクにつながります。",
+      "code": [
+        {
+          "lang": "bash",
+          "label": "npm → ネイティブへの移行手順",
+          "value": "# 1. ネイティブバイナリをインストール\ncurl -fsSL https://claude.ai/install.sh | bash\n\n# 2. npm のグローバルパッケージを削除\nnpm uninstall -g @anthropic-ai/claude-code",
+          "recommended": true
+        }
+      ],
+      "callouts": [
+        {
+          "type": "warning",
+          "text": "npm インストールは非推奨です。新規インストールではネイティブインストーラーを使用してください。"
+        }
+      ],
+      "tags": ["初心者向け"]
+    },
+    {
+      "id": "uninstall",
+      "title": "アンインストール",
+      "description": "Claude Code の完全な削除手順",
+      "content": "Claude Code を削除するには、インストール方法に応じた手順でバイナリを削除し、必要に応じて設定ファイルも削除します。\n\n**ネイティブインストールの場合**（macOS / Linux / WSL）: バイナリとバージョンファイルを削除します。\n\n**Homebrew の場合**: `brew uninstall --cask claude-code` で削除します。\n\n**WinGet の場合**: `winget uninstall Anthropic.ClaudeCode` で削除します。\n\n**npm の場合**: `npm uninstall -g @anthropic-ai/claude-code` で削除します。\n\n**設定ファイルの削除**: バイナリを削除した後、設定ファイルやキャッシュデータも完全に削除したい場合は、`~/.claude` ディレクトリと `~/.claude.json` を削除します。プロジェクト固有の設定（`.claude` ディレクトリと `.mcp.json`）も削除対象です。",
+      "code": [
+        {
+          "lang": "bash",
+          "label": "ネイティブインストールの削除 (macOS / Linux / WSL)",
+          "value": "rm -f ~/.local/bin/claude\nrm -rf ~/.local/share/claude"
+        },
+        {
+          "lang": "powershell",
+          "label": "ネイティブインストールの削除 (Windows PowerShell)",
+          "value": "Remove-Item -Path \"$env:USERPROFILE\\.local\\bin\\claude.exe\" -Force\nRemove-Item -Path \"$env:USERPROFILE\\.local\\share\\claude\" -Recurse -Force"
+        },
+        {
+          "lang": "bash",
+          "label": "Homebrew の場合",
+          "value": "brew uninstall --cask claude-code"
+        },
+        {
+          "lang": "powershell",
+          "label": "WinGet の場合",
+          "value": "winget uninstall Anthropic.ClaudeCode"
+        },
+        {
+          "lang": "bash",
+          "label": "設定ファイルの削除 (macOS / Linux / WSL)",
+          "value": "# ユーザー設定とセッションデータを削除\nrm -rf ~/.claude\nrm ~/.claude.json\n\n# プロジェクト固有の設定を削除（プロジェクトディレクトリで実行）\nrm -rf .claude\nrm -f .mcp.json"
+        }
+      ],
+      "callouts": [
+        {
+          "type": "warning",
+          "text": "設定ファイルを削除すると、すべての設定、許可済みツール、MCP サーバー設定、セッション履歴が失われます。必要な設定はバックアップしてから削除してください。"
+        }
+      ],
+      "tags": ["初心者向け"]
     }
   ]
 }

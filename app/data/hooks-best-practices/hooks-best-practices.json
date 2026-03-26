@@ -91,7 +91,9 @@
             "`StopFailure` — APIエラーでターン終了時に発火。エラーアラートに使用",
             "`PreCompact` / `PostCompact` — コンテキスト圧縮の前/後に発火。コンテキスト再注入に使用",
             "`InstructionsLoaded` — CLAUDE.md 等の読み込み時に発火。監査ログに使用",
-            "`WorktreeRemove` — Worktree 削除時に発火。command タイプのみ対応。クリーンアップに使用"
+            "`WorktreeRemove` — Worktree 削除時に発火。command タイプのみ対応。クリーンアップに使用",
+            "`CwdChanged` — 作業ディレクトリ変更時に発火。command タイプのみ対応。CLAUDE_ENV_FILE で環境変数を永続化可能。ディレクトリ変更に応じた環境再読み込みに使用",
+            "`FileChanged` — 監視対象ファイルの変更時に発火。command タイプのみ対応。CLAUDE_ENV_FILE で環境変数を永続化可能。watchPaths で動的にファイル監視を追加可能"
           ]
         },
         {
@@ -150,6 +152,11 @@
               "phase": "Elicitation / ElicitationResult",
               "description": "MCP サーバー名にマッチ",
               "example": "mcp__memory, mcp__github"
+            },
+            {
+              "phase": "FileChanged",
+              "description": "ファイルのベースネーム（ディレクトリなし）にマッチ。パイプ区切りで複数指定可能",
+              "example": ".envrc|.env, package.json, tsconfig.json"
             }
           ]
         }
@@ -513,6 +520,22 @@
           "content": "`WorktreeCreate` hook は stdout に絶対パスを出力する必要があります。Claude Code はこの出力を worktree のパスとして使用します。Git 以外のバージョン管理システムや独自のディレクトリ構造を使いたい場合に、デフォルトの `git worktree` の動作を置き換えられます。\n\nstdout にはパスのみを出力し、他の出力は stderr にリダイレクトしてください。",
           "tags": [],
           "code": "#!/bin/bash\nINPUT=$(cat)\nNAME=$(echo \"$INPUT\" | jq -r '.name')\nDIR=\"$HOME/.claude/worktrees/$NAME\"\nmkdir -p \"$DIR\" >&2\n# stdout にはパスのみ出力（Claude Code がこのパスを使用する）\necho \"$DIR\""
+        },
+        {
+          "id": "cwd-changed-env",
+          "title": "CwdChanged でディレクトリ変更時に環境を再読み込み",
+          "summary": "ディレクトリ移動時に CLAUDE_ENV_FILE を使ってプロジェクト固有の環境変数を自動設定する。",
+          "content": "`CwdChanged` イベントは、Claude が `cd` コマンドでディレクトリを移動した際に発火します。command タイプのみ対応で、`CLAUDE_ENV_FILE` に書き込むことで以降の Bash コマンドに環境変数を永続化できます。\n\ndirenv のようなツールと組み合わせて、プロジェクト固有の環境設定を自動的にロードする用途に最適です。hook の stdout に `watchPaths` を JSON で返すと、`FileChanged` の監視対象を動的に更新できます。",
+          "tags": ["自動化"],
+          "code": "{\n  \"hooks\": {\n    \"CwdChanged\": [\n      {\n        \"hooks\": [\n          {\n            \"type\": \"command\",\n            \"command\": \"if [ -n \\\"$CLAUDE_ENV_FILE\\\" ] && [ -f \\\"$PWD/.envrc\\\" ] && command -v direnv > /dev/null 2>&1; then direnv export bash >> \\\"$CLAUDE_ENV_FILE\\\"; fi\"\n          }\n        ]\n      }\n    ]\n  }\n}"
+        },
+        {
+          "id": "file-changed-watch",
+          "title": "FileChanged で設定ファイルの変更を監視",
+          "summary": "監視対象ファイルの変更・追加・削除を検知し、環境変数の再読み込みなどを自動実行する。",
+          "content": "`FileChanged` イベントは、監視対象のファイルがディスク上で変更されたときに発火します。matcher にパイプ区切りのファイル名（ベースネーム）を指定して監視対象を絞り込めます。\n\n入力の `event` フィールドには `change`（変更）、`add`（追加）、`unlink`（削除）のいずれかが渡されます。`CwdChanged` と組み合わせて、direnv のようなディレクトリごとの環境管理を実現できます。",
+          "tags": ["自動化"],
+          "code": "{\n  \"hooks\": {\n    \"FileChanged\": [\n      {\n        \"matcher\": \".envrc|.env\",\n        \"hooks\": [\n          {\n            \"type\": \"command\",\n            \"command\": \"if [ -n \\\"$CLAUDE_ENV_FILE\\\" ] && command -v direnv > /dev/null 2>&1; then direnv export bash >> \\\"$CLAUDE_ENV_FILE\\\"; fi\"\n          }\n        ]\n      }\n    ]\n  }\n}"
         }
       ]
     },

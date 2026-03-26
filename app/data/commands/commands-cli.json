@@ -98,6 +98,27 @@
         "args": "login / status / logout",
         "detail": "OAuth ベースの認証を統合管理する CLI サブコマンドです。claude auth login でログイン（--email でメールアドレスの事前入力、--sso で SSO 認証の強制、--console で API 使用課金の Anthropic Console ログイン）、claude auth status で認証状態の確認（--text で人間が読みやすい形式、終了コード 0 でログイン中、1 で未ログイン）、claude auth logout でサインアウトを行います。",
         "whenToUse": "認証に関する操作を行いたいとき。アカウントの切り替えや認証状態の確認に使います。"
+      },
+      {
+        "name": "claude auto-mode defaults",
+        "description": "ビルトインの auto mode 分類ルールを JSON で出力します",
+        "args": null,
+        "detail": "ビルトインの auto mode 分類ルールを JSON 形式で標準出力に書き出します。claude auto-mode config を使うと、設定が適用された実効的な構成を確認できます。ルールのカスタマイズやデバッグに役立ちます。",
+        "whenToUse": "auto mode のデフォルト分類ルールを確認・エクスポートしたいとき。例: claude auto-mode defaults > rules.json でファイルに保存して内容を確認します。"
+      },
+      {
+        "name": "claude plugin",
+        "description": "プラグインの管理を行う CLI サブコマンドです（エイリアス: claude plugins）",
+        "args": "install / uninstall / list 等",
+        "detail": "Claude Code プラグインの管理を行います。install でマーケットプレイスからプラグインをインストール、uninstall で削除、list で一覧表示などが可能です。エイリアスとして claude plugins も使用できます。詳細なサブコマンドはプラグインリファレンスを参照してください。",
+        "whenToUse": "CLI からプラグインのインストールや管理を行いたいとき。例: claude plugin install code-review@claude-code-marketplace"
+      },
+      {
+        "name": "cat file | claude -p \"query\"",
+        "description": "パイプでファイル内容を入力して処理します",
+        "args": "ファイルパス + クエリ文字列",
+        "detail": "標準入力（パイプ）経由でファイルの内容を Claude に渡し、非対話モードで処理します。ログファイルの解析やコードの説明など、既存ファイルの内容を Claude に分析させる際に便利です。",
+        "whenToUse": "ファイルの内容を Claude に分析させたいとき。例: cat logs.txt | claude -p \"エラーの原因を説明して\" のように、パイプでデータを流し込みます。"
       }
     ],
     "flags": [
@@ -485,6 +506,20 @@
         "args": null,
         "detail": "claude.ai/code で開始された Web セッションをローカルのターミナルに転送して続行します。Web で始めた作業をローカル環境のツールやファイルシステムを活用して続ける場合に便利です。",
         "whenToUse": "claude.ai で開始したセッションをローカルのターミナル環境で続けたいとき。"
+      },
+      {
+        "name": "--bare",
+        "description": "最小モードで起動し、自動検出をスキップして高速起動します",
+        "args": null,
+        "detail": "hooks・skills・plugins・MCP サーバー・auto memory・CLAUDE.md の自動検出をすべてスキップし、高速に起動します。利用可能なツールは Bash・ファイル読み取り・ファイル編集に限定されます。環境変数 CLAUDE_CODE_SIMPLE=1 と同等の効果です。スクリプトからの呼び出しや、軽量なワンショット実行に適しています。",
+        "whenToUse": "スクリプトや CI/CD パイプラインから Claude を呼び出すとき。起動速度を優先し、plugins や MCP サーバーが不要な場面で使います。例: claude --bare -p \"query\""
+      },
+      {
+        "name": "--enable-auto-mode",
+        "description": "Shift+Tab のサイクルで auto モードを有効化します",
+        "args": null,
+        "detail": "Shift+Tab で切り替えるパーミッションモードのサイクルに auto モードを追加します。auto モードでは、ビルトインの分類ルールに基づいてツール実行の許可/拒否を自動判定します。Team プラン（Enterprise と API は順次対応中）と Claude Sonnet 4.6 または Opus 4.6 が必要です。",
+        "whenToUse": "auto モードを使用してツール実行の確認プロンプトを自動化したいとき。Team プランで Sonnet 4.6 または Opus 4.6 を使用している場合に有効化します。"
       }
     ]
   }

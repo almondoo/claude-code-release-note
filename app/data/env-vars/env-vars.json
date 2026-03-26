@@ -109,6 +109,16 @@
             }
           ],
           "deprecated": false
+        },
+        {
+          "name": "CLAUDE_CODE_SUBPROCESS_ENV_SCRUB",
+          "description": "サブプロセスからAnthropic・クラウド認証情報を除去",
+          "detail": "Bashツール、フック、MCP stdioサーバー等のサブプロセス環境からAnthropicおよびクラウドプロバイダの認証情報を除去する。親プロセスはAPI呼び出し用に認証情報を保持するが、子プロセスからは読み取れなくなる。\n\nシェル展開を利用したシークレット流出を狙うプロンプトインジェクション攻撃のリスクを軽減する。claude-code-action では allowed_non_write_users 設定時に自動設定される",
+          "values": "\"1\" で有効化",
+          "default": null,
+          "example": "export CLAUDE_CODE_SUBPROCESS_ENV_SCRUB=1",
+          "links": [],
+          "deprecated": false
         }
       ]
     },
@@ -649,11 +659,31 @@
         {
           "name": "CLAUDE_CODE_SIMPLE",
           "description": "最小構成で実行（Bash・ファイル操作のみ）",
-          "detail": "Bash/ファイル読み取り/編集のみ。MCP・添付・フック・CLAUDE.mdを無効化",
+          "detail": "最小限のシステムプロンプトで、Bash・ファイル読み取り・ファイル編集ツールのみで実行する。フック、スキル、プラグイン、MCPサーバー、自動メモリ、CLAUDE.mdの自動検出を無効化する。\n\n`--bare` CLIフラグでも設定される",
           "values": "\"1\" で有効化",
           "default": null,
           "example": "export CLAUDE_CODE_SIMPLE=1",
-          "links": [],
+          "links": [
+            {
+              "label": "bareモード",
+              "url": "https://code.claude.com/docs/en/headless#start-faster-with-bare-mode"
+            }
+          ],
+          "deprecated": false
+        },
+        {
+          "name": "CLAUDE_CODE_USE_POWERSHELL_TOOL",
+          "description": "WindowsでPowerShellツールを有効化（プレビュー）",
+          "detail": "Windows上でPowerShellコマンドをネイティブ実行する。有効時はGit Bashを経由せずPowerShellを直接使用する。\n\nネイティブWindowsのみサポート（WSLは非対応）",
+          "values": "\"1\" で有効化",
+          "default": null,
+          "example": "export CLAUDE_CODE_USE_POWERSHELL_TOOL=1",
+          "links": [
+            {
+              "label": "PowerShellツール",
+              "url": "https://code.claude.com/docs/en/tools-reference#powershell-tool"
+            }
+          ],
           "deprecated": false
         },
         {
@@ -1293,6 +1323,16 @@
           "values": "\"1\" で無効化",
           "default": null,
           "example": "export CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1",
+          "links": [],
+          "deprecated": false
+        },
+        {
+          "name": "CLAUDE_CODE_DISABLE_NONSTREAMING_FALLBACK",
+          "description": "ストリーミング失敗時の非ストリーミングフォールバックを無効化",
+          "detail": "ストリーミングリクエストが途中で失敗した場合の非ストリーミングフォールバックを無効化する。ストリーミングエラーはリトライ層に伝播される。\n\nプロキシやゲートウェイがフォールバックによりツールの二重実行を引き起こす場合に有用",
+          "values": "\"1\" で無効化",
+          "default": null,
+          "example": "export CLAUDE_CODE_DISABLE_NONSTREAMING_FALLBACK=1",
           "links": [],
           "deprecated": false
         },

@@ -78,6 +78,24 @@
         }
       ],
       "tags": ["初心者向け"]
+    },
+    {
+      "id": "auth-precedence",
+      "title": "認証の優先順位",
+      "description": "複数の認証情報がある場合の適用順序",
+      "content": "複数の認証情報が設定されている場合、Claude Code は以下の優先順位で認証方法を選択します。上位の方法が検出されると、それより下位の方法は無視されます。\n\n**1. クラウドプロバイダー**: 環境変数 `CLAUDE_CODE_USE_BEDROCK`、`CLAUDE_CODE_USE_VERTEX`、`CLAUDE_CODE_USE_FOUNDRY` が設定されている場合、対応するクラウドプロバイダーの認証が使用されます。\n\n**2. ANTHROPIC_AUTH_TOKEN**: `Authorization: Bearer` ヘッダーとして送信されます。LLM ゲートウェイやプロキシ経由でのアクセスに使用します。\n\n**3. ANTHROPIC_API_KEY**: `X-Api-Key` ヘッダーとして送信されます。Anthropic API への直接アクセスに使用します。対話モードでは初回に承認を求められ、非対話モード（`-p`）では常に使用されます。\n\n**4. apiKeyHelper**: settings.json の `apiKeyHelper` で設定したスクリプトの出力が使われます。動的なトークンや Vault からの短期クレデンシャルに使用します。\n\n**5. OAuth（サブスクリプション）**: `/login` によるブラウザログインの認証情報です。Pro、Max、Team、Enterprise ユーザーのデフォルトです。",
+      "code": [],
+      "callouts": [
+        {
+          "type": "important",
+          "text": "有効なサブスクリプションがあっても ANTHROPIC_API_KEY が環境変数に設定されていると、API キーが優先されます。サブスクリプションに戻すには `unset ANTHROPIC_API_KEY` を実行し、/status で確認してください。"
+        },
+        {
+          "type": "tip",
+          "text": "apiKeyHelper は 5 分ごと、または HTTP 401 応答時に再実行されます。カスタムのリフレッシュ間隔は CLAUDE_CODE_API_KEY_HELPER_TTL_MS 環境変数で設定できます。"
+        }
+      ],
+      "tags": ["中級者向け"]
     }
   ]
 }

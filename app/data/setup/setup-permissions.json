@@ -8,23 +8,28 @@
     {
       "id": "permissions-model",
       "title": "権限モデルの理解",
-      "description": "4つの権限モードと承認の仕組み",
-      "content": "Claude Code はツールの実行時に権限チェックを行い、必要に応じてユーザーの承認を求めます。用途やリスク許容度に応じて、4つのモードから選択できます。\n\n**plan モード**: すべての操作に対して計画の承認が必要です。Claude が何をしようとしているかを確認してから実行を許可します。\n\n**default モード**: ファイルの読み取りや検索は自動で許可されますが、ファイル編集やシェルコマンドの実行など書き込み操作には承認が必要です。初心者にはこのモードが推奨されます。\n\n**auto-accept edits モード**: ファイル編集を自動で承認します。シェルコマンドの実行には引き続き承認が必要です。コード変更を素早く進めたいときに便利です。\n\n**bypass モード**: すべてのツール実行を自動で承認します。対話的な操作ができない CI/CD パイプラインでの使用を想定しています。",
+      "description": "6つの権限モードと承認の仕組み",
+      "content": "Claude Code はツールの実行時に権限チェックを行い、必要に応じてユーザーの承認を求めます。用途やリスク許容度に応じて、6つのモードから選択できます。settings.json の `defaultMode` で設定します。\n\n**default**: 標準の動作です。各ツールの初回使用時に権限の承認を求めます。初心者にはこのモードが推奨されます。\n\n**acceptEdits**: ファイル編集の権限をセッション中自動で承認します。シェルコマンドの実行には引き続き承認が必要です。コード変更を素早く進めたいときに便利です。\n\n**plan**: プランモードです。Claude はコードの分析はできますが、ファイルの変更やコマンドの実行はできません。\n\n**auto**: ツール呼び出しをバックグラウンドの安全性チェックで自動承認します。AI 分類器がアクションがリクエストに沿っているかを検証します。現在リサーチプレビューとして提供中です。\n\n**dontAsk**: `/permissions` や `permissions.allow` ルールで事前承認されたツール以外は自動的に拒否します。承認ダイアログを一切表示したくない場合に使います。\n\n**bypassPermissions**: 保護されたディレクトリ（`.git`、`.claude`、`.vscode`、`.idea`）への書き込みを除き、権限プロンプトをスキップします。コンテナや VM などの隔離環境でのみ使用してください。",
       "code": [
         {
+          "lang": "json",
+          "label": "settings.json でデフォルトモードを設定",
+          "value": "{\n  \"defaultMode\": \"default\"\n}"
+        },
+        {
           "lang": "bash",
-          "label": "CI/CD 環境での bypass モード",
+          "label": "CI/CD 環境での bypassPermissions モード",
           "value": "# --dangerously-skip-permissions フラグで全権限をスキップ\nclaude -p \"テストを実行して結果を報告\" --dangerously-skip-permissions"
         }
       ],
       "callouts": [
         {
           "type": "warning",
-          "text": "bypass モード（--dangerously-skip-permissions）は、コンテナやサンドボックスなど信頼できる隔離環境でのみ使用してください。ローカル開発環境では使用しないでください。"
+          "text": "bypassPermissions モードは、コンテナやサンドボックスなど信頼できる隔離環境でのみ使用してください。管理者は disableBypassPermissionsMode を \"disable\" に設定することで、このモードを禁止できます。"
         },
         {
           "type": "tip",
-          "text": "初めて使う場合は default モードから始めて、慣れてきたら auto-accept edits モードに切り替えるのがおすすめです。"
+          "text": "初めて使う場合は default モードから始めて、慣れてきたら acceptEdits モードに切り替えるのがおすすめです。auto モードは AI 分類器による安全性チェック付きの自動承認で、最も効率的な操作が可能です。"
         }
       ],
       "tags": ["必須", "初心者向け"]
@@ -33,7 +38,7 @@
       "id": "permissions-settings",
       "title": "settings.json での設定",
       "description": "許可・拒否リストによる細かい権限制御",
-      "content": "`.claude/settings.json` の `permissions.allow` と `permissions.deny` で、ツールやコマンドごとに自動承認・拒否のルールを定義できます。チームで共有することで、プロジェクト全体の権限ポリシーを統一できます。\n\n**allow（許可リスト）**: 指定したツールやコマンドを承認なしで自動実行します。頻繁に使う安全なコマンドを登録しておくと作業効率が上がります。\n\n**deny（拒否リスト）**: 指定したツールやコマンドの実行を常にブロックします。危険なコマンドを登録して誤操作を防ぎます。\n\n**ワイルドカード対応**: パターンの末尾に `*` を付けることで、前方一致でまとめて指定できます。例えば `Bash(npm run test*)` は `npm run test`、`npm run test:unit`、`npm run test:e2e` などすべてにマッチします。",
+      "content": "`.claude/settings.json` の `permissions.allow` と `permissions.deny` で、ツールやコマンドごとに自動承認・拒否のルールを定義できます。チームで共有することで、プロジェクト全体の権限ポリシーを統一できます。\n\n**allow（許可リスト）**: 指定したツールやコマンドを承認なしで自動実行します。頻繁に使う安全なコマンドを登録しておくと作業効率が上がります。\n\n**deny（拒否リスト）**: 指定したツールやコマンドの実行を常にブロックします。危険なコマンドを登録して誤操作を防ぎます。\n\n**ワイルドカード対応**: パターン内のどの位置でも `*` を使えます。例えば `Bash(npm run test*)` は `npm run test`、`npm run test:unit`、`npm run test:e2e` などすべてにマッチします。`Bash(* --version)` のように先頭にワイルドカードを置くこともできます。\n\n**評価順序**: ルールは deny → ask → allow の順に評価されます。最初にマッチしたルールが適用されるため、deny ルールは常に最優先されます。",
       "code": [
         {
           "lang": "json",

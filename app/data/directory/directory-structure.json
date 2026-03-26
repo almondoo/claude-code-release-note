@@ -390,6 +390,17 @@
           "recommended": "advanced"
         },
         {
+          "path": "managed-settings.d/",
+          "type": "directory",
+          "name": "マネージド設定ドロップイン",
+          "description": "独立したポリシーフラグメントを分割配置するディレクトリ（v2.1.83〜）",
+          "detail": "managed-settings.json と同じ OS 固有パスに配置するドロップインディレクトリ。複数チームが単一ファイルの編集を調整せずに、独立したポリシーフラグメントをデプロイできる。systemd の慣習に倣い、managed-settings.json がベースとして最初にマージされ、その後ドロップインディレクトリ内の *.json ファイルがアルファベット順にソートされて上書きマージされる。\n\nマージルール: スカラー値は後のファイルが優先、配列は結合＋重複排除、オブジェクトはディープマージ。ドット（.）で始まる隠しファイルは無視される。数値プレフィックスでマージ順を制御するのが推奨（例: 10-telemetry.json、20-security.json）。配置パスは managed-settings.json と同じ: macOS は /Library/Application Support/ClaudeCode/managed-settings.d/、Linux/WSL は /etc/claude-code/managed-settings.d/、Windows は C:\\Program Files\\ClaudeCode\\managed-settings.d\\。",
+          "usage": "セキュリティチームが 10-security.json で権限ポリシーを、プラットフォームチームが 20-mcp.json で MCP 制限を、それぞれ独立してデプロイする。構成管理ツール（Ansible, Chef 等）で各チームが自分のフラグメントだけを管理できる。",
+          "bestPractice": "数値プレフィックスでファイル名を始め、マージ順を明確にする。1フラグメント1関心事（セキュリティ、MCP、テレメトリ等）で分割する。managed-settings.json との設定の重複を最小限にし、どちらがベースでどちらが上書きかを明確にする。",
+          "vcs": null,
+          "recommended": "advanced"
+        },
+        {
           "path": "managed-mcp.json",
           "type": "file",
           "name": "マネージド MCP 設定",
