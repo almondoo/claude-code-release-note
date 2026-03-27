@@ -68,7 +68,7 @@
         {
           "name": "CLAUDE_CODE_ACCOUNT_UUID",
           "description": "認証ユーザーのアカウントUUID",
-          "detail": "SDK呼び出し元用。USER_EMAILとORGANIZATION_UUIDも必要",
+          "detail": "SDK呼び出し元用。アカウント情報を同期的に提供し、初期テレメトリイベントにアカウントメタデータが欠落する競合状態を回避。CLAUDE_CODE_USER_EMAIL と CLAUDE_CODE_ORGANIZATION_UUID も必要",
           "values": "UUID文字列",
           "default": null,
           "example": "export CLAUDE_CODE_ACCOUNT_UUID=uuid",
@@ -78,7 +78,7 @@
         {
           "name": "CLAUDE_CODE_ORGANIZATION_UUID",
           "description": "認証ユーザーの組織UUID",
-          "detail": "SDK呼び出し元用。ACCOUNT_UUIDとUSER_EMAILも必要",
+          "detail": "SDK呼び出し元用。アカウント情報を同期的に提供。CLAUDE_CODE_ACCOUNT_UUID と CLAUDE_CODE_USER_EMAIL も必要",
           "values": "UUID文字列",
           "default": null,
           "example": "export CLAUDE_CODE_ORGANIZATION_UUID=uuid",
@@ -88,7 +88,7 @@
         {
           "name": "CLAUDE_CODE_USER_EMAIL",
           "description": "認証ユーザーのメールアドレス",
-          "detail": "SDK呼び出し元用。ACCOUNT_UUIDとORGANIZATION_UUIDも必要",
+          "detail": "SDK呼び出し元用。アカウント情報を同期的に提供。CLAUDE_CODE_ACCOUNT_UUID と CLAUDE_CODE_ORGANIZATION_UUID も必要",
           "values": "メールアドレス",
           "default": null,
           "example": "export CLAUDE_CODE_USER_EMAIL=user@example.com",
@@ -143,6 +143,51 @@
           "deprecated": false
         },
         {
+          "name": "ANTHROPIC_DEFAULT_HAIKU_MODEL_NAME",
+          "description": "ピン止めしたHaikuモデルの /model ピッカー表示名",
+          "detail": "Bedrock/Vertex AI/Foundry でピン止め時の表示名。未設定時はモデルID。Anthropic API直接利用時は効果なし",
+          "values": "表示名文字列",
+          "default": "モデルID",
+          "example": "export ANTHROPIC_DEFAULT_HAIKU_MODEL_NAME=\"Haiku via Bedrock\"",
+          "links": [
+            {
+              "label": "ピン止めモデルの表示カスタマイズ",
+              "url": "https://code.claude.com/docs/en/model-config#customize-pinned-model-display-and-capabilities"
+            }
+          ],
+          "deprecated": false
+        },
+        {
+          "name": "ANTHROPIC_DEFAULT_HAIKU_MODEL_DESCRIPTION",
+          "description": "ピン止めしたHaikuモデルの /model ピッカー説明文",
+          "detail": "Bedrock/Vertex AI/Foundry でピン止め時の説明文。未設定時は「Custom Haiku model」。Anthropic API直接利用時は効果なし",
+          "values": "説明文字列",
+          "default": "Custom Haiku model",
+          "example": "export ANTHROPIC_DEFAULT_HAIKU_MODEL_DESCRIPTION=\"Haiku 3.5 routed through Bedrock\"",
+          "links": [
+            {
+              "label": "ピン止めモデルの表示カスタマイズ",
+              "url": "https://code.claude.com/docs/en/model-config#customize-pinned-model-display-and-capabilities"
+            }
+          ],
+          "deprecated": false
+        },
+        {
+          "name": "ANTHROPIC_DEFAULT_HAIKU_MODEL_SUPPORTED_CAPABILITIES",
+          "description": "ピン止めしたHaikuモデルがサポートする機能を宣言",
+          "detail": "Bedrock/Vertex AI/Foundry でモデルIDが既知パターンにマッチしない場合に機能を明示宣言。設定時はリストにある機能のみ有効化。未設定時は自動検出。\n\n値: effort, max_effort, thinking, adaptive_thinking, interleaved_thinking",
+          "values": "カンマ区切りの機能名",
+          "default": null,
+          "example": "export ANTHROPIC_DEFAULT_HAIKU_MODEL_SUPPORTED_CAPABILITIES=effort,thinking",
+          "links": [
+            {
+              "label": "ピン止めモデルの表示カスタマイズ",
+              "url": "https://code.claude.com/docs/en/model-config#customize-pinned-model-display-and-capabilities"
+            }
+          ],
+          "deprecated": false
+        },
+        {
           "name": "ANTHROPIC_DEFAULT_OPUS_MODEL",
           "description": "Opusクラスモデルのデフォルト指定",
           "detail": "Opusクラスモデルのデフォルトを変更",
@@ -158,6 +203,51 @@
           "deprecated": false
         },
         {
+          "name": "ANTHROPIC_DEFAULT_OPUS_MODEL_NAME",
+          "description": "ピン止めしたOpusモデルの /model ピッカー表示名",
+          "detail": "Bedrock/Vertex AI/Foundry でピン止め時の表示名。未設定時はモデルID。Anthropic API直接利用時は効果なし",
+          "values": "表示名文字列",
+          "default": "モデルID",
+          "example": "export ANTHROPIC_DEFAULT_OPUS_MODEL_NAME=\"Opus via Bedrock\"",
+          "links": [
+            {
+              "label": "ピン止めモデルの表示カスタマイズ",
+              "url": "https://code.claude.com/docs/en/model-config#customize-pinned-model-display-and-capabilities"
+            }
+          ],
+          "deprecated": false
+        },
+        {
+          "name": "ANTHROPIC_DEFAULT_OPUS_MODEL_DESCRIPTION",
+          "description": "ピン止めしたOpusモデルの /model ピッカー説明文",
+          "detail": "Bedrock/Vertex AI/Foundry でピン止め時の説明文。未設定時は「Custom Opus model」。Anthropic API直接利用時は効果なし",
+          "values": "説明文字列",
+          "default": "Custom Opus model",
+          "example": "export ANTHROPIC_DEFAULT_OPUS_MODEL_DESCRIPTION=\"Opus 4.6 routed through a Bedrock custom endpoint\"",
+          "links": [
+            {
+              "label": "ピン止めモデルの表示カスタマイズ",
+              "url": "https://code.claude.com/docs/en/model-config#customize-pinned-model-display-and-capabilities"
+            }
+          ],
+          "deprecated": false
+        },
+        {
+          "name": "ANTHROPIC_DEFAULT_OPUS_MODEL_SUPPORTED_CAPABILITIES",
+          "description": "ピン止めしたOpusモデルがサポートする機能を宣言",
+          "detail": "Bedrock/Vertex AI/Foundry でモデルIDが既知パターンにマッチしない場合に機能を明示宣言。設定時はリストにある機能のみ有効化。未設定時は自動検出。\n\n値: effort, max_effort, thinking, adaptive_thinking, interleaved_thinking",
+          "values": "カンマ区切りの機能名",
+          "default": null,
+          "example": "export ANTHROPIC_DEFAULT_OPUS_MODEL_SUPPORTED_CAPABILITIES=effort,max_effort,thinking,adaptive_thinking,interleaved_thinking",
+          "links": [
+            {
+              "label": "ピン止めモデルの表示カスタマイズ",
+              "url": "https://code.claude.com/docs/en/model-config#customize-pinned-model-display-and-capabilities"
+            }
+          ],
+          "deprecated": false
+        },
+        {
           "name": "ANTHROPIC_DEFAULT_SONNET_MODEL",
           "description": "Sonnetクラスモデルのデフォルト指定",
           "detail": "Sonnetクラスモデルのデフォルトを変更",
@@ -168,6 +258,51 @@
             {
               "label": "モデル設定",
               "url": "https://code.claude.com/docs/en/model-config#environment-variables"
+            }
+          ],
+          "deprecated": false
+        },
+        {
+          "name": "ANTHROPIC_DEFAULT_SONNET_MODEL_NAME",
+          "description": "ピン止めしたSonnetモデルの /model ピッカー表示名",
+          "detail": "Bedrock/Vertex AI/Foundry でピン止め時の表示名。未設定時はモデルID。Anthropic API直接利用時は効果なし",
+          "values": "表示名文字列",
+          "default": "モデルID",
+          "example": "export ANTHROPIC_DEFAULT_SONNET_MODEL_NAME=\"Sonnet via Bedrock\"",
+          "links": [
+            {
+              "label": "ピン止めモデルの表示カスタマイズ",
+              "url": "https://code.claude.com/docs/en/model-config#customize-pinned-model-display-and-capabilities"
+            }
+          ],
+          "deprecated": false
+        },
+        {
+          "name": "ANTHROPIC_DEFAULT_SONNET_MODEL_DESCRIPTION",
+          "description": "ピン止めしたSonnetモデルの /model ピッカー説明文",
+          "detail": "Bedrock/Vertex AI/Foundry でピン止め時の説明文。未設定時は「Custom Sonnet model」。Anthropic API直接利用時は効果なし",
+          "values": "説明文字列",
+          "default": "Custom Sonnet model",
+          "example": "export ANTHROPIC_DEFAULT_SONNET_MODEL_DESCRIPTION=\"Sonnet 4.6 routed through Vertex AI\"",
+          "links": [
+            {
+              "label": "ピン止めモデルの表示カスタマイズ",
+              "url": "https://code.claude.com/docs/en/model-config#customize-pinned-model-display-and-capabilities"
+            }
+          ],
+          "deprecated": false
+        },
+        {
+          "name": "ANTHROPIC_DEFAULT_SONNET_MODEL_SUPPORTED_CAPABILITIES",
+          "description": "ピン止めしたSonnetモデルがサポートする機能を宣言",
+          "detail": "Bedrock/Vertex AI/Foundry でモデルIDが既知パターンにマッチしない場合に機能を明示宣言。設定時はリストにある機能のみ有効化。未設定時は自動検出。\n\n値: effort, max_effort, thinking, adaptive_thinking, interleaved_thinking",
+          "values": "カンマ区切りの機能名",
+          "default": null,
+          "example": "export ANTHROPIC_DEFAULT_SONNET_MODEL_SUPPORTED_CAPABILITIES=effort,thinking,adaptive_thinking,interleaved_thinking",
+          "links": [
+            {
+              "label": "ピン止めモデルの表示カスタマイズ",
+              "url": "https://code.claude.com/docs/en/model-config#customize-pinned-model-display-and-capabilities"
             }
           ],
           "deprecated": false
@@ -319,7 +454,16 @@
           "values": "トークン数",
           "default": null,
           "example": "export CLAUDE_CODE_MAX_OUTPUT_TOKENS=64000",
-          "links": [],
+          "links": [
+            {
+              "label": "最大出力トークン",
+              "url": "https://platform.claude.com/docs/en/about-claude/models/overview#latest-models-comparison"
+            },
+            {
+              "label": "自動コンパクション",
+              "url": "https://code.claude.com/docs/en/costs#reduce-token-usage"
+            }
+          ],
           "deprecated": false
         },
         {
@@ -644,14 +788,22 @@
         {
           "name": "CLAUDE_ENV_FILE",
           "description": "各Bashコマンド前にsourceされるスクリプト",
-          "detail": "virtualenv/condaのアクティベーション維持に使用。SessionStartフックで動的設定も可",
+          "detail": "virtualenv/condaのアクティベーション維持に使用。SessionStart、CwdChanged、FileChanged フックで動的に設定される",
           "values": "スクリプトパス",
           "default": null,
           "example": "export CLAUDE_ENV_FILE=~/env.sh",
           "links": [
             {
-              "label": "SessionStartフック",
+              "label": "環境変数の永続化",
               "url": "https://code.claude.com/docs/en/hooks#persist-environment-variables"
+            },
+            {
+              "label": "CwdChangedフック",
+              "url": "https://code.claude.com/docs/en/hooks#cwdchanged"
+            },
+            {
+              "label": "FileChangedフック",
+              "url": "https://code.claude.com/docs/en/hooks#filechanged"
             }
           ],
           "deprecated": false
@@ -689,7 +841,7 @@
         {
           "name": "CLAUDE_CODE_DISABLE_BACKGROUND_TASKS",
           "description": "バックグラウンドタスク機能を全て無効化",
-          "detail": "run_in_background、自動バックグラウンド化、Ctrl+Bを無効化",
+          "detail": "Bashツールとサブエージェントツールの run_in_background パラメータ、自動バックグラウンド化、Ctrl+Bショートカットを無効化",
           "values": "\"1\" で無効化",
           "default": null,
           "example": "export CLAUDE_CODE_DISABLE_BACKGROUND_TASKS=1",
@@ -699,7 +851,7 @@
         {
           "name": "CLAUDE_CODE_EXIT_AFTER_STOP_DELAY",
           "description": "アイドル後の自動終了待機時間（ms）",
-          "detail": "SDKモードの自動化ワークフローで有用",
+          "detail": "クエリループがアイドルになった後、自動終了するまでの待機時間。SDKモードの自動化ワークフローやスクリプトで有用",
           "values": "ミリ秒",
           "default": null,
           "example": "export CLAUDE_CODE_EXIT_AFTER_STOP_DELAY=5000",
@@ -760,10 +912,10 @@
         },
         {
           "name": "ENABLE_TOOL_SEARCH",
-          "description": "MCPツール検索の制御",
-          "detail": "true:常時有効、auto:コンテキスト10%で有効、auto:N:カスタム閾値、false:無効",
+          "description": "MCPツール検索の有効/無効を制御",
+          "detail": "未設定: デフォルト有効（ただし ANTHROPIC_BASE_URL が非ファーストパーティホストの場合は無効）。true:常時有効（プロキシ経由含む）、auto:コンテキスト10%で有効、auto:N:カスタム閾値（例: auto:5 で5%）、false:無効",
           "values": "\"true\" | \"auto\" | \"auto:N\" | \"false\"",
-          "default": "有効",
+          "default": "有効（ANTHROPIC_BASE_URLが非ファーストパーティの場合は無効）",
           "example": "export ENABLE_TOOL_SEARCH=true",
           "links": [
             {
@@ -828,7 +980,7 @@
         {
           "name": "CLAUDE_CODE_ENABLE_PROMPT_SUGGESTION",
           "description": "プロンプト候補の有効/無効",
-          "detail": "Claude応答後に入力欄にグレーで表示される予測テキスト",
+          "detail": "Claude応答後に入力欄にグレーで表示される予測テキスト（/config の「Prompt suggestions」トグルと同等）",
           "values": "\"false\" で無効化",
           "default": null,
           "example": "export CLAUDE_CODE_ENABLE_PROMPT_SUGGESTION=false",
@@ -877,7 +1029,7 @@
         },
         {
           "name": "CLAUDE_CODE_DISABLE_FEEDBACK_SURVEY",
-          "description": "セッション品質調査を無効化",
+          "description": "「How is Claude doing?」セッション品質調査を無効化",
           "detail": "DISABLE_TELEMETRY や CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC 設定時にも自動無効化される",
           "values": "\"1\" で無効化",
           "default": null,
@@ -892,8 +1044,8 @@
         },
         {
           "name": "IS_DEMO",
-          "description": "デモモード（メール非表示、オンボーディングスキップ）",
-          "detail": "配信や録画時に有用",
+          "description": "デモモード（メール・組織非表示、オンボーディングスキップ）",
+          "detail": "UIからメールアドレスと組織情報を非表示にし、オンボーディングをスキップし、内部コマンドを非表示にする。配信や録画時に有用",
           "values": "\"true\" で有効化",
           "default": null,
           "example": "export IS_DEMO=true",
@@ -1337,9 +1489,19 @@
           "deprecated": false
         },
         {
+          "name": "CLAUDE_STREAM_IDLE_TIMEOUT_MS",
+          "description": "ストリーミングアイドルウォッチドッグのタイムアウト（ms）",
+          "detail": "ストリーミングアイドルウォッチドッグが停滞した接続を切断するまでのタイムアウト。長時間実行ツールや低速ネットワークで早期タイムアウトエラーが発生する場合は値を増加する",
+          "values": "ミリ秒",
+          "default": "90000",
+          "example": "export CLAUDE_STREAM_IDLE_TIMEOUT_MS=180000",
+          "links": [],
+          "deprecated": false
+        },
+        {
           "name": "CLAUDE_CODE_DISABLE_CRON",
           "description": "スケジュールタスクを無効化",
-          "detail": "/loopスキルとcronツールが使用不可に。実行中タスクも停止",
+          "detail": "/loopスキルとcronツールが使用不可に。すでにスケジュール済みのタスクも停止する（セッション途中で実行中のタスクも含む）",
           "values": "\"1\" で無効化",
           "default": null,
           "example": "export CLAUDE_CODE_DISABLE_CRON=1",

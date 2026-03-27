@@ -115,9 +115,9 @@
           "id": "yaml-frontmatter",
           "title": "YAML フロントマター要件",
           "summary": "すべてのフィールドはオプション。description は推奨。name は64文字以下で小文字+数字+ハイフンのみ。",
-          "content": "スキルは Agent Skills（agentskills.io）オープンスタンダードに準拠。Claude Code は呼び出し制御、サブエージェント実行、動的コンテキスト注入を拡張。\n\nフロントマターの全フィールドはオプション。description のみ推奨（Claude がスキル選択に使用）。name: 最大64文字、小文字・数字・ハイフンのみ、予約語不可。description: 最大1024文字、XMLタグ不可。\n\nその他のフィールド: argument-hint（引数ヒント）、disable-model-invocation（自動呼び出し禁止）、user-invocable（/ メニュー非表示）、allowed-tools（ツール許可）、model（使用モデル）、effort（low / medium / high / max でセッション effort をオーバーライド。max は Opus 4.6 のみ）、context（fork でサブエージェント実行）、agent（サブエージェント型）、hooks（ライフサイクルフック。once でセッション内1回のみ実行可能）、shell（!`command` ブロックで使用するシェル。bash（デフォルト）または powershell。Windows で PowerShell を使用するには CLAUDE_CODE_USE_POWERSHELL_TOOL=1 が必要）。\n\nSKILL.md のボディは500行以下推奨。超える場合は段階的開示パターンで別ファイルに分割。",
+          "content": "スキルは Agent Skills（agentskills.io）オープンスタンダードに準拠。Claude Code は呼び出し制御、サブエージェント実行、動的コンテキスト注入を拡張。\n\nフロントマターの全フィールドはオプション。description のみ推奨（Claude がスキル選択に使用）。name: 最大64文字、小文字・数字・ハイフンのみ、予約語不可。description: 最大1024文字、XMLタグ不可。\n\nその他のフィールド: argument-hint（引数ヒント）、disable-model-invocation（自動呼び出し禁止）、user-invocable（/ メニュー非表示）、allowed-tools（ツール許可）、model（使用モデル）、effort（low / medium / high / max でセッション effort をオーバーライド。max は Opus 4.6 のみ）、context（fork でサブエージェント実行）、agent（サブエージェント型）、hooks（ライフサイクルフック。once でセッション内1回のみ実行可能）、paths（glob パターンでスキルの自動アクティベーションを制限。マッチするファイル操作時のみ自動ロード）、shell（!`command` ブロックで使用するシェル。bash（デフォルト）または powershell。Windows で PowerShell を使用するには CLAUDE_CODE_USE_POWERSHELL_TOOL=1 が必要）。\n\nSKILL.md のボディは500行以下推奨。超える場合は段階的開示パターンで別ファイルに分割。",
           "tags": [],
-          "code": "---\nname: pdf-processing\ndescription: PDF ファイルからテキストとテーブルを抽出し、フォーム入力とドキュメント結合を行う。PDF 関連の作業時に使用。\neffort: high\n---\n\n# PDF 処理\n\n## クイックスタート\n\npdfplumber でテキスト抽出:\n```python\nimport pdfplumber\nwith pdfplumber.open(\"file.pdf\") as pdf:\n    text = pdf.pages[0].extract_text()\n```\n\n## 高度な機能\n\n**フォーム入力**: [FORMS.md](FORMS.md) を参照\n**API リファレンス**: [REFERENCE.md](REFERENCE.md) を参照"
+          "code": "---\nname: pdf-processing\ndescription: PDF ファイルからテキストとテーブルを抽出し、フォーム入力とドキュメント結合を行う。PDF 関連の作業時に使用。\neffort: high\npaths: \"**/*.pdf, docs/**\"\n---\n\n# PDF 処理\n\n## クイックスタート\n\npdfplumber でテキスト抽出:\n```python\nimport pdfplumber\nwith pdfplumber.open(\"file.pdf\") as pdf:\n    text = pdf.pages[0].extract_text()\n```\n\n## 高度な機能\n\n**フォーム入力**: [FORMS.md](FORMS.md) を参照\n**API リファレンス**: [REFERENCE.md](REFERENCE.md) を参照"
         },
         {
           "id": "invocation-control",
@@ -161,6 +161,14 @@
             "スキルの自動ロードとライブ変更検出がサポートされる",
             "CLAUDE.md は別途 CLAUDE_CODE_ADDITIONAL_DIRECTORIES_CLAUDE_MD=1 の設定が必要"
           ]
+        },
+        {
+          "id": "paths-activation",
+          "title": "paths による自動アクティベーションの制限",
+          "summary": "glob パターンでスキルの自動ロード対象ファイルを制限する。",
+          "content": "paths フロントマターで自動ロードをファイルパターンで制限。カンマ区切りまたは YAML リストで glob 指定。マッチするファイル操作時のみ自動ロード。/skill-name の明示的呼び出しは制限外。",
+          "tags": [],
+          "code": "---\nname: frontend-conventions\ndescription: フロントエンドのコーディング規約\npaths: \"src/components/**/*.tsx, src/hooks/**/*.ts\"\n---"
         },
         {
           "id": "plugin-skills-namespace",

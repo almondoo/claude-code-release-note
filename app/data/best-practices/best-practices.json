@@ -426,14 +426,15 @@
           "id": "git-worktrees",
           "title": "Git Worktrees で並列セッションを実行する",
           "summary": "--worktree フラグで分離されたワークツリーを作成し、複数タスクの同時作業で変更が衝突しないようにする。",
-          "content": "複数タスクを同時に作業する場合、各 Claude セッションが独自のコードベースコピーを持つことで変更の衝突を防ぎます。Git worktrees は同じリポジトリ履歴とリモート接続を共有しながら、独自のファイルとブランチを持つ作業ディレクトリを作成します。\n\n--worktree（-w）フラグで分離されたワークツリーを作成し、Claude をその中で起動します。渡した値がワークツリーのディレクトリ名とブランチ名になります。名前を省略するとランダムな名前が自動生成されます。\n\nワークツリーは <repo>/.claude/worktrees/<name> に作成され、デフォルトのリモートブランチから分岐します。Subagents も isolation: worktree で worktree 分離を使用できます。\n\nワークツリーセッションを終了すると、変更がない場合は自動的にクリーンアップされ、変更がある場合は保持または削除を選択できます。\n\nGit 以外のバージョン管理（SVN、Perforce、Mercurial）では、WorktreeCreate と WorktreeRemove フックを設定してカスタムのワークツリー作成・クリーンアップロジックを提供できます。設定すると --worktree 使用時にデフォルトの Git 動作を置き換えます。",
+          "content": "複数タスクを同時に作業する場合、各 Claude セッションが独自のコードベースコピーを持つことで変更の衝突を防ぎます。Git worktrees は同じリポジトリ履歴とリモート接続を共有しながら、独自のファイルとブランチを持つ作業ディレクトリを作成します。\n\n--worktree（-w）フラグで分離されたワークツリーを作成し、Claude をその中で起動します。渡した値がワークツリーのディレクトリ名とブランチ名になります。名前を省略するとランダムな名前が自動生成されます。\n\nワークツリーは <repo>/.claude/worktrees/<name> に作成され、デフォルトのリモートブランチから分岐します。Subagents も isolation: worktree で worktree 分離を使用できます。\n\nワークツリーセッションを終了すると、変更がない場合は自動的にクリーンアップされ、変更がある場合は保持または削除を選択できます。\n\nGit worktrees はフレッシュチェックアウトのため、.env や .env.local のような gitignore されたファイルは含まれません。ワークツリー作成時にこれらを自動コピーするには、プロジェクトルートに .worktreeinclude ファイルを追加します。.gitignore 構文でコピー対象のパターンを指定し、パターンにマッチしかつ gitignore されたファイルだけがコピーされます。--worktree、subagent worktrees、デスクトップアプリの並列セッションすべてに適用されます。\n\nGit 以外のバージョン管理（SVN、Perforce、Mercurial）では、WorktreeCreate と WorktreeRemove フックを設定してカスタムのワークツリー作成・クリーンアップロジックを提供できます。設定すると --worktree 使用時にデフォルトの Git 動作を置き換えます。",
           "tags": [],
           "tips": [
             "claude --worktree feature-auth で名前付きワークツリーを作成",
             "claude --worktree で自動命名されたワークツリーを作成",
             "Subagent の frontmatter に isolation: worktree を追加してワークツリー分離を使用",
             ".gitignore に .claude/worktrees/ を追加してメインリポジトリのクリーンさを維持",
-            "セッション中に「work in a worktree」と依頼して自動作成も可能"
+            "セッション中に「work in a worktree」と依頼して自動作成も可能",
+            ".worktreeinclude ファイルで .env 等の gitignore ファイルをワークツリーに自動コピー"
           ]
         },
         {
@@ -451,6 +452,32 @@
           "content": "大規模な移行や分析の場合、多くの並列 Claude 呼び出し全体で作業を配布できます。\n\n1. タスクリストを生成する — Claude に移行が必要なすべてのファイルをリストするよう依頼\n2. リストをループするスクリプトを書く\n3. いくつかのファイルでテストしてから、スケールで実行する — 最初の2〜3ファイルで何が悪いかに基づいてプロンプトを改善",
           "tags": [],
           "code": "for file in $(cat files.txt); do\n  claude -p \"Migrate $file from React to Vue. Return OK or FAIL.\" \\\n    --allowedTools \"Edit,Bash(git commit *)\"\ndone"
+        },
+        {
+          "id": "scheduled-tasks",
+          "title": "スケジュール実行する",
+          "summary": "定期的なタスク（PR レビュー、依存関係監査、CI チェックなど）を自動実行。クラウド・デスクトップ・GitHub Actions・/loop の4つのオプション。",
+          "content": "定期的に自動実行したいタスク（毎朝のオープン PR レビュー、週次の依存関係監査、夜間の CI 障害チェックなど）を設定できます。タスクを実行する場所に応じてオプションを選択します。\n\nCloud scheduled tasks：Anthropic 管理のインフラストラクチャで実行。PC がオフでも動作。claude.ai/code で設定。\n\nDesktop scheduled tasks：デスクトップアプリ経由でローカルマシンで実行。ローカルファイル、ツール、未コミットの変更にアクセスが必要な場合に最適。\n\nGitHub Actions：CI パイプラインで実行。PR オープンなどのリポジトリイベントや cron スケジュールに連動。\n\n/loop：現在の CLI セッション内で実行。セッション終了時にキャンセルされる簡易ポーリング向け。",
+          "tags": [],
+          "tips": [
+            "スケジュールタスクのプロンプトでは、成功の定義と結果の処理方法を明示する（自律実行のため確認質問ができない）",
+            "例：\"needs-review ラベルの付いたオープン PR をレビューし、問題にインラインコメントを残し、#eng-reviews Slack チャンネルにサマリーを投稿する\""
+          ]
+        },
+        {
+          "id": "ask-capabilities",
+          "title": "Claude に機能について質問する",
+          "summary": "Claude はドキュメントにアクセスでき、自身の機能や制限について質問に回答できる。",
+          "content": "Claude は自身のドキュメントにビルトインでアクセスしており、機能や制限に関する質問に回答できます。特別なプロンプトは不要で、直接質問するだけで動作します。\n\n使用中のバージョンに関係なく、常に最新の Claude Code ドキュメントにアクセスできます。MCP 統合、エンタープライズ設定、高度なワークフローなどの複雑な機能についても説明できます。",
+          "tags": [],
+          "tips": [
+            "「Claude Code はプルリクエストを作成できますか？」",
+            "「Claude Code はパーミッションをどのように処理しますか？」",
+            "「どのスキルが利用可能ですか？」",
+            "「Claude Code で MCP をどのように使用しますか？」",
+            "「Claude Code を Amazon Bedrock 向けにどのように設定しますか？」",
+            "「Claude Code の制限は何ですか？」"
+          ]
         }
       ]
     },

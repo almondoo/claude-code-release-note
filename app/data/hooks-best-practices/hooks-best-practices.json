@@ -68,6 +68,7 @@
             "`UserPromptSubmit` — ユーザーがプロンプトを送信した時に発火。プロンプトのフィルタリングに使用",
             "`Stop` — Claude が応答を完了した時に発火。タスク完了の検証に使用。ユーザー割り込みでは発火しない（API エラー時は StopFailure が発火）",
             "`SubagentStop` — サブエージェント完了時に発火。サブエージェント出力の検証に使用",
+            "`TaskCreated` — TaskCreate ツールでタスクが作成される時に発火。命名規則の強制、説明の必須化、特定タスクのブロックに使用。exit code 2 でタスク作成を拒否し stderr をフィードバック可能",
             "`TaskCompleted` — タスクが完了としてマークされる時に発火。完了条件の検証に使用",
             "`ConfigChange` — 設定ファイル変更時に発火。不正変更のブロックに使用",
             "`WorktreeCreate` — Worktree 作成時に発火。command タイプのみ対応。カスタム worktree ロジックに使用",
@@ -236,8 +237,8 @@
               "example": "{\"decision\": \"block\", \"reason\": \"未完了のタスクがあります\"}"
             },
             {
-              "phase": "TeammateIdle / TaskCompleted",
-              "description": "exit code 2 でフィードバックを返すか、JSON で continue: false を指定してチームメイト/タスクを停止",
+              "phase": "TaskCreated / TeammateIdle / TaskCompleted",
+              "description": "exit code 2 でフィードバックを返すか、JSON で continue: false を指定してタスク作成の拒否やチームメイト/タスクの停止",
               "example": "{\"continue\": false, \"stopReason\": \"テストが未通過です\"}"
             },
             {
@@ -536,6 +537,14 @@
           "content": "`FileChanged` イベントは、監視対象のファイルがディスク上で変更されたときに発火します。matcher にパイプ区切りのファイル名（ベースネーム）を指定して監視対象を絞り込めます。\n\n入力の `event` フィールドには `change`（変更）、`add`（追加）、`unlink`（削除）のいずれかが渡されます。`CwdChanged` と組み合わせて、direnv のようなディレクトリごとの環境管理を実現できます。",
           "tags": ["自動化"],
           "code": "{\n  \"hooks\": {\n    \"FileChanged\": [\n      {\n        \"matcher\": \".envrc|.env\",\n        \"hooks\": [\n          {\n            \"type\": \"command\",\n            \"command\": \"if [ -n \\\"$CLAUDE_ENV_FILE\\\" ] && command -v direnv > /dev/null 2>&1; then direnv export bash >> \\\"$CLAUDE_ENV_FILE\\\"; fi\"\n          }\n        ]\n      }\n    ]\n  }\n}"
+        },
+        {
+          "id": "task-created-validation",
+          "title": "TaskCreated でタスク作成を検証",
+          "summary": "TaskCreate ツールによるタスク作成時に命名規則や必須フィールドを検証し、不正なタスクをブロックする。",
+          "content": "`TaskCreated` イベントは `TaskCreate` ツールでタスクが作成される際に発火するブロッキングイベントです。exit code 2 でタスク作成を拒否し、stderr のメッセージがフィードバックとして返されます。\n\n命名規則の強制、説明の必須化、特定のタスクの禁止など、タスク品質のゲートキーピングに活用できます。matcher はサポートされず、全てのタスク作成で発火します。",
+          "tags": ["自動化"],
+          "code": "#!/bin/bash\nINPUT=$(cat)\nTASK_NAME=$(echo \"$INPUT\" | jq -r '.tool_input.name // empty')\nDESCRIPTION=$(echo \"$INPUT\" | jq -r '.tool_input.description // empty')\n\n# タスク名が命名規則に従っているか確認\nif ! echo \"$TASK_NAME\" | grep -qE '^[a-z][a-z0-9-]+$'; then\n  echo \"タスク名は小文字・数字・ハイフンのみ使用可能です: $TASK_NAME\" >&2\n  exit 2\nfi\n\n# 説明が空でないか確認\nif [ -z \"$DESCRIPTION\" ]; then\n  echo \"タスクには説明が必須です\" >&2\n  exit 2\nfi\n\nexit 0"
         }
       ]
     },
