@@ -32,7 +32,7 @@ export const meta = (): Array<{ title?: string; name?: string; content?: string 
     { title: "ハーネス＆コンテキストエンジニアリング — Claude Code" },
     {
       name: "description",
-      content: "Claude Code のハーネスとコンテキストを最適化するための包括的リファレンス",
+      content: "Claude Code のハーネス設計（コンテキスト管理含む）を最適化するための包括的リファレンス",
     },
   ];
 };
@@ -87,7 +87,7 @@ const HarnessEngineering = (): React.JSX.Element => {
         {/* Header */}
         <PageHeader
           title="ハーネス＆コンテキストエンジニアリング"
-          description="CLAUDE.md・Hooks・サブエージェント・Skills・コンテキストウィンドウ管理 — Claude Code のハーネス設定とコンテキスト最適化の包括的リファレンス。"
+          description="CLAUDE.md・Hooks・サブエージェント・Skills・コンテキストウィンドウ管理 — Claude Code のハーネスエンジニアリング（コンテキストエンジニアリング含む）の包括的リファレンス。"
           stats={[
             { value: SECTIONS.length, label: "セクション" },
             { value: TOTAL_ITEMS, label: "トピック" },
