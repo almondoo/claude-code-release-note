@@ -175,12 +175,30 @@
           "content": "Hooks は**加算的（additive）**です。全ソースの hooks が実行されます。優先順位は、設定値の競合時にどちらが勝つかを決定するものです。\n\nセキュリティ関連の hooks はグローバル設定 `~/.claude/settings.json` に、プロジェクト固有のフォーマッターは `.claude/settings.json` に配置してチームで共有、個人的な開発環境設定は `.claude/settings.local.json` に配置しましょう。",
           "tags": [],
           "locations": [
-            { "path": "マネージドポリシー設定", "description": "優先度1（最高）。組織全体に適用。管理者が制御" },
-            { "path": ".claude/settings.local.json", "description": "優先度2。プロジェクト単位。ローカルのみ（gitignore推奨）" },
-            { "path": ".claude/settings.json", "description": "優先度3。プロジェクト単位。Git コミット可能、チーム共有向け" },
-            { "path": "~/.claude/settings.json", "description": "優先度4。全プロジェクト共通。セキュリティ系 hooks の配置先" },
-            { "path": "プラグイン hooks/hooks.json", "description": "優先度5。プラグイン有効時に適用" },
-            { "path": "スキル/エージェント frontmatter", "description": "優先度6。スキル/エージェント実行中のみ有効" }
+            {
+              "path": "マネージドポリシー設定",
+              "description": "優先度1（最高）。組織全体に適用。管理者が制御"
+            },
+            {
+              "path": ".claude/settings.local.json",
+              "description": "優先度2。プロジェクト単位。ローカルのみ（gitignore推奨）"
+            },
+            {
+              "path": ".claude/settings.json",
+              "description": "優先度3。プロジェクト単位。Git コミット可能、チーム共有向け"
+            },
+            {
+              "path": "~/.claude/settings.json",
+              "description": "優先度4。全プロジェクト共通。セキュリティ系 hooks の配置先"
+            },
+            {
+              "path": "プラグイン hooks/hooks.json",
+              "description": "優先度5。プラグイン有効時に適用"
+            },
+            {
+              "path": "スキル/エージェント frontmatter",
+              "description": "優先度6。スキル/エージェント実行中のみ有効"
+            }
           ]
         },
         {
@@ -395,12 +413,12 @@
             {
               "lang": "json",
               "label": "Prettier（シンプル版）",
-              "value": "{\n  \"hooks\": {\n    \"PostToolUse\": [\n      {\n        \"matcher\": \"Edit|Write\",\n        \"hooks\": [\n          {\n            \"type\": \"command\",\n            \"command\": \"jq -r '.tool_input.file_path' | xargs npx prettier --write 2>/dev/null || true\"\n          }\n        ]\n      }\n    ]\n  }\n}"
+              "value": "{\n  \"hooks\": {\n    \"PostToolUse\": [\n      {\n        \"matcher\": \"Edit|Write\",\n        \"hooks\": [\n          {\n            \"type\": \"command\",\n            \"command\": \"jq -r '.tool_input.file_path' | xargs pnpm dlx prettier --write 2>/dev/null || true\"\n          }\n        ]\n      }\n    ]\n  }\n}"
             },
             {
               "lang": "bash",
               "label": "言語別フォーマッター（auto-format.sh）",
-              "value": "#!/bin/bash\nINPUT=$(cat)\nFILE_PATH=$(echo \"$INPUT\" | jq -r '.tool_input.file_path // empty')\n\nif [ -z \"$FILE_PATH\" ]; then exit 0; fi\n\ncase \"$FILE_PATH\" in\n  *.py)    black \"$FILE_PATH\" 2>/dev/null || true ;;\n  *.go)    gofmt -w \"$FILE_PATH\" 2>/dev/null || true ;;\n  *.rs)    rustfmt \"$FILE_PATH\" 2>/dev/null || true ;;\n  *.js|*.ts|*.jsx|*.tsx|*.json|*.css|*.md)\n           npx prettier --write \"$FILE_PATH\" 2>/dev/null || true ;;\nesac\nexit 0"
+              "value": "#!/bin/bash\nINPUT=$(cat)\nFILE_PATH=$(echo \"$INPUT\" | jq -r '.tool_input.file_path // empty')\n\nif [ -z \"$FILE_PATH\" ]; then exit 0; fi\n\ncase \"$FILE_PATH\" in\n  *.py)    black \"$FILE_PATH\" 2>/dev/null || true ;;\n  *.go)    gofmt -w \"$FILE_PATH\" 2>/dev/null || true ;;\n  *.rs)    rustfmt \"$FILE_PATH\" 2>/dev/null || true ;;\n  *.js|*.ts|*.jsx|*.tsx|*.json|*.css|*.md)\n           pnpm dlx prettier --write \"$FILE_PATH\" 2>/dev/null || true ;;\nesac\nexit 0"
             }
           ]
         },

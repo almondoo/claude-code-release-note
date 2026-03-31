@@ -19,7 +19,12 @@
               ["SessionStart", "新規セッション、resume、clear、compact", "不可", "Command のみ"],
               ["SessionEnd", "セッション終了（exit、sigint、error）", "不可", "Command のみ"],
               ["UserPromptSubmit", "プロンプト送信時、処理前", "可（ブロック）", "全4タイプ"],
-              ["PreToolUse", "ツール実行前 — プライマリセキュリティレイヤー", "可（allow/deny/ask）", "全4タイプ"],
+              [
+                "PreToolUse",
+                "ツール実行前 — プライマリセキュリティレイヤー",
+                "可（allow/deny/ask）",
+                "全4タイプ"
+              ],
               ["PostToolUse", "ツール正常完了後", "可（やり直し強制）", "全4タイプ"],
               ["Stop", "メインエージェント応答完了", "可（継続強制）", "全4タイプ"],
               ["SubagentStop", "サブエージェント完了", "可（継続強制）", "全4タイプ"],
@@ -47,8 +52,18 @@
             "title": "ハンドラタイプの比較",
             "headers": ["タイプ", "実行方法", "タイムアウト", "最適な用途"],
             "rows": [
-              ["Command", "シェルコマンド（stdin で JSON 受信）", "600秒", "フォーマット、リント、ファイル検証"],
-              ["Prompt", "単発 LLM 評価", "30秒", "セマンティックチェック（コミットメッセージ品質等）"],
+              [
+                "Command",
+                "シェルコマンド（stdin で JSON 受信）",
+                "600秒",
+                "フォーマット、リント、ファイル検証"
+              ],
+              [
+                "Prompt",
+                "単発 LLM 評価",
+                "30秒",
+                "セマンティックチェック（コミットメッセージ品質等）"
+              ],
               ["Agent", "50ターンのサブエージェント", "60秒", "コード検査が必要な検証"],
               ["HTTP", "エンドポイントへ POST", "600秒", "外部サービス連携、監査ログ"]
             ]
@@ -74,7 +89,10 @@
             "title": "フック設定の優先順位（高い順）",
             "headers": ["優先度", "ソース"],
             "rows": [
-              ["1（最高）", "Enterprise 管理（上書き不可。allowManagedHooksOnly で他の全フックをブロック可能）"],
+              [
+                "1（最高）",
+                "Enterprise 管理（上書き不可。allowManagedHooksOnly で他の全フックをブロック可能）"
+              ],
               ["2", "CLI フラグ（セッション限定）"],
               ["3", ".claude/settings.local.json（個人・プロジェクト固有）"],
               ["4", ".claude/settings.json（チーム共有）"],
@@ -125,7 +143,11 @@
               ["Default", "default", "各ツールの初回使用時にユーザーに確認"],
               ["Accept Edits", "acceptEdits", "ファイル編集を自動承認。その他は確認"],
               ["Plan", "plan", "読み取り専用 — ファイル変更やコマンド実行不可"],
-              ["Bypass", "bypassPermissions", "全ツール使用を自動承認。deny ルールとフックは引き続き有効"],
+              [
+                "Bypass",
+                "bypassPermissions",
+                "全ツール使用を自動承認。deny ルールとフックは引き続き有効"
+              ],
               ["Don't Ask（SDK専用）", "dontAsk", "権限プロンプトを拒否に変換"]
             ]
           }
@@ -174,7 +196,7 @@
         "summary": "プロジェクトルートの .mcp.json で MCP サーバーを定義。local（~/.claude.json）、project（.mcp.json）、user（~/.claude.json）の3スコープ。",
         "content": "MCP サーバーは3つのスコープで設定可能: **local**（`~/.claude.json`）、**project**（`.mcp.json`、プロジェクトルート）、**user**（`~/.claude.json`）。\n\n`--mcp-config` で複数の設定を指定可能。`--strict-mcp-config` は他のすべての設定を無視する。",
         "tags": [],
-        "code": "{\n  \"mcpServers\": {\n    \"server-name\": {\n      \"type\": \"stdio\",\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"@modelcontextprotocol/server-filesystem\", \"/path\"],\n      \"env\": { \"API_KEY\": \"value\" },\n      \"serverInstructions\": \"Tool Search 用の説明\"\n    }\n  }\n}"
+        "code": "{\n  \"mcpServers\": {\n    \"server-name\": {\n      \"type\": \"stdio\",\n      \"command\": \"pnpm dlx\",\n      \"args\": [\"-y\", \"@modelcontextprotocol/server-filesystem\", \"/path\"],\n      \"env\": { \"API_KEY\": \"value\" },\n      \"serverInstructions\": \"Tool Search 用の説明\"\n    }\n  }\n}"
       },
       {
         "id": "mcp-tool-search",
