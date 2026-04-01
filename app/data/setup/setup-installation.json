@@ -75,7 +75,7 @@
       "id": "verify-update",
       "title": "確認とアップデート",
       "description": "インストールの確認方法と更新手順",
-      "content": "インストールが完了したら、バージョンを確認して正しくインストールされたかチェックしましょう。\n\n`claude --version` でインストール済みのバージョンが表示されます。\n\n`claude doctor` を実行すると、環境の診断が行われ、問題がある場合は修正方法が提示されます。\n\n安定版チャンネル（stable）を明示的に指定してインストールすることもできます。stable チャンネルは約1週間遅れのバージョンで、重大なリグレッションを含むリリースをスキップします。リリースチャンネルは settings.json の `autoUpdatesChannel` でも設定可能です。`/config` の Auto-update channel からも変更できます。\n\nネイティブインストールの場合はバックグラウンドで自動更新されるため、手動での更新は不要です。即座に更新を適用したい場合は `claude update` を実行します。Homebrew や WinGet でインストールした場合は、それぞれのパッケージマネージャーで更新してください。Homebrew は古いバージョンをディスクに保持するため、`brew cleanup claude-code` で定期的にディスクスペースを回収できます。\n\n自動更新を無効にするには、settings.json の env で `DISABLE_AUTOUPDATER` を `\"1\"` に設定します。",
+      "content": "インストールが完了したら、バージョンを確認して正しくインストールされたかチェックしましょう。\n\n`claude --version` でインストール済みのバージョンが表示されます。\n\n`claude doctor` を実行すると、環境の診断が行われ、問題がある場合は修正方法が提示されます。\n\n安定版チャンネル（stable）を明示的に指定してインストールすることもできます。stable チャンネルは約1週間遅れのバージョンで、重大なリグレッションを含むリリースをスキップします。リリースチャンネルは settings.json の `autoUpdatesChannel` で設定できます。`/config` の Auto-update channel からも変更可能です。エンタープライズ環境ではマネージド設定を使って組織全体でリリースチャンネルを統一できます。\n\nインストール時にチャンネル（latest / stable）または特定のバージョン番号を指定できます。インストール時に選択したチャンネルが自動更新のデフォルトになります。\n\nネイティブインストールの場合はバックグラウンドで自動更新されるため、手動での更新は不要です。即座に更新を適用したい場合は `claude update` を実行します。Homebrew や WinGet でインストールした場合は、それぞれのパッケージマネージャーで更新してください。Homebrew は古いバージョンをディスクに保持するため、`brew cleanup claude-code` で定期的にディスクスペースを回収できます。\n\n自動更新を無効にするには、settings.json の env で `DISABLE_AUTOUPDATER` を `\"1\"` に設定します。\n\nバイナリの整合性は SHA256 チェックサムで検証できます。チェックサムはリリースマニフェストで公開されています。macOS 版は「Anthropic PBC」により署名・公証済み、Windows 版は「Anthropic, PBC」により署名されています。",
       "code": [
         {
           "lang": "bash",
@@ -89,8 +89,33 @@
         },
         {
           "lang": "bash",
-          "label": "安定版チャンネルを指定してインストール",
+          "label": "安定版チャンネルを指定 (macOS / Linux / WSL)",
           "value": "curl -fsSL https://claude.ai/install.sh | bash -s stable"
+        },
+        {
+          "lang": "powershell",
+          "label": "安定版チャンネルを指定 (Windows PowerShell)",
+          "value": "& ([scriptblock]::Create((irm https://claude.ai/install.ps1))) stable"
+        },
+        {
+          "lang": "bash",
+          "label": "特定バージョンを指定 (macOS / Linux / WSL)",
+          "value": "curl -fsSL https://claude.ai/install.sh | bash -s 1.0.58"
+        },
+        {
+          "lang": "powershell",
+          "label": "特定バージョンを指定 (Windows PowerShell)",
+          "value": "& ([scriptblock]::Create((irm https://claude.ai/install.ps1))) 1.0.58"
+        },
+        {
+          "lang": "json",
+          "label": "リリースチャンネルの設定 (settings.json)",
+          "value": "{\n  \"autoUpdatesChannel\": \"stable\"\n}"
+        },
+        {
+          "lang": "json",
+          "label": "自動更新を無効化 (settings.json の env に追加)",
+          "value": "{\n  \"env\": {\n    \"DISABLE_AUTOUPDATER\": \"1\"\n  }\n}"
         },
         {
           "lang": "bash",
@@ -112,6 +137,10 @@
         {
           "type": "tip",
           "text": "ネイティブインストールではバックグラウンドで自動更新されるため、手動でのアップデート操作は不要です。"
+        },
+        {
+          "type": "warning",
+          "text": "既知の問題: Homebrew や WinGet の場合、新バージョンがパッケージマネージャーに反映される前に更新通知が届くことがあります。アップグレードに失敗した場合は、しばらく待ってからリトライしてください。"
         }
       ],
       "tags": ["必須", "初心者向け"]
@@ -167,6 +196,11 @@
           "lang": "bash",
           "label": "設定ファイルの削除 (macOS / Linux / WSL)",
           "value": "# ユーザー設定とセッションデータを削除\nrm -rf ~/.claude\nrm ~/.claude.json\n\n# プロジェクト固有の設定を削除（プロジェクトディレクトリで実行）\nrm -rf .claude\nrm -f .mcp.json"
+        },
+        {
+          "lang": "powershell",
+          "label": "設定ファイルの削除 (Windows PowerShell)",
+          "value": "# ユーザー設定とセッションデータを削除\nRemove-Item -Path \"$env:USERPROFILE\\.claude\" -Recurse -Force\nRemove-Item -Path \"$env:USERPROFILE\\.claude.json\" -Force\n\n# プロジェクト固有の設定を削除（プロジェクトディレクトリで実行）\nRemove-Item -Path \".claude\" -Recurse -Force\nRemove-Item -Path \".mcp.json\" -Force"
         }
       ],
       "callouts": [

@@ -12,11 +12,11 @@
           "content": "バンドルスキルは Claude Code に同梱され、すべてのセッションで利用可能です。ビルトインコマンド（固定ロジック）とは異なりプロンプトベースで動作し、並列エージェント起動やファイル読み取りが可能です。\n\n呼び出しは通常のスキルと同じで `/` の後にスキル名を入力します。",
           "tags": [],
           "tips": [
-            "/batch <instruction> — 大規模変更を並列実行。5〜30ユニットに分解し計画提示。承認後、隔離 git worktree でユニットごとにエージェント起動→実装→テスト→PR 作成",
-            "/claude-api — 言語別（Python, TS, Java, Go, Ruby, C#, PHP, cURL）API リファレンスと Python/TS Agent SDK をロード。anthropic 等のインポート検出時に自動起動",
-            "/debug [description] — セッションデバッグログを読み取り問題をトラブルシュート。説明を渡すと分析を絞り込み可能",
-            "/loop [interval] <prompt> — プロンプトを指定間隔で繰り返し実行。デプロイ監視や他スキルの定期実行に有用",
-            "/simplify [focus] — 最近変更ファイルの品質レビュー。3つのレビューエージェントを並列起動し修正を適用。例: /simplify focus on memory efficiency"
+            "/batch <instruction> — 大規模変更を並列実行。5〜30ユニットに分解し、隔離 git worktree でエージェント起動→実装→テスト→PR 作成",
+            "/claude-api — 言語別 API リファレンスと Agent SDK をロード。anthropic インポート検出時に自動起動",
+            "/debug [description] — デバッグログの読み取りとトラブルシュート。--debug なしの場合 /debug 実行時点からログ記録開始",
+            "/loop [interval] <prompt> — プロンプトを指定間隔で繰り返し実行。デプロイ監視に有用",
+            "/simplify [focus] — 3つのレビューエージェントを並列起動し品質チェック→修正を適用"
           ]
         }
       ]
@@ -68,6 +68,19 @@
       "description": "SKILL.md の構造、命名、description の書き方",
       "items": [
         {
+          "id": "content-types",
+          "title": "スキルコンテンツの種類",
+          "summary": "スキルは「リファレンス型」と「タスク型」の2種類に分類でき、呼び出し方やコンテンツの書き方が異なる。",
+          "content": "スキルファイルには任意の指示を記述できますが、呼び出し方を意識するとコンテンツの方向性が定まります。\n\nリファレンス型 — 既存の作業に適用する知識（規約、パターン、スタイルガイド、ドメイン知識）。インラインで実行され、会話コンテキストと併用されます。\n\nタスク型 — 特定のアクション（デプロイ、コミット、コード生成）の手順指示。/skill-name で直接呼び出すことが多く、Claude の自動起動を防ぐために disable-model-invocation: true を設定します。",
+          "tags": [],
+          "code": "# リファレンス型\n---\nname: api-conventions\ndescription: API 設計パターン\n---\nAPI エンドポイントのルール:\n- RESTful な命名規則\n- 一貫したエラー形式\n\n# タスク型\n---\nname: deploy\ndescription: 本番環境にデプロイ\ncontext: fork\ndisable-model-invocation: true\n---\n1. テスト実行\n2. ビルド\n3. デプロイ",
+          "tips": [
+            "リファレンス型: 規約やパターンなどの知識。インラインで会話コンテキストと併用",
+            "タスク型: 手順指示。/skill-name で直接呼び出し。disable-model-invocation: true 推奨",
+            "複雑なスキルはサポートファイルに分離して SKILL.md を簡潔に保つ"
+          ]
+        },
+        {
           "id": "naming-conventions",
           "title": "命名規則",
           "summary": "動名詞形（verb + -ing）で、スキルが提供するアクティビティや能力を明確に表現する。",
@@ -93,7 +106,7 @@
           "id": "effective-descriptions",
           "title": "効果的な description を書く",
           "summary": "三人称で書き、具体的なキーワードを含め、「何をするか」と「いつ使うか」の両方を記述する。",
-          "content": "description はスキル発見の要です。Claude がスキル選択に使用するため、「何をするか」と「いつ使うか」の両方を記述します。常に三人称で書いてください（システムプロンプトに注入されるため）。\n\n最大1024文字、XMLタグは不可。",
+          "content": "description はスキル発見の要です。Claude がスキル選択に使用するため、「何をするか」と「いつ使うか」の両方を記述します。常に三人称で書いてください（システムプロンプトに注入されるため）。\n\n最大1024文字、XMLタグは不可。省略時は SKILL.md の最初の段落が使用されます。スキル一覧では250文字で切り詰められるため、重要なユースケースを先頭に記述してください。",
           "tags": [],
           "examples": [
             {
@@ -108,16 +121,17 @@
             "避ける：\"私が Excel ファイルの処理を手伝います\"（一人称）",
             "避ける：\"これを使って Excel ファイルを処理できます\"（二人称）",
             "「何をするか」+「いつ使うか」の両方を記述する",
-            "具体的なファイル形式、キーワード、トリガー条件を含める"
+            "具体的なファイル形式、キーワード、トリガー条件を含める",
+            "250文字で切り詰められるため、重要なユースケースを先頭に配置する"
           ]
         },
         {
           "id": "yaml-frontmatter",
           "title": "YAML フロントマター要件",
           "summary": "すべてのフィールドはオプション。description は推奨。name は64文字以下で小文字+数字+ハイフンのみ。",
-          "content": "スキルは Agent Skills（agentskills.io）オープンスタンダードに準拠。Claude Code は呼び出し制御、サブエージェント実行、動的コンテキスト注入を拡張。\n\nフロントマターの全フィールドはオプション。description のみ推奨（Claude がスキル選択に使用）。name: 最大64文字、小文字・数字・ハイフンのみ、予約語不可。description: 最大1024文字、XMLタグ不可。\n\nその他のフィールド: argument-hint（引数ヒント）、disable-model-invocation（自動呼び出し禁止）、user-invocable（/ メニュー非表示）、allowed-tools（ツール許可）、model（使用モデル）、effort（low / medium / high / max でセッション effort をオーバーライド。max は Opus 4.6 のみ）、context（fork でサブエージェント実行）、agent（サブエージェント型）、hooks（ライフサイクルフック。once でセッション内1回のみ実行可能）、paths（glob パターンでスキルの自動アクティベーションを制限。マッチするファイル操作時のみ自動ロード）、shell（!`command` ブロックで使用するシェル。bash（デフォルト）または powershell。Windows で PowerShell を使用するには CLAUDE_CODE_USE_POWERSHELL_TOOL=1 が必要）。\n\nSKILL.md のボディは500行以下推奨。超える場合は段階的開示パターンで別ファイルに分割。",
+          "content": "Agent Skills（agentskills.io）オープンスタンダードに準拠。Claude Code は呼び出し制御、サブエージェント実行、動的コンテキスト注入を拡張。全フィールドはオプション。description のみ推奨。\n\n主要フィールド: name（64文字以下、小文字+数字+ハイフン）、description（1024文字以下）、argument-hint、disable-model-invocation、user-invocable、allowed-tools、model、effort（low/medium/high/max。max は Opus 4.6 のみ）、context（fork でサブエージェント実行）、agent（サブエージェント型）、hooks（ライフサイクルフック。once で1回のみ実行）、paths（glob で自動ロードを制限）、shell（bash または powershell）。\n\nSKILL.md は500行以下推奨。超える場合は段階的開示パターンで分割。",
           "tags": [],
-          "code": "---\nname: pdf-processing\ndescription: PDF ファイルからテキストとテーブルを抽出し、フォーム入力とドキュメント結合を行う。PDF 関連の作業時に使用。\neffort: high\npaths: \"**/*.pdf, docs/**\"\n---\n\n# PDF 処理\n\n## クイックスタート\n\npdfplumber でテキスト抽出:\n```python\nimport pdfplumber\nwith pdfplumber.open(\"file.pdf\") as pdf:\n    text = pdf.pages[0].extract_text()\n```\n\n## 高度な機能\n\n**フォーム入力**: [FORMS.md](FORMS.md) を参照\n**API リファレンス**: [REFERENCE.md](REFERENCE.md) を参照"
+          "code": "---\nname: pdf-processing\ndescription: PDF からテキスト・テーブル抽出。PDF 関連の作業時に使用。\neffort: high\npaths: \"**/*.pdf, docs/**\"\n---\n\n# PDF 処理\n## クイックスタート\npdfplumber でテキスト抽出:\n```python\nimport pdfplumber\nwith pdfplumber.open(\"file.pdf\") as pdf:\n    text = pdf.pages[0].extract_text()\n```\n## 高度な機能\n**フォーム入力**: [FORMS.md](FORMS.md) を参照\n**API**: [REFERENCE.md](REFERENCE.md) を参照"
         },
         {
           "id": "invocation-control",
@@ -136,7 +150,7 @@
           "id": "string-substitutions",
           "title": "文字列置換",
           "summary": "スキル内で $ARGUMENTS、$ARGUMENTS[N]、$N、${CLAUDE_SESSION_ID}、${CLAUDE_SKILL_DIR} の動的変数が使用可能。",
-          "content": "スキルコンテンツ内でプレースホルダーを使用し、実行時に実際の値に置換されます。\n\n$ARGUMENTS — 全引数。コンテンツに未使用の場合は末尾に ARGUMENTS: <値> として追加。\n\n$ARGUMENTS[N] / $N — 0ベースの位置引数（$0 が最初）。\n\n${CLAUDE_SESSION_ID} — セッション ID。ログやセッション固有ファイルの作成に有用。\n\n${CLAUDE_SKILL_DIR} — SKILL.md のディレクトリ。プラグインスキルではプラグインルートではなくスキルのサブディレクトリを指す。作業ディレクトリに依存しないスクリプト参照に使用。",
+          "content": "実行時にプレースホルダーが実際の値に置換されます。\n\n$ARGUMENTS — 全引数（未使用時は末尾に追加）。$ARGUMENTS[N] / $N — 0ベース位置引数。\n\n${CLAUDE_SESSION_ID} — セッション ID。${CLAUDE_SKILL_DIR} — SKILL.md のディレクトリ（プラグインではスキルのサブディレクトリ）。",
           "tags": [],
           "code": "---\nname: fix-issue\ndescription: GitHub Issue を修正する\ndisable-model-invocation: true\n---\n\nGitHub Issue $ARGUMENTS を修正してください。\n\n# 複数引数の例: /migrate-component SearchBar React Vue\n# $0=SearchBar, $1=React, $2=Vue"
         },
@@ -193,7 +207,7 @@
           "id": "subagent-execution",
           "title": "サブエージェントでの実行",
           "summary": "context: fork でスキルを隔離されたサブエージェントで実行する。スキルのコンテンツがサブエージェントのプロンプトになる。",
-          "content": "context: fork で隔離されたサブエージェントで実行。スキル内容がプロンプトになり会話履歴にアクセスしません。agent で型を指定（Explore / Plan / general-purpose またはカスタム .claude/agents/）。省略時は general-purpose。\n\n注意: 明示的なタスク指示を持つスキルでのみ有効。ガイドラインのみでは有意な出力を返しません。",
+          "content": "context: fork で隔離されたサブエージェントで実行。スキル内容がプロンプトになり会話履歴にアクセスしません。agent で型を指定（Explore / Plan / general-purpose またはカスタム .claude/agents/）。省略時は general-purpose。\n\n注意: 明示的なタスク指示を持つスキルでのみ有効。ガイドラインのみでは有意な出力を返しません。\n\nスキルとサブエージェントは双方向に連携します。「スキル + context: fork」ではスキル内容がタスクになりエージェント型が実行環境を提供。逆に「サブエージェント + skills フィールド」ではサブエージェント本体がシステムプロンプト、プリロードされたスキルが参照資料として機能します。",
           "tags": [],
           "code": "---\nname: deep-research\ndescription: トピックを徹底的にリサーチする\ncontext: fork\nagent: Explore\n---\n\n$ARGUMENTS を徹底的にリサーチしてください：\n\n1. Glob と Grep で関連ファイルを検索\n2. コードを読んで分析\n3. 具体的なファイル参照とともに発見事項をまとめる"
         },
@@ -201,7 +215,7 @@
           "id": "skill-permission-control",
           "title": "スキルのアクセス制御",
           "summary": "Claude がどのスキルを呼び出せるかを /permissions で制御する。特定スキルの許可/拒否も可能。",
-          "content": "スキルアクセス制御の3つの方法: /permissions で Skill ツール全体を deny、Skill(name) / Skill(name *) で個別許可/拒否、disable-model-invocation: true でフロントマター制御。\n\ndescription バジェットはコンテキストウィンドウの1%で動的スケーリング（フォールバック: 8,000文字）。超過時はスキルが除外。/context で確認、SLASH_COMMAND_TOOL_CHAR_BUDGET でオーバーライド可能。\n\nuser-invocable は / メニュー表示のみ制御。Skill ツールの呼び出しブロックには disable-model-invocation: true を使用。ビルトインコマンド（/compact 等）は Skill ツール経由で利用不可。",
+          "content": "3つの制御方法: /permissions で Skill ツール全体を deny、Skill(name) / Skill(name *) で個別許可/拒否、disable-model-invocation: true でフロントマター制御。\n\ndescription バジェットはコンテキストウィンドウの1%（フォールバック: 8,000文字）。SLASH_COMMAND_TOOL_CHAR_BUDGET でオーバーライド可能。ビルトインコマンドは Skill ツール経由で利用不可。",
           "tags": [],
           "tips": [
             "全無効化: /permissions の deny に Skill を追加",
@@ -223,7 +237,7 @@
           "summary": "SKILL.md はオンボーディングガイドの目次のように、必要に応じて詳細資料を指し示す。",
           "content": "SKILL.md は目次として機能し、Claude を詳細資料に必要時のみ誘導します。500行以下推奨。\n\nClaude は参照ファイルを必要時のみ読み込むため、大きなファイルをバンドルしてもアクセスされるまでトークンを消費しません。",
           "tags": [],
-          "code": "pdf/\n├── SKILL.md              # メイン指示（トリガー時に読み込み）\n├── FORMS.md              # フォーム入力ガイド（必要時に読み込み）\n├── reference.md          # API リファレンス（必要時に読み込み）\n├── examples.md           # 使用例（必要時に読み込み）\n└── scripts/\n    ├── analyze_form.py   # ユーティリティスクリプト（実行用、読み込み不要）\n    ├── fill_form.py      # フォーム入力スクリプト\n    └── validate.py       # 検証スクリプト"
+          "code": "pdf/\n├── SKILL.md         # メイン指示\n├── FORMS.md         # フォーム入力ガイド\n├── reference.md     # API リファレンス\n├── examples.md      # 使用例\n└── scripts/\n    ├── analyze_form.py\n    ├── fill_form.py\n    └── validate.py"
         },
         {
           "id": "pattern-references",
@@ -231,15 +245,15 @@
           "summary": "SKILL.md にクイックスタートを置き、詳細な機能は別ファイルへのリンクで参照する。",
           "content": "基本的な使い方を SKILL.md に直接記載し、高度な機能は別ファイルへの参照として記述。Claude は必要時のみ読み込みます。",
           "tags": [],
-          "code": "---\nname: pdf-processing\ndescription: PDF ファイルからテキストとテーブルを抽出...\n---\n\n# PDF 処理\n\n## クイックスタート\n\npdfplumber でテキスト抽出:\n```python\nimport pdfplumber\nwith pdfplumber.open(\"file.pdf\") as pdf:\n    text = pdf.pages[0].extract_text()\n```\n\n## 高度な機能\n\n**フォーム入力**: [FORMS.md](FORMS.md) 完全ガイドを参照\n**API リファレンス**: [REFERENCE.md](REFERENCE.md) 全メソッドを参照\n**使用例**: [EXAMPLES.md](EXAMPLES.md) 一般的なパターンを参照"
+          "code": "---\nname: pdf-processing\ndescription: PDF からテキスト・テーブル抽出\n---\n## クイックスタート\n```python\nimport pdfplumber\nwith pdfplumber.open(\"file.pdf\") as pdf:\n    text = pdf.pages[0].extract_text()\n```\n## 高度な機能\n**フォーム入力**: [FORMS.md](FORMS.md)\n**API**: [REFERENCE.md](REFERENCE.md)\n**使用例**: [EXAMPLES.md](EXAMPLES.md)"
         },
         {
           "id": "pattern-domain",
           "title": "パターン2: ドメイン別構成",
           "summary": "複数ドメインを持つスキルは、ドメインごとにファイルを分離して無関係なコンテキストの読み込みを回避。",
-          "content": "ドメインごとにコンテンツを整理し、無関係なコンテキスト読み込みを回避。例: BigQuery スキルで売上の質問には sales.md のみ読み込み、財務やマーケティングは不要。\n\nSKILL.md に概要を記載し各参照ファイルへリンク。grep で特定メトリクスを検索するヒントも有効。",
+          "content": "ドメインごとにファイルを整理し無関係なコンテキスト読み込みを回避。例: BigQuery スキルで売上の質問には sales.md のみ読み込み。\n\nSKILL.md に概要を記載し各参照ファイルへリンク。",
           "tags": [],
-          "code": "bigquery-skill/\n├── SKILL.md (概要とナビゲーション)\n└── reference/\n    ├── finance.md (収益、ARR、請求メトリクス)\n    ├── sales.md (商談、パイプライン、アカウント)\n    ├── product.md (API使用状況、機能、採用)\n    └── marketing.md (キャンペーン、アトリビューション、メール)\n\n# SKILL.md 内のクイック検索セクション:\ngrep -i \"revenue\" reference/finance.md\ngrep -i \"pipeline\" reference/sales.md"
+          "code": "bigquery-skill/\n├── SKILL.md (概要とナビ)\n└── reference/\n    ├── finance.md (収益、ARR)\n    ├── sales.md (商談、パイプライン)\n    ├── product.md (API使用状況)\n    └── marketing.md (キャンペーン)"
         },
         {
           "id": "avoid-nesting",
@@ -269,7 +283,7 @@
           "summary": "明確で順序立てたステップに分割し、チェックリストで進捗を追跡する。",
           "content": "複雑な操作を順序立てたステップに分割し、チェックリストで進捗追跡。Claude がバリデーションをスキップすることを防ぎます。",
           "tags": [],
-          "code": "## PDF フォーム入力ワークフロー\n\nこのチェックリストをコピーして完了時にチェック：\n\n```\n進捗管理:\n- [ ] ステップ1: フォームを分析 (analyze_form.py を実行)\n- [ ] ステップ2: フィールドマッピングを作成 (fields.json を編集)\n- [ ] ステップ3: マッピングを検証 (validate_fields.py を実行)\n- [ ] ステップ4: フォームに入力 (fill_form.py を実行)\n- [ ] ステップ5: 出力を検証 (verify_output.py を実行)\n```\n\n各ステップの詳細な手順をチェックリストの下に記載する。"
+          "code": "## PDF フォーム入力ワークフロー\n\n進捗管理:\n- [ ] 1: フォーム分析 (analyze_form.py)\n- [ ] 2: マッピング作成 (fields.json)\n- [ ] 3: 検証 (validate_fields.py)\n- [ ] 4: 入力 (fill_form.py)\n- [ ] 5: 出力検証 (verify_output.py)"
         },
         {
           "id": "feedback-loops",
@@ -348,7 +362,7 @@
           "summary": "出力フォーマットのテンプレートを提供する。厳密さのレベルは要件に合わせる。",
           "content": "出力フォーマットのテンプレートを提供。厳密な要件（API レスポンス等）には「必ずこのテンプレートを使用すること」、柔軟なガイダンス（分析レポート等）には「デフォルトフォーマット。状況に応じて判断してください」と指定。",
           "tags": [],
-          "code": "## レポート構成（厳密な要件の場合）\n\n必ずこの正確なテンプレート構造を使用すること:\n\n# [分析タイトル]\n\n## エグゼクティブサマリー\n[主要な発見のワンパラグラフ概要]\n\n## 主な発見\n- データで裏付けられた発見1\n- データで裏付けられた発見2\n\n## 推奨事項\n1. 具体的で実行可能な推奨\n2. 具体的で実行可能な推奨\n\n---\n\n## レポート構成（柔軟なガイダンスの場合）\n\nデフォルトのフォーマット。状況に応じて判断してください:\n\n# [分析タイトル]\n## 概要\n[分析に基づいてセクションを適応]\n## 推奨事項\n[具体的なコンテキストに合わせる]"
+          "code": "# 厳密な要件:\n「必ずこのテンプレートを使用すること」\n# [タイトル]\n## エグゼクティブサマリー\n## 主な発見\n## 推奨事項\n\n# 柔軟なガイダンス:\n「デフォルトフォーマット。状況に応じて判断」\n# [タイトル]\n## 概要\n## 推奨事項"
         },
         {
           "id": "examples-pattern",
@@ -356,7 +370,7 @@
           "summary": "入力/出力ペアの例を提供する。説明だけよりも、求めるスタイルと詳細度をより明確に伝えられる。",
           "content": "入力/出力ペアの例を提供し、求めるスタイルと詳細度を明確に。コミットメッセージやドキュメント生成など一貫したフォーマットが必要なタスクに特に有効。複数の例でパターンの一般化を促進。",
           "tags": [],
-          "code": "## コミットメッセージ形式\n\n以下の例に従って生成してください：\n\n**例1:**\n入力: JWT トークンによるユーザー認証を追加\n出力:\nfeat(auth): JWT ベースの認証を実装\nログインエンドポイントとトークン検証ミドルウェアを追加\n\n**例2:**\n入力: レポートで日付が不正に表示されるバグを修正\n出力:\nfix(reports): タイムゾーン変換の日付フォーマットを修正\nレポート生成全体で UTC タイムスタンプを一貫して使用\n\n**例3:**\n入力: 依存関係の更新とエラーハンドリングのリファクタリング\n出力:\nchore: 依存関係の更新とエラーハンドリングのリファクタリング\n- lodash を 4.17.21 にアップグレード\n- エンドポイント全体でエラーレスポンス形式を統一"
+          "code": "## コミットメッセージ形式\n\n**例1:**\n入力: JWT 認証を追加\n出力: feat(auth): JWT ベースの認証を実装\n\n**例2:**\n入力: レポートの日付バグを修正\n出力: fix(reports): タイムゾーン変換の日付フォーマットを修正\n\n**例3:**\n入力: 依存関係更新とリファクタリング\n出力: chore: 依存関係の更新とエラーハンドリングのリファクタリング"
         },
         {
           "id": "generate-visual-output",
@@ -364,7 +378,7 @@
           "summary": "スキルにスクリプトをバンドルし、インタラクティブな HTML ファイルを生成してブラウザで表示するパターン。",
           "content": "スキルにスクリプトをバンドルし、インタラクティブな HTML を生成してブラウザで開くパターンです。scripts/ フォルダにスクリプトを配置し、SKILL.md で実行方法を記載します。\n\n依存関係グラフ、テストカバレッジレポート、API ドキュメント、DB スキーマの可視化など、あらゆるビジュアル出力に応用可能です。バンドルスクリプトが重い処理を担い、Claude はオーケストレーションを担当します。",
           "tags": [],
-          "code": "# ディレクトリ構成\ncodebase-visualizer/\n├── SKILL.md\n└── scripts/\n    └── visualize.py    # 組み込みライブラリのみ使用\n\n# SKILL.md の例\n---\nname: codebase-visualizer\ndescription: コードベースのインタラクティブなツリー可視化を生成する。新しいリポジトリの探索やプロジェクト構造の理解時に使用。\nallowed-tools: Bash(python *)\n---\n\n# コードベースビジュアライザ\n\nプロジェクトルートから可視化スクリプトを実行：\n\n```bash\npython ${CLAUDE_SKILL_DIR}/scripts/visualize.py .\n```\n\ncodebase-map.html を生成してブラウザで開きます。",
+          "code": "codebase-visualizer/\n├── SKILL.md\n└── scripts/\n    └── visualize.py\n\n---\nname: codebase-visualizer\ndescription: コードベースのツリー可視化を生成\nallowed-tools: Bash(python *)\n---\n```bash\npython ${CLAUDE_SKILL_DIR}/scripts/visualize.py .\n```\ncodebase-map.html を生成してブラウザで開きます。",
           "tips": [
             "allowed-tools でスクリプト実行に必要なツールを許可する",
             "${CLAUDE_SKILL_DIR} で作業ディレクトリに依存せずスクリプトを参照",
@@ -377,7 +391,7 @@
           "summary": "判断ポイントに基づいて Claude を適切なワークフローに誘導する。",
           "content": "判断ポイントで Claude を適切なワークフローに誘導。複雑な場合は別ファイルに分離し、タスクに応じて適切なファイルを読むよう指示。",
           "tags": [],
-          "code": "## ドキュメント変更ワークフロー\n\n1. 変更タイプを判断する：\n\n   **新規コンテンツの作成？** → 下の「作成ワークフロー」に従う\n   **既存コンテンツの編集？** → 下の「編集ワークフロー」に従う\n\n2. 作成ワークフロー：\n   - docx-js ライブラリを使用\n   - ドキュメントをゼロから構築\n   - .docx 形式でエクスポート\n\n3. 編集ワークフロー：\n   - 既存ドキュメントを展開\n   - XML を直接修正\n   - 変更ごとに検証\n   - 完了時に再パック"
+          "code": "## ドキュメント変更ワークフロー\n\n1. 変更タイプを判断：\n   **新規作成？** → 作成ワークフローへ\n   **既存編集？** → 編集ワークフローへ\n\n2. 作成ワークフロー：\n   - docx-js で構築 → .docx エクスポート\n\n3. 編集ワークフロー：\n   - 展開 → XML 修正 → 検証 → 再パック"
         }
       ]
     },
@@ -390,7 +404,7 @@
           "id": "evaluation-driven",
           "title": "まず評価を構築する",
           "summary": "ドキュメントを書く前に評価を作成する。想像上の問題ではなく、実際の問題を解決するスキルを確保する。",
-          "content": "ドキュメント前に評価を作成し、実際の問題を解決するスキルにします。\n\n1. ギャップ特定 — スキルなしで Claude を使い失敗を記録\n\n2. 評価作成 — ギャップをテストする3シナリオを構築\n\n3. ベースライン確立 — スキルなしのパフォーマンスを測定\n\n4. 最小限の指示を記述 — 評価合格に十分なコンテンツのみ\n\n5. 反復 — 評価実行、比較、改善",
+          "content": "ドキュメント前に評価を作成し実際の問題を解決するスキルに。\n\n1. ギャップ特定 — スキルなしで失敗を記録\n\n2. 評価作成 — 3シナリオ構築\n\n3. ベースライン確立 — スキルなしのパフォーマンス測定\n\n4. 最小限の指示を記述\n\n5. 反復 — 評価→比較→改善",
           "tags": [],
           "code": "// 評価シナリオの構造例\n{\n  \"skills\": [\"pdf-processing\"],\n  \"query\": \"この PDF からすべてのテキストを抽出して output.txt に保存して\",\n  \"files\": [\"test-files/document.pdf\"],\n  \"expected_behavior\": [\n    \"適切な PDF ライブラリを使用してファイルを読み取る\",\n    \"すべてのページからテキストを抽出する\",\n    \"output.txt に読みやすい形式で保存する\"\n  ]\n}"
         },
@@ -398,7 +412,7 @@
           "id": "iterative-development",
           "title": "Claude との反復開発",
           "summary": "Claude A（設計担当）でスキルを作成し、Claude B（テスト担当）で実タスクに使用して改善する。",
-          "content": "Claude A（設計担当）でスキル作成、Claude B（テスト担当）で実タスクにテスト。スキルなしで繰り返す情報を特定→スキル作成→不要な説明を削除→テスト→観察に基づき反復。",
+          "content": "Claude A（設計担当）でスキル作成、Claude B（テスト担当）で実タスクにテスト。繰り返す情報を特定→スキル作成→テスト→観察に基づき反復。",
           "tags": [],
           "tips": [
             "Claude B がルールを忘れた場合 → ルールの表現を強化（\"always\" → \"MUST\"）",
@@ -411,7 +425,7 @@
           "id": "observe-navigation",
           "title": "Claude のナビゲーションを観察する",
           "summary": "Claude がスキルを実際にどう使っているかを観察し、仮定ではなく観察に基づいて改善する。",
-          "content": "仮定ではなく実際の観察に基づいて改善。name と description が Claude のスキルトリガー判断に使用されるため、メタデータの精度が重要です。",
+          "content": "仮定ではなく実際の観察に基づいて改善。name と description がスキルトリガー判断に使用されるためメタデータの精度が重要。",
           "tags": [],
           "tips": [
             "予期しない探索パス — Claude が想定外の順序でファイルを読む場合、構造が直感的でない可能性",
@@ -431,7 +445,7 @@
           "id": "solve-dont-punt",
           "title": "解決する、丸投げしない",
           "summary": "スクリプトのエラー条件を処理する。Claude に推測させるのではなく、明示的にハンドリングする。",
-          "content": "エラー条件はスクリプト内で処理し Claude に丸投げしない。ファイル不在時はデフォルト作成、権限エラーは代替提供など。設定パラメータは値の理由を記載（voodoo constants を避ける）。",
+          "content": "エラー条件はスクリプト内で処理し Claude に丸投げしない。設定パラメータは値の理由を記載。",
           "tags": [],
           "examples": [
             {
@@ -452,7 +466,7 @@
           "id": "utility-scripts",
           "title": "ユーティリティスクリプトを提供する",
           "summary": "事前作成のスクリプトは生成コードより信頼性が高く、トークンと時間を節約する。",
-          "content": "事前作成スクリプトは生成コードより信頼性が高く、トークンと時間を節約し一貫性を確保。「実行」と「参照として読む」を明確に区別し、実行の場合は出力のみがトークンを消費。",
+          "content": "事前作成スクリプトは生成コードより信頼性が高くトークンを節約。「実行」と「参照」を明確に区別。",
           "tags": [],
           "tips": [
             "実行（最も一般的）：「analyze_form.py を実行してフィールドを抽出」",
@@ -460,13 +474,13 @@
             "スクリプトの出力フォーマットを明記すると Claude が結果を正しく解釈できる",
             "コマンドの使用例とサンプル出力を SKILL.md に記載する"
           ],
-          "code": "## ユーティリティスクリプト\n\n**analyze_form.py**: PDF からフォームフィールドを抽出\npython scripts/analyze_form.py input.pdf > fields.json\n\n出力形式:\n{\"field_name\": {\"type\": \"text\", \"x\": 100, \"y\": 200}}\n\n**validate_boxes.py**: バウンディングボックスの重複チェック\npython scripts/validate_boxes.py fields.json\n# 出力: \"OK\" または競合リスト\n\n**fill_form.py**: フィールド値を PDF に適用\npython scripts/fill_form.py input.pdf fields.json output.pdf"
+          "code": "## ユーティリティスクリプト\n\n**analyze_form.py**: フォームフィールド抽出\npython scripts/analyze_form.py input.pdf > fields.json\n\n**validate_boxes.py**: 重複チェック\npython scripts/validate_boxes.py fields.json\n\n**fill_form.py**: フィールド値適用\npython scripts/fill_form.py input.pdf fields.json output.pdf"
         },
         {
           "id": "verifiable-outputs",
           "title": "検証可能な中間出力を作成する",
           "summary": "plan-validate-execute パターンで、計画をスクリプトで検証してから実行する。",
-          "content": "「計画-検証-実行」パターンでエラーを早期発見。構造化された計画（changes.json 等）をスクリプトで検証してから実行。存在しないフィールド参照、競合する値、必須フィールド漏れなどを事前に検出。\n\n検証スクリプトは具体的なエラーメッセージを出力（修正方法が分かるように）。",
+          "content": "「計画-検証-実行」パターンでエラーを早期発見。構造化された計画をスクリプトで検証してから実行。\n\n検証スクリプトは具体的なエラーメッセージを出力。",
           "tags": [],
           "tips": [
             "使用場面：バッチ操作、破壊的な変更、複雑なバリデーションルール、高リスク操作",
@@ -480,9 +494,9 @@
           "id": "hooks-in-skills",
           "title": "スキルのライフサイクルフック",
           "summary": "フロントマターの hooks フィールドでスキルのライフサイクルにスコープされたフックを定義。once: true でセッション内1回のみ実行。",
-          "content": "フロントマターの hooks フィールドでスキルのライフサイクルにスコープされたフックを定義できます。スキルがアクティブな間のみ実行され、終了時にクリーンアップされます。全フックイベント（PreToolUse、PostToolUse、Stop 等）対応。\n\nonce フィールド（boolean）を true にすると、セッション内1回のみ実行後に自動削除されます。once はスキル専用（エージェントでは不可）。初回セットアップなど繰り返し不要な処理に有用です。",
+          "content": "hooks フィールドでスキルにスコープされたフックを定義。スキルがアクティブな間のみ実行され終了時にクリーンアップ。全フックイベント対応。\n\nonce: true でセッション内1回のみ実行後に自動削除。スキル専用（エージェントでは不可）。",
           "tags": [],
-          "code": "---\nname: secure-operations\ndescription: セキュリティチェック付きの操作を実行\nhooks:\n  PreToolUse:\n    - matcher: \"Bash\"\n      hooks:\n        - type: command\n          command: \"./scripts/security-check.sh\"\n---\n\n# once フィールドの例（セッション内1回のみ実行）\n---\nname: initial-setup\ndescription: 初回セットアップを実行\nhooks:\n  SessionStart:\n    - hooks:\n        - type: command\n          command: \"./scripts/one-time-setup.sh\"\n          once: true\n---",
+          "code": "---\nname: secure-operations\nhooks:\n  PreToolUse:\n    - matcher: \"Bash\"\n      hooks:\n        - type: command\n          command: \"./scripts/security-check.sh\"\n---\n\n# once の例（セッション内1回のみ）\n---\nname: initial-setup\nhooks:\n  SessionStart:\n    - hooks:\n        - type: command\n          command: \"./scripts/setup.sh\"\n          once: true\n---",
           "tips": [
             "フックはスキルがアクティブな間のみ実行され、終了時にクリーンアップされる",
             "once: true はスキル専用フィールド（エージェントでは使用不可）",
@@ -506,13 +520,13 @@
           "summary": "MCP ツールは完全修飾名（ServerName:tool_name）を使う。プレフィックスなしではツールが見つからない。",
           "content": "MCP ツールは常に ServerName:tool_name の完全修飾名を使用。プレフィックスなしでは Claude がツールを見つけられません。",
           "tags": [],
-          "code": "## MCP ツールの参照方法\n\n形式: ServerName:tool_name\n\n例:\n- BigQuery:bigquery_schema — テーブルスキーマの取得\n- GitHub:create_issue — Issue の作成\n- Slack:send_message — メッセージの送信\n\n※ サーバー名とツール名の両方が必要です。\n※ サーバープレフィックスがないと「tool not found」エラーになります。"
+          "code": "## MCP ツール参照\n\n形式: ServerName:tool_name\n\n例:\n- BigQuery:bigquery_schema\n- GitHub:create_issue\n- Slack:send_message\n\n※ サーバープレフィックスがないと tool not found エラー"
         },
         {
           "id": "package-dependencies",
           "title": "依存パッケージを明示する",
           "summary": "パッケージがインストール済みと仮定しない。インストール手順を明記する。",
-          "content": "パッケージの利用を仮定せず、インストール手順を明記。claude.ai は npm/PyPI/GitHub からインストール可能、Claude API はネットワーク不可。ファイルパスは常にフォワードスラッシュ（Windows でも）。",
+          "content": "パッケージの利用を仮定せずインストール手順を明記。ファイルパスは常にフォワードスラッシュ。",
           "tags": [],
           "examples": [
             {
@@ -521,6 +535,48 @@
               "before": "pdf ライブラリを使ってファイルを処理してください。",
               "after": "必要パッケージをインストール:\npip install pypdf\n\nfrom pypdf import PdfReader\nreader = PdfReader(\"file.pdf\")"
             }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "troubleshooting",
+      "name": "トラブルシューティング",
+      "description": "スキルが期待通りに動作しない場合の対処法",
+      "items": [
+        {
+          "id": "skill-not-triggering",
+          "title": "スキルが起動しない",
+          "summary": "description のキーワード不足やスキル一覧での非表示が原因。確認手順と対処法。",
+          "content": "Claude がスキルを使わない場合の確認手順:\n\n1. description にユーザーが自然に使う言葉やキーワードが含まれているか確認する\n\n2. 「利用可能なスキルは？」と質問し、スキルが一覧に表示されるか確認する\n\n3. description の表現に合うようにリクエストを言い換えてみる\n\n4. user-invocable が false でなければ /skill-name で直接呼び出してテストする",
+          "tags": [],
+          "tips": [
+            "description にユーザーが自然に使うキーワードを含める",
+            "「利用可能なスキルは？」でスキル一覧を確認",
+            "/skill-name で直接呼び出してスキル自体の動作を検証"
+          ]
+        },
+        {
+          "id": "skill-triggers-too-often",
+          "title": "スキルが過剰に起動する",
+          "summary": "description が広すぎるか、手動呼び出し専用にすべきスキルの対処法。",
+          "content": "Claude が意図しない場面でスキルを使う場合:\n\n1. description をより具体的にする — 広範なキーワードを避け、特定のユースケースに絞る\n\n2. disable-model-invocation: true を設定し、手動呼び出し（/skill-name）のみに制限する",
+          "tags": [],
+          "tips": [
+            "description を具体的にする — 広範なキーワードを避ける",
+            "disable-model-invocation: true で手動呼び出し専用にする"
+          ]
+        },
+        {
+          "id": "skill-descriptions-truncated",
+          "title": "スキルの description が途中で切れる",
+          "summary": "description バジェットの制約により長い description が切り詰められる場合の対処法。",
+          "content": "スキルの description はコンテキストに読み込まれますが、スキル数が多いとバジェット内に収めるため切り詰められます。バジェットはコンテキストウィンドウの1%で動的にスケーリングし、フォールバックは8,000文字です。\n\n各エントリは250文字で切り詰められるため、重要なユースケースを先頭に記述してください。SLASH_COMMAND_TOOL_CHAR_BUDGET 環境変数で上限を引き上げることも可能です。",
+          "tags": [],
+          "tips": [
+            "重要なキーワードを description の先頭250文字以内に配置する",
+            "SLASH_COMMAND_TOOL_CHAR_BUDGET 環境変数でバジェットを引き上げ可能",
+            "不要なスキルの description を短くするか disable-model-invocation: true で除外する"
           ]
         }
       ]

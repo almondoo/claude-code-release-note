@@ -29,12 +29,12 @@
           "steps": [
             {
               "phase": "command",
-              "description": "シェルコマンドを実行。stdin で JSON を受信し、exit code / stdout / stderr で結果を返す。デフォルトタイムアウト: 600秒",
+              "description": "シェルコマンドを実行。stdin で JSON を受信し、exit code / stdout / stderr で結果を返す。shell フィールドで \"bash\" / \"powershell\" を指定可能。デフォルトタイムアウト: 600秒",
               "example": "ファイル操作、フォーマット、バリデーション"
             },
             {
               "phase": "http",
-              "description": "HTTP エンドポイントに JSON を POST する。デフォルトタイムアウト: 30秒",
+              "description": "HTTP エンドポイントに JSON を POST する。headers で認証ヘッダーを設定可能（$VAR 構文、allowedEnvVars で許可リストを指定）。デフォルトタイムアウト: 30秒",
               "example": "外部サービス連携、チーム共有の監査サービス"
             },
             {
@@ -211,32 +211,34 @@
             "Exit Code `0` — 成功。アクション続行。stdout の JSON が解析される。`UserPromptSubmit` と `SessionStart` では stdout がコンテキストとして Claude に追加されるが、他のイベントでは verbose モードでのみ表示",
             "Exit Code `2` — ブロッキングエラー。アクションをブロック。stderr が Claude へのフィードバックになる",
             "Exit Code その他 — ノンブロッキングエラー。続行。stderr は verbose モードで表示",
+            "`if` — パーミッションルール構文でツール名+引数をフィルタ（ツールイベントのみ、v2.1.85+）",
+            "`shell` — command タイプで使用するシェルを指定（`\"bash\"` / `\"powershell\"`）",
             "`once: true` — セッション内で一度だけ実行し、その後削除される（スキル内 hooks のみ）",
             "マッチした全ての hooks は**並列実行**される。同一のコマンド文字列 / URL は自動的に**重複排除**される",
             "hooks は Claude Code の作業ディレクトリで実行される"
           ],
-          "code": "{\n  \"hooks\": {\n    \"イベント名\": [\n      {\n        \"matcher\": \"正規表現パターン（省略可）\",\n        \"hooks\": [\n          {\n            \"type\": \"command\",\n            \"command\": \"実行するコマンド\",\n            \"timeout\": 600,\n            \"statusMessage\": \"検証中...\",\n            \"async\": false,\n            \"once\": false\n          }\n        ]\n      }\n    ]\n  }\n}"
+          "code": "{\n  \"hooks\": {\n    \"イベント名\": [\n      {\n        \"matcher\": \"正規表現パターン（省略可）\",\n        \"hooks\": [\n          {\n            \"type\": \"command\",\n            \"command\": \"実行するコマンド\",\n            \"if\": \"Bash(git *)\",\n            \"timeout\": 600,\n            \"statusMessage\": \"検証中...\",\n            \"async\": false,\n            \"shell\": \"bash\",\n            \"once\": false\n          }\n        ]\n      }\n    ]\n  }\n}"
         },
         {
           "id": "env-vars",
           "title": "利用可能な環境変数",
           "summary": "hook スクリプト内で使用できる環境変数。プロジェクトパスの参照や環境変数の永続化に使用。",
-          "content": "hook スクリプト内ではいくつかの環境変数が自動的に設定されます。特に `CLAUDE_PROJECT_DIR` はスクリプトパスの参照に必須です。`CLAUDE_ENV_FILE` は `SessionStart` hook でのみ利用可能で、Bash ツール実行時に永続化したい環境変数を書き込めます。",
+          "content": "hook スクリプト内ではいくつかの環境変数が自動的に設定されます。特に `CLAUDE_PROJECT_DIR` はスクリプトパスの参照に必須です。`CLAUDE_ENV_FILE` は `SessionStart`、`CwdChanged`、`FileChanged` の各イベントで利用可能で、Bash ツール実行時に永続化したい環境変数を書き込めます。",
           "tags": [],
           "tips": [
             "`CLAUDE_PROJECT_DIR` — プロジェクトルートのパス。スクリプトパスの参照に使用（スペースを含む場合は引用符で囲む）",
-            "`CLAUDE_ENV_FILE` — SessionStart のみ。export 文を書き込むと Bash ツール実行時に環境変数が設定される",
+            "`CLAUDE_ENV_FILE` — SessionStart / CwdChanged / FileChanged で利用可能。export 文を書き込むと Bash ツール実行時に環境変数が設定される",
             "`CLAUDE_CODE_REMOTE` — Web 環境では `\"true\"` に設定される",
             "`CLAUDE_PLUGIN_ROOT` — プラグインのインストールディレクトリ",
             "`CLAUDE_PLUGIN_DATA` — プラグインの永続データディレクトリ",
-            "**共通入力フィールド（stdin JSON）**: `session_id`, `transcript_path`, `cwd`, `hook_event_name` が全イベントで利用可能。サブエージェント内では `agent_id`, `agent_type` も含まれる"
+            "**共通入力フィールド（stdin JSON）**: `session_id`, `transcript_path`, `cwd`, `permission_mode`, `hook_event_name` が全イベントで利用可能。サブエージェント内では `agent_id`, `agent_type` も含まれる"
           ]
         },
         {
           "id": "decision-patterns",
           "title": "イベント別の決定制御パターン",
           "summary": "イベントごとに異なる JSON 出力フォーマットでアクションの許可/拒否を制御する。",
-          "content": "ブロッキング可能なイベントでは、hook の stdout に JSON を出力することでアクションを制御できます。イベントによって出力フォーマットが異なるため、正しいスキーマを使用することが重要です。\n\nexit code 2 + stderr メッセージによるブロックは全ブロッキングイベント共通で使用できます。JSON 出力はより細かい制御（入力の書き換え、権限ルールの追加等）が必要な場合に使用します。",
+          "content": "ブロッキング可能なイベントでは、hook の stdout に JSON を出力することでアクションを制御できます。イベントによって出力フォーマットが異なるため、正しいスキーマを使用することが重要です。\n\nexit code 2 + stderr メッセージによるブロックは全ブロッキングイベント共通で使用できます。JSON 出力はより細かい制御（入力の書き換え、権限ルールの追加等）が必要な場合に使用します。\n\n全ハンドラ共通の JSON フィールドとして、`continue`（false で Claude を完全停止）、`stopReason`（停止理由）、`suppressOutput`（verbose 出力を抑制）、`systemMessage`（ユーザーへの警告表示）があります。複数の `PreToolUse` フックが `updatedInput` を返す場合、並列実行のため最後に完了したフックの値が採用される点に注意してください。",
           "tags": [],
           "steps": [
             {
@@ -368,6 +370,20 @@
           "content": "スクリプトのパスは `$CLAUDE_PROJECT_DIR` 環境変数を使って参照しましょう。絶対パスのハードコーディングを避けることで、チームメンバー間でのパスの違いを吸収できます。",
           "tags": [],
           "code": "{\n  \"type\": \"command\",\n  \"command\": \"\\\"$CLAUDE_PROJECT_DIR\\\"/.claude/hooks/my-script.sh\"\n}"
+        },
+        {
+          "id": "if-field",
+          "title": "if フィールドでツール引数を条件フィルタする",
+          "summary": "matcher はツール名でフィルタするが、if フィールドはツール名+引数パターンでさらに絞り込める（v2.1.85+）。",
+          "content": "`if` フィールドはパーミッションルール構文を使って、ツール名と引数の組み合わせでフックの発火を制御します。`matcher` がグループレベルでツール名のみをフィルタするのに対し、`if` はハンドラレベルでツール呼び出しの引数まで条件指定でき、hook プロセス自体の起動をスキップできます。\n\n`if` はツールイベント（`PreToolUse`, `PostToolUse`, `PostToolUseFailure`, `PermissionRequest`）でのみ使用可能です。他のイベントに指定するとフックが実行されなくなります。",
+          "tags": [],
+          "code": "{\n  \"hooks\": {\n    \"PreToolUse\": [\n      {\n        \"matcher\": \"Bash\",\n        \"hooks\": [\n          {\n            \"type\": \"command\",\n            \"if\": \"Bash(git *)\",\n            \"command\": \"\\\"$CLAUDE_PROJECT_DIR\\\"/.claude/hooks/check-git-policy.sh\"\n          }\n        ]\n      },\n      {\n        \"matcher\": \"Edit\",\n        \"hooks\": [\n          {\n            \"type\": \"command\",\n            \"if\": \"Edit(*.ts)\",\n            \"command\": \"\\\"$CLAUDE_PROJECT_DIR\\\"/.claude/hooks/check-ts-style.sh\"\n          }\n        ]\n      }\n    ]\n  }\n}",
+          "tips": [
+            "パーミッションルールと同じ構文: `Bash(git *)`, `Edit(*.ts)` 等",
+            "matcher（グループレベル）で大まかに絞り、if（ハンドラレベル）で細かく絞るのが効率的",
+            "複数ツール名のマッチは if では不可 → matcher でパイプ区切りを使うか、別ハンドラに分ける",
+            "v2.1.85 未満では無視されるため、バージョン互換性に注意"
+          ]
         },
         {
           "id": "status-message",
@@ -517,6 +533,14 @@
           "code": "{\n  \"hooks\": {\n    \"PermissionRequest\": [\n      {\n        \"matcher\": \"ExitPlanMode\",\n        \"hooks\": [\n          {\n            \"type\": \"command\",\n            \"command\": \"echo '{\\\"hookSpecificOutput\\\": {\\\"hookEventName\\\": \\\"PermissionRequest\\\", \\\"decision\\\": {\\\"behavior\\\": \\\"allow\\\"}}}'\"\n          }\n        ]\n      }\n    ]\n  }\n}"
         },
         {
+          "id": "permission-set-mode",
+          "title": "PermissionRequest で権限モードを切り替える",
+          "summary": "ExitPlanMode の自動承認時にセッションの権限モードを acceptEdits 等に変更する。",
+          "content": "`PermissionRequest` フックで `updatedPermissions` 配列に `setMode` エントリを含めると、自動承認と同時にセッションの権限モードを変更できます。`destination: \"session\"` で現在のセッションのみに適用されます。\n\nプラン完了後に自動的に `acceptEdits` モードへ移行させるなど、ワークフローの自動化に活用できます。",
+          "tags": ["自動化"],
+          "code": "{\n  \"hooks\": {\n    \"PermissionRequest\": [\n      {\n        \"matcher\": \"ExitPlanMode\",\n        \"hooks\": [\n          {\n            \"type\": \"command\",\n            \"command\": \"echo '{\\\"hookSpecificOutput\\\": {\\\"hookEventName\\\": \\\"PermissionRequest\\\", \\\"decision\\\": {\\\"behavior\\\": \\\"allow\\\", \\\"updatedPermissions\\\": [{\\\"type\\\": \\\"setMode\\\", \\\"mode\\\": \\\"acceptEdits\\\", \\\"destination\\\": \\\"session\\\"}]}}}'\"\n          }\n        ]\n      }\n    ]\n  }\n}"
+        },
+        {
           "id": "session-cleanup",
           "title": "セッション終了時のクリーンアップ",
           "summary": "SessionEnd イベントで一時ファイルの削除などのクリーンアップ処理を自動実行する。",
@@ -646,6 +670,18 @@
             "**HTTP hook のトークン管理**: `allowedEnvVars` で明示的に許可した環境変数のみヘッダーで使用可能",
             "**disableAllHooks**: settings.json に `\"disableAllHooks\": true` で全 hooks を無効化可能。マネージドポリシーで設定した場合はユーザー/プロジェクト hooks も含め全て無効化",
             "**allowManagedHooksOnly**: マネージドポリシーで設定するとユーザー・プロジェクト・プラグインの hooks をブロックし、管理者が定義した hooks のみ実行可能にする"
+          ]
+        },
+        {
+          "id": "hooks-permission-modes",
+          "title": "Hooks と権限モードの関係",
+          "summary": "PreToolUse フックは全ての権限モードチェックより先に実行される。deny は強制できるが allow は緩和できない。",
+          "content": "`PreToolUse` フックは権限モードのチェックよりも前に実行されます。フックが `permissionDecision: \"deny\"` を返すと、`bypassPermissions` モードや `--dangerously-skip-permissions` フラグが有効でもツール呼び出しがブロックされます。\n\nただし逆は成り立ちません。フックが `\"allow\"` を返しても、設定の deny ルール（マネージドポリシー含む）が優先されます。つまり、フックは制限を強化できますが、権限ルールで設定された制限を緩和することはできません。",
+          "tags": ["重要"],
+          "tips": [
+            "PreToolUse の deny は bypassPermissions モードでも有効 → 組織ポリシーの強制に使える",
+            "PreToolUse の allow は対話型プロンプトをスキップするだけで、deny ルールは上書きしない",
+            "ask ルールがマッチする場合、allow を返してもユーザーにプロンプトが表示される"
           ]
         },
         {
