@@ -96,6 +96,51 @@
           "deprecated": false
         },
         {
+          "name": "ANTHROPIC_BETAS",
+          "description": "APIリクエストに追加するanthropicベータヘッダー値",
+          "detail": "anthropic-beta ヘッダーに追加するカンマ区切りの値リスト。Claude Code は必要なベータヘッダーを自動送信するが、この変数で Anthropic API ベータに先行オプトインできる。\n\n--betas フラグ（APIキー認証専用）と異なり、Claude.ai サブスクリプション含む全認証方式で動作する",
+          "values": "カンマ区切りのベータ値",
+          "default": null,
+          "example": "export ANTHROPIC_BETAS=beta-feature-1,beta-feature-2",
+          "links": [
+            {
+              "label": "ベータヘッダー",
+              "url": "https://platform.claude.com/docs/en/api/beta-headers"
+            }
+          ],
+          "deprecated": false
+        },
+        {
+          "name": "CLAUDE_CODE_OAUTH_TOKEN",
+          "description": "Claude.ai認証用OAuthアクセストークン",
+          "detail": "/login の代替。SDKや自動化環境向け。キーチェーン保存の資格情報より優先される",
+          "values": "トークン文字列",
+          "default": null,
+          "example": "export CLAUDE_CODE_OAUTH_TOKEN=token",
+          "links": [],
+          "deprecated": false
+        },
+        {
+          "name": "CLAUDE_CODE_OAUTH_REFRESH_TOKEN",
+          "description": "Claude.ai認証用OAuthリフレッシュトークン",
+          "detail": "設定すると `claude auth login` がブラウザを開かずこのトークンを直接交換する。CLAUDE_CODE_OAUTH_SCOPES の設定が必要。自動化環境での認証プロビジョニングに有用",
+          "values": "トークン文字列",
+          "default": null,
+          "example": "export CLAUDE_CODE_OAUTH_REFRESH_TOKEN=refresh-token",
+          "links": [],
+          "deprecated": false
+        },
+        {
+          "name": "CLAUDE_CODE_OAUTH_SCOPES",
+          "description": "OAuthリフレッシュトークン発行時のスコープ",
+          "detail": "CLAUDE_CODE_OAUTH_REFRESH_TOKEN 使用時に必要。スペース区切りのスコープリスト",
+          "values": "スペース区切りのスコープ文字列",
+          "default": null,
+          "example": "export CLAUDE_CODE_OAUTH_SCOPES=\"user:profile user:inference user:sessions:claude_code\"",
+          "links": [],
+          "deprecated": false
+        },
+        {
           "name": "CLAUDE_CODE_API_KEY_HELPER_TTL_MS",
           "description": "APIキーヘルパーのリフレッシュ間隔（ms）",
           "detail": "apiKeyHelper使用時の資格情報リフレッシュ間隔（ミリ秒）",
@@ -477,6 +522,21 @@
           "deprecated": false
         },
         {
+          "name": "CLAUDE_CODE_DISABLE_THINKING",
+          "description": "拡張思考を強制的に無効化",
+          "detail": "モデルサポートや他の設定に関係なく拡張思考を無効化する。MAX_THINKING_TOKENS=0 より直接的な方法",
+          "values": "\"1\" で無効化",
+          "default": null,
+          "example": "export CLAUDE_CODE_DISABLE_THINKING=1",
+          "links": [
+            {
+              "label": "拡張思考",
+              "url": "https://platform.claude.com/docs/en/build-with-claude/extended-thinking"
+            }
+          ],
+          "deprecated": false
+        },
+        {
           "name": "CLAUDE_CODE_DISABLE_FAST_MODE",
           "description": "ファストモードを無効化",
           "detail": "シンプルなタスクに軽量モデルを自動使用する機能を無効化",
@@ -524,6 +584,51 @@
             {
               "label": "MCPツール検索",
               "url": "https://code.claude.com/docs/en/mcp#scale-with-mcp-tool-search"
+            }
+          ],
+          "deprecated": false
+        },
+        {
+          "name": "ANTHROPIC_BEDROCK_BASE_URL",
+          "description": "BedrockエンドポイントURLを上書き",
+          "detail": "カスタムBedrockエンドポイントやLLMゲートウェイ経由のルーティングに使用",
+          "values": "URL",
+          "default": null,
+          "example": "export ANTHROPIC_BEDROCK_BASE_URL=https://custom-bedrock.example.com",
+          "links": [
+            {
+              "label": "Bedrock",
+              "url": "https://code.claude.com/docs/en/amazon-bedrock"
+            }
+          ],
+          "deprecated": false
+        },
+        {
+          "name": "ANTHROPIC_VERTEX_BASE_URL",
+          "description": "Vertex AIエンドポイントURLを上書き",
+          "detail": "カスタムVertex AIエンドポイントやLLMゲートウェイ経由のルーティングに使用",
+          "values": "URL",
+          "default": null,
+          "example": "export ANTHROPIC_VERTEX_BASE_URL=https://custom-vertex.example.com",
+          "links": [
+            {
+              "label": "Vertex AI",
+              "url": "https://code.claude.com/docs/en/google-vertex-ai"
+            }
+          ],
+          "deprecated": false
+        },
+        {
+          "name": "ANTHROPIC_VERTEX_PROJECT_ID",
+          "description": "Vertex AI用GCPプロジェクトID",
+          "detail": "Google Vertex AI使用時に必須",
+          "values": "GCPプロジェクトID",
+          "default": null,
+          "example": "export ANTHROPIC_VERTEX_PROJECT_ID=my-gcp-project",
+          "links": [
+            {
+              "label": "Vertex AI",
+              "url": "https://code.claude.com/docs/en/google-vertex-ai"
             }
           ],
           "deprecated": false
@@ -756,6 +861,26 @@
           "deprecated": false
         },
         {
+          "name": "DISABLE_AUTO_COMPACT",
+          "description": "自動コンパクションを無効化",
+          "detail": "コンテキスト上限に近づいた際の自動コンパクションを無効化する。手動の /compact コマンドは引き続き使用可能。コンパクションタイミングを明示的に制御したい場合に使用",
+          "values": "\"1\" で無効化",
+          "default": null,
+          "example": "export DISABLE_AUTO_COMPACT=1",
+          "links": [],
+          "deprecated": false
+        },
+        {
+          "name": "DISABLE_COMPACT",
+          "description": "全コンパクション（自動+手動）を無効化",
+          "detail": "自動コンパクションと手動の /compact コマンドの両方を無効化する",
+          "values": "\"1\" で無効化",
+          "default": null,
+          "example": "export DISABLE_COMPACT=1",
+          "links": [],
+          "deprecated": false
+        },
+        {
           "name": "CLAUDE_BASH_MAINTAIN_PROJECT_WORKING_DIR",
           "description": "各Bashコマンド後に元の作業ディレクトリに戻る",
           "detail": "各コマンド実行後にプロジェクト作業ディレクトリに自動復帰",
@@ -809,6 +934,71 @@
           "deprecated": false
         },
         {
+          "name": "CLAUDE_CODE_GIT_BASH_PATH",
+          "description": "Windows用：Git Bash実行ファイルのパス",
+          "detail": "Git BashがインストールされているがPATHに含まれていない場合に使用。Windows専用",
+          "values": "ファイルパス（bash.exe）",
+          "default": null,
+          "example": "export CLAUDE_CODE_GIT_BASH_PATH=\"C:\\Program Files\\Git\\bin\\bash.exe\"",
+          "links": [
+            {
+              "label": "Windowsセットアップ",
+              "url": "https://code.claude.com/docs/en/setup#set-up-on-windows"
+            }
+          ],
+          "deprecated": false
+        },
+        {
+          "name": "CLAUDE_CODE_GLOB_HIDDEN",
+          "description": "Globツール結果にドットファイルを含めるか制御",
+          "detail": "デフォルトではドットファイルを含む。false でドットファイルを除外。@ファイルオートコンプリート、ls、Grep、Read には影響しない",
+          "values": "\"true\" | \"false\"",
+          "default": "true",
+          "example": "export CLAUDE_CODE_GLOB_HIDDEN=false",
+          "links": [
+            {
+              "label": "ツールリファレンス",
+              "url": "https://code.claude.com/docs/en/tools-reference"
+            }
+          ],
+          "deprecated": false
+        },
+        {
+          "name": "CLAUDE_CODE_GLOB_NO_IGNORE",
+          "description": "Globツールの.gitignoreパターン尊重を制御",
+          "detail": "デフォルトではGlobはgitignoreされたファイルも含めて全マッチを返す。false で .gitignore パターンを尊重する。@ファイルオートコンプリートには影響しない（別途 respectGitignore 設定あり）",
+          "values": "\"true\" | \"false\"",
+          "default": "true",
+          "example": "export CLAUDE_CODE_GLOB_NO_IGNORE=false",
+          "links": [
+            {
+              "label": "設定",
+              "url": "https://code.claude.com/docs/en/settings#available-settings"
+            }
+          ],
+          "deprecated": false
+        },
+        {
+          "name": "CLAUDE_CODE_GLOB_TIMEOUT_SECONDS",
+          "description": "Globツールのファイル探索タイムアウト（秒）",
+          "detail": "デフォルトはほとんどのプラットフォームで20秒、WSLでは60秒",
+          "values": "秒数",
+          "default": "20（WSLは60）",
+          "example": "export CLAUDE_CODE_GLOB_TIMEOUT_SECONDS=30",
+          "links": [],
+          "deprecated": false
+        },
+        {
+          "name": "CLAUDE_CODE_MAX_TOOL_USE_CONCURRENCY",
+          "description": "読み取り専用ツール・サブエージェントの最大並列数",
+          "detail": "読み取り専用ツールとサブエージェントの並列実行最大数。増加するとリソース消費が増える",
+          "values": "数値",
+          "default": "10",
+          "example": "export CLAUDE_CODE_MAX_TOOL_USE_CONCURRENCY=5",
+          "links": [],
+          "deprecated": false
+        },
+        {
           "name": "CLAUDE_CODE_SIMPLE",
           "description": "最小構成で実行（Bash・ファイル操作のみ）",
           "detail": "最小限のシステムプロンプトで、Bash・ファイル読み取り・ファイル編集ツールのみで実行する。フック、スキル、プラグイン、MCPサーバー、自動メモリ、CLAUDE.mdの自動検出を無効化する。\n\n`--bare` CLIフラグでも設定される",
@@ -845,6 +1035,26 @@
           "values": "\"1\" で無効化",
           "default": null,
           "example": "export CLAUDE_CODE_DISABLE_BACKGROUND_TASKS=1",
+          "links": [],
+          "deprecated": false
+        },
+        {
+          "name": "CLAUDE_CODE_AUTO_BACKGROUND_TASKS",
+          "description": "長時間エージェントタスクの自動バックグラウンド化を強制有効化",
+          "detail": "有効化すると約2分実行後にサブエージェントがバックグラウンドに移動される",
+          "values": "\"1\" で有効化",
+          "default": null,
+          "example": "export CLAUDE_CODE_AUTO_BACKGROUND_TASKS=1",
+          "links": [],
+          "deprecated": false
+        },
+        {
+          "name": "CLAUDE_CODE_RESUME_INTERRUPTED_TURN",
+          "description": "中断されたターンの自動再開",
+          "detail": "前回セッションがターン途中で終了した場合に自動再開する。SDKモードでプロンプト再送信不要にするために使用",
+          "values": "\"1\" で有効化",
+          "default": null,
+          "example": "export CLAUDE_CODE_RESUME_INTERRUPTED_TURN=1",
           "links": [],
           "deprecated": false
         },
@@ -969,6 +1179,31 @@
             }
           ],
           "deprecated": false
+        },
+        {
+          "name": "CLAUDE_AGENT_SDK_MCP_NO_PREFIX",
+          "description": "SDK作成MCPサーバーのツール名プレフィックスを省略",
+          "detail": "mcp__<server>__ プレフィックスを省略し、ツールは元の名前を使用する。SDK利用時のみ有効",
+          "values": "\"1\" で有効化",
+          "default": null,
+          "example": "export CLAUDE_AGENT_SDK_MCP_NO_PREFIX=1",
+          "links": [],
+          "deprecated": false
+        },
+        {
+          "name": "CLAUDE_AGENT_SDK_DISABLE_BUILTIN_AGENTS",
+          "description": "組み込みサブエージェント（Explore、Plan）を無効化",
+          "detail": "非対話モード（-p フラグ）でのみ適用。SDK利用者がゼロから構築したい場合に有用",
+          "values": "\"1\" で無効化",
+          "default": null,
+          "example": "export CLAUDE_AGENT_SDK_DISABLE_BUILTIN_AGENTS=1",
+          "links": [
+            {
+              "label": "サブエージェント",
+              "url": "https://code.claude.com/docs/en/sub-agents"
+            }
+          ],
+          "deprecated": false
         }
       ]
     },
@@ -1015,6 +1250,91 @@
           "default": null,
           "example": "export CLAUDE_CODE_DISABLE_TERMINAL_TITLE=1",
           "links": [],
+          "deprecated": false
+        },
+        {
+          "name": "CLAUDE_CODE_SYNTAX_HIGHLIGHT",
+          "description": "diff出力のシンタックスハイライトを制御",
+          "detail": "ターミナルのカラー設定と干渉する場合に false で無効化",
+          "values": "\"true\" | \"false\"",
+          "default": "true",
+          "example": "export CLAUDE_CODE_SYNTAX_HIGHLIGHT=false",
+          "links": [],
+          "deprecated": false
+        },
+        {
+          "name": "CLAUDE_CODE_SCROLL_SPEED",
+          "description": "フルスクリーンレンダリングのマウスホイールスクロール倍率",
+          "detail": "1〜20の値。ターミナルが1ノッチ1イベントを送る場合、vim に合わせて 3 に設定",
+          "values": "1〜20",
+          "default": null,
+          "example": "export CLAUDE_CODE_SCROLL_SPEED=3",
+          "links": [
+            {
+              "label": "フルスクリーンレンダリング",
+              "url": "https://code.claude.com/docs/en/fullscreen#adjust-wheel-scroll-speed"
+            }
+          ],
+          "deprecated": false
+        },
+        {
+          "name": "CLAUDE_CODE_DISABLE_MOUSE",
+          "description": "フルスクリーンレンダリングのマウストラッキングを無効化",
+          "detail": "PgUp/PgDn によるキーボードスクロールは引き続き使用可能。ターミナルネイティブのコピー選択動作を維持したい場合に使用",
+          "values": "\"1\" で無効化",
+          "default": null,
+          "example": "export CLAUDE_CODE_DISABLE_MOUSE=1",
+          "links": [
+            {
+              "label": "フルスクリーンレンダリング",
+              "url": "https://code.claude.com/docs/en/fullscreen"
+            }
+          ],
+          "deprecated": false
+        },
+        {
+          "name": "CLAUDE_CODE_ACCESSIBILITY",
+          "description": "ネイティブターミナルカーソルを表示（アクセシビリティ）",
+          "detail": "反転テキストカーソルインジケーターを無効化し、ネイティブターミナルカーソルを表示。macOS Zoom等のスクリーン拡大ツールがカーソル位置を追跡できるようになる",
+          "values": "\"1\" で有効化",
+          "default": null,
+          "example": "export CLAUDE_CODE_ACCESSIBILITY=1",
+          "links": [],
+          "deprecated": false
+        },
+        {
+          "name": "CLAUDE_CODE_DISABLE_ATTACHMENTS",
+          "description": "添付ファイル処理を無効化",
+          "detail": "@ 構文でのファイル参照がファイル内容に展開されずプレーンテキストとして送信される",
+          "values": "\"1\" で無効化",
+          "default": null,
+          "example": "export CLAUDE_CODE_DISABLE_ATTACHMENTS=1",
+          "links": [],
+          "deprecated": false
+        },
+        {
+          "name": "CLAUDE_CODE_DISABLE_CLAUDE_MDS",
+          "description": "全CLAUDE.mdメモリファイルの読み込みを無効化",
+          "detail": "ユーザー、プロジェクト、自動メモリを含む全CLAUDE.mdファイルのコンテキストへの読み込みを無効化する",
+          "values": "\"1\" で無効化",
+          "default": null,
+          "example": "export CLAUDE_CODE_DISABLE_CLAUDE_MDS=1",
+          "links": [],
+          "deprecated": false
+        },
+        {
+          "name": "CLAUDE_CODE_DISABLE_FILE_CHECKPOINTING",
+          "description": "ファイルチェックポイントを無効化",
+          "detail": "無効化すると /rewind コマンドでコード変更を復元できなくなる",
+          "values": "\"1\" で無効化",
+          "default": null,
+          "example": "export CLAUDE_CODE_DISABLE_FILE_CHECKPOINTING=1",
+          "links": [
+            {
+              "label": "チェックポイント",
+              "url": "https://code.claude.com/docs/en/checkpointing"
+            }
+          ],
           "deprecated": false
         },
         {
@@ -1190,6 +1510,36 @@
           "deprecated": false
         },
         {
+          "name": "CLAUDE_CODE_OTEL_FLUSH_TIMEOUT_MS",
+          "description": "保留中のOTelスパンのフラッシュタイムアウト（ms）",
+          "detail": "保留中のOpenTelemetryスパンをフラッシュするタイムアウト",
+          "values": "ミリ秒",
+          "default": "5000",
+          "example": "export CLAUDE_CODE_OTEL_FLUSH_TIMEOUT_MS=10000",
+          "links": [
+            {
+              "label": "監視",
+              "url": "https://code.claude.com/docs/en/monitoring-usage"
+            }
+          ],
+          "deprecated": false
+        },
+        {
+          "name": "CLAUDE_CODE_OTEL_SHUTDOWN_TIMEOUT_MS",
+          "description": "OTelエクスポーターのシャットダウンタイムアウト（ms）",
+          "detail": "シャットダウン時のOpenTelemetryエクスポーター完了タイムアウト。終了時にメトリクスが欠落する場合は値を増加",
+          "values": "ミリ秒",
+          "default": "2000",
+          "example": "export CLAUDE_CODE_OTEL_SHUTDOWN_TIMEOUT_MS=5000",
+          "links": [
+            {
+              "label": "監視",
+              "url": "https://code.claude.com/docs/en/monitoring-usage"
+            }
+          ],
+          "deprecated": false
+        },
+        {
           "name": "CLAUDE_CODE_OTEL_HEADERS_HELPER_DEBOUNCE_MS",
           "description": "動的OTelヘッダーのリフレッシュ間隔（ms）",
           "detail": "動的OpenTelemetryヘッダーのリフレッシュ間隔",
@@ -1202,6 +1552,26 @@
               "url": "https://code.claude.com/docs/en/monitoring-usage#dynamic-headers"
             }
           ],
+          "deprecated": false
+        },
+        {
+          "name": "CLAUDE_CODE_DEBUG_LOGS_DIR",
+          "description": "デバッグログファイルのパスを上書き",
+          "detail": "名前はディレクトリだが実際にはファイルパスを指定。デバッグモードは --debug または /debug で別途有効化が必要（この変数のみではログ有効化されない）。--debug-file フラグは両方を一度に設定する",
+          "values": "ファイルパス",
+          "default": "~/.claude/debug/<session-id>.txt",
+          "example": "export CLAUDE_CODE_DEBUG_LOGS_DIR=~/claude-debug.txt",
+          "links": [],
+          "deprecated": false
+        },
+        {
+          "name": "CLAUDE_CODE_DEBUG_LOG_LEVEL",
+          "description": "デバッグログの最小ログレベル",
+          "detail": "verbose で高頻度診断を含む。error に上げるとノイズを削減",
+          "values": "\"verbose\" | \"debug\" | \"info\" | \"warn\" | \"error\"",
+          "default": "debug",
+          "example": "export CLAUDE_CODE_DEBUG_LOG_LEVEL=verbose",
+          "links": [],
           "deprecated": false
         },
         {
@@ -1241,6 +1611,66 @@
           "values": "\"1\" で無効化",
           "default": null,
           "example": "export DISABLE_FEEDBACK_COMMAND=1",
+          "links": [],
+          "deprecated": false
+        },
+        {
+          "name": "DISABLE_LOGIN_COMMAND",
+          "description": "/login コマンドを非表示",
+          "detail": "APIキーや apiKeyHelper で外部認証する場合に有用",
+          "values": "\"1\" で無効化",
+          "default": null,
+          "example": "export DISABLE_LOGIN_COMMAND=1",
+          "links": [],
+          "deprecated": false
+        },
+        {
+          "name": "DISABLE_LOGOUT_COMMAND",
+          "description": "/logout コマンドを非表示",
+          "detail": "/logout コマンドを非表示にする",
+          "values": "\"1\" で無効化",
+          "default": null,
+          "example": "export DISABLE_LOGOUT_COMMAND=1",
+          "links": [],
+          "deprecated": false
+        },
+        {
+          "name": "DISABLE_UPGRADE_COMMAND",
+          "description": "/upgrade コマンドを非表示",
+          "detail": "/upgrade コマンドを非表示にする",
+          "values": "\"1\" で無効化",
+          "default": null,
+          "example": "export DISABLE_UPGRADE_COMMAND=1",
+          "links": [],
+          "deprecated": false
+        },
+        {
+          "name": "DISABLE_DOCTOR_COMMAND",
+          "description": "/doctor コマンドを非表示",
+          "detail": "管理されたデプロイメントでユーザーがインストール診断を実行すべきでない場合に有用",
+          "values": "\"1\" で無効化",
+          "default": null,
+          "example": "export DISABLE_DOCTOR_COMMAND=1",
+          "links": [],
+          "deprecated": false
+        },
+        {
+          "name": "DISABLE_INSTALL_GITHUB_APP_COMMAND",
+          "description": "/install-github-app コマンドを非表示",
+          "detail": "サードパーティプロバイダ（Bedrock、Vertex、Foundry）使用時は自動的に非表示",
+          "values": "\"1\" で無効化",
+          "default": null,
+          "example": "export DISABLE_INSTALL_GITHUB_APP_COMMAND=1",
+          "links": [],
+          "deprecated": false
+        },
+        {
+          "name": "DISABLE_EXTRA_USAGE_COMMAND",
+          "description": "/extra-usage コマンドを非表示",
+          "detail": "レート制限を超える追加使用量を購入する /extra-usage コマンドを非表示にする",
+          "values": "\"1\" で無効化",
+          "default": null,
+          "example": "export DISABLE_EXTRA_USAGE_COMMAND=1",
           "links": [],
           "deprecated": false
         },
@@ -1340,13 +1770,33 @@
           "example": "export CLAUDE_CODE_PROXY_RESOLVES_HOSTS=true",
           "links": [],
           "deprecated": false
+        },
+        {
+          "name": "API_TIMEOUT_MS",
+          "description": "APIリクエストのタイムアウト（ms）",
+          "detail": "低速ネットワークやプロキシ経由のルーティングでリクエストがタイムアウトする場合に増加",
+          "values": "ミリ秒",
+          "default": "600000（10分）",
+          "example": "export API_TIMEOUT_MS=900000",
+          "links": [],
+          "deprecated": false
+        },
+        {
+          "name": "CLAUDE_CODE_MAX_RETRIES",
+          "description": "失敗したAPIリクエストのリトライ回数を上書き",
+          "detail": "デフォルトは10回",
+          "values": "回数",
+          "default": "10",
+          "example": "export CLAUDE_CODE_MAX_RETRIES=5",
+          "links": [],
+          "deprecated": false
         }
       ]
     },
     {
       "id": "misc",
       "name": "その他",
-      "description": "自動更新、プラグイン、一時ディレクトリ、プロンプトキャッシュ",
+      "description": "自動更新、プラグイン、IDE、一時ディレクトリ、プロンプトキャッシュ、ストリーミング",
       "vars": [
         {
           "name": "DISABLE_AUTOUPDATER",
@@ -1384,6 +1834,16 @@
           "deprecated": false
         },
         {
+          "name": "CLAUDE_CODE_PLUGIN_CACHE_DIR",
+          "description": "プラグインルートディレクトリを上書き",
+          "detail": "名前はキャッシュだが実際には親ディレクトリを設定する。マーケットプレイスとプラグインキャッシュはこのパスのサブディレクトリに配置される",
+          "values": "ディレクトリパス",
+          "default": "~/.claude/plugins",
+          "example": "export CLAUDE_CODE_PLUGIN_CACHE_DIR=~/.config/claude-plugins",
+          "links": [],
+          "deprecated": false
+        },
+        {
           "name": "CLAUDE_CODE_PLUGIN_SEED_DIR",
           "description": "読み取り専用のプラグインシードディレクトリのパス",
           "detail": "コンテナイメージにプリポピュレートされたプラグインディレクトリをバンドルするために使用する。起動時にマーケットプレイスを登録し、再クローンなしでキャッシュ済みプラグインを使用する。\n\n複数パスの区切り: Unix では `:` 区切り、Windows では `;` 区切り",
@@ -1396,6 +1856,36 @@
               "url": "https://code.claude.com/docs/en/plugin-marketplaces#pre-populate-plugins-for-containers"
             }
           ],
+          "deprecated": false
+        },
+        {
+          "name": "CLAUDE_CODE_DISABLE_OFFICIAL_MARKETPLACE_AUTOINSTALL",
+          "description": "公式プラグインマーケットプレイスの自動追加をスキップ",
+          "detail": "初回起動時の公式プラグインマーケットプレイスの自動追加をスキップする",
+          "values": "\"1\" で有効化",
+          "default": null,
+          "example": "export CLAUDE_CODE_DISABLE_OFFICIAL_MARKETPLACE_AUTOINSTALL=1",
+          "links": [],
+          "deprecated": false
+        },
+        {
+          "name": "CLAUDE_CODE_SYNC_PLUGIN_INSTALL",
+          "description": "非対話モードでプラグインインストール完了を待機",
+          "detail": "非対話モード（-p フラグ）で最初のクエリ前にプラグインインストール完了を待機する。未設定時はバックグラウンドでインストールされ、最初のターンで利用できない場合がある。CLAUDE_CODE_SYNC_PLUGIN_INSTALL_TIMEOUT_MS と組み合わせて待機時間を制限可能",
+          "values": "\"1\" で有効化",
+          "default": null,
+          "example": "export CLAUDE_CODE_SYNC_PLUGIN_INSTALL=1",
+          "links": [],
+          "deprecated": false
+        },
+        {
+          "name": "CLAUDE_CODE_SYNC_PLUGIN_INSTALL_TIMEOUT_MS",
+          "description": "同期プラグインインストールのタイムアウト（ms）",
+          "detail": "超過するとプラグインなしで続行しエラーをログ出力する。未設定時は完了まで待機",
+          "values": "ミリ秒",
+          "default": null,
+          "example": "export CLAUDE_CODE_SYNC_PLUGIN_INSTALL_TIMEOUT_MS=30000",
+          "links": [],
           "deprecated": false
         },
         {
@@ -1424,6 +1914,31 @@
           "deprecated": false
         },
         {
+          "name": "CLAUDE_CODE_AUTO_CONNECT_IDE",
+          "description": "自動IDE接続を上書き",
+          "detail": "デフォルトではサポートされたIDEの統合ターミナル内で自動接続する。false で自動接続を無効化。true で自動検出に失敗した場合（tmux等）に強制接続",
+          "values": "\"true\" | \"false\"",
+          "default": "自動検出",
+          "example": "export CLAUDE_CODE_AUTO_CONNECT_IDE=false",
+          "links": [
+            {
+              "label": "VS Code連携",
+              "url": "https://code.claude.com/docs/en/vs-code"
+            }
+          ],
+          "deprecated": false
+        },
+        {
+          "name": "CLAUDE_CODE_IDE_HOST_OVERRIDE",
+          "description": "IDE拡張接続のホストアドレスを上書き",
+          "detail": "WSL-to-Windowsルーティング含むアドレスを自動検出するが、上書きが必要な場合に使用",
+          "values": "ホストアドレス",
+          "default": "自動検出",
+          "example": "export CLAUDE_CODE_IDE_HOST_OVERRIDE=127.0.0.1",
+          "links": [],
+          "deprecated": false
+        },
+        {
           "name": "CLAUDE_CODE_IDE_SKIP_AUTO_INSTALL",
           "description": "IDE拡張の自動インストールをスキップ",
           "detail": "IDE拡張機能の自動インストールをスキップ。autoInstallIdeExtension を false に設定するのと同等",
@@ -1436,6 +1951,16 @@
               "url": "https://code.claude.com/docs/en/settings#global-config-settings"
             }
           ],
+          "deprecated": false
+        },
+        {
+          "name": "CLAUDE_CODE_IDE_SKIP_VALID_CHECK",
+          "description": "IDEロックファイル検証をスキップ",
+          "detail": "IDEが実行中にもかかわらず自動接続がIDEを見つけられない場合に使用",
+          "values": "\"1\" で有効化",
+          "default": null,
+          "example": "export CLAUDE_CODE_IDE_SKIP_VALID_CHECK=1",
+          "links": [],
           "deprecated": false
         },
         {
@@ -1484,6 +2009,21 @@
           "deprecated": false
         },
         {
+          "name": "DISABLE_INTERLEAVED_THINKING",
+          "description": "インターリーブ思考ベータヘッダーの送信を無効化",
+          "detail": "LLMゲートウェイやプロバイダがインターリーブ思考をサポートしていない場合に使用",
+          "values": "\"1\" で無効化",
+          "default": null,
+          "example": "export DISABLE_INTERLEAVED_THINKING=1",
+          "links": [
+            {
+              "label": "インターリーブ思考",
+              "url": "https://platform.claude.com/docs/en/build-with-claude/extended-thinking#interleaved-thinking"
+            }
+          ],
+          "deprecated": false
+        },
+        {
           "name": "CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS",
           "description": "anthropic-betaヘッダーとベータツールスキーマを無効化",
           "detail": "Anthropic固有の anthropic-beta リクエストヘッダーと defer_loading、eager_input_streaming 等のベータツールスキーマフィールドを除去する。\n\nプロキシゲートウェイが「Unexpected value(s) for the anthropic-beta header」や「Extra inputs are not permitted」エラーを返す場合に使用。name、description、input_schema、cache_control 等の標準フィールドは保持される",
@@ -1500,6 +2040,26 @@
           "values": "\"1\" で無効化",
           "default": null,
           "example": "export CLAUDE_CODE_DISABLE_NONSTREAMING_FALLBACK=1",
+          "links": [],
+          "deprecated": false
+        },
+        {
+          "name": "CLAUDE_ENABLE_STREAM_WATCHDOG",
+          "description": "停滞したAPIストリームを自動中断",
+          "detail": "90秒間データのないAPIレスポンスストリームを中断する。自動化環境でハングセッションが見過ごされる場合や、プロキシが接続を無通知で切断する場合に有用。\n\nこれがないと停滞したストリームが無期限にセッションをハングさせる可能性がある。タイムアウトは CLAUDE_STREAM_IDLE_TIMEOUT_MS で設定",
+          "values": "\"1\" で有効化",
+          "default": null,
+          "example": "export CLAUDE_ENABLE_STREAM_WATCHDOG=1",
+          "links": [],
+          "deprecated": false
+        },
+        {
+          "name": "CLAUDE_CODE_ENABLE_FINE_GRAINED_TOOL_STREAMING",
+          "description": "ツール入力の細粒度ストリーミングを強制有効化",
+          "detail": "未設定時はAPIがツール入力パラメータを完全にバッファしてからデルタイベントを送信するため、大きなツール入力での表示遅延が発生しうる。Anthropic API専用（Bedrock、Vertex、Foundryでは効果なし）",
+          "values": "\"1\" で有効化",
+          "default": null,
+          "example": "export CLAUDE_CODE_ENABLE_FINE_GRAINED_TOOL_STREAMING=1",
           "links": [],
           "deprecated": false
         },
@@ -1566,6 +2126,21 @@
           "default": null,
           "example": "export DISABLE_PROMPT_CACHING_SONNET=1",
           "links": [],
+          "deprecated": false
+        },
+        {
+          "name": "ENABLE_PROMPT_CACHING_1H_BEDROCK",
+          "description": "Bedrockで1時間のプロンプトキャッシュTTLをリクエスト",
+          "detail": "Bedrock使用時にデフォルトの5分ではなく1時間のキャッシュTTLをリクエストする。Bedrock専用",
+          "values": "\"1\" で有効化",
+          "default": "5分",
+          "example": "export ENABLE_PROMPT_CACHING_1H_BEDROCK=1",
+          "links": [
+            {
+              "label": "Bedrock",
+              "url": "https://code.claude.com/docs/en/amazon-bedrock"
+            }
+          ],
           "deprecated": false
         }
       ]
