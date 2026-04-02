@@ -13,7 +13,7 @@
           "tags": [],
           "tips": [
             "/batch <instruction> — 大規模変更を並列実行。5〜30ユニットに分解し、隔離 git worktree でエージェント起動→実装→テスト→PR 作成",
-            "/claude-api — 言語別 API リファレンスと Agent SDK をロード。anthropic インポート検出時に自動起動",
+            "/claude-api — 言語別（Python, TypeScript, Java, Go, Ruby, C#, PHP, cURL）API リファレンスと Agent SDK をロード。anthropic / @anthropic-ai/sdk / claude_agent_sdk インポート検出時に自動起動",
             "/debug [description] — デバッグログの読み取りとトラブルシュート。--debug なしの場合 /debug 実行時点からログ記録開始",
             "/loop [interval] <prompt> — プロンプトを指定間隔で繰り返し実行。デプロイ監視に有用",
             "/simplify [focus] — 3つのレビューエージェントを並列起動し品質チェック→修正を適用"
@@ -129,7 +129,7 @@
           "id": "yaml-frontmatter",
           "title": "YAML フロントマター要件",
           "summary": "すべてのフィールドはオプション。description は推奨。name は64文字以下で小文字+数字+ハイフンのみ。",
-          "content": "Agent Skills（agentskills.io）オープンスタンダードに準拠。Claude Code は呼び出し制御、サブエージェント実行、動的コンテキスト注入を拡張。全フィールドはオプション。description のみ推奨。\n\n主要フィールド: name（64文字以下、小文字+数字+ハイフン）、description（1024文字以下）、argument-hint、disable-model-invocation、user-invocable、allowed-tools、model、effort（low/medium/high/max。max は Opus 4.6 のみ）、context（fork でサブエージェント実行）、agent（サブエージェント型）、hooks（ライフサイクルフック。once で1回のみ実行）、paths（glob で自動ロードを制限）、shell（bash または powershell）。\n\nSKILL.md は500行以下推奨。超える場合は段階的開示パターンで分割。",
+          "content": "Agent Skills（agentskills.io）オープンスタンダードに準拠。Claude Code は呼び出し制御、サブエージェント実行、動的コンテキスト注入を拡張。全フィールドはオプション。description のみ推奨。\n\n主要フィールド: name（64文字以下、小文字+数字+ハイフン）、description（1024文字以下）、argument-hint、disable-model-invocation、user-invocable、allowed-tools、model、effort（low/medium/high/max。max は Opus 4.6 のみ）、context（fork でサブエージェント実行）、agent（サブエージェント型）、hooks（ライフサイクルフック。once で1回のみ実行）、paths（glob で自動ロードを制限）、shell（!`command` ブロックで使用するシェル。bash（デフォルト）または powershell。powershell は CLAUDE_CODE_USE_POWERSHELL_TOOL=1 が必要）。\n\nSKILL.md は500行以下推奨。超える場合は段階的開示パターンで分割。",
           "tags": [],
           "code": "---\nname: pdf-processing\ndescription: PDF からテキスト・テーブル抽出。PDF 関連の作業時に使用。\neffort: high\npaths: \"**/*.pdf, docs/**\"\n---\n\n# PDF 処理\n## クイックスタート\npdfplumber でテキスト抽出:\n```python\nimport pdfplumber\nwith pdfplumber.open(\"file.pdf\") as pdf:\n    text = pdf.pages[0].extract_text()\n```\n## 高度な機能\n**フォーム入力**: [FORMS.md](FORMS.md) を参照\n**API**: [REFERENCE.md](REFERENCE.md) を参照"
         },

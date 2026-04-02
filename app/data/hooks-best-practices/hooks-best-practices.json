@@ -65,6 +65,7 @@
           "tips": [
             "`PreToolUse` — ツール実行前に発火。危険コマンドのブロック、入力の書き換えに使用",
             "`PermissionRequest` — 権限ダイアログ表示時に発火。特定操作の自動承認/拒否に使用。非インタラクティブモード（-p）では発火しない → `PreToolUse` を使用",
+            "`PermissionDenied` — オートモード分類器がツール呼び出しを拒否した時に発火。`{retry: true}` を返すとモデルに再試行を許可。matcher はツール名にマッチ",
             "`UserPromptSubmit` — ユーザーがプロンプトを送信した時に発火。プロンプトのフィルタリングに使用",
             "`Stop` — Claude が応答を完了した時に発火。タスク完了の検証に使用。ユーザー割り込みでは発火しない（API エラー時は StopFailure が発火）",
             "`SubagentStop` — サブエージェント完了時に発火。サブエージェント出力の検証に使用",
@@ -105,7 +106,7 @@
           "tags": [],
           "steps": [
             {
-              "phase": "PreToolUse / PostToolUse / PostToolUseFailure / PermissionRequest",
+              "phase": "PreToolUse / PostToolUse / PostToolUseFailure / PermissionRequest / PermissionDenied",
               "description": "ツール名にマッチ",
               "example": "Bash, Edit, Write, Read, Glob, Grep, Agent, WebFetch, WebSearch, Notebook.*, mcp__github__.*"
             },
@@ -252,6 +253,11 @@
               "example": "{\"hookSpecificOutput\": {\"hookEventName\": \"PermissionRequest\", \"decision\": {\"behavior\": \"allow|deny\", \"updatedPermissions\": [{\"type\": \"setMode\", \"mode\": \"acceptEdits\", \"destination\": \"session\"}]}}}"
             },
             {
+              "phase": "PermissionDenied",
+              "description": "hookSpecificOutput の retry で再試行を許可。true を返すとモデルが拒否されたツール呼び出しを再試行できる",
+              "example": "{\"hookSpecificOutput\": {\"hookEventName\": \"PermissionDenied\", \"retry\": true}}"
+            },
+            {
               "phase": "Stop / SubagentStop / UserPromptSubmit / PostToolUse / PostToolUseFailure / ConfigChange",
               "description": "トップレベルの decision で block を指定し、reason でフィードバックを返す。PostToolUse / PostToolUseFailure はアクション実行後のため、ブロックではなくフィードバック提供として機能する",
               "example": "{\"decision\": \"block\", \"reason\": \"未完了のタスクがあります\"}"
@@ -375,7 +381,7 @@
           "id": "if-field",
           "title": "if フィールドでツール引数を条件フィルタする",
           "summary": "matcher はツール名でフィルタするが、if フィールドはツール名+引数パターンでさらに絞り込める（v2.1.85+）。",
-          "content": "`if` フィールドはパーミッションルール構文を使って、ツール名と引数の組み合わせでフックの発火を制御します。`matcher` がグループレベルでツール名のみをフィルタするのに対し、`if` はハンドラレベルでツール呼び出しの引数まで条件指定でき、hook プロセス自体の起動をスキップできます。\n\n`if` はツールイベント（`PreToolUse`, `PostToolUse`, `PostToolUseFailure`, `PermissionRequest`）でのみ使用可能です。他のイベントに指定するとフックが実行されなくなります。",
+          "content": "`if` フィールドはパーミッションルール構文を使って、ツール名と引数の組み合わせでフックの発火を制御します。`matcher` がグループレベルでツール名のみをフィルタするのに対し、`if` はハンドラレベルでツール呼び出しの引数まで条件指定でき、hook プロセス自体の起動をスキップできます。\n\n`if` はツールイベント（`PreToolUse`, `PostToolUse`, `PostToolUseFailure`, `PermissionRequest`, `PermissionDenied`）でのみ使用可能です。他のイベントに指定するとフックが実行されなくなります。",
           "tags": [],
           "code": "{\n  \"hooks\": {\n    \"PreToolUse\": [\n      {\n        \"matcher\": \"Bash\",\n        \"hooks\": [\n          {\n            \"type\": \"command\",\n            \"if\": \"Bash(git *)\",\n            \"command\": \"\\\"$CLAUDE_PROJECT_DIR\\\"/.claude/hooks/check-git-policy.sh\"\n          }\n        ]\n      },\n      {\n        \"matcher\": \"Edit\",\n        \"hooks\": [\n          {\n            \"type\": \"command\",\n            \"if\": \"Edit(*.ts)\",\n            \"command\": \"\\\"$CLAUDE_PROJECT_DIR\\\"/.claude/hooks/check-ts-style.sh\"\n          }\n        ]\n      }\n    ]\n  }\n}",
           "tips": [
