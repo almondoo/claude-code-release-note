@@ -5,7 +5,7 @@ import { HeaderTags } from "~/components/header-tags";
 import { ParagraphList, renderInlineMarkdown } from "~/components/paragraph-list";
 import { TipsList } from "~/components/tips-list";
 
-import type { BPItem, PromptItem, HooksItem } from "./constants";
+import type { AnyItem, BPItem, PromptItem, HooksItem } from "./constants";
 import { CATEGORY_CONFIGS } from "./constants";
 
 // ---------------------------------------------------------------------------
@@ -488,9 +488,7 @@ const HooksDetailContent = ({
                   <div className="text-[13px] text-slate-300 leading-relaxed mb-2">
                     {renderInlineMarkdown(step.description)}
                   </div>
-                  <div className="text-[12px] text-slate-400 italic">
-                    {step.example}
-                  </div>
+                  <div className="text-[12px] text-slate-400 italic">{step.example}</div>
                 </div>
               </div>
             ))}
@@ -571,7 +569,7 @@ export const DetailModal = ({
   reducedMotion,
 }: {
   categoryId: string;
-  item: any;
+  item: AnyItem;
   sectionName: string;
   accentColor: string;
   onClose: () => void;
@@ -581,7 +579,7 @@ export const DetailModal = ({
     case "best-practices":
       return (
         <BPDetailContent
-          item={item}
+          item={item as BPItem}
           sectionName={sectionName}
           accentColor={accentColor}
           onClose={onClose}
@@ -591,7 +589,7 @@ export const DetailModal = ({
     case "prompting":
       return (
         <PromptDetailContent
-          item={item}
+          item={item as PromptItem}
           sectionName={sectionName}
           accentColor={accentColor}
           onClose={onClose}
@@ -601,7 +599,7 @@ export const DetailModal = ({
     case "skills":
       return (
         <SkillDetailContent
-          item={item}
+          item={item as BPItem}
           sectionName={sectionName}
           accentColor={accentColor}
           onClose={onClose}
@@ -611,7 +609,7 @@ export const DetailModal = ({
     case "hooks":
       return (
         <HooksDetailContent
-          item={item}
+          item={item as HooksItem}
           sectionName={sectionName}
           accentColor={accentColor}
           onClose={onClose}

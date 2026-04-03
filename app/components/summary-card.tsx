@@ -20,7 +20,6 @@ export const SummaryCard = ({
   description,
   tags,
   accentColor,
-  sectionName,
   onClick,
   tagColors,
   headerExtra,

@@ -1,0 +1,242 @@
+{
+  "sections": [
+    {
+      "id": "auth",
+      "name": "必須（認証）",
+      "description": "認証に関する環境変数",
+      "items": [
+        {
+          "id": "env-anthropic-api-key",
+          "title": "ANTHROPIC_API_KEY",
+          "summary": "API キー",
+          "content": "API キー利用時のみ設定が必要です。OAuth（サブスクリプション）利用時は不要です。\n\n設定すると OAuth より優先されます。古いキーが残っていると「organization disabled」エラーの原因になるため注意してください。",
+          "tags": ["必須"],
+          "example": "export ANTHROPIC_API_KEY=sk-ant-..."
+        }
+      ]
+    },
+    {
+      "id": "cloud",
+      "name": "クラウドプロバイダー",
+      "description": "Bedrock / Vertex AI / Foundry 利用時に設定",
+      "items": [
+        {
+          "id": "env-use-bedrock",
+          "title": "CLAUDE_CODE_USE_BEDROCK",
+          "summary": "Amazon Bedrock を有効化",
+          "content": "`1` に設定すると Amazon Bedrock 経由で Claude を利用します。\n\n`AWS_REGION` と `AWS_PROFILE`（SSO 利用時）も併せて設定してください。",
+          "tags": ["Bedrock"],
+          "example": "export CLAUDE_CODE_USE_BEDROCK=1\nexport AWS_REGION=us-east-1"
+        },
+        {
+          "id": "env-aws-region",
+          "title": "AWS_REGION",
+          "summary": "AWS リージョン",
+          "content": "Amazon Bedrock 利用時のリージョンを指定します。\n\n例: `us-east-1`",
+          "tags": ["Bedrock"],
+          "example": "export AWS_REGION=us-east-1"
+        },
+        {
+          "id": "env-aws-profile",
+          "title": "AWS_PROFILE",
+          "summary": "AWS CLI プロファイル（SSO 利用時）",
+          "content": "AWS SSO を使用している場合に、CLI プロファイルを指定します。",
+          "tags": ["Bedrock"],
+          "example": "export AWS_PROFILE=my-sso-profile"
+        },
+        {
+          "id": "env-use-vertex",
+          "title": "CLAUDE_CODE_USE_VERTEX",
+          "summary": "Google Vertex AI を有効化",
+          "content": "`1` に設定すると Google Vertex AI 経由で Claude を利用します。\n\n`CLOUD_ML_REGION` と `ANTHROPIC_VERTEX_PROJECT_ID` も併せて設定してください。",
+          "tags": ["Vertex"],
+          "example": "export CLAUDE_CODE_USE_VERTEX=1\nexport CLOUD_ML_REGION=us-east3"
+        },
+        {
+          "id": "env-cloud-ml-region",
+          "title": "CLOUD_ML_REGION",
+          "summary": "Vertex AI リージョン",
+          "content": "Google Vertex AI 利用時のリージョンを指定します。\n\n例: `us-east3`, `global`",
+          "tags": ["Vertex"],
+          "example": "export CLOUD_ML_REGION=us-east3"
+        },
+        {
+          "id": "env-vertex-project-id",
+          "title": "ANTHROPIC_VERTEX_PROJECT_ID",
+          "summary": "GCP プロジェクト ID",
+          "content": "Google Vertex AI 利用時の GCP プロジェクト ID を指定します。",
+          "tags": ["Vertex"],
+          "example": "export ANTHROPIC_VERTEX_PROJECT_ID=my-project-123"
+        },
+        {
+          "id": "env-use-foundry",
+          "title": "CLAUDE_CODE_USE_FOUNDRY",
+          "summary": "Microsoft Foundry を有効化",
+          "content": "`1` に設定すると Microsoft Foundry 経由で Claude を利用します。\n\n`ANTHROPIC_FOUNDRY_BASE_URL` も併せて設定してください。",
+          "tags": ["Foundry"],
+          "example": "export CLAUDE_CODE_USE_FOUNDRY=1"
+        },
+        {
+          "id": "env-foundry-base-url",
+          "title": "ANTHROPIC_FOUNDRY_BASE_URL",
+          "summary": "Foundry エンドポイント",
+          "content": "Microsoft Foundry のベース URL を指定します。",
+          "tags": ["Foundry"],
+          "example": "export ANTHROPIC_FOUNDRY_BASE_URL=https://..."
+        }
+      ]
+    },
+    {
+      "id": "recommended",
+      "name": "推奨設定",
+      "description": "日常で効果が大きい推奨環境変数",
+      "items": [
+        {
+          "id": "env-anthropic-model",
+          "title": "ANTHROPIC_MODEL",
+          "summary": "デフォルトモデル",
+          "content": "毎回 `/model` で切り替えるのを省略できます。\n\n`sonnet` が費用対効果のバランスが良いとされています。\n\nsettings.json で設定するのが推奨です。",
+          "tags": ["推奨"],
+          "example": "export ANTHROPIC_MODEL=sonnet"
+        },
+        {
+          "id": "env-effort-level",
+          "title": "CLAUDE_CODE_EFFORT_LEVEL",
+          "summary": "推論努力レベル",
+          "content": "`low` / `medium` / `high` / `max` / `auto` から選択できます。\n\n`auto` がおすすめです。タスクの複雑度に応じて自動で調整してくれます。",
+          "tags": ["推奨"],
+          "values": "low / medium / high / max / auto",
+          "example": "export CLAUDE_CODE_EFFORT_LEVEL=auto"
+        },
+        {
+          "id": "env-disable-telemetry",
+          "title": "DISABLE_TELEMETRY",
+          "summary": "Statsig テレメトリを無効化",
+          "content": "`1` に設定すると Statsig テレメトリデータの送信を無効化します。\n\nプライバシーを重視する場合に設定してください。",
+          "tags": [],
+          "example": "export DISABLE_TELEMETRY=1"
+        },
+        {
+          "id": "env-disable-error-reporting",
+          "title": "DISABLE_ERROR_REPORTING",
+          "summary": "Sentry エラー報告を無効化",
+          "content": "`1` に設定すると Sentry へのエラー報告を無効化します。\n\nプライバシーを重視する場合に設定してください。",
+          "tags": [],
+          "example": "export DISABLE_ERROR_REPORTING=1"
+        }
+      ]
+    },
+    {
+      "id": "performance",
+      "name": "パフォーマンスチューニング",
+      "description": "必要な場合のみ変更する設定",
+      "items": [
+        {
+          "id": "env-api-timeout",
+          "title": "API_TIMEOUT_MS",
+          "summary": "API タイムアウト",
+          "content": "API リクエストのタイムアウト時間をミリ秒で指定します。\n\nデフォルトは 600000（10分）です。大規模なコード生成でタイムアウトする場合に増加させてください。",
+          "tags": [],
+          "defaultValue": "600000（10分）",
+          "example": "export API_TIMEOUT_MS=900000"
+        },
+        {
+          "id": "env-max-output-tokens",
+          "title": "CLAUDE_CODE_MAX_OUTPUT_TOKENS",
+          "summary": "最大出力トークン",
+          "content": "Claude の出力トークン数の上限を指定します。\n\n長い出力が途中で切れる場合に増加させてください。",
+          "tags": [],
+          "example": "export CLAUDE_CODE_MAX_OUTPUT_TOKENS=32000"
+        },
+        {
+          "id": "env-autocompact-pct",
+          "title": "CLAUDE_AUTOCOMPACT_PCT_OVERRIDE",
+          "summary": "自動圧縮閾値",
+          "content": "コンテキストウィンドウの何%で自動圧縮を実行するかを指定します（1〜100）。\n\nデフォルトは約95%です。圧縮タイミングを早めたい場合に下げてください。",
+          "tags": [],
+          "defaultValue": "約95%",
+          "values": "1〜100",
+          "example": "export CLAUDE_AUTOCOMPACT_PCT_OVERRIDE=80"
+        },
+        {
+          "id": "env-bash-timeout",
+          "title": "BASH_DEFAULT_TIMEOUT_MS",
+          "summary": "bash タイムアウト",
+          "content": "Bash ツールのデフォルトタイムアウト時間をミリ秒で指定します。\n\nビルドやテストが長い場合に増加させてください。",
+          "tags": [],
+          "example": "export BASH_DEFAULT_TIMEOUT_MS=300000"
+        },
+        {
+          "id": "env-max-concurrency",
+          "title": "CLAUDE_CODE_MAX_TOOL_USE_CONCURRENCY",
+          "summary": "ツール並列実行数",
+          "content": "ツールの並列実行数を指定します。\n\nデフォルトは 10 です。サブエージェントの並列度を調整したい場合に変更してください。",
+          "tags": [],
+          "defaultValue": "10",
+          "example": "export CLAUDE_CODE_MAX_TOOL_USE_CONCURRENCY=5"
+        }
+      ]
+    },
+    {
+      "id": "network",
+      "name": "ネットワーク・プロキシ",
+      "description": "企業環境でのネットワーク設定",
+      "items": [
+        {
+          "id": "env-https-proxy",
+          "title": "HTTPS_PROXY",
+          "summary": "HTTPS プロキシ URL",
+          "content": "企業のプロキシ環境で HTTPS 通信を中継するプロキシの URL を指定します。",
+          "tags": ["企業向け"],
+          "example": "export HTTPS_PROXY=http://proxy.example.com:8080"
+        },
+        {
+          "id": "env-no-proxy",
+          "title": "NO_PROXY",
+          "summary": "プロキシバイパスドメイン",
+          "content": "プロキシを経由しないドメインをカンマ区切りで指定します。",
+          "tags": ["企業向け"],
+          "example": "export NO_PROXY=localhost,127.0.0.1,.internal.com"
+        },
+        {
+          "id": "env-extra-ca-certs",
+          "title": "NODE_EXTRA_CA_CERTS",
+          "summary": "カスタム CA 証明書のパス",
+          "content": "企業の独自 CA 証明書を使用する場合にパスを指定します。\n\n自己署名証明書を使うプロキシ環境で必要です。",
+          "tags": ["企業向け"],
+          "example": "export NODE_EXTRA_CA_CERTS=/path/to/ca-bundle.crt"
+        },
+        {
+          "id": "env-client-cert",
+          "title": "CLAUDE_CODE_CLIENT_CERT",
+          "summary": "mTLS 用クライアント証明書",
+          "content": "mTLS（相互 TLS 認証）が必要な環境で、クライアント証明書のパスを指定します。",
+          "tags": ["企業向け"],
+          "example": "export CLAUDE_CODE_CLIENT_CERT=/path/to/client.crt"
+        },
+        {
+          "id": "env-client-key",
+          "title": "CLAUDE_CODE_CLIENT_KEY",
+          "summary": "mTLS 用秘密鍵",
+          "content": "mTLS（相互 TLS 認証）が必要な環境で、クライアント秘密鍵のパスを指定します。",
+          "tags": ["企業向け"],
+          "example": "export CLAUDE_CODE_CLIENT_KEY=/path/to/client.key"
+        }
+      ]
+    },
+    {
+      "id": "settings-method",
+      "name": "設定方法",
+      "description": "環境変数の設定手段",
+      "items": [
+        {
+          "id": "env-settings-json",
+          "title": "settings.json での設定",
+          "summary": "チーム全体への展開に推奨",
+          "content": "環境変数はシェル（.zshrc 等）または `~/.claude/settings.json` の `env` フィールドで設定できます。\n\nチーム全体への展開には settings.json が推奨です。プロジェクトレベルの `.claude/settings.json` にも記述可能です。\n\n```json\n{\n  \"env\": {\n    \"ANTHROPIC_MODEL\": \"sonnet\",\n    \"CLAUDE_CODE_EFFORT_LEVEL\": \"auto\",\n    \"DISABLE_TELEMETRY\": \"1\"\n  }\n}\n```",
+          "tags": ["推奨"]
+        }
+      ]
+    }
+  ]
+}

@@ -1,6 +1,4 @@
 export const HeaderTags = ({
-  sectionName,
-  accentColor,
   tags,
   tagColors,
 }: {

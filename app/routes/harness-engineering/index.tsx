@@ -32,7 +32,8 @@ export const meta = (): Array<{ title?: string; name?: string; content?: string 
     { title: "ハーネス＆コンテキストエンジニアリング — Claude Code" },
     {
       name: "description",
-      content: "Claude Code のハーネス設計（コンテキスト管理含む）を最適化するための包括的リファレンス",
+      content:
+        "Claude Code のハーネス設計（コンテキスト管理含む）を最適化するための包括的リファレンス",
     },
   ];
 };
@@ -172,10 +173,7 @@ const HarnessEngineering = (): React.JSX.Element => {
 
         {/* Empty state */}
         {visibleItemCount === 0 && (
-          <EmptyState
-            message="条件に一致するトピックはありません"
-            reducedMotion={reducedMotion}
-          />
+          <EmptyState message="条件に一致するトピックはありません" reducedMotion={reducedMotion} />
         )}
 
         {/* Footer */}

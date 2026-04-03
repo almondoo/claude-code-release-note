@@ -85,7 +85,13 @@ const renderNestedList = (
 
       let childList: React.ReactNode = null;
       if (i < items.length && items[i].depth > minDepth) {
-        const child = renderNestedList(items, i, items[i].depth, textClass, `${keyPrefix}-${lis.length}`);
+        const child = renderNestedList(
+          items,
+          i,
+          items[i].depth,
+          textClass,
+          `${keyPrefix}-${lis.length}`,
+        );
         childList = child.element;
         i = child.endIdx;
       }
@@ -105,9 +111,7 @@ const renderNestedList = (
   const listStyle = listType === "ol" ? "list-decimal" : "list-disc";
 
   return {
-    element: (
-      <Tag className={`${listStyle} pl-5 m-0 flex flex-col gap-1`}>{lis}</Tag>
-    ),
+    element: <Tag className={`${listStyle} pl-5 m-0 flex flex-col gap-1`}>{lis}</Tag>,
     endIdx: i,
   };
 };
@@ -215,7 +219,10 @@ export const ParagraphList = ({
           const textClass = "text-[14px] leading-[1.8] text-slate-300 font-sans";
           return (
             <div key={i} className="m-0">
-              {renderNestedList(block.items, 0, block.items[0].depth, textClass, `list-${i}`).element}
+              {
+                renderNestedList(block.items, 0, block.items[0].depth, textClass, `list-${i}`)
+                  .element
+              }
             </div>
           );
         }

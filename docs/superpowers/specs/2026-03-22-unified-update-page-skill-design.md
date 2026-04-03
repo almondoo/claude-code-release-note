@@ -19,29 +19,29 @@
 
 ### page-id 一覧
 
-| page-id | ページ名 | データディレクトリ |
-|---------|---------|-------------------|
-| `release-note` | リリースノート | `app/data/releases/` |
-| `commands` | コマンド一覧 | `app/data/commands/` |
-| `directory` | 設定ガイド | `app/data/directory/` |
-| `plugins` | 公式プラグイン | `app/data/plugins/` |
-| `env-vars` | 環境変数 | `app/data/env-vars/` |
-| `setup` | セットアップ | `app/data/setup/` |
-| `best-practices` | ベストプラクティス | `app/data/best-practices/` |
-| `prompting` | プロンプト | `app/data/prompting/` |
-| `skill-best-practices` | スキル設計 | `app/data/skill-best-practices/` |
-| `hooks-best-practices` | Hooks | `app/data/hooks-best-practices/` |
+| page-id                | ページ名           | データディレクトリ               |
+| ---------------------- | ------------------ | -------------------------------- |
+| `release-note`         | リリースノート     | `app/data/releases/`             |
+| `commands`             | コマンド一覧       | `app/data/commands/`             |
+| `directory`            | 設定ガイド         | `app/data/directory/`            |
+| `plugins`              | 公式プラグイン     | `app/data/plugins/`              |
+| `env-vars`             | 環境変数           | `app/data/env-vars/`             |
+| `setup`                | セットアップ       | `app/data/setup/`                |
+| `best-practices`       | ベストプラクティス | `app/data/best-practices/`       |
+| `prompting`            | プロンプト         | `app/data/prompting/`            |
+| `skill-best-practices` | スキル設計         | `app/data/skill-best-practices/` |
+| `hooks-best-practices` | Hooks              | `app/data/hooks-best-practices/` |
 
 ### 対象外ページ
 
 以下のページは公式ドキュメントに対応するソースがなく、独自コンテンツのためスキルの対象外とする:
 
-| ページ | 除外理由 |
-|--------|---------|
-| `token-usage` | 独自調査・実測データに基づくコンテンツ |
-| `llm-infra-guide` | 独自のインフラ解説コンテンツ |
-| `hands-on` / `hands-on/:topic` | 独自のハンズオン教材 |
-| `harness-engineering` | 複数ドキュメントの横断的な独自解説 |
+| ページ                         | 除外理由                               |
+| ------------------------------ | -------------------------------------- |
+| `token-usage`                  | 独自調査・実測データに基づくコンテンツ |
+| `llm-infra-guide`              | 独自のインフラ解説コンテンツ           |
+| `hands-on` / `hands-on/:topic` | 独自のハンズオン教材                   |
+| `harness-engineering`          | 複数ドキュメントの横断的な独自解説     |
 
 ### 全ページスキャンの動作仕様
 
@@ -66,12 +66,12 @@
 
 #### 並列数の目安
 
-| 更新ページ数 | 推奨並列数 | 理由 |
-|-------------|-----------|------|
-| 1 | 1（直列） | 並列化不要 |
-| 2-3 | 2-3（全並列） | エージェント数が少なくオーバーヘッドなし |
-| 4-6 | 3 | WebFetch の同時実行数とコンテキスト効率のバランス |
-| 7-10 | 3-4 | 過度な並列はトークンコストが増大するため上限4を推奨 |
+| 更新ページ数 | 推奨並列数    | 理由                                                |
+| ------------ | ------------- | --------------------------------------------------- |
+| 1            | 1（直列）     | 並列化不要                                          |
+| 2-3          | 2-3（全並列） | エージェント数が少なくオーバーヘッドなし            |
+| 4-6          | 3             | WebFetch の同時実行数とコンテキスト効率のバランス   |
+| 7-10         | 3-4           | 過度な並列はトークンコストが増大するため上限4を推奨 |
 
 #### 並列実行フロー
 
@@ -151,28 +151,28 @@ argument-hint: "<page-id> (例: release-note, commands, directory, plugins, env-
 
 更新対象のアイテムが既存データに存在するかを、ページ固有のキーで判定する:
 
-| page-id | 一意キー | 判定方法 |
-|---------|---------|---------|
-| `release-note` | `v`（バージョン番号） | `releases-*.json` 内に同一 `v` が存在するか |
-| `commands` | `name`（コマンド名） | 各 JSON 内に同一 `name` が存在するか |
-| `directory` | `path`（ファイルパス） | `sections[].entries[]` 内に同一 `path` が存在するか |
-| `plugins` | `name`（プラグイン名） | `categories[].plugins[]` 内に同一 `name` が存在するか |
-| `env-vars` | `name`（変数名） | `categories[].vars[]` 内に同一 `name` が存在するか |
-| `setup` | ファイル単位 | 該当する `setup-*.json` の内容を比較 |
-| `best-practices` | `id`（アイテムID） | `sections[].items[]` 内に同一 `id` が存在するか |
-| `prompting` | `id`（アイテムID） | `sections[].items[]` 内に同一 `id` が存在するか |
-| `skill-best-practices` | `id`（アイテムID） | `sections[].items[]` 内に同一 `id` が存在するか |
-| `hooks-best-practices` | `id`（アイテムID） | `sections[].items[]` 内に同一 `id` が存在するか |
+| page-id                | 一意キー               | 判定方法                                              |
+| ---------------------- | ---------------------- | ----------------------------------------------------- |
+| `release-note`         | `v`（バージョン番号）  | `releases-*.json` 内に同一 `v` が存在するか           |
+| `commands`             | `name`（コマンド名）   | 各 JSON 内に同一 `name` が存在するか                  |
+| `directory`            | `path`（ファイルパス） | `sections[].entries[]` 内に同一 `path` が存在するか   |
+| `plugins`              | `name`（プラグイン名） | `categories[].plugins[]` 内に同一 `name` が存在するか |
+| `env-vars`             | `name`（変数名）       | `categories[].vars[]` 内に同一 `name` が存在するか    |
+| `setup`                | ファイル単位           | 該当する `setup-*.json` の内容を比較                  |
+| `best-practices`       | `id`（アイテムID）     | `sections[].items[]` 内に同一 `id` が存在するか       |
+| `prompting`            | `id`（アイテムID）     | `sections[].items[]` 内に同一 `id` が存在するか       |
+| `skill-best-practices` | `id`（アイテムID）     | `sections[].items[]` 内に同一 `id` が存在するか       |
+| `hooks-best-practices` | `id`（アイテムID）     | `sections[].items[]` 内に同一 `id` が存在するか       |
 
 #### 2. 操作の判定
 
 重複検出の結果に応じて、以下の3パターンのいずれかを適用する:
 
-| 状態 | 操作 | 説明 |
-|------|------|------|
-| **存在しない** | 追加 | 新規アイテムとしてJSONに追加 |
-| **存在し、内容が異なる** | 更新 | 既存アイテムを上書き更新 |
-| **存在し、内容が同一** | スキップ | 変更なし。ログに「変更なし」と報告 |
+| 状態                     | 操作     | 説明                               |
+| ------------------------ | -------- | ---------------------------------- |
+| **存在しない**           | 追加     | 新規アイテムとしてJSONに追加       |
+| **存在し、内容が異なる** | 更新     | 既存アイテムを上書き更新           |
+| **存在し、内容が同一**   | スキップ | 変更なし。ログに「変更なし」と報告 |
 
 #### 3. 実行前後の確認
 
@@ -219,14 +219,14 @@ Step 6 の報告では以下を明示する:
 
 ### 共通 Common Mistakes
 
-| ミス | 対処 |
-|------|------|
-| CHANGELOG の AI 要約を鵜呑みにする | 必ず公式ドキュメントで裏取り |
-| `\n` で段落を区切る | `\n\n` を使用（ParagraphList の仕様） |
-| 公式ドキュメントにない情報を追加 | 推測で追加しない。不明な場合は `AskUserQuestion` |
-| 旧 URL 形式を使用 | `https://code.claude.com/docs/en/` 形式に統一 |
+| ミス                               | 対処                                             |
+| ---------------------------------- | ------------------------------------------------ |
+| CHANGELOG の AI 要約を鵜呑みにする | 必ず公式ドキュメントで裏取り                     |
+| `\n` で段落を区切る                | `\n\n` を使用（ParagraphList の仕様）            |
+| 公式ドキュメントにない情報を追加   | 推測で追加しない。不明な場合は `AskUserQuestion` |
+| 旧 URL 形式を使用                  | `https://code.claude.com/docs/en/` 形式に統一    |
 
-## ページ別設定ファイル（pages/*.md）の共通テンプレート
+## ページ別設定ファイル（pages/\*.md）の共通テンプレート
 
 ```markdown
 # <ページ名>
@@ -234,13 +234,15 @@ Step 6 の報告では以下を明示する:
 ## データファイル
 
 | ファイル | 内容 |
-|---------|------|
+| -------- | ---- |
+
 （ファイルパスと役割）
 
 ## 情報ソース
 
 | ステップ | 内容 | ソースURL |
-|---------|------|-----------|
+| -------- | ---- | --------- |
+
 （ページ固有のソースURL一覧。全URLは https://code.claude.com/docs/en/ 形式）
 
 ## データスキーマ
@@ -265,8 +267,9 @@ Step 6 の報告では以下を明示する:
 ### release-note.md（← add-release）
 
 移行する内容:
+
 - 情報ソース（CHANGELOG + Docs の2段階取得）
-- releases-*.json と version-details-*.json のJSONフォーマット
+- releases-_.json と version-details-_.json のJSONフォーマット
 - タグ一覧（`badge.tsx` と一致する全タグに更新。既存スキルの11種から実際のコードベースに合わせる）
 - category の例一覧
 - ドキュメントリンクの記述ルール（リンクを入れる/入れない基準、フラグメント付き URL の書き方）
@@ -278,6 +281,7 @@ Step 6 の報告では以下を明示する:
 - ページ固有の Common Mistakes（配列途中挿入、t不一致、detail丸写し、重複追加等）
 
 共通部分として SKILL.md に移動:
+
 - 翻訳ルール（技術用語維持、変更種別の接頭辞）
 - 検証チェックリスト
 - ドキュメントリンクの Markdown 記法（detail 内でのインラインリンク使用）
@@ -285,6 +289,7 @@ Step 6 の報告では以下を明示する:
 ### commands.md（← update-commands）
 
 移行する内容:
+
 - 情報ソース（interactive-mode + cli-reference + CHANGELOG）
 - 3ファイル構造（commands-categories.json, commands-cli.json, commands-shortcuts.json）
 - コマンドの分類ルール（スラッシュコマンド/CLIサブコマンド/ショートカット/スキル）
@@ -296,12 +301,14 @@ Step 6 の報告では以下を明示する:
 - ページ固有の Common Mistakes（CLI をスラッシュコマンドに分類、constants.tsx 更新忘れ等）
 
 共通部分として SKILL.md に移動:
+
 - 翻訳ルール
 - 検証チェックリスト
 
 ### directory.md（← update-directory）
 
 移行する内容:
+
 - 情報ソース（settings, memory, hooks, mcp, skills, sub-agents, overview, CHANGELOG, 差分確認の9ステップ）
 - directory-structure.json の全体構造（sections, precedence, commitGuide, skillsVsAgents）
 - エントリのフィールド定義（path, type, name, description, detail, usage, bestPractice, vcs, recommended）
@@ -311,6 +318,7 @@ Step 6 の報告では以下を明示する:
 - ページ固有の Common Mistakes（公式Docsにない設定追加、vcs 間違い、commitGuide 未更新等）
 
 共通部分として SKILL.md に移動:
+
 - 翻訳ルール
 - 検証チェックリスト
 

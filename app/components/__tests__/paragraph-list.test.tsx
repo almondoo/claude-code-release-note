@@ -1,11 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { render, screen } from "@testing-library/react";
-import {
-  renderInlineMarkdown,
-  parseListLine,
-  parseHeading,
-  parseBlocks,
-} from "../paragraph-list";
+import { render } from "@testing-library/react";
+import { renderInlineMarkdown, parseListLine, parseHeading, parseBlocks } from "../paragraph-list";
 
 /* ================================================================
  *  parseHeading
@@ -170,18 +165,14 @@ describe("renderInlineMarkdown", () => {
   });
 
   it("外部リンクに target=_blank を付与する", () => {
-    const { container } = render(
-      <p>{renderInlineMarkdown("[外部](https://example.com)")}</p>,
-    );
+    const { container } = render(<p>{renderInlineMarkdown("[外部](https://example.com)")}</p>);
     const link = container.querySelector("a");
     expect(link).toHaveAttribute("target", "_blank");
     expect(link).toHaveAttribute("rel", "noopener noreferrer");
   });
 
   it("内部リンクに target=_blank を付与しない", () => {
-    const { container } = render(
-      <p>{renderInlineMarkdown("[内部](/about)")}</p>,
-    );
+    const { container } = render(<p>{renderInlineMarkdown("[内部](/about)")}</p>);
     const link = container.querySelector("a");
     expect(link).not.toHaveAttribute("target");
   });

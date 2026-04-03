@@ -163,10 +163,7 @@ const Commands = (): React.JSX.Element => {
 
         {/* Empty state */}
         {visibleItemCount === 0 && (
-          <EmptyState
-            message="条件に一致するコマンドはありません"
-            reducedMotion={reducedMotion}
-          />
+          <EmptyState message="条件に一致するコマンドはありません" reducedMotion={reducedMotion} />
         )}
 
         <Footer />

@@ -1,0 +1,249 @@
+{
+  "sections": [
+    {
+      "id": "daily-slash",
+      "name": "毎日使うスラッシュコマンド",
+      "description": "公式 Best Practices で推奨されているコマンド",
+      "items": [
+        {
+          "id": "cmd-init",
+          "title": "/init",
+          "summary": "CLAUDE.md を自動生成",
+          "content": "プロジェクトのビルドシステム・テストフレームワーク・コードパターンを検出し、Claude に永続コンテキストを与えます。\n\n公式が「最初にやるべきこと」として明記しています。",
+          "tags": ["推奨"]
+        },
+        {
+          "id": "cmd-compact",
+          "title": "/compact [instructions]",
+          "summary": "会話を圧縮",
+          "content": "長いセッションで性能劣化を防ぐために、コンテキストウィンドウを圧縮します。\n\n公式が「コンテキストウィンドウ管理が最重要」と繰り返し強調しています。\n\n`/compact Focus on the API changes` のように焦点を指定することも可能です。",
+          "tags": ["推奨"]
+        },
+        {
+          "id": "cmd-clear",
+          "title": "/clear",
+          "summary": "コンテキストをリセット",
+          "content": "無関係なタスク間では必ず実行せよと公式 Best Practices に明記されています。\n\n2回以上修正指示を出しても直らない場合も、これでリセットして良いプロンプトで再開するのが推奨です。",
+          "tags": ["推奨"]
+        },
+        {
+          "id": "cmd-diff",
+          "title": "/diff",
+          "summary": "未コミット変更の diff ビューア",
+          "content": "コミット前の最終確認として日常的に使用します。\n\nステージ済み・未ステージの変更を一覧で確認できます。",
+          "tags": []
+        },
+        {
+          "id": "cmd-memory",
+          "title": "/memory",
+          "summary": "CLAUDE.md の編集",
+          "content": "プロジェクト固有のルール・ワークフローを管理するために使います。\n\n公式は「CLAUDE.md はコードのように定期レビュー・プルーニングせよ」と推奨しています。",
+          "tags": []
+        },
+        {
+          "id": "cmd-model",
+          "title": "/model [model]",
+          "summary": "モデル切替",
+          "content": "タスクの複雑さに応じて Opus / Sonnet / Haiku を使い分けます。\n\n複雑な設計タスクには Opus、単純な作業には Haiku が費用対効果に優れています。",
+          "tags": []
+        },
+        {
+          "id": "cmd-cost",
+          "title": "/cost",
+          "summary": "トークン使用量表示",
+          "content": "現在のセッションのトークン使用量とコストを表示します。\n\n特に API キー使用時のコスト管理に重要です。",
+          "tags": []
+        },
+        {
+          "id": "cmd-permissions",
+          "title": "/permissions",
+          "summary": "ツール権限の管理",
+          "content": "安全なコマンドを allowlist に追加して、承認プロンプトを減らすことができます。\n\n頻繁に使うコマンドの承認を省略し、作業効率を向上させます。",
+          "tags": []
+        }
+      ]
+    },
+    {
+      "id": "workflow",
+      "name": "ワークフロー系",
+      "description": "公式が明確に推奨するワークフローコマンド",
+      "items": [
+        {
+          "id": "cmd-rewind",
+          "title": "/rewind（Esc+Esc）",
+          "summary": "チェックポイントに巻き戻し",
+          "content": "公式が「リスクのある試みをし、失敗したら巻き戻せ」と推奨しています。\n\n会話・コード・両方を任意の時点に復元できます。`Esc+Esc` のキーボードショートカットでも呼び出せます。",
+          "tags": ["推奨"]
+        },
+        {
+          "id": "cmd-plan-mode",
+          "title": "Plan Mode（Shift+Tab）",
+          "summary": "調査→計画→実装の分離",
+          "content": "公式 Best Practices の中核パターンです。\n\n「Explore → Plan → Implement → Commit」の4フェーズワークフローを実現します。\n\n`Shift+Tab` で Plan モードと実装モードを切り替えられます。",
+          "tags": ["推奨"]
+        },
+        {
+          "id": "cmd-btw",
+          "title": "/btw <question>",
+          "summary": "サイド質問",
+          "content": "コンテキストを汚さずに確認できます。\n\n回答はオーバーレイ表示で会話履歴に入らないため、メインの作業フローを中断しません。",
+          "tags": []
+        },
+        {
+          "id": "cmd-doctor",
+          "title": "/doctor",
+          "summary": "インストール・設定の診断",
+          "content": "Claude Code の設定に問題がある場合のトラブルシューティングの最初の一手です。\n\n認証・権限・プラグインなどの設定状態を自動診断します。",
+          "tags": []
+        },
+        {
+          "id": "cmd-plugin",
+          "title": "/plugin",
+          "summary": "プラグイン管理",
+          "content": "プラグインのインストール・アンインストール・設定を管理します。\n\nDiscover タブで公式マーケットプレイスのプラグインをブラウズできます。",
+          "tags": []
+        }
+      ]
+    },
+    {
+      "id": "cli-flags",
+      "name": "よく使う CLI フラグ",
+      "description": "コマンドラインからの起動時に使うフラグ",
+      "items": [
+        {
+          "id": "flag-p",
+          "title": "-p \"query\"",
+          "summary": "非インタラクティブモード",
+          "content": "CI/CD・スクリプト統合の標準手段として公式が推奨しています。\n\n`--output-format json` と組み合わせて自動化に使います。\n\n例: `claude -p \"このコードのバグを修正して\" --output-format json`",
+          "tags": ["推奨"]
+        },
+        {
+          "id": "flag-continue",
+          "title": "-c / --continue",
+          "summary": "最新セッションを継続",
+          "content": "中断した作業を再開するために使います。\n\n公式は「セッションをブランチのように扱え」と推奨しています。",
+          "tags": []
+        },
+        {
+          "id": "flag-resume",
+          "title": "-r / --resume",
+          "summary": "名前付きセッションを再開",
+          "content": "`/rename` で名前を付けたセッションを指定して再開できます。\n\n複数の作業ブランチを管理する際に便利です。",
+          "tags": []
+        },
+        {
+          "id": "flag-model",
+          "title": "--model",
+          "summary": "モデル指定",
+          "content": "起動時にモデルを指定します。\n\n例: `claude --model opus` でタスクに応じた使い分けが可能です。",
+          "tags": []
+        },
+        {
+          "id": "flag-allowed-tools",
+          "title": "--allowedTools",
+          "summary": "ツールの自動許可",
+          "content": "バッチ実行時の承認を省略するために使います。\n\n例: `claude --allowedTools \"Bash(git log *)\" \"Read\"` で特定のツールを自動許可します。",
+          "tags": []
+        },
+        {
+          "id": "flag-max-turns",
+          "title": "--max-turns",
+          "summary": "ターン数制限",
+          "content": "非インタラクティブ実行の暴走を防止します。\n\n`-p` フラグと組み合わせて、最大ターン数を制限します。",
+          "tags": []
+        },
+        {
+          "id": "flag-max-budget",
+          "title": "--max-budget-usd",
+          "summary": "コスト上限",
+          "content": "API 使用時の予算管理に使います。\n\n指定した金額に達すると実行を停止します。",
+          "tags": []
+        },
+        {
+          "id": "flag-worktree",
+          "title": "-w / --worktree",
+          "summary": "git worktree で隔離実行",
+          "content": "並列セッション実行時の公式推奨パターンです。\n\n独立した git worktree でセッションを実行し、メインの作業ディレクトリに影響を与えません。",
+          "tags": ["推奨"]
+        },
+        {
+          "id": "flag-permission-mode",
+          "title": "--permission-mode auto",
+          "summary": "自動権限モード",
+          "content": "分類器が危険な操作のみブロックします。\n\n公式が「タスクの方向性を信頼し承認を減らしたい時」に推奨しています。",
+          "tags": []
+        },
+        {
+          "id": "flag-bare",
+          "title": "--bare",
+          "summary": "最小モード",
+          "content": "フック・プラグイン・MCP をスキップして起動します。\n\nスクリプトからの呼び出しを高速化する際に使います。",
+          "tags": []
+        }
+      ]
+    },
+    {
+      "id": "keyboard",
+      "name": "必須キーボードショートカット",
+      "description": "覚えておくべきショートカット",
+      "items": [
+        {
+          "id": "key-esc",
+          "title": "Esc",
+          "summary": "生成を停止",
+          "content": "コンテキストを保持したまま生成を停止して方向転換できます。\n\n間違った方向に進んでいると気づいた時に、すぐに止められます。",
+          "tags": []
+        },
+        {
+          "id": "key-esc-esc",
+          "title": "Esc + Esc",
+          "summary": "巻き戻しメニュー",
+          "content": "公式が繰り返し推奨するショートカットです。\n\nチェックポイント一覧が表示され、会話・コード・両方を任意の時点に巻き戻せます。",
+          "tags": ["推奨"]
+        },
+        {
+          "id": "key-shift-tab",
+          "title": "Shift+Tab",
+          "summary": "権限モード切替",
+          "content": "Plan → Auto → Default 等のモードを切り替えます。\n\n調査フェーズでは Plan モード、実装フェーズでは Auto モードに切り替えると効率的です。",
+          "tags": ["推奨"]
+        },
+        {
+          "id": "key-option-p",
+          "title": "Option+P / Alt+P",
+          "summary": "モデル切替",
+          "content": "Opus / Sonnet / Haiku をキーボードからクイック切替できます。\n\nmacOS では Option+P、その他では Alt+P です。",
+          "tags": []
+        },
+        {
+          "id": "key-option-t",
+          "title": "Option+T / Alt+T",
+          "summary": "拡張思考の切替",
+          "content": "複雑なタスクで推論品質を向上させるために拡張思考を有効にします。\n\nmacOS では Option+T、その他では Alt+T です。",
+          "tags": []
+        },
+        {
+          "id": "key-at",
+          "title": "@",
+          "summary": "ファイルメンション",
+          "content": "公式が「ファイルの場所を説明する代わりに @ を使え」と推奨しています。\n\n`@filename` でファイルを直接参照でき、Claude にコンテキストを効率的に渡せます。",
+          "tags": ["推奨"]
+        },
+        {
+          "id": "key-bang",
+          "title": "!（行頭）",
+          "summary": "Bash モード",
+          "content": "行頭に `!` を付けることでシェルコマンドを直接実行できます。\n\nClaude を通さずにコマンドを実行し、その出力を会話に取り込めます。",
+          "tags": []
+        },
+        {
+          "id": "key-backslash-enter",
+          "title": "\\ + Enter",
+          "summary": "複数行入力",
+          "content": "長いプロンプトを複数行で入力する際に使います。\n\n`\\` を入力してから Enter を押すと、改行して入力を続けられます。",
+          "tags": []
+        }
+      ]
+    }
+  ]
+}

@@ -21,13 +21,16 @@ import { DetailModal } from "./detail-modal";
 
 export const meta = (): Array<{ title?: string; name?: string; content?: string }> => {
   return [
-    { title: "Claude Code ベストプラクティス" },
-    { name: "description", content: "Claude Code を最大限に活用するためのヒントとパターン" },
+    { title: "Claude Code クイックリファレンス" },
+    {
+      name: "description",
+      content: "よく使われる・推奨されるコマンド、プラグイン、環境変数の厳選ガイド",
+    },
   ];
 };
 
 // ---------------------------------------------------------------------------
-// CategoryTabBar – upper tier tab bar for the 4 categories
+// CategoryTabBar – upper tier tab bar for the 3 categories
 // ---------------------------------------------------------------------------
 
 const CategoryTabBar = ({
@@ -79,19 +82,6 @@ const CategoryContent = ({ categoryId }: { categoryId: string }) => {
   const config = CATEGORY_CONFIGS[categoryId];
 
   const renderTabIcon = (tab: TabItem): React.ReactNode => {
-    // For prompting which uses tabSectionMap, get icon from first mapped section
-    if (config.tabSectionMap) {
-      const sectionIds = config.tabSectionMap[tab.id];
-      if (sectionIds && sectionIds[0] && config.sectionIcons[sectionIds[0]]) {
-        return (
-          <span className="flex items-center scale-[0.8]">
-            {config.sectionIcons[sectionIds[0]]()}
-          </span>
-        );
-      }
-      return null;
-    }
-    // For other categories, direct section-to-tab mapping
     if (config.sectionIcons[tab.id]) {
       return <span className="flex items-center scale-[0.8]">{config.sectionIcons[tab.id]()}</span>;
     }
@@ -109,8 +99,7 @@ const CategoryContent = ({ categoryId }: { categoryId: string }) => {
     closeModal,
   } = usePageState({
     sections: config.sections.map((s) => ({ id: s.id, name: s.name, items: s.items })),
-    searchFields: (item: AnyItem) => [item.title, item.summary, item.content, ...item.tags],
-    ...(config.tabSectionMap ? { tabSectionMap: config.tabSectionMap } : {}),
+    searchFields: (item: AnyItem) => [item.title, item.summary, item.content, ...(item.tags || [])],
   });
 
   const reducedMotion = useReducedMotion();
@@ -226,7 +215,7 @@ const CategoryContent = ({ categoryId }: { categoryId: string }) => {
 // Main page
 // ---------------------------------------------------------------------------
 
-const BestPractices = (): React.JSX.Element => {
+const QuickReference = (): React.JSX.Element => {
   const [activeCategory, setActiveCategory] = useState(CATEGORIES[0].id);
   const config = CATEGORY_CONFIGS[activeCategory];
 
@@ -235,7 +224,7 @@ const BestPractices = (): React.JSX.Element => {
       <div className="max-w-[1400px] mx-auto px-4 py-8">
         {/* Header */}
         <PageHeader
-          title="ベストプラクティス"
+          title="クイックリファレンス"
           description={config.description}
           stats={[
             { value: config.sections.length, label: "カテゴリ" },
@@ -258,4 +247,4 @@ const BestPractices = (): React.JSX.Element => {
   );
 };
 
-export default BestPractices;
+export default QuickReference;

@@ -114,7 +114,9 @@ export interface HooksSection {
 // CategoryConfig
 // ---------------------------------------------------------------------------
 
-export interface CategoryConfig<T = any> {
+export type AnyItem = BPItem | PromptItem | HooksItem;
+
+export interface CategoryConfig<T = AnyItem> {
   id: string;
   label: string;
   color: string;
@@ -416,7 +418,11 @@ const promptConfig: CategoryConfig<PromptItem> = {
       label: "ツール・思考",
       color: promptSectionColors["tool-use"]?.color || "#3B82F6",
     },
-    { id: "agentic", label: "エージェント", color: promptSectionColors.agentic?.color || "#3B82F6" },
+    {
+      id: "agentic",
+      label: "エージェント",
+      color: promptSectionColors.agentic?.color || "#3B82F6",
+    },
     {
       id: "tips-migration",
       label: "Tips・移行",
@@ -569,8 +575,7 @@ const skillConfig: CategoryConfig<BPItem> = {
   label: "スキル設計",
   color: "#8B5CF6",
   gradient: ["rgba(139,92,246,0.08)", "rgba(6,182,212,0.05)"],
-  description:
-    "Claude が発見・活用できる効果的な Agent Skills を作成するためのヒントとパターン。",
+  description: "Claude が発見・活用できる効果的な Agent Skills を作成するためのヒントとパターン。",
   sections: skillSections,
   sectionColors: skillSectionColors,
   sectionIcons: skillSectionIcons,

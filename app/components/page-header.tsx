@@ -5,12 +5,10 @@ import { ArrowLeftIcon } from "~/components/icons";
 const ALL_PAGES = [
   { to: "/", label: "リリースノート" },
   { to: "/commands", label: "コマンド一覧" },
-  { to: "/plugins", label: "公式プラグイン" },
-  { to: "/directory", label: "設定ガイド" },
+  { to: "/quick-reference", label: "クイックリファレンス" },
   { to: "/setup", label: "セットアップ" },
   { to: "/best-practices", label: "ベストプラクティス" },
   { to: "/hands-on", label: "ハンズオン" },
-  { to: "/env-vars", label: "環境変数" },
   { to: "/harness-engineering", label: "ハーネス＆コンテキストエンジニアリング" },
 ];
 

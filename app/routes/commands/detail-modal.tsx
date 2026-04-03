@@ -58,9 +58,7 @@ export const DetailModal = ({
             <code className="font-mono text-base font-bold" style={{ color: accentColor }}>
               {item.title}
             </code>
-            {item.args && (
-              <span className="text-xs text-slate-500 font-mono">{item.args}</span>
-            )}
+            {item.args && <span className="text-xs text-slate-500 font-mono">{item.args}</span>}
           </div>
           <div className="text-[14px] text-slate-300 mt-1.5 font-sans leading-[1.6]">
             {item.description}
