@@ -134,7 +134,7 @@ argument-hint: "<page-id> (例: release-note, commands, directory, plugins, env-
 
 - UI/デザインの修正（コード変更が必要）
 - 既に正確に存在するデータの再追加
-- 対象外ページ（token-usage, llm-infra-guide, hands-on, harness-engineering）の更新
+- 対象外ページ（llm-infra-guide, hands-on, harness-engineering）の更新
 
 ## 共通 Common Mistakes
 

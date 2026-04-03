@@ -11,7 +11,6 @@ const ALL_PAGES = [
   { to: "/best-practices", label: "ベストプラクティス" },
   { to: "/prompting", label: "プロンプト" },
   { to: "/hands-on", label: "ハンズオン" },
-  { to: "/token-usage", label: "トークン計測" },
   { to: "/env-vars", label: "環境変数" },
   { to: "/skill-best-practices", label: "スキル設計" },
   { to: "/harness-engineering", label: "ハーネス＆コンテキストエンジニアリング" },
