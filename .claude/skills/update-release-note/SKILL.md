@@ -6,7 +6,6 @@ description: >
   "CHANGELOG 更新", "新バージョン追加", "リリースノート更新", "update-release-note"
   等で起動。
 user-invocable: true
-argument-hint: "(例: v2.1.85 を追加)"
 ---
 
 # リリースノート更新スキル
