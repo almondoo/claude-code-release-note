@@ -55,8 +55,8 @@
           "type": "directory",
           "name": "グローバルカスタムエージェント",
           "description": "ユーザーレベルのカスタムサブエージェント",
-          "detail": "独立したコンテキストウィンドウで動く特化型 AI エージェントを定義するディレクトリ。各エージェントは .md ファイルで定義し、YAML フロントマターで動作を設定できる。ビルトインサブエージェント（Explore: 高速読み取り専用、Plan: プランモード用リサーチ、general-purpose: 全ツール対応）に加え、カスタムエージェントをここに配置する。\n\nフロントマター: name（識別名）、description（用途の説明）、tools / disallowedTools（ツール許可・拒否。Agent(type) 構文でスポーン可能なサブエージェントも制限可能）、model（sonnet / opus / haiku / inherit またはフルモデル ID）、effort（effort レベル: low / medium / high / max）、permissionMode（default / acceptEdits / dontAsk / bypassPermissions / plan）、maxTurns（最大ターン数）、skills（プリロードするスキル）、mcpServers（MCP サーバー）、hooks（ライフサイクルフック）、memory（永続メモリスコープ: user / project / local）、background（常にバックグラウンドで実行）、isolation（worktree で git worktree 隔離実行）、initialPrompt（--agent やsettings の agent で起動時に自動送信される最初のユーザーターン。コマンドやスキルも処理される）。Claude が Agent ツール（旧 Task ツール）を使うとき、ここに定義されたエージェントが subagent_type の選択肢として自動的に表示される。",
-          "usage": "「Read と Grep だけ使える読み取り専用リサーチャー」や「Bash も使える自動テストランナー」といった特化型エージェントを作れる。memory: user を設定すると、エージェントが会話をまたいで学習した知識を ~/.claude/agent-memory/ に蓄積する。background: true で常にバックグラウンド実行、isolation: worktree で隔離された git worktree 内で作業させることも可能。/agents コマンドで対話的に作成・管理可能。--agents CLI フラグでセッション限定のエージェントを JSON で定義することもできる。プラグインもエージェントをバンドルして配布可能。",
+          "detail": "独立したコンテキストウィンドウで動く特化型 AI エージェントを定義するディレクトリ。各エージェントは .md ファイルで定義し、YAML フロントマターで動作を設定できる。ビルトインサブエージェント（Explore: 高速読み取り専用、Plan: プランモード用リサーチ、general-purpose: 全ツール対応）に加え、カスタムエージェントをここに配置する。\n\nフロントマター: name（識別名）、description（用途の説明）、tools / disallowedTools（ツール許可・拒否。Agent(type) 構文でスポーン可能なサブエージェントも制限可能）、model（sonnet / opus / haiku / inherit またはフルモデル ID）、effort（effort レベル: low / medium / high / max）、permissionMode（default / acceptEdits / auto / dontAsk / bypassPermissions / plan）、maxTurns（最大ターン数）、skills（プリロードするスキル）、mcpServers（MCP サーバー）、hooks（ライフサイクルフック）、memory（永続メモリスコープ: user / project / local）、background（常にバックグラウンドで実行）、isolation（worktree で git worktree 隔離実行）、color（UI での表示色: red / blue / green / yellow / purple / orange / pink / cyan）、initialPrompt（--agent やsettings の agent で起動時に自動送信される最初のユーザーターン。コマンドやスキルも処理される）。Claude が Agent ツール（旧 Task ツール）を使うとき、ここに定義されたエージェントが subagent_type の選択肢として自動的に表示される。エージェントチームのチームメイトとしても利用可能で、チームメイト起動時にサブエージェント型を参照すると、そのシステムプロンプト・ツール・モデルを継承する。",
+          "usage": "「Read と Grep だけ使える読み取り専用リサーチャー」や「Bash も使える自動テストランナー」といった特化型エージェントを作れる。memory: user を設定すると、エージェントが会話をまたいで学習した知識を ~/.claude/agent-memory/ に蓄積する。background: true で常にバックグラウンド実行、isolation: worktree で隔離された git worktree 内で作業させることも可能。/agents コマンドで対話的に作成・管理可能。claude agents コマンドで対話セッションを開かずに全エージェント一覧を表示することも可能。--agents CLI フラグでセッション限定のエージェントを JSON で定義することもできる。プラグインもエージェントをバンドルして配布可能（ただしプラグインエージェントは hooks / mcpServers / permissionMode フィールドが無視される）。",
           "bestPractice": "tools / disallowedTools で使えるツールを最小限に制限し、最小権限の原則を守る。description を詳しく書くと Claude が適切に委譲できる。",
           "vcs": false,
           "recommended": "advanced"
@@ -206,6 +206,17 @@
           "bestPractice": "API キーは ${VAR} で環境変数展開するか、apiKeyHelper で動的に取得する。HTTP トランスポートを推奨（SSE は非推奨）。チーム共有するために VCS にコミットする。claude mcp reset-project-choices で承認選択をリセット可能。",
           "vcs": true,
           "recommended": "optional"
+        },
+        {
+          "path": ".worktreeinclude",
+          "type": "file",
+          "name": "Worktree インクルード",
+          "description": "git worktree に gitignore 対象ファイルをコピーする設定",
+          "detail": "claude --worktree で新しい git worktree を作成する際に、gitignore されているファイル（.env、node_modules 等）を自動的に worktree にコピーするための設定ファイル。1行1パターンで対象ファイルやディレクトリを指定する。glob パターンに対応。\n\nworktree はメインの作業ツリーとは独立した Git 作業環境のため、gitignore されたファイルは自動では含まれない。.worktreeinclude を使うことで、ローカル設定ファイルや依存関係キャッシュなど、worktree の動作に必要な gitignore 対象ファイルを自動コピーできる。settings.json の worktree.symlinkDirectories（シンボリックリンク作成）とは別の仕組みで、こちらはファイルの実体をコピーする。",
+          "usage": ".env ファイルや .env.local など、ローカル環境変数を worktree にコピーしたい場合に使う。node_modules のような大きなディレクトリは worktree.symlinkDirectories でシンボリックリンクにする方がディスク効率が良い。",
+          "bestPractice": "VCS にコミットしてチーム全員の worktree で同じファイルがコピーされるようにする。大きなディレクトリは .worktreeinclude ではなく worktree.symlinkDirectories を使う。",
+          "vcs": true,
+          "recommended": "optional"
         }
       ],
       "bestPractices": [
@@ -270,7 +281,7 @@
           "type": "directory",
           "name": "プロジェクトカスタムエージェント",
           "description": "プロジェクト固有のカスタムサブエージェント",
-          "detail": "プロジェクトに特化したエージェントを定義するディレクトリ。各エージェントは .md ファイルで定義し、YAML フロントマターで動作を設定できる。フロントマター: name、description、tools / disallowedTools（Agent(type) 構文でスポーン制限も可能）、model、effort（effort レベル）、permissionMode、maxTurns、skills（プリロード）、mcpServers、hooks、memory、background（常にバックグラウンド実行）、isolation（worktree で git worktree 隔離実行）、initialPrompt（--agent 起動時の自動送信プロンプト）。\n\nClaude が Agent ツール（旧 Task ツール）を使うとき、ここに定義されたエージェントが subagent_type の選択肢として自動表示される。VCS にコミットすることで、チーム全員が同じエージェントセットを利用でき、プロジェクト固有のベストプラクティスを自動化できる。/agents コマンドで対話的に作成・管理可能。permissions.deny に Agent(agent-name) を追加すると特定エージェントの使用を禁止できる。",
+          "detail": "プロジェクトに特化したエージェントを定義するディレクトリ。各エージェントは .md ファイルで定義し、YAML フロントマターで動作を設定できる。フロントマター: name、description、tools / disallowedTools（Agent(type) 構文でスポーン制限も可能）、model、effort（effort レベル）、permissionMode（default / acceptEdits / auto / dontAsk / bypassPermissions / plan）、maxTurns、skills（プリロード）、mcpServers、hooks、memory、background（常にバックグラウンド実行）、isolation（worktree で git worktree 隔離実行）、color（UI での表示色）、initialPrompt（--agent 起動時の自動送信プロンプト）。\n\nClaude が Agent ツール（旧 Task ツール）を使うとき、ここに定義されたエージェントが subagent_type の選択肢として自動表示される。VCS にコミットすることで、チーム全員が同じエージェントセットを利用でき、プロジェクト固有のベストプラクティスを自動化できる。プロジェクトサブエージェントはカレントディレクトリからの親方向走査で検出される（--add-dir で追加したディレクトリからは検出されない）。/agents コマンドで対話的に作成・管理可能。claude agents コマンドで全エージェント一覧を CLI 表示可能。permissions.deny に Agent(agent-name) を追加すると特定エージェントの使用を禁止できる。",
           "usage": "特定のフレームワークに精通した「フロントエンド専門エージェント」や、セキュリティ観点でのコードレビューに特化した「セキュリティレビューエージェント」を定義できる。skills フィールドでスキルをプリロードし、memory: project でプロジェクト知識を蓄積させる。background: true で常にバックグラウンド実行、isolation: worktree で隔離作業が可能。PreToolUse フックで Bash コマンドの事前検証など条件付きルールも定義可能。",
           "bestPractice": "tools / disallowedTools でスコープを制限する。description を詳しく書くと Claude が適切に委譲できる。汎用エージェントはグローバル、プロジェクト特化はここに配置。",
           "vcs": true,
@@ -416,7 +427,7 @@
           "type": "file",
           "name": "マネージド指示ファイル",
           "description": "管理者が強制する指示ファイル",
-          "detail": "企業全体のコーディング規約やセキュリティガイドラインを Claude に強制適用するファイル。ユーザーの CLAUDE.md やプロジェクトの CLAUDE.md よりも優先される。配置場所は managed-settings.json と同じ OS 固有のパス。通常は MDM や構成管理ツール（Ansible, Chef 等）で配布する。個人開発者が直接触ることはほぼない。",
+          "detail": "企業全体のコーディング規約やセキュリティガイドラインを Claude に強制適用するファイル。ユーザーの CLAUDE.md やプロジェクトの CLAUDE.md よりも優先される。配置場所は managed-settings.json と同じ OS 固有のパス。通常は MDM や構成管理ツール（Ansible, Chef 等）で配布する。個人開発者が直接触ることはほぼない。\n\nclaudeMdExcludes 設定でこのファイルを除外することはできない。組織全体の指示が常に適用されることが保証される。managed-settings.json（技術的な強制）と CLAUDE.md（行動ガイダンス）は役割が異なる。ツールやコマンドのブロックは settings で、コードスタイルやデータ取り扱いの指示は CLAUDE.md で定義する。",
           "usage": "記載例：「すべてのコードにライセンスヘッダーを付与する」「機密データ（PII）をログに出力しない」「社内ライブラリの特定バージョンを使用する」など、企業ポリシーとして全員に適用したいルールを記載する。",
           "bestPractice": "企業ポリシーとして全員に適用すべきルールのみを記載し、過度に制約しない。構成管理ツール（Ansible, Chef 等）でバージョン管理しながら配布する。",
           "vcs": null,
@@ -473,7 +484,8 @@
       ".claude/skills/",
       ".claude/rules/",
       ".claude/hooks/",
-      ".claude/agent-memory/"
+      ".claude/agent-memory/",
+      ".worktreeinclude"
     ],
     "noCommit": [
       "settings.local.json（自動 gitignore）",
@@ -491,7 +503,7 @@
         "SKILL.md + 補助ファイルで構成（Agent Skills 標準準拠）",
         "context: fork でサブエージェントとして独立実行可能（agent フィールドで実行エージェント型を指定）",
         "ユーザーが /skill-name で呼び出し、または Claude が自動検出",
-        "フロントマターで hooks / allowed-tools / model / paths / shell を設定可能",
+        "フロントマターで hooks / allowed-tools / model / effort / paths / shell を設定可能",
         "$ARGUMENTS で引数、!`command` で動的コンテキスト注入",
         "disable-model-invocation で手動専用、user-invocable: false でモデル専用に制限可能",
         "paths フロントマターでファイルパス条件付き有効化が可能",
@@ -507,8 +519,10 @@
         "memory（user / project / local）で会話をまたいだ学習が可能",
         "skills フィールドでスキルをプリロード可能",
         "hooks / mcpServers でエージェント固有のフック・ツールを定義",
+        "color でUI 表示色、isolation: worktree で隔離実行が可能",
         "initialPrompt で --agent 起動時の自動送信プロンプトを設定可能",
-        "--agents CLI フラグでセッション限定エージェントを JSON 定義可能"
+        "--agents CLI フラグでセッション限定エージェントを JSON 定義可能",
+        "エージェントチームのチームメイトとしても利用可能"
       ]
     }
   }
