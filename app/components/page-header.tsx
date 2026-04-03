@@ -9,12 +9,9 @@ const ALL_PAGES = [
   { to: "/directory", label: "設定ガイド" },
   { to: "/setup", label: "セットアップ" },
   { to: "/best-practices", label: "ベストプラクティス" },
-  { to: "/prompting", label: "プロンプト" },
   { to: "/hands-on", label: "ハンズオン" },
   { to: "/env-vars", label: "環境変数" },
-  { to: "/skill-best-practices", label: "スキル設計" },
   { to: "/harness-engineering", label: "ハーネス＆コンテキストエンジニアリング" },
-  { to: "/hooks-best-practices", label: "Hooks" },
 ];
 
 interface Stat {
