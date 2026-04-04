@@ -572,7 +572,7 @@ const skillSectionIcons: Record<string, () => React.JSX.Element> = {
 
 const skillConfig: CategoryConfig<BPItem> = {
   id: "skills",
-  label: "スキル設計",
+  label: "スキル",
   color: "#8B5CF6",
   gradient: ["rgba(139,92,246,0.08)", "rgba(6,182,212,0.05)"],
   description: "Claude が発見・活用できる効果的な Agent Skills を作成するためのヒントとパターン。",
@@ -756,7 +756,7 @@ const hooksConfig: CategoryConfig<HooksItem> = {
 export const CATEGORIES = [
   { id: "best-practices", label: "ベストプラクティス", color: "#6366F1" },
   { id: "prompting", label: "プロンプト", color: "#3B82F6" },
-  { id: "skills", label: "スキル設計", color: "#8B5CF6" },
+  { id: "skills", label: "スキル", color: "#8B5CF6" },
   { id: "hooks", label: "Hooks", color: "#A855F7" },
 ];
 
