@@ -322,5 +322,157 @@
       "detail": "Linux サンドボックスの `apply-seccomp` ヘルパーバイナリが、npm ビルドとネイティブビルドの両方に同梱されるようになりました。以前は一部のビルドタイプでこのヘルパーが欠落しており、サンドボックス内のコマンドが unix ソケット経由で外部と通信できてしまう状態でした。この修正により、すべてのビルドタイプで unix ソケットのブロックが復元され、サンドボックスのネットワーク分離が強化されています。詳しくは[サンドボックスのドキュメント](https://code.claude.com/docs/en/sandboxing)を参照してください。",
       "category": "サンドボックス"
     }
+  ],
+  "2.1.94": [
+    {
+      "t": "追加: Amazon Bedrock の Mantle エンドポイントに対応 — `CLAUDE_CODE_USE_MANTLE=1` で有効化",
+      "tags": ["新機能", "Platform"],
+      "detail": "Amazon Bedrock の Mantle エンドポイントに対応しました。Mantle はネイティブの Anthropic API 形式でリクエストを処理するエンドポイントです。`CLAUDE_CODE_USE_MANTLE=1` と `AWS_REGION` を設定するだけで有効化でき、既存の AWS 認証情報をそのまま使用できます。\n\n両方のエンドポイントを併用する場合は `CLAUDE_CODE_USE_BEDROCK` と `CLAUDE_CODE_USE_MANTLE` を同時に設定します。詳しくは [Mantle エンドポイントのドキュメント](https://code.claude.com/docs/en/amazon-bedrock#use-the-mantle-endpoint)を参照してください。",
+      "category": "プラットフォーム互換性"
+    },
+    {
+      "t": "変更: API キー・Bedrock/Vertex/Foundry・Team・Enterprise ユーザーのデフォルト effort レベルを medium から high に変更",
+      "tags": ["改善"],
+      "detail": "API キー、Bedrock/Vertex AI/Foundry、Team、Enterprise ユーザーのデフォルト effort レベルが medium から high に変更されました。Pro・Max ユーザーは引き続き medium がデフォルトです。high effort ではより深い推論が行われます。`/effort` コマンドや `--effort` フラグで調整可能です。詳しくは [effort レベルのドキュメント](https://code.claude.com/docs/en/model-config#adjust-effort-level)を参照してください。",
+      "category": "設定"
+    },
+    {
+      "t": "追加: Slack MCP の send-message ツール呼び出しにクリック可能なチャネルリンク付きのコンパクトな「Slacked #channel」ヘッダーを表示",
+      "tags": ["改善", "MCP"],
+      "detail": "Slack MCP サーバーの send-message ツール呼び出し結果の表示が改善されました。従来の冗長な表示に代わり、コンパクトな「Slacked #channel」ヘッダーとクリック可能なチャネルリンクが表示されるようになり、メッセージ送信結果が一目で確認できます。",
+      "category": "MCP 連携"
+    },
+    {
+      "t": "追加: プラグイン出力スタイル用の `keep-coding-instructions` frontmatter フィールドをサポート",
+      "tags": ["新機能", "Plugin"],
+      "detail": "プラグインスキルの frontmatter に `keep-coding-instructions` フィールドが追加されました。スキルの出力スタイルでコーディング指示を保持するかどうかを制御できます。詳しくは[プラグインのドキュメント](https://code.claude.com/docs/en/plugins)を参照してください。",
+      "category": "設定"
+    },
+    {
+      "t": "追加: `UserPromptSubmit` hook の `hookSpecificOutput.sessionTitle` でセッションタイトルを自動設定可能に",
+      "tags": ["新機能"],
+      "detail": "UserPromptSubmit hook の JSON 出力に `sessionTitle` フィールドが追加されました。`/rename` と同じ効果でセッションタイトルを自動設定でき、プロンプト内容に基づく自動命名が可能です。詳しくは [hooks のドキュメント](https://code.claude.com/docs/en/hooks#userpromptsubmit)を参照してください。",
+      "category": "設定"
+    },
+    {
+      "t": "変更: プラグインスキルのスキル名にディレクトリのベース名ではなく frontmatter の `name` を使用するように変更",
+      "tags": ["改善", "Plugin"],
+      "detail": "プラグインスキルが SKILL.md の frontmatter の `name` フィールドをスキル名として使用するように変更されました。ディレクトリ構造に依存せず意味のあるスキル名を設定できます。",
+      "category": "設定"
+    },
+    {
+      "t": "修正: 429 レート制限レスポンスの Retry-After ヘッダーが長い場合にエージェントがスタック状態になる問題",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "API から 429 レート制限レスポンスが返され、Retry-After ヘッダーに長い待ち時間が指定されている場合に、エージェントが応答を停止してスタック状態に見える問題が修正されました。適切なリトライ処理が行われるようになりました。",
+      "category": "マルチエージェント"
+    },
+    {
+      "t": "修正: macOS でログインキーチェーンがロック中またはパスワード不一致時に Console ログインがサイレントに失敗する問題",
+      "tags": ["バグ修正"],
+      "detail": "macOS でログインキーチェーンがロック中またはパスワード不一致時に、Console ログインがサイレントに失敗する問題が修正されました。適切なエラーメッセージが表示されるようになりました。",
+      "category": "安定性"
+    },
+    {
+      "t": "修正: プラグインスキルの YAML frontmatter で定義された hook がサイレントに無視される問題",
+      "tags": ["バグ修正", "Plugin"],
+      "detail": "プラグインスキルの SKILL.md の YAML frontmatter 内で定義された hook が読み込まれず、サイレントに無視される問題が修正されました。frontmatter で定義された hook が正しく登録・実行されるようになりました。",
+      "category": "安定性"
+    },
+    {
+      "t": "修正: `CLAUDE_PLUGIN_ROOT` 未設定時にプラグイン hook が「No such file or directory」で失敗する問題",
+      "tags": ["バグ修正", "Plugin"],
+      "detail": "`CLAUDE_PLUGIN_ROOT` 未設定時にプラグイン hook が「No such file or directory」エラーで失敗する問題が修正されました。正しいデフォルトパスが使用されるようになりました。",
+      "category": "安定性"
+    },
+    {
+      "t": "修正: `${CLAUDE_PLUGIN_ROOT}` がインストール済みキャッシュではなくマーケットプレースのソースディレクトリに解決される問題",
+      "tags": ["バグ修正", "Plugin"],
+      "detail": "プラグイン hook 内の `${CLAUDE_PLUGIN_ROOT}` がインストール済みキャッシュではなくマーケットプレースのソースディレクトリに解決される問題が修正されました。",
+      "category": "安定性"
+    },
+    {
+      "t": "修正: 長時間セッションでスクロールバックに同じ差分が繰り返し表示され空白ページが発生する問題",
+      "tags": ["バグ修正"],
+      "detail": "長時間実行されたセッションで、ターミナルのスクロールバックに同じ差分が繰り返し表示されたり、空白ページが混在する問題が修正されました。",
+      "category": "レンダリング"
+    },
+    {
+      "t": "修正: マルチラインプロンプトのトランスクリプトで折り返し行が `❯` キャレットの下に誤ってインデントされる問題",
+      "tags": ["バグ修正"],
+      "detail": "マルチラインのユーザープロンプトがトランスクリプトに記録される際、折り返された行が `❯` キャレットの下に不要なインデント付きで表示される問題が修正されました。",
+      "category": "レンダリング"
+    },
+    {
+      "t": "修正: 検索入力で Shift+Space がスペースではなく「space」という文字列を挿入する問題",
+      "tags": ["バグ修正"],
+      "detail": "検索入力フィールドで Shift+Space を押すと、スペース文字ではなく「space」というリテラル文字列が挿入される問題が修正されました。",
+      "category": "入力"
+    },
+    {
+      "t": "修正: xterm.js ベースのターミナルの tmux 内でハイパーリンクをクリックするとブラウザタブが2つ開く問題",
+      "tags": ["バグ修正"],
+      "detail": "xterm.js ベースのターミナル（VS Code 内蔵ターミナル等）で tmux を使用している際に、ハイパーリンクをクリックするとブラウザタブが2つ開いてしまう問題が修正されました。",
+      "category": "レンダリング"
+    },
+    {
+      "t": "修正: alt-screen でスクロール中にコンテンツ高さが変化するとゴーストラインが蓄積するレンダリングバグ",
+      "tags": ["バグ修正"],
+      "detail": "alt-screen モードでスクロール中にコンテンツの高さが変化すると、ゴーストライン（残像行）が蓄積して画面表示が崩れるレンダリングバグが修正されました。",
+      "category": "レンダリング"
+    },
+    {
+      "t": "修正: `settings.json` の `env` で設定した `FORCE_HYPERLINK` 環境変数が無視される問題",
+      "tags": ["バグ修正"],
+      "detail": "`settings.json` の `env` で `FORCE_HYPERLINK` を設定しても無視される問題が修正されました。設定ファイル経由でのハイパーリンク強制有効化が正しく反映されます。",
+      "category": "設定"
+    },
+    {
+      "t": "修正: ダイアログで選択中のタブにネイティブターミナルカーソルが追従しない問題",
+      "tags": ["バグ修正"],
+      "detail": "ダイアログ表示時にネイティブターミナルカーソルが選択中のタブ位置に追従しない問題が修正されました。カーソルが正しく追跡するようになりました。",
+      "category": "レンダリング"
+    },
+    {
+      "t": "修正: Bedrock での Sonnet 3.5 v2 の呼び出しに `us.` 推論プロファイル ID を使用するように修正",
+      "tags": ["バグ修正", "Platform"],
+      "detail": "Bedrock で Sonnet 3.5 v2 の呼び出しにクロスリージョン推論プロファイル ID（`us.` プレフィックス）が正しく使用されるように修正されました。",
+      "category": "プラットフォーム互換性"
+    },
+    {
+      "t": "修正: SDK/print モードでストリーミング中断時に部分的なアシスタント応答が会話履歴に保持されない問題",
+      "tags": ["バグ修正", "SDK"],
+      "detail": "SDK（`-p`）モードでストリーミング中に中断された場合、部分的なアシスタント応答が会話履歴から失われる問題が修正されました。`--resume` で再開した際に中断前の応答が保持されます。",
+      "category": "SDK"
+    },
+    {
+      "t": "改善: `--resume` で同じリポジトリの他のワークツリーからセッションを直接再開可能に",
+      "tags": ["改善"],
+      "detail": "`--resume` が同じリポジトリの別の Git ワークツリーで作成されたセッションを直接再開できるようになりました。ワークツリー間でセッションをシームレスに継続できます。",
+      "category": "セッション管理"
+    },
+    {
+      "t": "修正: stream-json 入出力で CJK やその他のマルチバイトテキストが U+FFFD に破損する問題",
+      "tags": ["バグ修正"],
+      "detail": "stream-json 入出力で CJK（日本語・中国語・韓国語）等のマルチバイト文字がバッファ境界で分断され U+FFFD に破損する問題が修正されました。",
+      "category": "国際化"
+    },
+    {
+      "t": "改善: [VSCode] セッション開始時のコールドオープンのサブプロセス作業を削減",
+      "tags": ["改善", "IDE"],
+      "detail": "VS Code 拡張機能でセッションを初めて開始する際のコールドオープン時のサブプロセス作業が削減され、起動が高速化されました。",
+      "category": "IDE"
+    },
+    {
+      "t": "修正: [VSCode] タイプ中にマウスがリスト上にあるとドロップダウンメニューが誤った項目を選択する問題",
+      "tags": ["バグ修正", "IDE"],
+      "detail": "VS Code 拡張機能のドロップダウンメニューで、キーボードで入力中にマウスカーソルがリスト上にあると、意図しない項目が選択される問題が修正されました。",
+      "category": "IDE"
+    },
+    {
+      "t": "追加: [VSCode] `settings.json` のパース失敗時に警告バナーを表示",
+      "tags": ["改善", "IDE"],
+      "detail": "VS Code 拡張機能で `settings.json` ファイルのパースに失敗した場合に、警告バナーが表示されるようになりました。設定ファイルの構文エラーをすぐに把握し、修正できるようになります。",
+      "category": "IDE"
+    }
   ]
 }
