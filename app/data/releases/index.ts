@@ -9,6 +9,7 @@ import releases21x6x from "~/data/releases/releases-2.1.6x.json";
 import releases21x7x from "~/data/releases/releases-2.1.7x.json";
 import releases21x8x from "~/data/releases/releases-2.1.8x.json";
 import releases21x9x from "~/data/releases/releases-2.1.9x.json";
+import releases21x10x from "~/data/releases/releases-2.1.10x.json";
 import versionDetails21x2x from "~/data/releases/version-details-2.1.2x.json";
 import versionDetails21x3x from "~/data/releases/version-details-2.1.3x.json";
 import versionDetails21x4x from "~/data/releases/version-details-2.1.4x.json";
@@ -17,6 +18,7 @@ import versionDetails21x6x from "~/data/releases/version-details-2.1.6x.json";
 import versionDetails21x7x from "~/data/releases/version-details-2.1.7x.json";
 import versionDetails21x8x from "~/data/releases/version-details-2.1.8x.json";
 import versionDetails21x9x from "~/data/releases/version-details-2.1.9x.json";
+import versionDetails21x10x from "~/data/releases/version-details-2.1.10x.json";
 
 export const RELEASES = [
   ...releases20x,
@@ -30,6 +32,7 @@ export const RELEASES = [
   ...releases21x7x,
   ...releases21x8x,
   ...releases21x9x,
+  ...releases21x10x,
 ].reverse();
 
 export const VERSION_DETAILS = {
@@ -41,4 +44,5 @@ export const VERSION_DETAILS = {
   ...versionDetails21x7x,
   ...versionDetails21x8x,
   ...versionDetails21x9x,
+  ...versionDetails21x10x,
 };
