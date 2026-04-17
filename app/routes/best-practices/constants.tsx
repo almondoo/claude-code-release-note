@@ -147,6 +147,7 @@ const bpSectionColors: Record<string, { color: string; bg: string }> = {
   environment: PALETTE.orange,
   "session-management": PALETTE.blueDark,
   scaling: PALETTE.teal,
+  "opus-4-7": PALETTE.pinkBright,
   "anti-patterns": PALETTE.red,
   intuition: PALETTE.indigo,
 };
@@ -215,6 +216,22 @@ const bpSectionIcons: Record<string, () => React.JSX.Element> = {
   environment: () => <AgentGearIcon />,
   "session-management": () => <MonitorIcon />,
   scaling: () => <TrendingUpIcon />,
+  "opus-4-7": () => (
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M12 3l1.7 5.1L19 10l-5.3 1.9L12 17l-1.7-5.1L5 10l5.3-1.9L12 3z" />
+      <path d="M19 15l.7 2.1L22 18l-2.3.9L19 21l-.7-2.1L16 18l2.3-.9L19 15z" />
+      <path d="M5 15l.5 1.5L7 17l-1.5.5L5 19l-.5-1.5L3 17l1.5-.5L5 15z" />
+    </svg>
+  ),
   "anti-patterns": () => (
     <svg
       width="18"
