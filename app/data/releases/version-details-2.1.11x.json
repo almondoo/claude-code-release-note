@@ -656,5 +656,841 @@
       "detail": "エージェントチーム機能で、チームメイト（teammate）サブエージェントがツールの権限をリクエストした際に、パーミッションダイアログがクラッシュする問題が修正されました。マルチエージェント環境でも権限承認フローが安定して動作します。",
       "category": "マルチエージェント"
     }
+  ],
+  "2.1.116": [
+    {
+      "t": "改善: `/resume` が大規模セッションで大幅高速化（40MB超のセッションで最大67%高速化）、デッドフォークエントリが多いセッションの効率も改善",
+      "tags": ["改善", "Perf"],
+      "detail": "`/resume` コマンドが大規模セッション（40MB超のトランスクリプト）を読み込む処理が最大67%高速化しました。デッドフォーク（中断・終了されたフォーク）エントリが多数含まれるセッションも効率的に処理されるようになり、長時間使い込んだセッションでもストレスなく再開できます。",
+      "category": "パフォーマンス"
+    },
+    {
+      "t": "改善: 複数の stdio MCP サーバー設定時の起動高速化 — `resources/templates/list` を初回の `@` メンション時まで遅延",
+      "tags": ["改善", "MCP", "Perf"],
+      "detail": "複数の stdio MCP サーバーを設定している環境での起動が高速化されました。`resources/templates/list` の取得を初回の `@` メンション時まで遅延させることで、起動時の不要な同期的リクエストを削減しています。",
+      "category": "パフォーマンス"
+    },
+    {
+      "t": "改善: VS Code、Cursor、Windsurf ターミナルでフルスクリーンスクロールがスムーズに — `/terminal-setup` がエディタのスクロール感度を設定",
+      "tags": ["改善", "IDE"],
+      "detail": "VS Code、Cursor、Windsurf の統合ターミナルで、フルスクリーンモードのスクロールがよりスムーズになりました。`/terminal-setup` コマンドがエディタのスクロール感度設定を調整し、Claude Code の TUI に最適化されたスクロール体験を実現します。詳しくは [IDE 連携のドキュメント](https://code.claude.com/docs/en/ide-integrations)を参照してください。",
+      "category": "IDE"
+    },
+    {
+      "t": "改善: Thinking スピナーが進行状況をインラインで表示（\"still thinking\"、\"thinking more\"、\"almost done thinking\"）。別ヒント行を置き換え",
+      "tags": ["改善"],
+      "detail": "Thinking（思考）中のスピナーが進行状況を「still thinking」「thinking more」「almost done thinking」とインラインで段階的に表示するようになりました。従来の別ヒント行での表示が置き換えられ、思考がどの程度進んでいるかが視覚的に把握しやすくなりました。",
+      "category": "UX"
+    },
+    {
+      "t": "改善: `/config` 検索がオプション値にもマッチ（例: \"vim\" で Editor mode 設定が見つかる）",
+      "tags": ["改善"],
+      "detail": "`/config` の検索機能が、オプション名だけでなくオプションの値（現在の設定値や選択肢）にもマッチするようになりました。例えば「vim」で検索すると Editor mode 設定（vim バインディング）が見つかるため、目的の設定に素早く辿り着けます。",
+      "category": "設定"
+    },
+    {
+      "t": "改善: `/doctor` を Claude 応答中でも現在のターンの完了を待たずに開けるように",
+      "tags": ["改善"],
+      "detail": "`/doctor` コマンドが、Claude が応答中であっても現在のターン完了を待たずに開けるようになりました。診断情報をすぐに確認したい場面でも応答の完了を待つ必要がありません。",
+      "category": "コマンド"
+    },
+    {
+      "t": "改善: `/reload-plugins` とバックグラウンドのプラグイン自動更新が、追加済みマーケットプレースから不足依存を自動インストール",
+      "tags": ["改善", "Plugin"],
+      "detail": "`/reload-plugins` コマンドとバックグラウンドのプラグイン自動更新が、既に追加済みのマーケットプレースから不足している依存プラグインを自動的にインストールするようになりました。依存関係を手動で解決する手間が省けます。詳しくは[プラグインのドキュメント](https://code.claude.com/docs/en/discover-plugins#install-plugins)を参照してください。",
+      "category": "Plugin"
+    },
+    {
+      "t": "改善: Bash ツールが `gh` コマンドで GitHub API のレートリミットに到達した際にヒントを表示（リトライではなくバックオフできるように）",
+      "tags": ["改善"],
+      "detail": "Bash ツールが `gh` コマンドで GitHub API のレートリミットに到達したことを検知すると、その旨のヒントを表示するようになりました。エージェントがリトライループに陥らずにバックオフできるため、無駄なリクエスト消費を防げます。",
+      "category": "ツール改善"
+    },
+    {
+      "t": "改善: 設定の Usage タブが 5時間/週次の使用量を即時表示、Usage エンドポイントがレートリミット時に失敗しないように",
+      "tags": ["改善"],
+      "detail": "設定メニューの Usage タブが 5時間ごと/週次の使用量を待ち時間なく即時表示するようになりました。また、usage エンドポイントがレートリミットされた場合でも失敗せず、取得できる範囲の情報を表示します。",
+      "category": "UX"
+    },
+    {
+      "t": "改善: エージェントフロントマターの `hooks:` が `--agent` でメインスレッドエージェントとして実行時にも発火",
+      "tags": ["改善", "Agent"],
+      "detail": "エージェント定義のフロントマターに記述した `hooks:` が、`--agent` オプションでメインスレッドエージェントとして実行される際にも発火するようになりました。サブエージェント実行時と同じように hooks ベースの制御が可能になります。詳しくは [hooks のドキュメント](https://code.claude.com/docs/en/hooks)を参照してください。",
+      "category": "エージェント設定"
+    },
+    {
+      "t": "改善: スラッシュコマンドメニューが絞り込み結果がゼロの時に消えるのではなく「No commands match」を表示",
+      "tags": ["改善"],
+      "detail": "スラッシュコマンドメニューで絞り込み結果がゼロになった際に、メニュー自体が消えてしまうのではなく「No commands match」と明示的に表示するようになりました。入力を続行中であることが分かりやすくなります。",
+      "category": "UX"
+    },
+    {
+      "t": "改善: サンドボックス自動許可が、`/`、`$HOME` などの重要システムディレクトリを対象とする `rm`/`rmdir` の危険パス安全チェックをバイパスしないように",
+      "tags": ["改善", "Security"],
+      "detail": "サンドボックス内で自動許可される操作であっても、`/`、`$HOME` など重要なシステムディレクトリを対象とする `rm`/`rmdir` の危険パス安全チェックはバイパスされないように改善されました。サンドボックスの恩恵を受けつつ、致命的なパス削除は明示確認を経るため安全性が保たれます。詳しくは[セキュリティドキュメント](https://code.claude.com/docs/en/security)を参照してください。",
+      "category": "セキュリティ"
+    },
+    {
+      "t": "変更: Claude Code とインストーラが `https://downloads.claude.ai/claude-code-releases` を使用するように（旧ストレージ URL から変更）",
+      "tags": ["改善"],
+      "detail": "Claude Code 本体とインストーラが、配布物の取得先を `https://downloads.claude.ai/claude-code-releases` に変更しました。従来の Google Cloud Storage ベースの長い URL は使用されなくなり、より覚えやすく安定したエンドポイントからダウンロードされます。",
+      "category": "ネットワーク"
+    },
+    {
+      "t": "修正: デーヴァナーガリー文字その他のインド系文字がターミナル UI でカラム整列が崩れる問題",
+      "tags": ["バグ修正"],
+      "detail": "ヒンディー語等で使われるデーヴァナーガリー文字や、その他のインド系文字（ベンガル、タミル等）がターミナル UI でレンダリングされる際に、カラムの整列が崩れる問題が修正されました。結合文字を含む文字列の幅計算が改善されています。",
+      "category": "国際化"
+    },
+    {
+      "t": "修正: Kitty キーボードプロトコル対応ターミナル（iTerm2、Ghostty、kitty、WezTerm、Windows Terminal）で `Ctrl+-` が undo をトリガーしない問題",
+      "tags": ["バグ修正"],
+      "detail": "Kitty キーボードプロトコルを使用するターミナル（iTerm2、Ghostty、kitty、WezTerm、Windows Terminal）で、`Ctrl+-` が undo をトリガーしない問題が修正されました。これらのターミナルでも他と同様に undo ショートカットが使えるようになりました。",
+      "category": "入力"
+    },
+    {
+      "t": "修正: Kitty キーボードプロトコル対応ターミナル（Warp fullscreen、kitty、Ghostty、WezTerm）で `Cmd+Left`/`Right` が行頭/末尾にジャンプしない問題",
+      "tags": ["バグ修正"],
+      "detail": "Kitty キーボードプロトコル対応ターミナル（Warp fullscreen、kitty、Ghostty、WezTerm）で、`Cmd+Left` や `Cmd+Right` を押しても行頭/末尾にカーソルがジャンプしない問題が修正されました。標準的なテキスト編集キーバインドが機能します。",
+      "category": "入力"
+    },
+    {
+      "t": "修正: ラッパープロセス（`npx`、`bun run` 等）経由で Claude Code を起動した際に `Ctrl+Z` でターミナルがハングする問題",
+      "tags": ["バグ修正"],
+      "detail": "`npx` や `bun run` などのラッパープロセス経由で Claude Code を起動した場合に、`Ctrl+Z` によるサスペンドでターミナルがハングしてしまう問題が修正されました。ラッパープロセス環境でもジョブ制御が正しく動作します。",
+      "category": "安定性"
+    },
+    {
+      "t": "修正: インラインモードでターミナルリサイズや大量出力バーストで過去の会話履歴がスクロールバック内で重複する問題",
+      "tags": ["バグ修正"],
+      "detail": "インラインモードでターミナルをリサイズしたり大量の出力がバースト的に発生したりすると、過去の会話履歴がスクロールバック内で重複表示される問題が修正されました。履歴の整合性が保たれるようになります。",
+      "category": "レンダリング"
+    },
+    {
+      "t": "修正: ターミナル高さが短い環境でモーダル検索ダイアログが画面からはみ出し検索ボックスやヒントが隠れる問題",
+      "tags": ["バグ修正"],
+      "detail": "ターミナルの高さが短い環境でモーダル検索ダイアログが表示されると、画面からはみ出してしまい検索ボックスやキーボードヒントが隠れる問題が修正されました。小さいウィンドウでも操作可能になります。",
+      "category": "レンダリング"
+    },
+    {
+      "t": "修正: VS Code 統合ターミナルでスクロール中に空白セルが散在しコンポーザーのクロームが消える問題",
+      "tags": ["バグ修正", "IDE"],
+      "detail": "VS Code 統合ターミナルでスクロール中に空白セルが散在し、コンポーザーのクローム（枠など装飾要素）が消える問題が修正されました。VS Code 内での Claude Code の表示が安定します。",
+      "category": "IDE"
+    },
+    {
+      "t": "修正: リクエストセットアップ中に並列リクエストが完了した際のキャッシュコントロール TTL 順序に起因する間欠的な API 400 エラー",
+      "tags": ["バグ修正"],
+      "detail": "リクエストセットアップ中に並列リクエストが完了した場合に、キャッシュコントロール TTL の順序に起因する間欠的な API 400 エラーが発生していた問題が修正されました。並列リクエスト処理の安定性が向上します。",
+      "category": "安定性"
+    },
+    {
+      "t": "修正: `/branch` が 50MB を超えるトランスクリプトの会話を拒否する問題",
+      "tags": ["バグ修正"],
+      "detail": "`/branch` コマンドが 50MB を超える大きなトランスクリプトを持つ会話を拒否する問題が修正されました。長時間使用したセッションからでもブランチを作成できるようになります。",
+      "category": "会話管理"
+    },
+    {
+      "t": "修正: 大規模セッションファイルで `/resume` が読み込みエラーを報告せず無音で空の会話を表示する問題",
+      "tags": ["バグ修正"],
+      "detail": "大規模なセッションファイルで `/resume` が失敗した際に、読み込みエラーが報告されず無音で空の会話が表示される問題が修正されました。問題発生時には明確なエラーが表示されるようになります。",
+      "category": "セッション管理"
+    },
+    {
+      "t": "修正: `/plugin` Installed タブで Needs attention または Favorites 配下に該当アイテムが二重表示される問題",
+      "tags": ["バグ修正", "Plugin"],
+      "detail": "`/plugin` の Installed タブで、Needs attention または Favorites 配下に該当するアイテムが二重表示される問題が修正されました。",
+      "category": "Plugin"
+    },
+    {
+      "t": "修正: セッション途中で worktree に入った後 `/update` と `/tui` が動作しない問題",
+      "tags": ["バグ修正"],
+      "detail": "セッション途中で git worktree に入った後に `/update` や `/tui` コマンドが動作しない問題が修正されました。worktree 切替後でも主要コマンドが使えるようになります。",
+      "category": "Git 連携"
+    }
+  ],
+  "2.1.117": [
+    {
+      "t": "追加: 外部ビルドで `CLAUDE_CODE_FORK_SUBAGENT=1` を設定することでフォーク型サブエージェントを有効化可能に",
+      "tags": ["新機能", "Agent"],
+      "detail": "外部ビルド環境でも `CLAUDE_CODE_FORK_SUBAGENT=1` 環境変数を設定すればフォーク型サブエージェント機能を有効化できるようになりました。サブエージェントを親プロセスから分離して起動する形式で、並列タスク実行の効率化に寄与します。詳しくは[環境変数のドキュメント](https://code.claude.com/docs/en/settings#environment-variables)を参照してください。",
+      "category": "マルチエージェント"
+    },
+    {
+      "t": "改善: エージェントフロントマターの `mcpServers` が `--agent` でメインスレッドエージェントセッション時にもロードされるように",
+      "tags": ["改善", "MCP", "Agent"],
+      "detail": "エージェント定義ファイルのフロントマターに記述された `mcpServers` が、`--agent` でメインスレッドエージェントセッションとして実行される際にもロードされるようになりました。エージェント固有の MCP 環境をメインセッションでも利用可能です。",
+      "category": "エージェント設定"
+    },
+    {
+      "t": "改善: `/model` 改善 — プロジェクトが別モデルをピン留めしていても再起動後に選択が永続化。起動ヘッダーにアクティブモデルがプロジェクトまたは管理設定ピン由来かを表示",
+      "tags": ["改善"],
+      "detail": "`/model` コマンドで選択したモデルが、プロジェクトが別モデルをピン留めしていても再起動後に永続化されるようになりました。また、起動時のヘッダーにアクティブモデルがプロジェクトのピンまたは管理設定のピンに由来しているかが表示され、どこで設定が決定されているか一目で把握できます。",
+      "category": "設定"
+    },
+    {
+      "t": "改善: `/resume` コマンドが古く大きなセッションの再読込前にサマリー化を提案（既存の `--resume` 挙動に合わせる）",
+      "tags": ["改善"],
+      "detail": "`/resume` コマンドが、古くて大きなセッションを再読込する前にサマリー化を提案するようになりました。既存の `--resume` フラグと同じ挙動になり、巨大セッションで初回読込の待ち時間を短縮できます。",
+      "category": "セッション管理"
+    },
+    {
+      "t": "改善: ローカルと claude.ai 両方の MCP サーバーが設定されている場合の起動高速化（同時接続がデフォルトに）",
+      "tags": ["改善", "MCP", "Perf"],
+      "detail": "ローカルと claude.ai の両方で MCP サーバーが設定されている場合の起動が、同時接続をデフォルトとすることで高速化されました。直列接続による遅延が解消され、CLI 起動が素早く完了します。",
+      "category": "パフォーマンス"
+    },
+    {
+      "t": "改善: インストール済みプラグインに対する `plugin install` が「already installed」で止まらず不足依存関係を追加インストール",
+      "tags": ["改善", "Plugin"],
+      "detail": "既にインストール済みのプラグインに対して `plugin install` を実行した場合に、「already installed」で停止するのではなく、不足している依存関係を追加でインストールするようになりました。依存ツリーの整合性を簡単に回復できます。",
+      "category": "Plugin"
+    },
+    {
+      "t": "改善: プラグイン依存エラーが「not installed」表示とインストールヒントを含むように。`claude plugin marketplace add` が設定済みマーケットプレースから不足依存を自動解決",
+      "tags": ["改善", "Plugin"],
+      "detail": "プラグイン依存エラーのメッセージが「not installed」と明示し、インストールヒントを含むようになりました。また、`claude plugin marketplace add` が設定済みマーケットプレースから不足している依存関係を自動解決します。詳しくは[プラグインのドキュメント](https://code.claude.com/docs/en/discover-plugins#install-plugins)を参照してください。",
+      "category": "Plugin"
+    },
+    {
+      "t": "改善: 管理設定の `blockedMarketplaces` と `strictKnownMarketplaces` がプラグインのインストール/更新/リフレッシュ/自動更新で強制適用",
+      "tags": ["改善", "Plugin", "Security"],
+      "detail": "管理設定の `blockedMarketplaces` と `strictKnownMarketplaces` が、プラグインのインストール・更新・リフレッシュ・自動更新のすべてで強制適用されるようになりました。エンタープライズ環境でのプラグインポリシー制御が一貫します。詳しくは[プラグイン設定のドキュメント](https://code.claude.com/docs/en/settings#plugin-settings)を参照してください。",
+      "category": "セキュリティ"
+    },
+    {
+      "t": "改善: Advisor Tool（実験的）— ダイアログに「experimental」ラベル、詳細リンク、有効時の起動通知を追加。毎プロンプト/`/compact` で「Advisor tool result content could not be processed」エラーでスタックしなくなる",
+      "tags": ["改善"],
+      "detail": "実験的機能の Advisor Tool が改善されました。ダイアログに「experimental」ラベルと詳細リンク、有効時の起動通知が追加され、機能の状態が明示されます。また、毎プロンプトや `/compact` で「Advisor tool result content could not be processed」エラーでセッションがスタックする問題も解消されました。",
+      "category": "ツール改善"
+    },
+    {
+      "t": "改善: `cleanupPeriodDays` 保持期間スイープが `~/.claude/tasks/`、`~/.claude/shell-snapshots/`、`~/.claude/backups/` も対象に",
+      "tags": ["改善"],
+      "detail": "`cleanupPeriodDays` 設定による保持期間スイープが、従来のセッション履歴に加えて `~/.claude/tasks/`、`~/.claude/shell-snapshots/`、`~/.claude/backups/` も対象とするようになりました。ディスク占有量の自動管理が拡充されます。",
+      "category": "設定"
+    },
+    {
+      "t": "改善: OpenTelemetry — `user_prompt` イベントにスラッシュコマンドの `command_name` と `command_source` を追加。`cost.usage`、`token.usage`、`api_request`、`api_error` にモデル対応時の `effort` 属性を追加。カスタム/MCP コマンド名は `OTEL_LOG_TOOL_DETAILS=1` 指定がない限り編集",
+      "tags": ["改善"],
+      "detail": "OpenTelemetry の `user_prompt` イベントに、スラッシュコマンドの `command_name` と `command_source`（組み込み/ユーザー/プロジェクト/プラグイン）が追加されました。`cost.usage`、`token.usage`、`api_request`、`api_error` には、モデルが対応している場合に `effort` 属性が付与されます。カスタムや MCP コマンド名は機密情報保護のため `OTEL_LOG_TOOL_DETAILS=1` を指定しない限り編集（redacted）されます。",
+      "category": "設定"
+    },
+    {
+      "t": "改善: macOS/Linux ネイティブビルドで `Glob`/`Grep` ツールを組み込みの `bfs`/`ugrep` に置き換え Bash ツール経由で利用可能に — 別ツールのラウンドトリップなしで検索が高速化（Windows と npm インストール版は変更なし）",
+      "tags": ["改善", "Perf"],
+      "detail": "macOS と Linux のネイティブビルドで、`Glob` と `Grep` ツールが組み込みの `bfs`（高速 find 代替）と `ugrep`（grep 代替）に置き換えられ、Bash ツール経由で直接利用できるようになりました。別ツールへのラウンドトリップが不要になり、ファイル検索・grep が大幅に高速化されます。Windows と npm インストール版の挙動は従来どおりです。",
+      "category": "パフォーマンス"
+    },
+    {
+      "t": "改善: Windows で `where.exe` 実行パスルックアップをプロセスごとにキャッシュし、サブプロセス起動を高速化",
+      "tags": ["改善", "Windows", "Perf"],
+      "detail": "Windows で実行ファイルパスの解決に使われる `where.exe` のルックアップ結果が、プロセスごとにキャッシュされるようになりました。同一プロセス内で何度もサブプロセスを起動する際の起動時間が短縮されます。",
+      "category": "パフォーマンス"
+    },
+    {
+      "t": "変更: Pro/Max サブスクライバーの Opus 4.6 と Sonnet 4.6 におけるデフォルトエフォートを `high` に（従来は `medium`）",
+      "tags": ["改善"],
+      "detail": "Pro/Max サブスクライバーが Opus 4.6 または Sonnet 4.6 を使用する際のデフォルトエフォートが `medium` から `high` に変更されました。上位プラン契約者はより深い推論がデフォルトで得られるようになります。",
+      "category": "設定"
+    },
+    {
+      "t": "修正: アクセストークンがセッション途中で期限切れ時に Plain-CLI OAuth セッションが「Please run /login」で落ちる問題 — 401 時にリアクティブにトークンをリフレッシュするように",
+      "tags": ["バグ修正"],
+      "detail": "アクセストークンがセッション途中で期限切れになった際に、Plain-CLI OAuth セッションが「Please run /login」エラーで落ちる問題が修正されました。401 応答時にリアクティブにトークンをリフレッシュするため、ユーザーが再ログインする必要がなくなります。",
+      "category": "安定性"
+    },
+    {
+      "t": "修正: `WebFetch` が非常に大きな HTML ページでハングする問題 — HTML→markdown 変換前に入力を切り詰めるように",
+      "tags": ["バグ修正"],
+      "detail": "`WebFetch` ツールが非常に大きな HTML ページでハングする問題が修正されました。HTML から markdown への変換前に入力サイズを切り詰めることで、巨大ページでも処理時間が暴走しなくなります。",
+      "category": "ツール改善"
+    },
+    {
+      "t": "修正: プロキシが HTTP 204 No Content を返した際に `TypeError` でクラッシュする問題 — 明確なエラーを表示するように",
+      "tags": ["バグ修正"],
+      "detail": "プロキシが HTTP 204 No Content を返した際に `TypeError` でクラッシュする問題が修正されました。エラーの原因が分かる明確なメッセージが表示されるようになり、プロキシ設定のトラブルシューティングが容易になります。",
+      "category": "ネットワーク"
+    },
+    {
+      "t": "修正: `CLAUDE_CODE_OAUTH_TOKEN` 環境変数で起動したセッションで当該トークン期限切れ時に `/login` が無効化される問題",
+      "tags": ["バグ修正"],
+      "detail": "`CLAUDE_CODE_OAUTH_TOKEN` 環境変数で起動したセッションで当該トークンが期限切れになった際に、`/login` を実行しても効果がない問題が修正されました。期限切れ検出時に適切に再ログインフローへ移行します。",
+      "category": "セッション管理"
+    },
+    {
+      "t": "修正: 入力直後にプロンプト入力 undo（`Ctrl+_`）が機能しない問題、および undo ごとに状態をスキップする問題",
+      "tags": ["バグ修正"],
+      "detail": "タイピング直後にプロンプト入力 undo（`Ctrl+_`）が機能しない問題と、undo のステップごとに状態を1つ飛ばしてしまう問題が修正されました。undo の挙動がユーザー期待通りになります。",
+      "category": "入力"
+    },
+    {
+      "t": "修正: Bun 実行時にリモート API リクエストで `NO_PROXY` が尊重されない問題",
+      "tags": ["バグ修正"],
+      "detail": "Bun ランタイムで Claude Code を実行した場合に、リモート API リクエストで `NO_PROXY` 環境変数が尊重されない問題が修正されました。プロキシをバイパスしたいホストが正しく除外されるようになります。",
+      "category": "ネットワーク"
+    },
+    {
+      "t": "修正: 低速接続時にキー名がテキストとして結合して到着する際の稀な偽 escape/return トリガー",
+      "tags": ["バグ修正"],
+      "detail": "低速接続（SSH 経由等）でキー名がテキストとして結合して到着した際に、稀に偽の escape/return がトリガーされる問題が修正されました。低速環境でもキー入力が正確にパースされます。",
+      "category": "入力"
+    },
+    {
+      "t": "修正: SDK の `reload_plugins` がユーザー MCP サーバーを直列で再接続する問題",
+      "tags": ["バグ修正", "SDK", "MCP"],
+      "detail": "SDK の `reload_plugins` 関数がユーザー側の MCP サーバーを直列で再接続していた問題が修正され、並列で再接続するようになりました。多数の MCP サーバーを持つ環境でのリロード時間が短縮されます。",
+      "category": "SDK"
+    },
+    {
+      "t": "修正: Bedrock application-inference-profile リクエストが Opus 4.7 で thinking 無効時に 400 エラーになる問題",
+      "tags": ["バグ修正", "Platform"],
+      "detail": "Bedrock の application-inference-profile リクエストが、Opus 4.7 で thinking を無効化している場合に 400 エラーになる問題が修正されました。thinking 無効のまま Bedrock application-inference-profile 経由で Opus 4.7 を使えます。",
+      "category": "Platform"
+    },
+    {
+      "t": "修正: print/SDK モードで MCP サーバーがターン途中で接続完了する際に `elicitation/create` リクエストが自動キャンセルされる問題",
+      "tags": ["バグ修正", "MCP", "SDK"],
+      "detail": "print モードや SDK モードで、MCP サーバーがターン途中で接続を完了した際に、`elicitation/create` リクエスト（ユーザー入力要求）が自動キャンセルされる問題が修正されました。ターン進行中の MCP 接続でも対話が維持されます。",
+      "category": "MCP 連携"
+    },
+    {
+      "t": "修正: メインエージェントと異なるモデルで動作するサブエージェントがファイル読み取りをマルウェア警告と誤判定する問題",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "メインエージェントと異なるモデルで動作するサブエージェントが、ファイル読み取りを誤ってマルウェア警告として扱う問題が修正されました。モデル混在のマルチエージェント環境でも安全判定が整合します。",
+      "category": "マルチエージェント"
+    },
+    {
+      "t": "修正: バックグラウンドタスク存在時のアイドル再レンダーループ — Linux でのメモリ増加を削減",
+      "tags": ["バグ修正", "Perf"],
+      "detail": "バックグラウンドタスクが存在する際にアイドル状態での再レンダーループが発生し、Linux でメモリ使用量が増加する問題が修正されました。長時間動作時のメモリフットプリントが改善されます。",
+      "category": "パフォーマンス"
+    },
+    {
+      "t": "修正: [VSCode] 複数の大規模マーケットプレース設定時に「Manage Plugins」パネルが壊れる問題",
+      "tags": ["バグ修正", "IDE", "Plugin"],
+      "detail": "VSCode 拡張機能で、複数の大規模マーケットプレースが設定されている際に「Manage Plugins」パネルが壊れる問題が修正されました。大量のマーケットプレースを扱う環境でも UI が正常に動作します。",
+      "category": "IDE"
+    },
+    {
+      "t": "修正: Opus 4.7 セッションで `/context` パーセンテージが過大表示され早期に自動コンパクトされる問題 — 200K コンテキストウィンドウに対して計算されていたが Opus 4.7 のネイティブ 1M に修正",
+      "tags": ["バグ修正"],
+      "detail": "Opus 4.7 セッションで `/context` パーセンテージが過大表示され、早期に自動コンパクトが発動してしまう問題が修正されました。Claude Code が 200K コンテキストウィンドウに対して計算していたのを Opus 4.7 ネイティブの 1M コンテキストに修正し、長い文脈を十分に活用できるようになります。",
+      "category": "メモリ"
+    }
+  ],
+  "2.1.118": [
+    {
+      "t": "追加: Vim ビジュアルモード（`v`）と行ビジュアルモード（`V`）— 選択、オペレータ、視覚フィードバック対応",
+      "tags": ["新機能"],
+      "detail": "Vim ライクなビジュアルモード（`v`）と行ビジュアルモード（`V`）が追加されました。選択範囲、オペレータ、視覚フィードバックがサポートされ、Vim ユーザーに馴染みある操作で範囲選択・編集操作が行えます。",
+      "category": "入力"
+    },
+    {
+      "t": "変更: `/cost` と `/stats` を `/usage` に統合 — 両コマンドは該当タブを開くタイピングショートカットとして残る",
+      "tags": ["改善"],
+      "detail": "`/cost` と `/stats` が `/usage` コマンドに統合されました。両コマンドは該当タブを開くタイピングショートカットとしてそのまま使えるため、既存のワークフローを壊さずに統一された usage UI に素早くアクセスできます。",
+      "category": "コマンド"
+    },
+    {
+      "t": "追加: `/theme` から名前付きカスタムテーマを作成/切り替え、または `~/.claude/themes/` の JSON ファイルを直接編集。プラグインも `themes/` ディレクトリでテーマを配布可能に",
+      "tags": ["新機能"],
+      "detail": "`/theme` から名前付きのカスタムテーマを作成したり切り替えたりできるようになりました。`~/.claude/themes/` の JSON ファイルを直接編集することでも詳細なカスタマイズが可能です。プラグインも `themes/` ディレクトリにテーマを含めて配布できるようになり、チームでテーマを共有する運用が可能になります。",
+      "category": "UX"
+    },
+    {
+      "t": "追加: hooks が `type: \"mcp_tool\"` で MCP ツールを直接呼び出し可能に",
+      "tags": ["新機能", "MCP"],
+      "detail": "hooks の定義に `type: \"mcp_tool\"` を指定することで、MCP ツールを直接呼び出せるようになりました。従来はコマンド経由で間接的に呼び出す必要があった MCP 連携が、hooks 定義内で宣言的に記述できます。詳しくは [hooks のドキュメント](https://code.claude.com/docs/en/hooks)を参照してください。",
+      "category": "MCP 連携"
+    },
+    {
+      "t": "追加: `DISABLE_UPDATES` 環境変数 — 手動 `claude update` を含む全ての更新パスを完全ブロック（`DISABLE_AUTOUPDATER` より厳格）",
+      "tags": ["新機能"],
+      "detail": "新しい `DISABLE_UPDATES` 環境変数が追加されました。`DISABLE_AUTOUPDATER` よりも厳格で、手動の `claude update` も含む全ての更新パスを完全にブロックします。バージョン固定が必須のエンタープライズ環境や CI 環境に適しています。詳しくは[環境変数のドキュメント](https://code.claude.com/docs/en/settings#environment-variables)を参照してください。",
+      "category": "設定"
+    },
+    {
+      "t": "追加: Windows の WSL が `wslInheritsWindowsSettings` ポリシーキーで Windows 側の管理設定を継承可能に",
+      "tags": ["新機能", "Windows"],
+      "detail": "Windows の WSL（Windows Subsystem for Linux）環境で、`wslInheritsWindowsSettings` ポリシーキーを設定することで Windows 側の管理設定を WSL 内にも継承できるようになりました。ホスト Windows と WSL で一貫したポリシー適用が可能になります。",
+      "category": "プラットフォーム互換性"
+    },
+    {
+      "t": "改善: Auto mode — `autoMode.allow`、`autoMode.soft_deny`、`autoMode.environment` に `\"$defaults\"` を含めることで組み込みルールを置き換えずに追加",
+      "tags": ["改善"],
+      "detail": "Auto mode の `autoMode.allow`、`autoMode.soft_deny`、`autoMode.environment` 設定で `\"$defaults\"` という特殊値を含められるようになりました。組み込みルールを完全に置き換えるのではなく、その上にカスタムルールを追加できます。組み込みルールの恩恵を受けつつ独自の挙動を追加する運用が容易になります。",
+      "category": "設定"
+    },
+    {
+      "t": "追加: Auto mode オプトインプロンプトに「Don't ask again」オプション",
+      "tags": ["改善"],
+      "detail": "Auto mode のオプトインプロンプトに「Don't ask again」オプションが追加されました。Auto mode を常用するユーザーは初回のプロンプトで永続的に確認をスキップでき、作業の流れが途切れません。",
+      "category": "UX"
+    },
+    {
+      "t": "追加: `claude plugin tag` — バージョン検証付きでプラグインのリリース git タグを作成",
+      "tags": ["新機能", "Plugin"],
+      "detail": "新しい `claude plugin tag` サブコマンドが追加されました。プラグインのリリース git タグを、バージョン検証付きで作成できます。プラグイン開発者が正しいセマンティックバージョニングでタグを打てるため、配布時のバージョン管理ミスが減ります。詳しくは[プラグイン作成のドキュメント](https://code.claude.com/docs/en/plugins)を参照してください。",
+      "category": "Plugin"
+    },
+    {
+      "t": "改善: `--continue`/`--resume` が `/add-dir` で現在のディレクトリを追加したセッションも検出",
+      "tags": ["改善"],
+      "detail": "`--continue` と `--resume` が、起動時の cwd だけでなく、セッション中に `/add-dir` で追加されたディレクトリに基づいてセッションを検出するようになりました。複数ディレクトリをまたぐワークフローでもセッションの発見・再開が容易になります。",
+      "category": "セッション管理"
+    },
+    {
+      "t": "改善: `/color` が Remote Control 接続時にセッションのアクセントカラーを claude.ai/code に同期",
+      "tags": ["改善"],
+      "detail": "`/color` でセッションのアクセントカラーを変更した際に、Remote Control が接続されている場合は claude.ai/code にもその変更が同期されるようになりました。モバイル/Web からもセッションの識別が容易になります。",
+      "category": "UX"
+    },
+    {
+      "t": "改善: `/model` ピッカーがカスタム `ANTHROPIC_BASE_URL` ゲートウェイ使用時に `ANTHROPIC_DEFAULT_*_MODEL_NAME`/`_DESCRIPTION` のオーバーライドを尊重",
+      "tags": ["改善"],
+      "detail": "カスタム `ANTHROPIC_BASE_URL` でゲートウェイを使用している場合に、`/model` ピッカーが `ANTHROPIC_DEFAULT_*_MODEL_NAME` や `ANTHROPIC_DEFAULT_*_MODEL_DESCRIPTION` のオーバーライドを尊重するようになりました。社内ゲートウェイ経由で独自のモデル名を提示している環境でも `/model` が正しく動作します。",
+      "category": "設定"
+    },
+    {
+      "t": "改善: 別プラグインのバージョン制約により自動更新がプラグインをスキップした場合、スキップが `/doctor` と `/plugin` Errors タブに表示",
+      "tags": ["改善", "Plugin"],
+      "detail": "別プラグインのバージョン制約によってプラグインの自動更新がスキップされた場合、そのスキップ情報が `/doctor` と `/plugin` の Errors タブに表示されるようになりました。更新が進まない理由を明確に把握でき、依存関係のデッドロックの解消に役立ちます。",
+      "category": "Plugin"
+    },
+    {
+      "t": "修正: `headersHelper` で設定されたサーバーの OAuth 認証/再認証アクションが `/mcp` メニューから隠れる問題、およびカスタムヘッダー付き HTTP/SSE MCP サーバーが一時的 401 後「needs authentication」でスタックする問題",
+      "tags": ["バグ修正", "MCP"],
+      "detail": "`headersHelper` で設定された MCP サーバーの OAuth 認証/再認証アクションが `/mcp` メニューから非表示になる問題、およびカスタムヘッダー付き HTTP/SSE MCP サーバーが一時的な 401 の後「needs authentication」状態にスタックする問題が修正されました。認証フローが正常に回復するようになります。",
+      "category": "MCP 連携"
+    },
+    {
+      "t": "修正: OAuth トークン応答に `expires_in` を含まない MCP サーバーが1時間ごとに再認証を要求する問題",
+      "tags": ["バグ修正", "MCP"],
+      "detail": "OAuth トークン応答に `expires_in` フィールドを含まない MCP サーバーが、1時間ごとに再認証を要求する問題が修正されました。`expires_in` 省略時の適切なデフォルト期限が採用され、不要な再認証が減ります。",
+      "category": "MCP 連携"
+    },
+    {
+      "t": "修正: MCP step-up 認証で、現在のトークンが持つスコープをサーバーの `insufficient_scope` 403 が指定した場合に再同意プロンプトが表示されず無音でリフレッシュされる問題",
+      "tags": ["バグ修正", "MCP"],
+      "detail": "MCP の step-up 認証で、サーバーが返す `insufficient_scope` 403 が現在のトークンが既に持っているスコープを指定した場合に、再同意プロンプトが表示されず無音でリフレッシュされる問題が修正されました。必要な場合は明示的な再同意プロンプトが表示されます。",
+      "category": "MCP 連携"
+    },
+    {
+      "t": "修正: MCP サーバーの OAuth フローがタイムアウト/キャンセルされた際の未処理 promise rejection",
+      "tags": ["バグ修正", "MCP"],
+      "detail": "MCP サーバーの OAuth フローがタイムアウトしたりキャンセルされたりした際に、未処理の promise rejection が発生する問題が修正されました。エラーが適切にハンドリングされ、ログの汚染が解消されます。",
+      "category": "MCP 連携"
+    },
+    {
+      "t": "修正: MCP OAuth リフレッシュが競合状態でクロスプロセスロックなしで進行する問題",
+      "tags": ["バグ修正", "MCP"],
+      "detail": "MCP OAuth のリフレッシュが、複数プロセスからの同時アクセス時にクロスプロセスロックなしで進行してしまう問題が修正されました。複数の Claude Code インスタンスが同時に動作していてもトークン整合性が保たれます。",
+      "category": "MCP 連携"
+    },
+    {
+      "t": "修正: macOS キーチェーン競合 — 並行 MCP トークンリフレッシュで新たにリフレッシュされた OAuth トークンが上書きされ予期しない「Please run /login」が発生する問題",
+      "tags": ["バグ修正", "MCP", "Security"],
+      "detail": "macOS キーチェーンで、並行する MCP トークンリフレッシュによって新たに取得されたばかりの OAuth トークンが別のリフレッシュ処理で上書きされ、予期しない「Please run /login」プロンプトが発生する問題が修正されました。並行トークン操作の安全性が確保されます。",
+      "category": "セキュリティ"
+    },
+    {
+      "t": "修正: サーバーがローカル有効期限前にトークンを失効させた際に OAuth トークンリフレッシュが失敗する問題",
+      "tags": ["バグ修正"],
+      "detail": "サーバー側でローカルの有効期限より前にトークンが失効させられた場合に、OAuth トークンリフレッシュが失敗する問題が修正されました。サーバー側の早期失効にも正しく対応できます。",
+      "category": "安定性"
+    },
+    {
+      "t": "修正: Linux/Windows で `~/.claude/.credentials.json` を破損させる認証情報保存時のクラッシュ",
+      "tags": ["バグ修正", "Windows", "Security"],
+      "detail": "Linux と Windows で認証情報保存時のクラッシュによって `~/.claude/.credentials.json` が破損する問題が修正されました。書き込み操作のアトミック性が確保され、クラッシュ時でも認証情報が失われなくなります。",
+      "category": "セキュリティ"
+    },
+    {
+      "t": "修正: `CLAUDE_CODE_OAUTH_TOKEN` 環境変数で起動したセッションで `/login` が無効な問題 — 環境トークンをクリアしてディスク上の認証情報が有効になるように",
+      "tags": ["バグ修正"],
+      "detail": "`CLAUDE_CODE_OAUTH_TOKEN` 環境変数で起動したセッションで `/login` が無効になる問題が修正されました。`/login` 実行時に環境トークンがクリアされ、ディスク上の認証情報が有効化されるため、再ログインが正常に完了します。",
+      "category": "セッション管理"
+    },
+    {
+      "t": "修正: 「new messages」スクロールピルと `/plugin` バッジのテキストが読めない問題",
+      "tags": ["バグ修正", "Plugin"],
+      "detail": "「new messages」スクロールピルと `/plugin` バッジのテキストが、テーマによっては読みにくい問題が修正されました。コントラストが改善され、どのテーマでも視認性が確保されます。",
+      "category": "レンダリング"
+    },
+    {
+      "t": "修正: `--dangerously-skip-permissions` 実行時にプラン承認ダイアログが「bypass permissions」ではなく「auto mode」を提示する問題",
+      "tags": ["バグ修正"],
+      "detail": "`--dangerously-skip-permissions` で起動した場合のプラン承認ダイアログが、実際の挙動と一致する「bypass permissions」ではなく「auto mode」と提示していた問題が修正されました。UI の表記と実際の権限モードが整合します。",
+      "category": "UX"
+    },
+    {
+      "t": "修正: `Stop` または `SubagentStop` 以外のイベントに設定されたエージェント型 hooks が「Messages are required for agent hooks」で失敗する問題",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "エージェント型 hooks が `Stop` や `SubagentStop` 以外のイベント（例: `PreToolUse`）に設定されている場合に、「Messages are required for agent hooks」エラーで失敗する問題が修正されました。幅広いイベントでエージェント型 hooks が動作します。",
+      "category": "エージェント設定"
+    },
+    {
+      "t": "修正: エージェント hook 検証サブエージェントのツール呼び出しで `prompt` hooks が再発火する問題",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "エージェント hook の検証用サブエージェントがツール呼び出しを行った際に、`prompt` hooks が再発火する問題が修正されました。hook の連鎖的な実行による予期しない挙動が解消されます。",
+      "category": "マルチエージェント"
+    },
+    {
+      "t": "修正: `/fork` がフォーク毎に親会話全体をディスクに書き出していた問題 — ポインタを書き、読み取り時にハイドレートするように変更",
+      "tags": ["バグ修正", "Perf"],
+      "detail": "`/fork` コマンドがフォーク毎に親会話の全データをディスクに書き出していた問題が修正されました。ポインタのみを書き込み、読み取り時にハイドレート（実データを展開）する方式に変更されたため、ディスク容量と書き込み時間が大幅に節約されます。",
+      "category": "パフォーマンス"
+    },
+    {
+      "t": "修正: `Alt+K` / `Alt+X` / `Alt+^` / `Alt+_` でキーボード入力がフリーズする問題",
+      "tags": ["バグ修正"],
+      "detail": "`Alt+K`、`Alt+X`、`Alt+^`、`Alt+_` を押すとキーボード入力がフリーズする問題が修正されました。これらのキーコンビネーションでも入力状態が維持されます。",
+      "category": "入力"
+    },
+    {
+      "t": "修正: リモートセッション接続時に `~/.claude/settings.json` のローカル `model` 設定が上書きされる問題",
+      "tags": ["バグ修正"],
+      "detail": "リモートセッション接続時に `~/.claude/settings.json` のローカル `model` 設定が上書きされる問題が修正されました。リモートから切断してもローカルのモデル設定が保持されます。",
+      "category": "セッション管理"
+    },
+    {
+      "t": "修正: `/` で始まるファイルパスをペーストした際にタイプアヘッドが「No commands match」エラーを表示する問題",
+      "tags": ["バグ修正"],
+      "detail": "`/` で始まるファイルパス（絶対パス等）をペーストした際に、タイプアヘッドがスラッシュコマンド候補として誤認識し「No commands match」エラーを表示する問題が修正されました。ペースト内容が正しくテキストとして扱われます。",
+      "category": "入力"
+    },
+    {
+      "t": "修正: インストール済みプラグインへの `plugin install` が誤バージョンでインストールされた依存関係を再解決しない問題",
+      "tags": ["バグ修正", "Plugin"],
+      "detail": "既にインストール済みのプラグインに対して `plugin install` を実行した際に、誤バージョンでインストールされた依存関係を再解決しない問題が修正されました。依存ツリーの整合性回復が確実になります。",
+      "category": "Plugin"
+    },
+    {
+      "t": "修正: 無効パスや fd 枯渇時の file watcher の未処理エラー",
+      "tags": ["バグ修正"],
+      "detail": "無効なパスや file descriptor 枯渇時に file watcher から発生する未処理エラーが修正されました。エラーが適切にハンドリングされ、セッションのクラッシュが防止されます。",
+      "category": "安定性"
+    },
+    {
+      "t": "修正: JWT リフレッシュ中の一時的な CCR 初期化障害で Remote Control セッションがアーカイブされる問題",
+      "tags": ["バグ修正"],
+      "detail": "JWT リフレッシュ中の一時的な CCR（Claude Code Remote）初期化障害により、Remote Control セッションが意図せずアーカイブされる問題が修正されました。一時障害からの自動回復が期待できるようになります。",
+      "category": "セッション管理"
+    },
+    {
+      "t": "修正: `SendMessage` で再開されたサブエージェントが起動時の明示的 `cwd` を復元しない問題",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "`SendMessage` で再開されたサブエージェントが、起動時に指定された明示的 `cwd`（作業ディレクトリ）を復元しない問題が修正されました。再開時も元の作業ディレクトリで正しく動作します。",
+      "category": "マルチエージェント"
+    }
+  ],
+  "2.1.119": [
+    {
+      "t": "改善: `/config` 設定（テーマ、エディタモード、verbose 等）が `~/.claude/settings.json` に永続化され、プロジェクト/ローカル/ポリシーのオーバーライド優先順位に参加",
+      "tags": ["改善"],
+      "detail": "`/config` で変更したテーマ、エディタモード、verbose 等の設定が `~/.claude/settings.json` に永続化されるようになりました。プロジェクト/ローカル/ポリシーのオーバーライド優先順位に組み込まれ、組織ポリシーや個別プロジェクト設定と一貫した形で扱われます。詳しくは[設定のドキュメント](https://code.claude.com/docs/en/settings)を参照してください。",
+      "category": "設定"
+    },
+    {
+      "t": "追加: `prUrlTemplate` 設定 — フッターの PR バッジを github.com ではなくカスタムコードレビュー URL に向ける",
+      "tags": ["新機能"],
+      "detail": "新しい `prUrlTemplate` 設定が追加されました。フッターの PR バッジを github.com ではなくカスタムのコードレビュー URL（社内 GitLab、Bitbucket 等）に向けることができます。組織の CI/CD フローに合わせたリンク設定が可能です。詳しくは[設定のドキュメント](https://code.claude.com/docs/en/settings)を参照してください。",
+      "category": "設定"
+    },
+    {
+      "t": "追加: `CLAUDE_CODE_HIDE_CWD` 環境変数 — 起動ロゴで作業ディレクトリを非表示に",
+      "tags": ["新機能"],
+      "detail": "新しい `CLAUDE_CODE_HIDE_CWD` 環境変数が追加されました。起動ロゴに表示されていた作業ディレクトリのパスを非表示にできます。スクリーンシェアや動画収録の際にディレクトリ構造を露出したくない場合に便利です。詳しくは[環境変数のドキュメント](https://code.claude.com/docs/en/settings#environment-variables)を参照してください。",
+      "category": "設定"
+    },
+    {
+      "t": "改善: `--from-pr` が GitLab マージリクエスト、Bitbucket プルリクエスト、GitHub Enterprise PR の URL を受け付けるように",
+      "tags": ["改善"],
+      "detail": "`--from-pr` フラグが GitLab のマージリクエスト、Bitbucket のプルリクエスト、GitHub Enterprise の PR URL を受け付けるようになりました。github.com 以外のコードホスティングを使う組織でも、PR から直接セッションを起動できます。",
+      "category": "Git 連携"
+    },
+    {
+      "t": "改善: `--print` モードがエージェントの `tools:` と `disallowedTools:` フロントマターを尊重（対話モードと一致）",
+      "tags": ["改善", "Agent"],
+      "detail": "`--print` モード（非対話モード）で、エージェント定義の `tools:` と `disallowedTools:` フロントマターが尊重されるようになりました。対話モードと同じツール制約が適用され、CI/CD での自動実行時にも一貫したエージェント挙動が得られます。",
+      "category": "エージェント設定"
+    },
+    {
+      "t": "改善: `--agent <name>` が組み込みエージェントについてもエージェント定義の `permissionMode` を尊重",
+      "tags": ["改善", "Agent"],
+      "detail": "`--agent <name>` で組み込みエージェントを起動した際も、そのエージェント定義の `permissionMode` が尊重されるようになりました。エージェントごとに期待される権限モードで起動するため、想定外の権限状態を避けられます。",
+      "category": "エージェント設定"
+    },
+    {
+      "t": "改善: PowerShell ツールコマンドが permission モードで自動承認可能に（Bash と同じ挙動）",
+      "tags": ["改善", "Windows", "Security"],
+      "detail": "PowerShell ツールのコマンドが、permission モードで自動承認できるようになりました。Bash と同じ挙動となり、Windows 環境で PowerShell を主要シェルとして使うユーザーが permission ルールによるコマンド自動承認の恩恵を受けられます。詳しくは[パーミッション設定のドキュメント](https://code.claude.com/docs/en/settings#permission-settings)を参照してください。",
+      "category": "パーミッション"
+    },
+    {
+      "t": "追加: Hooks — `PostToolUse` と `PostToolUseFailure` の hook 入力に `duration_ms`（permission prompts と PreToolUse hooks を除いたツール実行時間）を含めるように",
+      "tags": ["新機能"],
+      "detail": "`PostToolUse` と `PostToolUseFailure` の hook 入力に `duration_ms` フィールドが追加されました。ツール実行時間（permission prompts と PreToolUse hooks を除く）を受け取れるため、遅いツールの検知や統計情報の収集が容易になります。詳しくは [hooks のドキュメント](https://code.claude.com/docs/en/hooks#posttooluse)を参照してください。",
+      "category": "設定"
+    },
+    {
+      "t": "改善: サブエージェントと SDK の MCP サーバー再設定が直列ではなく並列で接続",
+      "tags": ["改善", "SDK", "MCP", "Perf"],
+      "detail": "サブエージェントと SDK の MCP サーバー再設定が、直列ではなく並列で接続するようになりました。多数の MCP サーバーを使う環境でエージェント起動や SDK 利用時の待ち時間が短縮されます。",
+      "category": "パフォーマンス"
+    },
+    {
+      "t": "改善: 別プラグインのバージョン制約でピン留めされたプラグインが満たす最高の git タグに自動更新",
+      "tags": ["改善", "Plugin"],
+      "detail": "別プラグインのバージョン制約でピン留めされているプラグインが、制約を満たす最高の git タグに自動更新されるようになりました。依存関係の整合性を保ちつつ最新のバグ修正を得られます。",
+      "category": "Plugin"
+    },
+    {
+      "t": "改善: Vim モード — INSERT での Esc がキュー中メッセージを入力に戻さない（再度 Esc で割り込み）",
+      "tags": ["改善"],
+      "detail": "Vim モードの INSERT で Esc を押した際、従来はキュー中のメッセージが入力に戻される挙動でしたが、戻さないように変更されました。キュー中メッセージをキャンセル/割り込みしたい場合は Esc をもう一度押すことで実現できます。",
+      "category": "入力"
+    },
+    {
+      "t": "改善: スラッシュコマンド候補がクエリにマッチした文字をハイライト",
+      "tags": ["改善"],
+      "detail": "スラッシュコマンド候補の表示で、入力クエリにマッチした文字がハイライトされるようになりました。なぜその候補が表示されているかが一目で分かり、コマンド選択の効率が上がります。",
+      "category": "UX"
+    },
+    {
+      "t": "改善: スラッシュコマンドピッカーが長い説明を切り詰めず2行目に折り返し",
+      "tags": ["改善"],
+      "detail": "スラッシュコマンドピッカーで、長い説明が切り詰められる代わりに2行目に折り返して表示されるようになりました。説明全体を読めるため、目的のコマンドの選択ミスが減ります。",
+      "category": "レンダリング"
+    },
+    {
+      "t": "改善: 出力内の `owner/repo#N` ショートハンドリンクが常に github.com ではなく git リモートのホストを使うように",
+      "tags": ["改善"],
+      "detail": "出力に含まれる `owner/repo#N` 形式のショートハンドリンクが、常に github.com ではなく現在の git リモートのホストを使用するようになりました。GitLab や GitHub Enterprise で作業している場合も正しいホストへのリンクが生成されます。",
+      "category": "Git 連携"
+    },
+    {
+      "t": "修正: セキュリティ — `blockedMarketplaces` の `hostPattern` と `pathPattern` エントリが正しく強制適用されるように",
+      "tags": ["バグ修正", "Security", "Plugin"],
+      "detail": "管理設定の `blockedMarketplaces` で指定した `hostPattern` と `pathPattern` エントリが、正しく強制適用されるように修正されました。ブロックルールの回避を許さず、組織ポリシーが期待通りに機能します。詳しくは[プラグイン設定のドキュメント](https://code.claude.com/docs/en/settings#plugin-settings)を参照してください。",
+      "category": "セキュリティ"
+    },
+    {
+      "t": "改善: OpenTelemetry — `tool_result` と `tool_decision` イベントに `tool_use_id` を追加、`tool_result` には `tool_input_size_bytes` も追加",
+      "tags": ["改善"],
+      "detail": "OpenTelemetry の `tool_result` と `tool_decision` イベントに `tool_use_id` が追加され、対応するツール呼び出しと紐付けしやすくなりました。`tool_result` にはさらに `tool_input_size_bytes` も追加され、ツールに渡す入力サイズの追跡が可能になります。",
+      "category": "設定"
+    },
+    {
+      "t": "改善: ステータスライン — stdin JSON に `effort.level` と `thinking.enabled` を追加",
+      "tags": ["改善"],
+      "detail": "カスタムステータスラインスクリプトの stdin JSON に `effort.level` と `thinking.enabled` が追加されました。ステータスラインでエフォートレベルや thinking の有効状態を表示できます。",
+      "category": "設定"
+    },
+    {
+      "t": "修正: CRLF コンテンツ（Windows クリップボード、Xcode コンソール）のペーストで各行の間に余分な空行が挿入される問題",
+      "tags": ["バグ修正"],
+      "detail": "Windows のクリップボードや Xcode コンソールからコピーした CRLF 改行を含むコンテンツをペーストした際、各行の間に余分な空行が挿入される問題が修正されました。CRLF/LF の正規化が正しく行われ、ペースト結果が期待通りになります。",
+      "category": "入力"
+    },
+    {
+      "t": "修正: bracketed paste 内で kitty キーボードプロトコルシーケンスを使うターミナルでマルチラインペーストが改行を失う問題",
+      "tags": ["バグ修正"],
+      "detail": "bracketed paste 内で kitty キーボードプロトコルシーケンスを使用するターミナルにおいて、マルチラインペーストが改行を失う問題が修正されました。対応ターミナルでも複数行のコードが正しくペーストされます。",
+      "category": "入力"
+    },
+    {
+      "t": "修正: Bash ツールが permissions で拒否されている際に macOS/Linux ネイティブビルドで Glob と Grep ツールが消える問題",
+      "tags": ["バグ修正"],
+      "detail": "macOS/Linux ネイティブビルドで Bash ツールが permissions で拒否されている際、Bash ツール経由で提供されていた `Glob` と `Grep` ツールまで消えてしまう問題が修正されました。Bash 拒否時でも検索ツールが使えるようになります。",
+      "category": "パーミッション"
+    },
+    {
+      "t": "修正: フルスクリーンモードでの上方向スクロールがツール完了のたびに下端へ戻される問題",
+      "tags": ["バグ修正"],
+      "detail": "フルスクリーンモードで上方向にスクロールしても、ツール完了のたびにビューが下端へ強制的に戻される問題が修正されました。過去の出力を確認しながら作業中にスクロール位置が保持されます。",
+      "category": "レンダリング"
+    },
+    {
+      "t": "修正: OAuth discovery リクエストでサーバーが非 JSON ボディを返した際に MCP HTTP 接続が「Invalid OAuth error response」で失敗する問題",
+      "tags": ["バグ修正", "MCP"],
+      "detail": "MCP の OAuth discovery リクエストに対してサーバーが非 JSON ボディを返した際、MCP HTTP 接続が「Invalid OAuth error response」エラーで失敗する問題が修正されました。非準拠の応答でも適切に処理されます。",
+      "category": "MCP 連携"
+    },
+    {
+      "t": "修正: Rewind オーバーレイで画像添付付きメッセージが「(no prompt)」と表示される問題",
+      "tags": ["バグ修正"],
+      "detail": "Rewind オーバーレイで画像添付付きのメッセージが「(no prompt)」と表示される問題が修正されました。画像と共に送られたテキスト部分がプロンプトとして表示されるようになります。",
+      "category": "レンダリング"
+    },
+    {
+      "t": "修正: Auto モードが plan モードを「Execute immediately」指示で上書きしてしまう問題",
+      "tags": ["バグ修正"],
+      "detail": "Auto モードが plan モードを「Execute immediately」の指示で上書きし、プラン作成前に実行が始まってしまう問題が修正されました。両モードの意図が矛盾する場面で plan モードが尊重されます。",
+      "category": "UX"
+    },
+    {
+      "t": "修正: 応答ペイロードを出さない非同期 `PostToolUse` hooks がセッショントランスクリプトに空エントリを書き込む問題",
+      "tags": ["バグ修正"],
+      "detail": "応答ペイロードを出さない非同期の `PostToolUse` hooks が、セッショントランスクリプトに空エントリを書き込む問題が修正されました。空エントリによるトランスクリプトの乱れが解消されます。",
+      "category": "安定性"
+    },
+    {
+      "t": "修正: サブエージェントタスク通知がキュー内で孤立した際にスピナーが点きっぱなしになる問題",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "サブエージェントタスク通知がキュー内で孤立した場合に、スピナーが点きっぱなしになる問題が修正されました。サブエージェント完了が確実に反映されます。",
+      "category": "マルチエージェント"
+    },
+    {
+      "t": "変更: Vertex AI でツール検索をデフォルト無効化（未対応 beta ヘッダーエラー回避、`ENABLE_TOOL_SEARCH` でオプトイン）",
+      "tags": ["改善", "Platform"],
+      "detail": "Vertex AI でツール検索が、未対応の beta ヘッダーエラーを避けるためデフォルトで無効化されました。ツール検索を使いたい場合は `ENABLE_TOOL_SEARCH` 環境変数でオプトインできます。Vertex AI ユーザーでエラーが発生していた場合、安定動作が得られるようになります。",
+      "category": "Platform"
+    },
+    {
+      "t": "修正: スラッシュコマンド内で絶対パスを使った際に `@` ファイル Tab 補完がプロンプト全体を置き換えてしまう問題",
+      "tags": ["バグ修正"],
+      "detail": "スラッシュコマンド内で絶対パスを指定した際に、`@` ファイル Tab 補完がプロンプト全体を絶対パスに置き換えてしまう問題が修正されました。補完対象のみが置き換えられ、周囲のテキストは保持されます。",
+      "category": "入力"
+    },
+    {
+      "t": "修正: Docker や SSH 経由の macOS Terminal.app 起動時にプロンプトに迷子の `p` 文字が現れる問題",
+      "tags": ["バグ修正"],
+      "detail": "Docker や SSH 経由で macOS Terminal.app から Claude Code を起動した際に、プロンプトに迷子の `p` 文字が表示される問題が修正されました。起動時のエスケープシーケンス処理が改善されています。",
+      "category": "レンダリング"
+    },
+    {
+      "t": "修正: HTTP/SSE/WebSocket MCP サーバーの `headers` の `${ENV_VAR}` プレースホルダーがリクエスト前に置換されない問題",
+      "tags": ["バグ修正", "MCP"],
+      "detail": "HTTP/SSE/WebSocket MCP サーバーの `headers` 設定で指定した `${ENV_VAR}` プレースホルダーが、リクエスト送信前に環境変数の値に置換されない問題が修正されました。環境変数ベースの認証ヘッダー等が正しく機能します。詳しくは [MCP のドキュメント](https://code.claude.com/docs/en/mcp)を参照してください。",
+      "category": "MCP 連携"
+    },
+    {
+      "t": "修正: `--client-secret` で保存された MCP OAuth クライアントシークレットが `client_secret_post` を要求するサーバーへのトークン交換時に送信されない問題",
+      "tags": ["バグ修正", "MCP"],
+      "detail": "`--client-secret` で保存された MCP OAuth クライアントシークレットが、`client_secret_post` 方式を要求するサーバーへのトークン交換時に送信されない問題が修正されました。該当サーバーでも認証フローが完結します。",
+      "category": "MCP 連携"
+    },
+    {
+      "t": "修正: `/skills` の Enter キーがダイアログを閉じるだけでプロンプトに `/<skill-name>` をプリフィルしない問題",
+      "tags": ["バグ修正"],
+      "detail": "`/skills` メニューで Enter キーを押した際に、ダイアログを閉じるだけでプロンプトに `/<skill-name>` がプリフィルされない問題が修正されました。選択したスキルをすぐに実行できます。",
+      "category": "コマンド"
+    },
+    {
+      "t": "修正: `/agents` 詳細ビューがサブエージェントで利用不可の組み込みツールを「Unrecognized」と誤ラベル表示する問題",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "`/agents` 詳細ビューで、サブエージェントでは利用不可の組み込みツールが「Unrecognized」として誤ラベル表示される問題が修正されました。ツールの利用可否が正確に表示されます。",
+      "category": "エージェント設定"
+    },
+    {
+      "t": "修正: プラグインキャッシュが不完全な Windows でプラグインの MCP サーバーが起動しない問題",
+      "tags": ["バグ修正", "Windows", "MCP", "Plugin"],
+      "detail": "プラグインキャッシュが不完全な状態の Windows で、プラグインの MCP サーバーが起動しない問題が修正されました。キャッシュ不整合の検出と回復処理が改善されています。",
+      "category": "プラットフォーム互換性"
+    },
+    {
+      "t": "修正: `/export` が会話が実際に使用したモデルではなく現在のデフォルトモデルを表示する問題",
+      "tags": ["バグ修正"],
+      "detail": "`/export` が会話で実際に使用したモデルではなく、現在のデフォルトモデルを表示する問題が修正されました。エクスポート結果にモデル情報を正確に含められます。",
+      "category": "コマンド"
+    },
+    {
+      "t": "修正: verbose 出力設定が再起動後に永続化されない問題",
+      "tags": ["バグ修正"],
+      "detail": "verbose 出力設定が Claude Code の再起動後に永続化されない問題が修正されました。設定ファイルに保存されるため、再起動しても詳細出力モードが維持されます。",
+      "category": "設定"
+    },
+    {
+      "t": "修正: `/usage` プログレスバーが「Resets …」ラベルと重なる問題",
+      "tags": ["バグ修正"],
+      "detail": "`/usage` のプログレスバーが「Resets …」ラベルと重なって表示される問題が修正されました。バーとラベルの位置調整が行われ、読みやすい表示になります。",
+      "category": "レンダリング"
+    },
+    {
+      "t": "修正: プラグイン MCP サーバーが `${user_config.*}` 参照のオプションフィールドが未入力時に失敗する問題",
+      "tags": ["バグ修正", "MCP", "Plugin"],
+      "detail": "プラグインの MCP サーバー定義で `${user_config.*}` を参照している箇所について、ユーザーがオプションフィールドを未入力にしていた場合に失敗する問題が修正されました。空のオプションフィールドが正しく扱われ、MCP サーバーが起動します。",
+      "category": "MCP 連携"
+    },
+    {
+      "t": "修正: 文末の数値を含むリスト項目で数値が単独で次行に折り返される問題",
+      "tags": ["バグ修正"],
+      "detail": "文末の数値を含むリスト項目で、その数値のみが単独で次行に折り返される組版の問題が修正されました。リスト項目の可読性が向上します。",
+      "category": "レンダリング"
+    },
+    {
+      "t": "修正: `/plan` と `/plan open` が plan モード移行時に既存プランに対して作用しない問題",
+      "tags": ["バグ修正"],
+      "detail": "plan モードへの移行時に `/plan` や `/plan open` が既存プランに対して作用しない問題が修正されました。既存プランの閲覧・編集フローが期待通りに機能します。",
+      "category": "コマンド"
+    },
+    {
+      "t": "修正: 自動コンパクション前に呼び出されたスキルが次のユーザーメッセージに対して再実行される問題",
+      "tags": ["バグ修正"],
+      "detail": "自動コンパクション前に呼び出されたスキルが、次のユーザーメッセージに対して意図せず再実行される問題が修正されました。コンパクション後にスキルが不要に発動することがなくなります。",
+      "category": "会話管理"
+    },
+    {
+      "t": "修正: `/reload-plugins` と `/doctor` が無効化されたプラグインについてロードエラーを報告する問題",
+      "tags": ["バグ修正", "Plugin"],
+      "detail": "`/reload-plugins` と `/doctor` が、無効化されているプラグインについてもロードエラーを報告する問題が修正されました。無効化プラグインはエラー出力から除外されるため、診断結果がクリーンになります。",
+      "category": "Plugin"
+    },
+    {
+      "t": "修正: `isolation: \"worktree\"` の Agent ツールが前回のセッションの古い worktree を再利用する問題",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "`isolation: \"worktree\"` オプション付きの Agent ツールが、前回のセッションの古い worktree を再利用してしまう問題が修正されました。各セッションで新しい worktree が作成され、前回の状態が混入しません。",
+      "category": "マルチエージェント"
+    },
+    {
+      "t": "修正: 無効化された MCP サーバーが `/status` で「failed」として表示される問題",
+      "tags": ["バグ修正", "MCP"],
+      "detail": "無効化された MCP サーバーが `/status` で「failed」として表示される問題が修正されました。無効化状態は「disabled」として正しく区別されて表示されます。",
+      "category": "MCP 連携"
+    },
+    {
+      "t": "修正: `TaskList` がタスクを ID 順ではなく任意のファイルシステム順で返す問題",
+      "tags": ["バグ修正"],
+      "detail": "`TaskList` がタスクを ID 順ではなく、任意のファイルシステム順（ファイルシステムが返す順）で返す問題が修正されました。ID 順でソートされた一貫した出力になります。",
+      "category": "ツール改善"
+    },
+    {
+      "t": "修正: `gh` の出力に「rate limit」を含む PR タイトルがある際に「GitHub API rate limit exceeded」ヒントが誤発火する問題",
+      "tags": ["バグ修正"],
+      "detail": "`gh` の出力に「rate limit」を含む PR タイトルがあった際に、「GitHub API rate limit exceeded」ヒントが誤って表示される問題が修正されました。実際にレートリミットに達した場合のみヒントが出ます。",
+      "category": "ツール改善"
+    },
+    {
+      "t": "修正: SDK/bridge の `read_file` が成長中のファイルに対してサイズ上限を正しく強制しない問題",
+      "tags": ["バグ修正", "SDK"],
+      "detail": "SDK/bridge の `read_file` が、読み込み中にサイズが増加しているファイルに対してサイズ上限を正しく強制しない問題が修正されました。膨大なファイルを読み込んでもメモリが予期せず消費されることがなくなります。",
+      "category": "SDK"
+    },
+    {
+      "t": "修正: git worktree で作業時に PR がセッションにリンクされない問題",
+      "tags": ["バグ修正"],
+      "detail": "git worktree で作業している際に、PR がセッションにリンクされない問題が修正されました。worktree 上でも該当 PR が自動認識され、セッションフッターに表示されます。",
+      "category": "Git 連携"
+    },
+    {
+      "t": "修正: より優先度の高いスコープに上書きされる MCP サーバーエントリについて `/doctor` が警告する問題",
+      "tags": ["バグ修正", "MCP"],
+      "detail": "より優先度の高いスコープ（例: プロジェクト設定でユーザー設定が上書きされる場合）で上書きされる MCP サーバーエントリについて、`/doctor` が警告を表示する問題が修正されました。意図した上書きは警告にならず、ノイズが減ります。",
+      "category": "MCP 連携"
+    },
+    {
+      "t": "修正: Windows — 誤検出の「Windows requires 'cmd /c' wrapper」MCP 設定警告を削除",
+      "tags": ["バグ修正", "Windows", "MCP"],
+      "detail": "Windows で誤検出されていた「Windows requires 'cmd /c' wrapper」の MCP 設定警告が削除されました。Windows 環境で実際には wrapper が不要な MCP 設定でも誤警告が出なくなります。",
+      "category": "プラットフォーム互換性"
+    },
+    {
+      "t": "修正: [VSCode] マイク許可プロンプト表示中に macOS で初回の音声入力が無音録音になる問題",
+      "tags": ["バグ修正", "IDE"],
+      "detail": "VSCode 拡張機能で、macOS のマイク許可プロンプト表示中に初回の音声入力（voice dictation）が無音録音になってしまう問題が修正されました。許可後すぐの初回録音でも音声が正しくキャプチャされます。",
+      "category": "IDE"
+    }
   ]
 }
