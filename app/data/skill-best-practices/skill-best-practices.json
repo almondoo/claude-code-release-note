@@ -9,7 +9,7 @@
           "id": "bundled-skills-overview",
           "title": "バンドルスキルの概要",
           "summary": "Claude Code に同梱されるプロンプトベースのスキル。ビルトインコマンドと異なり、並列エージェント起動やファイル読み取りが可能。",
-          "content": "バンドルスキルは Claude Code に同梱され、すべてのセッションで利用可能です。ビルトインコマンド（固定ロジック）とは異なりプロンプトベースで動作し、並列エージェント起動やファイル読み取りが可能です。\n\n呼び出しは通常のスキルと同じで `/` の後にスキル名を入力します。",
+          "content": "バンドルスキルは Claude Code に同梱され、すべてのセッションで利用可能です。ビルトインコマンド（固定ロジック）とは異なりプロンプトベースで動作し、並列エージェント起動やファイル読み取りが可能です。\n\n呼び出しは通常のスキルと同じで `/` の後にスキル名を入力します。\n\nカスタムコマンドはスキルに統合されました。`.claude/commands/deploy.md` と `.claude/skills/deploy/SKILL.md` はどちらも `/deploy` を定義し、同じように動作します。既存の `.claude/commands/` ファイルは引き続き動作しますが、スキル形式ではサポートファイル用ディレクトリ、frontmatter による呼び出し制御、Claude による自動ロードが使えるため、新規作成はスキルを推奨します。同名のコマンドとスキルが存在する場合はスキルが優先されます。",
           "tags": [],
           "tips": [
             "/batch <instruction> — 大規模変更を並列実行。5〜30ユニットに分解し、隔離 git worktree でエージェント起動→実装→テスト→PR 作成",
@@ -143,7 +143,8 @@
             "デフォルト — ユーザー・Claude 両方が呼び出し可能。description が常にコンテキストに存在",
             "disable-model-invocation: true — ユーザーのみ。description はコンテキストに含まれない",
             "user-invocable: false — Claude のみ。description が常にコンテキストに存在。/ メニューに非表示",
-            "user-invocable は / メニューの表示のみを制御。Claude の自動呼び出しをブロックするには disable-model-invocation: true を使う"
+            "user-invocable は / メニューの表示のみを制御。Claude の自動呼び出しをブロックするには disable-model-invocation: true を使う",
+            "`disable-model-invocation: true` のスキルは、メッセージ途中の `/<skill-name>` 呼び出しでも正しく起動する（v2.1.110 で修正済み）。プロンプト本文の末尾にスキル呼び出しを添える使い方も安全に行える"
           ]
         },
         {

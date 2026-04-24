@@ -251,7 +251,8 @@
           "tips": [
             "auto mode でクラシファイアモデルに承認を任せる — タスクの方向性を信頼しつつ毎ステップのクリックを省略",
             "/permissions で安全なコマンドをホワイトリストに登録",
-            "/sandbox で OS レベルの分離を有効にする"
+            "/sandbox で OS レベルの分離を有効にする",
+            "Windows で PowerShell ツールを使う場合、Bash と同様に permission モードで自動承認可能（v2.1.119）"
           ]
         },
         {
@@ -289,7 +290,11 @@
           "summary": ".claude/agents/ に特化したアシスタントを定義して、分離されたタスクに委譲できるようにする。",
           "content": "Subagents は独自のコンテキストと独自のツールセットで実行されます。メインの会話を乱さずに、多くのファイルを読み取ったり、特化した焦点が必要なタスクに役立ちます。\n\nClaude に subagents を明示的に使用するよう指示します：「このコードをセキュリティの問題についてレビューするために subagent を使用する」",
           "tags": [],
-          "code": "---\nname: security-reviewer\ndescription: Reviews code for security vulnerabilities\ntools: Read, Grep, Glob, Bash\nmodel: opus\n---\nYou are a senior security engineer. Review code for:\n- Injection vulnerabilities (SQL, XSS, command injection)\n- Authentication and authorization flaws\n- Secrets or credentials in code\n- Insecure data handling"
+          "code": "---\nname: security-reviewer\ndescription: Reviews code for security vulnerabilities\ntools: Read, Grep, Glob, Bash\nmodel: opus\n---\nYou are a senior security engineer. Review code for:\n- Injection vulnerabilities (SQL, XSS, command injection)\n- Authentication and authorization flaws\n- Secrets or credentials in code\n- Insecure data handling",
+          "tips": [
+            "`--agent <name>` でメインスレッドをエージェント定義として起動すると、エージェントの `permissionMode`・`tools:`・`disallowedTools:`・`mcpServers` が尊重される（v2.1.117-119 で組み込みエージェント含め整備）",
+            "`CLAUDE_CODE_FORK_SUBAGENT=1` を設定すると、外部ビルドでもフォーク型サブエージェントが有効化でき、重いタスクを親セッションから分離してレスポンス性能を保てる（v2.1.117）"
+          ]
         },
         {
           "id": "plugins",
@@ -388,7 +393,8 @@
             "プロンプトに「ultrathink」を含めると、そのターンだけ effort を high に設定（Opus 4.6, Sonnet 4.6）",
             "Option+T (macOS) / Alt+T (Windows/Linux) で thinking のオン/オフを切り替え",
             "/config でグローバルデフォルトの thinking モードを設定",
-            "MAX_THINKING_TOKENS 環境変数で thinking バジェットを制限可能"
+            "MAX_THINKING_TOKENS 環境変数で thinking バジェットを制限可能",
+            "Pro/Max サブスクライバーの Opus 4.6/Sonnet 4.6 のデフォルト effort は `high`（v2.1.117 で medium から引き上げ）"
           ]
         }
       ]
@@ -443,9 +449,13 @@
           "id": "auto-mode",
           "title": "Auto mode で自律実行する",
           "summary": "バックグラウンドの安全チェック付きで中断なしに実行。クラシファイアモデルがコマンドを事前レビューし、リスクの高い操作のみブロック。",
-          "content": "中断なしの実行にバックグラウンドの安全チェックを組み合わせるには、auto mode を使用します。クラシファイアモデルがコマンド実行前にレビューし、スコープのエスカレーション、不明なインフラストラクチャ、敵対的コンテンツ駆動のアクションをブロックしつつ、通常の作業はプロンプトなしで進行させます。\n\n-p フラグを使用したヘッドレス実行では、クラシファイアが繰り返しアクションをブロックした場合、フォールバックするユーザーがいないため auto mode は中止されます。",
+          "content": "中断なしの実行にバックグラウンドの安全チェックを組み合わせるには、auto mode を使用します。クラシファイアモデルがコマンド実行前にレビューし、スコープのエスカレーション、不明なインフラストラクチャ、敵対的コンテンツ駆動のアクションをブロックしつつ、通常の作業はプロンプトなしで進行させます。\n\n-p フラグを使用したヘッドレス実行では、クラシファイアが繰り返しアクションをブロックした場合、フォールバックするユーザーがいないため auto mode は中止されます。\n\nv2.1.111 以降、auto mode は安定機能として扱われ `--enable-auto-mode` フラグは不要です。",
           "tags": [],
-          "code": "claude --permission-mode auto -p \"fix all lint errors\""
+          "code": "claude --permission-mode auto -p \"fix all lint errors\"",
+          "tips": [
+            "`autoMode.allow` / `autoMode.soft_deny` / `autoMode.environment` に `\"$defaults\"` を含めると、組み込みルールを残したままカスタムルールを追加できる（v2.1.118）",
+            "Max サブスクライバーは Opus 4.7 との組み合わせでも auto mode を利用可能（v2.1.111）"
+          ]
         },
         {
           "id": "fan-out",
@@ -590,13 +600,14 @@
           "id": "opus-4-7-scenarios",
           "title": "Opus 4.7 の強みを活かすシナリオ",
           "summary": "複雑なマルチファイル変更、曖昧なデバッグ、サービス全体のコードレビュー、マルチステップのエージェント作業で最も効果を発揮する。",
-          "content": "Opus 4.7 はコーディング、エンタープライズワークフロー、長時間実行エージェントタスクに最も強力です。以下のようなシナリオで、xhigh を維持しつつ最初のターンで完全指定してから結果を確認すると、Opus 4.7 の強みが最大限に引き出されます。",
+          "content": "Opus 4.7 はコーディング、エンタープライズワークフロー、長時間実行エージェントタスクに最も強力です。以下のようなシナリオで、xhigh を維持しつつ最初のターンで完全指定してから結果を確認すると、Opus 4.7 の強みが最大限に引き出されます。\n\nOpus 4.7 はネイティブ 1M トークンのコンテキストウィンドウを持ち、v2.1.117 以降は `/context` パーセンテージも 1M 基準で計算されるため、長大なコードベース調査やマルチファイル文脈を保持したままの設計・レビューに向いています。",
           "tags": [],
           "tips": [
             "複雑なマルチファイル変更 — 設計変更が多数のファイルに波及する作業",
             "曖昧なデバッグ — 症状だけ分かっていて原因特定に推論が必要な問題",
             "サービス全体のコードレビュー — 広範囲のコードを文脈横断で評価する作業",
             "マルチステップのエージェント作業 — 長時間の自律実行を要するタスク",
+            "ネイティブ 1M コンテキストを活かし、長大なファイルや調査結果を圧縮せずに保持したまま設計できる",
             "これらに該当する場合は effort を xhigh に保ち、最初のターンで完全指定してから結果を見る"
           ]
         }
