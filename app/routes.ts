@@ -10,4 +10,5 @@ export default [
   route("hands-on", "routes/hands-on/index.tsx"),
   route("hands-on/:topic", "routes/hands-on-topic/index.tsx"),
   route("harness-engineering", "routes/harness-engineering/index.tsx"),
+  route("workflows", "routes/workflows/index.tsx"),
 ] satisfies RouteConfig;

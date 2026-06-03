@@ -9,6 +9,7 @@ const ALL_PAGES = [
   { to: "/best-practices", label: "ベストプラクティス" },
   { to: "/hands-on", label: "ハンズオン" },
   { to: "/harness-engineering", label: "ハーネス＆コンテキストエンジニアリング" },
+  { to: "/workflows", label: "動的ワークフロー" },
 ];
 
 interface Stat {

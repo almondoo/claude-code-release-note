@@ -1,0 +1,94 @@
+{
+  "id": "overview",
+  "title": "動的ワークフローとは",
+  "description": "Claude Code がその場でハーネスを書き、複数のサブエージェントを協調させる仕組み",
+  "blocks": [
+    {
+      "type": "paragraph",
+      "content": "動的ワークフローは、Claude Code が「ハーネス」（タスクの進め方そのものを定義する枠組み）をその場で JavaScript スクリプトとして書き、複数のサブエージェントを spawn（起動）し協調させる仕組み。2026年5月28日にリサーチプレビューとしてリリースされた。"
+    },
+    {
+      "type": "paragraph",
+      "content": "標準の Claude Code ハーネスはコーディング向けに作られているが、多くのタスクはコーディングに似ているため他用途にも有効。一方で、リサーチ、セキュリティ分析、エージェントチーム、コードレビューなど、ピーク性能のために専用ハーネスが必要な領域がある。動的ワークフローはこれらを Claude Code 内でネイティブに解けるようにし、作ったワークフローは他者と共有・再利用もできる。"
+    },
+    {
+      "type": "subsection",
+      "title": "どう動くか",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "content": "スクリプトは JavaScript ファイルで、サブエージェントを spawn・協調させる専用関数（`agent` / `parallel` / `pipeline` / `phase` / `log` など）を持つ。`JSON`・`Math`・`Array` など標準 JavaScript も使える。"
+        },
+        {
+          "type": "callout",
+          "variant": "info",
+          "title": "関数名について",
+          "content": "これらの関数名はリサーチプレビュー時点の観察に基づくもので、公式 API リファレンスは未公開。将来変更される可能性がある。"
+        },
+        {
+          "type": "list",
+          "items": [
+            "エージェントごとに使うモデルを選べる（強いモデルが不要なステージは小さいモデルにルーティングできる）",
+            "サブエージェントを git worktree で隔離して並行作業させられる",
+            "中断（一時停止）してもセッション内で再開でき、完了済みエージェントはキャッシュ結果を返す"
+          ]
+        },
+        {
+          "type": "callout",
+          "variant": "warning",
+          "title": "再開はセッション内のみ",
+          "content": "再開できるのは同一 Claude Code セッション内で一時停止した場合に限る。Claude Code を終了すると、次回起動時はワークフローはフレッシュスタート（最初から）になる。"
+        }
+      ]
+    },
+    {
+      "type": "subsection",
+      "title": "起動と利用条件",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "content": "「ワークフローを作って」のように頼むか、起動キーワード `ultracode` をプロンプトに含めると起動する。`/config` でこのキーワードトリガーはオフにできる。"
+        },
+        {
+          "type": "callout",
+          "variant": "info",
+          "title": "トリガー語の変更",
+          "content": "v2.1.160 より前の起動キーワードは `workflow` だったが、現在は `ultracode`。"
+        },
+        {
+          "type": "list",
+          "items": [
+            "Claude Code v2.1.154 以降が必要",
+            "リサーチプレビュー段階（2026年5月28日リリース）",
+            "全有料プラン・Anthropic API・Amazon Bedrock・Google Cloud Vertex AI・Microsoft Foundry で利用可能",
+            "Opus 4.8 専用ではない（Opus 4.8 を使うとエージェントがより長時間動作できる、という補完関係にある）"
+          ]
+        },
+        {
+          "type": "subsection",
+          "title": "実行制限",
+          "blocks": [
+            {
+              "type": "list",
+              "items": [
+                "同時実行エージェントは最大16（CPUコアが少ない環境ではさらに少なくなる）",
+                "1ワークフローあたりの総エージェント数は1,000が上限",
+                "スクリプト自身は直接ファイルやシェルにアクセスできず、操作はエージェント経由で行う"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "subsection",
+      "title": "静的ワークフローとの違い",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "content": "従来は Claude Agent SDK や `claude -p` で複数の Claude Code インスタンスを協調させる「静的ワークフロー」を作れた。ただしあらゆるエッジケースに対応する必要があるため汎用的になりがち。動的ワークフローは Claude Opus 4.8 の知能により、ユースケースに合わせたタスク専用ハーネスをその場で書ける点が異なる。"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "id": "patterns",
+  "title": "6つのパターン",
+  "description": "ワークフローを組み立てるとき Claude が使い、また組み合わせる代表的なパターン。",
+  "blocks": [
+    {
+      "type": "pattern",
+      "patternId": "classify-and-act",
+      "name": "Classify-and-act（分類して振り分け）",
+      "tagline": "分類器でタスクを仕分け、種類ごとに処理を変える",
+      "content": "分類器エージェントがタスクの種類を判定し、種類に応じて別のエージェントや振る舞いにルーティングする。あるいは最後に分類器を使って最終的な出力を決める。"
+    },
+    {
+      "type": "pattern",
+      "patternId": "fan-out-and-synthesize",
+      "name": "Fan-out-and-synthesize（分散して統合）",
+      "tagline": "小ステップに分割→各エージェント→統合（バリア）",
+      "content": "タスクを多数の小さなステップに分割し、各ステップにエージェントを走らせ、結果を統合（synthesize）する。\n\n小さなステップが大量にある場合や、各ステップが自分専用のクリーンなコンテキストで干渉・相互汚染を避けたい場合に特に有効。\n\nsynthesize ステップは barrier（バリア）＝すべての fan-out エージェントの完了を待ってから、構造化された出力を1つにまとめる同期点として働く。"
+    },
+    {
+      "type": "pattern",
+      "patternId": "adversarial-verification",
+      "name": "Adversarial verification（敵対的検証）",
+      "tagline": "各エージェントの出力を別エージェントが基準で検証",
+      "content": "spawn した各エージェントに対し、その出力をルーブリックや基準に照らして敵対的に検証する別のエージェントを走らせる。"
+    },
+    {
+      "type": "pattern",
+      "patternId": "generate-and-filter",
+      "name": "Generate-and-filter（生成してフィルタ）",
+      "tagline": "多数生成→ルーブリックで選別→重複除去",
+      "content": "あるトピックでアイデアを多数生成し、ルーブリックや検証でフィルタし、重複を除去して、最高品質で検証済みのものだけを返す。"
+    },
+    {
+      "type": "pattern",
+      "patternId": "tournament",
+      "name": "Tournament（トーナメント）",
+      "tagline": "同じ課題に別アプローチで競わせ、ペアワイズ判定で勝者を決める",
+      "content": "仕事を分割するのではなく、エージェントどうしを競わせる。N個のエージェントがそれぞれ異なるアプローチで同じタスクに挑み、プロンプトやモデルがその結果をペアワイズ（一対一）に判定し、勝者が決まるまで繰り返す。"
+    },
+    {
+      "type": "pattern",
+      "patternId": "loop-until-done",
+      "name": "Loop until done（完了まで反復）",
+      "tagline": "停止条件を満たすまでエージェントを spawn し続ける",
+      "content": "作業量が未知のタスクで、固定回数の代わりに停止条件（新しい発見がない、ログにエラーが残っていない等）が満たされるまでエージェントの spawn を繰り返す。"
+    }
+  ]
+}
