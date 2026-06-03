@@ -11,6 +11,11 @@ import releases21x8x from "~/data/releases/releases-2.1.8x.json";
 import releases21x9x from "~/data/releases/releases-2.1.9x.json";
 import releases21x10x from "~/data/releases/releases-2.1.10x.json";
 import releases21x11x from "~/data/releases/releases-2.1.11x.json";
+import releases21x12x from "~/data/releases/releases-2.1.12x.json";
+import releases21x13x from "~/data/releases/releases-2.1.13x.json";
+import releases21x14x from "~/data/releases/releases-2.1.14x.json";
+import releases21x15x from "~/data/releases/releases-2.1.15x.json";
+import releases21x16x from "~/data/releases/releases-2.1.16x.json";
 import versionDetails21x2x from "~/data/releases/version-details-2.1.2x.json";
 import versionDetails21x3x from "~/data/releases/version-details-2.1.3x.json";
 import versionDetails21x4x from "~/data/releases/version-details-2.1.4x.json";
@@ -21,6 +26,11 @@ import versionDetails21x8x from "~/data/releases/version-details-2.1.8x.json";
 import versionDetails21x9x from "~/data/releases/version-details-2.1.9x.json";
 import versionDetails21x10x from "~/data/releases/version-details-2.1.10x.json";
 import versionDetails21x11x from "~/data/releases/version-details-2.1.11x.json";
+import versionDetails21x12x from "~/data/releases/version-details-2.1.12x.json";
+import versionDetails21x13x from "~/data/releases/version-details-2.1.13x.json";
+import versionDetails21x14x from "~/data/releases/version-details-2.1.14x.json";
+import versionDetails21x15x from "~/data/releases/version-details-2.1.15x.json";
+import versionDetails21x16x from "~/data/releases/version-details-2.1.16x.json";
 
 export const RELEASES = [
   ...releases20x,
@@ -36,6 +46,11 @@ export const RELEASES = [
   ...releases21x9x,
   ...releases21x10x,
   ...releases21x11x,
+  ...releases21x12x,
+  ...releases21x13x,
+  ...releases21x14x,
+  ...releases21x15x,
+  ...releases21x16x,
 ].reverse();
 
 export const VERSION_DETAILS = {
@@ -49,4 +64,9 @@ export const VERSION_DETAILS = {
   ...versionDetails21x9x,
   ...versionDetails21x10x,
   ...versionDetails21x11x,
+  ...versionDetails21x12x,
+  ...versionDetails21x13x,
+  ...versionDetails21x14x,
+  ...versionDetails21x15x,
+  ...versionDetails21x16x,
 };
