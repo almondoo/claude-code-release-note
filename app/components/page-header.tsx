@@ -4,8 +4,6 @@ import { ArrowLeftIcon } from "~/components/icons";
 
 const ALL_PAGES = [
   { to: "/", label: "リリースノート" },
-  { to: "/quick-reference", label: "クイックリファレンス" },
-  { to: "/setup", label: "セットアップ" },
   { to: "/best-practices", label: "ベストプラクティス" },
   { to: "/hands-on", label: "ハンズオン" },
   { to: "/harness-engineering", label: "ハーネス＆コンテキストエンジニアリング" },
