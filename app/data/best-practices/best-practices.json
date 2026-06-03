@@ -103,12 +103,12 @@
           "id": "reference-files",
           "title": "@ でファイルやディレクトリを参照する",
           "summary": "@ でファイルを直接インクルード、ディレクトリのリスト表示、MCP リソースの取得が可能。",
-          "content": "@ を使用してファイルやディレクトリをすばやくインクルードできます。Claude が読み取るのを待つ必要がありません。\n\nファイルパスは相対パスでも絶対パスでも使用可能です。@ ファイル参照は、そのファイルのディレクトリと親ディレクトリの CLAUDE.md もコンテキストに追加します。ディレクトリ参照はファイルの内容ではなくファイルリストを表示します。\n\nMCP リソースも @server:resource の形式で取得できます。1つのメッセージで複数のファイルを参照可能です（例：@file1.js と @file2.js）。",
+          "content": "@ を使用してファイルやディレクトリをすばやくインクルードできます。Claude が読み取るのを待つ必要がありません。\n\nファイルパスは相対パスでも絶対パスでも使用可能です。@ ファイル参照は、そのファイルのディレクトリと親ディレクトリの CLAUDE.md もコンテキストに追加します。ディレクトリ参照はファイルの内容ではなくファイルリストを表示します。\n\nMCP リソースも @server:protocol://resource/path の形式で取得できます（例：@github:issue://123、@docs:file://api/authentication）。1つのメッセージで複数のファイルを参照可能です（例：@file1.js と @file2.js）。",
           "tags": [],
           "tips": [
             "@ でファイルを参照 — コードの場所を説明する代わりに Claude が応答前にファイルを読み取る",
             "@ でディレクトリを参照 — ファイルの内容ではなくリスト情報を提供",
-            "@server:resource で MCP リソースを取得（例：@github:repos/owner/repo/issues）",
+            "@server:protocol://resource/path の形式で MCP リソースを取得（例：@github:issue://123、@postgres:schema://users）。@ メンションのオートコンプリートで fuzzy search も可能",
             "1つのメッセージで複数のファイルを参照可能"
           ]
         }
@@ -203,6 +203,7 @@
           "tags": [],
           "tips": [
             "@path/to/import 構文で他のファイルをインポートできる — 例：See @README.md for project overview and @package.json for available npm commands.",
+            ".claude/rules/ ディレクトリに markdown ファイルを配置することでルールをトピック別に分割管理できる。frontmatter に paths: を指定すると特定ファイルを編集しているときだけ読み込まれるパス限定ルールになり、コンテキストを節約できる",
             "Claude が繰り返しルールに反する動作をする場合 → ファイルが長すぎるサイン",
             "Claude が CLAUDE.md で回答済みの質問をする場合 → 表現が曖昧なサイン",
             "重要なルールは「IMPORTANT」「YOU MUST」で強調すると遵守が改善される",
@@ -249,7 +250,7 @@
           "content": "デフォルトでは、Claude Code はシステムを変更する可能性のあるアクション（ファイル書き込み、Bash コマンド、MCP ツールなど）の許可をリクエストします。これは安全ですが煩わしく、10回目の承認の頃にはもうレビューしておらず、ただクリックしているだけです。これらの中断を減らすには3つの方法があります。\n\nAuto mode：別のクラシファイアモデルがコマンドをレビューし、リスクの高いもの（スコープのエスカレーション、不明なインフラストラクチャ、敵対的コンテンツ駆動のアクション）のみをブロックします。タスクの全体的な方向性を信頼しているが、すべてのステップをクリックしたくない場合に最適です。\n\nパーミッション許可リスト：安全であることがわかっている特定のツール（npm run lint や git commit など）を許可します。\n\nサンドボックス：ファイルシステムとネットワークアクセスを制限する OS レベルの分離を有効にし、定義された境界内で Claude がより自由に動作できるようにします。",
           "tags": [],
           "tips": [
-            "auto mode でクラシファイアモデルに承認を任せる — タスクの方向性を信頼しつつ毎ステップのクリックを省略",
+            "auto mode でクラシファイアモデルに承認を任せる — タスクの方向性を信頼しつつ毎ステップのクリックを省略（v2.1.142 以降、defaultMode: \"auto\" はプロジェクト設定では無視されるため ~/.claude/settings.json に設定すること）",
             "/permissions で安全なコマンドをホワイトリストに登録",
             "/sandbox で OS レベルの分離を有効にする",
             "Windows で PowerShell ツールを使う場合、Bash と同様に permission モードで自動承認可能（v2.1.119）"
@@ -293,7 +294,7 @@
           "code": "---\nname: security-reviewer\ndescription: Reviews code for security vulnerabilities\ntools: Read, Grep, Glob, Bash\nmodel: opus\n---\nYou are a senior security engineer. Review code for:\n- Injection vulnerabilities (SQL, XSS, command injection)\n- Authentication and authorization flaws\n- Secrets or credentials in code\n- Insecure data handling",
           "tips": [
             "`--agent <name>` でメインスレッドをエージェント定義として起動すると、エージェントの `permissionMode`・`tools:`・`disallowedTools:`・`mcpServers` が尊重される（v2.1.117-119 で組み込みエージェント含め整備）",
-            "`CLAUDE_CODE_FORK_SUBAGENT=1` を設定すると、外部ビルドでもフォーク型サブエージェントが有効化でき、重いタスクを親セッションから分離してレスポンス性能を保てる（v2.1.117）"
+            "`CLAUDE_CODE_FORK_SUBAGENT=1` を設定すると、外部ビルドでもフォーク型サブエージェントが有効化でき、重いタスクを親セッションから分離してレスポンス性能を保てる（v2.1.117。SDK および claude -p 非インタラクティブセッションへの対応は v2.1.121 で追加）"
           ]
         },
         {
@@ -313,7 +314,7 @@
             "macOS: osascript -e 'display notification ...' で通知",
             "Linux: notify-send で通知",
             "Windows: PowerShell の System.Windows.Forms.MessageBox で通知",
-            "matcher を permission_prompt（ツール承認待ち）/ idle_prompt（次のプロンプト待ち）/ auth_success（認証完了）/ elicitation_dialog（Claude が質問しているとき）で絞り込み可能",
+            "matcher を permission_prompt（ツール承認待ち）/ idle_prompt（次のプロンプト待ち）/ auth_success（認証完了）/ elicitation_dialog（MCP サーバーがユーザー入力を要求しているとき）/ elicitation_complete（elicitation 完了時）/ elicitation_response（ユーザーが elicitation に応答したとき）で絞り込み可能",
             "/hooks で設定済みフックを確認"
           ]
         }
@@ -333,7 +334,7 @@
           "tips": [
             "Esc — Claude の中途半端なアクションを停止。コンテキストは保持されるためリダイレクト可能",
             "Esc + Esc / /rewind — リワインドメニューを開き、以前の会話とコード状態を復元",
-            "チェックポイント選択後に「Summarize from here」を選ぶと、その時点から会話を部分的にコンパクトにできる（完全なリセットなしでコンテキストを節約）",
+            "チェックポイント選択後に「Summarize from here」（以降を圧縮）または「Summarize up to here」（以前を圧縮）を選ぶと、会話を部分的にコンパクトにできる（完全なリセットなしでコンテキストを節約）",
             "\"Undo that\" — Claude に変更を元に戻すよう依頼",
             "/clear — 関連のないタスク間でコンテキストをリセット"
           ]
@@ -346,7 +347,7 @@
           "tags": [],
           "tips": [
             "タスク間で頻繁に /clear を使用してコンテキストウィンドウを完全にリセット",
-            "Esc + Esc / /rewind でチェックポイントを選択後、「Summarize from here」で特定ポイントから会話をコンパクトにできる",
+            "Esc + Esc / /rewind でチェックポイントを選択後、「Summarize from here」で選択点以降を、「Summarize up to here」で選択点以前をコンパクトにできる",
             "自動コンパクションがトリガーされると、Claude は最も重要なもの（コードパターン、ファイル状態、主要な決定）を要約する",
             "/compact <instructions> でより制御された要約が可能。例：/compact Focus on the API changes",
             "CLAUDE.md でコンパクション動作をカスタマイズ可能 — 例：\"When compacting, always preserve the full list of modified files and any test commands\"",
@@ -365,7 +366,7 @@
           "id": "rewind-checkpoints",
           "title": "チェックポイントでリワインドする",
           "summary": "すべてのアクションはチェックポイントを作成。Escape ダブルタップか /rewind でチェックポイントメニューを開く。",
-          "content": "Claude は変更前に自動的にチェックポイントします。Escape をダブルタップするか、/rewind を実行してチェックポイントメニューを開きます。会話のみを復元（コード変更を保持）、コードのみを復元（会話を保持）、または両方を復元できます。\n\nすべての動きを慎重に計画する代わりに、Claude に何か危険なことを試すよう指示できます。うまくいかない場合は、リワインドして別のアプローチを試してください。チェックポイントはセッション間で永続するため、ターミナルを閉じても後でリワインドできます。\n\n注意：チェックポイントは Claude が行った変更のみを追跡します。外部プロセスではありません。git の代替ではありません。",
+          "content": "Claude は変更前に自動的にチェックポイントします。Escape をダブルタップするか、/rewind を実行してチェックポイントメニューを開きます。会話のみを復元（コード変更を保持）、コードのみを復元（会話を保持）、または両方を復元できます。\n\n「Summarize from here」（選択ポイント以降を要約）と「Summarize up to here」（選択ポイント以前を要約、v2.1.149〜）の2つの圧縮オプションも利用できます。前者は以降の会話をサマリーに置換し過去の文脈を保持、後者は以前の会話をサマリーに置換し以降の会話をそのまま保持します。\n\nすべての動きを慎重に計画する代わりに、Claude に何か危険なことを試すよう指示できます。うまくいかない場合は、リワインドして別のアプローチを試してください。チェックポイントはセッション間で永続するため、ターミナルを閉じても後でリワインドできます。\n\n注意：チェックポイントは Claude が行った変更のみを追跡します。外部プロセスではありません。git の代替ではありません。",
           "tags": []
         },
         {
@@ -379,7 +380,7 @@
             "claude --resume で最近の会話から選択（名前指定も可能）",
             "claude --from-pr 123 で PR にリンクされたセッションを再開",
             "claude -n auth-refactor で起動時にセッション名を設定",
-            "/resume ピッカーで P=プレビュー、R=リネーム、B=ブランチフィルタ"
+            "/resume ピッカーで Space=プレビュー、Ctrl+R=リネーム、Ctrl+B=ブランチフィルタ、Ctrl+A=全プロジェクト表示"
           ]
         },
         {
@@ -390,10 +391,10 @@
           "tags": [],
           "tips": [
             "/effort で思考の深さを調整、または /model 内で設定",
-            "プロンプトに「ultrathink」を含めると、そのターンだけ effort を high に設定（Opus 4.6, Sonnet 4.6）",
-            "Option+T (macOS) / Alt+T (Windows/Linux) で thinking のオン/オフを切り替え",
+            "プロンプトに「ultrathink」を含めると、そのターンだけ深い推論を要求するコンテキスト内指示が追加される（API に送る effort レベル自体は変わらない）",
+            "Option+T (macOS) / Alt+T (Windows/Linux) で thinking のオン/オフを切り替え（v2.1.132 以降、macOS での Option+T は「Option as Meta」の設定なしで動作）",
             "/config でグローバルデフォルトの thinking モードを設定",
-            "MAX_THINKING_TOKENS 環境変数で thinking バジェットを制限可能",
+            "MAX_THINKING_TOKENS 環境変数で thinking バジェットを制限可能（Opus 4.6 / Sonnet 4.6 の固定バジェットモード限定。Opus 4.7 以降は adaptive thinking のため無効）",
             "Pro/Max サブスクライバーの Opus 4.6/Sonnet 4.6 のデフォルト effort は `high`（v2.1.117 で medium から引き上げ）"
           ]
         }
@@ -437,6 +438,8 @@
           "tips": [
             "claude --worktree feature-auth で名前付きワークツリーを作成",
             "claude --worktree で自動命名されたワークツリーを作成",
+            "claude --worktree \"#1234\" で PR 番号を指定し、その PR の HEAD を fetch してワークツリーを作成（.claude/worktrees/pr-1234 に配置）",
+            "worktree.baseRef を settings.json で \"head\" に設定すると origin/HEAD でなくローカルの HEAD から分岐する（v2.1.133〜）",
             "Subagent の frontmatter に isolation: worktree を追加してワークツリー分離を使用",
             ".gitignore に .claude/worktrees/ を追加してメインリポジトリのクリーンさを維持",
             "セッション中に「work in a worktree」と依頼して自動作成も可能",
@@ -449,12 +452,12 @@
           "id": "auto-mode",
           "title": "Auto mode で自律実行する",
           "summary": "バックグラウンドの安全チェック付きで中断なしに実行。クラシファイアモデルがコマンドを事前レビューし、リスクの高い操作のみブロック。",
-          "content": "中断なしの実行にバックグラウンドの安全チェックを組み合わせるには、auto mode を使用します。クラシファイアモデルがコマンド実行前にレビューし、スコープのエスカレーション、不明なインフラストラクチャ、敵対的コンテンツ駆動のアクションをブロックしつつ、通常の作業はプロンプトなしで進行させます。\n\n-p フラグを使用したヘッドレス実行では、クラシファイアが繰り返しアクションをブロックした場合、フォールバックするユーザーがいないため auto mode は中止されます。\n\nv2.1.111 以降、auto mode は安定機能として扱われ `--enable-auto-mode` フラグは不要です。",
+          "content": "中断なしの実行にバックグラウンドの安全チェックを組み合わせるには、auto mode を使用します。クラシファイアモデルがコマンド実行前にレビューし、スコープのエスカレーション、不明なインフラストラクチャ、敵対的コンテンツ駆動のアクションをブロックしつつ、通常の作業はプロンプトなしで進行させます。\n\n-p フラグを使用したヘッドレス実行では、クラシファイアが繰り返しアクションをブロックした場合、フォールバックするユーザーがいないため auto mode は中止されます。\n\nv2.1.111 以降、Anthropic API では `--enable-auto-mode` フラグは不要です。Bedrock / Vertex AI / Foundry を使う場合は環境変数 `CLAUDE_CODE_ENABLE_AUTO_MODE=1` のオプトインが必要です。",
           "tags": [],
           "code": "claude --permission-mode auto -p \"fix all lint errors\"",
           "tips": [
             "`autoMode.allow` / `autoMode.soft_deny` / `autoMode.environment` に `\"$defaults\"` を含めると、組み込みルールを残したままカスタムルールを追加できる（v2.1.118）",
-            "Max サブスクライバーは Opus 4.7 との組み合わせでも auto mode を利用可能（v2.1.111）"
+            "Max サブスクライバーは Opus 4.8 / Opus 4.7 との組み合わせでも auto mode を利用可能（v2.1.111〜）"
           ]
         },
         {
@@ -469,9 +472,10 @@
           "id": "scheduled-tasks",
           "title": "スケジュール実行する",
           "summary": "定期的なタスク（PR レビュー、依存関係監査、CI チェックなど）を自動実行。クラウド・デスクトップ・GitHub Actions・/loop の4つのオプション。",
-          "content": "定期的に自動実行したいタスク（毎朝のオープン PR レビュー、週次の依存関係監査、夜間の CI 障害チェックなど）を設定できます。タスクを実行する場所に応じてオプションを選択します。\n\nCloud scheduled tasks：Anthropic 管理のインフラストラクチャで実行。PC がオフでも動作。claude.ai/code で設定。\n\nDesktop scheduled tasks：デスクトップアプリ経由でローカルマシンで実行。ローカルファイル、ツール、未コミットの変更にアクセスが必要な場合に最適。\n\nGitHub Actions：CI パイプラインで実行。PR オープンなどのリポジトリイベントや cron スケジュールに連動。\n\n/loop：現在の CLI セッション内で実行。セッション終了時にキャンセルされる簡易ポーリング向け。",
+          "content": "定期的に自動実行したいタスク（毎朝のオープン PR レビュー、週次の依存関係監査、夜間の CI 障害チェックなど）を設定できます。タスクを実行する場所に応じてオプションを選択します。\n\nRoutines（クラウドルーティン）：Anthropic 管理のインフラストラクチャで実行。PC がオフでも動作。claude.ai/code/routines で設定、または CLI の /schedule コマンドで作成。スケジュール・API・GitHub イベント（PR オープンなど）の3種類のトリガーを組み合わせ可能。GitHub イベントトリガーは Claude GitHub App のインストールが必要。\n\nDesktop scheduled tasks：デスクトップアプリ経由でローカルマシンで実行。ローカルファイル、ツール、未コミットの変更にアクセスが必要な場合に最適。\n\nGitHub Actions：CI パイプラインで実行。PR オープンなどのリポジトリイベントや cron スケジュールに連動。\n\n/loop：現在の CLI セッション内で実行。セッション終了時にキャンセルされる簡易ポーリング向け。",
           "tags": [],
           "tips": [
+            "CLI で /schedule コマンドを実行すると会話形式で Routines を作成できる（例：/schedule daily PR review at 9am）",
             "スケジュールタスクのプロンプトでは、成功の定義と結果の処理方法を明示する（自律実行のため確認質問ができない）",
             "例：\"needs-review ラベルの付いたオープン PR をレビューし、問題にインラインコメントを残し、#eng-reviews Slack チャンネルにサマリーを投稿する\""
           ]
@@ -502,7 +506,7 @@
           "id": "opus-4-7-session-structure",
           "title": "インタラクティブセッションを最初のターンで完全指定する",
           "summary": "意図・制約・受け入れ基準・関連ファイルを最初のターンにまとめて与える。各ユーザーターンは推論オーバーヘッドを追加する。",
-          "content": "Opus 4.7 はコーディング、エンタープライズワークフロー、長時間実行エージェントタスクに最も強いモデルです。最初の情報提供が十分に完全であるほど、モデルは推論を乱されずに深く進めます。\n\n各ユーザーターンは推論オーバーヘッドを追加するため、ユーザーインタラクション数を削減します。追加質問はバッチ処理し、必要なコンテキストを一度に提供してください。\n\n長時間実行タスクでは auto mode が特に適合します。Shift+Tab で切り替え、完了時に音声通知を出すようプロンプトで指示すれば、別作業に切り替えても完了を検知できます。",
+          "content": "Opus 4.7 はコーディング、エンタープライズワークフロー、長時間実行エージェントタスクに強いモデルです（後継の Opus 4.8 が現在の最新版）。最初の情報提供が十分に完全であるほど、モデルは推論を乱されずに深く進めます。\n\n各ユーザーターンは推論オーバーヘッドを追加するため、ユーザーインタラクション数を削減します。追加質問はバッチ処理し、必要なコンテキストを一度に提供してください。\n\n長時間実行タスクでは auto mode が特に適合します。Shift+Tab で切り替え、完了時に音声通知を出すようプロンプトで指示すれば、別作業に切り替えても完了を検知できます。",
           "tags": ["重要"],
           "tips": [
             "意図・制約・受け入れ基準・関連ファイルの場所を最初のターンにすべて含める",
@@ -516,7 +520,7 @@
           "id": "opus-4-7-effort-levels",
           "title": "努力レベル（xhigh をデフォルトに）",
           "summary": "Opus 4.7 は low / medium / high / xhigh / max の 5 段階。ほぼすべてのコーディング作業は xhigh をデフォルトに。",
-          "content": "Opus 4.7 は従来の high より上に xhigh が追加され、計 5 段階の努力レベルを持ちます。推奨デフォルトは xhigh で、ほぼすべてのコーディング作業に適合します。\n\nレベルは会話中にトグル可能なので、難易度に応じて切り替えてトークン使用量を効果的に管理できます。低難易度なタスクを xhigh で走らせてトークンを無駄にしたり、max で過度な思考に陥るのを避けられます。",
+          "content": "Opus 4.7 は low / medium / high / xhigh / max の 5 段階の努力レベルを持ち、xhigh がデフォルトです。後継の Opus 4.8 も同じ 5 段階ですが、デフォルトは high です。\n\nレベルは会話中にトグル可能なので、難易度に応じて切り替えてトークン使用量を効果的に管理できます。低難易度なタスクを xhigh で走らせてトークンを無駄にしたり、max で過度な思考に陥るのを避けられます。",
           "tags": [],
           "tips": [
             "low / medium — コストとレイテンシを最優先するタスク向け（Opus 4.6 比で改善）",
@@ -609,6 +613,26 @@
             "マルチステップのエージェント作業 — 長時間の自律実行を要するタスク",
             "ネイティブ 1M コンテキストを活かし、長大なファイルや調査結果を圧縮せずに保持したまま設計できる",
             "これらに該当する場合は effort を xhigh に保ち、最初のターンで完全指定してから結果を見る"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "opus-4-8",
+      "name": "Opus 4.8 のコツ",
+      "description": "Opus 4.8（v2.1.154〜）を最大限活かすためのモデル固有のチューニング",
+      "items": [
+        {
+          "id": "opus-4-8-overview",
+          "title": "Opus 4.8 の概要とエイリアス",
+          "summary": "v2.1.154 でリリース。opus エイリアスは Anthropic API で Opus 4.8 に解決。デフォルト effort は high（5段階対応）。",
+          "content": "Opus 4.8 は v2.1.154 でリリースされた Opus 4.7 の後継モデルです。\n\n`opus` エイリアスは Anthropic API では Opus 4.8 に解決されます（Claude Platform on AWS では Opus 4.7）。デフォルト effort は全サーフェスで high です。\n\nOpus 4.7 と同じ 5 段階の effort（low / medium / high / xhigh / max）に対応しています。難しいコーディング・エージェントタスクには /effort xhigh の使用を推奨します。\n\nOpus 4.7 の「インタラクティブセッションを最初のターンで完全指定する」「サブエージェントを並列起動させる」などのコツは Opus 4.8 にも同様に適用できます。",
+          "tags": ["重要"],
+          "tips": [
+            "Anthropic API では claude-opus-4-8 または opus エイリアスで利用",
+            "デフォルト effort は high。複雑なタスクは /effort xhigh で引き上げる",
+            "Opus 4.7 のコツ（完全指定・並列サブエージェント・肯定形スタイル指示）は Opus 4.8 にも有効",
+            "Max サブスクライバーは auto mode と組み合わせて利用可能（v2.1.111〜）"
           ]
         }
       ]

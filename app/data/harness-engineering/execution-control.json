@@ -6,29 +6,39 @@
     "items": [
       {
         "id": "hooks-events",
-        "title": "イベント一覧（19+）",
-        "summary": "Hooks は19以上のイベントをサポート。PreToolUse がプライマリセキュリティレイヤーで、ツール実行をブロック・許可・修正できる。Stop は応答完了後に継続を強制できる。",
-        "content": "各イベントは共通フィールド（`session_id`、`transcript_path`、`cwd`、`permission_mode`、`hook_event_name`）を stdin（コマンド）または POST ボディ（HTTP）で受け取る。\n\n**PreToolUse** は `tool_name`、`tool_input`（オブジェクト）、`tool_use_id` を追加。**PostToolUse** は `tool_name`、`tool_input`、`tool_response`（exit_code, output を含むオブジェクト）を追加。**UserPromptSubmit** は `prompt`（文字列）を追加。**Stop/SubagentStop** は `stop_hook_active`（前の Stop フックが既に続行した場合 true）を追加。",
+        "title": "イベント一覧（30+）",
+        "summary": "Hooks は30以上のイベントをサポート。PreToolUse がプライマリセキュリティレイヤーで、ツール実行をブロック・許可・修正できる。Stop は応答完了後に継続を強制できる。",
+        "content": "各イベントは共通フィールド（`session_id`、`transcript_path`、`cwd`、`permission_mode`、`hook_event_name`）を stdin（コマンド）または POST ボディ（HTTP）で受け取る。\n\n**PreToolUse** は `tool_name`、`tool_input`（オブジェクト）、`tool_use_id` を追加。**PostToolUse** は `tool_name`、`tool_input`、`tool_response`（exit_code, output を含むオブジェクト）を追加。**UserPromptSubmit** は `prompt`（文字列）を追加。**Stop/SubagentStop** は `stop_hook_active`（前の Stop フックが既に続行した場合 true）を追加。\n\n公式ドキュメントで確認できる主要な追加イベント: **SubagentStart**（サブエージェント起動時）、**StopFailure**（API エラーでターン終了）、**PermissionRequest**（権限ダイアログ表示時・allow/deny/updatedInput で応答可能）、**PermissionDenied**（auto モード分類器がツールを拒否した際）、**PostToolUseFailure**（ツール失敗後）、**PostToolBatch**（並列ツールバッチ完了後）、**PreCompact**/**PostCompact**（コンテキスト圧縮前後）、**FileChanged**（監視ファイル変更、非同期）、**ConfigChange**（設定ファイル変更）、**CwdChanged**（作業ディレクトリ変更）、**InstructionsLoaded**（CLAUDE.md 読み込み時）、**WorktreeCreate**/**WorktreeRemove**（Worktree 作成・削除）、**Elicitation**/**ElicitationResult**（MCP エリシテーション）、**MessageDisplay**（アシスタントテキストストリーム中）。",
         "tags": [],
         "tables": [
           {
             "title": "主要イベント一覧",
-            "headers": ["イベント", "発火タイミング", "ブロック可能？", "全ハンドラ対応？"],
+            "headers": ["イベント", "発火タイミング", "ブロック可能？", "全5タイプ対応？"],
             "rows": [
-              ["Setup", "--init、--init-only、--maintenance 経由", "不可", "Command のみ"],
-              ["SessionStart", "新規セッション、resume、clear、compact", "不可", "Command のみ"],
-              ["SessionEnd", "セッション終了（exit、sigint、error）", "不可", "Command のみ"],
-              ["UserPromptSubmit", "プロンプト送信時、処理前", "可（ブロック）", "全4タイプ"],
+              [
+                "Setup",
+                "--init、--init-only、--maintenance 経由",
+                "不可",
+                "Command・mcp_tool のみ"
+              ],
+              [
+                "SessionStart",
+                "新規セッション、resume、clear、compact",
+                "不可",
+                "Command・mcp_tool のみ"
+              ],
+              ["SessionEnd", "セッション終了（exit、sigint、error）", "不可", "全5タイプ"],
+              ["UserPromptSubmit", "プロンプト送信時、処理前", "可（ブロック）", "全5タイプ"],
               [
                 "PreToolUse",
                 "ツール実行前 — プライマリセキュリティレイヤー",
                 "可（allow/deny/ask）",
-                "全4タイプ"
+                "全5タイプ"
               ],
-              ["PostToolUse", "ツール正常完了後", "可（やり直し強制）", "全4タイプ"],
-              ["Stop", "メインエージェント応答完了", "可（継続強制）", "全4タイプ"],
-              ["SubagentStop", "サブエージェント完了", "可（継続強制）", "全4タイプ"],
-              ["TaskCompleted", "タスク完了マーク時", "可（完了ブロック）", "全4タイプ"]
+              ["PostToolUse", "ツール正常完了後", "可（やり直し強制）", "全5タイプ"],
+              ["Stop", "メインエージェント応答完了", "可（継続強制）", "全5タイプ"],
+              ["SubagentStop", "サブエージェント完了", "可（継続強制）", "全5タイプ"],
+              ["TaskCompleted", "タスク完了マーク時", "可（完了ブロック）", "全5タイプ"]
             ]
           }
         ]
@@ -43,9 +53,9 @@
       },
       {
         "id": "hooks-handlers",
-        "title": "4つのハンドラタイプ",
-        "summary": "Command（シェル）、Prompt（単発LLM評価）、Agent（50ターンのサブエージェント）、HTTP（エンドポイントへPOST）の4タイプ。それぞれタイムアウトと用途が異なる。",
-        "content": "**Command** (`type: \"command\"`): JSON を stdin で受け取るシェルコマンド。Exit 0 = 成功（stdout を JSON パース）。Exit 2 = ブロックエラー（stderr を Claude にフィード、stdout 無視）。デフォルトタイムアウト: **600秒**。`\"async\": true` でノンブロッキング実行。\n\n**Prompt** (`type: \"prompt\"`): 単発 LLM 評価。`$ARGUMENTS` プレースホルダーが完全な JSON 入力に置換される。デフォルトは「高速モデル」（Haiku 相当）で `model` フィールドで上書き可能。`{\"ok\": true}` で許可、`{\"ok\": false, \"reason\": \"...\"}` でブロック。デフォルトタイムアウト: **30秒**。\n\n**Agent** (`type: \"agent\"`): 最大**50ターン**のマルチターンサブエージェントで Read、Grep、Glob ツールにアクセス可能。デフォルトタイムアウト: **60秒**。コード検査が必要な検証に最適。\n\n**HTTP** (`type: \"http\"`): イベント JSON をエンドポイントに POST。Command フックと同じレスポンス形式。ヘッダー変数補間には `allowedEnvVars` リストが必要（v2.1.51+）。SessionStart/Setup イベントでは**非対応**。",
+        "title": "5つのハンドラタイプ",
+        "summary": "Command（シェル）、HTTP（エンドポイントへ POST）、mcp_tool（接続済み MCP サーバーのツール呼び出し）、Prompt（単発LLM評価）、Agent（サブエージェント）の5タイプ。それぞれタイムアウトと用途が異なる。",
+        "content": "**Command** (`type: \"command\"`): JSON を stdin で受け取るシェルコマンド。Exit 0 = 成功（stdout を JSON パース）。Exit 2 = ブロックエラー（stderr を Claude にフィード、stdout 無視）。デフォルトタイムアウト: **600秒**。`\"async\": true` でノンブロッキング実行。\n\n**HTTP** (`type: \"http\"`): イベント JSON をエンドポイントに POST。Command フックと同じレスポンス形式。ヘッダー変数補間には `allowedEnvVars` リストが必要（v2.1.51+）。SessionStart/Setup イベントでは**非対応**。\n\n**mcp_tool** (`type: \"mcp_tool\"`): 接続済み MCP サーバーのツールをフック内から呼び出す。`server`（サーバー名）と `tool`（ツール名）フィールドを指定。`input` でパス置換（`${tool_input.file_path}` 等）が可能。デフォルトタイムアウト: **600秒**。SessionStart/Setup でも利用可能（Command と mcp_tool のみ対応）。\n\n**Prompt** (`type: \"prompt\"`): 単発 LLM 評価。`$ARGUMENTS` プレースホルダーが完全な JSON 入力に置換される。デフォルトは「高速モデル」（Haiku 相当）で `model` フィールドで上書き可能。`{\"ok\": true}` で許可、`{\"ok\": false, \"reason\": \"...\"}` でブロック。デフォルトタイムアウト: **30秒**。\n\n**Agent** (`type: \"agent\"`): マルチターンサブエージェントで Read、Grep、Glob ツールにアクセス可能。デフォルトタイムアウト: **60秒**。コード検査が必要な検証に最適。",
         "tags": [],
         "tables": [
           {
@@ -58,14 +68,20 @@
                 "600秒",
                 "フォーマット、リント、ファイル検証"
               ],
+              ["HTTP", "エンドポイントへ POST", "600秒", "外部サービス連携、監査ログ"],
+              [
+                "mcp_tool",
+                "接続済み MCP サーバーのツール呼び出し",
+                "600秒",
+                "MCP サーバー経由の検証・通知"
+              ],
               [
                 "Prompt",
                 "単発 LLM 評価",
                 "30秒",
                 "セマンティックチェック（コミットメッセージ品質等）"
               ],
-              ["Agent", "50ターンのサブエージェント", "60秒", "コード検査が必要な検証"],
-              ["HTTP", "エンドポイントへ POST", "600秒", "外部サービス連携、監査ログ"]
+              ["Agent", "マルチターンサブエージェント", "60秒", "コード検査が必要な検証"]
             ]
           }
         ]
@@ -73,16 +89,16 @@
       {
         "id": "hooks-output",
         "title": "PreToolUse 出力フォーマット",
-        "summary": "トップレベルの decision/reason は非推奨。hookSpecificOutput 内の permissionDecision を使用する。updatedInput でツール入力を透過的に変更可能。",
-        "content": "トップレベルの `decision`/`reason` フィールドは**非推奨**。新しいスキーマを使用すること。\n\n`permissionDecision` の値: `\"allow\"`、`\"deny\"`、`\"ask\"`（ユーザープロンプトを強制）。旧 \"approve\"/\"block\" は \"allow\"/\"deny\" にマッピングされる。\n\n`updatedInput` フィールド（v2.0.10+）でツール入力を実行前に透過的に変更可能。",
+        "summary": "PreToolUse の出力は hookSpecificOutput 内の permissionDecision を使用する。updatedInput でツール入力を透過的に変更可能。",
+        "content": "PreToolUse の出力は `hookSpecificOutput` 内の `permissionDecision` フィールドを使用する（`allow` / `deny` / `ask` / `defer`）。これは PreToolUse 固有の設計で、UserPromptSubmit・PostToolUse・Stop 等が使うトップレベル `decision: \"block\"` とは別スキーマ。旧値 `\"approve\"`/`\"block\"` は `\"allow\"`/`\"deny\"` にマッピングされる。\n\n`permissionDecision` の値: `\"allow\"`（許可）、`\"deny\"`（ブロック）、`\"ask\"`（ユーザープロンプトを強制）、`\"defer\"`（通常の権限フローに委ねる）の4種類。\n\n`updatedInput` フィールドでツール入力を実行前に透過的に変更可能。",
         "tags": [],
         "code": "{\n  \"hookSpecificOutput\": {\n    \"hookEventName\": \"PreToolUse\",\n    \"permissionDecision\": \"allow\",\n    \"permissionDecisionReason\": \"安全な読み取り操作\",\n    \"updatedInput\": { \"command\": \"modified-command\" },\n    \"additionalContext\": \"Claude への追加コンテキスト\"\n  }\n}"
       },
       {
         "id": "hooks-env",
         "title": "環境変数と設定優先順位",
-        "summary": "フックで利用可能な環境変数は $CLAUDE_PROJECT_DIR 等。$CLAUDE_TOOL_NAME のバグにより stdin から JSON を読むことを推奨。設定はスタートアップ時にスナップショットされる。",
-        "content": "信頼性の高い環境変数: `$CLAUDE_PROJECT_DIR`、`$CLAUDE_ENV_FILE`（SessionStart/Setup のみ — `export VAR=value` を書き込んで永続化）、`$CLAUDE_SESSION_ID`（v2.1.9+）、`$CLAUDE_CODE_REMOTE`。\n\n`$CLAUDE_TOOL_NAME` と `$CLAUDE_TOOL_PARAMS` にはバグが報告されている（GitHub issues #5489, #9567）。推奨アプローチは環境変数に頼らず **stdin から JSON を読む**こと。\n\n**フックはスタートアップ時にスナップショットされる。** セッション中に設定ファイルを編集しても即座には反映されない。同一イベントにマッチするすべてのフックは**並行実行**される。",
+        "summary": "フックで利用可能な環境変数は $CLAUDE_PROJECT_DIR 等。stdin から JSON を読むことを推奨。設定はスタートアップ時にスナップショットされる。",
+        "content": "公式にサポートされている環境変数: `$CLAUDE_PROJECT_DIR`、`$CLAUDE_ENV_FILE`（SessionStart/Setup/CwdChanged/FileChanged で利用可能 — `export VAR=value` を書き込んで永続化）、`$CLAUDE_EFFORT`、`$CLAUDE_CODE_REMOTE`。\n\nなお `session_id` は JSON 入力として全フックイベントで受け取れる（環境変数ではない）。`CLAUDE_CODE_SESSION_ID` という別名の環境変数が v2.1.132 で Bash ツールサブプロセス環境に追加されたが、フックスクリプト自体の環境変数とは異なる。`$CLAUDE_SESSION_ID` はスキル文字列置換（v2.1.9）であってフック環境変数ではない。\n\nフック実装では環境変数ではなく **stdin から JSON を読む**ことを推奨する。ツール名やパラメータは stdin の JSON フィールド（`tool_name`、`tool_input`）として取得する（例: `jq -r '.tool_name'`）。`CLAUDE_TOOL_NAME` や `CLAUDE_TOOL_PARAMS` は公式ドキュメントに記載されておらず、サポートされていない。\n\n**フックはスタートアップ時にスナップショットされる。** セッション中に設定ファイルを編集しても即座には反映されない。同一イベントにマッチするすべてのフックは**並行実行**される。",
         "tags": [],
         "tables": [
           {
@@ -112,7 +128,7 @@
           "シェルプロファイルの干渉: ~/.zshrc が起動時に出力すると、フック stdout の前に追加され JSON パースが壊れる。if [[ $- == *i* ]]; then ... fi でガードする",
           "スクリプトは実行可能にする必要がある（chmod +x）",
           "continue: false は decision フィールドより優先される",
-          "Stop フック無限ループ: 常に stop_hook_active をチェックし、true なら exit 0 で終了する",
+          "Stop フック無限ループ: 常に stop_hook_active をチェックし、true なら exit 0 で終了する。v2.1.143+ では Stop フックが8回連続ブロックすると警告付きでターンが強制終了する（`CLAUDE_CODE_STOP_HOOK_BLOCK_CAP` 環境変数で上限変更可能）",
           "Edit/Write ツールを PreToolUse フックでブロックしないこと — Claude が無限リトライループに入る。代わりに PostToolUse ヒントを使う"
         ],
         "realWorld": [
@@ -127,13 +143,13 @@
   {
     "id": "permissions",
     "name": "パーミッションシステム",
-    "description": "権限管理 — 4つのモードと6段階の評価順序でツール実行を制御",
+    "description": "権限管理 — 6つのモードと評価順序でツール実行を制御",
     "items": [
       {
         "id": "permissions-modes",
-        "title": "4つの権限モード",
-        "summary": "Default（都度確認）、AcceptEdits（編集自動承認）、Plan（読み取り専用）、Bypass（全自動承認だが deny ルールとフックは有効）。SDK では dontAsk モードも利用可能。",
-        "content": "4つのモードでツール実行の権限を制御する。Bypass モードでも deny ルールとフックは有効であり、完全にバイパスされるわけではない。SDK 専用の `dontAsk` モードは、権限プロンプトを拒否に変換する。",
+        "title": "6つの権限モード",
+        "summary": "Default（都度確認）、AcceptEdits（編集自動承認）、Auto（自動分類器で承認）、Plan（読み取り専用）、Bypass（全自動承認だが deny ルールとフックは有効）、DontAsk（プロンプトを自動拒否）。",
+        "content": "6つのモードでツール実行の権限を制御する。Bypass モードでも deny ルールとフックは有効であり、完全にバイパスされるわけではない。`dontAsk` モードは、権限プロンプトが出るはずのツール呼び出しを自動拒否する（CI・スクリプト向け）。",
         "tags": [],
         "tables": [
           {
@@ -142,13 +158,22 @@
             "rows": [
               ["Default", "default", "各ツールの初回使用時にユーザーに確認"],
               ["Accept Edits", "acceptEdits", "ファイル編集を自動承認。その他は確認"],
+              [
+                "Auto",
+                "auto",
+                "バックグラウンドの安全分類器が各アクションをリクエストの範囲と照合し、問題がなければ自動承認。v2.1.83+。ユーザー/管理設定のみ有効（プロジェクト設定は無視）"
+              ],
               ["Plan", "plan", "読み取り専用 — ファイル変更やコマンド実行不可"],
               [
                 "Bypass",
                 "bypassPermissions",
                 "全ツール使用を自動承認。deny ルールとフックは引き続き有効"
               ],
-              ["Don't Ask（SDK専用）", "dontAsk", "権限プロンプトを拒否に変換"]
+              [
+                "Don't Ask",
+                "dontAsk",
+                "プロンプトが出るはずのツール呼び出しを自動拒否。allow ルールに一致するツールと読み取り専用 Bash コマンドのみ実行可能。CI・スクリプト向け"
+              ]
             ]
           }
         ]
@@ -156,8 +181,8 @@
       {
         "id": "permissions-evaluation",
         "title": "評価順序",
-        "summary": "6段階の評価: deny → PreToolUse フック → ask → アクティブモード → allow → フォールバック。deny はどの設定レベルでも絶対で上書き不可。",
-        "content": "権限は以下の順序で評価される。**重要**: どの設定レベルでの deny も、他のレベルやフックで上書きすることはできない。deny は絶対的。\n\n1. **deny ルールをチェック** — 全設定スコープからマージ。マッチすると bypassPermissions でも**ブロック**\n\n2. **PreToolUse フックを実行** — allow、deny、ask、またはパススルーが可能\n\n3. **ask ルールをチェック** — マッチするとユーザーに確認\n\n4. **アクティブ権限モードを適用** — bypassPermissions は承認、plan は変更を拒否 等\n\n5. **allow ルールをチェック** — マッチすると承認\n\n6. **フォールバック** — CLI ではユーザーにインタラクティブに確認、SDK dontAsk では拒否",
+        "summary": "ルール評価は deny → ask → allow の順（ファーストマッチウィン）。PreToolUse フックは並行動作するが deny/ask ルールに上書きされる。deny はどの設定レベルでも絶対で上書き不可。",
+        "content": "ルール評価は deny → ask → allow の順（ファーストマッチウィン）。PreToolUse フックはこの評価と並行して動作するが、フックの allow 判断も deny/ask ルールに上書きされる（フックは deny/ask をバイパスできない）。一方、フックの exit-2 ブロックは allow ルールより優先され、ツール呼び出しを停止できる。\n\n**重要**: どの設定レベルでの deny も、他のレベルやフックで上書きすることはできない。deny は絶対的。\n\n1. **deny ルールをチェック** — 全設定スコープからマージ。マッチすると bypassPermissions でも**ブロック**\n\n2. **PreToolUse フックを実行** — allow、deny、ask、defer、またはパススルーが可能\n\n3. **ask ルールをチェック** — マッチするとユーザーに確認\n\n4. **アクティブ権限モードを適用** — bypassPermissions は承認、plan は変更を拒否 等\n\n5. **allow ルールをチェック** — マッチすると承認\n\n6. **フォールバック** — CLI ではユーザーにインタラクティブに確認、SDK dontAsk では拒否",
         "tags": []
       },
       {
@@ -172,7 +197,10 @@
             "headers": ["パターン", "マッチ対象"],
             "rows": [
               ["Bash(npm run *)", "\"npm run\" で始まるコマンド"],
-              ["Bash(git diff:*)", "git diff と任意の引数"],
+              [
+                "Bash(git diff:*)",
+                "Bash(git diff *) と等価。\"git diff \" で始まるコマンドにマッチ（git diff-index 等は対象外）"
+              ],
               ["Read(./.env)", "特定の .env ファイル"],
               ["Read(**/.env)", "任意ディレクトリの .env"],
               ["Write(./production.config.*)", "本番設定ファイル"],
@@ -193,22 +221,23 @@
       {
         "id": "mcp-config",
         "title": ".mcp.json 設定",
-        "summary": "プロジェクトルートの .mcp.json で MCP サーバーを定義。local（~/.claude.json）、project（.mcp.json）、user（~/.claude.json）の3スコープ。",
-        "content": "MCP サーバーは3つのスコープで設定可能: **local**（`~/.claude.json`）、**project**（`.mcp.json`、プロジェクトルート）、**user**（`~/.claude.json`）。\n\n`--mcp-config` で複数の設定を指定可能。`--strict-mcp-config` は他のすべての設定を無視する。",
+        "summary": "プロジェクトルートの .mcp.json で MCP サーバーを定義。local（~/.claude.json のプロジェクトエントリ配下）、project（.mcp.json）、user（~/.claude.json のルートレベル）の3スコープ。",
+        "content": "MCP サーバーは3つのスコープで設定可能: **local**（デフォルト、`~/.claude.json` のプロジェクトエントリ配下、個人・プロジェクト固有、旧称 `project`）、**project**（`.mcp.json`、プロジェクトルート、チーム共有）、**user**（`~/.claude.json` のルートレベル、全プロジェクトで利用、旧称 `global`）。\n\n`--mcp-config` で複数の設定を指定可能。`--strict-mcp-config` は他のすべての設定を無視する。",
         "tags": [],
         "code": "{\n  \"mcpServers\": {\n    \"server-name\": {\n      \"type\": \"stdio\",\n      \"command\": \"pnpm dlx\",\n      \"args\": [\"-y\", \"@modelcontextprotocol/server-filesystem\", \"/path\"],\n      \"env\": { \"API_KEY\": \"value\" },\n      \"serverInstructions\": \"Tool Search 用の説明\"\n    }\n  }\n}"
       },
       {
         "id": "mcp-tool-search",
         "title": "Tool Search によるコンテキスト肥大化の解消",
-        "summary": "MCP 定義がコンテキストの10%超を消費すると自動でアクティブ化。85%のトークンオーバーヘッド削減（72K → 8.5K）を実現。Haiku は非対応。",
-        "content": "MCP 定義がコンテキストの**10%超**を消費すると自動でアクティブ化される。軽量なインデックスを構築し、ツールをオンデマンドで読み込む。\n\n結果: **85%のトークンオーバーヘッド削減**（Anthropic のテストで72K → 8.5K）。Tool Search により Opus 4 の精度が49%から74%に向上。\n\n設定: `ENABLE_TOOL_SEARCH=auto`（デフォルト）、`auto:5`（5%閾値）、`true`（常時）、`false`（無効）。**Haiku は Tool Search 非対応**。",
+        "summary": "デフォルトで全 MCP ツールが defer され、オンデマンドで読み込まれる。85%のトークンオーバーヘッド削減（72K → 8.5K）を実現。Haiku モデルは非対応。",
+        "content": "デフォルトでは全 MCP ツールがセッション開始時に defer され、Claude が必要なときにオンデマンドで読み込まれる。`ENABLE_TOOL_SEARCH=auto` に設定すると閾値モードになり、ツール定義がコンテキストの10%以内に収まる場合はアップフロントで読み込み、超える場合のみ defer する。\n\n結果: **85%のトークンオーバーヘッド削減**（Anthropic のテストで72K → 8.5K）。Tool Search により Opus 4 の精度が49%から74%に向上。\n\n設定: 未設定（デフォルト）=全ツール defer、`true`=全ツール強制 defer（プロキシ環境でも）、`auto`=10%閾値モード、`auto:N`（例: `auto:5`=5%閾値）、`false`=アップフロント読み込み（無効化）。**Haiku モデルは Tool Search 非対応**。Sonnet 4 以降または Opus 4 以降が必要（Vertex AI では Sonnet 4.5 / Opus 4.5 以降）。",
         "tags": [],
         "tips": [
           "Tool Search を有効にする（Sonnet/Opus 4+ ではデフォルト有効）",
           "未使用のサーバーを無効化する",
           "単純な操作には MCP より CLI ツール（gh, aws）を優先する — 永続的な定義オーバーヘッドがない",
-          "serverInstructions を追加して Tool Search の精度を向上させる"
+          "serverInstructions を追加して Tool Search の精度を向上させる",
+          ".mcp.json のサーバー設定に \"alwaysLoad\": true を指定すると、そのサーバーのツールは Tool Search の defer 対象から除外され、常にセッション開始時にコンテキストへ読み込まれる（v2.1.121+）。毎ターン必要なツールを持つ小規模サーバーに適している"
         ]
       },
       {

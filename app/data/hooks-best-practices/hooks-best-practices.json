@@ -29,7 +29,7 @@
           "steps": [
             {
               "phase": "command",
-              "description": "シェルコマンドを実行。stdin で JSON を受信し、exit code / stdout / stderr で結果を返す。shell フィールドで \"bash\" / \"powershell\" を指定可能。デフォルトタイムアウト: 600秒",
+              "description": "シェルコマンドを実行。stdin で JSON を受信し、exit code / stdout / stderr で結果を返す。shell フィールドで \"bash\" / \"powershell\" を指定可能。デフォルトタイムアウト: 600秒。v2.1.139 以降、`args: string[]` フィールドでコマンドを exec form（シェルなし直接実行）で起動できる。`${CLAUDE_PROJECT_DIR}` などのプレースホルダーのクォート問題を回避できる。例: `{\"command\": \"node\", \"args\": [\"${CLAUDE_PROJECT_DIR}/.claude/hooks/script.js\"]}`",
               "example": "ファイル操作、フォーマット、バリデーション"
             },
             {
@@ -70,15 +70,16 @@
           "tips": [
             "`PreToolUse` — ツール実行前に発火。危険コマンドのブロック、入力の書き換えに使用",
             "`PermissionRequest` — 権限ダイアログ表示時に発火。特定操作の自動承認/拒否に使用。非インタラクティブモード（-p）では発火しない → `PreToolUse` を使用",
-            "`PermissionDenied` — オートモード分類器がツール呼び出しを拒否した時に発火。`{retry: true}` を返すとモデルに再試行を許可。matcher はツール名にマッチ",
             "`UserPromptSubmit` — ユーザーがプロンプトを送信した時に発火。プロンプトのフィルタリングに使用",
-            "`Stop` — Claude が応答を完了した時に発火。タスク完了の検証に使用。ユーザー割り込みでは発火しない（API エラー時は StopFailure が発火）",
-            "`SubagentStop` — サブエージェント完了時に発火。サブエージェント出力の検証に使用",
+            "`UserPromptExpansion` — スラッシュコマンドがプロンプトに展開される時に発火。ブロッキング可能。`hookSpecificOutput.suppressOriginalPrompt` で元のプロンプトを抑制、`additionalContext` や `sessionTitle` の設定も可能。matcher はコマンド名にマッチ",
+            "`Stop` — Claude が応答を完了した時に発火。タスク完了の検証に使用。ユーザー割り込みでは発火しない（API エラー時は StopFailure が発火）。v2.1.145 以降、入力 JSON に `background_tasks`（実行中のバックグラウンドタスク）と `session_crons`（セッション内クロン）フィールドが含まれる",
+            "`SubagentStop` — サブエージェント完了時に発火。サブエージェント出力の検証に使用。v2.1.145 以降、入力 JSON に `background_tasks` と `session_crons` フィールドが含まれる",
             "`TaskCreated` — TaskCreate ツールでタスクが作成される時に発火。命名規則の強制、説明の必須化、特定タスクのブロックに使用。exit code 2 でタスク作成を拒否し stderr をフィードバック可能",
             "`TaskCompleted` — タスクが完了としてマークされる時に発火。完了条件の検証に使用",
             "`ConfigChange` — 設定ファイル変更時に発火。不正変更のブロックに使用",
             "`WorktreeCreate` — Worktree 作成時に発火。command タイプのみ対応。カスタム worktree ロジックに使用",
             "`TeammateIdle` — チームメイトがアイドル状態になる時に発火。作業継続の判断に使用",
+            "`PreCompact` — コンテキスト圧縮前に発火。exit code 2 で圧縮をブロックできる",
             "`Elicitation` / `ElicitationResult` — MCP サーバーがユーザー入力を要求した時に発火"
           ]
         },
@@ -90,17 +91,21 @@
           "tags": [],
           "tips": [
             "`SessionStart` — セッション開始/再開時に発火。command タイプのみ対応。コンテキスト注入、環境変数の設定に使用",
-            "`PostToolUse` — ツール成功後に発火。コードフォーマット、ログ記録に使用。decision: \"block\" でフィードバック提供可能（アクション自体は阻止不可）。MCP ツールの出力を updatedMCPToolOutput で置換可能。v2.1.119 以降は入力 JSON に `duration_ms`（ツール実行時間、permission prompts と PreToolUse hook を除く）が含まれるため、遅いツールの検知や実行時間のテレメトリ送信にも利用可能",
+            "`PostToolUse` — ツール成功後に発火。コードフォーマット、ログ記録に使用。decision: \"block\" でフィードバック提供可能（アクション自体は阻止不可）。全ツールの出力を `hookSpecificOutput.updatedToolOutput` で置換可能（v2.1.121 以降、MCP ツールに限らず全ツール対応）。MCP ツール専用の `updatedMCPToolOutput` も引き続き利用可能。v2.1.119 以降は入力 JSON に `duration_ms`（ツール実行時間、permission prompts と PreToolUse hook を除く）が含まれるため、遅いツールの検知や実行時間のテレメトリ送信にも利用可能。v2.1.147 以降は `continueOnBlock: true` を設定 JSON に追加すると、`decision: \"block\"` 返却時にターンを終了せず rejection reason をフィードバックとして送りつつ処理を継続できる",
             "`PostToolUseFailure` — ツール失敗後に発火。エラー分析、通知に使用。v2.1.119 以降は `duration_ms` も含まれる",
+            "`PostToolBatch` — 並列ツール呼び出しのバッチ全体が完了した後に発火。個々の `PostToolUse` とは異なり、一括完了時の処理に使用。ノンブロッキング",
             "`Notification` — 通知送信時に発火。デスクトップ通知に使用",
             "`SubagentStart` — サブエージェント起動時に発火。コンテキスト注入に使用",
             "`SessionEnd` — セッション終了時に発火。クリーンアップ処理に使用。デフォルトタイムアウト: 1.5秒（CLAUDE_CODE_SESSIONEND_HOOKS_TIMEOUT_MS で変更可）",
             "`StopFailure` — APIエラーでターン終了時に発火。エラーアラートに使用",
-            "`PreCompact` / `PostCompact` — コンテキスト圧縮の前/後に発火。コンテキスト再注入に使用",
+            "`PostCompact` — コンテキスト圧縮後に発火。ログ記録・通知に使用",
             "`InstructionsLoaded` — CLAUDE.md 等の読み込み時に発火。監査ログに使用",
             "`WorktreeRemove` — Worktree 削除時に発火。command タイプのみ対応。クリーンアップに使用",
             "`CwdChanged` — 作業ディレクトリ変更時に発火。command タイプのみ対応。CLAUDE_ENV_FILE で環境変数を永続化可能。ディレクトリ変更に応じた環境再読み込みに使用",
-            "`FileChanged` — 監視対象ファイルの変更時に発火。command タイプのみ対応。CLAUDE_ENV_FILE で環境変数を永続化可能。watchPaths で動的にファイル監視を追加可能"
+            "`FileChanged` — 監視対象ファイルの変更時に発火。command タイプのみ対応。CLAUDE_ENV_FILE で環境変数を永続化可能。watchPaths で動的にファイル監視を追加可能",
+            "`PermissionDenied` — オートモード分類器がツール呼び出しを拒否した時に発火。`hookSpecificOutput.retry: true` を返すとモデルに再試行を許可。matcher はツール名にマッチ",
+            "`MessageDisplay` — アシスタントメッセージのテキスト表示中に発火（v2.1.152 追加）。`hookSpecificOutput.displayContent` で表示テキストを置換可能。ノンブロッキングだが表示内容のフィルタリング・変換に使用",
+            "`Setup` — CI / ヘッドレスセッションでの一回限りの準備処理に使用するイベント。`init` / `maintenance` matcher をサポート。`SessionStart` と異なり、対話セッションでは発火しない"
           ]
         },
         {
@@ -133,7 +138,7 @@
             {
               "phase": "Notification",
               "description": "通知の種類にマッチ",
-              "example": "permission_prompt, idle_prompt, auth_success, elicitation_dialog"
+              "example": "permission_prompt, idle_prompt, auth_success, elicitation_dialog, elicitation_complete, elicitation_response"
             },
             {
               "phase": "SubagentStart / SubagentStop",
@@ -221,7 +226,8 @@
             "`shell` — command タイプで使用するシェルを指定（`\"bash\"` / `\"powershell\"`）",
             "`once: true` — セッション内で一度だけ実行し、その後削除される（スキル内 hooks のみ）",
             "マッチした全ての hooks は**並列実行**される。同一のコマンド文字列 / URL は自動的に**重複排除**される",
-            "hooks は Claude Code の作業ディレクトリで実行される"
+            "hooks は Claude Code の作業ディレクトリで実行される",
+            "v2.1.141 以降、hook の JSON 出力に `terminalSequence` フィールドを含めることで、`/dev/tty` なしでデスクトップ通知・ウィンドウタイトル変更・ベル音を送出できる。OSC 0/1/2（タイトル）、OSC 9（iTerm2/WezTerm 通知）、OSC 777（Ghostty/Warp 通知）、BEL をサポート"
           ],
           "code": "{\n  \"hooks\": {\n    \"イベント名\": [\n      {\n        \"matcher\": \"正規表現パターン（省略可）\",\n        \"hooks\": [\n          {\n            \"type\": \"command\",\n            \"command\": \"実行するコマンド\",\n            \"if\": \"Bash(git *)\",\n            \"timeout\": 600,\n            \"statusMessage\": \"検証中...\",\n            \"async\": false,\n            \"shell\": \"bash\",\n            \"once\": false\n          }\n        ]\n      }\n    ]\n  }\n}"
         },
@@ -237,7 +243,8 @@
             "`CLAUDE_CODE_REMOTE` — Web 環境では `\"true\"` に設定される",
             "`CLAUDE_PLUGIN_ROOT` — プラグインのインストールディレクトリ",
             "`CLAUDE_PLUGIN_DATA` — プラグインの永続データディレクトリ",
-            "**共通入力フィールド（stdin JSON）**: `session_id`, `transcript_path`, `cwd`, `permission_mode`, `hook_event_name` が全イベントで利用可能。サブエージェント内では `agent_id`, `agent_type` も含まれる"
+            "**共通入力フィールド（stdin JSON）**: `session_id`, `transcript_path`, `cwd`, `permission_mode`, `hook_event_name` が全イベントで利用可能。サブエージェント内では `agent_id`, `agent_type` も含まれる。また `effort.level`（low|medium|high|xhigh|max）は PreToolUse・PostToolUse・Stop・SubagentStop 等の tool-use コンテキストで、かつモデルが effort をサポートする場合に付与される（v2.1.133+）",
+            "`CLAUDE_EFFORT` — v2.1.133 以降、現在のエフォートレベル（`low`|`medium`|`high`|`xhigh`|`max`）を示す環境変数。全イベントで利用可能。stdin JSON の `effort.level` フィールドと同じ値"
           ]
         },
         {
@@ -249,8 +256,8 @@
           "steps": [
             {
               "phase": "PreToolUse",
-              "description": "hookSpecificOutput で allow/deny/ask を指定。updatedInput で入力を書き換え可能。allow を返しても deny ルール（マネージドポリシー含む）が優先される",
-              "example": "{\"hookSpecificOutput\": {\"hookEventName\": \"PreToolUse\", \"permissionDecision\": \"allow|deny|ask\"}}"
+              "description": "hookSpecificOutput で `permissionDecision: allow|deny|ask|defer` を指定。`updatedInput` で入力を書き換え可能。`additionalContext` でコンテキストを追加可能。allow を返しても deny ルール（マネージドポリシー含む）が優先される",
+              "example": "{\"hookSpecificOutput\": {\"hookEventName\": \"PreToolUse\", \"permissionDecision\": \"allow|deny|ask|defer\"}}"
             },
             {
               "phase": "PermissionRequest",
@@ -276,6 +283,11 @@
               "phase": "Elicitation / ElicitationResult",
               "description": "hookSpecificOutput の action で accept/decline/cancel を指定。content でレスポンスを返す",
               "example": "{\"hookSpecificOutput\": {\"hookEventName\": \"Elicitation\", \"action\": \"accept\", \"content\": {\"field\": \"value\"}}}"
+            },
+            {
+              "phase": "SessionStart",
+              "description": "v2.1.152 以降、hookSpecificOutput に `reloadSkills: true` を返すとスキルディレクトリを再スキャン。`sessionTitle` でセッションタイトルを設定可能（startup / resume 時）",
+              "example": "{\"hookSpecificOutput\": {\"hookEventName\": \"SessionStart\", \"reloadSkills\": true, \"sessionTitle\": \"My Session\"}}"
             }
           ]
         }

@@ -62,7 +62,7 @@
             {
               "lang": "python",
               "label": "ロール設定の例（Python）",
-              "value": "import anthropic\n\nclient = anthropic.Anthropic()\n\nmessage = client.messages.create(\n    model=\"claude-opus-4-6\",\n    max_tokens=1024,\n    system=\"You are a helpful coding assistant specializing in Python.\",\n    messages=[\n        {\"role\": \"user\", \"content\": \"How do I sort a list of dictionaries by key?\"}\n    ],\n)\nprint(message.content)"
+              "value": "import anthropic\n\nclient = anthropic.Anthropic()\n\nmessage = client.messages.create(\n    model=\"claude-opus-4-8\",\n    max_tokens=1024,\n    system=\"You are a helpful coding assistant specializing in Python.\",\n    messages=[\n        {\"role\": \"user\", \"content\": \"How do I sort a list of dictionaries by key?\"}\n    ],\n)\nprint(message.content)"
             }
           ]
         },
@@ -95,12 +95,12 @@
             {
               "lang": "text",
               "label": "モデル識別プロンプト",
-              "value": "アシスタントは Anthropic が作成した Claude です。現在のモデルは Claude Opus 4.6 です。"
+              "value": "アシスタントは Anthropic が作成した Claude です。現在のモデルは Claude Opus 4.8 です。"
             },
             {
               "lang": "text",
               "label": "モデル文字列指定プロンプト",
-              "value": "LLM が必要な場合は、ユーザーが別途指定しない限り、デフォルトで Claude Opus 4.6 を使用してください。Claude Opus 4.6 の正確なモデル文字列は claude-opus-4-6 です。"
+              "value": "LLM が必要な場合は、ユーザーが別途指定しない限り、デフォルトで Claude Opus 4.8 を使用してください。Claude Opus 4.8 の正確なモデル文字列は claude-opus-4-8 です。"
             }
           ]
         }
@@ -149,8 +149,8 @@
         {
           "id": "latex-output",
           "title": "LaTeX出力",
-          "summary": "Claude Opus 4.6 は数式にデフォルトで LaTeX を使用する。プレーンテキスト希望時は明示的に指示する。",
-          "content": "Claude Opus 4.6 は数式、方程式、技術的な説明にデフォルトで LaTeX を使用します。プレーンテキストを希望する場合は、プロンプトに以下のような指示を追加してください。",
+          "summary": "Claude の最新モデルは数式にデフォルトで LaTeX を使用する。プレーンテキスト希望時は明示的に指示する。",
+          "content": "Claude の最新モデルは数式、方程式、技術的な説明にデフォルトで LaTeX を使用します。プレーンテキストを希望する場合は、プロンプトに以下のような指示を追加してください。",
           "tags": [],
           "code": [
             {
@@ -321,7 +321,8 @@
             "状態データには構造化フォーマット（JSON 等）を使用する",
             "進捗メモにはフリーフォームテキストが効果的",
             "git を状態追跡に活用する — 何が完了したかのログとリストア可能なチェックポイントを提供",
-            "段階的な進捗を重視するよう明示的に指示する"
+            "段階的な進捗を重視するよう明示的に指示する",
+            "Opus 4.7 以降: task_budget（beta: task-budgets-2026-03-13）を output_config に指定するとエージェントループ全体のトークン予算をモデルが把握し優先度付けして完了できる。最低値 20k トークン。max_tokens（ハード上限）との違い: task_budget は勧告的上限（モデルが認識）、max_tokens はリクエスト単位のハード上限（モデルは非認識）"
           ]
         },
         {
@@ -440,10 +441,11 @@
           "id": "vision",
           "title": "ビジョン機能",
           "summary": "画像処理とデータ抽出が改善。クロップツールで画像の関連領域にズームして性能を向上させる。",
-          "content": "Claude Opus 4.5 / 4.6 は以前のモデルと比較して改善されたビジョン機能を持っています。特にコンテキスト内に複数の画像がある場合の画像処理とデータ抽出タスクで優れたパフォーマンスを発揮します。これらの改善はコンピュータ使用にも引き継がれ、スクリーンショットや UI 要素をより確実に解釈できます。フレームに分解することで動画の分析にも使用できます。\n\nパフォーマンスをさらに向上させる効果的なテクニックは、Claude にクロップツールやスキルを提供することです。画像の関連領域に「ズーム」できると、画像評価で一貫したパフォーマンス向上が確認されています。Anthropic がクロップツールのクックブックを公開しています。",
+          "content": "Claude Opus 4.5 / 4.6 は以前のモデルと比較して改善されたビジョン機能を持っています。特にコンテキスト内に複数の画像がある場合の画像処理とデータ抽出タスクで優れたパフォーマンスを発揮します。これらの改善はコンピュータ使用にも引き継がれ、スクリーンショットや UI 要素をより確実に解釈できます。フレームに分解することで動画の分析にも使用できます。\n\nさらに Claude Opus 4.7 / 4.8 では高解像度画像サポートが追加されています。最大解像度が 1568px から 2576px（3.75MP）に向上し、ベータヘッダーやクライアント側の設定不要で自動適用されます。画像1枚あたり最大約 4,784 トークン（従来上限の約 3 倍）になるため、画像多用ワークロードではコスト再見積もりが必要です。ポインティングやバウンディングボックス座標は実際の画像ピクセルと 1:1 対応（スケール変換不要）です。\n\nパフォーマンスをさらに向上させる効果的なテクニックは、Claude にクロップツールやスキルを提供することです。画像の関連領域に「ズーム」できると、画像評価で一貫したパフォーマンス向上が確認されています。Anthropic がクロップツールのクックブックを公開しています。",
           "tags": ["ビジョン"],
           "tips": [
             "複数画像のコンテキストでの処理が大幅に改善",
+            "Opus 4.7 / 4.8 では高解像度画像サポートを自動適用 — 最大 2576px（3.75MP）、ただし画像多用時はトークンコスト約3倍に注意",
             "クロップツールで画像の関連領域にズームすると一貫した性能向上が得られる — Anthropic のクックブック参照",
             "動画はフレームに分解して分析可能",
             "コンピュータ使用でのスクリーンショット・UI 要素の解釈も改善"
@@ -453,7 +455,7 @@
           "id": "frontend-design",
           "title": "フロントエンドデザイン",
           "summary": "AI slop を避け、タイポグラフィ・色・モーション・背景にこだわる独創的なフロントエンドを指示する。",
-          "content": "Claude Opus 4.5 / 4.6 は複雑で実用的な Web アプリケーションの構築とフロントエンドデザインに優れています。ただし、ガイダンスなしではユーザーが「AI slop」と呼ぶジェネリックなパターンにデフォルトする傾向があります。\n\n独創的で印象的なフロントエンドを作成するには、タイポグラフィ・色・モーション・背景について具体的に指示してください。スキルを使用したフロントエンドデザイン改善の詳細ガイドがブログ記事として公開されています。",
+          "content": "Claude Opus 4.5 / 4.6 は複雑で実用的な Web アプリケーションの構築とフロントエンドデザインに優れています。ただし、ガイダンスなしではユーザーが「AI slop」と呼ぶジェネリックなパターンにデフォルトする傾向があります。\n\nClaude Opus 4.8 ではより短いプロンプト指定で独創的なフロントエンドを生成できますが、デフォルトのハウススタイル（ウォームクリーム / オフホワイト背景 ~#F4F1EA、セリフ表示型フォント Georgia / Fraunces / Playfair、テラコッタ / アンバーアクセント）が固定される傾向があります。「クリームを使わないで」等のジェネリックな否定指示は別の固定パレットに移行するだけで多様性が出ないため、ビジュアル方向性を具体的なカラーコード・フォント指定で明示するか、実装前に複数の方向性を提案させるアプローチが有効です。以前のモデル向けの長大な frontend_aesthetics プロンプトは Opus 4.8 では不要になっています。\n\n独創的で印象的なフロントエンドを作成するには、タイポグラフィ・色・モーション・背景について具体的に指示してください。スキルを使用したフロントエンドデザイン改善の詳細ガイドがブログ記事として公開されています。",
           "tags": ["デザイン"],
           "code": [
             {
@@ -480,8 +482,22 @@
           "id": "migration-4-6",
           "title": "Claude 4.6 への移行",
           "summary": "6つの移行ポイント：明確な指示、修飾子、機能リクエスト、thinking 設定、prefill 廃止、積極性調整。",
-          "content": "以前の世代から Claude 4.6 モデルに移行する際の6つのポイント：\n\n1. 期待する動作を具体的に記述する：出力に何を見たいかを正確に説明する\n\n2. 修飾子で指示をフレーミングする：出力の品質と詳細度を高める修飾子を追加する。例：「Create an analytics dashboard」→「Create an analytics dashboard. Include as many relevant features and interactions as possible. Go beyond the basics to create a fully-featured implementation.」\n\n3. 特定の機能を明示的にリクエストする：アニメーションやインタラクティブ要素は希望時に明示的にリクエストする\n\n4. thinking 設定を更新する：Claude 4.6 モデルは budget_tokens による手動 thinking ではなく adaptive thinking（thinking: {type: \"adaptive\"}）を使用。effort パラメータで思考の深さを制御\n\n5. prefilled response から移行する：最終アシスタントターンの prefill は Claude 4.6 から非推奨。代替手段については「prefill からの移行」を参照\n\n6. 積極性抑制プロンプトを調整する：以前のモデルでツールの積極的な使用を促していたプロンプトは、Claude 4.6 では過剰トリガーを引き起こす可能性がある。「CRITICAL: You MUST use this tool when...」→「Use this tool when...」に調整",
+          "content": "以前の世代から Claude 4.6 モデルに移行する際の6つのポイント（Claude 4.7 / 4.8 へのさらなる移行については公式 Migration Guide（https://platform.claude.com/docs/en/about-claude/models/migration-guide）を参照）：\n\n1. 期待する動作を具体的に記述する：出力に何を見たいかを正確に説明する\n\n2. 修飾子で指示をフレーミングする：出力の品質と詳細度を高める修飾子を追加する。例：「Create an analytics dashboard」→「Create an analytics dashboard. Include as many relevant features and interactions as possible. Go beyond the basics to create a fully-featured implementation.」\n\n3. 特定の機能を明示的にリクエストする：アニメーションやインタラクティブ要素は希望時に明示的にリクエストする\n\n4. thinking 設定を更新する：Claude 4.6 モデルは budget_tokens による手動 thinking ではなく adaptive thinking（thinking: {type: \"adaptive\"}）を使用。effort パラメータで思考の深さを制御\n\n5. prefilled response から移行する：最終アシスタントターンの prefill は Claude 4.6 から非推奨。代替手段については「prefill からの移行」を参照\n\n6. 積極性抑制プロンプトを調整する：以前のモデルでツールの積極的な使用を促していたプロンプトは、Claude 4.6 では過剰トリガーを引き起こす可能性がある。「CRITICAL: You MUST use this tool when...」→「Use this tool when...」に調整",
           "tags": []
+        },
+        {
+          "id": "migration-4-7-4-8",
+          "title": "Claude 4.7 / 4.8 への移行",
+          "summary": "Opus 4.7 の破壊的変更（extended thinking 廃止・sampling parameters 廃止・prefill 廃止）と Opus 4.8 の互換性情報。",
+          "content": "■ Claude Opus 4.7 への移行\n\n1. extended thinking 完全廃止 — thinking: {type: \"enabled\", budget_tokens: N} は 400 エラー。adaptive thinking（thinking: {type: \"adaptive\"}）への移行が必須\n\n2. sampling parameters 廃止 — temperature / top_p / top_k が使用不可\n\n3. prefill が breaking change — 最終アシスタントターンの prefill は 400 エラー（Claude 4.6 では非推奨止まりだったが 4.7 で廃止）\n\n4. 新トークナイザー採用 — 最大 35% トークン増の可能性があるためコスト・レイテンシを再測定すること\n\n5. effort levels に xhigh 追加 — low / medium / high / xhigh / max の5段階。コーディング・エージェンティックユースケースには xhigh が最推奨。max は最高性能だが overthinking リスクあり\n\n■ Claude Opus 4.8 への移行\n\nOpus 4.7 との互換性が高く breaking changes なし。主な変更点：\n\n・effort デフォルトが high（全サーフェス）。コーディング・エージェントには xhigh を推奨\n\n・1M コンテキストウィンドウがデフォルト（ベータヘッダー不要）",
+          "tags": [],
+          "tips": [
+            "Opus 4.7 移行の最優先事項: extended thinking → adaptive thinking の切り替え（未対応は 400 エラー）",
+            "effort xhigh はコーディング・エージェントワークロード向け最推奨レベル",
+            "新トークナイザーによるコスト増（最大 35%）を見積もり直すこと",
+            "Opus 4.8 は Opus 4.7 との互換性が高く、effort デフォルト high と 1M コンテキストがデフォルトになった点に注意"
+          ],
+          "ref": "https://platform.claude.com/docs/en/about-claude/models/migration-guide"
         },
         {
           "id": "sonnet-migration",
@@ -512,9 +528,10 @@
             }
           ],
           "tips": [
-            "Opus 4.6 の方が適している場面：大規模コード移行、深いリサーチ、拡張自律作業など最も難しく長期的な問題",
+            "最難問・長期エージェントコーディングに適している場面：大規模コード移行、深いリサーチ、拡張自律作業など最も難しく長期的な問題では Claude Opus 4.8 が推奨（Opus 4.6 はレガシーモデル）",
             "Sonnet 4.6 は高速ターンアラウンドとコスト効率を重視するワークロードに最適化",
-            "effort 未設定時は high がデフォルト — レイテンシが高くなる可能性がある"
+            "effort 未設定時は high がデフォルト — レイテンシが高くなる可能性がある",
+            "Opus 4.7 / 4.8 では effort が5段階に拡張: low / medium / high / xhigh（新設）/ max。xhigh はコーディング・エージェンティックユースケースに最推奨。max は最高性能だが overthinking リスクあり"
           ]
         }
       ]

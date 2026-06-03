@@ -7,19 +7,21 @@
       {
         "id": "context-models",
         "title": "モデル別ウィンドウサイズ",
-        "summary": "Opus 4.6 と Sonnet 4.6 はネイティブ1Mコンテキスト（追加料金なし）。Haiku 4.5 は200K。モデルとコストの選択がコンテキスト戦略に直結する。",
-        "content": "Opus 4.6 と Sonnet 4.6 は標準料金で1Mコンテキストを提供する（ロングコンテキストの追加料金なし）。モデル選択はコンテキスト戦略に直結する。",
+        "summary": "Opus 4.8・Opus 4.7・Opus 4.6 と Sonnet 4.6 はネイティブ1Mコンテキスト（追加料金なし）。Haiku 4.5 は200K。最新モデルは Opus 4.8（最高性能）・Sonnet 4.6（速度と性能のバランス）・Haiku 4.5（最速）。モデルとコストの選択がコンテキスト戦略に直結する。",
+        "content": "Opus 4.8・Opus 4.7・Opus 4.6 と Sonnet 4.6 は標準料金で1Mコンテキストを提供する（ロングコンテキストの追加料金なし）。モデル選択はコンテキスト戦略に直結する。",
         "tags": [],
         "tables": [
           {
             "title": "モデル別スペック",
             "headers": ["モデル", "コンテキスト", "最大出力", "コスト（入力/出力 MTok あたり）"],
             "rows": [
-              ["Opus 4.6", "1M（ネイティブ）", "128K（CC デフォルト 64K）", "$5 / $25"],
+              ["Opus 4.8", "1M（ネイティブ）", "128K（CC デフォルト 64K）", "$5 / $25"],
               ["Sonnet 4.6", "1M（ネイティブ）", "64K", "$3 / $15"],
               ["Haiku 4.5", "200K", "64K", "$1 / $5"],
-              ["Opus 4.5", "200K", "—", "$5 / $25"],
-              ["Sonnet 4.5", "200K（ベータヘッダーで1M）", "—", "$3 / $15"]
+              ["Opus 4.7", "1M（ネイティブ）", "128K", "$5 / $25"],
+              ["Opus 4.6", "1M（ネイティブ）", "128K（CC デフォルト 64K）", "$5 / $25"],
+              ["Sonnet 4.5", "200K", "64K", "$3 / $15"],
+              ["Opus 4.5", "200K", "64K", "$5 / $25"]
             ]
           }
         ]
@@ -33,7 +35,8 @@
         "code": "# コンパクションタイミングの設定\nexport CLAUDE_AUTOCOMPACT_PCT_OVERRIDE=90  # より遅くトリガー\nexport CLAUDE_AUTOCOMPACT_PCT_OVERRIDE=70  # より早くトリガー\n\n# カスタムコンパクション指示\n# /compact API変更に焦点を当てて",
         "tips": [
           "/compact focus on ... でカスタムコンパクション指示を指定可能",
-          "CLAUDE.md に \"Compact Instructions\" セクションを設けてデフォルトのコンパクション指示を定義できる"
+          "CLAUDE.md に \"Compact Instructions\" セクションを設けてデフォルトのコンパクション指示を定義できる",
+          "v2.1.139 以降、コンパクション時にユーザーの機密指示（sensitive user instructions）が保持されるようになった"
         ]
       },
       {
@@ -90,7 +93,10 @@
         "summary": "claude -p でヘッドレス実行。--output-format json で構造化出力。--json-schema でスキーマ指定。セッション再開やストリームチェーンも可能。",
         "content": "基本的なヘッドレス実行から、JSON 出力、スキーマ指定、セッション再開、ストリームチェーンまで幅広い使い方が可能。",
         "tags": [],
-        "code": "# 基本ヘッドレス\nclaude -p \"プロンプト\"\n\n# JSON 出力\nclaude -p \"レビュー\" --output-format json\n\n# スキーマ指定\nclaude -p \"抽出\" --json-schema '{\"type\":\"object\",\"properties\":{\"items\":{\"type\":\"array\"}}}'\n\n# ツール制限\nclaude -p \"分析\" --allowedTools Read,Grep,Glob\n\n# セッション再開\nsession_id=$(claude -p \"レビュー開始\" --output-format json | jq -r '.session_id')\nclaude -p \"続行\" --resume \"$session_id\"\n\n# ストリームチェーン\nclaude --print --output-format stream-json \"分析\" | \\\n  claude --print --input-format stream-json --output-format stream-json \"処理\" | \\\n  claude --print --input-format stream-json \"レポート生成\""
+        "code": "# 基本ヘッドレス\nclaude -p \"プロンプト\"\n\n# JSON 出力\nclaude -p \"レビュー\" --output-format json\n\n# スキーマ指定\nclaude -p \"抽出\" --json-schema '{\"type\":\"object\",\"properties\":{\"items\":{\"type\":\"array\"}}}'\n\n# ツール制限\nclaude -p \"分析\" --allowedTools Read,Grep,Glob\n\n# セッション再開\nsession_id=$(claude -p \"レビュー開始\" --output-format json | jq -r '.session_id')\nclaude -p \"続行\" --resume \"$session_id\"\n\n# ストリームチェーン\nclaude --print --output-format stream-json \"分析\" | \\\n  claude --print --input-format stream-json --output-format stream-json \"処理\" | \\\n  claude --print --input-format stream-json \"レポート生成\"\n\n# ベアモード（CI・スクリプト推奨）\nclaude -p \"タスク\" --bare",
+        "tips": [
+          "`--bare` フラグを追加すると、フック・スキル・プラグイン・MCP サーバー・自動メモリ・CLAUDE.md の自動検出をスキップして起動を高速化できる。CI やスクリプトで「どのマシンでも同じ結果を得たい」場合に推奨。公式ドキュメントでは「scripted and SDK calls の推奨モード。将来のリリースで -p のデフォルトになる予定」と明記されている"
+        ]
       },
       {
         "id": "ci-github-actions",
@@ -101,7 +107,8 @@
         "code": "- uses: anthropics/claude-code-action@v1\n  with:\n    anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}\n    trigger_phrase: \"@claude\"\n    claude_args: |\n      --max-turns 10\n      --model claude-sonnet-4-6",
         "tips": [
           "anthropic_api_key、claude_code_oauth_token、prompt、claude_args、trigger_phrase、assignee_trigger、label_trigger、settings（JSON）などの入力パラメータをサポート",
-          "use_bedrock / use_vertex でクラウドプロバイダー経由の実行も可能"
+          "use_bedrock / use_vertex でクラウドプロバイダー経由の実行も可能",
+          "`plugin_marketplaces` と `plugins` 入力パラメータを使うと、プラグインを実行前にインストールして `/skill-name` 形式でスキルを直接呼び出せる。例: `plugins: \"code-review@claude-code-plugins\"`"
         ]
       },
       {
@@ -116,7 +123,8 @@
           "ルーティンタスクには Sonnet、複雑な作業には Opus を使用",
           "ドラフト PR をスキップ: if: github.event.pull_request.draft == false",
           "~/.claude を actions/cache@v4 でキャッシュする",
-          "200行のコードレビューは Sonnet で平均 $0.02〜$0.08"
+          "200行のコードレビューは Sonnet で平均 $0.02〜$0.08",
+          "2026年6月15日以降、サブスクリプションプランでの Agent SDK および `claude -p` の使用は、インタラクティブ利用とは別の月次 Agent SDK クレジットから消費されるようになる"
         ]
       }
     ]
@@ -130,9 +138,9 @@
         "id": "worktree-builtin",
         "title": "組み込みワークツリーサポート",
         "summary": "v2.1.49+ で claude --worktree (-w) をサポート。.claude/worktrees/ に作成され、変更がないワークツリーはセッション終了時に自動削除。",
-        "content": "`claude --worktree feature-auth`（または `-w feature-auth`）でワークツリーを作成。`.claude/worktrees/feature-auth/` にブランチ `worktree-feature-auth` としてデフォルトリモートから作成される。各ワークツリーは独立した `.claude/` 設定を持つ。`.claude/worktrees/` を `.gitignore` に追加すること。\n\n**クリーンアップ**: 変更のないワークツリーはセッション終了時に自動削除。変更があるワークツリーは保持/削除を確認。サブエージェントの `isolation: worktree` ワークツリーは、変更がない場合にエージェント終了時に自動クリーンアップされる。",
+        "content": "`claude --worktree feature-auth`（または `-w feature-auth`）でワークツリーを作成。`.claude/worktrees/feature-auth/` にブランチ `worktree-feature-auth` としてデフォルトリモートから作成される。各ワークツリーは独立した `.claude/` 設定を持つ。`.claude/worktrees/` を `.gitignore` に追加すること。\n\n**クリーンアップ**: 変更のないワークツリーはセッション終了時に自動削除。変更があるワークツリーは保持/削除を確認。サブエージェントの `isolation: worktree` ワークツリーは、変更がない場合にエージェント終了時に自動クリーンアップされる。\n\n**worktree.baseRef 設定**（v2.1.133 追加）: `\"fresh\"`（デフォルト）では `origin/<デフォルトブランチ>` からブランチを作成。`\"head\"` にするとローカルの HEAD からブランチを作成し、未プッシュのコミットをワークツリーに持ち込める。\n\n**worktree.bgIsolation 設定**（v2.1.143 追加）: `worktree.bgIsolation: \"none\"` にすると、バックグラウンドセッションがワークツリーではなく作業コピー（メイン checkout）を直接編集できるようになる。\n\n**.worktreeinclude ファイル**: プロジェクトルートに配置し `.gitignore` 記法でパターンを記述すると、gitignored ファイル（`.env`、`config/secrets.json` など）をワークツリー作成時に自動コピーできる。\n\n**PR 番号指定**: `claude --worktree \"#1234\"` または GitHub PR URL を指定すると、そのプルリクエストの HEAD から `.claude/worktrees/pr-1234/` にワークツリーを作成できる。",
         "tags": [],
-        "code": "claude --worktree feature-auth    # または -w feature-auth"
+        "code": "claude --worktree feature-auth    # または -w feature-auth\nclaude --worktree \"#1234\"          # PR 番号指定"
       },
       {
         "id": "worktree-parallel",

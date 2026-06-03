@@ -30,7 +30,7 @@
           "id": "conciseness",
           "title": "簡潔さが鍵",
           "summary": "コンテキストウィンドウは共有リソース。Claude が既に知っていることは書かない。",
-          "content": "コンテキストウィンドウは共有リソース。起動時はスキルの name と description のみプリロード。SKILL.md は関連時のみ、追加ファイルは必要時のみ読み込み。読み込み後は他のコンテキストと競合します。\n\n「Claude は既に賢い」前提で、まだ持っていないコンテキストだけを追加してください。",
+          "content": "コンテキストウィンドウは共有リソース。起動時はスキルの name と description のみプリロード。SKILL.md は関連時のみ、追加ファイルは必要時のみ読み込み。読み込み後は他のコンテキストと競合します。\n\n「Claude は既に賢い」前提で、まだ持っていないコンテキストだけを追加してください。\n\nスキルが呼び出されるとそのコンテンツはセッション全体を通じてコンテキストに残ります。自動コンパクション時は各スキルの最新呼び出し分を最大 5,000 トークンまで再アタッチし、複数スキルの合計上限は 25,000 トークン（最近呼び出したスキルから優先）です。",
           "tags": ["重要"],
           "examples": [
             {
@@ -106,7 +106,7 @@
           "id": "effective-descriptions",
           "title": "効果的な description を書く",
           "summary": "三人称で書き、具体的なキーワードを含め、「何をするか」と「いつ使うか」の両方を記述する。",
-          "content": "description はスキル発見の要です。Claude がスキル選択に使用するため、「何をするか」と「いつ使うか」の両方を記述します。常に三人称で書いてください（システムプロンプトに注入されるため）。\n\n最大1024文字、XMLタグは不可。省略時は SKILL.md の最初の段落が使用されます。スキル一覧では250文字で切り詰められるため、重要なユースケースを先頭に記述してください。",
+          "content": "description はスキル発見の要です。Claude がスキル選択に使用するため、「何をするか」と「いつ使うか」の両方を記述します。常に三人称で書いてください（システムプロンプトに注入されるため）。\n\n最大1024文字、XMLタグは不可。省略時は SKILL.md の最初の段落が使用されます。スキル一覧では `description` と `when_to_use` の合計が 1,536 文字で切り詰められるため、重要なユースケースを先頭に記述してください。",
           "tags": [],
           "examples": [
             {
@@ -122,14 +122,14 @@
             "避ける：\"これを使って Excel ファイルを処理できます\"（二人称）",
             "「何をするか」+「いつ使うか」の両方を記述する",
             "具体的なファイル形式、キーワード、トリガー条件を含める",
-            "250文字で切り詰められるため、重要なユースケースを先頭に配置する"
+            "`description` + `when_to_use` 合計 1,536 文字で切り詰められるため、重要なユースケースを先頭に配置する"
           ]
         },
         {
           "id": "yaml-frontmatter",
           "title": "YAML フロントマター要件",
           "summary": "すべてのフィールドはオプション。description は推奨。name は64文字以下で小文字+数字+ハイフンのみ。",
-          "content": "Agent Skills（agentskills.io）オープンスタンダードに準拠。Claude Code は呼び出し制御、サブエージェント実行、動的コンテキスト注入を拡張。全フィールドはオプション。description のみ推奨。\n\n主要フィールド: name（64文字以下、小文字+数字+ハイフン）、description（1024文字以下）、argument-hint、disable-model-invocation、user-invocable、allowed-tools、model、effort（low/medium/high/max。max は Opus 4.6 のみ）、context（fork でサブエージェント実行）、agent（サブエージェント型）、hooks（ライフサイクルフック。once で1回のみ実行）、paths（glob で自動ロードを制限）、shell（!`command` ブロックで使用するシェル。bash（デフォルト）または powershell。powershell は CLAUDE_CODE_USE_POWERSHELL_TOOL=1 が必要）。\n\nSKILL.md は500行以下推奨。超える場合は段階的開示パターンで分割。",
+          "content": "Agent Skills（agentskills.io）オープンスタンダードに準拠。Claude Code は呼び出し制御、サブエージェント実行、動的コンテキスト注入を拡張。全フィールドはオプション。description のみ推奨。\n\n主要フィールド: name（64文字以下、小文字+数字+ハイフン）、description（1024文字以下）、when_to_use（Claude がスキルを呼び出すタイミングの追加コンテキスト。description に付加されスキル一覧に表示。合計 1,536 文字の上限に含まれる）、argument-hint、arguments（名前付き位置引数の定義。スペース区切り文字列または YAML リスト。`$name` 形式でコンテンツ内で参照可能）、disable-model-invocation、user-invocable、allowed-tools、disallowed-tools（スキルがアクティブな間 Claude の利用可能ツールから除外するツールを指定。制限は次のユーザーメッセージ送信時にリセット。v2.1.152 追加）、model、effort（low/medium/high/xhigh/max。xhigh は Opus 4.7 以上のみ）、context（fork でサブエージェント実行）、agent（サブエージェント型）、hooks（ライフサイクルフック。once で1回のみ実行）、paths（glob で自動ロードを制限）、shell（!`command` ブロックで使用するシェル。bash（デフォルト）または powershell。powershell は CLAUDE_CODE_USE_POWERSHELL_TOOL=1 が必要）。\n\nSKILL.md は500行以下推奨。超える場合は段階的開示パターンで分割。",
           "tags": [],
           "code": "---\nname: pdf-processing\ndescription: PDF からテキスト・テーブル抽出。PDF 関連の作業時に使用。\neffort: high\npaths: \"**/*.pdf, docs/**\"\n---\n\n# PDF 処理\n## クイックスタート\npdfplumber でテキスト抽出:\n```python\nimport pdfplumber\nwith pdfplumber.open(\"file.pdf\") as pdf:\n    text = pdf.pages[0].extract_text()\n```\n## 高度な機能\n**フォーム入力**: [FORMS.md](FORMS.md) を参照\n**API**: [REFERENCE.md](REFERENCE.md) を参照"
         },
@@ -151,7 +151,7 @@
           "id": "string-substitutions",
           "title": "文字列置換",
           "summary": "スキル内で $ARGUMENTS、$ARGUMENTS[N]、$N、${CLAUDE_SESSION_ID}、${CLAUDE_SKILL_DIR} の動的変数が使用可能。",
-          "content": "実行時にプレースホルダーが実際の値に置換されます。\n\n$ARGUMENTS — 全引数（未使用時は末尾に追加）。$ARGUMENTS[N] / $N — 0ベース位置引数。\n\n${CLAUDE_SESSION_ID} — セッション ID。${CLAUDE_SKILL_DIR} — SKILL.md のディレクトリ（プラグインではスキルのサブディレクトリ）。",
+          "content": "実行時にプレースホルダーが実際の値に置換されます。\n\n$ARGUMENTS — 全引数（未使用時は末尾に追加）。$ARGUMENTS[N] / $N — 0ベース位置引数。\n\n`arguments` フロントマターフィールド（任意）: スペース区切り文字列または YAML リストで名前付き位置引数を定義。`$name` 形式でスキルコンテンツ内で参照可能。例: `arguments: [issue, branch]` → `$issue`（第1引数）、`$branch`（第2引数）に展開。\n\n${CLAUDE_SESSION_ID} — セッション ID。${CLAUDE_SKILL_DIR} — SKILL.md のディレクトリ（プラグインではスキルのサブディレクトリ）。",
           "tags": [],
           "code": "---\nname: fix-issue\ndescription: GitHub Issue を修正する\ndisable-model-invocation: true\n---\n\nGitHub Issue $ARGUMENTS を修正してください。\n\n# 複数引数の例: /migrate-component SearchBar React Vue\n# $0=SearchBar, $1=React, $2=Vue"
         },
@@ -174,7 +174,8 @@
           "tags": [],
           "tips": [
             "スキルの自動ロードとライブ変更検出がサポートされる",
-            "CLAUDE.md は別途 CLAUDE_CODE_ADDITIONAL_DIRECTORIES_CLAUDE_MD=1 の設定が必要"
+            "CLAUDE.md は別途 CLAUDE_CODE_ADDITIONAL_DIRECTORIES_CLAUDE_MD=1 の設定が必要",
+            "`/reload-skills` コマンドでセッション再起動なしにスキルディレクトリを再スキャンできる（v2.1.152 追加）。`SessionStart` フックが `reloadSkills: true` を返すことでも再スキャンを起動可能"
           ]
         },
         {
@@ -202,7 +203,10 @@
           "summary": "!`<command>` 構文でシェルコマンドを実行し、結果をスキルコンテンツに挿入する。",
           "content": "!`<command>` 構文でスキル送信前にシェルコマンドを実行し出力を挿入（前処理。Claude は最終結果のみ受信）。PR 要約、ログ取得、環境情報注入に有用。",
           "tags": [],
-          "code": "## PR コンテキスト\n- PR の差分: !`gh pr diff`\n- PR のコメント: !`gh pr view --comments`\n- 変更ファイル: !`gh pr diff --name-only`\n\n## タスク\nこの PR を要約してください..."
+          "code": "## PR コンテキスト\n- PR の差分: !`gh pr diff`\n- PR のコメント: !`gh pr view --comments`\n- 変更ファイル: !`gh pr diff --name-only`\n\n## タスク\nこの PR を要約してください...",
+          "tips": [
+            "`\"disableSkillShellExecution\": true` を settings に設定すると、ユーザー・プロジェクト・プラグイン・--add-dir 由来のスキルの `!\\`command\\`` 実行を無効化できる。マネージド設定で使用するとユーザーが上書きできないため組織ポリシーの適用に有用"
+          ]
         },
         {
           "id": "subagent-execution",
@@ -216,13 +220,14 @@
           "id": "skill-permission-control",
           "title": "スキルのアクセス制御",
           "summary": "Claude がどのスキルを呼び出せるかを /permissions で制御する。特定スキルの許可/拒否も可能。",
-          "content": "3つの制御方法: /permissions で Skill ツール全体を deny、Skill(name) / Skill(name *) で個別許可/拒否、disable-model-invocation: true でフロントマター制御。\n\ndescription バジェットはコンテキストウィンドウの1%（フォールバック: 8,000文字）。SLASH_COMMAND_TOOL_CHAR_BUDGET でオーバーライド可能。ビルトインコマンドは Skill ツール経由で利用不可。",
+          "content": "3つの制御方法: /permissions で Skill ツール全体を deny、Skill(name) / Skill(name *) で個別許可/拒否、disable-model-invocation: true でフロントマター制御。\n\ndescription バジェットはコンテキストウィンドウの1%（フォールバック: 8,000文字）。SLASH_COMMAND_TOOL_CHAR_BUDGET でオーバーライド可能。一部のビルトインコマンド（/init, /review, /security-review など）は Skill ツール経由で利用可能。/compact など多くのビルトインコマンドは利用不可。",
           "tags": [],
           "tips": [
             "全無効化: /permissions の deny に Skill を追加",
             "特定の許可: Skill(commit)、Skill(review-pr *)",
             "特定の拒否: Skill(deploy *)",
-            "description バジェット: コンテキストウィンドウの1%（フォールバック: 8,000文字）"
+            "description バジェット: コンテキストウィンドウの1%（フォールバック: 8,000文字）",
+            "`skillOverrides` は `\"on\"` / `\"name-only\"` / `\"user-invocable-only\"` / `\"off\"` の4状態をサポート。`\"name-only\"` はモデルへは名前のみ（description なし）で表示し `/` メニューには表示する。`/skills` メニューでスキルをハイライトして Space キーで状態を切り替え可能"
           ]
         }
       ]
@@ -572,11 +577,12 @@
           "id": "skill-descriptions-truncated",
           "title": "スキルの description が途中で切れる",
           "summary": "description バジェットの制約により長い description が切り詰められる場合の対処法。",
-          "content": "スキルの description はコンテキストに読み込まれますが、スキル数が多いとバジェット内に収めるため切り詰められます。バジェットはコンテキストウィンドウの1%で動的にスケーリングし、フォールバックは8,000文字です。\n\n各エントリは250文字で切り詰められるため、重要なユースケースを先頭に記述してください。SLASH_COMMAND_TOOL_CHAR_BUDGET 環境変数で上限を引き上げることも可能です。",
+          "content": "スキルの description はコンテキストに読み込まれますが、スキル数が多いとバジェット内に収めるため切り詰められます。バジェットはコンテキストウィンドウの1%で動的にスケーリングし、フォールバックは8,000文字です。\n\n各エントリの `description` + `when_to_use` 合計は 1,536 文字でキャップされるため、重要なユースケースを先頭に記述してください（`maxSkillDescriptionChars` 設定でカスタマイズ可能）。予算全体は `skillListingBudgetFraction` 設定または `SLASH_COMMAND_TOOL_CHAR_BUDGET` 環境変数で引き上げ可能です。",
           "tags": [],
           "tips": [
-            "重要なキーワードを description の先頭250文字以内に配置する",
-            "SLASH_COMMAND_TOOL_CHAR_BUDGET 環境変数でバジェットを引き上げ可能",
+            "重要なキーワードを description の先頭に配置する（`description` + `when_to_use` 合計 1,536 文字制限）",
+            "`maxSkillDescriptionChars` 設定で各エントリの文字数上限をカスタマイズ可能",
+            "`skillListingBudgetFraction` 設定または `SLASH_COMMAND_TOOL_CHAR_BUDGET` 環境変数で予算全体を引き上げ可能",
             "不要なスキルの description を短くするか disable-model-invocation: true で除外する"
           ]
         }
