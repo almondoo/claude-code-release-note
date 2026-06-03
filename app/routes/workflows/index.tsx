@@ -40,7 +40,7 @@ const WorkflowSection = ({
     <div className="mb-6">
       <h2
         id={`section-title-${section.id}`}
-        className="text-[20px] font-bold text-slate-100 m-0 mb-2"
+        className="text-base font-bold text-slate-100 m-0 mb-2"
         style={{ color: ACCENT }}
       >
         {section.title}
@@ -115,7 +115,7 @@ const WorkflowsPage = (): React.JSX.Element => {
 
   return (
     <div className="min-h-screen bg-slate-900 font-sans text-slate-100">
-      <div className="max-w-[860px] mx-auto px-4 py-8">
+      <div className="max-w-[1400px] mx-auto px-4 py-8">
         {/* Page header */}
         <PageHeader
           title={META.title}
@@ -124,36 +124,39 @@ const WorkflowsPage = (): React.JSX.Element => {
           gradient={["rgba(224,115,77,0.10)", "rgba(224,115,77,0.05)"]}
         />
 
-        {/* Anchor-jump TabBar */}
-        <div className="sticky top-0 z-10 bg-slate-900/90 backdrop-blur-sm py-2 -mx-4 px-4 mb-6">
-          <TabBar
-            tabs={TAB_DEFS}
-            activeTab={activeSectionId}
-            onTabChange={handleSectionClick}
-            reducedMotion={reducedMotion}
-          />
-        </div>
-
-        {/* Sections */}
-        <div className="flex flex-col gap-16">
-          {SECTIONS.map((section) => (
-            <WorkflowSection
-              key={section.id}
-              section={section}
-              sectionRef={setSectionRef(section.id)}
+        {/* Body constrained for comfortable vertical reading */}
+        <div className="max-w-[860px] mx-auto">
+          {/* Anchor-jump TabBar */}
+          <div className="sticky top-0 z-10 bg-slate-900/90 backdrop-blur-sm py-2 -mx-4 px-4 mb-6">
+            <TabBar
+              tabs={TAB_DEFS}
+              activeTab={activeSectionId}
+              onTabChange={handleSectionClick}
+              reducedMotion={reducedMotion}
             />
-          ))}
-        </div>
+          </div>
 
-        {/* Footer */}
-        <Footer>
-          <p className="m-0 mb-1 text-[12px] text-slate-500">
-            本ページの情報は2026年6月時点のもの（リサーチプレビュー段階）です。仕様は変更される可能性があります。
-          </p>
-          <p className="m-0 text-slate-500/50">
-            動的ワークフロー（Dynamic Workflows）— Claude Code
-          </p>
-        </Footer>
+          {/* Sections */}
+          <div className="flex flex-col gap-16">
+            {SECTIONS.map((section) => (
+              <WorkflowSection
+                key={section.id}
+                section={section}
+                sectionRef={setSectionRef(section.id)}
+              />
+            ))}
+          </div>
+
+          {/* Footer */}
+          <Footer>
+            <p className="m-0 mb-1 text-[12px] text-slate-500">
+              本ページの情報は2026年6月時点のもの（リサーチプレビュー段階）です。仕様は変更される可能性があります。
+            </p>
+            <p className="m-0 text-slate-500/50">
+              動的ワークフロー（Dynamic Workflows）— Claude Code
+            </p>
+          </Footer>
+        </div>
       </div>
     </div>
   );

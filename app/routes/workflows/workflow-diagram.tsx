@@ -434,18 +434,9 @@ export const GenerateAndFilterDiagram = (): React.JSX.Element => (
       ideas
     </text>
 
-    {/* ideas → filter convergence lines */}
+    {/* ideas → filter convergence lines (fan into the filter; no stacked arrowheads) */}
     {[51, 81, 116, 151, 181].map((cy, i) => (
-      <line
-        key={i}
-        x1="205"
-        y1={cy}
-        x2="270"
-        y2={110}
-        stroke={C.nodeStroke}
-        strokeWidth="1.5"
-        markerEnd="url(#arrow-slate)"
-      />
+      <line key={i} x1="205" y1={cy} x2="277" y2={110} stroke={C.nodeStroke} strokeWidth="1.5" />
     ))}
 
     {/* filter box (accent) */}
@@ -534,7 +525,7 @@ export const GenerateAndFilterDiagram = (): React.JSX.Element => (
       strokeWidth="1.5"
       strokeDasharray="5,4"
     />
-    <text x="465" y="178" textAnchor="middle" fill={C.subText} fontSize="11" fontFamily="inherit">
+    <text x="465" y="167" textAnchor="middle" fill={C.subText} fontSize="11" fontFamily="inherit">
       discarded
     </text>
   </svg>
