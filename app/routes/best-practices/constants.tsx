@@ -4,6 +4,7 @@ import bpData from "~/data/best-practices/best-practices.json";
 import promptData from "~/data/prompting/prompting.json";
 import skillData from "~/data/skill-best-practices/skill-best-practices.json";
 import hooksData from "~/data/hooks-best-practices/hooks-best-practices.json";
+import dynamicWorkflowsData from "~/data/dynamic-workflows/dynamic-workflows.json";
 
 // ---------------------------------------------------------------------------
 // Types — shared
@@ -767,6 +768,151 @@ const hooksConfig: CategoryConfig<HooksItem> = {
 };
 
 // ---------------------------------------------------------------------------
+// dynamic-workflows config
+// ---------------------------------------------------------------------------
+
+const dynamicWorkflowsSections = dynamicWorkflowsData.sections as BPSection[];
+
+const dynamicWorkflowsSectionColors: Record<string, { color: string; bg: string }> = {
+  "when-to-use": PALETTE.cyan,
+  "do-practices": PALETTE.green,
+  "anti-patterns": PALETTE.red,
+  tuning: PALETTE.orange,
+  operations: PALETTE.purple,
+  notes: PALETTE.slate,
+};
+
+const dynamicWorkflowsSectionIcons: Record<string, () => React.JSX.Element> = {
+  "when-to-use": () => (
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <circle cx="12" cy="12" r="10" />
+      <circle cx="12" cy="12" r="6" />
+      <circle cx="12" cy="12" r="2" />
+    </svg>
+  ),
+  "do-practices": () => (
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+      <polyline points="22 4 12 14.01 9 11.01" />
+    </svg>
+  ),
+  "anti-patterns": () => (
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <circle cx="12" cy="12" r="10" />
+      <line x1="4.93" y1="4.93" x2="19.07" y2="19.07" />
+    </svg>
+  ),
+  tuning: () => (
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <line x1="4" y1="21" x2="4" y2="14" />
+      <line x1="4" y1="10" x2="4" y2="3" />
+      <line x1="12" y1="21" x2="12" y2="12" />
+      <line x1="12" y1="8" x2="12" y2="3" />
+      <line x1="20" y1="21" x2="20" y2="16" />
+      <line x1="20" y1="12" x2="20" y2="3" />
+      <line x1="1" y1="14" x2="7" y2="14" />
+      <line x1="9" y1="8" x2="15" y2="8" />
+      <line x1="17" y1="16" x2="23" y2="16" />
+    </svg>
+  ),
+  operations: () => (
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <polyline points="4 17 10 11 4 5" />
+      <line x1="12" y1="19" x2="20" y2="19" />
+    </svg>
+  ),
+  notes: () => (
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+      <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+    </svg>
+  ),
+};
+
+const dynamicWorkflowsConfig: CategoryConfig<BPItem> = {
+  id: "dynamic-workflows",
+  label: "ダイナミックワークフロー",
+  color: "#10B981",
+  gradient: ["rgba(16,185,129,0.08)", "rgba(6,182,212,0.05)"],
+  description:
+    "Claude Code の動的ワークフロー（Workflow ツールによるマルチエージェント・オーケストレーション）を実務で使いこなすための Do/Don't・判断基準・チューニング・運用。公式ガイダンスと一次ソースで裏取り。",
+  sections: dynamicWorkflowsSections,
+  sectionColors: dynamicWorkflowsSectionColors,
+  sectionIcons: dynamicWorkflowsSectionIcons,
+  tabDefs: [
+    { id: "all", label: "すべて", color: "#3B82F6" },
+    ...dynamicWorkflowsSections.map((s) => ({
+      id: s.id,
+      label: s.name,
+      color: dynamicWorkflowsSectionColors[s.id]?.color || "#3B82F6",
+    })),
+  ],
+  tagColors: {
+    重要: { color: "#F87171", bg: "rgba(239, 68, 68, 0.15)" },
+    公式: PALETTE.blue,
+    仕様: PALETTE.cyan,
+    研究: PALETTE.purple,
+  },
+  totalItems: dynamicWorkflowsSections.reduce((sum, s) => sum + s.items.length, 0),
+  itemLabel: "プラクティス",
+  searchPlaceholder: "ワークフローを検索...",
+};
+
+// ---------------------------------------------------------------------------
 // Exports
 // ---------------------------------------------------------------------------
 
@@ -775,6 +921,7 @@ export const CATEGORIES = [
   { id: "prompting", label: "プロンプト", color: "#3B82F6" },
   { id: "skills", label: "スキル", color: "#8B5CF6" },
   { id: "hooks", label: "Hooks", color: "#A855F7" },
+  { id: "dynamic-workflows", label: "ダイナミックワークフロー", color: "#10B981" },
 ];
 
 export const CATEGORY_CONFIGS: Record<string, CategoryConfig> = {
@@ -782,6 +929,7 @@ export const CATEGORY_CONFIGS: Record<string, CategoryConfig> = {
   prompting: promptConfig,
   skills: skillConfig,
   hooks: hooksConfig,
+  "dynamic-workflows": dynamicWorkflowsConfig,
 };
 
 // ---------------------------------------------------------------------------

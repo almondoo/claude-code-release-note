@@ -1,0 +1,363 @@
+{
+  "sections": [
+    {
+      "id": "when-to-use",
+      "name": "使いどき・判断",
+      "description": "そもそもワークフロー化すべきか、静的pipelineか動的orchestratorか、ソロで十分か。公式の設計原則に基づく判断基準。",
+      "items": [
+        {
+          "id": "start-simple",
+          "title": "まず最小構成から始める",
+          "summary": "複雑さは効果が実証できるときだけ足す。最初からマルチエージェントにしない。",
+          "content": "Anthropic の公式ガイダンスは「最もシンプルな解から始め、効果が実証できたときだけ複雑さを足す（add complexity only when it demonstrably improves outcomes）」。\n\nワークフロー（= LLM とツールを定義済みのコードパスで動かす）は予測可能・一貫性が要る作業に、エージェント（= モデルが自分でプロセスを決める）は柔軟性・規模が要る作業に向く。動的オーケストレーション（orchestrator-workers）が正しいのは「必要なサブタスクを事前に予測できない」ときだけ。\n\n出典: building-effective-agents（anthropic.com/engineering/building-effective-agents）",
+          "tags": ["重要", "公式"]
+        },
+        {
+          "id": "high-value-only",
+          "title": "高価値・複雑なタスクに限定する",
+          "summary": "動的ワークフローはトークンを大量に使う。ふつうのコーディングには過剰。",
+          "content": "マルチエージェントはチャットの約15倍のトークンを使う（単純なエージェントでも約4倍）。Anthropic の調査評価ではトークン使用量だけで性能分散の約80%を説明できた。並列化で価値が出るのは高価値・並列可能なタスクに限られる。\n\n通常のコーディングタスクでは「本当に追加の計算が必要か？」を問う。多くの伝統的タスクに5体のレビュアー陣は要らない。バジェットは明示的に上限設定できる（例: 「use 10k tokens」）。\n\n注: 15x / 80% は特定の評価セット（社内 research eval / BrowseComp）に紐づく数値で恒久定数ではない。\n\n出典: a-harness-for-every-task-dynamic-workflows-in-claude-code（claude.com/blog）, multi-agent-research-system（anthropic.com/engineering）",
+          "tags": ["重要", "公式"]
+        },
+        {
+          "id": "not-for-shared-context",
+          "title": "共有文脈/依存の多い作業には使わない",
+          "summary": "全エージェントが同じ文脈を要する・相互依存が多いタスクはマルチ向きでない（= 多くのコーディング）。",
+          "content": "公式の multi-agent 記事は「全エージェントが同じコンテキストを共有する必要がある、またはエージェント間の依存が多いドメインは、現状マルチエージェントに不向き」と明言する。\n\nコーディングは研究タスクより真に並列化できる部分が少なく、LLM エージェントはまだリアルタイムの調整・委譲が得意でない。こうした作業はソロ（単一コンテキスト）実行のほうが速く確実。\n\n出典: multi-agent-research-system（anthropic.com/engineering）",
+          "tags": ["公式"]
+        },
+        {
+          "id": "explicit-opt-in",
+          "title": "自動では起動しない（明示オプトインが前提）",
+          "summary": "数十のエージェントを起動しトークンを大量消費するため、ユーザーの明示的な依頼が必要。",
+          "content": "Workflow ツールは数十のエージェントを生成し大量のトークンを消費しうるため、ユーザーが明示的にオプトインしたときだけ起動する設計。「ワークフローを使って」「マルチエージェントで」といった明示依頼や、スキル/スラッシュコマンド経由、包括モードの有効化が必要。\n\n裏を返せば、明示依頼がない通常タスクでは単一エージェントで進めるのが既定。まず自分で着手し、明らかに価値が出るときだけワークフロー化する。\n\n出典: code.claude.com/docs/en/workflows",
+          "tags": ["仕様"]
+        },
+        {
+          "id": "decision-flow",
+          "title": "使いどき判断フロー",
+          "summary": "オーケストレーションするか・どの形にするかを順に切り分ける。",
+          "content": "「そもそもワークフロー化すべきか」「静的 pipeline か動的 orchestrator か」を機械的に判断する。下のフローを上から順にたどる。",
+          "tags": ["重要"],
+          "steps": [
+            {
+              "phase": "① 予測可能か",
+              "description": "サブタスクが事前に列挙できるなら静的 pipeline / ワークフローで十分。コードパスを固定する。",
+              "example": "レビュー観点が決まっている → pipeline(観点, レビュー, 検証)"
+            },
+            {
+              "phase": "② 予測不能か",
+              "description": "必要なサブタスクを事前に決められないときだけ、動的 orchestrator-workers に上げる。",
+              "example": "調査範囲がクエリ次第で変わるディープリサーチ"
+            },
+            {
+              "phase": "③ 共有文脈が必須か",
+              "description": "全エージェントが同じ文脈を要する/相互依存が多いならソロ実行。多くのコーディングはここ。",
+              "example": "1ファイル内の相互依存ロジックのデバッグ → ソロ"
+            },
+            {
+              "phase": "④ 規模を合わせる",
+              "description": "事実確認は1体、複雑な調査だけ10体超。簡単な用件に大量のエージェントを撒かない。",
+              "example": "単純な事実確認 → 1体（3〜10ツールコール）"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "do-practices",
+      "name": "やるべきこと (Do)",
+      "description": "実務で効果の高いベストプラクティス。独立検証・pipeline既定・要約返却・具体的委譲・構造化出力など。",
+      "items": [
+        {
+          "id": "adversarial-verify",
+          "title": "各ワーカーに専任の検証エージェントを立てる",
+          "summary": "生成と検証を分け、ルブリックに照らして敵対的に確認する。自己採点に頼らない。",
+          "content": "最も効果の高い Do は独立した多層検証。動的ワークフローの公式ガイダンスは「生成した各エージェントに対し、別のエージェントを立ててルブリックに照らし敵対的に出力を検証する」「絶対スコアより相対（ペアワイズ）比較のほうが信頼できる」とする。\n\n並列化には2形態がある: sectioning（独立サブタスクへ分割）と voting（同じ課題を複数回走らせ多様な出力を得る）。LLM は1つの観点を1つの LLM 呼び出しに分けると性能が上がる。\n\n単一の評価層では全ての問題を捕捉できない（スイスチーズモデル）。複数の検証法を重ね、どれか1つの審査結果をそのまま採用しない。\n\n出典: a-harness-for-every-task...（claude.com/blog）, building-effective-agents, demystifying-evals-for-ai-agents（anthropic.com/engineering）",
+          "tags": ["重要", "公式"],
+          "code": "// 各所見に独立した検証者を立て、多数決で採否\nconst votes = await parallel(\n  [\"correctness\", \"security\", \"repro\"].map((lens) => () =>\n    agent(`次の所見を${lens}の観点で反証せよ。確証がなければ refuted=true。`, { schema: VERDICT }))\n);\nconst survives = votes.filter(Boolean).filter((v) => !v.refuted).length >= 2;"
+        },
+        {
+          "id": "pipeline-by-default",
+          "title": "pipeline をデフォルトにする",
+          "summary": "段階間にバリアを置かず、各アイテムを独立に流す。速いものを遅いものに待たせない。",
+          "content": "多段処理は pipeline() を既定にする。pipeline は段階間にバリア（全件待ち）を作らず、アイテム A が3段目にいる間にアイテム B は1段目、と独立に進む。全体の所要時間は「最も遅い1本のチェーン」で決まり、段ごとの最遅×段数にはならない。\n\nbarrier（parallel で全件待ち）が正しいのは、次段が前段の全結果を本当に必要とするときだけ（全件の dedup/マージ、合計0件での早期終了、他の所見との相互参照）。「flatten/map したいから」「コードが綺麗だから」はバリアの理由にならない。\n\n出典: code.claude.com/docs/en/workflows",
+          "tags": ["重要", "仕様"],
+          "examples": [
+            {
+              "strategy": "段階間の扱い",
+              "before": "parallel で段1を全件待ち → 変換 → parallel で段2（速いエージェントが遅い1体を待って遊ぶ）",
+              "after": "pipeline(items, 段1, 変換, 段2)（各アイテムが独立に最後まで流れる）"
+            }
+          ]
+        },
+        {
+          "id": "clean-context-summaries",
+          "title": "サブエージェントは要約だけ返させる",
+          "summary": "独立コンテキストで作業させ、生ログでなく1,000〜2,000トークンの蒸留要約を受け取る。",
+          "content": "各サブエージェントはクリーンな（独立した）コンテキストで集中的なタスクを処理し、内部では数万トークンを使っても、返すのは凝縮・蒸留した要約（多くは1,000〜2,000トークン）にする。\n\n詳細な探索文脈はサブエージェント内に隔離し、リード側は統合に集中する。生のトレースをそのまま返させない。\n\n出典: effective-context-engineering-for-ai-agents（anthropic.com/engineering）",
+          "tags": ["公式"]
+        },
+        {
+          "id": "quality-prompts",
+          "title": "ハンドオフは具体的に＋エビデンスを要求する",
+          "summary": "あいまいな委譲が最大の失敗要因。目的・制約・出力形・証拠の提出形式まで指定する。",
+          "content": "詳細なタスク記述がないと、サブエージェントは作業を重複させ、隙間を残し、同一の検索を繰り返す。だから Do はハンドオフの質: 明確な目的＋責務分割＋エビデンス要求（実行したコマンドとその結果、変更ファイル、逸脱点）を指定する。\n\n「done」というプロサだけを信じない。役割固有エージェントでも、プロンプトで証拠の提出形式を指定しないと自発的には出さない。\n\n出典: multi-agent-research-system（anthropic.com/engineering）",
+          "tags": ["重要", "公式"],
+          "examples": [
+            {
+              "strategy": "委譲プロンプト",
+              "before": "「このPRをレビューして」（目的も証拠形式も曖昧 → 重複・抜け）",
+              "after": "「観点X/Yでレビュー。各指摘に file:line ＋再現手順＋確信度。実行したコマンドと結果も返す」"
+            }
+          ]
+        },
+        {
+          "id": "structured-output",
+          "title": "schema で検証を機械化し、検証ステートは保護する",
+          "summary": "構造化出力で検証コストを下げ、検証ファイルは passes フィールドの反転のみ許可する。",
+          "content": "agent() に schema（JSON Schema）を渡すと、ツール呼び出し層で検証され不一致なら自動リトライされる。パースが不要になり、検証コストと取りこぼしが減る。\n\n長時間オーケストレーションでは、検証ステートを JSON ファイルで持ち、エージェントには「passes フィールドの状態を変えることでのみ編集してよい」と指示する。モデルは Markdown より JSON を不適切に書き換えにくい。併せて「テストの削除・改変は許容しない」等の強いショートカット禁止を添える。\n\n注: これはプロンプト指示＋JSON の編集耐性によるもので、ハードなスキーマ検証ではない。\n\n出典: code.claude.com/docs/en/workflows, effective-harnesses-for-long-running-agents（anthropic.com/engineering）",
+          "tags": ["仕様", "公式"]
+        },
+        {
+          "id": "judge-calibration",
+          "title": "LLM審査は人間と較正する",
+          "summary": "ルブリックを次元ごとに分け、孤立した審査LLMで採点し、「Unknown」の逃げ道を与える。",
+          "content": "LLM-as-judge は人間の専門家と密に較正する。明確で構造化されたルブリックを作り、各次元を孤立した LLM 審査で採点する。情報が足りないときは「Unknown」を返してよいと明示的な逃げ道を与える。\n\n審査が機能しているかは、多数の試行のトランスクリプトと採点を実際に読むまで分からない。較正なしに審査結果を信用しない。\n\n出典: demystifying-evals-for-ai-agents（anthropic.com/engineering）",
+          "tags": ["公式"]
+        },
+        {
+          "id": "strong-lead-cheap-workers",
+          "title": "強モデルがリード、安価モデルがワーカー",
+          "summary": "Opusがリード＋Sonnetワーカーは、単一Opusを社内研究評価で90.2%上回った。",
+          "content": "オーケストレーションは「強いモデルがリード＋安価なモデルが並列ワーカー」が基本。Claude Opus 4 をリード、Claude Sonnet 4 をサブエージェントにした構成は、単一 Opus 4 を社内 research eval で90.2%上回った（opusplan の分担＝Opus が計画、Sonnet が実行、と同じ発想）。\n\n重要な限定: この90.2%は「広く並列化できる研究タスク」の社内評価で、約15倍のトークンコストを伴う。コーディングや相互依存の強いタスクには一般化しない。\n\n出典: multi-agent-research-system（anthropic.com/engineering）",
+          "tags": ["公式"]
+        },
+        {
+          "id": "incremental-progress",
+          "title": "一度に1機能ずつ進め、状態を残す",
+          "summary": "全部を一発で書こうとせず、機能単位で進めセッション間に構造化ステートを残す。",
+          "content": "長時間タスクを単一コンテキストで一発実装しようとするとコンテキスト切れを起こす。代わりに1機能ずつ増分的に進める—これが決定的に効いた、と報告されている。\n\nセッション間には構造化ステートを残す: 説明的メッセージ付きの git コミットと、進捗ファイルへの要約。次のイテレーションが文脈を失わずに続けられる。\n\n出典: effective-harnesses-for-long-running-agents（anthropic.com/engineering）",
+          "tags": ["公式"]
+        },
+        {
+          "id": "e2e-self-test",
+          "title": "機能はe2eで自己検証してから完了にする",
+          "summary": "明示しないとClaudeは未テストで「完了」にする。人間と同じ手順でe2e検証させる。",
+          "content": "明示的に指示しないと、Claude はコード変更や unit test・curl まではしても、機能が e2e で実際に動くかを確認せず「完了」とマークしがち。\n\nブラウザ操作など実 e2e ツールを与え、「人間ユーザーと同じやり方で全テストを行い、丁寧な e2e 検証の後だけ機能を pass にする」と指示するとパフォーマンスが大きく改善した。\n\n出典: effective-harnesses-for-long-running-agents（anthropic.com/engineering）",
+          "tags": ["公式"]
+        },
+        {
+          "id": "loop-until-dry",
+          "title": "件数未知の探索は loop-until-dry",
+          "summary": "単純な上限ではなく、新規ゼロがK回続くまで探索を回し、取りこぼしの尾を拾う。",
+          "content": "バグ・課題・エッジケースのような「総数が未知」の発見タスクは、固定の上限（top-N）で打ち切ると末尾を取りこぼす。新規が K 回連続でゼロになるまでファインダーを回す loop-until-dry にする。\n\n仕上げに completeness critic（「何が漏れているか—未実行のモダリティ、未検証の主張、未読のソースは？」を問うエージェント）を入れると、次に回すべき作業が見える。\n\n出典: code.claude.com/docs/en/workflows",
+          "tags": ["仕様"],
+          "code": "const seen = new Set();\nlet dry = 0;\nwhile (dry < 2) {\n  const fresh = (await findOnce()).filter((x) => !seen.has(key(x)));\n  if (!fresh.length) { dry++; continue; }\n  dry = 0;\n  fresh.forEach((x) => seen.add(key(x)));\n  // ...検証して採用\n}"
+        }
+      ]
+    },
+    {
+      "id": "anti-patterns",
+      "name": "アンチパターン (Don't)",
+      "description": "実証された失敗モードとアンチパターン。各カードに「対処」を併記。",
+      "items": [
+        {
+          "id": "three-failure-modes",
+          "title": "単一コンテキストの3つの失敗モードを放置する",
+          "summary": "agentic laziness / self-preferential bias / goal drift。動的ワークフローはこれらの対策。",
+          "content": "長時間・単一コンテキスト作業には名前の付いた3つの失敗モードがある。\n\n① agentic laziness: 部分的な進捗で複雑なタスクを「完了」と宣言する（例: セキュリティレビュー50項目のうち35項目だけ対応して終了）。\n\n② self-preferential bias: 自分の出力を過大評価し、自作の結果を判定で過信する。\n\n③ goal drift: 多ターンにわたり忠実度が失われる（要約の各ステップは lossy で、compaction で悪化）。\n\n別の長時間エージェント研究も裏付ける: 後続インスタンスが既存の進捗を見て早々に「完了」と宣言してしまう。",
+          "tags": ["重要", "公式"],
+          "fix": "全項目を事前に「未達(failing)」で列挙したリストを置き、各項目を検証してからのみ pass にする。生成と判定のエージェントを分ける。セッション間に構造化ステートを残す。\n\n出典: a-harness-for-every-task...（claude.com/blog）, effective-harnesses-for-long-running-agents"
+        },
+        {
+          "id": "vague-delegation",
+          "title": "あいまいな委譲",
+          "summary": "詳細なタスク記述がないと、重複作業・抜け・同一検索が多発する。",
+          "content": "詳細なタスク記述を欠くと、サブエージェントは互いに同じ検索を走らせ、作業を重複させ、必要な情報を見つけ損ねる。MAST（マルチエージェント失敗の実証分類）でも「タスク仕様の不遵守 (FM-1.1)」「役割仕様の不遵守 (FM-1.2)」「ステップの重複 (FM-1.3)」が独立した失敗モードとして観測されている。",
+          "tags": ["重要", "公式"],
+          "fix": "目的・制約・責務分割・出力形・エビデンス要求を明記する。役割と担当範囲を明確に分ける。\n\n出典: multi-agent-research-system, MAST（arxiv.org/abs/2503.13657）"
+        },
+        {
+          "id": "over-parallelize",
+          "title": "過剰並列化",
+          "summary": "簡単なクエリに50体撒くなど。コストばかり増えて精度は上がらない。",
+          "content": "単純な用件に大量のサブエージェントを起動するのはアンチパターン（例: 簡単なクエリに50体）。トークンは線形に増える一方、価値は出ない。",
+          "tags": ["公式"],
+          "fix": "effort-scaling で規模をタスクに合わせる。単純な事実確認は1体（3〜10ツールコール）、責務が明確に分割できる複雑な調査だけ10体超。\n\n出典: multi-agent-research-system（anthropic.com/engineering）"
+        },
+        {
+          "id": "barrier-abuse",
+          "title": "バリア乱用",
+          "summary": "pipeline で済むのに parallel で全件待ちし、速いエージェントを遊ばせる。",
+          "content": "段階間に毎回 parallel のバリア（全件待ち）を置くと、最速のエージェントが最遅の1体を待って遊ぶ。5体走らせて最遅が最速の3倍なら、速い側の待ち時間の2/3が無駄になる。\n\n「flatten/map/filter したいから」「段が概念的に別だから」「コードが綺麗だから」はバリアの理由にならない。変換は pipeline の段の中で行える。",
+          "tags": ["仕様"],
+          "fix": "pipeline() を既定にする。barrier は次段が前段の全結果を本当に要するとき（全件 dedup/マージ、合計0件の早期終了、相互参照）だけ。\n\n出典: code.claude.com/docs/en/workflows"
+        },
+        {
+          "id": "silent-truncation",
+          "title": "サイレントな打ち切り",
+          "summary": "top-N・no-retry・サンプリングを黙って行う。網羅したように見えて漏れている。",
+          "content": "カバレッジを暗黙に絞る（上位N件だけ、リトライなし、サンプリング）と、「全部見た」ように読めてしまうが実際は漏れている。早すぎる終了（MAST FM-3.1 premature termination）は実証された失敗カテゴリ。",
+          "tags": ["仕様", "研究"],
+          "fix": "打ち切ったら必ず log() で「何を落としたか」を明示する。総数未知の探索は loop-until-dry にする。\n\n出典: code.claude.com/docs/en/workflows, MAST（arxiv.org/abs/2503.13657）"
+        },
+        {
+          "id": "unverified-self-judge",
+          "title": "自作自演の自己審査を唯一の評価にする",
+          "summary": "LLMは自分の出力を過大評価する（self-preference bias は実測される）。",
+          "content": "LLM は判定者として自分の出力の質を過大評価する。8モデルの検証で GPT-4 が最も強い self-preference bias（公平性指標で0.520）を示した。単一エージェント、特に自作物を判定するエージェントを唯一の評価者にしてはいけない。\n\n注: この論文は「アンサンブル/perplexity 加重の多モデル判定を推奨」はしていない（その主張は検証で否定された）。要点は「自己審査を単独で信用しない」こと。",
+          "tags": ["重要", "研究"],
+          "fix": "生成と検証を別エージェントに分け、複数の検証法を重ねる。ペアワイズ比較を使う。審査 LLM は人間と較正する。\n\n出典: self-preference 論文（arxiv.org/html/2410.21819v1）, demystifying-evals-for-ai-agents"
+        },
+        {
+          "id": "missing-verification",
+          "title": "検証を省く／不完全な検証",
+          "summary": "所見を検証せずに採用する。MAST の Task Verification 失敗カテゴリ。",
+          "content": "検証なし・不完全な検証（MAST FM-3.2「No or incomplete verification」）、誤った検証（FM-3.3「Incorrect verification」）は実証された失敗カテゴリ。MAST では System Design 系の問題が失敗の44.2%を占める。もっともらしいが誤った所見が、検証されないまま生き残る。",
+          "tags": ["研究"],
+          "fix": "所見ごとに独立した検証パスを必ず通す。検証は明示的かつ網羅的に。スイスチーズモデルで複数層を重ねる。\n\n出典: MAST（arxiv.org/abs/2503.13657）"
+        },
+        {
+          "id": "quality-shortcuts",
+          "title": "品質を落とすショートカット",
+          "summary": "弱すぎるワーカーモデルや検証スキップで、見かけのコストだけ下げる。",
+          "content": "ワーカーに能力不足のモデルを使う、検証を飛ばす、スコープを黙って狭める、といったショートカットは、見かけのコストを下げても成果物の信頼性を壊す。トークン使用量は性能分散の約80%を説明する—安易な節約は精度を直接削る。",
+          "tags": [],
+          "fix": "ワーカーには十分能力のあるモデルを使う（強リード＋安価だが有能なワーカーの分担）。検証は省かない。スコープを狭めるなら log() で明示する。\n\n出典: multi-agent-research-system（anthropic.com/engineering）"
+        }
+      ]
+    },
+    {
+      "id": "tuning",
+      "name": "チューニング",
+      "description": "トークン・並列度・レイテンシ・キャッシュ・worktree の勘所。数値は公式仕様と評価に基づく。",
+      "items": [
+        {
+          "id": "token-economics",
+          "title": "トークン経済を最初に押さえる",
+          "summary": "マルチ≈15x、性能分散の約80%がトークン由来。バジェットは明示上限。",
+          "content": "マルチエージェントはチャットの約15倍、単純エージェントでも約4倍のトークンを使う。社内評価ではトークン使用量だけで性能分散の約80%を説明できた。\n\n価値が出るのは高価値・並列可能なタスクに限られる。バジェットは明示的に上限設定し（例: 「use 10k tokens」）、budget.remaining() で動的にスケールを絞る。\n\n注: 15x / 80% は特定の評価セット・モデル世代に紐づく数値で恒久定数ではない。\n\n出典: multi-agent-research-system, a-harness-for-every-task...（claude.com/blog）",
+          "tags": ["重要", "公式"],
+          "code": "// バジェット連動でループ深さを決める\nwhile (budget.total && budget.remaining() > 50_000) {\n  const r = await agent(\"バグを探す\", { schema: BUGS });\n  bugs.push(...r.bugs);\n}"
+        },
+        {
+          "id": "effort-scaling",
+          "title": "規模をタスクに合わせる（effort-scaling）",
+          "summary": "事実確認は1体、複雑な調査だけ10体超。一律に並列しない。",
+          "content": "パターンを一律適用せず、タスク特性で規模を決める。単純な事実確認は1体（3〜10ツールコール）で足り、責務が明確に分割できる複雑な調査だけ10体超を使う。\n\n「まず1体で試し、明らかに underperform するか、分割が最初から綺麗なときだけ並列化する」を既定にする。\n\n出典: multi-agent-research-system（anthropic.com/engineering）",
+          "tags": ["公式"]
+        },
+        {
+          "id": "concurrency-cap",
+          "title": "同時実行キャップと総数上限を知る",
+          "summary": "同時 agent() は min(16, コア数−2)、生涯総数は1000で頭打ち。",
+          "content": "1ワークフロー内の同時 agent() 呼び出しは min(16, CPUコア数−2) にキャップされる。超過分はキューされ、スロットが空き次第走る。だから parallel()/pipeline() に100件渡しても全件完了するが、同時に走るのは約10件。\n\nワークフロー生涯のエージェント総数は1000で頭打ち（暴走ループのバックストップで、実ワークフローの想定を大きく超える値）。\n\n出典: code.claude.com/docs/en/workflows",
+          "tags": ["仕様"]
+        },
+        {
+          "id": "latency-slowest-chain",
+          "title": "レイテンシは最遅チェーンで決まる",
+          "summary": "pipeline なら全体時間=最も遅い1本。barrier は速い側の待ちが無駄になる。",
+          "content": "pipeline では全体の所要時間が「最も遅い1本のチェーン」で決まり、段ごとの最遅×段数にはならない。アイテムは互いに待たずに独立に流れる。\n\n対して barrier（parallel）は全件を待つので、最速のエージェントが最遅に引きずられて遊ぶ。並列度が高いほど無駄も大きい。速さが要るなら pipeline を選ぶ。\n\n出典: code.claude.com/docs/en/workflows",
+          "tags": ["仕様"]
+        },
+        {
+          "id": "prompt-cache-ttl",
+          "title": "プロンプトキャッシュ(5分TTL)を意識する",
+          "summary": "再開・スリープ間隔の刻みでキャッシュ命中が変わる。270s以内か1200s+か。",
+          "content": "Anthropic のプロンプトキャッシュは TTL が約5分。動的ペースの待機（ScheduleWakeup）では、300秒を境にキャッシュ命中が変わる。\n\n270秒以内ならキャッシュは温存され、外部状態のポーリングに向く。300秒〜1時間はキャッシュミスを払う代わりに長く待てる。最悪なのはちょうど300秒（ミスを払うのに償却できない）。アイドルの定期チェックは1200〜1800秒（20〜30分）を既定に。\n\nresume（同一スクリプト＋同一 args）はキャッシュ命中で即座に前回結果を返す。\n\n出典: code.claude.com/docs/en/prompt-caching, code.claude.com/docs/en/workflows",
+          "tags": ["仕様"]
+        },
+        {
+          "id": "worktree-isolation",
+          "title": "worktree isolation はファイル衝突時だけ",
+          "summary": "並列でファイルを書き換えて衝突する場合のみ。約200〜500ms＋ディスクのコスト。",
+          "content": "isolation:'worktree' は各エージェントに独立した git 作業ツリーを与える。ただしエージェント1体あたり約200〜500ms のセットアップとディスクを消費する高コスト機能。\n\n使うのは、複数エージェントが並列でファイルを変更し、そのままだと衝突するときだけ。変更がなければ作業ツリーは自動削除される。読み取り中心の並列調査には不要。\n\n出典: code.claude.com/docs/en/workflows",
+          "tags": ["仕様"]
+        }
+      ]
+    },
+    {
+      "id": "operations",
+      "name": "運用",
+      "description": "起動・進捗監視・中断再開・保存・スケジュール連携・スクリプト制約。",
+      "items": [
+        {
+          "id": "launch-and-monitor",
+          "title": "起動と進捗監視",
+          "summary": "明示オプトインで起動し、/workflows でライブ進捗を見る。バックグラウンド実行。",
+          "content": "ワークフローはバックグラウンドで走り、起動時にタスク ID を返し、完了時に通知が来る。進捗は /workflows でライブに確認できる（フェーズごとの進捗ツリー、ナレーターのログ）。\n\nスクリプトは meta ブロック（name/description、任意で phases）で始める必要がある。phase() の見出しは meta.phases と一致させると進捗表示でグループ化される。\n\n出典: code.claude.com/docs/en/workflows",
+          "tags": ["仕様"]
+        },
+        {
+          "id": "resume",
+          "title": "中断後はキャッシュ再利用で再開する",
+          "summary": "resumeFromRunId で、変更のない agent() 呼び出しは即座にキャッシュ結果を返す。",
+          "content": "停止・中断・スクリプト編集の後は、{scriptPath, resumeFromRunId} で再開する。変更していない agent() 呼び出し（同一プロンプト＋オプション）は即座にキャッシュ結果を返し、編集した呼び出し以降だけライブで再実行される。\n\n同一スクリプト＋同一 args なら命中率100%。Date.now()/Math.random()/new Date() がスクリプトで使えないのはこの再開を壊さないため（タイムスタンプは args で渡すか、終了後に押す）。\n\n出典: code.claude.com/docs/en/workflows",
+          "tags": ["仕様"]
+        },
+        {
+          "id": "iterate-saved",
+          "title": "スクリプトを反復編集し、保存して再利用する",
+          "summary": "毎回スクリプトはファイルに永続化される。scriptPathで反復、nameで保存ワークフロー。",
+          "content": "Workflow を起動すると毎回スクリプトがセッション配下に永続化され、パスが返る。反復はそのファイルを編集し {scriptPath} で再起動する（全文を送り直さない）。\n\n保存ワークフローは name で呼び出して再利用できる。別ワークフローを inline 実行する workflow() もある（ネストは1段まで）。\n\n出典: code.claude.com/docs/en/workflows",
+          "tags": ["仕様"]
+        },
+        {
+          "id": "schedule-loop",
+          "title": "ScheduleWakeup / loop dynamic と連携する",
+          "summary": "自己ペースの定期実行。harness追跡の作業はポーリングせず、長いフォールバックを置く。",
+          "content": "/loop の dynamic モードは、間隔を指定せずモデルに自己ペースで反復させる。ScheduleWakeup で次の起床を予約する。\n\n重要: harness が追跡する自作業（起動したサブエージェント等）は完了時に自動で再起動されるので、短間隔ポーリングは無駄。CI やデプロイ等 harness が追えない外部作業のときだけ、その状態変化の速さに合わせた間隔にする。アイドルの定期チェックは1200〜1800秒を既定に。\n\n出典: code.claude.com/docs/en/workflows",
+          "tags": ["仕様"]
+        },
+        {
+          "id": "script-constraints",
+          "title": "スクリプトの制約を守る",
+          "summary": "metaはピュアリテラル必須。型注釈不可（TSではない）。Date.now/Math.random不可。",
+          "content": "スクリプトはプレーンな JavaScript（TypeScript ではない）。型注釈・interface・generics はパースに失敗する。\n\nmeta は変数や関数呼び出しを含まないピュアなリテラルでなければならない（name/description は必須）。Date.now()/Math.random()/引数なし new Date() は再開を壊すため throw する。乱数が要るならインデックスで agent のプロンプト/ラベルを変える。\n\n出典: code.claude.com/docs/en/workflows",
+          "tags": ["仕様"]
+        }
+      ]
+    },
+    {
+      "id": "notes",
+      "name": "注記・出典",
+      "description": "概念解説ページへの相互リンク、数値の時限性、主な一次ソース。",
+      "items": [
+        {
+          "id": "cross-reference",
+          "title": "概念・仕組みの詳細は「ワークフロー」ページへ",
+          "summary": "本タブは実践（Do/Don't・判断・チューニング・運用）に特化。基礎解説は別ページ。",
+          "content": "動的ワークフローとは何か、なぜ使うのか、6つのパターン（classify-and-act / fan-out-and-synthesize / adversarial-verification / generate-and-filter / tournament / loop-until-done）、ユースケースといった概念・仕組みの解説は、本サイトの「ワークフロー」ページにまとめている。\n\n本タブはそれを前提に、実務での Do/Don't・使いどき判断・チューニング・運用に特化している。",
+          "tags": []
+        },
+        {
+          "id": "time-sensitive-numbers",
+          "title": "数値は特定の評価・モデル世代に紐づく",
+          "summary": "15x / 90.2% / 80% / 0.520 などは恒久定数ではない。",
+          "content": "本タブの定量値は特定の評価セットとモデル世代に紐づく: 90.2%の優位（社内 research eval、Opus 4 / Sonnet 4）、15x/4x のトークン倍率、性能分散の80%（BrowseComp）、GPT-4 の self-preference 0.520（2024年代モデル）。\n\nいずれも方向性としては頑健だが普遍定数ではなく、新しいモデルで変わりうる。一方「start simple / workflows 対 agents / orchestrator-workers」といった設計原則は evergreen で2026年まで再確認されている。\n\nまた、API 仕様の細部（同時実行キャップ、1000上限、resume 等）は公式 Workflow ツール仕様（code.claude.com/docs/en/workflows）に基づく。",
+          "tags": []
+        },
+        {
+          "id": "sources",
+          "title": "主な出典",
+          "summary": "一次ソース（Anthropic公式・公式docs・査読論文）中心。敵対的検証を経てまとめた。",
+          "content": "本タブは多角的な Web 検索と敵対的検証（各主張を独立3票で検証し、2/3で棄却）を経てまとめた。検証で否定された主張は載せていない（例: 「ultracode という語が動的ワークフローを起動する」という特定の言い回し、MAST の「14モード/3カテゴリ」という集計、self-preference 論文が多モデルアンサンブルを推奨という主張）。\n\n主な一次ソースは下記。",
+          "tags": [],
+          "tips": [
+            "公式: A harness for every task — dynamic workflows in Claude Code（claude.com/blog）",
+            "公式 docs: code.claude.com/docs/en/workflows ・ /prompt-caching",
+            "Anthropic Engineering: building-effective-agents",
+            "Anthropic Engineering: multi-agent-research-system",
+            "Anthropic Engineering: effective-context-engineering-for-ai-agents",
+            "Anthropic Engineering: effective-harnesses-for-long-running-agents",
+            "Anthropic Engineering: demystifying-evals-for-ai-agents",
+            "論文: Multi-Agent System failure Taxonomy (MAST) — arXiv:2503.13657",
+            "論文: LLM self-preference bias — arXiv:2410.21819"
+          ]
+        }
+      ]
+    }
+  ]
+}
