@@ -62,15 +62,17 @@ const BPDetailContent = ({
   accentColor,
   onClose,
   reducedMotion,
+  categoryId = "best-practices",
 }: {
   item: BPItem;
   sectionName: string;
   accentColor: string;
   onClose: () => void;
   reducedMotion: boolean | null;
+  categoryId?: string;
 }) => {
-  const sectionIcon = resolveSectionIcon("best-practices", item.id);
-  const tagColors = CATEGORY_CONFIGS["best-practices"].tagColors;
+  const sectionIcon = resolveSectionIcon(categoryId, item.id);
+  const tagColors = CATEGORY_CONFIGS[categoryId].tagColors;
 
   return (
     <DetailModalShell
@@ -614,6 +616,17 @@ export const DetailModal = ({
           accentColor={accentColor}
           onClose={onClose}
           reducedMotion={reducedMotion}
+        />
+      );
+    case "dynamic-workflows":
+      return (
+        <BPDetailContent
+          item={item as BPItem}
+          sectionName={sectionName}
+          accentColor={accentColor}
+          onClose={onClose}
+          reducedMotion={reducedMotion}
+          categoryId="dynamic-workflows"
         />
       );
     default:
