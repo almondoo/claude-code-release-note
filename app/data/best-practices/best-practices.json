@@ -3,13 +3,18 @@
     {
       "id": "core-principle",
       "name": "基本原則",
+      "name_en": "Core Principle",
       "description": "コンテキストウィンドウの管理が最重要",
+      "description_en": "Managing the context window is the top priority",
       "items": [
         {
           "id": "context-window",
           "title": "コンテキストウィンドウは最も重要なリソース",
+          "title_en": "The context window is the most important resource",
           "summary": "Claude のコンテキストウィンドウには全メッセージ、読み取ったファイル、コマンド出力が含まれる。いっぱいになるとパフォーマンスが低下する。",
+          "summary_en": "Claude's context window holds all messages, files read, and command output. Performance degrades as it fills up.",
           "content": "ほとんどのベストプラクティスは1つの制約に基づいています。Claude のコンテキストウィンドウはすぐにいっぱいになり、いっぱいになるにつれてパフォーマンスが低下します。\n\nClaude のコンテキストウィンドウは、すべてのメッセージ、Claude が読み取ったすべてのファイル、およびすべてのコマンド出力を含む会話全体を保持します。単一のデバッグセッションやコードベース探索でも、数万のトークンを生成・消費する可能性があります。\n\nLLM のパフォーマンスはコンテキストがいっぱいになるにつれて低下します。コンテキストウィンドウがいっぱいになりかけると、Claude は以前の指示を「忘れる」か、より多くの間違いを犯す可能性があります。\n\nコンテキストウィンドウは管理すべき最も重要なリソースです。起動時に何がロードされ、各ファイル読み取りがどの程度コストを消費するかは、インタラクティブウォークスルーで確認できます。カスタムステータスラインを使用してコンテキスト使用状況を継続的に追跡し、トークン使用量の削減戦略も参照してください。",
+          "content_en": "Almost all best practices stem from a single constraint: Claude's context window fills up quickly, and performance degrades as it does.\n\nClaude's context window holds the entire conversation — every message, every file Claude has read, and every command output. Even a single debugging session or codebase exploration can generate and consume tens of thousands of tokens.\n\nLLM performance degrades as the context fills. When the context window is nearly full, Claude may \"forget\" earlier instructions or make more mistakes.\n\nThe context window is the most important resource to manage. You can see what gets loaded at startup and how much each file read costs via the interactive walkthrough. Use a custom status line to continuously track context usage, and see strategies for reducing token consumption.",
           "tags": ["重要"]
         }
       ]
@@ -17,29 +22,43 @@
     {
       "id": "verification",
       "name": "作業の検証",
+      "name_en": "Verifying Your Work",
       "description": "Claude に自分の作業を検証する方法を与える",
+      "description_en": "Give Claude a way to verify its own work",
       "items": [
         {
           "id": "give-verification",
           "title": "検証手段を提供する（最も効果の高い施策）",
+          "title_en": "Provide verification means (the highest-impact practice)",
           "summary": "テスト、スクリーンショット、期待される出力を含めて、Claude が自分自身をチェックできるようにする。",
+          "summary_en": "Include tests, screenshots, and expected output so Claude can check its own work.",
           "content": "Claude は、テストを実行したり、スクリーンショットを比較したり、出力を検証したりするなど、自分の作業を検証できるときに劇的に良い結果を出します。\n\n明確な成功基準がないと、正しく見えるが実際には機能しないものを生成する可能性があります。あなたが唯一のフィードバックループになり、すべての間違いがあなたの注意を必要とします。\n\nUI の変更には、Claude in Chrome 拡張機能を使用した検証も有効です。ブラウザで新しいタブを開き、UI をテストし、コードが機能するまで繰り返します。\n\n検証手段はテストスイート、リンター、または出力を確認する Bash コマンドでも構いません。検証を堅固なものにすることに投資してください。",
+          "content_en": "Claude produces dramatically better results when it can verify its own work — by running tests, comparing screenshots, or validating output.\n\nWithout clear success criteria, it may produce something that looks correct but doesn't actually work. You become the only feedback loop, and every mistake requires your attention.\n\nFor UI changes, verification via the Claude in Chrome extension is also effective. Open a new browser tab, test the UI, and iterate until the code works.\n\nVerification means can be a test suite, a linter, or a Bash command that checks output. Invest in making verification robust.",
           "tags": ["重要"],
           "examples": [
             {
               "strategy": "検証基準を提供する",
+              "strategy_en": "Provide verification criteria",
               "before": "メールアドレスを検証する関数を実装する",
-              "after": "validateEmail 関数を書く。テストケースの例：user@example.com は true、invalid は false、user@.com は false。実装後にテストを実行する"
+              "before_en": "Implement a function to validate email addresses",
+              "after": "validateEmail 関数を書く。テストケースの例：user@example.com は true、invalid は false、user@.com は false。実装後にテストを実行する",
+              "after_en": "Write a validateEmail function. Example test cases: user@example.com → true, invalid → false, user@.com → false. Run the tests after implementing."
             },
             {
               "strategy": "UI の変更を視覚的に検証する",
+              "strategy_en": "Visually verify UI changes",
               "before": "ダッシュボードをより良く見えるようにする",
-              "after": "[スクリーンショットを貼り付け] このデザインを実装する。結果のスクリーンショットを撮り、元のものと比較する。違いをリストアップして修正する"
+              "before_en": "Make the dashboard look better",
+              "after": "[スクリーンショットを貼り付け] このデザインを実装する。結果のスクリーンショットを撮り、元のものと比較する。違いをリストアップして修正する",
+              "after_en": "[paste screenshot] Implement this design. Take a screenshot of the result and compare it to the original. List the differences and fix them."
             },
             {
               "strategy": "症状ではなく根本原因に対処する",
+              "strategy_en": "Address root causes, not symptoms",
               "before": "ビルドが失敗している",
-              "after": "ビルドがこのエラーで失敗している：[エラーを貼り付け]。修正して、ビルドが成功することを確認する。根本原因に対処し、エラーを抑制しない"
+              "before_en": "The build is failing",
+              "after": "ビルドがこのエラーで失敗している：[エラーを貼り付け]。修正して、ビルドが成功することを確認する。根本原因に対処し、エラーを抑制しない",
+              "after_en": "The build is failing with this error: [paste error]. Fix it and confirm the build succeeds. Address the root cause — don't suppress the error."
             }
           ]
         }
@@ -48,33 +67,46 @@
     {
       "id": "workflow",
       "name": "ワークフロー",
+      "name_en": "Workflow",
       "description": "探索→計画→実装→コミットの4フェーズ",
+      "description_en": "Four phases: explore → plan → implement → commit",
       "items": [
         {
           "id": "explore-plan-code",
           "title": "探索 → 計画 → 実装 → コミット",
+          "title_en": "Explore → Plan → Implement → Commit",
           "summary": "研究と計画を実装から分離して、間違った問題を解決することを避ける。",
+          "summary_en": "Separate research and planning from implementation to avoid solving the wrong problem.",
           "content": "Claude が直接コーディングにジャンプさせると、間違った問題を解決するコードが生成される可能性があります。Plan Mode を使用して、探索を実行から分離します。",
+          "content_en": "Letting Claude jump straight to coding can produce code that solves the wrong problem. Use Plan Mode to separate exploration from execution.",
           "tags": [],
           "steps": [
             {
               "phase": "探索",
+              "phase_en": "Explore",
               "description": "Plan Mode に入る。Claude はファイルを読み取り、変更を加えずに質問に答える",
+              "description_en": "Enter Plan Mode. Claude reads files and answers questions without making changes.",
               "example": "read /src/auth and understand how we handle sessions and login. also look at how we manage environment variables for secrets."
             },
             {
               "phase": "計画",
+              "phase_en": "Plan",
               "description": "Claude に詳細な実装計画を作成するよう依頼する。Ctrl+G で計画をテキストエディタで直接編集可能",
+              "description_en": "Ask Claude to create a detailed implementation plan. Press Ctrl+G to edit the plan directly in a text editor.",
               "example": "I want to add Google OAuth. What files need to change? What's the session flow? Create a plan."
             },
             {
               "phase": "実装",
+              "phase_en": "Implement",
               "description": "Normal Mode に戻り、Claude にコーディングさせ、計画に対して検証する",
+              "description_en": "Return to Normal Mode, let Claude code, and verify against the plan.",
               "example": "implement the OAuth flow from your plan. write tests for the callback handler, run the test suite and fix any failures."
             },
             {
               "phase": "コミット",
+              "phase_en": "Commit",
               "description": "Claude に説明的なメッセージでコミットし、PR を作成するよう依頼する",
+              "description_en": "Ask Claude to commit with a descriptive message and open a PR.",
               "example": "commit with a descriptive message and open a PR"
             }
           ]
@@ -82,34 +114,55 @@
         {
           "id": "when-to-skip-planning",
           "title": "計画をスキップしていい場合",
+          "title_en": "When to Skip Planning",
           "summary": "スコープが明確で修正が小さい場合は直接実行。差分を1文で説明できるなら計画は不要。",
+          "summary_en": "For clear-scope, small fixes, go straight to execution. If you can describe the diff in one sentence, skip the plan.",
           "content": "Plan Mode は便利ですが、オーバーヘッドも追加します。スコープが明確で修正が小さい場合（タイプミスの修正、ログ行の追加、変数の名前変更など）、Claude に直接実行するよう依頼します。\n\n計画は、アプローチについて不確実な場合、変更が複数のファイルを変更する場合、または変更されるコードに不慣れな場合に最も役立ちます。差分を1文で説明できる場合は、計画をスキップします。",
+          "content_en": "Plan Mode is useful, but it also adds overhead. For clear-scope, small fixes — fixing a typo, adding a log line, renaming a variable — ask Claude to execute directly.\n\nPlanning is most useful when you're uncertain about the approach, when the change touches multiple files, or when you're unfamiliar with the code being changed. If you can describe the diff in one sentence, skip the plan.",
           "tags": []
         },
         {
           "id": "plan-mode-config",
           "title": "Plan Mode の設定と活用",
+          "title_en": "Configuring and Using Plan Mode",
           "summary": "Shift+Tab で Plan Mode を切り替え、--permission-mode plan で起動、ヘッドレスでも使用可能。",
+          "summary_en": "Toggle Plan Mode with Shift+Tab, start with --permission-mode plan, and use it in headless mode too.",
           "content": "Plan Mode は読み取り専用の操作でコードベースを分析し計画を作成します。コードベースの探索、複雑な変更の計画、コードレビューに最適です。\n\nセッション中に Shift+Tab でパーミッションモードを切り替えられます。Normal Mode → Auto-Accept Mode → Plan Mode の順に切り替わります。\n\n新しいセッションを Plan Mode で開始するには --permission-mode plan フラグを使用します。ヘッドレスモードでも -p と組み合わせて使用可能です。\n\n計画を承認すると、Claude は計画の内容からセッション名を自動的に設定します。Ctrl+G で計画をテキストエディタで直接編集できます。",
+          "content_en": "Plan Mode analyzes your codebase using read-only operations and creates a plan. It's ideal for exploring a codebase, planning complex changes, and code review.\n\nPress Shift+Tab during a session to cycle through permission modes: Normal Mode → Auto-Accept Mode → Plan Mode.\n\nUse the --permission-mode plan flag to start a new session in Plan Mode. It can also be combined with -p for headless mode.\n\nOnce you approve the plan, Claude automatically sets the session name from its content. Press Ctrl+G to edit the plan directly in a text editor.",
           "tags": [],
           "tips": [
             "Shift+Tab でセッション中にモードを切り替え（Normal → Auto-Accept → Plan）",
             "claude --permission-mode plan で Plan Mode でセッションを開始",
             "claude --permission-mode plan -p \"...\" でヘッドレスの Plan Mode クエリ",
             ".claude/settings.json の permissions.defaultMode を \"plan\" に設定してデフォルト化可能"
+          ],
+          "tips_en": [
+            "Shift+Tab to cycle modes during a session (Normal → Auto-Accept → Plan)",
+            "claude --permission-mode plan to start a session in Plan Mode",
+            "claude --permission-mode plan -p \"...\" for a headless Plan Mode query",
+            "Set permissions.defaultMode to \"plan\" in .claude/settings.json to make it the default"
           ]
         },
         {
           "id": "reference-files",
           "title": "@ でファイルやディレクトリを参照する",
+          "title_en": "Reference files and directories with @",
           "summary": "@ でファイルを直接インクルード、ディレクトリのリスト表示、MCP リソースの取得が可能。",
+          "summary_en": "Use @ to directly include files, list directory contents, or fetch MCP resources.",
           "content": "@ を使用してファイルやディレクトリをすばやくインクルードできます。Claude が読み取るのを待つ必要がありません。\n\nファイルパスは相対パスでも絶対パスでも使用可能です。@ ファイル参照は、そのファイルのディレクトリと親ディレクトリの CLAUDE.md もコンテキストに追加します。ディレクトリ参照はファイルの内容ではなくファイルリストを表示します。\n\nMCP リソースも @server:protocol://resource/path の形式で取得できます（例：@github:issue://123、@docs:file://api/authentication）。1つのメッセージで複数のファイルを参照可能です（例：@file1.js と @file2.js）。",
+          "content_en": "Use @ to quickly include files or directories without waiting for Claude to read them.\n\nFile paths can be relative or absolute. An @ file reference also adds the CLAUDE.md files in that file's directory and parent directories to the context. Directory references show the file list rather than file contents.\n\nMCP resources can also be fetched in the form @server:protocol://resource/path (e.g. @github:issue://123, @docs:file://api/authentication). You can reference multiple files in one message (e.g. @file1.js and @file2.js).",
           "tags": [],
           "tips": [
             "@ でファイルを参照 — コードの場所を説明する代わりに Claude が応答前にファイルを読み取る",
             "@ でディレクトリを参照 — ファイルの内容ではなくリスト情報を提供",
             "@server:protocol://resource/path の形式で MCP リソースを取得（例：@github:issue://123、@postgres:schema://users）。@ メンションのオートコンプリートで fuzzy search も可能",
             "1つのメッセージで複数のファイルを参照可能"
+          ],
+          "tips_en": [
+            "@ to reference a file — Claude reads it before responding instead of you explaining where the code is",
+            "@ to reference a directory — provides a file listing rather than file contents",
+            "Fetch MCP resources with @server:protocol://resource/path (e.g. @github:issue://123, @postgres:schema://users). Fuzzy search is available via @ mention autocomplete.",
+            "Reference multiple files in one message"
           ]
         }
       ]
@@ -117,46 +170,70 @@
     {
       "id": "prompting",
       "name": "プロンプトのコツ",
+      "name_en": "Prompting Tips",
       "description": "具体的なコンテキストを提供する",
+      "description_en": "Provide specific context",
       "items": [
         {
           "id": "specific-context",
           "title": "プロンプトで具体的なコンテキストを提供する",
+          "title_en": "Provide specific context in your prompts",
           "summary": "指示がより正確であるほど、必要な修正が少なくなる。",
+          "summary_en": "The more precise your instructions, the fewer corrections you'll need.",
           "content": "Claude は意図を推測できますが、あなたの心を読むことはできません。特定のファイルを参照し、制約を述べ、例のパターンを指摘します。\n\n曖昧なプロンプトは、探索中でコース修正する余裕がある場合に有用です。「このファイルで何を改善しますか？」のようなプロンプトは、あなたが思いつかなかったことを浮き彫りにできます。",
+          "content_en": "Claude can infer intent, but it cannot read your mind. Reference specific files, state constraints, and point out example patterns.\n\nVague prompts are useful when you're exploring and have room to course-correct. A prompt like \"What would you improve in this file?\" can surface things you hadn't thought of.",
           "tags": [],
           "examples": [
             {
               "strategy": "タスクをスコープする",
+              "strategy_en": "Scope the task",
               "detail": "どのファイル、どのシナリオ、テスト設定を指定する",
+              "detail_en": "Specify which file, which scenario, and the test setup",
               "before": "foo.py のテストを追加する",
-              "after": "ユーザーがログアウトしているエッジケースをカバーする foo.py のテストを書く。モックを避ける"
+              "before_en": "Add tests for foo.py",
+              "after": "ユーザーがログアウトしているエッジケースをカバーする foo.py のテストを書く。モックを避ける",
+              "after_en": "Write tests for foo.py covering the edge case where the user is logged out. Avoid mocks."
             },
             {
               "strategy": "ソースを指摘する",
+              "strategy_en": "Point to the source",
               "detail": "Claude を質問に答えることができるソースに向ける",
+              "detail_en": "Direct Claude to a source that can answer the question",
               "before": "ExecutionFactory がこんなに奇妙な API を持っているのはなぜですか？",
-              "after": "ExecutionFactory の git 履歴を調べて、その API がどのようになったかを要約する"
+              "before_en": "Why does ExecutionFactory have such a strange API?",
+              "after": "ExecutionFactory の git 履歴を調べて、その API がどのようになったかを要約する",
+              "after_en": "Look through the git history of ExecutionFactory and summarize how its API came to be."
             },
             {
               "strategy": "既存のパターンを参照する",
+              "strategy_en": "Reference existing patterns",
               "detail": "Claude をコードベースのパターンに向ける",
+              "detail_en": "Direct Claude to patterns already in the codebase",
               "before": "カレンダーウィジェットを追加する",
-              "after": "ホームページで既存のウィジェットがどのように実装されているかを見て、パターンを理解する。HotDogWidget.php は良い例です。パターンに従って、新しいカレンダーウィジェットを実装する。コードベースで既に使用されているもの以外のライブラリを使用せずにゼロから構築する"
+              "before_en": "Add a calendar widget",
+              "after": "ホームページで既存のウィジェットがどのように実装されているかを見て、パターンを理解する。HotDogWidget.php は良い例です。パターンに従って、新しいカレンダーウィジェットを実装する。コードベースで既に使用されているもの以外のライブラリを使用せずにゼロから構築する",
+              "after_en": "Look at how existing widgets are implemented on the homepage to understand the pattern. HotDogWidget.php is a good example. Follow the pattern to implement a new calendar widget. Build it from scratch without using any libraries not already used in the codebase."
             },
             {
               "strategy": "症状を説明する",
+              "strategy_en": "Describe the symptoms",
               "detail": "症状、可能性のある場所、および「修正」の外観を提供する",
+              "detail_en": "Provide the symptom, possible location, and what a \"fix\" looks like",
               "before": "ログインバグを修正する",
-              "after": "ユーザーはセッションタイムアウト後にログインが失敗すると報告しています。src/auth/ の認証フロー、特にトークン更新を確認します。問題を再現する失敗するテストを書き、修正する"
+              "before_en": "Fix the login bug",
+              "after": "ユーザーはセッションタイムアウト後にログインが失敗すると報告しています。src/auth/ の認証フロー、特にトークン更新を確認します。問題を再現する失敗するテストを書き、修正する",
+              "after_en": "Users report that login fails after a session timeout. Check the auth flow in src/auth/, especially token refresh. Write a failing test that reproduces the issue, then fix it."
             }
           ]
         },
         {
           "id": "rich-content",
           "title": "リッチコンテンツを提供する",
+          "title_en": "Provide rich content",
           "summary": "@ でファイルを参照、画像を貼り付け、データをパイプ、URL を指定する。",
+          "summary_en": "Reference files with @, paste images, pipe data, and specify URLs.",
           "content": "Claude にリッチデータを提供するにはいくつかの方法があります。",
+          "content_en": "There are several ways to provide rich data to Claude.",
           "tags": [],
           "tips": [
             "@ でファイルを参照する — コードがどこにあるかを説明する代わりに、Claude は応答する前にファイルを読み取る",
@@ -164,13 +241,23 @@
             "ドキュメントと API リファレンスの URL を指定する — /permissions を使用して、頻繁に使用されるドメインをホワイトリストに登録",
             "データをパイプする — cat error.log | claude を実行してファイルの内容を直接送信",
             "Claude に必要なものを取得させる — Bash コマンド、MCP ツール、またはファイルの読み取りで Claude 自身がコンテキストをプルする"
+          ],
+          "tips_en": [
+            "Reference files with @ — Claude reads them before responding instead of you explaining where the code is",
+            "Paste images directly — copy/paste or drag-and-drop an image into the prompt",
+            "Specify URLs to docs and API references — use /permissions to whitelist frequently used domains",
+            "Pipe data — run cat error.log | claude to send file contents directly",
+            "Let Claude fetch what it needs — via Bash commands, MCP tools, or file reads, Claude can pull its own context"
           ]
         },
         {
           "id": "ask-questions",
           "title": "コードベースの質問をする",
+          "title_en": "Ask questions about the codebase",
           "summary": "シニアエンジニアに尋ねるような質問を Claude にする。特別なプロンプトは不要。",
+          "summary_en": "Ask Claude the same questions you'd ask a senior engineer. No special prompting needed.",
           "content": "新しいコードベースにオンボーディングするときは、Claude Code を学習と探索に使用します。別のエンジニアに尋ねるのと同じ種類の質問を Claude に尋ねることができます。",
+          "content_en": "When onboarding to a new codebase, use Claude Code for learning and exploration. You can ask Claude the same kinds of questions you'd ask another engineer.",
           "tags": [],
           "tips": [
             "ロギングはどのように機能しますか？",
@@ -178,13 +265,23 @@
             "foo.rs の 134 行目の async move { ... } は何をしていますか？",
             "CustomerOnboardingFlowImpl はどのエッジケースを処理しますか？",
             "このコードが 333 行目で bar() の代わりに foo() を呼び出すのはなぜですか？"
+          ],
+          "tips_en": [
+            "How does logging work?",
+            "How do I create a new API endpoint?",
+            "What is the async move { ... } on line 134 of foo.rs doing?",
+            "What edge cases does CustomerOnboardingFlowImpl handle?",
+            "Why does this code call foo() instead of bar() on line 333?"
           ]
         },
         {
           "id": "interview-pattern",
           "title": "Claude にインタビューさせる",
+          "title_en": "Let Claude interview you",
           "summary": "大きな機能の場合、Claude に最初にインタビューさせ、技術的な実装やエッジケース、トレードオフについて質問させる。",
+          "summary_en": "For large features, let Claude interview you first and ask about technical implementation, edge cases, and tradeoffs.",
           "content": "より大きな機能の場合、Claude に最初にあなたにインタビューさせます。最小限のプロンプトで始めて、Claude に AskUserQuestion ツールを使用してインタビューするよう依頼します。\n\nClaude は、技術的な実装、UI/UX、エッジケース、トレードオフなど、あなたがまだ考えていないことについて質問します。\n\n仕様が完成したら、新しいセッションを開始して実行します。新しいセッションはクリーンなコンテキストを持ち、実装に完全に焦点を当てており、参照する書かれた仕様があります。",
+          "content_en": "For larger features, let Claude interview you first. Start with a minimal prompt and ask Claude to interview you using the AskUserQuestion tool.\n\nClaude will ask about things you haven't considered yet — technical implementation, UI/UX, edge cases, tradeoffs.\n\nOnce the spec is complete, start a new session to execute. A new session has a clean context, is fully focused on implementation, and has a written spec to reference.",
           "tags": [],
           "code": "I want to build [brief description]. Interview me in detail using the AskUserQuestion tool.\n\nAsk about technical implementation, UI/UX, edge cases, concerns, and tradeoffs. Don't ask obvious questions, dig into the hard parts I might not have considered.\n\nKeep interviewing until we've covered everything, then write a complete spec to SPEC.md."
         }
@@ -193,13 +290,18 @@
     {
       "id": "environment",
       "name": "環境設定",
+      "name_en": "Environment Setup",
       "description": "セットアップステップで Claude を効果的にする。拡張機能の全体概要と使い分けは Extend Claude Code を参照",
+      "description_en": "Make Claude effective with setup steps. See Extend Claude Code for an overview of extensions and when to use each.",
       "items": [
         {
           "id": "claude-md",
           "title": "効果的な CLAUDE.md を書く",
+          "title_en": "Write an effective CLAUDE.md",
           "summary": "/init でスターターを生成し、時間をかけて改善。短く人間が読める状態に保つ。",
+          "summary_en": "Generate a starter with /init and refine it over time. Keep it short and human-readable.",
           "content": "CLAUDE.md は、Claude がすべての会話の開始時に読む特別なファイルです。Bash コマンド、コードスタイル、ワークフロールールを含めます。/init コマンドはコードベースを分析して、ビルドシステム、テストフレームワーク、コードパターンを検出し、改善するための堅実な基盤を提供します。\n\nCLAUDE.md はすべてのセッションで読み込まれるため、広く適用されるものだけを含めます。ドメイン知識やときどきだけ関連するワークフローについては、代わりに skills を使用します。\n\n簡潔に保ちます。各行について、「これを削除すると Claude が間違いを犯しますか？」と尋ねます。そうでない場合は、削除します。膨らんだ CLAUDE.md ファイルは Claude に実際の指示を無視させます。\n\n@path/to/import 構文で他のファイルをインポートできます。大きなドキュメントを CLAUDE.md から分離して管理でき、CLAUDE.md を軽量に保てます。\n\nCLAUDE.md をコードのように扱います。問題が起きたときにレビューし、定期的に剪定し、変更の効果を観察します。Claude が繰り返しルールに反する動作をする場合はファイルが長すぎるサイン、Claude が CLAUDE.md で回答済みの質問をする場合は表現が曖昧なサインです。",
+          "content_en": "CLAUDE.md is a special file that Claude reads at the start of every conversation. Include Bash commands, code style, and workflow rules. The /init command analyzes your codebase to detect build systems, test frameworks, and code patterns, giving you a solid foundation to improve from.\n\nBecause CLAUDE.md is loaded every session, only include things that apply broadly. For domain knowledge or occasionally-relevant workflows, use skills instead.\n\nKeep it concise. For each line, ask: \"If I deleted this, would Claude make a mistake?\" If not, delete it. A bloated CLAUDE.md causes Claude to ignore the real instructions.\n\nYou can import other files with the @path/to/import syntax. This lets you manage large documents separately from CLAUDE.md and keep it lightweight.\n\nTreat CLAUDE.md like code. Review it when problems arise, prune it regularly, and observe the effect of changes. Claude repeatedly violating rules is a sign the file is too long; Claude asking questions already answered in CLAUDE.md is a sign the wording is ambiguous.",
           "tags": [],
           "tips": [
             "@path/to/import 構文で他のファイルをインポートできる — 例：See @README.md for project overview and @package.json for available npm commands.",
@@ -208,6 +310,14 @@
             "Claude が CLAUDE.md で回答済みの質問をする場合 → 表現が曖昧なサイン",
             "重要なルールは「IMPORTANT」「YOU MUST」で強調すると遵守が改善される",
             "git にチェックインしてチームと共有することを推奨"
+          ],
+          "tips_en": [
+            "Import other files with @path/to/import syntax — e.g.: See @README.md for project overview and @package.json for available npm commands.",
+            "Place markdown files in the .claude/rules/ directory to split rules by topic. Adding paths: in the frontmatter makes them path-scoped rules loaded only when editing specific files, saving context.",
+            "Claude repeatedly violating rules → sign the file is too long",
+            "Claude asking questions already answered in CLAUDE.md → sign the wording is ambiguous",
+            "Emphasizing important rules with \"IMPORTANT\" or \"YOU MUST\" improves compliance",
+            "Recommended to check in to git and share with the team"
           ],
           "include": [
             "Claude が推測できない Bash コマンド",
@@ -218,6 +328,15 @@
             "開発者環境の癖（必須の環境変数）",
             "一般的な落とし穴または明白でない動作"
           ],
+          "include_en": [
+            "Bash commands Claude can't guess",
+            "Code style rules that differ from defaults",
+            "Test instructions and preferred test runner",
+            "Repository etiquette (branch naming, PR conventions)",
+            "Project-specific architecture decisions",
+            "Developer environment quirks (required environment variables)",
+            "Common pitfalls or non-obvious behaviors"
+          ],
           "exclude": [
             "Claude がコードを読むことで理解できるもの",
             "Claude が既に知っている標準言語規約",
@@ -227,88 +346,140 @@
             "ファイルごとのコードベースの説明",
             "「きれいなコードを書く」のような自明なプラクティス"
           ],
+          "exclude_en": [
+            "Things Claude can understand by reading the code",
+            "Standard language conventions Claude already knows",
+            "Detailed API documentation (link to docs instead)",
+            "Information that changes frequently",
+            "Long explanations or tutorials",
+            "Per-file codebase descriptions",
+            "Self-evident practices like \"write clean code\""
+          ],
           "locations": [
-            { "path": "~/.claude/CLAUDE.md", "description": "すべての Claude セッションに適用" },
+            {
+              "path": "~/.claude/CLAUDE.md",
+              "description": "すべての Claude セッションに適用",
+              "description_en": "Applies to all Claude sessions"
+            },
             {
               "path": "./CLAUDE.md",
-              "description": "git にチェックインしてチームと共有。または CLAUDE.local.md で .gitignore に入れる"
+              "description": "git にチェックインしてチームと共有。または CLAUDE.local.md で .gitignore に入れる",
+              "description_en": "Check into git and share with the team. Or use CLAUDE.local.md to add it to .gitignore."
             },
             {
               "path": "親ディレクトリ",
-              "description": "モノレポに便利。root/CLAUDE.md と root/foo/CLAUDE.md の両方が自動的に取得される"
+              "path_en": "Parent directory",
+              "description": "モノレポに便利。root/CLAUDE.md と root/foo/CLAUDE.md の両方が自動的に取得される",
+              "description_en": "Useful for monorepos. Both root/CLAUDE.md and root/foo/CLAUDE.md are picked up automatically."
             },
             {
               "path": "子ディレクトリ",
-              "description": "Claude がそのディレクトリ内のファイルで作業するときにオンデマンドで取得"
+              "path_en": "Child directory",
+              "description": "Claude がそのディレクトリ内のファイルで作業するときにオンデマンドで取得",
+              "description_en": "Picked up on demand when Claude works on files inside that directory."
             }
           ]
         },
         {
           "id": "permissions",
           "title": "パーミッションを設定する",
+          "title_en": "Configure permissions",
           "summary": "auto mode でクラシファイアに承認を任せる、/permissions で特定コマンドをホワイトリスト登録、/sandbox で OS レベルの分離。",
+          "summary_en": "Delegate approvals to a classifier with auto mode, whitelist specific commands with /permissions, and use /sandbox for OS-level isolation.",
           "content": "デフォルトでは、Claude Code はシステムを変更する可能性のあるアクション（ファイル書き込み、Bash コマンド、MCP ツールなど）の許可をリクエストします。これは安全ですが煩わしく、10回目の承認の頃にはもうレビューしておらず、ただクリックしているだけです。これらの中断を減らすには3つの方法があります。\n\nAuto mode：別のクラシファイアモデルがコマンドをレビューし、リスクの高いもの（スコープのエスカレーション、不明なインフラストラクチャ、敵対的コンテンツ駆動のアクション）のみをブロックします。タスクの全体的な方向性を信頼しているが、すべてのステップをクリックしたくない場合に最適です。\n\nパーミッション許可リスト：安全であることがわかっている特定のツール（npm run lint や git commit など）を許可します。\n\nサンドボックス：ファイルシステムとネットワークアクセスを制限する OS レベルの分離を有効にし、定義された境界内で Claude がより自由に動作できるようにします。",
+          "content_en": "By default, Claude Code requests permission for any action that could modify your system (file writes, Bash commands, MCP tools, etc.). This is safe but tedious — by the 10th approval you're no longer reviewing, just clicking. There are three ways to reduce these interruptions.\n\nAuto mode: A separate classifier model reviews commands and blocks only the high-risk ones (scope escalation, unknown infrastructure, adversarial-content-driven actions). Best when you trust the overall direction of the task but don't want to click through every step.\n\nPermission allowlist: Allow specific tools you know are safe, such as npm run lint or git commit.\n\nSandbox: Enable OS-level isolation that restricts filesystem and network access, letting Claude operate more freely within defined boundaries.",
           "tags": [],
           "tips": [
             "auto mode でクラシファイアモデルに承認を任せる — タスクの方向性を信頼しつつ毎ステップのクリックを省略（v2.1.142 以降、defaultMode: \"auto\" はプロジェクト設定では無視されるため ~/.claude/settings.json に設定すること）",
             "/permissions で安全なコマンドをホワイトリストに登録",
             "/sandbox で OS レベルの分離を有効にする",
             "Windows で PowerShell ツールを使う場合、Bash と同様に permission モードで自動承認可能（v2.1.119）"
+          ],
+          "tips_en": [
+            "Delegate approvals to a classifier model with auto mode — trust the task direction without clicking through every step (from v2.1.142, defaultMode: \"auto\" is ignored in project settings; set it in ~/.claude/settings.json)",
+            "Whitelist safe commands with /permissions",
+            "Enable OS-level isolation with /sandbox",
+            "On Windows, PowerShell tools can be auto-approved in permission mode just like Bash (v2.1.119)"
           ]
         },
         {
           "id": "cli-tools",
           "title": "CLI ツールを使用する",
+          "title_en": "Use CLI tools",
           "summary": "gh、aws、gcloud、sentry-cli などの CLI ツールで外部サービスと対話する。",
+          "summary_en": "Interact with external services using CLI tools like gh, aws, gcloud, and sentry-cli.",
           "content": "CLI ツールは、外部サービスと対話する最もコンテキスト効率的な方法です。GitHub を使用する場合は、gh CLI をインストールします。Claude は、問題の作成、プルリクエストのオープン、コメントの読み取りにそれを使用する方法を知っています。\n\nClaude は、既に知らない CLI ツールを学ぶのにも効果的です。「Use 'foo-cli-tool --help' to learn about foo tool, then use it to solve A, B, C.」のようなプロンプトを試してください。",
+          "content_en": "CLI tools are the most context-efficient way to interact with external services. If you use GitHub, install the gh CLI. Claude knows how to use it to create issues, open pull requests, and read comments.\n\nClaude is also effective at learning CLI tools it doesn't already know. Try a prompt like: \"Use 'foo-cli-tool --help' to learn about foo tool, then use it to solve A, B, C.\"",
           "tags": []
         },
         {
           "id": "mcp-servers",
           "title": "MCP サーバーを接続する",
+          "title_en": "Connect MCP servers",
           "summary": "claude mcp add で Notion、Figma、データベースなどの外部ツールを接続する。",
+          "summary_en": "Connect external tools like Notion, Figma, and databases with claude mcp add.",
           "content": "MCP サーバーを使用すると、Claude に問題トラッカーから機能を実装したり、データベースをクエリしたり、監視データを分析したり、Figma からデザインを統合したり、ワークフローを自動化したりするよう依頼できます。",
+          "content_en": "With MCP servers, you can ask Claude to implement features from your issue tracker, query databases, analyze monitoring data, integrate designs from Figma, and automate workflows.",
           "tags": []
         },
         {
           "id": "hooks",
           "title": "フックを設定する",
+          "title_en": "Set up hooks",
           "summary": "例外なく毎回実行する必要があるアクションにはフックを使用する。CLAUDE.md の指示は勧告的、フックは決定的。",
+          "summary_en": "Use hooks for actions that must run every time without exception. CLAUDE.md instructions are advisory; hooks are deterministic.",
           "content": "フックは Claude のワークフローの特定のポイントで自動的にスクリプトを実行します。CLAUDE.md の指示は勧告的ですが、フックは決定的で、アクションが確実に実行されることを保証します。\n\nClaude はあなたのためにフックを書くことができます。「すべてのファイル編集後に eslint を実行するフックを書く」や「migrations フォルダへの書き込みをブロックするフックを書く」のようなプロンプトを試してください。/hooks を実行して対話的に設定するか、.claude/settings.json を直接編集します。",
+          "content_en": "Hooks run scripts automatically at specific points in Claude's workflow. CLAUDE.md instructions are advisory, but hooks are deterministic — they guarantee that an action will be executed.\n\nClaude can write hooks for you. Try prompts like \"write a hook to run eslint after every file edit\" or \"write a hook to block writes to the migrations folder\". Run /hooks to configure interactively, or edit .claude/settings.json directly.",
           "tags": []
         },
         {
           "id": "skills",
           "title": "スキルを作成する",
+          "title_en": "Create skills",
           "summary": ".claude/skills/ に SKILL.md を作成して、ドメイン知識と再利用可能なワークフローを与える。",
+          "summary_en": "Create a SKILL.md in .claude/skills/ to give Claude domain knowledge and reusable workflows.",
           "content": "スキルは、プロジェクト、チーム、またはドメイン固有の情報で Claude の知識を拡張します。Claude は関連するときに自動的にそれらを適用するか、/skill-name で直接呼び出すことができます。\n\n.claude/skills/ に SKILL.md を持つディレクトリを追加してスキルを作成します。スキルは、直接呼び出す再利用可能なワークフローを定義することもできます。副作用のあるワークフローで手動でトリガーしたい場合は、disable-model-invocation: true を使用します。",
+          "content_en": "Skills extend Claude's knowledge with project-, team-, or domain-specific information. Claude can apply them automatically when relevant, or you can invoke them directly with /skill-name.\n\nCreate a skill by adding a directory with a SKILL.md to .claude/skills/. Skills can also define reusable workflows to invoke directly. Use disable-model-invocation: true for workflows with side effects that you want to trigger manually.",
           "tags": [],
           "code": "---\nname: api-conventions\ndescription: REST API design conventions for our services\n---\n# API Conventions\n- Use kebab-case for URL paths\n- Use camelCase for JSON properties\n- Always include pagination for list endpoints\n- Version APIs in the URL path (/v1/, /v2/)"
         },
         {
           "id": "subagents",
           "title": "カスタム Subagents を作成する",
+          "title_en": "Create custom subagents",
           "summary": ".claude/agents/ に特化したアシスタントを定義して、分離されたタスクに委譲できるようにする。",
+          "summary_en": "Define specialized assistants in .claude/agents/ to delegate isolated tasks.",
           "content": "Subagents は独自のコンテキストと独自のツールセットで実行されます。メインの会話を乱さずに、多くのファイルを読み取ったり、特化した焦点が必要なタスクに役立ちます。\n\nClaude に subagents を明示的に使用するよう指示します：「このコードをセキュリティの問題についてレビューするために subagent を使用する」",
+          "content_en": "Subagents run with their own context and their own toolset. They're useful for reading many files or for tasks that need a specialized focus without cluttering the main conversation.\n\nExplicitly instruct Claude to use subagents: \"Use a subagent to review this code for security issues.\"",
           "tags": [],
           "code": "---\nname: security-reviewer\ndescription: Reviews code for security vulnerabilities\ntools: Read, Grep, Glob, Bash\nmodel: opus\n---\nYou are a senior security engineer. Review code for:\n- Injection vulnerabilities (SQL, XSS, command injection)\n- Authentication and authorization flaws\n- Secrets or credentials in code\n- Insecure data handling",
           "tips": [
             "`--agent <name>` でメインスレッドをエージェント定義として起動すると、エージェントの `permissionMode`・`tools:`・`disallowedTools:`・`mcpServers` が尊重される（v2.1.117-119 で組み込みエージェント含め整備）",
             "`CLAUDE_CODE_FORK_SUBAGENT=1` を設定すると、外部ビルドでもフォーク型サブエージェントが有効化でき、重いタスクを親セッションから分離してレスポンス性能を保てる（v2.1.117。SDK および claude -p 非インタラクティブセッションへの対応は v2.1.121 で追加）"
+          ],
+          "tips_en": [
+            "Starting the main thread with `--agent <name>` respects the agent's `permissionMode`, `tools:`, `disallowedTools:`, and `mcpServers` (including built-in agents; fully in place from v2.1.117-119)",
+            "Setting `CLAUDE_CODE_FORK_SUBAGENT=1` enables fork-based subagents in external builds, isolating heavy tasks from the parent session to maintain responsiveness (v2.1.117; SDK and claude -p non-interactive session support added in v2.1.121)"
           ]
         },
         {
           "id": "plugins",
           "title": "プラグインをインストールする",
+          "title_en": "Install plugins",
           "summary": "/plugin でマーケットプレイスを参照。スキル、ツール、統合を設定なしで追加できる。",
+          "summary_en": "Browse the marketplace with /plugin. Add skills, tools, and integrations without configuration.",
           "content": "プラグインは、コミュニティと Anthropic からの単一のインストール可能なユニットにスキル、フック、subagents、MCP サーバーをバンドルします。型付き言語で作業する場合は、コードインテリジェンスプラグインをインストールして、Claude に正確なシンボルナビゲーションと編集後の自動エラー検出を提供します。\n\nスキル、subagents、フック、MCP のどれを選ぶべきかについては Extend Claude Code のガイドを参照してください。",
+          "content_en": "Plugins bundle skills, hooks, subagents, and MCP servers into a single installable unit from the community and Anthropic. If you work in a typed language, install the code intelligence plugin to give Claude accurate symbol navigation and automatic error detection after edits.\n\nSee the Extend Claude Code guide for advice on when to choose skills, subagents, hooks, or MCP.",
           "tags": []
         },
         {
           "id": "notification-hooks",
           "title": "通知フックを設定する",
+          "title_en": "Set up notification hooks",
           "summary": "Claude が注意を必要とするときにデスクトップ通知を受け取る。Notification フックイベントを設定する。",
+          "summary_en": "Receive desktop notifications when Claude needs your attention. Configure Notification hook events.",
           "content": "長時間のタスクを開始して別のウィンドウに切り替えたとき、Claude が完了したか入力を必要としているかを知るためにデスクトップ通知を設定できます。Notification フックイベントは、Claude がパーミッション待ち、アイドル状態で新しいプロンプトを待っている、認証完了時に発火します。\n\n~/.claude/settings.json に Notification フックを追加し、プラットフォームのネイティブ通知コマンドを呼び出します。matcher フィールドで発火するイベントを絞り込めます。\n\n/hooks で Notification を選択して、フックが正しく設定されていることを確認できます。",
+          "content_en": "When you start a long-running task and switch to another window, you can set up desktop notifications to know whether Claude has finished or needs input. Notification hook events fire when Claude is waiting on a permission, idling for a new prompt, or when authentication completes.\n\nAdd a Notification hook to ~/.claude/settings.json and call your platform's native notification command. Use the matcher field to filter which events trigger the hook.\n\nSelect Notification in /hooks to verify your hooks are configured correctly.",
           "tags": [],
           "tips": [
             "macOS: osascript -e 'display notification ...' で通知",
@@ -316,6 +487,13 @@
             "Windows: PowerShell の System.Windows.Forms.MessageBox で通知",
             "matcher を permission_prompt（ツール承認待ち）/ idle_prompt（次のプロンプト待ち）/ auth_success（認証完了）/ elicitation_dialog（MCP サーバーがユーザー入力を要求しているとき）/ elicitation_complete（elicitation 完了時）/ elicitation_response（ユーザーが elicitation に応答したとき）で絞り込み可能",
             "/hooks で設定済みフックを確認"
+          ],
+          "tips_en": [
+            "macOS: notify with osascript -e 'display notification ...'",
+            "Linux: notify with notify-send",
+            "Windows: notify with System.Windows.Forms.MessageBox in PowerShell",
+            "Filter with matcher: permission_prompt (waiting for tool approval) / idle_prompt (waiting for next prompt) / auth_success (authentication complete) / elicitation_dialog (MCP server requesting user input) / elicitation_complete (elicitation done) / elicitation_response (user responded to elicitation)",
+            "Verify configured hooks in /hooks"
           ]
         }
       ]
@@ -323,13 +501,18 @@
     {
       "id": "session-management",
       "name": "セッション管理",
+      "name_en": "Session Management",
       "description": "会話は永続的で可逆的。これを有利に使う",
+      "description_en": "Conversations are persistent and reversible. Use this to your advantage.",
       "items": [
         {
           "id": "course-correct",
           "title": "早期かつ頻繁にコース修正する",
+          "title_en": "Course-correct early and often",
           "summary": "Claude が軌道を外れていることに気付いたらすぐに修正する。タイトなフィードバックループが最良の結果を生む。",
+          "summary_en": "Correct Claude as soon as you notice it going off track. Tight feedback loops produce the best results.",
           "content": "最良の結果は、タイトなフィードバックループから来ます。Claude が時々最初の試みで問題を完全に解決しますが、迅速に修正することは一般的により良い解決策をより速く生成します。\n\n同じ問題で2回以上修正した場合、コンテキストは失敗したアプローチで乱雑になっています。/clear を実行し、学んだことを組み込んだより具体的なプロンプトで新しく開始します。よりよいプロンプトでのクリーンなセッションは、蓄積された修正を含む長いセッションをほぼ常に上回ります。",
+          "content_en": "The best results come from tight feedback loops. Claude occasionally solves a problem completely on the first try, but correcting quickly generally produces better solutions faster.\n\nIf you have corrected the same problem more than twice, the context is cluttered with failed approaches. Run /clear and start fresh with a more specific prompt that incorporates what you learned. A clean session with a better prompt almost always outperforms a long session full of accumulated corrections.",
           "tags": [],
           "tips": [
             "Esc — Claude の中途半端なアクションを停止。コンテキストは保持されるためリダイレクト可能",
@@ -337,13 +520,23 @@
             "チェックポイント選択後に「Summarize from here」（以降を圧縮）または「Summarize up to here」（以前を圧縮）を選ぶと、会話を部分的にコンパクトにできる（完全なリセットなしでコンテキストを節約）",
             "\"Undo that\" — Claude に変更を元に戻すよう依頼",
             "/clear — 関連のないタスク間でコンテキストをリセット"
+          ],
+          "tips_en": [
+            "Esc — stop Claude mid-action; context is retained so you can redirect",
+            "Esc + Esc / /rewind — open the rewind menu to restore a previous conversation and code state",
+            "After selecting a checkpoint, choose 'Summarize from here' (compact what follows) or 'Summarize up to here' (compact what precedes) to partially compact the conversation and save context without a full reset",
+            "\"Undo that\" — ask Claude to revert its changes",
+            "/clear — reset context between unrelated tasks"
           ]
         },
         {
           "id": "manage-context",
           "title": "コンテキストを積極的に管理する",
+          "title_en": "Actively manage context",
           "summary": "/clear を頻繁に実行して、関連のないタスク間でコンテキストウィンドウをリセットする。",
+          "summary_en": "Run /clear frequently to reset the context window between unrelated tasks.",
           "content": "Claude Code は、コンテキスト制限に近づくと、会話履歴を自動的にコンパクトにします。長いセッション中に、コンテキストウィンドウは関連のない会話、ファイルの内容、コマンドで満杯になる可能性があります。\n\n1つのセッションで同じ問題について2回以上 Claude を修正した場合、コンテキストは失敗したアプローチで乱雑です。/clear を実行し、学んだことを組み込んだより具体的なプロンプトで新しく開始します。",
+          "content_en": "Claude Code automatically compacts conversation history as it approaches the context limit. During long sessions, the context window can fill with unrelated conversations, file contents, and commands.\n\nIf you have corrected Claude on the same problem more than twice in a single session, the context is cluttered with failed approaches. Run /clear and start fresh with a more specific prompt that incorporates what you learned.",
           "tags": [],
           "tips": [
             "タスク間で頻繁に /clear を使用してコンテキストウィンドウを完全にリセット",
@@ -352,28 +545,45 @@
             "/compact <instructions> でより制御された要約が可能。例：/compact Focus on the API changes",
             "CLAUDE.md でコンパクション動作をカスタマイズ可能 — 例：\"When compacting, always preserve the full list of modified files and any test commands\"",
             "/btw でサイドクエスチョンを投げる — 回答はオーバーレイに表示され会話履歴に入らないため、コンテキストを増やさずに詳細を確認できる"
+          ],
+          "tips_en": [
+            "Use /clear frequently between tasks to fully reset the context window",
+            "After selecting a checkpoint via Esc + Esc / /rewind, use 'Summarize from here' to compact what follows or 'Summarize up to here' to compact what precedes",
+            "When auto-compaction triggers, Claude summarizes the most important items — code patterns, file state, key decisions",
+            "/compact <instructions> enables more controlled summarization. Example: /compact Focus on the API changes",
+            "Customize compaction behavior in CLAUDE.md — e.g., \"When compacting, always preserve the full list of modified files and any test commands\"",
+            "Use /btw to ask side questions — the answer appears in an overlay and does not enter the conversation history, so you can check details without growing context"
           ]
         },
         {
           "id": "use-subagents",
           "title": "調査に Subagents を使用する",
+          "title_en": "Use subagents for investigation",
           "summary": "\"use subagents to investigate X\" で研究を委譲。別コンテキストで探索し、メインの会話をクリーンに保つ。",
+          "summary_en": "Delegate research with \"use subagents to investigate X\". Explore in a separate context and keep the main conversation clean.",
           "content": "コンテキストが基本的な制約であるため、subagents は利用可能な最も強力なツールの1つです。Claude がコードベースを研究するとき、多くのファイルを読み取り、すべてがコンテキストを消費します。Subagents は別のコンテキストウィンドウで実行され、概要を報告します。\n\nClaude が何かを実装した後、検証に subagents を使用することもできます。「use a subagent to review this code for edge cases」",
+          "content_en": "Because context is a fundamental constraint, subagents are one of the most powerful tools available. When Claude researches a codebase it reads many files, all of which consume context. Subagents run in a separate context window and report back a summary.\n\nYou can also use subagents for verification after Claude has implemented something: \"use a subagent to review this code for edge cases\"",
           "tags": [],
           "code": "Use subagents to investigate how our authentication system handles token\nrefresh, and whether we have any existing OAuth utilities I should reuse."
         },
         {
           "id": "rewind-checkpoints",
           "title": "チェックポイントでリワインドする",
+          "title_en": "Rewind with checkpoints",
           "summary": "すべてのアクションはチェックポイントを作成。Escape ダブルタップか /rewind でチェックポイントメニューを開く。",
+          "summary_en": "Every action creates a checkpoint. Double-tap Escape or run /rewind to open the checkpoint menu.",
           "content": "Claude は変更前に自動的にチェックポイントします。Escape をダブルタップするか、/rewind を実行してチェックポイントメニューを開きます。会話のみを復元（コード変更を保持）、コードのみを復元（会話を保持）、または両方を復元できます。\n\n「Summarize from here」（選択ポイント以降を要約）と「Summarize up to here」（選択ポイント以前を要約、v2.1.149〜）の2つの圧縮オプションも利用できます。前者は以降の会話をサマリーに置換し過去の文脈を保持、後者は以前の会話をサマリーに置換し以降の会話をそのまま保持します。\n\nすべての動きを慎重に計画する代わりに、Claude に何か危険なことを試すよう指示できます。うまくいかない場合は、リワインドして別のアプローチを試してください。チェックポイントはセッション間で永続するため、ターミナルを閉じても後でリワインドできます。\n\n注意：チェックポイントは Claude が行った変更のみを追跡します。外部プロセスではありません。git の代替ではありません。",
+          "content_en": "Claude automatically checkpoints before making changes. Double-tap Escape or run /rewind to open the checkpoint menu. You can restore only the conversation (keeping code changes), only the code (keeping the conversation), or both.\n\nTwo compaction options are also available: 'Summarize from here' (summarize everything after the selected point) and 'Summarize up to here' (summarize everything before the selected point, available since v2.1.149). The former replaces subsequent conversation with a summary while retaining past context; the latter replaces prior conversation with a summary while retaining subsequent conversation as-is.\n\nInstead of planning every move carefully, you can instruct Claude to try something risky. If it doesn't work, rewind and try a different approach. Checkpoints persist across sessions, so you can rewind later even after closing the terminal.\n\nNote: checkpoints track only changes Claude made — not external processes. They are not a replacement for git.",
           "tags": []
         },
         {
           "id": "resume-conversations",
           "title": "会話を再開する",
+          "title_en": "Resume conversations",
           "summary": "claude --continue で中断したところから再開。--resume で最近のセッションから選択。--from-pr で PR にリンクされたセッションを再開。",
+          "summary_en": "Use claude --continue to pick up where you left off. Use --resume to choose from recent sessions. Use --from-pr to resume a session linked to a PR.",
           "content": "Claude Code はローカルに会話を保存します。タスクが複数のセッションにまたがる場合、コンテキストを再度説明する必要はありません。\n\n/rename を使用してセッションに説明的な名前を付けます（\"oauth-migration\"、\"debugging-memory-leak\"）。後で見つけやすくするために。セッションをブランチのように扱います。異なるワークストリームは、別の永続的なコンテキストを持つことができます。\n\ngh pr create で PR を作成すると、セッションは自動的にその PR にリンクされます。後で claude --from-pr <number> で再開できます。\n\nセッションピッカー（/resume）では、矢印キーで移動、P でプレビュー、R でリネーム、/ で検索、A で全プロジェクト表示切り替え、B で現在のブランチのセッションをフィルタできます。",
+          "content_en": "Claude Code saves conversations locally. When a task spans multiple sessions, you don't need to re-explain the context.\n\nUse /rename to give sessions descriptive names (\"oauth-migration\", \"debugging-memory-leak\") so you can find them later. Treat sessions like branches — different workstreams can each have their own persistent context.\n\nWhen you create a PR with gh pr create, the session is automatically linked to that PR. You can resume it later with claude --from-pr <number>.\n\nIn the session picker (/resume), use arrow keys to navigate, Space to preview, Ctrl+R to rename, / to search, Ctrl+A to toggle all-projects view, and Ctrl+B to filter sessions for the current branch.",
           "tags": [],
           "tips": [
             "claude --continue で直近の会話を再開",
@@ -381,13 +591,23 @@
             "claude --from-pr 123 で PR にリンクされたセッションを再開",
             "claude -n auth-refactor で起動時にセッション名を設定",
             "/resume ピッカーで Space=プレビュー、Ctrl+R=リネーム、Ctrl+B=ブランチフィルタ、Ctrl+A=全プロジェクト表示"
+          ],
+          "tips_en": [
+            "claude --continue to resume the most recent conversation",
+            "claude --resume to choose from recent conversations (name argument also accepted)",
+            "claude --from-pr 123 to resume a session linked to a PR",
+            "claude -n auth-refactor to set the session name at launch",
+            "In /resume picker: Space=preview, Ctrl+R=rename, Ctrl+B=branch filter, Ctrl+A=all-projects view"
           ]
         },
         {
           "id": "extended-thinking",
           "title": "拡張思考（thinking mode）を活用する",
+          "title_en": "Leverage extended thinking (thinking mode)",
           "summary": "デフォルトで有効。effort レベルで思考の深さを調整、ultrathink で一時的に高い推論を実行。",
+          "summary_en": "Enabled by default. Adjust thinking depth with the effort level; use ultrathink for temporarily deeper reasoning.",
           "content": "拡張思考はデフォルトで有効であり、Claude が複雑な問題をステップバイステップで推論してから応答する余地を与えます。Ctrl+O で verbose モードに切り替えると、内部推論を灰色のイタリックテキストとして確認できます。\n\nOpus 4.6 と Sonnet 4.6 は adaptive reasoning をサポートし、固定の thinking トークンバジェットの代わりに effort レベルに基づいて動的に thinking を割り当てます。\n\nOpus 4.7 ではさらに進んで、固定の拡張思考バジェットはサポートされず、モデルが各ステップで文脈に応じて思考の要否を自律判断します。詳細は「Opus 4.7 のコツ」セクションの「適応的思考を制御する」を参照してください。\n\n複雑なアーキテクチャ決定、難しいバグ、マルチステップの実装計画、異なるアプローチ間のトレードオフ評価に特に有用です。\n\n「think」「think hard」「think more」などのフレーズは通常のプロンプト指示として解釈され、thinking トークンを割り当てません。",
+          "content_en": "Extended thinking is enabled by default, giving Claude room to reason through complex problems step by step before responding. Switch to verbose mode with Ctrl+O to see the internal reasoning as grey italic text.\n\nOpus 4.6 and Sonnet 4.6 support adaptive reasoning, dynamically allocating thinking based on effort level rather than a fixed thinking-token budget.\n\nOpus 4.7 goes further — fixed extended-thinking budgets are not supported, and the model autonomously decides whether thinking is needed at each step based on context. See 'Control adaptive thinking' in the 'Opus 4.7 Tips' section for details.\n\nExtended thinking is particularly useful for complex architecture decisions, tricky bugs, multi-step implementation planning, and evaluating trade-offs between approaches.\n\nPhrases like 'think', 'think hard', and 'think more' are interpreted as ordinary prompt instructions and do not allocate thinking tokens.",
           "tags": [],
           "tips": [
             "/effort で思考の深さを調整、または /model 内で設定",
@@ -396,6 +616,14 @@
             "/config でグローバルデフォルトの thinking モードを設定",
             "MAX_THINKING_TOKENS 環境変数で thinking バジェットを制限可能（Opus 4.6 / Sonnet 4.6 の固定バジェットモード限定。Opus 4.7 以降は adaptive thinking のため無効）",
             "Pro/Max サブスクライバーの Opus 4.6/Sonnet 4.6 のデフォルト effort は `high`（v2.1.117 で medium から引き上げ）"
+          ],
+          "tips_en": [
+            "Adjust thinking depth with /effort or within /model",
+            "Adding 'ultrathink' to a prompt adds an in-context instruction requesting deeper reasoning for that turn (the effort level sent to the API itself does not change)",
+            "Toggle thinking on/off with Option+T (macOS) / Alt+T (Windows/Linux) — since v2.1.132, Option+T on macOS works without the 'Option as Meta' setting",
+            "Set the global default thinking mode in /config",
+            "Limit the thinking budget with the MAX_THINKING_TOKENS environment variable (fixed-budget mode only for Opus 4.6 / Sonnet 4.6; ineffective for Opus 4.7+ due to adaptive thinking)",
+            "Default effort for Pro/Max subscribers on Opus 4.6/Sonnet 4.6 is `high` (raised from medium in v2.1.117)"
           ]
         }
       ]
@@ -403,21 +631,29 @@
     {
       "id": "scaling",
       "name": "自動化とスケール",
+      "name_en": "Automation and Scale",
       "description": "並列セッション、ヘッドレスモード、ファンアウトパターンで出力を乗算",
+      "description_en": "Multiply output with parallel sessions, headless mode, and fan-out patterns.",
       "items": [
         {
           "id": "headless-mode",
           "title": "ヘッドレスモードを実行する",
+          "title_en": "Run headless mode",
           "summary": "CI やスクリプトで claude -p \"prompt\" を使用。ストリーミング JSON 出力には --output-format stream-json を追加。",
+          "summary_en": "Use claude -p \"prompt\" in CI and scripts. Add --output-format stream-json for streaming JSON output.",
           "content": "claude -p \"your prompt\" を使用すると、対話的なセッションなしで Claude をヘッドレスで実行できます。CI パイプライン、プリコミットフック、または自動ワークフローに統合する方法です。出力形式（プレーンテキスト、JSON、ストリーミング JSON）により、結果をプログラムで解析できます。",
+          "content_en": "Use claude -p \"your prompt\" to run Claude headlessly without an interactive session. This is how you integrate Claude into CI pipelines, pre-commit hooks, or automated workflows. Output formats (plain text, JSON, streaming JSON) let you parse results programmatically.",
           "tags": [],
           "code": "# ワンオフクエリ\nclaude -p \"Explain what this project does\"\n\n# スクリプト用の構造化出力\nclaude -p \"List all API endpoints\" --output-format json\n\n# リアルタイム処理用のストリーミング\nclaude -p \"Analyze this log file\" --output-format stream-json"
         },
         {
           "id": "parallel-sessions",
           "title": "複数の Claude セッションを並列で実行する",
+          "title_en": "Run multiple Claude sessions in parallel",
           "summary": "開発を高速化し、分離された実験を実行するか、Writer/Reviewer パターンで品質を向上させる。",
+          "summary_en": "Accelerate development, run isolated experiments, or improve quality with the Writer/Reviewer pattern.",
           "content": "並列セッションを実行するには3つの主な方法があります。\n\nClaude Code デスクトップアプリ：複数のローカルセッションを視覚的に管理。各セッションは独自の分離されたワークツリーを取得。\n\nClaude Code on the web：Anthropic のセキュアなクラウドインフラストラクチャ上の分離された VM で実行。\n\nAgent teams：共有タスク、メッセージング、チームリーダーを持つ複数のセッションの自動調整。\n\n作業の並列化に加えて、複数のセッションは品質に焦点を当てたワークフローを有効にします。新しいコンテキストは Claude がちょうど書いたコードに偏らないため、コードレビューを改善します。例えば、Writer/Reviewer パターンでは1つのセッションでコードを書き、別のセッションでレビューを行います。テストでも同様に、1つの Claude にテストを書かせ、別の Claude にそれをパスするコードを書かせることができます。",
+          "content_en": "There are three main ways to run parallel sessions.\n\nClaude Code desktop app: visually manage multiple local sessions; each session gets its own isolated worktree.\n\nClaude Code on the web: runs on isolated VMs on Anthropic's secure cloud infrastructure.\n\nAgent teams: automated coordination of multiple sessions with shared tasks, messaging, and a team leader.\n\nIn addition to parallelizing work, multiple sessions enable quality-focused workflows. A fresh context is not biased toward code Claude just wrote, which improves code review. For example, in the Writer/Reviewer pattern one session writes the code and another reviews it. The same applies to testing — have one Claude write the tests and another write the code to pass them.",
           "tags": [],
           "writerReviewer": {
             "writer": [
@@ -432,8 +668,11 @@
         {
           "id": "git-worktrees",
           "title": "Git Worktrees で並列セッションを実行する",
+          "title_en": "Run parallel sessions with Git Worktrees",
           "summary": "--worktree フラグで分離されたワークツリーを作成し、複数タスクの同時作業で変更が衝突しないようにする。",
+          "summary_en": "Create isolated worktrees with the --worktree flag so changes don't conflict when working on multiple tasks simultaneously.",
           "content": "複数タスクを同時に作業する場合、各 Claude セッションが独自のコードベースコピーを持つことで変更の衝突を防ぎます。Git worktrees は同じリポジトリ履歴とリモート接続を共有しながら、独自のファイルとブランチを持つ作業ディレクトリを作成します。\n\n--worktree（-w）フラグで分離されたワークツリーを作成し、Claude をその中で起動します。渡した値がワークツリーのディレクトリ名とブランチ名になります。名前を省略するとランダムな名前が自動生成されます。\n\nワークツリーは <repo>/.claude/worktrees/<name> に作成され、origin/HEAD が指すデフォルトのリモートブランチから分岐します。origin/HEAD はクローン時に Git が一度だけ設定するローカル参照で、リモートのデフォルトブランチが後で変わっても自動更新されません。同期するには git remote set-head origin -a を実行してください。特定のブランチをベースにしたい場合は git remote set-head origin your-branch-name を使用します。呼び出しごとに異なるベースを指定するには WorktreeCreate フックを設定します。\n\nSubagents も isolation: worktree で worktree 分離を使用できます。各 subagent は独自のワークツリーを取得し、変更なしで終了した場合は自動クリーンアップされます。\n\nワークツリーセッションを終了すると、変更がない場合は自動的にクリーンアップされ、変更やコミットがある場合は保持または削除を選択できます。保持するとディレクトリとブランチが維持され、削除するとワークツリーディレクトリとブランチが削除されて未コミットの変更とコミットがすべて破棄されます。\n\nGit worktrees はフレッシュチェックアウトのため、.env や .env.local のような gitignore されたファイルは含まれません。ワークツリー作成時にこれらを自動コピーするには、プロジェクトルートに .worktreeinclude ファイルを追加します。.gitignore 構文でコピー対象のパターンを指定し、パターンにマッチしかつ gitignore されたファイルだけがコピーされます。--worktree、subagent worktrees、デスクトップアプリの並列セッションすべてに適用されます。\n\nGit 以外のバージョン管理（SVN、Perforce、Mercurial）では、WorktreeCreate と WorktreeRemove フックを設定してカスタムのワークツリー作成・クリーンアップロジックを提供できます。設定すると --worktree 使用時にデフォルトの Git 動作を置き換えるため、.worktreeinclude は処理されません。フックスクリプト内でローカル設定ファイルのコピーを行ってください。",
+          "content_en": "When working on multiple tasks simultaneously, giving each Claude session its own copy of the codebase prevents change conflicts. Git worktrees create working directories with their own files and branch while sharing the same repository history and remote connection.\n\nUse the --worktree (-w) flag to create an isolated worktree and launch Claude inside it. The value you pass becomes both the worktree directory name and the branch name. If you omit a name, one is generated automatically.\n\nWorktrees are created at <repo>/.claude/worktrees/<name> and branch from the default remote branch that origin/HEAD points to. origin/HEAD is a local reference Git sets once at clone time and does not auto-update if the remote default branch changes later. Run git remote set-head origin -a to sync it. To base a worktree on a specific branch use git remote set-head origin your-branch-name. To specify a different base per invocation, configure a WorktreeCreate hook.\n\nSubagents can also use worktree isolation with isolation: worktree. Each subagent gets its own worktree and is auto-cleaned up if it exits without changes.\n\nWhen a worktree session ends, it is automatically cleaned up if there are no changes. If there are changes or commits you can choose to keep or delete it. Keeping preserves the directory and branch; deleting removes the worktree directory and branch and discards all uncommitted changes and commits.\n\nBecause Git worktrees are fresh checkouts, gitignored files such as .env and .env.local are not included. To auto-copy these on worktree creation, add a .worktreeinclude file to the project root. Specify copy patterns in .gitignore syntax — only files that match a pattern AND are gitignored are copied. Applies to --worktree, subagent worktrees, and desktop-app parallel sessions.\n\nFor non-Git version control (SVN, Perforce, Mercurial), configure WorktreeCreate and WorktreeRemove hooks to provide custom worktree creation and cleanup logic. When configured, they replace the default Git behavior when --worktree is used, so .worktreeinclude is not processed — handle local config file copying inside the hook scripts.",
           "tags": [],
           "tips": [
             "claude --worktree feature-auth で名前付きワークツリーを作成",
@@ -446,45 +685,78 @@
             ".worktreeinclude ファイルで .env 等の gitignore ファイルをワークツリーに自動コピー",
             "git remote set-head origin -a でリモートのデフォルトブランチとローカル origin/HEAD を同期",
             "WorktreeCreate フックで呼び出しごとに異なるベースブランチを指定可能"
+          ],
+          "tips_en": [
+            "claude --worktree feature-auth to create a named worktree",
+            "claude --worktree to create an auto-named worktree",
+            "claude --worktree \"#1234\" to specify a PR number, fetch that PR's HEAD, and create a worktree (placed at .claude/worktrees/pr-1234)",
+            "Set worktree.baseRef to \"head\" in settings.json to branch from local HEAD instead of origin/HEAD (since v2.1.133)",
+            "Add isolation: worktree to a subagent's frontmatter to use worktree isolation",
+            "Add .claude/worktrees/ to .gitignore to keep the main repo clean",
+            "You can also ask 'work in a worktree' during a session to auto-create one",
+            "Use a .worktreeinclude file to auto-copy .env and other gitignored files into worktrees",
+            "Run git remote set-head origin -a to sync the remote default branch with local origin/HEAD",
+            "Use a WorktreeCreate hook to specify a different base branch per invocation"
           ]
         },
         {
           "id": "auto-mode",
           "title": "Auto mode で自律実行する",
+          "title_en": "Run autonomously with auto mode",
           "summary": "バックグラウンドの安全チェック付きで中断なしに実行。クラシファイアモデルがコマンドを事前レビューし、リスクの高い操作のみブロック。",
+          "summary_en": "Run without interruptions backed by background safety checks. A classifier model pre-reviews commands and blocks only high-risk operations.",
           "content": "中断なしの実行にバックグラウンドの安全チェックを組み合わせるには、auto mode を使用します。クラシファイアモデルがコマンド実行前にレビューし、スコープのエスカレーション、不明なインフラストラクチャ、敵対的コンテンツ駆動のアクションをブロックしつつ、通常の作業はプロンプトなしで進行させます。\n\n-p フラグを使用したヘッドレス実行では、クラシファイアが繰り返しアクションをブロックした場合、フォールバックするユーザーがいないため auto mode は中止されます。\n\nv2.1.111 以降、Anthropic API では `--enable-auto-mode` フラグは不要です。Bedrock / Vertex AI / Foundry を使う場合は環境変数 `CLAUDE_CODE_ENABLE_AUTO_MODE=1` のオプトインが必要です。",
+          "content_en": "Use auto mode to combine uninterrupted execution with background safety checks. A classifier model reviews commands before execution, blocking scope escalations, unknown infrastructure, and adversarial-content-driven actions while letting normal work proceed without prompts.\n\nIn headless execution with the -p flag, if the classifier repeatedly blocks an action, auto mode aborts because there is no user to fall back to.\n\nSince v2.1.111, the --enable-auto-mode flag is not required for the Anthropic API. For Bedrock / Vertex AI / Foundry, opt in with the environment variable CLAUDE_CODE_ENABLE_AUTO_MODE=1.",
           "tags": [],
           "code": "claude --permission-mode auto -p \"fix all lint errors\"",
           "tips": [
             "`autoMode.allow` / `autoMode.soft_deny` / `autoMode.environment` に `\"$defaults\"` を含めると、組み込みルールを残したままカスタムルールを追加できる（v2.1.118）",
             "Max サブスクライバーは Opus 4.8 / Opus 4.7 との組み合わせでも auto mode を利用可能（v2.1.111〜）"
+          ],
+          "tips_en": [
+            "Including `\"$defaults\"` in `autoMode.allow` / `autoMode.soft_deny` / `autoMode.environment` lets you add custom rules while keeping the built-in rules (v2.1.118)",
+            "Max subscribers can use auto mode with Opus 4.8 / Opus 4.7 as well (since v2.1.111)"
           ]
         },
         {
           "id": "fan-out",
           "title": "ファイル全体でファンアウトする",
+          "title_en": "Fan out across files",
           "summary": "各タスクに対して claude -p を呼び出すループを実行。--allowedTools でスコープ権限を制限する。",
+          "summary_en": "Run a loop that calls claude -p for each task. Use --allowedTools to restrict permissions to the relevant scope.",
           "content": "大規模な移行や分析の場合、多くの並列 Claude 呼び出し全体で作業を配布できます。\n\n1. タスクリストを生成する — Claude に移行が必要なすべてのファイルをリストするよう依頼\n2. リストをループするスクリプトを書く\n3. いくつかのファイルでテストしてから、スケールで実行する — 最初の2〜3ファイルで何が悪いかに基づいてプロンプトを改善",
+          "content_en": "For large-scale migrations or analyses, you can distribute work across many parallel Claude invocations.\n\n1. Generate a task list — ask Claude to list all files that need to be migrated\n2. Write a script that loops over the list\n3. Test on a few files before running at scale — refine the prompt based on what goes wrong with the first 2–3 files",
           "tags": [],
           "code": "for file in $(cat files.txt); do\n  claude -p \"Migrate $file from React to Vue. Return OK or FAIL.\" \\\n    --allowedTools \"Edit,Bash(git commit *)\"\ndone"
         },
         {
           "id": "scheduled-tasks",
           "title": "スケジュール実行する",
+          "title_en": "Schedule recurring tasks",
           "summary": "定期的なタスク（PR レビュー、依存関係監査、CI チェックなど）を自動実行。クラウド・デスクトップ・GitHub Actions・/loop の4つのオプション。",
+          "summary_en": "Automate recurring tasks (PR reviews, dependency audits, CI checks, etc.). Four options: cloud, desktop, GitHub Actions, and /loop.",
           "content": "定期的に自動実行したいタスク（毎朝のオープン PR レビュー、週次の依存関係監査、夜間の CI 障害チェックなど）を設定できます。タスクを実行する場所に応じてオプションを選択します。\n\nRoutines（クラウドルーティン）：Anthropic 管理のインフラストラクチャで実行。PC がオフでも動作。claude.ai/code/routines で設定、または CLI の /schedule コマンドで作成。スケジュール・API・GitHub イベント（PR オープンなど）の3種類のトリガーを組み合わせ可能。GitHub イベントトリガーは Claude GitHub App のインストールが必要。\n\nDesktop scheduled tasks：デスクトップアプリ経由でローカルマシンで実行。ローカルファイル、ツール、未コミットの変更にアクセスが必要な場合に最適。\n\nGitHub Actions：CI パイプラインで実行。PR オープンなどのリポジトリイベントや cron スケジュールに連動。\n\n/loop：現在の CLI セッション内で実行。セッション終了時にキャンセルされる簡易ポーリング向け。",
+          "content_en": "You can configure tasks you want to run automatically on a recurring basis — such as reviewing open PRs every morning, weekly dependency audits, or nightly CI failure checks. Choose an option based on where you want the task to run.\n\nRoutines (cloud routines): runs on Anthropic-managed infrastructure; works even when your PC is off. Configure at claude.ai/code/routines or create via the /schedule command in the CLI. Supports three trigger types — schedule, API, and GitHub events (e.g., PR opened) — which can be combined. GitHub event triggers require the Claude GitHub App to be installed.\n\nDesktop scheduled tasks: runs on your local machine via the desktop app. Best when you need access to local files, tools, or uncommitted changes.\n\nGitHub Actions: runs in a CI pipeline, triggered by repository events like PR opened or by a cron schedule.\n\n/loop: runs within the current CLI session. For simple polling that can be canceled when the session ends.",
           "tags": [],
           "tips": [
             "CLI で /schedule コマンドを実行すると会話形式で Routines を作成できる（例：/schedule daily PR review at 9am）",
             "スケジュールタスクのプロンプトでは、成功の定義と結果の処理方法を明示する（自律実行のため確認質問ができない）",
             "例：\"needs-review ラベルの付いたオープン PR をレビューし、問題にインラインコメントを残し、#eng-reviews Slack チャンネルにサマリーを投稿する\""
+          ],
+          "tips_en": [
+            "Run the /schedule command in the CLI to create Routines conversationally (e.g., /schedule daily PR review at 9am)",
+            "In scheduled task prompts, explicitly state the definition of success and how to handle results — the task runs autonomously so it cannot ask clarifying questions",
+            "Example: \"Review open PRs with the needs-review label, leave inline comments on issues, and post a summary to the #eng-reviews Slack channel\""
           ]
         },
         {
           "id": "ask-capabilities",
           "title": "Claude に機能について質問する",
+          "title_en": "Ask Claude about its capabilities",
           "summary": "Claude はドキュメントにアクセスでき、自身の機能や制限について質問に回答できる。",
+          "summary_en": "Claude has access to documentation and can answer questions about its own capabilities and limitations.",
           "content": "Claude は自身のドキュメントにビルトインでアクセスしており、機能や制限に関する質問に回答できます。特別なプロンプトは不要で、直接質問するだけで動作します。\n\n使用中のバージョンに関係なく、常に最新の Claude Code ドキュメントにアクセスできます。MCP 統合、エンタープライズ設定、高度なワークフローなどの複雑な機能についても説明できます。",
+          "content_en": "Claude has built-in access to its own documentation and can answer questions about capabilities and limitations. No special prompt is needed — just ask directly.\n\nRegardless of which version you are using, it always has access to the latest Claude Code documentation. It can also explain complex features such as MCP integrations, enterprise configuration, and advanced workflows.",
           "tags": [],
           "tips": [
             "「Claude Code はプルリクエストを作成できますか？」",
@@ -493,6 +765,14 @@
             "「Claude Code で MCP をどのように使用しますか？」",
             "「Claude Code を Amazon Bedrock 向けにどのように設定しますか？」",
             "「Claude Code の制限は何ですか？」"
+          ],
+          "tips_en": [
+            "\"Can Claude Code create pull requests?\"",
+            "\"How does Claude Code handle permissions?\"",
+            "\"What skills are available?\"",
+            "\"How do I use MCP with Claude Code?\"",
+            "\"How do I configure Claude Code for Amazon Bedrock?\"",
+            "\"What are Claude Code's limitations?\""
           ]
         }
       ]
@@ -500,13 +780,18 @@
     {
       "id": "opus-4-7",
       "name": "Opus 4.7 のコツ",
+      "name_en": "Opus 4.7 Tips",
       "description": "Opus 4.7 を最大限活かすためのモデル固有のチューニング",
+      "description_en": "Model-specific tuning to get the most out of Opus 4.7.",
       "items": [
         {
           "id": "opus-4-7-session-structure",
           "title": "インタラクティブセッションを最初のターンで完全指定する",
+          "title_en": "Fully specify interactive sessions in the first turn",
           "summary": "意図・制約・受け入れ基準・関連ファイルを最初のターンにまとめて与える。各ユーザーターンは推論オーバーヘッドを追加する。",
+          "summary_en": "Pack intent, constraints, acceptance criteria, and relevant file locations into the first turn. Each additional user turn adds reasoning overhead.",
           "content": "Opus 4.7 はコーディング、エンタープライズワークフロー、長時間実行エージェントタスクに強いモデルです（後継の Opus 4.8 が現在の最新版）。最初の情報提供が十分に完全であるほど、モデルは推論を乱されずに深く進めます。\n\n各ユーザーターンは推論オーバーヘッドを追加するため、ユーザーインタラクション数を削減します。追加質問はバッチ処理し、必要なコンテキストを一度に提供してください。\n\n長時間実行タスクでは auto mode が特に適合します。Shift+Tab で切り替え、完了時に音声通知を出すようプロンプトで指示すれば、別作業に切り替えても完了を検知できます。",
+          "content_en": "Opus 4.7 is a strong model for coding, enterprise workflows, and long-running agent tasks (its successor Opus 4.8 is the current latest). The more complete the initial information, the deeper the model can go without being disrupted by reasoning restarts.\n\nReduce the number of user interactions because each user turn adds reasoning overhead. Batch follow-up questions and provide all required context at once.\n\nAuto mode is a particularly good fit for long-running tasks. Toggle it with Shift+Tab, and instruct Claude in the prompt to emit an audio notification on completion so you can detect finishing even after switching to other work.",
           "tags": ["重要"],
           "tips": [
             "意図・制約・受け入れ基準・関連ファイルの場所を最初のターンにすべて含める",
@@ -514,13 +799,23 @@
             "長時間タスクでは auto mode（Shift+Tab で切り替え）を活用する",
             "完了時に音声通知（say コマンドなど）を出すようプロンプトで依頼する",
             "最初のターンの指定が不十分だとモデルが途中で推測に頼るため、出力品質が下がる"
+          ],
+          "tips_en": [
+            "Include intent, constraints, acceptance criteria, and the location of relevant files all in the first turn",
+            "Batch follow-up questions and provide required context at once to minimize the number of user turns",
+            "Use auto mode (toggle with Shift+Tab) for long-running tasks",
+            "Ask Claude in the prompt to emit an audio notification (e.g., the say command) on completion",
+            "Insufficient first-turn specification causes the model to fall back on guessing mid-task, which degrades output quality"
           ]
         },
         {
           "id": "opus-4-7-effort-levels",
           "title": "努力レベル（xhigh をデフォルトに）",
+          "title_en": "Effort levels (default to xhigh)",
           "summary": "Opus 4.7 は low / medium / high / xhigh / max の 5 段階。ほぼすべてのコーディング作業は xhigh をデフォルトに。",
+          "summary_en": "Opus 4.7 has 5 levels: low / medium / high / xhigh / max. Default to xhigh for virtually all coding work.",
           "content": "Opus 4.7 は low / medium / high / xhigh / max の 5 段階の努力レベルを持ち、xhigh がデフォルトです。後継の Opus 4.8 も同じ 5 段階ですが、デフォルトは high です。\n\nレベルは会話中にトグル可能なので、難易度に応じて切り替えてトークン使用量を効果的に管理できます。低難易度なタスクを xhigh で走らせてトークンを無駄にしたり、max で過度な思考に陥るのを避けられます。",
+          "content_en": "Opus 4.7 has five effort levels — low / medium / high / xhigh / max — and defaults to xhigh. Its successor Opus 4.8 uses the same five levels but defaults to high.\n\nLevels can be toggled during a conversation, so you can switch based on task difficulty to manage token usage effectively. This lets you avoid wasting tokens by running low-difficulty tasks at xhigh, or falling into excessive thinking at max.",
           "tags": [],
           "tips": [
             "low / medium — コストとレイテンシを最優先するタスク向け（Opus 4.6 比で改善）",
@@ -529,82 +824,130 @@
             "max — 極度に困難な問題向け。過度な思考に陥るリスクがあるため乱用しない",
             "タスクの難易度に応じてレベルをトグルしてトークン消費を最適化する",
             "/effort コマンドや /model でレベルを調整できる"
+          ],
+          "tips_en": [
+            "low / medium — for tasks where cost and latency are the top priority (improved vs. Opus 4.6)",
+            "high — balanced option for tasks where cost reduction matters in parallel sessions",
+            "xhigh — recommended default for virtually all coding work",
+            "max — for extremely difficult problems; avoid overuse as it risks excessive thinking",
+            "Toggle levels based on task difficulty to optimize token consumption",
+            "Adjust the level with the /effort command or in /model"
           ]
         },
         {
           "id": "opus-4-7-adaptive-thinking",
           "title": "適応的思考を制御する",
+          "title_en": "Control adaptive thinking",
           "summary": "Opus 4.7 は固定の拡張思考バジェットをサポートしない。モデルが各ステップで文脈に基づいて思考の要否を判断する。",
+          "summary_en": "Opus 4.7 does not support a fixed extended-thinking budget. The model decides at each step, based on context, whether thinking is needed.",
           "content": "Opus 4.7 では、各ステップで必ず思考が入るわけではありません。モデルが文脈に基づき、単純なクエリには素早く対応し、不必要なステップの思考をスキップします。\n\n固定の拡張思考トークンバジェットを指定する従来のパターンはサポートされません。代わりに、プロンプトの表現で思考量を増減させます。難しい問題には「慎重にステップバイステップで考えて」と明示し、素早さ優先の場面では「深く考えるより直接応答して」と伝えてください。",
+          "content_en": "With Opus 4.7, thinking does not occur at every step. The model responds quickly to simple queries and skips thinking for steps where it is unnecessary.\n\nThe conventional pattern of specifying a fixed extended-thinking token budget is not supported. Instead, increase or decrease the amount of thinking through prompt wording. For hard problems, explicitly write 'think carefully step by step before responding'. When speed is the priority, write 'prioritize a quick response over deep thinking; respond directly if uncertain'.",
           "tags": [],
           "examples": [
             {
               "strategy": "思考を深めさせたい",
               "detail": "見た目より難しい問題や、見落としが致命的な場面に有効",
               "before": "これを実装して",
-              "after": "応答する前に慎重かつステップバイステップで考えてください。この問題は見た目より難しいです。"
+              "after": "応答する前に慎重かつステップバイステップで考えてください。この問題は見た目より難しいです。",
+              "strategy_en": "Elicit deeper thinking",
+              "detail_en": "Effective for problems harder than they look or situations where overlooking something is critical",
+              "before_en": "Implement this",
+              "after_en": "Think carefully and step by step before responding. This problem is harder than it looks."
             },
             {
               "strategy": "思考を減らして素早く応答させたい",
               "detail": "単純な事実確認や、不確実性が許容されるケースに有効",
               "before": "深掘りして答えて",
-              "after": "深く考えるより素早く対応を優先してください。不確実な場合は直接応答してください。"
+              "after": "深く考えるより素早く対応を優先してください。不確実な場合は直接応答してください。",
+              "strategy_en": "Reduce thinking and respond quickly",
+              "detail_en": "Effective for simple fact checks or cases where some uncertainty is acceptable",
+              "before_en": "Dig deep and answer",
+              "after_en": "Prioritize a quick response over deep thinking. Respond directly if uncertain."
             }
           ]
         },
         {
           "id": "opus-4-7-behavior-changes",
           "title": "Opus 4.6 からの動作変更を把握する",
+          "title_en": "Understand behavior changes from Opus 4.6",
           "summary": "応答長の自動調整、ツール呼び出しの削減、サブエージェント生成の慎重化。プロンプトで意図的に補う必要がある。",
+          "summary_en": "Automatic response-length adjustment, reduced tool calls, and more conservative subagent spawning. You need to compensate intentionally in prompts.",
           "content": "Opus 4.7 は Opus 4.6 ほどデフォルトで冗長ではなく、応答の長さがタスクの複雑度に自動調整されます。特定の長さやスタイルが欲しい場合はプロンプトで明示的に記述してください。\n\nツール呼び出しが削減され、その分推論が増加します。より多くのツール使用が必要な場合は、「いつ・なぜツールを使用すべきか」を明確に説明します。\n\nサブエージェントの生成も慎重になりました。単純な作業でサブエージェントを濫発しなくなる一方、本当に必要な場面でも遠慮しがちです。並列化が明確に有効な場面では、同じターンで複数サブエージェントを起動するよう明示してください。",
+          "content_en": "Opus 4.7 is not as verbose by default as Opus 4.6, and response length adjusts automatically to task complexity. If you need a specific length or style, state it explicitly in the prompt.\n\nTool calls are reduced and reasoning increases proportionally. If you need more tool usage, clearly explain when and why tools should be used.\n\nSubagent spawning has also become more conservative. The model no longer overuses subagents for simple work, but may also hold back when they are genuinely needed. When parallelization is clearly beneficial, explicitly instruct it to launch multiple subagents in the same turn.",
           "tags": ["重要"],
           "examples": [
             {
               "strategy": "応答長を制御する",
               "detail": "4.6 と比べて短くなる傾向があるため、詳細が必要なときは明示",
               "before": "詳しく説明して",
-              "after": "各関数について、目的・入出力・エッジケース・使用例の 4 項目を箇条書きで説明してください。"
+              "after": "各関数について、目的・入出力・エッジケース・使用例の 4 項目を箇条書きで説明してください。",
+              "strategy_en": "Control response length",
+              "detail_en": "Responses tend to be shorter than in 4.6, so be explicit when you need detail",
+              "before_en": "Explain in detail",
+              "after_en": "For each function, explain 4 items in bullet points: purpose, inputs/outputs, edge cases, and usage examples."
             },
             {
               "strategy": "ツール使用を促す",
               "detail": "ツールを積極的に使ってほしい場面では使用条件を明示",
               "before": "バグを調査して",
-              "after": "まず grep でエラー文言をコードベース全体から検索し、該当箇所を Read で開いて前後 50 行を読んでから仮説を立ててください。"
+              "after": "まず grep でエラー文言をコードベース全体から検索し、該当箇所を Read で開いて前後 50 行を読んでから仮説を立ててください。",
+              "strategy_en": "Encourage tool use",
+              "detail_en": "When you want tools used proactively, explicitly state the conditions under which to use them",
+              "before_en": "Investigate the bug",
+              "after_en": "First search the entire codebase with grep for the error message, open the relevant location with Read and read 50 lines before and after it, then form a hypothesis."
             },
             {
               "strategy": "サブエージェントを並列起動させる",
               "detail": "独立した調査が複数ある場合に並列化を促す",
               "before": "この 3 つを調査して",
-              "after": "単一応答で完了可能な作業にはサブエージェント不要。ただしこの 3 つの調査は独立しているので、同じターンで 3 つのサブエージェントを並列起動してください。"
+              "after": "単一応答で完了可能な作業にはサブエージェント不要。ただしこの 3 つの調査は独立しているので、同じターンで 3 つのサブエージェントを並列起動してください。",
+              "strategy_en": "Launch subagents in parallel",
+              "detail_en": "When there are multiple independent investigations, encourage parallelization",
+              "before_en": "Investigate these 3 things",
+              "after_en": "No subagent needed for work that can be done in a single response. However, these 3 investigations are independent, so launch 3 subagents in parallel in the same turn."
             }
           ]
         },
         {
           "id": "opus-4-7-positive-style",
           "title": "肯定的な例でスタイルを示す",
+          "title_en": "Demonstrate style with positive examples",
           "summary": "「これを避けて」という否定命令より、望ましい声の肯定的な例を示すほうが Opus 4.7 には効果的。",
+          "summary_en": "Showing positive examples of the desired voice is more effective for Opus 4.7 than negative instructions like 'avoid this'.",
           "content": "スタイルや振る舞いを制御したいとき、禁止事項を並べるより「こう書いてほしい」という肯定的な模範を示すほうが Opus 4.7 には効果的です。モデルは否定形の指示を処理するために余計な推論を使い、忘れやすくもなります。\n\n望ましい声のサンプル（長さ、トーン、構造、語彙）を具体的に提示すれば、モデルはそれを参照点として一貫した出力を生成できます。",
+          "content_en": "When you want to control style or behavior, showing a positive model of 'write it like this' is more effective for Opus 4.7 than listing prohibitions. The model uses extra reasoning to process negative instructions and is also more likely to forget them.\n\nProvide a concrete sample of the desired voice — length, tone, structure, vocabulary — and the model can use it as a reference point to generate consistent output.",
           "tags": [],
           "examples": [
             {
               "strategy": "スタイルを肯定形で指示する",
               "detail": "Don't より Do の形で模範を提示",
               "before": "カジュアルすぎないでください。絵文字を使わないでください。冗長にしないでください。",
-              "after": "プロフェッショナルなトーンで、「結論 → 根拠 → 次のアクション」の順に 3〜5 個の箇条書きで要点をまとめてください。"
+              "after": "プロフェッショナルなトーンで、「結論 → 根拠 → 次のアクション」の順に 3〜5 個の箇条書きで要点をまとめてください。",
+              "strategy_en": "Give style instructions in the affirmative",
+              "detail_en": "Present a model in Do form rather than Don't form",
+              "before_en": "Don't be too casual. Don't use emoji. Don't be verbose.",
+              "after_en": "In a professional tone, summarize key points in 3–5 bullet points in the order: conclusion → rationale → next action."
             },
             {
               "strategy": "コードスタイルを肯定形で指示する",
               "detail": "禁止リストではなく採用パターンを示す",
               "before": "any 型を使わないで。var も使わないで。console.log も残さないで。",
-              "after": "TypeScript の厳密モードで、明示的な型注釈・const/let・デバッグ出力は logger.debug を使ってください。"
+              "after": "TypeScript の厳密モードで、明示的な型注釈・const/let・デバッグ出力は logger.debug を使ってください。",
+              "strategy_en": "Give code style instructions in the affirmative",
+              "detail_en": "Show the patterns to adopt rather than a list of prohibitions",
+              "before_en": "Don't use any types. Don't use var. Don't leave console.log.",
+              "after_en": "Use TypeScript strict mode with explicit type annotations, const/let, and logger.debug for debug output."
             }
           ]
         },
         {
           "id": "opus-4-7-scenarios",
           "title": "Opus 4.7 の強みを活かすシナリオ",
+          "title_en": "Scenarios where Opus 4.7 shines",
           "summary": "複雑なマルチファイル変更、曖昧なデバッグ、サービス全体のコードレビュー、マルチステップのエージェント作業で最も効果を発揮する。",
+          "summary_en": "Most effective for complex multi-file changes, ambiguous debugging, service-wide code reviews, and multi-step agentic work.",
           "content": "Opus 4.7 はコーディング、エンタープライズワークフロー、長時間実行エージェントタスクに最も強力です。以下のようなシナリオで、xhigh を維持しつつ最初のターンで完全指定してから結果を確認すると、Opus 4.7 の強みが最大限に引き出されます。\n\nOpus 4.7 はネイティブ 1M トークンのコンテキストウィンドウを持ち、v2.1.117 以降は `/context` パーセンテージも 1M 基準で計算されるため、長大なコードベース調査やマルチファイル文脈を保持したままの設計・レビューに向いています。",
+          "content_en": "Opus 4.7 is most powerful for coding, enterprise workflows, and long-running agentic tasks. In the scenarios below, keeping effort at xhigh, fully specifying the task in the first turn, and then reviewing the results will draw out the full strength of Opus 4.7.\n\nOpus 4.7 has a native 1M-token context window, and since v2.1.117 the `/context` percentage is also calculated against the 1M baseline — making it well-suited for large codebase exploration and design/review work that retains multi-file context.",
           "tags": [],
           "tips": [
             "複雑なマルチファイル変更 — 設計変更が多数のファイルに波及する作業",
@@ -613,6 +956,14 @@
             "マルチステップのエージェント作業 — 長時間の自律実行を要するタスク",
             "ネイティブ 1M コンテキストを活かし、長大なファイルや調査結果を圧縮せずに保持したまま設計できる",
             "これらに該当する場合は effort を xhigh に保ち、最初のターンで完全指定してから結果を見る"
+          ],
+          "tips_en": [
+            "Complex multi-file changes — work where a design change ripples across many files",
+            "Ambiguous debugging — problems where only symptoms are known and reasoning is needed to identify the cause",
+            "Service-wide code reviews — work that evaluates broad code ranges across contexts",
+            "Multi-step agentic work — tasks requiring long autonomous execution",
+            "Leverage the native 1M context to hold large files and research results uncompressed while designing",
+            "In these cases, keep effort at xhigh, fully specify the task in the first turn, and then review the results"
           ]
         }
       ]
@@ -620,19 +971,30 @@
     {
       "id": "opus-4-8",
       "name": "Opus 4.8 のコツ",
+      "name_en": "Opus 4.8 Tips",
       "description": "Opus 4.8（v2.1.154〜）を最大限活かすためのモデル固有のチューニング",
+      "description_en": "Model-specific tuning to get the most out of Opus 4.8 (v2.1.154+)",
       "items": [
         {
           "id": "opus-4-8-overview",
           "title": "Opus 4.8 の概要とエイリアス",
+          "title_en": "Opus 4.8 overview and alias",
           "summary": "v2.1.154 でリリース。opus エイリアスは Anthropic API で Opus 4.8 に解決。デフォルト effort は high（5段階対応）。",
+          "summary_en": "Released in v2.1.154. The opus alias resolves to Opus 4.8 on the Anthropic API. Default effort is high (5-level support).",
           "content": "Opus 4.8 は v2.1.154 でリリースされた Opus 4.7 の後継モデルです。\n\n`opus` エイリアスは Anthropic API では Opus 4.8 に解決されます（Claude Platform on AWS では Opus 4.7）。デフォルト effort は全サーフェスで high です。\n\nOpus 4.7 と同じ 5 段階の effort（low / medium / high / xhigh / max）に対応しています。難しいコーディング・エージェントタスクには /effort xhigh の使用を推奨します。\n\nOpus 4.7 の「インタラクティブセッションを最初のターンで完全指定する」「サブエージェントを並列起動させる」などのコツは Opus 4.8 にも同様に適用できます。",
+          "content_en": "Opus 4.8 is the successor to Opus 4.7, released in v2.1.154.\n\nThe `opus` alias resolves to Opus 4.8 on the Anthropic API (Opus 4.7 on Claude Platform on AWS). The default effort is high across all surfaces.\n\nIt supports the same 5-level effort scale as Opus 4.7 (low / medium / high / xhigh / max). Using /effort xhigh is recommended for difficult coding and agentic tasks.\n\nOpus 4.7 tips — fully specifying interactive sessions in the first turn, spinning up subagents in parallel, giving style instructions in the affirmative — apply equally to Opus 4.8.",
           "tags": ["重要"],
           "tips": [
             "Anthropic API では claude-opus-4-8 または opus エイリアスで利用",
             "デフォルト effort は high。複雑なタスクは /effort xhigh で引き上げる",
             "Opus 4.7 のコツ（完全指定・並列サブエージェント・肯定形スタイル指示）は Opus 4.8 にも有効",
             "Max サブスクライバーは auto mode と組み合わせて利用可能（v2.1.111〜）"
+          ],
+          "tips_en": [
+            "Use claude-opus-4-8 or the opus alias on the Anthropic API",
+            "Default effort is high. Raise to /effort xhigh for complex tasks",
+            "Opus 4.7 tips (full specification, parallel subagents, affirmative-style instructions) also work for Opus 4.8",
+            "Max subscribers can use it in combination with auto mode (v2.1.111+)"
           ]
         }
       ]
@@ -640,60 +1002,87 @@
     {
       "id": "anti-patterns",
       "name": "アンチパターン",
+      "name_en": "Anti-patterns",
       "description": "一般的な失敗パターンを早期に認識する",
+      "description_en": "Recognize common failure patterns early",
       "items": [
         {
           "id": "kitchen-sink",
           "title": "キッチンシンクセッション",
+          "title_en": "Kitchen-sink sessions",
           "summary": "1つのタスクで開始し、関連のないことを尋ねてから最初のタスクに戻る。コンテキストが関連のない情報でいっぱいになる。",
+          "summary_en": "Start with one task, ask about something unrelated, then return to the first task. The context fills up with irrelevant information.",
           "content": "1つのタスクで開始し、Claude に関連のないことを尋ねてから、最初のタスクに戻ります。コンテキストは関連のない情報でいっぱいです。",
+          "content_en": "You start with one task, ask Claude about something unrelated, then return to the first task. The context is now full of irrelevant information.",
           "tags": [],
-          "fix": "関連のないタスク間で /clear を実行する"
+          "fix": "関連のないタスク間で /clear を実行する",
+          "fix_en": "Run /clear between unrelated tasks"
         },
         {
           "id": "repeated-corrections",
           "title": "何度も修正する",
+          "title_en": "Repeated corrections",
           "summary": "Claude が間違い→修正→まだ間違い。コンテキストが失敗したアプローチで汚染される。",
+          "summary_en": "Claude gets it wrong → you correct it → still wrong. The context becomes contaminated with failed approaches.",
           "content": "Claude が何か間違ったことをし、修正し、まだ間違っています。修正します。コンテキストは失敗したアプローチで汚染されています。",
+          "content_en": "Claude does something wrong, you correct it, it is still wrong. You correct again. The context is contaminated with failed approaches.",
           "tags": [],
-          "fix": "2回の失敗した修正の後、/clear を実行し、学んだことを組み込んだより良い初期プロンプトを書く"
+          "fix": "2回の失敗した修正の後、/clear を実行し、学んだことを組み込んだより良い初期プロンプトを書く",
+          "fix_en": "After 2 failed corrections, run /clear and write a better initial prompt that incorporates what you learned"
         },
         {
           "id": "bloated-claude-md",
           "title": "過度に指定された CLAUDE.md",
+          "title_en": "Over-specified CLAUDE.md",
           "summary": "CLAUDE.md が長すぎると、重要なルールがノイズに失われて半分が無視される。",
+          "summary_en": "When CLAUDE.md is too long, half of it gets ignored because important rules are lost in the noise.",
           "content": "CLAUDE.md が長すぎる場合、Claude は重要なルールがノイズに失われるため、その半分を無視します。",
+          "content_en": "When CLAUDE.md is too long, Claude ignores half of it because important rules are lost in the noise.",
           "tags": [],
-          "fix": "容赦なく削除する。Claude が指示なしで既に何かを正しく行っている場合は、削除するかフックに変換する"
+          "fix": "容赦なく削除する。Claude が指示なしで既に何かを正しく行っている場合は、削除するかフックに変換する",
+          "fix_en": "Delete ruthlessly. If Claude is already doing something correctly without instructions, remove it or convert it to a hook"
         },
         {
           "id": "trust-verify-gap",
           "title": "信頼してから検証するギャップ",
+          "title_en": "The trust-before-verify gap",
           "summary": "Claude はエッジケースを処理しない、もっともらしく見える実装を生成する。",
+          "summary_en": "Claude generates a plausible-looking implementation that doesn't handle edge cases.",
           "content": "Claude は、エッジケースを処理しない、もっともらしく見える実装を生成します。",
+          "content_en": "Claude generates a plausible-looking implementation that does not handle edge cases.",
           "tags": [],
-          "fix": "常に検証（テスト、スクリプト、スクリーンショット）を提供する。検証できない場合は出荷しない"
+          "fix": "常に検証（テスト、スクリプト、スクリーンショット）を提供する。検証できない場合は出荷しない",
+          "fix_en": "Always provide verification (tests, scripts, screenshots). Do not ship if you cannot verify"
         },
         {
           "id": "infinite-exploration",
           "title": "無限探索",
+          "title_en": "Infinite exploration",
           "summary": "スコープなしで何かを「調査」するよう依頼すると、Claude は数百のファイルを読み取りコンテキストを満たす。",
+          "summary_en": "Asking Claude to 'investigate' something without a scope causes it to read hundreds of files and fill up the context.",
           "content": "スコープなしで何かを「調査」するよう Claude に依頼します。Claude は数百のファイルを読み取り、コンテキストを満たします。",
+          "content_en": "You ask Claude to 'investigate' something without a scope. Claude reads hundreds of files and fills up the context.",
           "tags": [],
-          "fix": "調査を狭くスコープするか、subagents を使用して探索がメインコンテキストを消費しないようにする"
+          "fix": "調査を狭くスコープするか、subagents を使用して探索がメインコンテキストを消費しないようにする",
+          "fix_en": "Narrow the scope of the investigation, or use subagents so that exploration does not consume the main context"
         }
       ]
     },
     {
       "id": "intuition",
       "name": "直感を養う",
+      "name_en": "Develop intuition",
       "description": "パターンは固定ではなく出発点。何が機能するかに注意する",
+      "description_en": "Patterns are starting points, not rules set in stone. Pay attention to what works",
       "items": [
         {
           "id": "develop-intuition",
           "title": "直感を開発する",
+          "title_en": "Develop intuition",
           "summary": "Claude が素晴らしい出力を生成するとき、何をしたかに注意する。プロンプト構造、コンテキスト、モード。苦労するときもなぜか考える。",
+          "summary_en": "When Claude generates great output, notice what you did — prompt structure, context provided, mode you were in. When it struggles, ask why.",
           "content": "このガイドのパターンは固定されていません。一般的にうまく機能する出発点ですが、すべての状況に最適ではない可能性があります。\n\n時々、1つの複雑な問題に深く入り込んでいて、履歴が価値があるため、コンテキストを蓄積させるべきです。時々、タスクが探索的であるため、計画をスキップして Claude に理解させるべきです。時々、曖昧なプロンプトは、Claude が制約する前に問題をどのように解釈するかを見たいため、正確です。\n\n何が機能するかに注意してください。Claude が素晴らしい出力を生成するとき、あなたが何をしたかに注意してください。プロンプト構造、提供したコンテキスト、あなたがいたモード。Claude が苦労するとき、なぜ尋ねてください。\n\n時間をかけて、具体的にするべき時と開放的にするべき時、計画すべき時と探索すべき時、コンテキストをクリアすべき時と蓄積させるべき時を知る直感を開発します。",
+          "content_en": "The patterns in this guide are not fixed rules. They are starting points that generally work well, but may not be optimal for every situation.\n\nSometimes you are deep into a complex problem and the history is valuable, so you should let context accumulate. Sometimes a task is exploratory, so you should skip planning and let Claude figure things out. Sometimes a vague prompt is precisely right because you want to see how Claude interprets the problem before constraining it.\n\nPay attention to what works. When Claude generates great output, notice what you did — prompt structure, context provided, mode you were in. When Claude struggles, ask why.\n\nOver time, develop the intuition to know when to be specific versus open-ended, when to plan versus explore, and when to clear context versus let it accumulate.",
           "tags": []
         }
       ]

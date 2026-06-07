@@ -1,32 +1,46 @@
 {
   "topicId": "multi-session-tasks",
   "title": "Tasks を複数セッションで実行する",
+  "title_en": "Running Tasks Across Multiple Sessions",
   "difficulty": "easy",
   "estimatedTime": "20分",
+  "estimatedTime_en": "20 min",
   "steps": [
     {
       "id": "step-1",
       "label": "STEP 1",
+      "label_en": "STEP 1",
       "title": "Tasks 機能の概要",
+      "title_en": "Overview of the Tasks Feature",
       "description": "Claude Code のタスク管理機能を理解します。",
+      "description_en": "Understand the task management feature in Claude Code.",
       "blocks": [
         {
           "type": "highlight",
           "variant": "info",
           "title": "「セッション」とは？",
-          "content": "このガイドでの「セッション」は、ターミナルで claude コマンドを起動してから終了するまでの1回の会話を指します。/exit で終了するか、ターミナルを閉じるとセッションが終わります。"
+          "title_en": "What Is a \"Session\"?",
+          "content": "このガイドでの「セッション」は、ターミナルで claude コマンドを起動してから終了するまでの1回の会話を指します。/exit で終了するか、ターミナルを閉じるとセッションが終わります。",
+          "content_en": "In this guide, \"session\" refers to a single conversation from when you launch the claude command in the terminal until you exit. The session ends when you type /exit or close the terminal."
         },
         {
           "type": "text",
-          "content": "Claude Code のタスク管理機能を使うと、複数のセッションにまたがる大規模な作業を構造化して管理できます。タスクはファイルとして保存されるため、セッションを閉じても進捗が保持されます。"
+          "content": "Claude Code のタスク管理機能を使うと、複数のセッションにまたがる大規模な作業を構造化して管理できます。タスクはファイルとして保存されるため、セッションを閉じても進捗が保持されます。",
+          "content_en": "The task management feature in Claude Code lets you structure and manage large-scale work that spans multiple sessions. Because tasks are saved as files, progress is preserved even when a session is closed."
         },
         {
           "type": "highlight",
           "variant": "tip",
           "title": "このハンズオンの読み方",
-          "content": "本ガイドでは仕組みを理解しやすくするために内部ツール名（TaskCreate, TaskList など）を記載していますが、実際の操作では自然言語で Claude Code に指示するだけで OK です。"
+          "title_en": "How to Read This Hands-on Guide",
+          "content": "本ガイドでは仕組みを理解しやすくするために内部ツール名（TaskCreate, TaskList など）を記載していますが、実際の操作では自然言語で Claude Code に指示するだけで OK です。",
+          "content_en": "This guide includes internal tool names (TaskCreate, TaskList, etc.) to help you understand how things work. In practice, just give Claude Code instructions in natural language."
         },
-        { "type": "text", "content": "こんなときに使えます:" },
+        {
+          "type": "text",
+          "content": "こんなときに使えます:",
+          "content_en": "Useful in situations like:"
+        },
         {
           "type": "list",
           "items": [
@@ -34,154 +48,208 @@
             "計画的に段階を分けて進めたい作業",
             "複数日にわたるリファクタリングやマイグレーション",
             "途中で中断して翌日に再開したい作業"
+          ],
+          "items_en": [
+            "Large implementations that cannot be completed in a single session",
+            "Work you want to advance in planned, staged steps",
+            "Refactoring or migrations that span multiple days",
+            "Work you want to pause and resume the next day"
           ]
         },
         {
           "type": "highlight",
           "variant": "warning",
           "title": "前提条件",
-          "content": "Claude Code がインストールされ、プロジェクトディレクトリで正常に起動できることが必要です。"
+          "title_en": "Prerequisites",
+          "content": "Claude Code がインストールされ、プロジェクトディレクトリで正常に起動できることが必要です。",
+          "content_en": "Claude Code must be installed and able to launch correctly in the project directory."
         }
       ]
     },
     {
       "id": "step-2",
       "label": "STEP 2",
+      "label_en": "STEP 2",
       "title": "作業計画をタスクに分解する",
+      "title_en": "Breaking the Work Plan into Tasks",
       "description": "大きな作業を管理可能なタスクに分割します。",
+      "description_en": "Split large pieces of work into manageable tasks.",
       "blocks": [
         {
           "type": "text",
-          "content": "まず、実現したい目標を Claude Code に伝え、タスクへの分割を依頼します。各タスクは1セッション（数十分〜1時間程度）で完了できるサイズが理想的です。"
+          "content": "まず、実現したい目標を Claude Code に伝え、タスクへの分割を依頼します。各タスクは1セッション（数十分〜1時間程度）で完了できるサイズが理想的です。",
+          "content_en": "Start by communicating your goal to Claude Code and asking it to break the work into tasks. Ideally, each task should be sized to complete within a single session (roughly 30 minutes to one hour)."
         },
         {
           "type": "codeBlock",
           "language": "text",
           "code": "# 指示例:\n「ユーザー認証機能の実装を計画してください。\n以下のステップに分けてタスクリストを作ってください:\n1. データベーススキーマとマイグレーション\n2. 認証API（ログイン・ログアウト・リフレッシュ）\n3. ミドルウェアとガード\n4. フロントエンドのログインフォーム\n5. テスト」",
-          "caption": "Claude Code が自動でタスクリストを作成します"
+          "caption": "Claude Code が自動でタスクリストを作成します",
+          "caption_en": "Claude Code automatically creates the task list"
         },
         {
           "type": "highlight",
           "variant": "warning",
           "title": "重要: タスクの説明は詳しく",
-          "content": "「認証APIを作る」だけでは不十分です。次のセッションの Claude Code は前回の会話を覚えていないため、タスクの説明文だけを頼りに作業します。使用するライブラリ、ファイルパス、設計方針なども含めるよう指示しましょう。"
+          "title_en": "Important: Write Detailed Task Descriptions",
+          "content": "「認証APIを作る」だけでは不十分です。次のセッションの Claude Code は前回の会話を覚えていないため、タスクの説明文だけを頼りに作業します。使用するライブラリ、ファイルパス、設計方針なども含めるよう指示しましょう。",
+          "content_en": "\"Build the authentication API\" is not enough. Claude Code in the next session has no memory of the previous conversation and relies solely on the task description. Instruct it to include libraries to use, file paths, and design decisions."
         },
         {
           "type": "highlight",
           "variant": "tip",
           "title": "分割サイズの目安",
-          "content": "1タスク = ファイル数3〜5個の変更、または1つの明確な機能単位が目安です。大きすぎるとセッション内で完了しない可能性があり、小さすぎると管理のオーバーヘッドが増えます。"
+          "title_en": "Guidelines for Task Size",
+          "content": "1タスク = ファイル数3〜5個の変更、または1つの明確な機能単位が目安です。大きすぎるとセッション内で完了しない可能性があり、小さすぎると管理のオーバーヘッドが増えます。",
+          "content_en": "A good size for one task is 3–5 file changes, or one clearly defined functional unit. Too large and it may not finish within a session; too small and management overhead increases."
         }
       ]
     },
     {
       "id": "step-3",
       "label": "STEP 3",
+      "label_en": "STEP 3",
       "title": "タスクの依存関係を設定する",
+      "title_en": "Setting Task Dependencies",
       "description": "タスク間の実行順序を定義します。",
+      "description_en": "Define the execution order between tasks.",
       "blocks": [
         {
           "type": "text",
-          "content": "タスクに依存関係を設定すると、前提タスクが完了するまで後続タスクが「ブロック」された状態になります。これにより、例えば「DB設計が終わるまでAPIは作らない」という順序を保証できます。"
+          "content": "タスクに依存関係を設定すると、前提タスクが完了するまで後続タスクが「ブロック」された状態になります。これにより、例えば「DB設計が終わるまでAPIは作らない」という順序を保証できます。",
+          "content_en": "Setting dependencies between tasks keeps subsequent tasks in a \"blocked\" state until prerequisite tasks are complete. This lets you enforce ordering such as \"do not build the API until the DB design is done.\""
         },
         {
           "type": "codeBlock",
           "language": "text",
           "code": "# 依存関係の指示例:\n「タスクの依存関係を設定してください:\n- 認証APIは、DBスキーマが完了してから開始\n- ミドルウェアは、認証APIが完了してから開始\n- フロントエンドは、認証APIが完了してから開始\n- テストは、ミドルウェアとフロントエンドの両方が完了してから開始」\n\n# 結果のイメージ:\n#1 DB ──→ #2 API ──→ #3 ミドルウェア ─┐\n                  └──→ #4 フロントエンド ─┤→ #5 テスト",
-          "caption": "自然言語で指示するだけ。内部的に依存関係が自動設定されます"
+          "caption": "自然言語で指示するだけ。内部的に依存関係が自動設定されます",
+          "caption_en": "Just give instructions in natural language. Dependencies are configured automatically internally"
         },
         {
           "type": "highlight",
           "variant": "tip",
           "title": "依存関係は必須ではない",
-          "content": "すべてのタスクに依存関係が必要なわけではありません。順番に関係なく進められるタスクは、依存関係なしで作成して問題ありません。"
+          "title_en": "Dependencies Are Not Required",
+          "content": "すべてのタスクに依存関係が必要なわけではありません。順番に関係なく進められるタスクは、依存関係なしで作成して問題ありません。",
+          "content_en": "Not every task needs a dependency. Tasks that can proceed regardless of order can be created without dependencies."
         }
       ]
     },
     {
       "id": "step-4",
       "label": "STEP 4",
+      "label_en": "STEP 4",
       "title": "セッション 1: 最初のタスクに着手する",
+      "title_en": "Session 1: Starting the First Task",
       "description": "最初のセッションでタスクを開始し、完了させます。",
+      "description_en": "Start and complete a task in the first session.",
       "blocks": [
         {
           "type": "text",
-          "content": "タスクリストが準備できたら、最初のタスクに着手します。Claude Code に「タスクリストの最初のタスクから始めてください」と指示するだけです。"
+          "content": "タスクリストが準備できたら、最初のタスクに着手します。Claude Code に「タスクリストの最初のタスクから始めてください」と指示するだけです。",
+          "content_en": "Once the task list is ready, begin the first task. Simply tell Claude Code to \"start from the first task in the task list.\""
         },
         {
           "type": "codeBlock",
           "language": "text",
           "code": "# セッション1での指示例:\n「タスクリストを確認して、最初のタスクから始めてください」\n\n# Claude Code が自動で行うこと:\n1. タスク一覧を取得\n2. 着手可能な最初のタスクを選択\n3. そのタスクを「作業中」に変更\n4. 実装作業を実施\n5. 完了したら「完了」に変更\n6. 次のタスクがあれば続行",
-          "caption": "タスクの状態管理はすべて自動です"
+          "caption": "タスクの状態管理はすべて自動です",
+          "caption_en": "All task state management is handled automatically"
         },
         {
           "type": "highlight",
           "variant": "info",
           "title": "1セッションで複数タスク完了も可能",
-          "content": "セッションの時間に余裕があれば、1つ目のタスク完了後に自動で次のタスクに進みます。「今日はここまで」と思ったら /exit でセッションを終了してください。"
+          "title_en": "Completing Multiple Tasks in One Session Is Possible",
+          "content": "セッションの時間に余裕があれば、1つ目のタスク完了後に自動で次のタスクに進みます。「今日はここまで」と思ったら /exit でセッションを終了してください。",
+          "content_en": "If there is time remaining in the session, Claude Code will automatically move on to the next task after completing the first. When you are ready to stop for the day, exit the session with /exit."
         },
         {
           "type": "highlight",
           "variant": "tip",
           "title": "セッション終了前に",
-          "content": "セッションを終える前に「現在のタスク進捗を見せてください」と聞いておくと、どこまで完了したかを自分で把握できます。次のセッションはこの会話を覚えていませんが、タスクリストの状態（完了/未完了）は自動で引き継がれます。"
+          "title_en": "Before Ending the Session",
+          "content": "セッションを終える前に「現在のタスク進捗を見せてください」と聞いておくと、どこまで完了したかを自分で把握できます。次のセッションはこの会話を覚えていませんが、タスクリストの状態（完了/未完了）は自動で引き継がれます。",
+          "content_en": "Before ending the session, ask to \"show the current task progress\" so you can see exactly how far things have gotten. The next session will not remember this conversation, but the task list state (completed/not completed) carries over automatically."
         }
       ]
     },
     {
       "id": "step-5",
       "label": "STEP 5",
+      "label_en": "STEP 5",
       "title": "セッション 2: 新しいセッションでタスクを引き継ぐ",
+      "title_en": "Session 2: Picking Up Tasks in a New Session",
       "description": "新しいセッションでタスクリストを確認し、次のタスクに着手します。",
+      "description_en": "Check the task list in a new session and begin the next task.",
       "blocks": [
         {
           "type": "highlight",
           "variant": "warning",
           "title": "重要: 新しいセッションは前回の会話を覚えていない",
-          "content": "新しいセッションの Claude Code は、前回のセッションで何を話したか一切知りません。唯一の手がかりはタスクリスト（とその説明文）だけです。だからこそ STEP 2 でタスクの説明を詳しく書くことが重要です。"
+          "title_en": "Important: A New Session Has No Memory of the Previous Conversation",
+          "content": "新しいセッションの Claude Code は、前回のセッションで何を話したか一切知りません。唯一の手がかりはタスクリスト（とその説明文）だけです。だからこそ STEP 2 でタスクの説明を詳しく書くことが重要です。",
+          "content_en": "Claude Code in a new session has no knowledge of what was discussed in the previous session. The only reference it has is the task list (and its descriptions). That is exactly why writing detailed task descriptions in STEP 2 is so important."
         },
         {
           "type": "text",
-          "content": "同じプロジェクトディレクトリで新しい claude セッションを起動し、タスクリストを確認するよう指示します。新しいセッションは前回の会話を知らないので、「続きを再開」ではなく「タスクリストを見て次のタスクに着手」と伝えるのがポイントです。"
+          "content": "同じプロジェクトディレクトリで新しい claude セッションを起動し、タスクリストを確認するよう指示します。新しいセッションは前回の会話を知らないので、「続きを再開」ではなく「タスクリストを見て次のタスクに着手」と伝えるのがポイントです。",
+          "content_en": "Launch a new claude session in the same project directory and instruct it to check the task list. Because the new session has no knowledge of the previous conversation, the key is to say \"check the task list and start the next task\" rather than \"resume where we left off.\""
         },
         {
           "type": "codeBlock",
           "language": "text",
           "code": "# セッション2での指示例:\n「タスクリストを確認して、次の未完了タスクに取りかかってください」\n\n# Claude Code が自動で行うこと:\n1. タスク一覧を取得し、完了済み/未完了を確認\n2. 着手可能な次のタスクを選択\n3. タスクの説明文を読んで、作業に必要な情報を把握\n4. 作業を開始",
-          "caption": "同じプロジェクトディレクトリで claude を起動してください"
+          "caption": "同じプロジェクトディレクトリで claude を起動してください",
+          "caption_en": "Launch claude in the same project directory"
         },
         {
           "type": "highlight",
           "variant": "tip",
           "title": "CLAUDE.md との併用",
-          "content": "プロジェクトの設計方針や技術スタック情報を CLAUDE.md（プロジェクトルートの .claude/CLAUDE.md）に書いておくと、どのセッションでも共通のコンテキストとして読み込まれます。タスク説明と合わせて活用しましょう。"
+          "title_en": "Using Together with CLAUDE.md",
+          "content": "プロジェクトの設計方針や技術スタック情報を CLAUDE.md（プロジェクトルートの .claude/CLAUDE.md）に書いておくと、どのセッションでも共通のコンテキストとして読み込まれます。タスク説明と合わせて活用しましょう。",
+          "content_en": "Writing the project's design decisions and technology stack information in CLAUDE.md (.claude/CLAUDE.md at the project root) makes it available as shared context in every session. Use it together with task descriptions for best results."
         }
       ]
     },
     {
       "id": "step-6",
       "label": "STEP 6",
+      "label_en": "STEP 6",
       "title": "全タスク完了と振り返り",
+      "title_en": "Completing All Tasks and Review",
       "description": "すべてのタスクが完了したら、成果を確認します。",
+      "description_en": "Once all tasks are complete, verify the results.",
       "blocks": [
-        { "type": "text", "content": "全タスクが完了したら、最終確認を指示します。" },
+        {
+          "type": "text",
+          "content": "全タスクが完了したら、最終確認を指示します。",
+          "content_en": "Once all tasks are complete, instruct Claude Code to perform a final check."
+        },
         {
           "type": "codeBlock",
           "language": "text",
           "code": "# 最終確認の指示例:\n「全タスクの完了状態を確認し、\n型チェックとテストを実行してください」\n\n# 結果例:\nTask #1: DB スキーマ        ✓ 完了\nTask #2: 認証 API           ✓ 完了\nTask #3: ミドルウェア       ✓ 完了\nTask #4: フロントエンド     ✓ 完了\nTask #5: テスト             ✓ 完了",
-          "caption": "全タスクの完了を確認したら、コードレビューやPR作成に進みましょう"
+          "caption": "全タスクの完了を確認したら、コードレビューやPR作成に進みましょう",
+          "caption_en": "Once all tasks are confirmed complete, proceed to code review or PR creation"
         },
         {
           "type": "highlight",
           "variant": "info",
           "title": "まとめ: 全体のフロー",
-          "content": "① 作業計画をタスクに分割 → ② 依存関係を設定 → ③ セッションごとにタスクを着手・完了 → ④ 新しいセッションで「タスクリストを確認して次へ」→ ⑤ 全タスク完了を確認。ポイントはタスク説明の充実です。"
+          "title_en": "Summary: Overall Flow",
+          "content": "① 作業計画をタスクに分割 → ② 依存関係を設定 → ③ セッションごとにタスクを着手・完了 → ④ 新しいセッションで「タスクリストを確認して次へ」→ ⑤ 全タスク完了を確認。ポイントはタスク説明の充実です。",
+          "content_en": "① Break the work plan into tasks → ② Set dependencies → ③ Start and complete tasks session by session → ④ In new sessions, \"check the task list and proceed to the next\" → ⑤ Confirm all tasks are complete. The key is writing detailed task descriptions."
         },
         {
           "type": "highlight",
           "variant": "tip",
           "title": "うまくいかないとき",
-          "content": "新しいセッションで Claude Code が文脈を理解できない場合は、タスクの説明が不足しています。「このタスクの説明を詳しく更新してください。使用するファイルパス、ライブラリ、設計方針を含めてください」と指示して説明を充実させましょう。"
+          "title_en": "When Things Do Not Go as Expected",
+          "content": "新しいセッションで Claude Code が文脈を理解できない場合は、タスクの説明が不足しています。「このタスクの説明を詳しく更新してください。使用するファイルパス、ライブラリ、設計方針を含めてください」と指示して説明を充実させましょう。",
+          "content_en": "If Claude Code cannot understand the context in a new session, the task description is lacking. Instruct it to \"update this task's description with more detail, including the file paths to use, libraries, and design decisions.\""
         }
       ]
     }
@@ -193,5 +261,13 @@
     "依存関係を設定するとタスクの実行順序を保証できる",
     "新しいセッションでは「タスクリストを確認して次のタスクへ」と指示するだけで引き継げる",
     "CLAUDE.md との併用で、全セッション共通のコンテキストを提供できる"
+  ],
+  "summary_en": [
+    "\"Session\" = a single conversation from when the claude command is launched until it exits",
+    "Tasks are persisted as files and retained across sessions",
+    "Writing detailed task descriptions is the key to handoff between sessions",
+    "Setting dependencies guarantees the execution order of tasks",
+    "In a new session, just say \"check the task list and proceed to the next task\" to pick up where you left off",
+    "Using CLAUDE.md alongside tasks provides shared context across all sessions"
   ]
 }

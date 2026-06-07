@@ -1,29 +1,37 @@
 {
   "id": "overview",
   "title": "動的ワークフローとは",
+  "title_en": "What Are Dynamic Workflows?",
   "description": "Claude Code がその場でハーネスを書き、複数のサブエージェントを協調させる仕組み",
+  "description_en": "How Claude Code writes a harness on the fly and coordinates multiple sub-agents",
   "blocks": [
     {
       "type": "paragraph",
-      "content": "動的ワークフローは、Claude Code が「ハーネス」（タスクの進め方そのものを定義する枠組み）をその場で JavaScript スクリプトとして書き、複数のサブエージェントを spawn（起動）し協調させる仕組み。2026年5月28日にリサーチプレビューとしてリリースされた。"
+      "content": "動的ワークフローは、Claude Code が「ハーネス」（タスクの進め方そのものを定義する枠組み）をその場で JavaScript スクリプトとして書き、複数のサブエージェントを spawn（起動）し協調させる仕組み。2026年5月28日にリサーチプレビューとしてリリースされた。",
+      "content_en": "Dynamic workflows are a mechanism by which Claude Code writes a \"harness\" — a framework that defines how a task should proceed — on the fly as a JavaScript script, then spawns and coordinates multiple sub-agents. Released as a research preview on May 28, 2026."
     },
     {
       "type": "paragraph",
-      "content": "標準の Claude Code ハーネスはコーディング向けに作られているが、多くのタスクはコーディングに似ているため他用途にも有効。一方で、リサーチ、セキュリティ分析、エージェントチーム、コードレビューなど、ピーク性能のために専用ハーネスが必要な領域がある。動的ワークフローはこれらを Claude Code 内でネイティブに解けるようにし、作ったワークフローは他者と共有・再利用もできる。"
+      "content": "標準の Claude Code ハーネスはコーディング向けに作られているが、多くのタスクはコーディングに似ているため他用途にも有効。一方で、リサーチ、セキュリティ分析、エージェントチーム、コードレビューなど、ピーク性能のために専用ハーネスが必要な領域がある。動的ワークフローはこれらを Claude Code 内でネイティブに解けるようにし、作ったワークフローは他者と共有・再利用もできる。",
+      "content_en": "The standard Claude Code harness is built for coding, and because many tasks resemble coding it works well for other purposes too. However, there are domains — research, security analysis, agent teams, code review — that require a dedicated harness to reach peak performance. Dynamic workflows allow these to be solved natively inside Claude Code, and the workflows you create can be shared and reused by others."
     },
     {
       "type": "subsection",
       "title": "どう動くか",
+      "title_en": "How It Works",
       "blocks": [
         {
           "type": "paragraph",
-          "content": "スクリプトは JavaScript ファイルで、サブエージェントを spawn・協調させる専用関数（`agent` / `parallel` / `pipeline` / `phase` / `log` など）を持つ。`JSON`・`Math`・`Array` など標準 JavaScript も使える。"
+          "content": "スクリプトは JavaScript ファイルで、サブエージェントを spawn・協調させる専用関数（`agent` / `parallel` / `pipeline` / `phase` / `log` など）を持つ。`JSON`・`Math`・`Array` など標準 JavaScript も使える。",
+          "content_en": "The script is a JavaScript file equipped with dedicated functions for spawning and coordinating sub-agents — `agent`, `parallel`, `pipeline`, `phase`, `log`, and others. Standard JavaScript objects such as `JSON`, `Math`, and `Array` are also available."
         },
         {
           "type": "callout",
           "variant": "info",
           "title": "関数名について",
-          "content": "これらの関数名はリサーチプレビュー時点の観察に基づくもので、公式 API リファレンスは未公開。将来変更される可能性がある。"
+          "title_en": "About Function Names",
+          "content": "これらの関数名はリサーチプレビュー時点の観察に基づくもので、公式 API リファレンスは未公開。将来変更される可能性がある。",
+          "content_en": "These function names are based on observations during the research preview period; no official API reference has been published. They are subject to change in the future."
         },
         {
           "type": "list",
@@ -31,29 +39,40 @@
             "エージェントごとに使うモデルを選べる（強いモデルが不要なステージは小さいモデルにルーティングできる）",
             "サブエージェントを git worktree で隔離して並行作業させられる",
             "中断（一時停止）してもセッション内で再開でき、完了済みエージェントはキャッシュ結果を返す"
+          ],
+          "items_en": [
+            "You can choose which model each agent uses — stages that don't need a powerful model can be routed to a smaller one.",
+            "Sub-agents can be isolated in git worktrees to work in parallel.",
+            "Even after an interruption (pause), execution can be resumed within the same session; completed agents return cached results."
           ]
         },
         {
           "type": "callout",
           "variant": "warning",
           "title": "再開はセッション内のみ",
-          "content": "再開できるのは同一 Claude Code セッション内で一時停止した場合に限る。Claude Code を終了すると、次回起動時はワークフローはフレッシュスタート（最初から）になる。"
+          "title_en": "Resume Is Within the Same Session Only",
+          "content": "再開できるのは同一 Claude Code セッション内で一時停止した場合に限る。Claude Code を終了すると、次回起動時はワークフローはフレッシュスタート（最初から）になる。",
+          "content_en": "Resumption is only possible when execution was paused within the same Claude Code session. If Claude Code is closed, the workflow starts fresh from the beginning on the next launch."
         }
       ]
     },
     {
       "type": "subsection",
       "title": "起動と利用条件",
+      "title_en": "How to Trigger and Requirements",
       "blocks": [
         {
           "type": "paragraph",
-          "content": "「ワークフローを作って」のように頼むか、起動キーワード `ultracode` をプロンプトに含めると起動する。`/config` でこのキーワードトリガーはオフにできる。"
+          "content": "「ワークフローを作って」のように頼むか、起動キーワード `ultracode` をプロンプトに含めると起動する。`/config` でこのキーワードトリガーはオフにできる。",
+          "content_en": "You can trigger a dynamic workflow by asking something like \"create a workflow,\" or by including the trigger keyword `ultracode` in your prompt. This keyword trigger can be disabled via `/config`."
         },
         {
           "type": "callout",
           "variant": "info",
           "title": "トリガー語の変更",
-          "content": "v2.1.160 より前の起動キーワードは `workflow` だったが、現在は `ultracode`。"
+          "title_en": "Trigger Keyword Change",
+          "content": "v2.1.160 より前の起動キーワードは `workflow` だったが、現在は `ultracode`。",
+          "content_en": "Before v2.1.160, the trigger keyword was `workflow`; it is now `ultracode`."
         },
         {
           "type": "list",
@@ -62,11 +81,18 @@
             "リサーチプレビュー段階（2026年5月28日リリース）",
             "全有料プラン・Anthropic API・Amazon Bedrock・Google Cloud Vertex AI・Microsoft Foundry で利用可能",
             "Opus 4.8 専用ではない（Opus 4.8 を使うとエージェントがより長時間動作できる、という補完関係にある）"
+          ],
+          "items_en": [
+            "Requires Claude Code v2.1.154 or later.",
+            "Currently in research preview (released May 28, 2026).",
+            "Available on all paid plans, Anthropic API, Amazon Bedrock, Google Cloud Vertex AI, and Microsoft Foundry.",
+            "Not exclusive to Opus 4.8 — using Opus 4.8 is complementary in that it allows agents to operate for longer."
           ]
         },
         {
           "type": "subsection",
           "title": "実行制限",
+          "title_en": "Execution Limits",
           "blocks": [
             {
               "type": "list",
@@ -74,6 +100,11 @@
                 "同時実行エージェントは最大16（CPUコアが少ない環境ではさらに少なくなる）",
                 "1ワークフローあたりの総エージェント数は1,000が上限",
                 "スクリプト自身は直接ファイルやシェルにアクセスできず、操作はエージェント経由で行う"
+              ],
+              "items_en": [
+                "Maximum 16 concurrent agents (fewer on machines with limited CPU cores).",
+                "Maximum 1,000 total agents per workflow.",
+                "The script itself cannot access files or the shell directly — all operations go through agents."
               ]
             }
           ]
@@ -83,10 +114,12 @@
     {
       "type": "subsection",
       "title": "静的ワークフローとの違い",
+      "title_en": "Differences from Static Workflows",
       "blocks": [
         {
           "type": "paragraph",
-          "content": "従来は Claude Agent SDK や `claude -p` で複数の Claude Code インスタンスを協調させる「静的ワークフロー」を作れた。ただしあらゆるエッジケースに対応する必要があるため汎用的になりがち。動的ワークフローは Claude Opus 4.8 の知能により、ユースケースに合わせたタスク専用ハーネスをその場で書ける点が異なる。"
+          "content": "従来は Claude Agent SDK や `claude -p` で複数の Claude Code インスタンスを協調させる「静的ワークフロー」を作れた。ただしあらゆるエッジケースに対応する必要があるため汎用的になりがち。動的ワークフローは Claude Opus 4.8 の知能により、ユースケースに合わせたタスク専用ハーネスをその場で書ける点が異なる。",
+          "content_en": "Previously, you could create \"static workflows\" that coordinate multiple Claude Code instances using the Claude Agent SDK or `claude -p`. However, these tend to be general-purpose because they must handle every edge case. Dynamic workflows differ in that Claude Opus 4.8's intelligence can write a task-specific harness tailored to the use case on the fly."
         }
       ]
     }

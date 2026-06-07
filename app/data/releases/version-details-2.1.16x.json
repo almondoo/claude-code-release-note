@@ -2,707 +2,1052 @@
   "2.1.160": [
     {
       "t": "追加: シェルのスタートアップファイルや `~/.config/git/` への書き込み前に確認プロンプトを表示",
+      "t_en": "Added: Confirmation prompt before writing to shell startup files or `~/.config/git/`",
       "tags": ["新機能", "Security"],
       "detail": "Claude がシェルのスタートアップファイル（`~/.bashrc`、`~/.zshrc`、`~/.profile` 等）や `~/.config/git/` ディレクトリ内のファイルに書き込もうとする際、事前に確認プロンプトが表示されるようになりました。\n\nこれらのファイルはシェル起動時やコマンド実行時に自動的に読み込まれるため、悪意のある変更が行われると深刻なセキュリティリスクになります。確認プロンプトにより、意図しない変更を防止できます。\n\n詳しくは[セキュリティのドキュメント](https://code.claude.com/docs/en/security)を参照してください。",
-      "category": "セキュリティ"
+      "detail_en": "Claude now shows a confirmation prompt before writing to shell startup files (`~/.bashrc`, `~/.zshrc`, `~/.profile`, etc.) or files inside the `~/.config/git/` directory.\n\nBecause these files are automatically loaded at shell startup or command execution, malicious modifications could pose a serious security risk. The confirmation prompt helps prevent unintended changes.\n\nSee the [security documentation](https://code.claude.com/docs/en/security) for details.",
+      "category": "セキュリティ",
+      "category_en": "Security"
     },
     {
       "t": "追加: `acceptEdits` モードでビルドツール設定ファイルへの書き込み前に確認プロンプトを表示（コード実行権限付与の可能性があるファイル）",
+      "t_en": "Added: Confirmation prompt before writing to build tool config files in `acceptEdits` mode (files that may grant code execution permissions)",
       "tags": ["新機能", "Security"],
       "detail": "`acceptEdits` モード（編集を自動承認するモード）で動作中であっても、ビルドツールの設定ファイル（`package.json` のスクリプト、`Makefile`、`CMakeLists.txt` 等）への書き込みは確認プロンプトを表示するようになりました。\n\nこれらのファイルはビルドコマンド経由でコード実行の権限を実質的に付与できるため、特別な注意が必要です。自動承認モードでも意図せずコード実行の窓口が開かれることを防ぐための安全策です。\n\n詳しくは[セキュリティのドキュメント](https://code.claude.com/docs/en/security)を参照してください。",
-      "category": "セキュリティ"
+      "detail_en": "Even in `acceptEdits` mode (which auto-approves edits), a confirmation prompt is now shown before writing to build tool configuration files (`package.json` scripts, `Makefile`, `CMakeLists.txt`, etc.).\n\nThese files can effectively grant code execution permissions via build commands, so they require special caution. This is a safety measure to prevent unintentionally opening a code execution path even in auto-approval mode.\n\nSee the [security documentation](https://code.claude.com/docs/en/security) for details.",
+      "category": "セキュリティ",
+      "category_en": "Security"
     },
     {
       "t": "改善: `grep` でファイルを参照済みの場合に Edit ツールが別途 Read を不要に",
+      "t_en": "Improved: Edit tool no longer requires a separate Read when the file was already viewed via `grep`",
       "tags": ["改善"],
       "detail": "従来は Edit ツールでファイルを編集する前に Read ツールで内容を確認する必要がありましたが、同じターン内で `grep` コマンドを使って対象ファイルを参照済みの場合は、別途 Read ツールの実行が不要になりました。\n\nこれにより、検索してから編集するという一般的なワークフローでのツール呼び出し回数が削減され、作業がよりスムーズになります。",
-      "category": "ツール改善"
+      "detail_en": "Previously, the Read tool had to be run before editing a file with the Edit tool. Now, if the target file was already viewed via `grep` in the same turn, a separate Read is no longer required.\n\nThis reduces the number of tool calls in the common search-then-edit workflow, making work smoother.",
+      "category": "ツール改善",
+      "category_en": "Tool Improvements"
     },
     {
       "t": "修正: WSL 環境でコピーオンセレクトが Windows クリップボードに書き込まれない問題",
+      "t_en": "Fixed: Copy-on-select not writing to Windows clipboard in WSL environment",
       "tags": ["バグ修正", "Windows"],
       "detail": "WSL（Windows Subsystem for Linux）環境でテキストを選択した際にクリップボードにコピーする機能（コピーオンセレクト）が、Windows クリップボードに書き込まれない問題が修正されました。\n\nWSL 上での操作内容が Windows ホスト側のクリップボードに正しく反映されるようになり、WSL と Windows アプリ間のコピー&ペースト操作が期待どおり動作します。",
-      "category": "プラットフォーム互換性"
+      "detail_en": "Fixed an issue where the copy-on-select feature (copying to clipboard when text is selected) was not writing to the Windows clipboard in WSL (Windows Subsystem for Linux) environments.\n\nActions in WSL are now correctly reflected in the Windows host clipboard, so copy-and-paste between WSL and Windows apps works as expected.",
+      "category": "プラットフォーム互換性",
+      "category_en": "Platform Compatibility"
     },
     {
       "t": "修正: `claude agents` から完了済みセッションを復元するとチャット履歴が失われる問題",
+      "t_en": "Fixed: Chat history lost when restoring a completed session from `claude agents`",
       "tags": ["バグ修正", "Agent"],
       "detail": "`claude agents` コマンドで完了済みのバックグラウンドエージェントセッションを復元しようとすると、それまでのチャット履歴が失われてしまう問題が修正されました。\n\n完了済みセッションを復元した際に、以前の会話内容が正しく復元されるようになりました。",
-      "category": "セッション管理"
+      "detail_en": "Fixed an issue where restoring a completed background agent session via `claude agents` would lose the chat history up to that point.\n\nPrevious conversation content is now correctly restored when opening a completed session.",
+      "category": "セッション管理",
+      "category_en": "Session Management"
     },
     {
       "t": "修正: バックグラウンドセッションが一晩の非アクティブ後に会話を失う問題",
+      "t_en": "Fixed: Background session losing conversation after overnight inactivity",
       "tags": ["バグ修正", "Agent"],
       "detail": "バックグラウンドで動作するセッションが一晩などの長時間にわたって非アクティブ状態になった後、セッションが「retire（引退）」処理され会話内容が失われる問題が修正されました。\n\n長時間の非アクティブ後でも、バックグラウンドセッションの会話内容が保持されるようになりました。",
-      "category": "セッション管理"
+      "detail_en": "Fixed an issue where a background session that had been inactive for a long period (such as overnight) would be \"retired\" and lose its conversation content.\n\nBackground session conversation content is now preserved even after extended periods of inactivity.",
+      "category": "セッション管理",
+      "category_en": "Session Management"
     },
     {
       "t": "修正: 負荷の高いマシンで `claude --bg` が「socket missing」エラーで失敗することがある問題",
+      "t_en": "Fixed: `claude --bg` intermittently failing with \"socket missing\" error on heavily loaded machines",
       "tags": ["バグ修正", "Agent"],
       "detail": "CPU やリソースの負荷が高いマシンで `claude --bg` を使ってバックグラウンドセッションを起動すると、「socket missing」エラーで断続的に失敗する問題が修正されました。\n\nデーモンプロセスとのソケット通信の確立タイミングが改善され、高負荷環境でも安定して起動できるようになりました。",
-      "category": "安定性"
+      "detail_en": "Fixed an issue where launching a background session with `claude --bg` on a machine under high CPU or resource load would intermittently fail with a \"socket missing\" error.\n\nThe timing of socket communication establishment with the daemon process has been improved, allowing stable startup even under high load.",
+      "category": "安定性",
+      "category_en": "Stability"
     },
     {
       "t": "修正: `claude rm` 後にデーモンが終了するまで Windows のディレクトリ削除がブロックされる問題",
+      "t_en": "Fixed: Windows directory deletion blocked until daemon exits after `claude rm`",
       "tags": ["バグ修正", "Windows"],
       "detail": "Windows 環境で `claude rm` コマンドを実行した後、Claude Code デーモンプロセスが終了するまでディレクトリの削除操作がブロックされてしまう問題が修正されました。\n\nWindows のファイルロックに起因する問題で、`claude rm` 実行後もすぐにディレクトリを削除できるようになりました。",
-      "category": "プラットフォーム互換性"
+      "detail_en": "Fixed an issue on Windows where directory deletion was blocked until the Claude Code daemon process exited after running `claude rm`.\n\nThis was caused by Windows file locking; directories can now be deleted immediately after running `claude rm`.",
+      "category": "プラットフォーム互換性",
+      "category_en": "Platform Compatibility"
     },
     {
       "t": "修正: 完了したバックグラウンドエージェントが Completed ではなく進行中として表示される問題",
+      "t_en": "Fixed: Completed background agent shown as in-progress instead of Completed",
       "tags": ["バグ修正", "Agent"],
       "detail": "バックグラウンドエージェントが作業を完了しているにもかかわらず、`claude agents` のリストで「Completed」タブではなく進行中として表示されることがある問題が修正されました。\n\n完了済みのエージェントセッションが正しくステータス分類されるようになりました。",
-      "category": "マルチエージェント"
+      "detail_en": "Fixed an issue where a background agent that had finished its work was sometimes shown as in-progress rather than under the \"Completed\" tab in `claude agents`.\n\nCompleted agent sessions are now correctly classified by status.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-Agent"
     },
     {
       "t": "修正: `claude agents` でリストに戻った際に自動アップデーターの再確認でフリーズする問題",
+      "t_en": "Fixed: UI freeze caused by auto-updater re-checking when returning to the list in `claude agents`",
       "tags": ["バグ修正", "Agent"],
       "detail": "エージェント詳細画面からリスト画面に戻ったタイミングで、Claude Code の自動アップデーターがアップデートの確認を再実行することにより、UI がフリーズしてしまう問題が修正されました。\n\nアップデート確認の頻度が適切に制御されるようになり、画面遷移時のフリーズが解消されました。",
-      "category": "安定性"
+      "detail_en": "Fixed an issue where the UI would freeze when navigating from the agent detail view back to the list view, because the Claude Code auto-updater would re-run its update check at that moment.\n\nUpdate check frequency is now properly controlled, eliminating the freeze during screen transitions.",
+      "category": "安定性",
+      "category_en": "Stability"
     },
     {
       "t": "修正: CPU 負荷が高い Windows 環境で Esc/矢印キー/タイピングが応答しなくなる問題",
+      "t_en": "Fixed: Esc/arrow keys/typing becoming unresponsive on Windows under high CPU load",
       "tags": ["バグ修正", "Windows"],
       "detail": "Windows 環境で CPU の負荷が高い状態の場合に、Esc キー、矢印キー、通常のタイピングが応答しなくなる問題が修正されました。\n\nキー入力の処理スレッドが CPU 負荷の影響を受けにくくなり、高負荷時でも安定したキーボード操作が可能になりました。",
-      "category": "入力"
+      "detail_en": "Fixed an issue on Windows where Esc, arrow keys, and regular typing would become unresponsive under high CPU load.\n\nThe key input processing thread is now less affected by CPU load, enabling stable keyboard operation even under high load.",
+      "category": "入力",
+      "category_en": "Input"
     },
     {
       "t": "修正: バックグラウンドエージェントが非対応ターミナルに同期マーカーを送信する問題",
+      "t_en": "Fixed: Background agent sending sync markers to terminals that don't support them",
       "tags": ["バグ修正", "Agent"],
       "detail": "バックグラウンドエージェントが、synchronized output（同期出力）プロトコルに対応していないターミナルに対しても同期マーカーを送信してしまう問題が修正されました。\n\n非対応ターミナルでは同期マーカーが文字化けや予期しない表示として現れることがあり、今回の修正でターミナルの対応状況を確認してから送信するようになりました。",
-      "category": "レンダリング"
+      "detail_en": "Fixed an issue where background agents would send synchronized output protocol markers even to terminals that don't support that protocol.\n\nOn unsupported terminals, these markers could appear as garbled text or unexpected output. The fix makes the agent check terminal support before sending markers.",
+      "category": "レンダリング",
+      "category_en": "Rendering"
     },
     {
       "t": "修正: セッションを開いた後にマウスホイールでトランスクリプトではなくプロンプト履歴がスクロールされる問題",
+      "t_en": "Fixed: Mouse wheel scrolling prompt history instead of transcript after opening a session",
       "tags": ["バグ修正"],
       "detail": "セッションを開いた直後の状態でマウスホイールを使うと、会話トランスクリプトではなくプロンプト入力履歴がスクロールされてしまう問題が修正されました。\n\nセッションを開いた後のフォーカス状態が正しく設定されるようになり、マウスホイール操作で会話履歴を遡れるようになりました。",
-      "category": "入力"
+      "detail_en": "Fixed an issue where using the mouse wheel immediately after opening a session would scroll through prompt input history instead of the conversation transcript.\n\nFocus state after opening a session is now correctly set, allowing the mouse wheel to scroll through conversation history.",
+      "category": "入力",
+      "category_en": "Input"
     },
     {
       "t": "修正: CJK IME の入力候補が入力キャレット位置ではなく左下に表示される問題",
+      "t_en": "Fixed: CJK IME candidate window appearing in the bottom-left instead of near the input caret",
       "tags": ["バグ修正", "Windows"],
       "detail": "日本語・中国語・韓国語（CJK）の IME 変換候補ウィンドウが、入力キャレットの近くではなく画面の左下に表示される問題が修正されました。\n\nIME の入力候補が入力位置の付近に正しく表示されるようになり、CJK 言語ユーザーの入力体験が改善されました。",
-      "category": "国際化"
+      "detail_en": "Fixed an issue where the IME candidate window for Japanese, Chinese, and Korean (CJK) was displayed in the bottom-left of the screen instead of near the input caret.\n\nIME candidates are now correctly displayed near the input position, improving the input experience for CJK language users.",
+      "category": "国際化",
+      "category_en": "Internationalization"
     },
     {
       "t": "修正: 有効な `file:///C:/...` リンクが Windows で壊れたパスに書き換えられる問題",
+      "t_en": "Fixed: Valid `file:///C:/...` links being rewritten to broken paths on Windows",
       "tags": ["バグ修正", "Windows"],
       "detail": "Windows 環境で有効な `file:///C:/...` 形式のローカルファイルリンクが、壊れたパスに書き換えられてしまう問題が修正されました。\n\nWindows のドライブレターを含む `file://` URI が正しくそのままの形で表示・処理されるようになりました。",
-      "category": "プラットフォーム互換性"
+      "detail_en": "Fixed an issue on Windows where valid `file:///C:/...` local file links were being rewritten to broken paths.\n\n`file://` URIs containing Windows drive letters are now displayed and processed correctly as-is.",
+      "category": "プラットフォーム互換性",
+      "category_en": "Platform Compatibility"
     },
     {
       "t": "修正: 非 ASCII のプロジェクトディレクトリ名またはブランチ名でボイスモードの接続に失敗する問題",
+      "t_en": "Fixed: Voice mode connection failing with non-ASCII project directory or branch names",
       "tags": ["バグ修正"],
       "detail": "プロジェクトディレクトリ名やブランチ名に日本語などの非 ASCII 文字が含まれている場合に、ボイスモードの接続が失敗する問題が修正されました。\n\nパスやブランチ名のエンコーディング処理が修正され、非 ASCII 文字を含むプロジェクトでもボイスモードが正常に動作するようになりました。",
-      "category": "国際化"
+      "detail_en": "Fixed an issue where voice mode connection would fail when the project directory name or branch name contained non-ASCII characters such as Japanese.\n\nEncoding handling for paths and branch names has been corrected so voice mode works properly in projects with non-ASCII characters.",
+      "category": "国際化",
+      "category_en": "Internationalization"
     },
     {
       "t": "修正: サードパーティプロバイダーで Auto モード非利用時のメッセージが不正確に表示される問題",
+      "t_en": "Fixed: Inaccurate message displayed for Auto mode unavailability when using third-party providers",
       "tags": ["バグ修正"],
       "detail": "Amazon Bedrock、Google Vertex AI、Azure OpenAI などのサードパーティプロバイダー経由で利用している場合に、Auto モードが利用できない旨のメッセージが不正確な内容で表示される問題が修正されました。\n\nサードパーティプロバイダー向けに適切なメッセージが表示されるようになりました。",
-      "category": "プラットフォーム互換性"
+      "detail_en": "Fixed an issue where an inaccurate message about Auto mode being unavailable was displayed when using third-party providers such as Amazon Bedrock, Google Vertex AI, or Azure OpenAI.\n\nAn appropriate message is now displayed for third-party provider contexts.",
+      "category": "プラットフォーム互換性",
+      "category_en": "Platform Compatibility"
     },
     {
       "t": "修正: `/effort ultracode` が誤って dynamic workflows 設定を原因として指摘する問題",
+      "t_en": "Fixed: `/effort ultracode` incorrectly blaming dynamic workflows configuration",
       "tags": ["バグ修正"],
       "detail": "`/effort ultracode` を使用した際に、dynamic workflows の設定に問題があるかのような誤ったエラーメッセージが表示される問題が修正されました。\n\n`/effort ultracode` は dynamic workflows 設定とは独立して動作するため、関係のない設定を原因として指摘することがなくなりました。",
-      "category": "コマンド"
+      "detail_en": "Fixed an issue where using `/effort ultracode` would display an erroneous error message suggesting there was a problem with the dynamic workflows configuration.\n\nBecause `/effort ultracode` operates independently of the dynamic workflows setting, it no longer incorrectly cites an unrelated setting as the cause.",
+      "category": "コマンド",
+      "category_en": "Commands"
     },
     {
       "t": "修正: モデルが見つからないエラーで不適切な `--model` フラグの提案が表示される問題",
+      "t_en": "Fixed: Inappropriate suggestion to use `--model` flag on model-not-found errors",
       "tags": ["バグ修正"],
       "detail": "モデルが見つからないエラーが発生した際に、状況に関係なく `--model` フラグの使用を提案するメッセージが表示される問題が修正されました。\n\n`--model` フラグを指定しても解決しない状況では、より適切なエラーメッセージと対処法が表示されるようになりました。",
-      "category": "UX"
+      "detail_en": "Fixed an issue where a model-not-found error would always suggest using the `--model` flag regardless of the situation.\n\nIn cases where specifying `--model` would not resolve the issue, a more appropriate error message and remediation steps are now shown.",
+      "category": "UX",
+      "category_en": "UX"
     },
     {
       "t": "修正: brief モードのセッションを再開した際に Claude の過去の返答が消える問題",
+      "t_en": "Fixed: Claude's past responses disappearing when resuming a brief-mode session",
       "tags": ["バグ修正"],
       "detail": "brief モード（出力を簡略表示するモード）で実行していたセッションを `--resume` で再開した際に、Claude の過去の返答が会話履歴から消えてしまう問題が修正されました。\n\nセッション再開後も、brief モードで行われた会話の内容が正しく復元されるようになりました。",
-      "category": "セッション管理"
+      "detail_en": "Fixed an issue where Claude's past responses would disappear from the conversation history when resuming a brief-mode session (a mode that shows condensed output) with `--resume`.\n\nConversation content from brief-mode sessions is now correctly restored after resuming.",
+      "category": "セッション管理",
+      "category_en": "Session Management"
     },
     {
       "t": "修正: vim モードの `p` が誤った行にペーストする問題",
+      "t_en": "Fixed: vim mode `p` pasting to the wrong line",
       "tags": ["バグ修正"],
       "detail": "vim モードで `p`（ペースト）コマンドを使った際に、意図した行ではなく異なる行にペーストされてしまう問題が修正されました。\n\nvim モードのカーソル位置とペースト先の行計算が修正され、正しい位置にペーストされるようになりました。",
-      "category": "入力"
+      "detail_en": "Fixed an issue in vim mode where the `p` (paste) command would paste to a different line than intended.\n\nThe cursor position and paste target line calculation in vim mode has been corrected so content is pasted at the correct position.",
+      "category": "入力",
+      "category_en": "Input"
     },
     {
       "t": "改善: 最近非アクティブになったバックグラウンドエージェントセッションを開く際のパフォーマンスを改善",
+      "t_en": "Improved: Performance when opening recently inactive background agent sessions",
       "tags": ["改善", "Perf", "Agent"],
       "detail": "バックグラウンドエージェントセッションが一時的に非アクティブになった後に再び開く際のパフォーマンスが改善されました。\n\nセッション状態の読み込み処理が最適化され、非アクティブ後のセッション復帰がより迅速に行われるようになりました。",
-      "category": "パフォーマンス"
+      "detail_en": "Performance has been improved when reopening a background agent session that had become temporarily inactive.\n\nSession state loading has been optimized so returning to an inactive session is now faster.",
+      "category": "パフォーマンス",
+      "category_en": "Performance"
     },
     {
       "t": "改善: Auto モードの分類器レイテンシを改善",
+      "t_en": "Improved: Classifier latency in Auto mode",
       "tags": ["改善", "Perf"],
       "detail": "Auto モードでリクエストを処理する際の分類器（どのモデルや処理パスを使うかを決定するコンポーネント）のレイテンシが改善されました。\n\nリクエストに対してより素早く応答を開始できるようになり、Auto モード使用時の体感速度が向上しました。",
-      "category": "パフォーマンス"
+      "detail_en": "The latency of the classifier (the component that decides which model or processing path to use) when handling requests in Auto mode has been improved.\n\nResponses can now begin more quickly, improving the perceived speed when using Auto mode.",
+      "category": "パフォーマンス",
+      "category_en": "Performance"
     },
     {
       "t": "改善: バックグラウンドセッションの終了処理で SIGKILL の前に SIGTERM を送信するよう改善",
+      "t_en": "Improved: Background session shutdown now sends SIGTERM before SIGKILL",
       "tags": ["改善", "Agent"],
       "detail": "バックグラウンドセッションを終了する際の処理が改善されました。これまでは即座に SIGKILL（強制終了）を送信していましたが、最初に SIGTERM（正常終了シグナル）を送信してからしばらく待ち、その後 SIGKILL を送信するようになりました。\n\nこれにより、バックグラウンドプロセスが保存処理やクリーンアップを適切に行ってから終了できるようになり、データの整合性が向上します。",
-      "category": "安定性"
+      "detail_en": "The shutdown process for background sessions has been improved. Previously, SIGKILL (force kill) was sent immediately, but now SIGTERM (graceful termination signal) is sent first and after a brief wait, SIGKILL follows.\n\nThis allows background processes to properly complete save operations and cleanup before exiting, improving data integrity.",
+      "category": "安定性",
+      "category_en": "Stability"
     },
     {
       "t": "削除: `CLAUDE_CODE_OPUS_4_6_FAST_MODE_OVERRIDE` 環境変数を削除",
+      "t_en": "Removed: `CLAUDE_CODE_OPUS_4_6_FAST_MODE_OVERRIDE` environment variable removed",
       "tags": ["非推奨"],
       "detail": "Opus 4.6 の高速モードを強制するための環境変数 `CLAUDE_CODE_OPUS_4_6_FAST_MODE_OVERRIDE` が削除されました。\n\nこの環境変数は Opus 4.6 向けの一時的な workaround として提供されていたものです。Opus 4.7 などの後継モデルではこのような制御が不要になったため、削除されました。",
-      "category": "設定"
+      "detail_en": "The `CLAUDE_CODE_OPUS_4_6_FAST_MODE_OVERRIDE` environment variable, which was used to force Opus 4.6's fast mode, has been removed.\n\nThis environment variable was provided as a temporary workaround for Opus 4.6. Successor models such as Opus 4.7 no longer require this kind of control, so it has been removed.",
+      "category": "設定",
+      "category_en": "Configuration"
     },
     {
       "t": "削除: JetBrains プラグインのインストール提案を削除",
+      "t_en": "Removed: JetBrains plugin install suggestion removed",
       "tags": ["非推奨", "IDE"],
       "detail": "Claude Code の起動時や特定の操作時に表示されていた JetBrains プラグインのインストール提案が削除されました。\n\nユーザーが必要に応じて自らプラグインを探せるため、自動提案は不要と判断されました。",
-      "category": "IDE"
+      "detail_en": "The JetBrains plugin install suggestion that appeared on Claude Code startup or during certain operations has been removed.\n\nSince users can find plugins themselves when needed, the automatic suggestion was deemed unnecessary.",
+      "category": "IDE",
+      "category_en": "IDE"
     },
     {
       "t": "変更: dynamic-workflow のトリガーキーワードを「workflow」から「ultracode」に変更",
+      "t_en": "Changed: dynamic-workflow trigger keyword changed from \"workflow\" to \"ultracode\"",
       "tags": ["改善"],
       "detail": "dynamic-workflow 機能（自動的にワークフローを構築して実行する機能）のトリガーキーワードが「workflow」から「ultracode」に変更されました。\n\nこれにより、`/effort ultracode` コマンドとの整合性が取れるようになりました。既存のプロンプトで「workflow」を使用してこの機能をトリガーしていた場合は、「ultracode」に変更する必要があります。",
-      "category": "コマンド"
+      "detail_en": "The trigger keyword for the dynamic-workflow feature (which automatically builds and executes workflows) has been changed from \"workflow\" to \"ultracode\".\n\nThis aligns it with the `/effort ultracode` command. If you were triggering this feature with \"workflow\" in existing prompts, you will need to change it to \"ultracode\".",
+      "category": "コマンド",
+      "category_en": "Commands"
     }
   ],
   "2.1.161": [
     {
       "t": "追加: `OTEL_RESOURCE_ATTRIBUTES` の値を使用量メトリクスのデータポイントにラベルとして付与",
+      "t_en": "Added: `OTEL_RESOURCE_ATTRIBUTES` values attached as labels to usage metric data points",
       "tags": ["新機能"],
       "detail": "環境変数 `OTEL_RESOURCE_ATTRIBUTES` に設定した値が、使用量メトリクス（トークン消費量、コスト等）の各データポイントにラベルとして付与されるようになりました。\n\nこれにより、チーム、プロジェクト、環境などの属性でメトリクスをスライスして分析できるようになります。例えば `OTEL_RESOURCE_ATTRIBUTES=team=backend,env=production` のように設定することで、バックエンドチームの本番環境での使用量を他のチーム・環境と区別して集計できます。\n\n詳しくは [OpenTelemetry の設定ドキュメント](https://code.claude.com/docs/en/settings)を参照してください。",
-      "category": "設定"
+      "detail_en": "Values set in the `OTEL_RESOURCE_ATTRIBUTES` environment variable are now attached as labels to each data point of usage metrics (token consumption, cost, etc.).\n\nThis allows you to slice and analyze metrics by attributes such as team, project, or environment. For example, setting `OTEL_RESOURCE_ATTRIBUTES=team=backend,env=production` lets you aggregate backend team production usage separately from other teams and environments.\n\nSee the [OpenTelemetry configuration documentation](https://code.claude.com/docs/en/settings) for details.",
+      "category": "設定",
+      "category_en": "Configuration"
     },
     {
       "t": "改善: `claude agents` の一覧に作業がファンアウトされている場合に `done/total` 進捗を表示",
+      "t_en": "Improved: `claude agents` list now shows `done/total` progress when work is fanned out",
       "tags": ["改善", "Agent"],
       "detail": "エージェントが複数のサブタスクに作業をファンアウト（並列展開）している場合に、`claude agents` のリスト表示で各エージェント行の詳細前に `done/total`（完了数/合計数）の進捗が表示されるようになりました。\n\nリスト画面から各エージェントの進捗を一目で確認できるようになり、詳細画面を開かなくても全体的な作業状況を把握できます。",
-      "category": "マルチエージェント"
+      "detail_en": "When an agent has fanned out work across multiple subtasks, `done/total` (completed/total) progress is now displayed before each agent row's details in the `claude agents` list.\n\nYou can now check each agent's progress at a glance from the list view without opening the detail view.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-Agent"
     },
     {
       "t": "改善: `/mcp` が未使用の claude.ai コネクタを「Show unused connectors」行の後ろに折りたたんで表示",
+      "t_en": "Improved: `/mcp` now collapses unused claude.ai connectors behind a \"Show unused connectors\" row",
       "tags": ["改善", "MCP"],
       "detail": "`/mcp` コマンドの表示が改善されました。現在のセッションで使用されていない claude.ai コネクタは「Show unused connectors」という折りたたみ行の後ろに隠れて表示されるようになりました。\n\n使用頻度の高いコネクタが上部に表示され、未使用のものはデフォルトで折りたたまれることで、MCP コネクタリストが見やすくなります。\n\n詳しくは [MCP のドキュメント](https://code.claude.com/docs/en/mcp)を参照してください。",
-      "category": "MCP 連携"
+      "detail_en": "The display of the `/mcp` command has been improved. claude.ai connectors that are not used in the current session are now hidden behind a collapsible \"Show unused connectors\" row.\n\nFrequently used connectors appear at the top while unused ones are collapsed by default, making the MCP connector list easier to read.\n\nSee the [MCP documentation](https://code.claude.com/docs/en/mcp) for details.",
+      "category": "MCP 連携",
+      "category_en": "MCP Integration"
     },
     {
       "t": "改善: 並列ツール呼び出しで失敗した Bash コマンドが同バッチ内の他の呼び出しをキャンセルしないように改善",
+      "t_en": "Improved: A failed Bash command in parallel tool calls no longer cancels other calls in the same batch",
       "tags": ["改善"],
       "detail": "Claude が複数の Bash コマンドを並列で実行している際に、そのうち1つが失敗しても同じバッチ内の他のコマンドがキャンセルされなくなりました。\n\nこれまでは1つのコマンドの失敗が他の並列実行中のコマンドもキャンセルしていたため、独立したコマンドの実行が不必要に中断されることがありました。各コマンドが独立して結果を返せるようになり、並列実行の効率が向上します。",
-      "category": "ツール改善"
+      "detail_en": "When Claude runs multiple Bash commands in parallel, a failure in one command no longer cancels the other commands in the same batch.\n\nPreviously, a single command failure would also cancel other in-progress parallel commands, unnecessarily interrupting independent commands. Each command can now return its result independently, improving parallel execution efficiency.",
+      "category": "ツール改善",
+      "category_en": "Tool Improvements"
     },
     {
       "t": "改善: Linux でフルスクリーンモードのクリップボードが利用可能な場合 `wl-copy`/`xclip`/`xsel` を使用するように改善",
+      "t_en": "Improved: Linux fullscreen clipboard now uses `wl-copy`/`xclip`/`xsel` when available",
       "tags": ["改善"],
       "detail": "Linux でフルスクリーンモードを使用している場合のクリップボード処理が改善されました。Wayland 環境では `wl-copy`、X11 環境では `xclip` または `xsel` が利用可能であれば優先的に使用されるようになりました。\n\nLinux でのコピー操作がシステムのクリップボード管理ツールと正しく連携し、他のアプリケーションとのコピー&ペーストが確実に動作するようになります。",
-      "category": "プラットフォーム互換性"
+      "detail_en": "Clipboard handling in Linux fullscreen mode has been improved. `wl-copy` is now preferred on Wayland, and `xclip` or `xsel` on X11 when they are available.\n\nCopy operations on Linux now correctly integrate with the system clipboard management tools, ensuring reliable copy-and-paste with other applications.",
+      "category": "プラットフォーム互換性",
+      "category_en": "Platform Compatibility"
     },
     {
       "t": "修正: `/effort` ダイアログ、ワークフローアニメーション、プロンプトキーワードシマーが「Reduce motion」設定を尊重しない問題",
+      "t_en": "Fixed: `/effort` dialog, workflow animations, and prompt keyword shimmer not respecting \"Reduce motion\" setting",
       "tags": ["バグ修正"],
       "detail": "アクセシビリティ設定の「Reduce motion」（モーション軽減）を有効にしていても、`/effort` ダイアログのアニメーション、ワークフロー実行時のアニメーション、プロンプト入力時のキーワードシマー（光沢エフェクト）が無効化されない問題が修正されました。\n\n「Reduce motion」設定が有効な場合、これらのアニメーションやエフェクトが適切に抑制されるようになりました。",
-      "category": "UX"
+      "detail_en": "Fixed an issue where the `/effort` dialog animations, workflow execution animations, and prompt keyword shimmer (gloss effect) were not disabled even when the \"Reduce motion\" accessibility setting was enabled.\n\nThese animations and effects are now properly suppressed when \"Reduce motion\" is enabled.",
+      "category": "UX",
+      "category_en": "UX"
     },
     {
       "t": "修正: managed-settings ポリシーが組織のピン設定とともにサードパーティプロバイダーのセッションもブロックする問題",
+      "t_en": "Fixed: managed-settings policy blocking third-party provider sessions along with org pin settings",
       "tags": ["バグ修正", "Security"],
       "detail": "組織の managed-settings で特定のモデルをピン留めするポリシーを設定していた場合に、そのポリシーがサードパーティプロバイダー（Amazon Bedrock、Google Vertex AI 等）を使用するセッションまで誤ってブロックしてしまう問題が修正されました。\n\nモデルのピン設定はデフォルトの Anthropic API に対してのみ適用されるようになり、サードパーティプロバイダーのセッションは影響を受けなくなりました。\n\n詳しくは[セキュリティのドキュメント](https://code.claude.com/docs/en/security)を参照してください。",
-      "category": "セキュリティ"
+      "detail_en": "Fixed an issue where a managed-settings policy that pinned a specific model would also incorrectly block sessions using third-party providers (Amazon Bedrock, Google Vertex AI, etc.).\n\nModel pin settings now apply only to the default Anthropic API, and third-party provider sessions are no longer affected.\n\nSee the [security documentation](https://code.claude.com/docs/en/security) for details.",
+      "category": "セキュリティ",
+      "category_en": "Security"
     },
     {
       "t": "修正: バックグラウンドサブエージェントの出力が `claude -p` の stdout をテキスト/JSON 出力形式で汚染する問題",
+      "t_en": "Fixed: Background subagent output polluting `claude -p` stdout in text/JSON output format",
       "tags": ["バグ修正", "Agent", "SDK"],
       "detail": "`claude -p`（print/SDK モード）で実行中にバックグラウンドサブエージェントが動作している場合、サブエージェントの出力が `claude -p` の標準出力（stdout）に混入してしまう問題が修正されました。テキスト形式と JSON 形式の両方で発生していました。\n\nこれにより、`claude -p` の出力をパイプや他のプログラムで処理する際に、予期しないサブエージェントの出力が混入しなくなります。",
-      "category": "SDK"
+      "detail_en": "Fixed an issue where, when a background subagent was running during `claude -p` (print/SDK mode) execution, the subagent's output would be mixed into `claude -p`'s standard output (stdout). This occurred in both text and JSON formats.\n\nThis prevents unexpected subagent output from mixing in when piping or processing `claude -p` output with other programs.",
+      "category": "SDK",
+      "category_en": "SDK"
     },
     {
       "t": "修正: `/usage-credits` が Team/Enterprise 管理者に組織設定を表示せず再ログインを開始する問題",
+      "t_en": "Fixed: `/usage-credits` initiating re-login instead of showing org settings to Team/Enterprise admins",
       "tags": ["バグ修正"],
       "detail": "Team または Enterprise プランの管理者アカウントで `/usage-credits` コマンドを実行した際に、組織の使用量設定ページを表示する代わりに再ログインフローが開始されてしまう問題が修正されました。\n\n管理者が `/usage-credits` を実行すると、正しく組織設定ページが表示されるようになりました。",
-      "category": "コマンド"
+      "detail_en": "Fixed an issue where running `/usage-credits` with a Team or Enterprise admin account would initiate a re-login flow instead of displaying the organization's usage settings page.\n\nRunning `/usage-credits` as an admin now correctly shows the organization settings page.",
+      "category": "コマンド",
+      "category_en": "Commands"
     },
     {
       "t": "修正: `/autofix-pr` が git worktree 内でデフォルトブランチでの実行不可と誤報告する問題",
+      "t_en": "Fixed: `/autofix-pr` incorrectly reporting it cannot run on default branch inside a git worktree",
       "tags": ["バグ修正"],
       "detail": "git worktree 内で `/autofix-pr` コマンドを実行した際に、実際にはデフォルトブランチではないにもかかわらず「デフォルトブランチでは実行できない」という誤ったエラーメッセージが表示される問題が修正されました。\n\ngit worktree 環境でのブランチ判定が正しく行われるようになりました。",
-      "category": "Git 連携"
+      "detail_en": "Fixed an issue where running `/autofix-pr` inside a git worktree would display an erroneous error message saying it cannot run on the default branch, even though the branch is not the default.\n\nBranch detection in git worktree environments is now handled correctly.",
+      "category": "Git 連携",
+      "category_en": "Git Integration"
     },
     {
       "t": "修正: `--resume` ピッカーが worktree 以外のプロジェクトでカレントディレクトリのセッションを表示しない問題",
+      "t_en": "Fixed: `--resume` picker not showing current directory sessions for non-worktree projects",
       "tags": ["バグ修正"],
       "detail": "`--resume` でセッション選択ピッカーを開いた際に、git worktree を使用していない通常のプロジェクトでカレントディレクトリで実行されたセッションが一覧に表示されない問題が修正されました。\n\n現在のディレクトリで作成・実行されたセッションが正しくリストアップされるようになりました。",
-      "category": "セッション管理"
+      "detail_en": "Fixed an issue where opening the session picker with `--resume` would not display sessions run from the current directory in regular projects that don't use git worktree.\n\nSessions created and run from the current directory are now correctly listed.",
+      "category": "セッション管理",
+      "category_en": "Session Management"
     },
     {
       "t": "修正: Windows で bash を明示的に呼び出す bash hooks が「command not found」エラーで失敗する問題",
+      "t_en": "Fixed: bash hooks explicitly invoking bash on Windows failing with \"command not found\" error",
       "tags": ["バグ修正", "Windows"],
       "detail": "Windows 環境で bash を明示的に呼び出す形式（例: `bash -c \"...\"` や `bash script.sh`）で設定された bash hooks が「command not found」エラーで失敗する問題が修正されました。\n\nWindows 環境での bash の実行パスの解決が修正され、bash hooks が正常に動作するようになりました。",
-      "category": "プラットフォーム互換性"
+      "detail_en": "Fixed an issue where bash hooks configured to explicitly invoke bash (e.g., `bash -c \"...\"` or `bash script.sh`) on Windows would fail with a \"command not found\" error.\n\nBash executable path resolution on Windows has been fixed so bash hooks work correctly.",
+      "category": "プラットフォーム互換性",
+      "category_en": "Platform Compatibility"
     },
     {
       "t": "修正: テレメトリ初期化前に発行された OpenTelemetry ログイベントがドロップされる問題",
+      "t_en": "Fixed: OpenTelemetry log events emitted before telemetry initialization being dropped",
       "tags": ["バグ修正"],
       "detail": "Claude Code の起動時、OpenTelemetry テレメトリシステムの初期化が完了する前に発行されたログイベントが消失してしまう問題が修正されました。\n\nテレメトリ初期化前のイベントがバッファリングされ、初期化完了後に送信されるようになりました。これにより、起動シーケンス中のイベントも漏れなく記録されます。",
-      "category": "設定"
+      "detail_en": "Fixed an issue where log events emitted before the OpenTelemetry telemetry system finished initializing at Claude Code startup would be lost.\n\nEvents emitted before telemetry initialization are now buffered and sent after initialization completes, ensuring events during the startup sequence are all recorded.",
+      "category": "設定",
+      "category_en": "Configuration"
     },
     {
       "t": "修正: `claude mcp` の list/get/add がシークレットを出力してしまう問題、および `${VAR}` 参照が展開される問題",
+      "t_en": "Fixed: `claude mcp` list/get/add outputting secrets and expanding `${VAR}` references",
       "tags": ["バグ修正", "MCP", "Security"],
       "detail": "`claude mcp list`、`claude mcp get`、`claude mcp add` コマンドを実行した際に、MCP サーバーの設定に含まれるシークレット（API キー、トークン等）が平文で出力されてしまう問題が修正されました。また、設定内の `${VAR}` 形式の環境変数参照が展開されて実際の値が表示されてしまう問題も同時に修正されました。\n\nシークレットはマスクされて表示され、環境変数参照は展開されずそのままの形で表示されるようになりました。\n\n詳しくは [MCP のドキュメント](https://code.claude.com/docs/en/mcp)を参照してください。",
-      "category": "セキュリティ"
+      "detail_en": "Fixed an issue where running `claude mcp list`, `claude mcp get`, or `claude mcp add` would output secrets (API keys, tokens, etc.) contained in MCP server configuration in plain text. Also fixed a related issue where `${VAR}` environment variable references in the configuration were expanded and the actual values displayed.\n\nSecrets are now masked in output and environment variable references are displayed as-is without expansion.\n\nSee the [MCP documentation](https://code.claude.com/docs/en/mcp) for details.",
+      "category": "セキュリティ",
+      "category_en": "Security"
     },
     {
       "t": "修正: `isolation: \"worktree\"` の Workflow エージェントが自身の worktree 内のファイルを編集できない問題",
+      "t_en": "Fixed: Workflow agent with `isolation: \"worktree\"` unable to edit files in its own worktree",
       "tags": ["バグ修正", "Agent"],
       "detail": "`isolation: \"worktree\"` オプションで作成された Workflow エージェントが、自身のために作成された worktree 内のファイルを編集しようとするとブロックされてしまう問題が修正されました。\n\n分離された worktree 内での作業がエージェント自身によって正しく許可されるようになり、worktree 分離機能が意図どおりに動作するようになりました。",
-      "category": "マルチエージェント"
+      "detail_en": "Fixed an issue where a Workflow agent created with the `isolation: \"worktree\"` option would be blocked when attempting to edit files in the worktree created for it.\n\nWork within the isolated worktree is now correctly permitted by the agent itself, allowing the worktree isolation feature to function as intended.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-Agent"
     },
     {
       "t": "修正: バックグラウンドセッションがデーモン環境のモデルを使用し settings.json の設定を無視する問題",
+      "t_en": "Fixed: Background session using daemon environment's model and ignoring settings.json configuration",
       "tags": ["バグ修正", "Agent"],
       "detail": "バックグラウンドセッションが、ユーザーの `settings.json` に設定されたモデルではなくデーモンプロセスが起動した時点の環境変数のモデルを使用してしまう問題が修正されました。\n\n`settings.json` でモデルを変更した場合でも、バックグラウンドセッションで正しく新しいモデル設定が反映されるようになりました。",
-      "category": "エージェント設定"
+      "detail_en": "Fixed an issue where background sessions would use the model from the daemon process's environment variables at startup rather than the model configured in the user's `settings.json`.\n\nEven when the model is changed in `settings.json`, background sessions now correctly reflect the new model configuration.",
+      "category": "エージェント設定",
+      "category_en": "Agent Configuration"
     },
     {
       "t": "修正: セッション再開後に Write ツール結果をレンダリングする際のクラッシュの可能性",
+      "t_en": "Fixed: Potential crash when rendering Write tool results after session resume",
       "tags": ["バグ修正"],
       "detail": "セッションを再開（`--resume`）した後に、以前のセッションで Write ツールが実行した結果をレンダリングしようとする際に、クラッシュが発生する可能性がある問題が修正されました。\n\nWrite ツール結果の表示処理が安定化され、セッション再開後のレンダリングでクラッシュが発生しなくなりました。",
-      "category": "安定性"
+      "detail_en": "Fixed a potential crash that could occur when trying to render Write tool results from a previous session after resuming (`--resume`).\n\nWrite tool result rendering has been stabilized so no crash occurs when rendering after session resume.",
+      "category": "安定性",
+      "category_en": "Stability"
     },
     {
       "t": "修正: 完了したサブエージェントがファイナライズ中にエラーが発生すると実行中のまま表示される問題",
+      "t_en": "Fixed: Completed subagent remaining shown as running when an error occurs during finalization",
       "tags": ["バグ修正", "Agent"],
       "detail": "サブエージェントが作業を完了したが、後処理（ファイナライズ）の最中にエラーが発生した場合、そのサブエージェントが「実行中」の状態のまま表示されて停止しない問題が修正されました。\n\nエラーが発生した場合でもサブエージェントのステータスが適切に「完了」または「エラー」に更新されるようになりました。",
-      "category": "マルチエージェント"
+      "detail_en": "Fixed an issue where a subagent that had completed its work but encountered an error during post-processing (finalization) would remain shown as \"running\" indefinitely.\n\nSubagent status is now correctly updated to \"completed\" or \"error\" even when an error occurs.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-Agent"
     },
     {
       "t": "修正: `$CLAUDE_CODE_TMPDIR` のパスが深い場合に Unix ソケットのバインドで `EADDRINUSE` エラーが発生する問題",
+      "t_en": "Fixed: `EADDRINUSE` error when binding Unix socket with a deep `$CLAUDE_CODE_TMPDIR` path",
       "tags": ["バグ修正"],
       "detail": "`CLAUDE_CODE_TMPDIR` 環境変数に長いパスが設定されている場合、その配下に作成される Unix ドメインソケットのパスが OS の上限を超えてしまい、`EADDRINUSE`（アドレス使用中）エラーでバインドに失敗する問題が修正されました。\n\nUnix ソケットのパス生成ロジックが改善され、深いディレクトリ階層でも正しく動作するようになりました。",
-      "category": "安定性"
+      "detail_en": "Fixed an issue where setting a long path in the `CLAUDE_CODE_TMPDIR` environment variable would cause the Unix domain socket path created beneath it to exceed the OS limit, resulting in a bind failure with an `EADDRINUSE` (address already in use) error.\n\nThe Unix socket path generation logic has been improved so it works correctly even with deep directory hierarchies.",
+      "category": "安定性",
+      "category_en": "Stability"
     },
     {
       "t": "改善: レイアウトエンジンの JIT コンパイル安定化によるターミナルレンダリングパフォーマンスの向上",
+      "t_en": "Improved: Terminal rendering performance via JIT compilation stabilization in the layout engine",
       "tags": ["改善", "Perf"],
       "detail": "ターミナルのレンダリングエンジンで使用されている JIT（Just-In-Time）コンパイラの安定化処理が改善されました。JIT コンパイルが適切なタイミングで実行されることにより、レイアウト計算とレンダリング処理のパフォーマンスが大幅に向上しました。\n\n特に複雑なレイアウトや長い会話履歴を表示する際の描画速度が改善されます。",
-      "category": "パフォーマンス"
+      "detail_en": "The stabilization of the JIT (Just-In-Time) compiler used by the terminal rendering engine has been improved. By ensuring JIT compilation runs at the appropriate time, layout calculation and rendering performance have improved significantly.\n\nRendering speed is particularly improved when displaying complex layouts or long conversation histories.",
+      "category": "パフォーマンス",
+      "category_en": "Performance"
     },
     {
       "t": "改善: 大きなファイル書き込みのレンダリングパフォーマンスを改善",
+      "t_en": "Improved: Rendering performance for large file writes",
       "tags": ["改善", "Perf"],
       "detail": "Write ツールで大きなファイルを書き込む際に、その進捗や結果をターミナルにレンダリングする処理のパフォーマンスが改善されました。\n\n大規模なファイル操作時のレンダリングが高速化され、UI の応答性が向上します。",
-      "category": "パフォーマンス"
+      "detail_en": "Performance of rendering progress and results to the terminal when writing large files with the Write tool has been improved.\n\nRendering during large file operations is now faster, improving UI responsiveness.",
+      "category": "パフォーマンス",
+      "category_en": "Performance"
     },
     {
       "t": "追加: [VSCode] 文字化けグリフに対して GPU アクセラレーション無効化または `/terminal-setup` を提案するヒントを追加",
+      "t_en": "Added: [VSCode] Hint suggesting disabling GPU acceleration or running `/terminal-setup` for garbled glyphs",
       "tags": ["新機能", "IDE"],
       "detail": "VSCode の統合ターミナルで Claude Code を使用している際に文字化けしたグリフ（記号や特殊文字が正しく表示されない状態）が検出された場合、GPU アクセラレーションの無効化または `/terminal-setup` コマンドの実行を提案するヒントが表示されるようになりました。\n\nVSCode の GPU レンダリングと特定のフォントや文字の組み合わせで発生する描画問題を解決するためのガイダンスが提供され、ユーザーが自力で対処しやすくなります。\n\n詳しくは [IDE 統合のドキュメント](https://code.claude.com/docs/en/ide-integrations)を参照してください。",
-      "category": "IDE"
+      "detail_en": "When garbled glyphs (symbols or special characters not displaying correctly) are detected while using Claude Code in VSCode's integrated terminal, a hint is now shown suggesting to disable GPU acceleration or run the `/terminal-setup` command.\n\nGuidance is provided for resolving rendering issues caused by combinations of VSCode's GPU rendering with certain fonts or characters, making it easier for users to address the problem themselves.\n\nSee the [IDE integrations documentation](https://code.claude.com/docs/en/ide-integrations) for details.",
+      "category": "IDE",
+      "category_en": "IDE"
     }
   ],
   "2.1.162": [
     {
       "t": "追加: `claude agents --json` の出力に待機中セッションのブロッカーを示す `waitingFor` フィールドを追加",
+      "t_en": "Added: `waitingFor` field in `claude agents --json` output indicating what is blocking a waiting session",
       "tags": ["新機能", "Agent"],
       "detail": "`claude agents --json` でエージェントセッションの状態を JSON 形式で取得する際、待機中のセッションが何によってブロックされているか（パーミッションプロンプトの応答待ち等）を示す `waitingFor` フィールドが追加されました。\n\nこれにより、CI や自動化スクリプトからセッションを監視する際に、どのセッションが入力待ちで停止しているかをプログラムから判別できるようになります。",
-      "category": "マルチエージェント"
+      "detail_en": "A `waitingFor` field has been added to the JSON output of `claude agents --json`, indicating what is blocking a waiting session (e.g., awaiting a permission prompt response).\n\nThis allows CI and automation scripts monitoring sessions to programmatically determine which sessions are paused waiting for input.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-Agent"
     },
     {
       "t": "改善: ネイティブビルドで `--tools` に Grep/Glob を明示指定すると専用の検索ツールが有効化されるように（従来は無視されていた）",
+      "t_en": "Improved: Explicitly specifying Grep/Glob in `--tools` now enables the dedicated search tools in native builds (previously ignored)",
       "tags": ["改善"],
       "detail": "検索機能が組み込まれたネイティブビルドで `--tools` に `Grep` / `Glob` を明示的に指定すると、専用の検索ツールが有効化されるようになりました。従来はこれらのツール名を指定しても無視されていました。\n\nGrep は ripgrep ベースで `.gitignore` を尊重し、glob や type パラメータでスコープを絞り込めます。Glob はパターンマッチでファイルを高速に検索します。利用するツールを限定したワークフローでもこれらの検索ツールを使えるようになります。\n\n詳しくは[ツールリファレンス](https://code.claude.com/docs/en/tools-reference#grep-tool-behavior)を参照してください。",
-      "category": "ツール改善"
+      "detail_en": "In native builds with built-in search functionality, explicitly specifying `Grep` or `Glob` in `--tools` now enables those dedicated search tools. Previously, specifying these tool names was ignored.\n\nGrep is ripgrep-based, respects `.gitignore`, and can narrow scope with glob and type parameters. Glob quickly searches for files by pattern matching. These search tools can now be used even in workflows that restrict available tools.\n\nSee the [tool reference](https://code.claude.com/docs/en/tools-reference#grep-tool-behavior) for details.",
+      "category": "ツール改善",
+      "category_en": "Tool Improvements"
     },
     {
       "t": "改善: `/effort` で選択した思考レベルを新規セッションのデフォルトとして永続化する際に確認を表示",
+      "t_en": "Improved: Confirmation shown when persisting `/effort` thinking level selection as the new session default",
       "tags": ["改善", "UX"],
       "detail": "`/effort` コマンドで思考レベル（low / medium / high 等）を変更した際に、その選択を新規セッションのデフォルトとして永続化するかどうかを確認するプロンプトが表示されるようになりました。\n\nこれまでは意図せず全セッションのデフォルト設定を変更してしまう可能性がありましたが、確認が入ることで一時的な変更とデフォルト変更を明確に区別できるようになりました。\n\n詳しくは[設定のドキュメント](https://code.claude.com/docs/en/settings)を参照してください。",
-      "category": "UX"
+      "detail_en": "When changing the thinking level (low / medium / high, etc.) with the `/effort` command, a confirmation prompt now appears asking whether to persist the selection as the default for new sessions.\n\nPreviously there was a risk of unintentionally changing the default for all sessions. The confirmation now lets you clearly distinguish between a temporary change and a default change.\n\nSee the [settings documentation](https://code.claude.com/docs/en/settings) for details.",
+      "category": "UX",
+      "category_en": "UX"
     },
     {
       "t": "改善: オートコンプリートのスラッシュコマンドをクリックすると即実行ではなく入力欄に補完するように（Enter で実行）",
+      "t_en": "Improved: Clicking an autocomplete slash command now completes it into the input field instead of executing immediately (press Enter to execute)",
       "tags": ["改善", "UX"],
       "detail": "オートコンプリートメニューでスラッシュコマンドをクリックした際の挙動が変更されました。これまでは即座にコマンドが実行されていましたが、入力欄にコマンドが補完されるだけになり、Enter キーを押すことで明示的に実行する形になりました。\n\nコマンドを確認・編集してから実行できるようになり、誤実行を防止できます。",
-      "category": "UX"
+      "detail_en": "The behavior when clicking a slash command in the autocomplete menu has changed. Previously the command would execute immediately, but now the command is only completed into the input field and must be explicitly executed by pressing Enter.\n\nYou can now review and edit the command before executing it, preventing accidental execution.",
+      "category": "UX",
+      "category_en": "UX"
     },
     {
       "t": "改善: Remote Control を起動時メッセージではなくセッションリンク付きの永続フッターピルとして表示",
+      "t_en": "Improved: Remote Control now shown as a persistent footer pill with session link instead of a startup message",
       "tags": ["改善"],
       "detail": "Remote Control（スマートフォン等の別デバイスからセッションを操作する機能）の接続状態の表示方法が変更されました。これまでは起動時にメッセージとして表示されていましたが、セッションへのリンク付きの永続的なフッターピルとして常時表示されるようになりました。\n\n接続状態が常に画面下部で確認でき、セッションリンクにもすぐにアクセスできるようになります。",
-      "category": "UX"
+      "detail_en": "How the Remote Control (a feature for controlling a session from another device such as a smartphone) connection status is displayed has changed. Previously it appeared as a startup message, but it now shows as a persistent footer pill with a session link at all times.\n\nThe connection status is always visible at the bottom of the screen and the session link is quickly accessible.",
+      "category": "UX",
+      "category_en": "UX"
     },
     {
       "t": "改善: `/ide` メニュー等での Windsurf の表記をエディタのリブランドに追随して Devin Desktop にリネーム",
+      "t_en": "Improved: Windsurf renamed to Devin Desktop in `/ide` menu etc. following the editor's rebrand",
       "tags": ["改善", "IDE"],
       "detail": "エディタ「Windsurf」が「Devin Desktop」へリブランドされたことに伴い、Claude Code 側の表示名も更新されました。`/ide` メニュー、`/terminal-setup`、`/scroll-speed` の各箇所で「Windsurf」が「Devin Desktop」に変更されています。\n\n実際のエディタ名と表示が一致し、混乱を避けられるようになりました。",
-      "category": "IDE"
+      "detail_en": "Following the rebranding of the editor \"Windsurf\" to \"Devin Desktop\", the display name in Claude Code has also been updated. \"Windsurf\" has been changed to \"Devin Desktop\" in the `/ide` menu, `/terminal-setup`, and `/scroll-speed` commands.\n\nThe display now matches the actual editor name, avoiding confusion.",
+      "category": "IDE",
+      "category_en": "IDE"
     },
     {
       "t": "修正: 設定ディレクトリが読み取り専用の場合に起動がハングする問題",
+      "t_en": "Fixed: Startup hanging when the configuration directory is read-only",
       "tags": ["バグ修正"],
       "detail": "設定ディレクトリが読み取り専用になっている環境で、Claude Code の起動時に処理がハングしてしまう問題が修正されました。\n\n設定ファイルの書き込みに失敗した場合でも起動処理が適切に継続されるようになり、読み取り専用環境でも正常に起動できるようになりました。",
-      "category": "安定性"
+      "detail_en": "Fixed an issue where Claude Code startup would hang in environments where the configuration directory is read-only.\n\nStartup processing now continues appropriately even when writing configuration files fails, allowing normal startup in read-only environments.",
+      "category": "安定性",
+      "category_en": "Stability"
     },
     {
       "t": "修正: WebFetch のパーミッションルールが組み込みの事前承認ドメインに適用されない問題",
+      "t_en": "Fixed: WebFetch permission rules not applying to built-in pre-approved domains",
       "tags": ["バグ修正", "Security"],
       "detail": "WebFetch ツールには組み込みの事前承認ドメインリスト（ドキュメントサイト等）があり、これらはプロンプトなしでフェッチできます。修正前は、これらの事前承認ドメインに対して `deny` / `ask` / `allow` のパーミッションルールが適用されず、管理者が明示的にドメインをブロックしても無視されていました。\n\n修正後は、明示的な `WebFetch(domain:...)` ルールが事前承認による自動許可よりも優先されるようになり、事前承認ドメインをブロックしたり確認を求めたりできるようになりました。\n\n詳しくは[パーミッションのドキュメント](https://code.claude.com/docs/en/permissions#webfetch)を参照してください。",
-      "category": "セキュリティ"
+      "detail_en": "The WebFetch tool has a built-in list of pre-approved domains (documentation sites, etc.) that can be fetched without a prompt. Before the fix, `deny` / `ask` / `allow` permission rules were not applied to these pre-approved domains, so explicitly blocking a domain by an administrator was ignored.\n\nAfter the fix, explicit `WebFetch(domain:...)` rules take priority over automatic approval from pre-approval, allowing pre-approved domains to be blocked or require confirmation.\n\nSee the [permissions documentation](https://code.claude.com/docs/en/permissions#webfetch) for details.",
+      "category": "セキュリティ",
+      "category_en": "Security"
     },
     {
       "t": "修正: Windows でバックスラッシュや大文字小文字違いを含むパスのパーミッションルールが正しくマッチしない問題",
+      "t_en": "Fixed: Permission rules for paths with backslashes or different casing not matching correctly on Windows",
       "tags": ["バグ修正", "Windows", "Security"],
       "detail": "Windows 環境で、バックスラッシュを含むパスや大文字小文字が異なるパスを指定したパーミッションルールが正しく機能しない問題が修正されました。\n\nWindows のパス表記の違いを正規化して比較するようになり、パーミッションルールが意図どおりにマッチするようになりました。",
-      "category": "セキュリティ"
+      "detail_en": "Fixed an issue on Windows where permission rules specifying paths containing backslashes or paths with different casing would not function correctly.\n\nPath notation differences on Windows are now normalized before comparison, so permission rules match as intended.",
+      "category": "セキュリティ",
+      "category_en": "Security"
     },
     {
       "t": "修正: 処理開始直後の早すぎる Esc による中断が無視される問題",
+      "t_en": "Fixed: Interrupt via Esc pressed too early immediately after processing starts being ignored",
       "tags": ["バグ修正"],
       "detail": "処理が開始された直後の早すぎるタイミングで Esc キーを押した場合に、その中断操作が無視されてしまう問題が修正されました。\n\n処理開始直後でも Esc による中断が確実に受け付けられるようになりました。",
-      "category": "入力"
+      "detail_en": "Fixed an issue where pressing the Esc key too early immediately after processing starts would cause the interrupt to be ignored.\n\nInterrupts via Esc are now reliably accepted even immediately after processing begins.",
+      "category": "入力",
+      "category_en": "Input"
     },
     {
       "t": "修正: 分類器クエリに絵文字が含まれると 400 API エラーが発生する問題",
+      "t_en": "Fixed: 400 API error occurring when classifier query contains emoji",
       "tags": ["バグ修正"],
       "detail": "分類器（リクエストの処理方針を決定するコンポーネント）へのクエリに絵文字が含まれていると、API が 400 エラーを返してしまう問題が修正されました。\n\n絵文字を含む入力でもエラーが発生せず、正常に処理されるようになりました。",
-      "category": "API"
+      "detail_en": "Fixed an issue where the API would return a 400 error when a query to the classifier (the component that determines how a request is processed) contained emoji.\n\nInputs containing emoji are now processed without errors.",
+      "category": "API",
+      "category_en": "API"
     },
     {
       "t": "修正: MCP のタイムアウト値が 1000ms 未満の場合に誤って切り捨てられる問題",
+      "t_en": "Fixed: MCP timeout value being incorrectly truncated when set below 1000ms",
       "tags": ["バグ修正", "MCP"],
       "detail": "MCP サーバーのタイムアウト値を 1000ms 未満に設定した場合に、その値が誤って切り捨てられて意図しないタイムアウト動作になる問題が修正されました。\n\n1000ms 未満の細かいタイムアウト値も正しく適用されるようになりました。",
-      "category": "MCP 連携"
+      "detail_en": "Fixed an issue where setting an MCP server timeout value below 1000ms would cause the value to be incorrectly truncated, resulting in unintended timeout behavior.\n\nFine-grained timeout values below 1000ms are now applied correctly.",
+      "category": "MCP 連携",
+      "category_en": "MCP Integration"
     },
     {
       "t": "修正: LSP の workspaceSymbol が query パラメータなしの場合に結果を返さない問題",
+      "t_en": "Fixed: LSP workspaceSymbol not returning results when query parameter is absent",
       "tags": ["バグ修正"],
       "detail": "LSP（Language Server Protocol）の workspaceSymbol 機能が、query パラメータを指定しない場合に結果を返さない問題が修正されました。\n\n空の query でもワークスペース内のシンボルが正しく返されるようになり、シンボル検索が期待どおりに動作します。",
-      "category": "IDE"
+      "detail_en": "Fixed an issue where the LSP (Language Server Protocol) workspaceSymbol feature would not return results when the query parameter was not specified.\n\nSymbols in the workspace are now correctly returned even with an empty query, and symbol search works as expected.",
+      "category": "IDE",
+      "category_en": "IDE"
     },
     {
       "t": "修正: `claude agents` のステータステキストがターミナル幅 60〜120 桁で見切れる問題",
+      "t_en": "Fixed: Status text in `claude agents` being cut off at terminal widths of 60–120 columns",
       "tags": ["バグ修正", "Agent"],
       "detail": "`claude agents` のリスト表示で、ステータステキストがターミナル幅 60〜120 桁の範囲で途中で見切れてしまう問題が修正されました。\n\nステータステキストが利用可能な幅に応じて適切に表示されるようになりました。",
-      "category": "レンダリング"
+      "detail_en": "Fixed an issue where status text in the `claude agents` list display would be cut off for terminal widths in the 60–120 column range.\n\nStatus text is now displayed appropriately according to the available width.",
+      "category": "レンダリング",
+      "category_en": "Rendering"
     },
     {
       "t": "修正: 長いセッション名が 40 桁で切り詰められる問題",
+      "t_en": "Fixed: Long session names being truncated at 40 columns",
       "tags": ["バグ修正"],
       "detail": "長いセッション名がターミナル幅 40 桁の時点で切り詰められてしまう問題が修正されました。\n\nセッション名が利用可能な表示幅を活かして表示されるようになりました。",
-      "category": "レンダリング"
+      "detail_en": "Fixed an issue where long session names would be truncated at 40 columns of terminal width.\n\nSession names are now displayed making use of the available display width.",
+      "category": "レンダリング",
+      "category_en": "Rendering"
     },
     {
       "t": "修正: エージェントビューに初めて再接続した際に表示が跳ねることがある問題",
+      "t_en": "Fixed: Display jumping when first reconnecting to the agent view",
       "tags": ["バグ修正", "Agent"],
       "detail": "エージェントビューに初めて再接続した際に、画面表示が一瞬跳ねる（ちらつく）ことがある問題が修正されました。\n\n再接続時の描画処理が安定化され、スムーズに表示されるようになりました。",
-      "category": "レンダリング"
+      "detail_en": "Fixed an issue where the display would momentarily jump (flicker) when first reconnecting to the agent view.\n\nRendering during reconnection has been stabilized, resulting in smooth display.",
+      "category": "レンダリング",
+      "category_en": "Rendering"
     },
     {
       "t": "修正: ディスパッチ欄・返信欄での Ctrl+V による画像ペーストが機能しない問題",
+      "t_en": "Fixed: Image paste via Ctrl+V not working in dispatch and reply fields",
       "tags": ["バグ修正"],
       "detail": "ディスパッチ欄や返信欄で Ctrl+V を使った画像のペーストが機能しない問題が修正されました。\n\nこれらの入力欄でもクリップボード内の画像を直接貼り付けられるようになりました。",
-      "category": "入力"
+      "detail_en": "Fixed an issue where pasting images using Ctrl+V in the dispatch and reply fields was not working.\n\nImages from the clipboard can now be pasted directly into these input fields as well.",
+      "category": "入力",
+      "category_en": "Input"
     },
     {
       "t": "修正: ← でバックグラウンド化した際にサービス再起動で会話が失われる問題",
+      "t_en": "Fixed: Conversation lost on service restart when backgrounded via the ← key",
       "tags": ["バグ修正", "Agent"],
       "detail": "← キーでセッションをバックグラウンド化した際に、サービスの再起動が発生すると会話内容が失われてしまう問題が修正されました。\n\nバックグラウンド化したセッションの会話がサービス再起動をまたいで保持されるようになりました。",
-      "category": "セッション管理"
+      "detail_en": "Fixed an issue where conversation content would be lost on service restart when a session was backgrounded via the ← key.\n\nConversation content of backgrounded sessions is now preserved across service restarts.",
+      "category": "セッション管理",
+      "category_en": "Session Management"
     },
     {
       "t": "修正: 送信に失敗した返信が破棄されずキューに入るように",
+      "t_en": "Fixed: Failed reply sends now queued instead of discarded",
       "tags": ["バグ修正"],
       "detail": "送信に失敗した返信が破棄されてしまう問題が修正されました。\n\n返信の送信に失敗した場合でも、その内容は失われずにキューに入れられ、後で再送できるようになりました。",
-      "category": "会話管理"
+      "detail_en": "Fixed an issue where replies that failed to send were discarded.\n\nEven when a reply fails to send, the content is now queued rather than lost, allowing it to be retried later.",
+      "category": "会話管理",
+      "category_en": "Conversation Management"
     },
     {
       "t": "修正: パスの深い `CLAUDE_CODE_TMPDIR` ディレクトリでセッション間メッセージングが失敗する問題",
+      "t_en": "Fixed: Inter-session messaging failing with a deep `CLAUDE_CODE_TMPDIR` directory path",
       "tags": ["バグ修正"],
       "detail": "`CLAUDE_CODE_TMPDIR` 環境変数に深い階層のパスが設定されている場合に、セッション間のメッセージングが失敗する問題が修正されました。\n\nソケットパスの扱いが改善され、深いディレクトリ構成でもセッション間通信が正常に動作するようになりました。",
-      "category": "セッション管理"
+      "detail_en": "Fixed an issue where inter-session messaging would fail when the `CLAUDE_CODE_TMPDIR` environment variable was set to a deeply nested path.\n\nSocket path handling has been improved so that inter-session communication works correctly even with deep directory structures.",
+      "category": "セッション管理",
+      "category_en": "Session Management"
     },
     {
       "t": "修正: 実行中のバックグラウンドセッションを開く際に 5 秒間ストールする問題",
+      "t_en": "Fixed: 5-second stall when opening a running background session",
       "tags": ["バグ修正", "Agent", "Perf"],
       "detail": "実行中のバックグラウンドセッションを開く際に、約 5 秒間処理がストールする問題が修正されました。\n\nセッションを開く際の待ち時間が解消され、すぐに操作できるようになりました。",
-      "category": "パフォーマンス"
+      "detail_en": "Fixed an issue where opening a running background session would stall for approximately 5 seconds.\n\nThe wait time when opening a session has been eliminated, allowing immediate interaction.",
+      "category": "パフォーマンス",
+      "category_en": "Performance"
     }
   ],
   "2.1.163": [
     {
       "t": "追加: バージョン管理用の managed settings `requiredMinimumVersion` と `requiredMaximumVersion` を追加",
+      "t_en": "Added: `requiredMinimumVersion` and `requiredMaximumVersion` managed settings for version control",
       "tags": ["新機能", "Security"],
       "detail": "組織が配布する managed settings（管理者が一元管理する設定）に、使用可能な Claude Code のバージョン範囲を強制するための `requiredMinimumVersion` と `requiredMaximumVersion` が追加されました。\n\nこれにより、IT 管理者は組織内で許可するバージョンの下限・上限を指定でき、範囲外のバージョンの使用を制御できます。セキュリティパッチの適用徹底や、検証済みバージョンへの統一に役立ちます。\n\n詳しくは[サーバー管理設定のドキュメント](https://code.claude.com/docs/en/server-managed-settings)を参照してください。",
-      "category": "設定"
+      "detail_en": "`requiredMinimumVersion` and `requiredMaximumVersion` have been added to managed settings (administrator-centrally-managed settings distributed by organizations) to enforce the allowable Claude Code version range.\n\nIT administrators can now specify lower and upper bounds for allowed versions within the organization, controlling use of out-of-range versions. Useful for ensuring security patches are applied and standardizing on a validated version.\n\nSee the [server-managed settings documentation](https://code.claude.com/docs/en/server-managed-settings) for details.",
+      "category": "設定",
+      "category_en": "Configuration"
     },
     {
       "t": "追加: インストール済みプラグインをフィルタリングできる `/plugin list` コマンドを追加",
+      "t_en": "Added: `/plugin list` command for listing and filtering installed plugins",
       "tags": ["新機能", "Plugin"],
       "detail": "インストール済みのプラグインを一覧表示できる `/plugin list` コマンドが追加されました。フィルタリングオプションにより、有効・無効などの条件でプラグインを絞り込んで表示できます。\n\nこれまで `/plugin` のインターフェースから操作していたプラグイン管理を、コマンドで直接一覧確認できるようになりました。\n\n詳しくは[プラグインのドキュメント](https://code.claude.com/docs/en/discover-plugins#manage-installed-plugins)を参照してください。",
-      "category": "コマンド"
+      "detail_en": "A `/plugin list` command has been added to list installed plugins. Filtering options let you narrow the list by conditions such as enabled or disabled.\n\nPlugin management that was previously handled through the `/plugin` interface can now be viewed directly via command.\n\nSee the [plugin documentation](https://code.claude.com/docs/en/discover-plugins#manage-installed-plugins) for details.",
+      "category": "コマンド",
+      "category_en": "Commands"
     },
     {
       "t": "追加: `/btw` に回答をクリップボードへコピーする「c to copy」ショートカットを追加",
+      "t_en": "Added: \"c to copy\" shortcut to `/btw` for copying the response to clipboard",
       "tags": ["新機能"],
       "detail": "`/btw` コマンドに、Claude の回答をクリップボードへコピーする「c to copy」ショートカットが追加されました。`c` キーを押すと、Claude の生の Markdown 形式の回答がクリップボードに保存されます。\n\nMarkdown のフォーマットが保持されるため、他のドキュメントやエディタに貼り付けた際も書式が崩れません。",
-      "category": "UX"
+      "detail_en": "A \"c to copy\" shortcut has been added to the `/btw` command for copying Claude's response to the clipboard. Pressing the `c` key saves Claude's raw Markdown response to the clipboard.\n\nMarkdown formatting is preserved, so pasting into other documents or editors retains the formatting.",
+      "category": "UX",
+      "category_en": "UX"
     },
     {
       "t": "追加: Hooks が `additionalContext` を返してエラーラベルなしでターンを継続できるように",
+      "t_en": "Added: Hooks can return `additionalContext` to continue the turn without an error label",
       "tags": ["新機能"],
       "detail": "Hooks が `additionalContext` を返すことで、エラーラベルを表示せずにターンを継続できるようになりました。\n\nフックが終了コード 0 とともに `hookSpecificOutput.additionalContext` を JSON で返すと、その内容がシステムリマインダーとして会話に挿入されます。終了コード 2 によるブロック（エラー表示あり）とは異なり、エラーを示さずに Claude へ追加のコンテキストやフィードバックを渡せます。\n\n詳しくは [hooks のドキュメント](https://code.claude.com/docs/en/hooks#add-context-for-claude)を参照してください。",
-      "category": "ツール改善"
+      "detail_en": "Hooks can now return `additionalContext` to continue the turn without showing an error label.\n\nWhen a hook returns `hookSpecificOutput.additionalContext` as JSON with exit code 0, the content is inserted into the conversation as a system reminder. Unlike blocking with exit code 2 (which shows an error), this allows passing additional context or feedback to Claude without indicating an error.\n\nSee the [hooks documentation](https://code.claude.com/docs/en/hooks#add-context-for-claude) for details.",
+      "category": "ツール改善",
+      "category_en": "Tool Improvements"
     },
     {
       "t": "改善: Skills で数字の前にリテラルのドル記号を書くための `\\$` エスケープ構文をサポート",
+      "t_en": "Improved: `\\$` escape syntax supported in Skills to write a literal dollar sign before a number",
       "tags": ["改善"],
       "detail": "Skills で、数字の前にリテラルのドル記号を記述するための `\\$` エスケープ構文がサポートされました。\n\nSkills では `$1`、`$2` などが位置引数として展開されるため、`$100` のような通貨表記をそのまま書くと引数として解釈されてしまいます。`\\$100` のようにエスケープすることで、リテラルのドル記号として扱えるようになりました。\n\n詳しくは [skills のドキュメント](https://code.claude.com/docs/en/skills)を参照してください。",
-      "category": "コマンド"
+      "detail_en": "The `\\$` escape syntax is now supported in Skills to write a literal dollar sign before a number.\n\nIn Skills, `$1`, `$2`, etc. are expanded as positional arguments, so writing currency notation like `$100` directly would be interpreted as an argument. Escaping it as `\\$100` now allows it to be treated as a literal dollar sign.\n\nSee the [skills documentation](https://code.claude.com/docs/en/skills) for details.",
+      "category": "コマンド",
+      "category_en": "Commands"
     },
     {
       "t": "改善: stdio MCP サーバーが `--resume` 時に hooks や Bash と同じ `CLAUDE_CODE_SESSION_ID` を受け取るように",
+      "t_en": "Improved: stdio MCP servers now receive the same `CLAUDE_CODE_SESSION_ID` as hooks and Bash on `--resume`",
       "tags": ["改善", "MCP"],
       "detail": "stdio 方式の MCP サーバーが、`--resume` でセッションを再開した際に、hooks や Bash ツールと同じ `CLAUDE_CODE_SESSION_ID` を受け取るようになりました。\n\nこれまでセッション ID は hooks や Bash サブプロセスには渡されていましたが、stdio MCP サーバーには再開時に渡されていませんでした。これにより、MCP サーバー側でセッションをまたいだ状態管理や、セッション単位の処理を行えるようになります。\n\n詳しくは [MCP のドキュメント](https://code.claude.com/docs/en/mcp)を参照してください。",
-      "category": "MCP 連携"
+      "detail_en": "stdio-mode MCP servers now receive the same `CLAUDE_CODE_SESSION_ID` as hooks and Bash tools when a session is resumed with `--resume`.\n\nPreviously, the session ID was passed to hooks and Bash subprocesses but not to stdio MCP servers on resume. This enables MCP servers to perform cross-session state management and per-session processing.\n\nSee the [MCP documentation](https://code.claude.com/docs/en/mcp) for details.",
+      "category": "MCP 連携",
+      "category_en": "MCP Integration"
     },
     {
       "t": "修正: 終了しないバックグラウンドコマンドの後に `claude -p` がハングする問題",
+      "t_en": "Fixed: `claude -p` hanging after a background command that does not exit",
       "tags": ["バグ修正", "SDK"],
       "detail": "終了しないバックグラウンドコマンドを実行した後に、`claude -p`（print / SDK モード）の処理がハングしてしまう問題が修正されました。\n\nバックグラウンドで起動されたコマンドが終了しない場合でも、`claude -p` が適切に処理を完了して終了するようになりました。スクリプトや自動化での利用時の信頼性が向上します。",
-      "category": "SDK"
+      "detail_en": "Fixed an issue where `claude -p` (print / SDK mode) would hang after executing a background command that does not exit.\n\nEven when a command launched in the background does not exit, `claude -p` now properly completes processing and exits. Reliability when using it in scripts and automation is improved.",
+      "category": "SDK",
+      "category_en": "SDK"
     },
     {
       "t": "修正: `CI=true` 環境の Bedrock/Vertex/Foundry で API キー必須エラーが発生する問題",
+      "t_en": "Fixed: API key required error occurring with Bedrock/Vertex/Foundry in `CI=true` environments",
       "tags": ["バグ修正", "Platform"],
       "detail": "`CI=true` が設定された環境で Amazon Bedrock、Google Vertex AI、Microsoft Foundry を利用している場合に、API キーが必須であるという誤ったエラーが発生する問題が修正されました。\n\nこれらのプラットフォームでは API キーの代わりにクラウド認証を使用するため、CI 環境でも API キーを要求されずに正常に動作するようになりました。",
-      "category": "プラットフォーム互換性"
+      "detail_en": "Fixed an issue where a spurious \"API key required\" error was generated when using Amazon Bedrock, Google Vertex AI, or Microsoft Foundry in environments where `CI=true` is set.\n\nSince these platforms use cloud authentication instead of an API key, they now work correctly in CI environments without being prompted for an API key.",
+      "category": "プラットフォーム互換性",
+      "category_en": "Platform Compatibility"
     },
     {
       "t": "修正: bazel や EDR 保護された Go ワークフローで bash が失敗する問題",
+      "t_en": "Fixed: bash failing in bazel and EDR-protected Go workflow environments",
       "tags": ["バグ修正"],
       "detail": "bazel ビルドシステムの配下や、EDR（Endpoint Detection and Response）で保護された Go のワークフロー環境で、bash の実行が失敗する問題が修正されました。\n\nこれらの特殊な実行環境でも bash コマンドが正常に動作するようになりました。",
-      "category": "安定性"
+      "detail_en": "Fixed an issue where bash execution would fail under the bazel build system or in Go workflow environments protected by EDR (Endpoint Detection and Response).\n\nBash commands now work correctly in these specialized execution environments as well.",
+      "category": "安定性",
+      "category_en": "Stability"
     },
     {
       "t": "修正: 読み取り専用属性が付いた Windows のセッション環境ディレクトリに起因する問題",
+      "t_en": "Fixed: Issue caused by a Windows session environment directory marked as read-only",
       "tags": ["バグ修正", "Windows"],
       "detail": "読み取り専用属性が付いた Windows のセッション環境ディレクトリに起因して発生する問題が修正されました。\n\nディレクトリが読み取り専用の場合でもセッション環境の処理が適切に行われるようになりました。",
-      "category": "プラットフォーム互換性"
+      "detail_en": "Fixed an issue caused by a Windows session environment directory marked with the read-only attribute.\n\nSession environment processing now proceeds correctly even when the directory is read-only.",
+      "category": "プラットフォーム互換性",
+      "category_en": "Platform Compatibility"
     },
     {
       "t": "修正: 起動中にフェッチが完了したタイミングで組織管理のパーミッションが適用されない問題",
+      "t_en": "Fixed: Organization-managed permissions not applied depending on when fetch completes during startup",
       "tags": ["バグ修正", "Security"],
       "detail": "起動処理中に組織管理設定のフェッチが完了したタイミングによっては、組織管理のパーミッションが適用されないことがある問題が修正されました。\n\n起動シーケンスのどの時点でフェッチが完了しても、組織管理のパーミッションが確実に適用されるようになりました。",
-      "category": "セキュリティ"
+      "detail_en": "Fixed an issue where organization-managed permissions might not be applied depending on when the fetch of organization-managed settings completed during startup.\n\nOrganization-managed permissions are now reliably applied regardless of when the fetch completes during the startup sequence.",
+      "category": "セキュリティ",
+      "category_en": "Security"
     },
     {
       "t": "修正: Claude Code のアップデート後にバックグラウンドセッションがタスクを失う問題",
+      "t_en": "Fixed: Background sessions losing tasks after a Claude Code update",
       "tags": ["バグ修正", "Agent"],
       "detail": "Claude Code のアップデート後に、バックグラウンドセッションが進行中のタスク情報を失ってしまう問題が修正されました。\n\nアップデートをまたいでもバックグラウンドセッションのタスクが保持されるようになりました。",
-      "category": "セッション管理"
+      "detail_en": "Fixed an issue where background sessions would lose in-progress task information after a Claude Code update.\n\nBackground session tasks are now retained across updates.",
+      "category": "セッション管理",
+      "category_en": "Session Management"
     },
     {
       "t": "修正: エージェントビューを終了する際にターミナルの表示がずれる問題",
+      "t_en": "Fixed: Terminal display shifting when exiting the agent view",
       "tags": ["バグ修正", "Agent"],
       "detail": "エージェントビューを終了する際に、ターミナルの表示がずれてしまう問題が修正されました。\n\nエージェントビューから通常画面への復帰時のレイアウトが正しく再描画されるようになりました。",
-      "category": "レンダリング"
+      "detail_en": "Fixed an issue where the terminal display would shift when exiting the agent view.\n\nThe layout is now correctly redrawn when returning from the agent view to the normal screen.",
+      "category": "レンダリング",
+      "category_en": "Rendering"
     },
     {
       "t": "修正: プロセスが既に終了している場合に Stop ボタンがチップをクリアしない問題",
+      "t_en": "Fixed: Stop button not clearing the chip when the process has already exited",
       "tags": ["バグ修正"],
       "detail": "対象のプロセスが既に終了している場合に、Stop ボタンを押してもチップ（実行中インジケーター）がクリアされない問題が修正されました。\n\nプロセスが既に存在しない場合でも、Stop ボタンで表示状態が正しくクリアされるようになりました。",
-      "category": "UX"
+      "detail_en": "Fixed an issue where pressing the Stop button would not clear the chip (running indicator) when the target process had already exited.\n\nThe display state is now correctly cleared by the Stop button even when the process no longer exists.",
+      "category": "UX",
+      "category_en": "UX"
     },
     {
       "t": "修正: ペースト操作後にキーボードが応答しなくなる問題",
+      "t_en": "Fixed: Keyboard becoming unresponsive after a paste operation",
       "tags": ["バグ修正"],
       "detail": "ペースト操作を行った後にキーボードが応答しなくなる問題が修正されました。\n\nペースト処理後も入力が継続して受け付けられるようになりました。",
-      "category": "入力"
+      "detail_en": "Fixed an issue where the keyboard would become unresponsive after a paste operation.\n\nInput continues to be accepted after paste processing.",
+      "category": "入力",
+      "category_en": "Input"
     },
     {
       "t": "修正: `$()` を含む bash コマンドで hook の条件が誤って発火する問題",
+      "t_en": "Fixed: Hook condition incorrectly firing for bash commands containing `$()`",
       "tags": ["バグ修正"],
       "detail": "`$()`（コマンド置換）を含む bash コマンドに対して、hook の条件マッチングが誤って発火してしまう問題が修正されました。\n\nコマンド置換を含むコマンドでも hook の条件が正しく評価されるようになりました。",
-      "category": "ツール改善"
+      "detail_en": "Fixed an issue where hook condition matching would incorrectly fire for bash commands containing `$()` (command substitution).\n\nHook conditions are now correctly evaluated even for commands containing command substitution.",
+      "category": "ツール改善",
+      "category_en": "Tool Improvements"
     },
     {
       "t": "修正: `$HOME` 経由で参照されるパスを deny ルールがブロックしない問題",
+      "t_en": "Fixed: Deny rules not blocking paths referenced via `$HOME`",
       "tags": ["バグ修正", "Security"],
       "detail": "`$HOME` などの環境変数経由で参照されるパスを、deny ルールがブロックできない問題が修正されました。\n\n環境変数を展開した上でパスを照合するようになり、`$HOME` を使って参照されたパスも deny ルールで正しくブロックされるようになりました。",
-      "category": "セキュリティ"
+      "detail_en": "Fixed an issue where deny rules could not block paths referenced through environment variables such as `$HOME`.\n\nPaths are now matched after expanding environment variables, so paths referenced using `$HOME` are also correctly blocked by deny rules.",
+      "category": "セキュリティ",
+      "category_en": "Security"
     },
     {
       "t": "修正: パネルダイアログを閉じた後に不要なテキストが残る問題",
+      "t_en": "Fixed: Leftover text remaining on screen after closing a panel dialog",
       "tags": ["バグ修正"],
       "detail": "パネルダイアログを閉じた後に、不要なテキストが画面に残ってしまう問題が修正されました。\n\nダイアログを閉じた際に画面が正しく再描画され、残留したテキストが表示されなくなりました。",
-      "category": "レンダリング"
+      "detail_en": "Fixed an issue where unnecessary text would remain on screen after closing a panel dialog.\n\nThe screen is now correctly redrawn when a dialog is closed, and residual text is no longer displayed.",
+      "category": "レンダリング",
+      "category_en": "Rendering"
     },
     {
       "t": "改善: バックグラウンドエージェントがコールドリスタートなしでバックグラウンドでバージョン更新するように",
+      "t_en": "Improved: Background agents now update to a new version in the background without a cold restart",
       "tags": ["改善", "Agent", "Perf"],
       "detail": "バックグラウンドエージェントセッションが、コールドリスタートを待たずにバックグラウンドで新しい Claude Code のバージョンへ更新されるようになりました。\n\nこれまではアップデート後にセッションを開くとコールドリスタートの完了を待つ必要がありましたが、バックグラウンドで更新が進むため、アップデート後でもセッションをすぐに開けるようになりました。",
-      "category": "パフォーマンス"
+      "detail_en": "Background agent sessions now update to the new Claude Code version in the background without waiting for a cold restart.\n\nPreviously, opening a session after an update required waiting for the cold restart to complete. Since the update now proceeds in the background, sessions can be opened immediately even after an update.",
+      "category": "パフォーマンス",
+      "category_en": "Performance"
     },
     {
       "t": "改善: `/` メニューのコマンド説明を改善",
+      "t_en": "Improved: Command descriptions in the `/` menu improved",
       "tags": ["改善", "UX"],
       "detail": "`/` メニューに表示されるスラッシュコマンドの説明文が改善されました。\n\n各コマンドの役割がより分かりやすく記述され、目的のコマンドを見つけやすくなりました。",
-      "category": "UX"
+      "detail_en": "The descriptions of slash commands displayed in the `/` menu have been improved.\n\nThe role of each command is now described more clearly, making it easier to find the command you need.",
+      "category": "UX",
+      "category_en": "UX"
     },
     {
       "t": "改善: サブスクリプションの提案を起動時のアナウンス枠に表示するように",
+      "t_en": "Improved: Subscription suggestions now shown in the startup announcement area",
       "tags": ["改善"],
       "detail": "サブスクリプションに関する提案が、起動時のアナウンス枠に表示されるようになりました。\n\n関連する案内が起動時の適切な位置に表示され、他の情報の邪魔をせずに確認できるようになりました。",
-      "category": "UX"
+      "detail_en": "Subscription-related suggestions are now displayed in the startup announcement area.\n\nRelevant notices are shown in the appropriate location at startup, allowing you to view them without them interfering with other information.",
+      "category": "UX",
+      "category_en": "UX"
     }
   ],
   "2.1.165": [
     {
       "t": "バグ修正と信頼性の改善",
+      "t_en": "Bug fixes and reliability improvements",
       "tags": ["バグ修正"],
       "detail": "このリリースでは、ユーザーに直接見える新機能の追加はなく、細かなバグ修正と全体的な信頼性の向上が行われました。\n\n日々の利用で遭遇しうる軽微な不具合の解消と安定性の改善が含まれます。",
-      "category": "安定性"
+      "detail_en": "This release includes no user-visible new features, only minor bug fixes and overall reliability improvements.\n\nIncludes resolution of minor issues encountered in day-to-day use and stability improvements.",
+      "category": "安定性",
+      "category_en": "Stability"
     }
   ],
   "2.1.166": [
     {
       "t": "追加: 順に試行する最大3つのフォールバックモデルを設定できる `fallbackModel` 設定を追加",
+      "t_en": "Added: `fallbackModel` setting for configuring up to three fallback models to try in sequence",
       "tags": ["新機能"],
       "detail": "プライマリのモデルが過負荷・到達不能・廃止などで利用できない場合に、あらかじめ指定した代替モデルを優先順位順に試す `fallbackModel` 設定が追加されました。最大3つまでのフォールバックモデルを順に指定できます。\n\nこれまで `--fallback-model` フラグは非インタラクティブモードでしか効きませんでしたが、設定として永続化することでインタラクティブセッションでもフォールバックが効くようになり、長時間の作業中にモデル起因でセッションが中断するリスクを減らせます。\n\n詳しくは[モデル設定のドキュメント](https://code.claude.com/docs/en/model-config)を参照してください。",
-      "category": "設定"
+      "detail_en": "A `fallbackModel` setting has been added that tries pre-specified alternative models in priority order when the primary model is unavailable due to overload, being unreachable, deprecation, etc. Up to three fallback models can be specified in sequence.\n\nPreviously the `--fallback-model` flag only worked in non-interactive mode, but persisting it as a setting now enables fallback in interactive sessions too, reducing the risk of model-related session interruptions during long work sessions.\n\nSee the [model configuration documentation](https://code.claude.com/docs/en/model-config) for details.",
+      "category": "設定",
+      "category_en": "Configuration"
     },
     {
       "t": "追加: deny ルールのツール名を指定する位置で glob パターン（`*` など）をサポート",
+      "t_en": "Added: Glob pattern support (e.g. `*`) for tool names in deny rules",
       "tags": ["新機能", "Security"],
       "detail": "deny（拒否）ルールのツール名を指定する位置で glob パターン（`*` など）を使えるようになりました。\n\nこれまではツール名を完全一致で指定するか、`Bash(rm *)` のように引数側でのみ glob を使う形でしたが、ツール名側でワイルドカードを指定して複数のツールを一括で拒否できるようになり、パーミッションルールをより簡潔に記述できます。\n\n詳しくは[パーミッション設定のドキュメント](https://code.claude.com/docs/en/permissions)を参照してください。",
-      "category": "パーミッション"
+      "detail_en": "Glob patterns (such as `*`) can now be used for the tool name portion in deny rules.\n\nPreviously, tool names had to be specified as exact matches or globs could only be used on the argument side (e.g. `Bash(rm *)`), but you can now use wildcards on the tool name side to deny multiple tools at once, making permission rules more concise.\n\nSee the [permissions documentation](https://code.claude.com/docs/en/permissions) for details.",
+      "category": "パーミッション",
+      "category_en": "Permissions"
     },
     {
       "t": "改善: セッション間メッセージングを強化し、中継メッセージがユーザー権限を引き継がないように",
+      "t_en": "Improved: Enhanced inter-session messaging so relayed messages do not inherit user permissions",
       "tags": ["改善", "Security", "Agent"],
       "detail": "複数のセッションが連携するマルチエージェント構成において、中継（リレー）されたメッセージがプライマリユーザーの権限を引き継がないように強化されました。\n\nこれにより、中継メッセージ経由でユーザー権限のツール実行やパーミッション昇格が行われることを防ぎ、プロンプトインジェクションに対する多層防御が強化されます。受信側は中継メッセージからのパーミッション要求を拒否し、Auto モードでも中継メッセージはブロックされます。",
-      "category": "セキュリティ"
+      "detail_en": "In multi-agent configurations where multiple sessions work together, relayed messages are now prevented from inheriting the primary user's permissions.\n\nThis prevents tool execution with user-level permissions or permission escalation via relayed messages, strengthening the layered defense against prompt injection. The receiving side rejects permission requests from relayed messages, and relayed messages are also blocked in Auto mode.",
+      "category": "セキュリティ",
+      "category_en": "Security"
     },
     {
       "t": "改善: `MAX_THINKING_TOKENS=0` と思考トグルが、既定で思考するモデルでも思考を無効化するように",
+      "t_en": "Improved: `MAX_THINKING_TOKENS=0` and the thinking toggle now disable thinking even on models that think by default",
       "tags": ["改善"],
       "detail": "`MAX_THINKING_TOKENS=0` の指定や思考のトグル操作が、既定（デフォルト）で extended thinking が有効なモデルに対しても思考を無効化するようになりました。\n\nこれまでは一部のモデルでこれらの設定が思考の無効化に反映されないことがありましたが、設定どおりに思考をオフにできるようになり、トークン消費やレイテンシを抑えたい場合に確実に制御できます。\n\n詳しくは[モデル設定（extended thinking）のドキュメント](https://code.claude.com/docs/en/model-config#extended-thinking)を参照してください。",
-      "category": "設定"
+      "detail_en": "Setting `MAX_THINKING_TOKENS=0` or using the thinking toggle now disables thinking even on models that have extended thinking enabled by default.\n\nPreviously, these settings were not always reflected to disable thinking on some models, but thinking can now be turned off as configured, giving reliable control when you want to reduce token consumption or latency.\n\nSee the [model configuration (extended thinking) documentation](https://code.claude.com/docs/en/model-config#extended-thinking) for details.",
+      "category": "設定",
+      "category_en": "Configuration"
     },
     {
       "t": "改善: API が予期しないエラーを返した際にフォールバックモデルでターンを1回リトライするように",
+      "t_en": "Improved: When the API returns an unexpected error, the turn is retried once using the fallback model",
       "tags": ["改善"],
       "detail": "API が予期しない（リトライ非対応の）エラーを返した際に、フォールバックモデルで同じターンを1回だけ再試行するようになりました。\n\nこれまでは即座にセッションが失敗していましたが、一時的なエラーをフォールバックモデルで回避できる可能性が高まります。認証エラー・レート制限・リクエストサイズ超過などは対象外で即座に表面化し、フォールバックモデルが未設定の場合はこの挙動は発生しません。",
-      "category": "安定性"
+      "detail_en": "When the API returns an unexpected (non-retryable) error, the same turn is now retried exactly once using the fallback model.\n\nPreviously, the session would fail immediately, but there is now a greater chance of recovering from transient errors via the fallback model. Authentication errors, rate limits, request size overflows, etc. are excluded and surface immediately, and this behavior does not occur if no fallback model is configured.",
+      "category": "安定性",
+      "category_en": "Stability"
     },
     {
       "t": "改善: `claude update` がダウンロード前にインストール対象のバージョンを表示するように",
+      "t_en": "Improved: `claude update` now shows the version to be installed before downloading",
       "tags": ["改善"],
       "detail": "`claude update` が、ダウンロードを開始する前にインストール対象のバージョン番号を表示するようになりました。\n\nこれまではダウンロード開始後はどのバージョンへ更新されるか分かりづらかったですが、事前に対象バージョンを確認できるため、変更管理やロールバックの判断がしやすくなります。",
-      "category": "コマンド"
+      "detail_en": "`claude update` now shows the target version number before starting the download.\n\nPreviously it was hard to know which version would be installed once the download began, but being able to confirm the target version in advance makes change management and rollback decisions easier.",
+      "category": "コマンド",
+      "category_en": "Commands"
     },
     {
       "t": "改善: `claude agents` で URL を入力するとその URL を含むセッションに絞り込めるように",
+      "t_en": "Improved: Entering a URL in `claude agents` now filters to sessions containing that URL",
       "tags": ["改善", "Agent"],
       "detail": "`claude agents` のセッション一覧で URL を入力すると、その URL を含むセッションだけに絞り込めるようになりました。\n\n多数のバックグラウンドエージェントセッションが並行している場合でも、URL を手がかりに目的のセッションをすばやく特定できます。",
-      "category": "マルチエージェント"
+      "detail_en": "Entering a URL in the session list of `claude agents` now filters to only sessions containing that URL.\n\nEven when many background agent sessions are running in parallel, you can quickly identify the target session using a URL as a clue.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-Agent"
     },
     {
       "t": "修正: 「image could not be processed」エラーが繰り返し発生し余分なトークンを消費する問題",
+      "t_en": "Fixed: \"image could not be processed\" error occurring repeatedly and consuming extra tokens",
       "tags": ["バグ修正"],
       "detail": "「image could not be processed」エラーが繰り返し発生し、その過程で余分なトークンを消費してしまう問題が修正されました。\n\n画像処理の失敗が無限に繰り返されることがなくなり、不要なトークン消費も解消されました。",
-      "category": "安定性"
+      "detail_en": "Fixed an issue where the \"image could not be processed\" error would occur repeatedly, consuming extra tokens in the process.\n\nImage processing failures no longer repeat indefinitely, and unnecessary token consumption has been eliminated.",
+      "category": "安定性",
+      "category_en": "Stability"
     },
     {
       "t": "修正: バックエンドの障害時にリモートセッションがスタックする問題",
+      "t_en": "Fixed: Remote sessions getting stuck during backend outages",
       "tags": ["バグ修正"],
       "detail": "バックエンドに障害（一時的な中断）が発生した際に、リモートセッションがスタックして操作できなくなる問題が修正されました。\n\nバックエンドの復旧後にセッションが適切に処理を継続できるようになりました。",
-      "category": "セッション管理"
+      "detail_en": "Fixed an issue where remote sessions would get stuck and become inoperable when a backend outage (temporary interruption) occurred.\n\nSessions can now properly resume processing after the backend recovers.",
+      "category": "セッション管理",
+      "category_en": "Session Management"
     },
     {
       "t": "修正: JetBrains IDE 2026.1 以降のターミナルでちらつきが発生する問題",
+      "t_en": "Fixed: Flickering in the terminal of JetBrains IDEs 2026.1 and later",
       "tags": ["バグ修正", "IDE"],
       "detail": "JetBrains 系 IDE のバージョン 2026.1 以降に組み込まれたターミナルで、表示がちらつく問題が修正されました。\n\n新しいバージョンの IDE ターミナルでも安定して表示されるようになりました。",
-      "category": "IDE"
+      "detail_en": "Fixed flickering display in the built-in terminal of JetBrains IDEs version 2026.1 and later.\n\nThe display is now stable even in the terminal of newer versions of these IDEs.",
+      "category": "IDE",
+      "category_en": "IDE"
     },
     {
       "t": "修正: Kitty プロトコル対応ターミナルで Shift + 非 ASCII 文字が脱落する問題",
+      "t_en": "Fixed: Shift + non-ASCII characters being dropped in Kitty protocol-compatible terminals",
       "tags": ["バグ修正"],
       "detail": "Kitty キーボードプロトコルに対応したターミナルで、Shift キーと非 ASCII 文字を組み合わせた入力が脱落してしまう問題が修正されました。\n\n非 ASCII 文字（日本語など）を Shift と併用しても正しく入力されるようになりました。",
-      "category": "入力"
+      "detail_en": "Fixed an issue in terminals that support the Kitty keyboard protocol where input combining the Shift key with non-ASCII characters would be dropped.\n\nNon-ASCII characters (such as Japanese) combined with Shift are now entered correctly.",
+      "category": "入力",
+      "category_en": "Input"
     },
     {
       "t": "修正: Windows で PowerShell コマンドの検証がハングする問題",
+      "t_en": "Fixed: PowerShell command validation hanging on Windows",
       "tags": ["バグ修正", "Windows"],
       "detail": "Windows 環境で PowerShell コマンドの検証処理がハングしてしまう問題が修正されました。\n\nコマンドの検証が適切に完了し、処理が固まらなくなりました。",
-      "category": "プラットフォーム互換性"
+      "detail_en": "Fixed an issue where PowerShell command validation would hang on Windows.\n\nCommand validation now completes properly and processing no longer freezes.",
+      "category": "プラットフォーム互換性",
+      "category_en": "Platform Compatibility"
     },
     {
       "t": "修正: 孤立した `claude --bg-pty-host` プロセスが CPU を 100% 消費し続ける問題",
+      "t_en": "Fixed: Orphaned `claude --bg-pty-host` processes continuously consuming 100% CPU",
       "tags": ["バグ修正"],
       "detail": "親プロセスから切り離された孤立状態の `claude --bg-pty-host` プロセスが、CPU を 100% 消費し続けてしまう問題が修正されました。\n\n不要になったプロセスが適切に終了し、CPU リソースを浪費しなくなりました。",
-      "category": "安定性"
+      "detail_en": "Fixed an issue where orphaned `claude --bg-pty-host` processes separated from their parent process would continue consuming 100% CPU.\n\nProcesses that are no longer needed now terminate properly and no longer waste CPU resources.",
+      "category": "安定性",
+      "category_en": "Stability"
     },
     {
       "t": "修正: `/voice` の切り替え後にボイスモードが `/login` を要求する問題",
+      "t_en": "Fixed: Voice mode requiring `/login` after toggling `/voice`",
       "tags": ["バグ修正"],
       "detail": "`/voice` でボイスモードを切り替えた後に、再度 `/login` を求められてしまう問題が修正されました。\n\nボイスモードの切り替えで認証状態が失われることがなくなりました。",
-      "category": "安定性"
+      "detail_en": "Fixed an issue where toggling voice mode with `/voice` would cause it to prompt for `/login` again.\n\nSwitching voice mode no longer causes the authentication state to be lost.",
+      "category": "安定性",
+      "category_en": "Stability"
     },
     {
       "t": "修正: managed settings に無効なエントリがあると強制適用が無言で無効化される問題",
+      "t_en": "Fixed: Invalid entries in managed settings silently disabling enforcement",
       "tags": ["バグ修正", "Security"],
       "detail": "managed settings（組織が一元管理する設定）に無効なエントリが含まれていると、設定の強制適用が無言で無効化されてしまう問題が修正されました。\n\n無効なエントリがあっても強制適用が黙って失われることがなくなり、組織のポリシーが意図どおりに適用されます。",
-      "category": "セキュリティ"
+      "detail_en": "Fixed an issue where managed settings (centrally managed organization settings) containing invalid entries would silently disable enforcement of those settings.\n\nEnforcement is no longer silently lost when there are invalid entries, and organization policies are now applied as intended.",
+      "category": "セキュリティ",
+      "category_en": "Security"
     },
     {
       "t": "修正: managed-settings の述語が `${VAR}` 参照を含む場合にマッチしない問題",
+      "t_en": "Fixed: managed-settings predicates not matching when they contain `${VAR}` references",
       "tags": ["バグ修正", "Security"],
       "detail": "managed-settings の述語（条件）が `${VAR}` 形式の変数参照を含む場合に正しくマッチしない問題が修正されました。\n\n変数参照を含む条件でも述語が正しく評価され、管理設定が意図どおりに適用されます。",
-      "category": "セキュリティ"
+      "detail_en": "Fixed an issue where managed-settings predicates (conditions) containing `${VAR}` format variable references would not match correctly.\n\nPredicates with variable references are now evaluated correctly, and managed settings are applied as intended.",
+      "category": "セキュリティ",
+      "category_en": "Security"
     },
     {
       "t": "修正: git worktree 内でバックグラウンドエージェントセッションがクラッシュループする問題",
+      "t_en": "Fixed: Background agent sessions crash-looping inside git worktrees",
       "tags": ["バグ修正", "Agent"],
       "detail": "git worktree 内でバックグラウンドエージェントセッションがクラッシュを繰り返す（クラッシュループ）問題が修正されました。\n\nworktree を使った作業でもバックグラウンドエージェントが安定して動作するようになりました。",
-      "category": "安定性"
+      "detail_en": "Fixed an issue where background agent sessions would repeatedly crash (crash-loop) inside git worktrees.\n\nBackground agents now operate stably even when working with worktrees.",
+      "category": "安定性",
+      "category_en": "Stability"
     },
     {
       "t": "修正: Ctrl+O のトランスクリプト表示で思考テキストが重複する問題",
+      "t_en": "Fixed: Thinking text appearing duplicated in the Ctrl+O transcript view",
       "tags": ["バグ修正"],
       "detail": "Ctrl+O で表示するトランスクリプト（会話ログ）ビューで、思考テキストが重複して表示される問題が修正されました。\n\n思考内容が二重に表示されることがなくなり、ログが正しく表示されます。",
-      "category": "レンダリング"
+      "detail_en": "Fixed an issue where thinking text would appear duplicated in the transcript (conversation log) view displayed with Ctrl+O.\n\nThinking content is no longer shown twice, and the log is now displayed correctly.",
+      "category": "レンダリング",
+      "category_en": "Rendering"
     },
     {
       "t": "修正: リモートセッションで `/doctor` が矛盾したメッセージを表示する問題",
+      "t_en": "Fixed: `/doctor` displaying contradictory messages in remote sessions",
       "tags": ["バグ修正"],
       "detail": "リモートセッションで `/doctor` を実行した際に、矛盾した内容のメッセージが表示される問題が修正されました。\n\nリモートセッションでも診断結果が正しく表示されるようになりました。",
-      "category": "コマンド"
+      "detail_en": "Fixed an issue where running `/doctor` in a remote session would display contradictory messages.\n\nDiagnostic results are now displayed correctly in remote sessions as well.",
+      "category": "コマンド",
+      "category_en": "Commands"
     },
     {
       "t": "修正: 複数行のプロンプト入力でカーソルが先頭行に固定される問題",
+      "t_en": "Fixed: Cursor being stuck on the first line in multi-line prompt input",
       "tags": ["バグ修正"],
       "detail": "複数行のプロンプト入力で、カーソルが先頭行に張り付いて移動できなくなる問題が修正されました。\n\n複数行の入力でもカーソルが意図したとおりに移動できるようになりました。",
-      "category": "入力"
+      "detail_en": "Fixed an issue in multi-line prompt input where the cursor would get stuck on the first line and become unable to move.\n\nThe cursor can now move as intended even in multi-line input.",
+      "category": "入力",
+      "category_en": "Input"
     },
     {
       "t": "修正: バックグラウンドエージェントの行間に空行が表示される問題",
+      "t_en": "Fixed: Empty lines appearing between rows in the background agent list",
       "tags": ["バグ修正", "Agent"],
       "detail": "バックグラウンドエージェントの一覧で、行と行の間に余分な空行が表示される問題が修正されました。\n\n一覧の表示が詰まって正しくレイアウトされるようになりました。",
-      "category": "レンダリング"
+      "detail_en": "Fixed an issue where extra empty lines would appear between rows in the background agent list.\n\nThe list is now compact and laid out correctly.",
+      "category": "レンダリング",
+      "category_en": "Rendering"
     }
   ],
   "2.1.167": [
     {
       "t": "バグ修正と信頼性の改善",
+      "t_en": "Bug fixes and reliability improvements",
       "tags": ["バグ修正"],
       "detail": "このリリースでは、ユーザーに直接見える新機能の追加はなく、細かなバグ修正と全体的な信頼性の向上が行われました。\n\n日々の利用で遭遇しうる軽微な不具合の解消と安定性の改善が含まれます。",
-      "category": "安定性"
+      "detail_en": "This release includes no user-visible new features; it contains minor bug fixes and overall reliability improvements.\n\nIncludes resolution of minor issues that may be encountered in daily use and stability enhancements.",
+      "category": "安定性",
+      "category_en": "Stability"
     }
   ],
   "2.1.168": [
     {
       "t": "バグ修正と信頼性の改善",
+      "t_en": "Bug fixes and reliability improvements",
       "tags": ["バグ修正"],
       "detail": "このリリースでは、ユーザーに直接見える新機能の追加はなく、細かなバグ修正と全体的な信頼性の向上が行われました。\n\n日々の利用で遭遇しうる軽微な不具合の解消と安定性の改善が含まれます。",
-      "category": "安定性"
+      "detail_en": "This release includes no user-visible new features; it contains minor bug fixes and overall reliability improvements.\n\nIncludes resolution of minor issues that may be encountered in daily use and stability enhancements.",
+      "category": "安定性",
+      "category_en": "Stability"
     }
   ]
 }

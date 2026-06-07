@@ -2,18 +2,25 @@
   {
     "id": "overview",
     "name": "概要",
+    "name_en": "Overview",
     "description": "ハーネスエンジニアリングの基本概念（コンテキストエンジニアリングを含む）",
+    "description_en": "Fundamental concepts of harness engineering, including context engineering",
     "items": [
       {
         "id": "overview-concepts",
         "title": "ハーネスエンジニアリングとコンテキストエンジニアリング",
+        "title_en": "Harness Engineering and Context Engineering",
         "summary": "Claude Code の真の力はチャットインターフェースではなく「ハーネス」にある。ハーネスエンジニアリングは設定ファイル・フック・エージェント・スキル・コンテキスト管理の設計を包括する技術であり、コンテキストエンジニアリングはその一部としてトークン予算の最適化を扱う。",
+        "summary_en": "Claude Code's true power lies not in the chat interface itself but in the \"harness.\" Harness engineering encompasses the design of config files, hooks, agents, skills, and context management. Context engineering is a sub-discipline focused on token budget optimization.",
         "content": "Claude Code の真の力はチャットインターフェース自体ではなく、その振る舞いを形作る設定ファイル・フック・エージェント・スキル・メモリシステムの集合体 —— **ハーネス**にある。\n\n**ハーネスエンジニアリング**とは、このハーネスを構成する各要素（CLAUDE.md、Rules、Hooks、サブエージェント、Skills、MCP、パーミッション、コンテキスト管理等）を適切に設計・組み合わせて、Claude Code の振る舞いを最適化する包括的な技術のこと。重要な区別は、CLAUDE.md・ルール・スキル・メモリが「アドバイザリー（助言的）」な制御であるのに対し、フックは「決定論的」な制御であるということ。最適なハーネスは、CLAUDE.md で「すべきこと」を案内し、フックで「交渉の余地のないルール」を100%確実に強制する。\n\n**コンテキストエンジニアリング**は、ハーネスエンジニアリングの一領域であり、Claude Code のコンテキストウィンドウ（1Mトークン）を効率的に管理する技術のこと。ハーネスの各要素（CLAUDE.md、MCP ツール、ルール等）はすべてコンテキストウィンドウのトークンを消費するため、ハーネス設計とコンテキスト管理は表裏一体の関係にある。システムプロンプトが約50の指示と約20Kトークンを消費し、指示総数の上限が約200であるという制約の中で、CLAUDE.md の行数・MCP サーバー数・常時適用ルールの数をコントロールする。品質は使用率40%を超えると劣化し始め、60%が実用的な上限とされる。\n\nハーネスエンジニアリングで成果を上げているチームの共通点: 軽量な CLAUDE.md（200行以下）、スキルによるプログレッシブ・ディスクロージャー、Tool Search による MCP 最適化、Document & Clear パターンによるコンテキスト汚染の防止。",
+        "content_en": "Claude Code's true power lies not in the chat interface itself but in the collection of config files, hooks, agents, skills, and memory systems that shape its behavior — the **harness**.\n\n**Harness engineering** is the comprehensive practice of designing and combining each element of this harness (CLAUDE.md, Rules, Hooks, subagents, Skills, MCP, permissions, context management, etc.) to optimize Claude Code's behavior. A key distinction: CLAUDE.md, rules, skills, and memory provide \"advisory\" control, whereas hooks provide \"deterministic\" control. An optimal harness uses CLAUDE.md to guide what Claude *should* do, and hooks to enforce non-negotiable rules with 100% certainty.\n\n**Context engineering** is a domain within harness engineering focused on efficiently managing Claude Code's context window (1M tokens). Because every harness element (CLAUDE.md, MCP tools, rules, etc.) consumes tokens in the context window, harness design and context management are two sides of the same coin. Within the constraint that the system prompt consumes roughly 50 instructions and ~20K tokens, and the total instruction ceiling is around 200, you control the number of CLAUDE.md lines, MCP servers, and always-active rules. Quality begins to degrade above 40% usage, and 60% is the practical upper limit.\n\nCommon traits of teams succeeding with harness engineering: lightweight CLAUDE.md (under 200 lines), progressive disclosure via skills, MCP optimization via Tool Search, and preventing context pollution using the Document & Clear pattern.",
         "tags": [],
         "tables": [
           {
             "title": "アドバイザリー制御 vs 決定論的制御",
+            "title_en": "Advisory Control vs Deterministic Control",
             "headers": ["種類", "例", "遵守率", "用途"],
+            "headers_en": ["Type", "Example", "Compliance Rate", "Use Case"],
             "rows": [
               [
                 "アドバイザリー（助言的）",
@@ -27,11 +34,27 @@
                 "100%",
                 "交渉の余地のないルールの強制"
               ]
+            ],
+            "rows_en": [
+              [
+                "Advisory",
+                "CLAUDE.md, Rules, Skills, Memory",
+                "~70% (decreases as instruction count grows)",
+                "Guidance on what Claude should do"
+              ],
+              [
+                "Deterministic (enforced)",
+                "Hooks (PreToolUse, PostToolUse, etc.)",
+                "100%",
+                "Enforcing non-negotiable rules"
+              ]
             ]
           },
           {
             "title": "コンテキスト予算の3つの制約",
+            "title_en": "Three Context Budget Constraints",
             "headers": ["制約", "数値", "意味"],
+            "headers_en": ["Constraint", "Value", "Meaning"],
             "rows": [
               [
                 "システムプロンプトの指示数",
@@ -40,6 +63,23 @@
               ],
               ["会話前の初期トークン消費", "~20K", "MCP サーバーが多いと60〜143Kに膨張"],
               ["品質維持の実用上限", "使用率60%", "40%超で劣化開始、60%超は避けるべき"]
+            ],
+            "rows_en": [
+              [
+                "System prompt instruction count",
+                "~50",
+                "Leaves roughly 100–150 instructions available for CLAUDE.md and rules"
+              ],
+              [
+                "Initial token consumption before conversation",
+                "~20K",
+                "Can balloon to 60–143K with many MCP servers"
+              ],
+              [
+                "Practical upper limit for quality",
+                "60% usage",
+                "Degradation starts above 40%; above 60% should be avoided"
+              ]
             ]
           }
         ]
@@ -49,18 +89,25 @@
   {
     "id": "claude-md",
     "name": "CLAUDE.md",
+    "name_en": "CLAUDE.md",
     "description": "最高レバレッジの設定面 — Claude Code の振る舞いを定義する中核ファイル",
+    "description_en": "The highest-leverage configuration surface — the core file that defines Claude Code's behavior",
     "items": [
       {
         "id": "claude-md-hierarchy",
         "title": "ファイル階層と読み込み順序",
+        "title_en": "File Hierarchy and Load Order",
         "summary": "CLAUDE.md は複数の場所から同時に読み込まれ、すべてのレベルが結合される。Enterprise → User → Project → Subdirectory の優先順位を理解することが重要。",
+        "summary_en": "CLAUDE.md is loaded simultaneously from multiple locations and all levels are merged. Understanding the Enterprise → User → Project → Subdirectory priority order is essential.",
         "content": "CLAUDE.md はフロントマターを持たないプレーンな Markdown ファイル。`globs:` や `alwaysApply:` などの YAML フロントマターは Cursor 形式であり、Claude Code では無視される。\n\n複数の場所から同時に読み込まれ、すべてのレベルが**結合**（置換ではない）される。`./CLAUDE.md` と `./.claude/CLAUDE.md` はプロジェクトレベルで同一優先度。\n\nサブディレクトリの CLAUDE.md は、Claude がそのディレクトリ内のファイルを操作する時にのみオンデマンドで読み込まれる。Netflix の Tyler Burnam はディレクトリごとにネストした CLAUDE.md を配置するパターンを実践している。\n\n`CLAUDE.local.md` はプロジェクトローカルな個人設定ファイル（`.gitignore` 推奨）として現在も公式サポートされている。worktree を複数使う場合に限り、`@~/.claude/my-project-prefs.md` のように home ディレクトリからインポートすると worktree 間で設定を共有できる。",
+        "content_en": "CLAUDE.md is a plain Markdown file with no frontmatter. YAML frontmatter such as `globs:` or `alwaysApply:` are Cursor-specific fields and are ignored by Claude Code.\n\nIt is loaded simultaneously from multiple locations, and all levels are **merged** (not replaced). `./CLAUDE.md` and `./.claude/CLAUDE.md` have the same priority at the project level.\n\nSubdirectory CLAUDE.md files are loaded on demand only when Claude operates on files within that directory. Netflix's Tyler Burnam practices a pattern of placing nested CLAUDE.md files in each directory.\n\n`CLAUDE.local.md` is still officially supported as a project-local personal config file (recommended to add to `.gitignore`). Only when using multiple worktrees does importing from the home directory via `@~/.claude/my-project-prefs.md` allow sharing settings across worktrees.",
         "tags": [],
         "tables": [
           {
             "title": "CLAUDE.md の読み込み階層",
+            "title_en": "CLAUDE.md Load Hierarchy",
             "headers": ["レベル", "場所", "読み込みタイミング", "Git 管理"],
+            "headers_en": ["Level", "Location", "Load Timing", "Git-tracked"],
             "rows": [
               [
                 "Enterprise",
@@ -79,36 +126,81 @@
                 "常時・gitignored 推奨",
                 "対象外（個人設定に使用）"
               ]
+            ],
+            "rows_en": [
+              [
+                "Enterprise",
+                "/Library/Application Support/ClaudeCode/CLAUDE.md (macOS)",
+                "Always; highest priority; cannot be excluded",
+                "IT-managed"
+              ],
+              ["User", "~/.claude/CLAUDE.md", "Always; applies to all projects", "Not tracked"],
+              ["Project root", "./CLAUDE.md", "Always", "Tracked"],
+              [
+                "Project .claude",
+                "./.claude/CLAUDE.md",
+                "Always; same priority as root",
+                "Tracked"
+              ],
+              ["Parent directory", "../CLAUDE.md up to git root", "Always", "Inherited"],
+              [
+                "Subdirectory",
+                "subdir/CLAUDE.md",
+                "On demand (when files in that directory are accessed)",
+                "Tracked"
+              ],
+              [
+                "Project local",
+                "./CLAUDE.local.md",
+                "Always; recommended to gitignore",
+                "Not tracked (for personal config)"
+              ]
             ]
           }
         ],
         "tips": [
           "サブディレクトリ CLAUDE.md を活用すると、コンポーネント固有のルールを分離できる",
           "CLAUDE.local.md はプロジェクト固有の個人設定に使用し、.gitignore に追加する。複数 worktree で設定を共有したい場合は @~/.claude/my-prefs.md でインポートする"
+        ],
+        "tips_en": [
+          "Using subdirectory CLAUDE.md files lets you isolate component-specific rules",
+          "Use CLAUDE.local.md for project-specific personal settings and add it to .gitignore. To share settings across multiple worktrees, import via @~/.claude/my-prefs.md"
         ]
       },
       {
         "id": "claude-md-imports",
         "title": "@ インポートシステム",
+        "title_en": "@ Import System",
         "summary": "CLAUDE.md 内で別ファイルを参照する @ インポート。再帰4階層まで対応し、CLAUDE.md を軽量に保ちながら詳細なガイダンスを提供できる。",
+        "summary_en": "@ imports allow referencing external files from within CLAUDE.md. Up to 4 levels of recursive imports are supported, keeping CLAUDE.md lightweight while providing detailed guidance in separate files.",
         "content": "CLAUDE.md 内で独立した行に `@` で始まるファイルパスを記述すると、そのファイルの内容がコンテキストに取り込まれる。\n\n再帰インポートは最大**4階層**（4 hops）まで対応。相対パスと絶対パスの両方が使用可能。\n\nこの仕組みにより、CLAUDE.md 自体は軽量に保ちつつ、詳細なガイダンスを別ファイルに分離する「プログレッシブ・ディスクロージャー」が実現できる。",
+        "content_en": "Writing a file path that starts with `@` on its own line in CLAUDE.md causes that file's content to be pulled into context.\n\nRecursive imports are supported up to **4 levels** (4 hops). Both relative and absolute paths can be used.\n\nThis mechanism enables \"progressive disclosure\" — keeping CLAUDE.md itself lightweight while separating detailed guidance into dedicated files.",
         "tags": [],
         "code": "@docs/architecture.md\n@docs/api-patterns.md\n@README.md",
         "gotchas": [
           "ホームディレクトリからの @ インポート（@~/ 形式）にはバグが報告されている（GitHub issue #8765）",
           "Claude Code は `CLAUDE.md` を読み込む（`AGENTS.md` は読まない）。他の AI コーディングエージェントが `AGENTS.md` を使うリポジトリでは、`@AGENTS.md` をインポートする `CLAUDE.md` を作成することで両ツールが同じ指示を参照できる。シンボリックリンク `ln -s AGENTS.md CLAUDE.md` も使用可能（Windows 除く）"
+        ],
+        "gotchas_en": [
+          "Bugs have been reported with @ imports from the home directory (@~/ form) (GitHub issue #8765)",
+          "Claude Code reads `CLAUDE.md` (not `AGENTS.md`). In repositories where other AI coding agents use `AGENTS.md`, you can create a `CLAUDE.md` that imports `@AGENTS.md` so both tools reference the same instructions. A symlink `ln -s AGENTS.md CLAUDE.md` also works (except on Windows)"
         ]
       },
       {
         "id": "claude-md-token-budget",
         "title": "トークン予算と指示の限界",
+        "title_en": "Token Budget and Instruction Limits",
         "summary": "CLAUDE.md は各 API コールで再処理される。200行で約1,500〜3,000トークン消費。指示数は全体で150〜200が上限で、超えると全指示の遵守率が均等に低下する。",
+        "summary_en": "CLAUDE.md is reprocessed on every API call. 200 lines consume roughly 1,500–3,000 tokens. The total instruction ceiling is 150–200; exceeding it uniformly degrades compliance with all instructions.",
         "content": "CLAUDE.md の内容は `<system-reminder>` タグで包まれたユーザーメッセージとして各 API コールに注入される。システムプロンプト自体には含まれない。\n\n**公式推奨**: 200行以下（code.claude.com/docs/en/memory）。コミュニティのコンセンサスも同じく200行以下、HumanLayer は60行以下を推奨。\n\n200行のファイルは約**1,500〜3,000トークン**を消費し、毎メッセージで再処理される。40,000文字を超えると `⚠ Large CLAUDE.md will impact performance` 警告が表示される。\n\nフロンティア LLM は約**150〜200の指示**を合理的な一貫性で遵守可能（arxiv.org/pdf/2507.11538）。Claude Code のシステムプロンプトが既に約50の指示を含むため、CLAUDE.md とルールに使えるのは残り約100〜150。\n\n指示数が増えると、特定の指示だけでなく**全ての指示が均等に無視されやすくなる**。LLM はプロンプトの最初と最後に偏った注意を払う（初頭性・新近性バイアス）。",
+        "content_en": "CLAUDE.md content is injected into every API call as a user message wrapped in `<system-reminder>` tags. It is not part of the system prompt itself.\n\n**Official recommendation**: Under 200 lines (code.claude.com/docs/en/memory). Community consensus agrees, with HumanLayer recommending under 60 lines.\n\nA 200-line file consumes roughly **1,500–3,000 tokens** and is reprocessed on every message. Exceeding 40,000 characters triggers a `⚠ Large CLAUDE.md will impact performance` warning.\n\nFrontier LLMs can follow roughly **150–200 instructions** with reasonable consistency (arxiv.org/pdf/2507.11538). Since Claude Code's system prompt already contains around 50 instructions, only about 100–150 remain for CLAUDE.md and rules.\n\nAs instruction count grows, **all instructions become uniformly harder to follow** — not just specific ones. LLMs pay disproportionate attention to the beginning and end of prompts (primacy and recency bias).",
         "tags": [],
         "tables": [
           {
             "title": "新規セッションの典型的なコンテキスト消費（200Kウィンドウ）",
+            "title_en": "Typical Context Consumption for a New Session (200K Window)",
             "headers": ["コンポーネント", "トークン数", "割合"],
+            "headers_en": ["Component", "Tokens", "Percentage"],
             "rows": [
               ["システムプロンプト", "~2.7K", "1.3%"],
               ["システムツール", "~16.8K", "8.4%"],
@@ -117,6 +209,15 @@
               ["メモリファイル（CLAUDE.md + ルール + MEMORY.md）", "~7.4K", "3.7%"],
               ["スキル（説明のみ）", "~1.0K", "0.5%"],
               ["自動コンパクトバッファ", "~33K", "16.5%"]
+            ],
+            "rows_en": [
+              ["System prompt", "~2.7K", "1.3%"],
+              ["System tools", "~16.8K", "8.4%"],
+              ["MCP tools", "Variable", "0.5–41%+"],
+              ["Custom agents", "~1.3K", "0.7%"],
+              ["Memory files (CLAUDE.md + rules + MEMORY.md)", "~7.4K", "3.7%"],
+              ["Skills (descriptions only)", "~1.0K", "0.5%"],
+              ["Auto-compact buffer", "~33K", "16.5%"]
             ]
           }
         ],
@@ -125,16 +226,28 @@
           "否定形（Do NOT use...）より肯定形（Use X exclusively）の方が遵守率が高い",
           "簡潔な箇条書きは冗長な段落より約40%遵守されやすい",
           "CLAUDE.md 内のブロックレベル HTML コメント（<!-- メンテナー向けメモ -->）は Claude のコンテキストに注入される前に除去される。コードブロック内のコメントは保持される。/memory コマンドでファイルを直接開いた場合はコメントが表示される"
+        ],
+        "tips_en": [
+          "Place the most commonly violated rules at the very beginning and end of CLAUDE.md (exploiting primacy and recency bias)",
+          "Positive framing (\"Use X exclusively\") achieves higher compliance than negative framing (\"Do NOT use...\")",
+          "Concise bullet points are followed roughly 40% more reliably than verbose paragraphs",
+          "Block-level HTML comments in CLAUDE.md (<!-- maintainer note -->) are stripped before being injected into Claude's context. Comments inside code blocks are preserved. Comments are visible when the file is opened directly via the /memory command"
         ]
       },
       {
         "id": "claude-md-init",
         "title": "/init コマンドと設計のベストプラクティス",
+        "title_en": "/init Command and Design Best Practices",
         "summary": "/init は自動で CLAUDE.md を生成するが、HumanLayer は「最高レバレッジポイントだから自動生成は避けるべき」と推奨。/init 後の積極的な剪定が重要。",
+        "summary_en": "/init auto-generates CLAUDE.md, but HumanLayer advises against it: \"CLAUDE.md is the highest-leverage point in the harness, so auto-generation should be avoided.\" Actively pruning after /init is essential.",
         "content": "`/init` はコードベースを分析し（パッケージファイル、README、設定ファイル、コード構造を読み込み）、CLAUDE.md を生成する。内部プロンプトでは、ビルド/リント/テストコマンドと高レベルアーキテクチャに焦点を当て、自明な指示を避け、Cursor/Copilot ルールがあれば取り込むよう指示される。\n\nHumanLayer は `/init` の使用を強く非推奨: 「CLAUDE.md はハーネスの最高レバレッジポイントなので、自動生成は避けるべき」。ベストプラクティスは `/init` を実行し、汎用的な内容を積極的に削除してから、プロジェクト固有のワークフロー・コードスタイル・アーキテクチャ上の決定を追加すること。",
+        "content_en": "`/init` analyzes the codebase (reading package files, README, config files, and code structure) and generates CLAUDE.md. Its internal prompt instructs it to focus on build/lint/test commands and high-level architecture, avoid self-evident instructions, and incorporate existing Cursor/Copilot rules if present.\n\nHumanLayer strongly advises against using `/init`: \"CLAUDE.md is the highest-leverage point in the harness, so auto-generation should be avoided.\" The best practice is to run `/init`, aggressively delete generic content, then add project-specific workflows, code style preferences, and architectural decisions.",
         "tags": [],
         "tips": [
           "`CLAUDE_CODE_NEW_INIT=1` を設定すると `/init` が対話型マルチフェーズフローで動作する。セットアップするアーティファクト（CLAUDE.md、スキル、フック）を選択し、サブエージェントでコードベースを探索し、フォローアップ質問でギャップを埋め、ファイルを書き込む前にレビュー可能なプロポーザルを提示する"
+        ],
+        "tips_en": [
+          "Setting `CLAUDE_CODE_NEW_INIT=1` makes `/init` run in an interactive multi-phase flow. You select which artifacts to set up (CLAUDE.md, skills, hooks), it explores the codebase via subagents, fills gaps with follow-up questions, and presents a reviewable proposal before writing any files"
         ],
         "gotchas": [
           "指示が多すぎる（システムプロンプトと合わせて150超）と全体的な劣化を招く",
@@ -145,17 +258,34 @@
           "矛盾するルールがあると Claude は恣意的に選択する。定期的にレビューすること",
           "来週変わるような一時的な情報はプロンプトで伝え、CLAUDE.md には書かない"
         ],
+        "gotchas_en": [
+          "Too many instructions (over 150 combined with the system prompt) causes across-the-board degradation",
+          "Vague instructions (\"write good code\") have no effect. Be specific (\"2-space indentation, run npm test before committing\")",
+          "Code style rules enforceable by linters belong in ESLint/Prettier/Biome + Hooks, not CLAUDE.md",
+          "Move task-specific instructions that are rarely applied to skills",
+          "Using /init output without reviewing it includes filler like \"this project uses JavaScript\"",
+          "Conflicting rules cause Claude to choose arbitrarily. Review regularly",
+          "Temporary information that changes next week should be communicated via prompt, not written into CLAUDE.md"
+        ],
         "realWorld": [
           "Trail of Bits (trailofbits/claude-code-config): 「投機的機能禁止」「早すぎる抽象化禁止」「賢さより明確さ」を強調。deny ルール付き settings.json を使用",
           "Boris Cherny (Claude Code 開発者): チーム全員が週次で CLAUDE.md を更新。GitHub PR で @.claude タグを使いレビュープロセスの一部として CLAUDE.md を更新",
           "Tyler Burnam (Netflix): ディレクトリごとの CLAUDE.md — app/CLAUDE.md、components/CLAUDE.md — Claude がディレクトリを横断するたびに取得される"
+        ],
+        "realWorld_en": [
+          "Trail of Bits (trailofbits/claude-code-config): Emphasizes \"no speculative features,\" \"no premature abstractions,\" and \"clarity over cleverness.\" Uses settings.json with deny rules",
+          "Boris Cherny (Claude Code developer): The entire team updates CLAUDE.md weekly. Uses @.claude tags in GitHub PRs to update CLAUDE.md as part of the review process",
+          "Tyler Burnam (Netflix): Per-directory CLAUDE.md — app/CLAUDE.md, components/CLAUDE.md — fetched automatically each time Claude traverses a directory"
         ]
       },
       {
         "id": "claude-md-excludes",
         "title": "claudeMdExcludes 設定",
+        "title_en": "claudeMdExcludes Setting",
         "summary": "特定の CLAUDE.md ファイルをパスやグロブで除外する設定。Enterprise 管理の CLAUDE.md は除外不可。",
+        "summary_en": "A setting to exclude specific CLAUDE.md files by path or glob. Enterprise-managed CLAUDE.md files cannot be excluded.",
         "content": "`claudeMdExcludes` 設定で特定の CLAUDE.md ファイルをスキップできる。パターンは絶対ファイルパスに対してマッチする。任意の設定レイヤーで構成可能。\n\nEnterprise 管理の CLAUDE.md ファイルは除外できない。",
+        "content_en": "The `claudeMdExcludes` setting allows skipping specific CLAUDE.md files. Patterns match against absolute file paths. Can be configured at any settings layer.\n\nEnterprise-managed CLAUDE.md files cannot be excluded.",
         "tags": [],
         "code": "{\n  \"claudeMdExcludes\": [\"**/monorepo/CLAUDE.md\"]\n}"
       }
@@ -164,18 +294,25 @@
   {
     "id": "rules",
     "name": "Rules システム",
+    "name_en": "Rules System",
     "description": "モジュラーなパス指定命令 — .claude/rules/*.md で条件付きルールを定義",
+    "description_en": "Modular path-targeted instructions — define conditional rules in .claude/rules/*.md",
     "items": [
       {
         "id": "rules-frontmatter",
         "title": "Frontmatter スキーマとルールタイプ",
+        "title_en": "Frontmatter Schema and Rule Types",
         "summary": "Rules ファイルは paths フィールドのみサポート。ルールは3タイプ: 常時適用・パス指定・エージェント要求（スキルで代替）。パス指定ルールは Read 操作時のみ発火する重要な制限あり。",
+        "summary_en": "Rules files support only the paths field. Three rule types exist: always-apply, path-targeted, and agent-requested (use Skills instead). Path-targeted rules have an important limitation: they only fire on Read operations.",
         "content": "`.claude/rules/*.md` でサポートされるフロントマターフィールドは **`paths`** のみ。`description`、`alwaysApply`、`excludePaths`、`priority` は Cursor 固有のフィールドで Claude Code は無視する。ただし `globs:`（同じく Cursor のフィールド）は YAML パースバグにより `paths:` より信頼性が高いケースがある（GitHub issue #17204）。\n\nパス指定ルールは Claude が**マッチするファイルを Read した時のみ**発火し、**Write/Create 時には発火しない**（GitHub #23478）。「新しい .md ファイルにヘッダーを追加する」のようなルールはファイル作成時にサイレントに無視される。\n\n回避策: Write の PostToolUse フックで、新規作成されたファイルを Claude に Read させる。",
+        "content_en": "The only frontmatter field supported in `.claude/rules/*.md` is **`paths`**. Fields like `description`, `alwaysApply`, `excludePaths`, and `priority` are Cursor-specific and ignored by Claude Code. However, `globs:` (also a Cursor field) can be more reliable than `paths:` in some cases due to a YAML parsing bug (GitHub issue #17204).\n\nPath-targeted rules only fire when Claude **Reads a matching file** — they do **not** fire on Write/Create (GitHub #23478). Rules like \"add a header to new .md files\" are silently ignored at file creation time.\n\nWorkaround: Use a PostToolUse hook on Write to have Claude Read the newly created file.",
         "tags": [],
         "tables": [
           {
             "title": "3つのルールタイプ",
+            "title_en": "Three Rule Types",
             "headers": ["タイプ", "設定", "読み込み動作", "トークン影響"],
+            "headers_en": ["Type", "Configuration", "Load Behavior", "Token Impact"],
             "rows": [
               [
                 "常時適用",
@@ -190,6 +327,21 @@
                 "アクティブ時のみ"
               ],
               ["エージェント要求", "ネイティブ未対応", "代わりに Skills システムを使用", "N/A"]
+            ],
+            "rows_en": [
+              [
+                "Always-apply",
+                "No frontmatter",
+                "Loaded at session start. Same priority as CLAUDE.md",
+                "Always consumed"
+              ],
+              [
+                "Path-targeted",
+                "paths: frontmatter",
+                "On demand when a matching file is Read",
+                "Only when active"
+              ],
+              ["Agent-requested", "Not natively supported", "Use the Skills system instead", "N/A"]
             ]
           }
         ],
@@ -198,19 +350,33 @@
           "引用符付き配列形式（paths: [\"**/*.ts\"]）は一部バージョンで動作しない。引用符なしスカラー形式が安定",
           "ユーザーレベル（~/.claude/rules/）の paths フロントマターはサイレントに無視される（GitHub #21858）",
           "公式ドキュメントの例に標準 YAML パーサーが拒否する無効な YAML が含まれている"
+        ],
+        "gotchas_en": [
+          "The quoted array form (paths: [\"**/*.ts\"]) does not work in some versions. The unquoted scalar form is more stable",
+          "The paths frontmatter in user-level (~/.claude/rules/) rules is silently ignored (GitHub #21858)",
+          "Some official documentation examples contain invalid YAML that standard YAML parsers reject"
         ]
       },
       {
         "id": "rules-loading",
         "title": "読み込み順序とパフォーマンス",
+        "title_en": "Load Order and Performance",
         "summary": "ユーザーレベルのルールが先に読み込まれ、プロジェクトルールが高い優先度を持つ。同じファイルにマッチする複数ルールは結合される。個別ルールは500行以下、全体で約120行を目標に。",
+        "summary_en": "User-level rules are loaded first, but project rules take higher priority. Multiple rules matching the same file are merged. Keep individual rule files under 500 lines and the total to around 120 lines.",
         "content": "ルールは `.claude/rules/` からサブディレクトリを含め再帰的に読み込まれる。ユーザーレベル（`~/.claude/rules/`）のルールがプロジェクトルールより先に読み込まれ、プロジェクトルールがより高い優先度を持つ。\n\n同じファイルにマッチする複数のルールは**結合/連結**される（優先順位付けされない）。2つのルールが矛盾するガイダンスを与える場合、Claude は恣意的に選択する。\n\n**CLAUDE.md とルールはコンパクション後も完全に保持される。** `/compact` 後、Claude はすべての指示ファイルをディスクから再読み込みして再注入する。会話内で与えられた指示のみが失われる。\n\n`.claude/rules/` はシンボリックリンクに対応: `ln -s ~/shared-claude-rules .claude/rules/shared`。循環シンボリックリンクは検出されて適切に処理される。",
+        "content_en": "Rules are loaded recursively from `.claude/rules/`, including subdirectories. User-level rules (`~/.claude/rules/`) are loaded before project rules, but project rules take higher priority.\n\nMultiple rules matching the same file are **merged/concatenated** (not prioritized). When two rules give conflicting guidance, Claude chooses arbitrarily.\n\n**CLAUDE.md and rules are fully preserved after compaction.** After `/compact`, Claude reloads all instruction files from disk and re-injects them. Only instructions given within the conversation are lost.\n\n`.claude/rules/` supports symlinks: `ln -s ~/shared-claude-rules .claude/rules/shared`. Circular symlinks are detected and handled gracefully.",
         "tags": [],
         "tips": [
           "個別ルールファイルは500行以下を維持",
           "プロジェクト全体の指示内容（CLAUDE.md + グローバルルール）は約120行を目標に",
           "28個のルールがセッション開始時に読み込まれて「大幅なコンテキスト肥大化」を引き起こした報告あり（GitHub #16299）",
           "コンテキスト使用率70%を超えると品質劣化が始まる"
+        ],
+        "tips_en": [
+          "Keep individual rule files under 500 lines",
+          "Aim for around 120 lines total for all project instructions (CLAUDE.md + global rules)",
+          "28 rules loaded at session start have been reported to cause \"significant context bloat\" (GitHub #16299)",
+          "Quality degradation begins when context usage exceeds 70%"
         ]
       }
     ]
@@ -218,29 +384,42 @@
   {
     "id": "memory",
     "name": "メモリシステム",
+    "name_en": "Memory System",
     "description": "自動学習と永続化 — Claude が会話から学んだ情報を次回以降に活用",
+    "description_en": "Automatic learning and persistence — Claude retains what it learned in one conversation for future sessions",
     "items": [
       {
         "id": "memory-auto",
         "title": "自動メモリと MEMORY.md",
+        "title_en": "Auto Memory and MEMORY.md",
         "summary": "v2.1.59+ で自動メモリが標準有効。MEMORY.md は200行または 25KB のハード制限があり、超過分は読み込まれない。トピックファイルはセッション開始時に自動読み込みされず、Claude がオンデマンドで読み込む。",
+        "summary_en": "Auto memory is on by default since v2.1.59+. MEMORY.md has a hard limit of 200 lines or 25 KB; content beyond that is not loaded. Topic files are not auto-loaded at session start — Claude reads them on demand.",
         "content": "Claude はビルドコマンド、デバッグの知見、アーキテクチャノート、コードスタイルの好みなど、将来の会話で有用と判断した学びを自動的に保存する。すべてのセッションでメモリが生成されるわけではない。v2.1.59+ で標準有効。`CLAUDE_CODE_DISABLE_AUTO_MEMORY=1` または `{\"autoMemoryEnabled\": false}` で無効化可能。\n\nMEMORY.md は**200行または 25KB のいずれか先に達した時点**で読み込みが打ち切られる（ハードコード）。この閾値を超えた内容はセッション開始時に読み込まれない。短いインデックスとして使い、詳細は別のトピックファイルに分離することが推奨される。\n\nトピックファイル（例: debugging.md, api-conventions.md）はセッション開始時には自動読み込みされない。Claude が必要と判断した時に標準ファイルツールを使ってオンデマンドで読み込む。\n\nすべてのメモリファイルはプレーンマークダウンで完全に編集可能。`/memory` でブラウズ・ファイルを開ける。約10セッション後に約30%の冗長エントリが含まれることが多いため、定期的なクリーンアップを推奨。",
+        "content_en": "Claude automatically saves learnings it judges useful for future conversations — build commands, debugging insights, architecture notes, code style preferences, etc. Memory is not generated in every session. Enabled by default since v2.1.59+. Can be disabled with `CLAUDE_CODE_DISABLE_AUTO_MEMORY=1` or `{\"autoMemoryEnabled\": false}`.\n\nMEMORY.md loading is cut off at **200 lines or 25 KB, whichever comes first** (hardcoded). Content beyond this threshold is not loaded at session start. The recommended approach is to use it as a short index and separate detailed content into topic files.\n\nTopic files (e.g., debugging.md, api-conventions.md) are not auto-loaded at session start. Claude loads them on demand using standard file tools when it determines they are needed.\n\nAll memory files are plain Markdown and fully editable. Browse and open files with `/memory`. After around 10 sessions, roughly 30% of entries tend to be redundant — regular cleanup is recommended.",
         "tags": [],
-        "code": "~/.claude/projects/<project>/memory/\n├── MEMORY.md              # 簡潔なインデックス（毎セッション読み込み）\n├── debugging.md           # トピックファイル（任意）\n└── api-conventions.md     # トピックファイル（任意)",
+        "code": "~/.claude/projects/<project>/memory/\n├── MEMORY.md              # 簡潔なインデックス（毎セッション読み込み）\n├── debugging.md           # トピックファイル（任意）\n└── api-conventions.md     # トピックファイル（任意）",
         "tips": [
           "`autoMemoryDirectory` を `settings.json` に設定することで、自動メモリの保存先を変更できる。絶対パスまたは `~/` から始まるパスが使用可能"
+        ],
+        "tips_en": [
+          "Set `autoMemoryDirectory` in `settings.json` to change where auto-memory is stored. Absolute paths or paths starting with `~/` are accepted"
         ]
       },
       {
         "id": "memory-vs-claude-md",
         "title": "Memory vs CLAUDE.md の使い分け",
+        "title_en": "Memory vs CLAUDE.md: When to Use Which",
         "summary": "CLAUDE.md は開発者が書くルール・規約。MEMORY.md は Claude が自動で学習したパターン。両者の役割を理解して適切に使い分ける。",
+        "summary_en": "CLAUDE.md contains rules and conventions written by developers. MEMORY.md holds patterns automatically learned by Claude. Understanding their distinct roles enables effective use of each.",
         "content": "CLAUDE.md と MEMORY.md は異なる役割を持つ永続化メカニズム。CLAUDE.md は開発者が書き、ルール・規約・アーキテクチャ・コマンドを定義する。MEMORY.md は Claude が自動的に生成し、学習したパターン・デバッグの知見・特殊事情を記録する。\n\nCLAUDE.md はプロジェクトレベル（バージョン管理対象）またはユーザーレベルで、「常にこうする」というスタンダードに最適。MEMORY.md はプロジェクトごと・マシンローカルで Git に含まれず、「こうだと学んだ」という例外や発見に最適。",
+        "content_en": "CLAUDE.md and MEMORY.md are persistence mechanisms with distinct roles. CLAUDE.md is written by developers and defines rules, conventions, architecture, and commands. MEMORY.md is auto-generated by Claude and records learned patterns, debugging insights, and special circumstances.\n\nCLAUDE.md operates at the project level (version-controlled) or user level, and is best for standards that always apply. MEMORY.md is per-project, machine-local, not included in Git, and is best for exceptions and discoveries Claude has learned.",
         "tags": [],
         "tables": [
           {
             "title": "CLAUDE.md と MEMORY.md の比較",
+            "title_en": "CLAUDE.md vs MEMORY.md Comparison",
             "headers": ["側面", "CLAUDE.md", "MEMORY.md"],
+            "headers_en": ["Aspect", "CLAUDE.md", "MEMORY.md"],
             "rows": [
               ["著者", "開発者", "Claude（自動）"],
               [
@@ -254,6 +433,24 @@
                 "プロジェクトごと、マシンローカル、Git 対象外"
               ],
               ["最適な用途", "スタンダード（常にこうする）", "例外・発見（こうだと学んだ）"]
+            ],
+            "rows_en": [
+              ["Author", "Developer", "Claude (automatic)"],
+              [
+                "Purpose",
+                "Rules, conventions, architecture, commands",
+                "Learned patterns, debugging insights, special circumstances"
+              ],
+              [
+                "Scope",
+                "Project level (version-controlled) or user level",
+                "Per-project, machine-local, not Git-tracked"
+              ],
+              [
+                "Best for",
+                "Standards (always do this)",
+                "Exceptions and discoveries (learned this is the case)"
+              ]
             ]
           }
         ]
@@ -263,33 +460,46 @@
   {
     "id": "environment",
     "name": "環境と設定",
+    "name_en": "Environment and Configuration",
     "description": "ディレクトリ構造・settings.json・設定優先順位の全体像",
+    "description_en": "An overview of the directory structure, settings.json, and configuration precedence",
     "items": [
       {
         "id": "env-directory",
         "title": "~/.claude/ ディレクトリ構造",
+        "title_en": "~/.claude/ Directory Structure",
         "summary": "Claude Code のホームディレクトリには設定、セッション、メモリ、プランなど多数のサブディレクトリが存在する。MCP 設定は ~/.claude.json（~/.claude/ の外）に配置される点に注意。",
+        "summary_en": "Claude Code's home directory contains many subdirectories for config, sessions, memory, plans, and more. Note that MCP config lives in ~/.claude.json, outside ~/.claude/.",
         "content": "Claude Code のホームディレクトリ `~/.claude/` は以下の構造を持つ。MCP 設定は `~/.claude.json`（`~/.claude/` の**外**）に配置される点に注意。",
+        "content_en": "Claude Code's home directory `~/.claude/` has the following structure. Note that MCP configuration lives in `~/.claude.json`, **outside** `~/.claude/`.",
         "tags": [],
         "code": "~/.claude/\n├── CLAUDE.md              # ユーザーレベル指示\n├── settings.json          # ユーザー設定\n├── settings.local.json    # ローカルユーザー設定（同期しない）\n├── .credentials.json      # API 認証情報（Linux/Windows）\n├── history.jsonl          # プロンプト履歴\n├── projects/              # プロジェクトごとのセッションとメモリ\n├── plans/                 # Plan Mode ドキュメント\n├── file-history/          # Undo/ロールバックチェックポイント\n├── todos/                 # セッションごとのタスクリスト\n├── teams/                 # Agent Teams データ\n├── tasks/                 # Agent Teams 用タスクファイル\n├── commands/              # グローバルスラッシュコマンド\n├── skills/                # グローバルスキル\n├── agents/                # ユーザーレベルサブエージェント\n├── rules/                 # ユーザーレベルルール\n└── plugins/               # プラグインインストール"
       },
       {
         "id": "env-settings",
         "title": "settings.json 完全スキーマ",
+        "title_en": "Complete settings.json Schema",
         "summary": "settings.json は一般設定、パーミッション、サンドボックス、フック、環境変数など多数のセクションを持つ。JSON Schema が公開されている。",
+        "summary_en": "settings.json has many sections including general settings, permissions, sandbox, hooks, and environment variables. A JSON Schema is publicly available.",
         "content": "JSON Schema は `https://json.schemastore.org/claude-code-settings.json` で公開されている。\n\n**一般設定**: `model`、`language`、`effortLevel`、`cleanupPeriodDays`（デフォルト30）、`autoUpdatesChannel`、`respectGitignore`（デフォルト true）、`alwaysThinkingEnabled`、`autoMemoryEnabled`\n\n**パーミッション**: `allow[]`、`ask[]`、`deny[]`、`additionalDirectories[]`、`defaultMode`、`disableBypassPermissionsMode`\n\n**サンドボックス**: `enabled`、`autoAllowBashIfSandboxed`、`excludedCommands[]`、`network.allowedDomains[]`\n\n**フック**: イベントごとの配列（matcher と hooks 配列）\n\n**アトリビューション**: `commit`、`pr`（\"\" で非表示）\n\n**環境変数**: `env: {\"KEY\": \"value\"}` — 毎セッションで設定\n\n**管理設定**: `availableModels[]`（モデル選択を制限）、`modelOverrides`、`allowManagedHooksOnly`、`allowManagedPermissionRulesOnly`、`companyAnnouncements[]`\n\n**スキル可視性**: `skillOverrides` 設定（v2.1.129 で修正）で特定スキルの可視性をオーバーライドできる。値は `\"off\"`、`\"user-invocable-only\"`、`\"name-only\"` の3種類。スキルファイルを編集せずに settings.json から制御できる",
+        "content_en": "The JSON Schema is published at `https://json.schemastore.org/claude-code-settings.json`.\n\n**General settings**: `model`, `language`, `effortLevel`, `cleanupPeriodDays` (default 30), `autoUpdatesChannel`, `respectGitignore` (default true), `alwaysThinkingEnabled`, `autoMemoryEnabled`\n\n**Permissions**: `allow[]`, `ask[]`, `deny[]`, `additionalDirectories[]`, `defaultMode`, `disableBypassPermissionsMode`\n\n**Sandbox**: `enabled`, `autoAllowBashIfSandboxed`, `excludedCommands[]`, `network.allowedDomains[]`\n\n**Hooks**: Per-event arrays (matcher and hooks arrays)\n\n**Attribution**: `commit`, `pr` (empty string hides it)\n\n**Environment variables**: `env: {\"KEY\": \"value\"}` — set every session\n\n**Managed settings**: `availableModels[]` (restricts model selection), `modelOverrides`, `allowManagedHooksOnly`, `allowManagedPermissionRulesOnly`, `companyAnnouncements[]`\n\n**Skill visibility**: The `skillOverrides` setting (fixed in v2.1.129) overrides the visibility of specific skills. Valid values are `\"off\"`, `\"user-invocable-only\"`, and `\"name-only\"`. Controls skills from settings.json without editing skill files",
         "tags": []
       },
       {
         "id": "env-precedence",
         "title": "設定の優先順位",
+        "title_en": "Configuration Precedence",
         "summary": "5段階の優先順位: Managed > CLI フラグ > ローカルプロジェクト > 共有プロジェクト > ユーザー。設定はスコープ間でマージされる。",
+        "summary_en": "Five precedence levels: Managed > CLI flags > local project > shared project > user. Settings are merged across scopes.",
         "content": "設定は5段階の優先順位を持つ。同じキーが異なるスコープにある場合、高い優先度が勝つ。配列はスコープ間で結合される。",
+        "content_en": "Settings have five levels of precedence. When the same key appears in different scopes, the higher-priority scope wins. Arrays are merged across scopes.",
         "tags": [],
         "tables": [
           {
             "title": "設定の優先順位（高い順）",
+            "title_en": "Configuration Precedence (highest first)",
             "headers": ["優先度", "種類", "場所"],
+            "headers_en": ["Priority", "Type", "Location"],
             "rows": [
               [
                 "1（最高）",
@@ -300,6 +510,17 @@
               ["3", "ローカルプロジェクト", ".claude/settings.local.json（gitignored）"],
               ["4", "共有プロジェクト", ".claude/settings.json（コミット対象）"],
               ["5（最低）", "ユーザー", "~/.claude/settings.json"]
+            ],
+            "rows_en": [
+              [
+                "1 (highest)",
+                "Managed",
+                "/Library/Application Support/ClaudeCode/managed-settings.json (macOS). Cannot be overridden"
+              ],
+              ["2", "CLI flags", "Session-scoped only"],
+              ["3", "Local project", ".claude/settings.local.json (gitignored)"],
+              ["4", "Shared project", ".claude/settings.json (committed to repo)"],
+              ["5 (lowest)", "User", "~/.claude/settings.json"]
             ]
           }
         ]
@@ -307,8 +528,11 @@
       {
         "id": "env-claudeignore",
         "title": ".claudeignore は存在しない",
+        "title_en": ".claudeignore Does Not Exist",
         "summary": "よくある誤解: .claudeignore はネイティブ機能ではない。Claude Code は .gitignore を尊重する。ファイルアクセスを拒否するには permissions.deny ルールを使用する。",
+        "summary_en": "A common misconception: .claudeignore is not a native feature. Claude Code respects .gitignore. Use permissions.deny rules to restrict file access.",
         "content": "よくある誤解（Claude 自身も誤って機能すると伝えることがある）だが、`.claudeignore` は**ネイティブ機能ではない**。Claude Code のデフォルトでは `respectGitignore: true` が設定されており、`@` ファイルピッカーの候補から `.gitignore` パターンに一致するファイルが除外される。ファイルの Read/Edit アクセスを制限するには `permissions.deny` ルールを使用する。コミュニティ npm パッケージ「claudeignore」が PreToolUse フックとしてこの概念を実装している。",
+        "content_en": "A common misconception — even Claude itself sometimes incorrectly claims this works — but `.claudeignore` is **not a native feature**. Claude Code defaults to `respectGitignore: true`, which excludes files matching `.gitignore` patterns from `@` file-picker suggestions. To restrict Read/Edit access to files, use `permissions.deny` rules. The community npm package \"claudeignore\" implements this concept as a PreToolUse hook.",
         "tags": [],
         "code": "// settings.json の deny ルールでファイルアクセスを制限\n{\n  \"deny\": [\n    \"Read(./.env)\",\n    \"Read(./secrets/**)\"\n  ]\n}"
       }

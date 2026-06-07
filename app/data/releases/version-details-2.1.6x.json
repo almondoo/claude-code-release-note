@@ -2,397 +2,589 @@
   "2.1.61": [
     {
       "t": "修正: Windows で複数インスタンスの同時書き込みにより設定ファイルが破損する問題",
+      "t_en": "Fix: Settings file corruption due to concurrent writes from multiple instances on Windows",
       "tags": ["バグ修正", "Platform"],
       "detail": "Windows 環境で複数の Claude Code インスタンスが同時に設定ファイルに書き込みを行った際に、設定ファイルが破損する問題が修正されました。v2.1.59 で同時実行時の設定ファイル破損の一般的な修正が行われましたが、Windows 固有の書き込み競合が残っていました。今回の修正により、Windows で複数のターミナルやプロジェクトから Claude Code を並行利用する際の設定データの整合性が確保されます。",
-      "category": "プラットフォーム互換性"
+      "detail_en": "Fixed an issue where settings files became corrupted when multiple Claude Code instances simultaneously wrote to them on Windows. While v2.1.59 addressed the general case of settings file corruption under concurrent access, a Windows-specific write conflict remained. This fix ensures settings data integrity when running Claude Code in parallel from multiple terminals or projects on Windows.",
+      "category": "プラットフォーム互換性",
+      "category_en": "Platform Compatibility"
     }
   ],
   "2.1.62": [
     {
       "t": "修正: プロンプト提案キャッシュのリグレッションによりキャッシュヒット率が低下する問題",
+      "t_en": "Fix: Regression in prompt suggestion cache causing reduced cache hit rate",
       "tags": ["バグ修正", "Perf"],
       "detail": "プロンプト提案キャッシュ（API コストとレイテンシを削減するためのキャッシュ機構）のヒット率が低下するリグレッションが修正されました。v2.1.50 および v2.1.49 でも同種の修正が行われていましたが、再度リグレッションが発生していました。正しいキャッシュ動作が復元され、繰り返し使用するプロンプトでの API コスト削減とレスポンス速度の改善が期待できます。",
-      "category": "パフォーマンス"
+      "detail_en": "Fixed a regression that reduced the hit rate of the prompt suggestion cache, a caching mechanism that lowers API costs and latency. Similar fixes had been applied in v2.1.50 and v2.1.49, but the regression had recurred. Correct caching behavior is restored, enabling reduced API costs and faster response times for frequently reused prompts.",
+      "category": "パフォーマンス",
+      "category_en": "Performance"
     }
   ],
   "2.1.63": [
     {
       "t": "追加: `/simplify` と `/batch` バンドルスラッシュコマンド",
+      "t_en": "Add: `/simplify` and `/batch` bundled slash commands",
       "tags": ["新機能"],
       "detail": "新しいバンドルスラッシュコマンド `/simplify` と `/batch` が追加されました。`/simplify` は変更されたコードを再利用性・品質・効率の観点でレビューし、問題があれば修正します。`/batch` は複数のタスクを一括処理するためのコマンドです。これらはバンドルスラッシュコマンドとして提供され、すぐに利用可能です。",
-      "category": "コマンド"
+      "detail_en": "New bundled slash commands `/simplify` and `/batch` have been added. `/simplify` reviews changed code for reusability, quality, and efficiency, and fixes any issues found. `/batch` is a command for processing multiple tasks at once. These are provided as bundled slash commands and are immediately available for use.",
+      "category": "コマンド",
+      "category_en": "Commands"
     },
     {
       "t": "追加: HTTP hooks（シェルコマンドの代わりに URL に JSON を POST し、JSON レスポンスを受信可能）",
+      "t_en": "Add: HTTP hooks (POST JSON to a URL instead of a shell command, and receive a JSON response)",
       "tags": ["新機能"],
       "detail": "hooks の新しいタイプとして `type: \"http\"` が追加されました。従来のシェルコマンド（`type: \"command\"`）に加え、指定した URL に対してイベントの JSON データを HTTP POST で送信し、レスポンスボディで結果を受け取ることができます。`url` フィールドで送信先を指定し、`headers` フィールドでカスタムヘッダー（認証トークンなど）を追加可能です。ヘッダー値では `$VAR_NAME` 構文で環境変数を展開でき、`allowedEnvVars` で許可する変数を制限できます。外部サービスとの統合やリモートバリデーションの実装が容易になります。詳しくは[hooks のドキュメント](https://docs.anthropic.com/en/docs/claude-code/hooks#http-hook-fields)を参照してください。",
-      "category": "Hooks"
+      "detail_en": "A new hook type `type: \"http\"` has been added. In addition to the existing shell command hooks (`type: \"command\"`), you can now POST event JSON data via HTTP to a specified URL and receive results in the response body. Use the `url` field to set the destination, and the `headers` field to add custom headers (such as authentication tokens). Header values support environment variable expansion with the `$VAR_NAME` syntax, and `allowedEnvVars` can restrict which variables are permitted. This makes integrating with external services and implementing remote validation much easier. See the [hooks documentation](https://docs.anthropic.com/en/docs/claude-code/hooks#http-hook-fields) for details.",
+      "category": "Hooks",
+      "category_en": "Hooks"
     },
     {
       "t": "追加: `ENABLE_CLAUDEAI_MCP_SERVERS=false` 環境変数で claude.ai の MCP サーバー利用をオプトアウト可能に",
+      "t_en": "Add: `ENABLE_CLAUDEAI_MCP_SERVERS=false` environment variable to opt out of claude.ai MCP servers",
       "tags": ["新機能", "MCP"],
       "detail": "`ENABLE_CLAUDEAI_MCP_SERVERS=false` 環境変数を設定することで、claude.ai で設定された MCP サーバーを Claude Code で利用しないようにオプトアウトできるようになりました。デフォルトではログインユーザーに対して有効ですが、セキュリティポリシーや環境の制約で外部 MCP サーバーへの接続を制限したい場合に活用できます。詳しくは[設定のドキュメント](https://docs.anthropic.com/en/docs/claude-code/settings#environment-variables)を参照してください。",
-      "category": "MCP 連携"
+      "detail_en": "Setting the `ENABLE_CLAUDEAI_MCP_SERVERS=false` environment variable allows you to opt out of using MCP servers configured in claude.ai within Claude Code. This is enabled by default for logged-in users, but is useful when security policies or environmental constraints require restricting connections to external MCP servers. See the [settings documentation](https://docs.anthropic.com/en/docs/claude-code/settings#environment-variables) for details.",
+      "category": "MCP 連携",
+      "category_en": "MCP Integration"
     },
     {
       "t": "追加: MCP OAuth 認証時の手動 URL ペーストフォールバック（自動 localhost リダイレクトが機能しない場合にコールバック URL をペーストして認証完了可能）",
+      "t_en": "Add: Manual URL paste fallback for MCP OAuth authentication (paste the callback URL to complete auth when automatic localhost redirect fails)",
       "tags": ["新機能", "MCP"],
       "detail": "MCP OAuth 認証フローで自動 localhost リダイレクトが機能しない場合に、コールバック URL を手動でペーストして認証を完了できるフォールバック機能が追加されました。SSH 経由のリモート環境やファイアウォール設定により localhost へのリダイレクトが到達できない状況でも、MCP サーバーへの OAuth 認証が可能になります。",
-      "category": "MCP 連携"
+      "detail_en": "A fallback mechanism has been added to the MCP OAuth authentication flow, allowing you to manually paste the callback URL to complete authentication when the automatic localhost redirect does not work. This enables OAuth authentication to MCP servers in remote environments accessed over SSH or in environments where firewall settings prevent localhost redirects from reaching the client.",
+      "category": "MCP 連携",
+      "category_en": "MCP Integration"
     },
     {
       "t": "追加: `/copy` ピッカーに「常にフルレスポンスをコピー」オプション（コードブロックピッカーをスキップしてレスポンス全体を直接コピー）",
+      "t_en": "Add: \"Always copy full response\" option to the `/copy` picker (skip the code block picker and copy the entire response directly)",
       "tags": ["新機能"],
       "detail": "`/copy` コマンドのインタラクティブピッカーに「Always copy full response（常にフルレスポンスをコピー）」オプションが追加されました。このオプションを選択すると、以降の `/copy` コマンドでコードブロック選択ピッカーをスキップし、レスポンス全体を直接クリップボードにコピーします。毎回レスポンス全体をコピーしたいユーザーの操作が効率化されます。",
-      "category": "コマンド"
+      "detail_en": "An \"Always copy full response\" option has been added to the interactive picker for the `/copy` command. Selecting this option causes subsequent `/copy` commands to skip the code block selection picker and copy the entire response directly to the clipboard. This streamlines the workflow for users who always want to copy the full response.",
+      "category": "コマンド",
+      "category_en": "Commands"
     },
     {
       "t": "VSCode: 追加: セッション一覧にセッションのリネーム・削除アクション",
+      "t_en": "VSCode: Add: Rename and delete actions to the session list",
       "tags": ["新機能", "IDE"],
       "detail": "VS Code 拡張機能のセッション一覧にリネーム（名前変更）と削除のアクションが追加されました。セッションにわかりやすい名前を付けたり、不要になったセッションを一覧から削除したりできるようになり、セッション管理がより直感的に行えるようになります。",
-      "category": "IDE"
+      "detail_en": "Rename and delete actions have been added to the session list in the VS Code extension. You can now give sessions descriptive names and remove sessions you no longer need from the list, making session management more intuitive.",
+      "category": "IDE",
+      "category_en": "IDE"
     },
     {
       "t": "改善: プロジェクト設定と auto-memory が同一リポジトリの git worktree 間で共有されるように",
+      "t_en": "Improvement: Project settings and auto-memory are now shared across git worktrees of the same repository",
       "tags": ["改善"],
       "detail": "プロジェクト設定ファイル（`.claude/settings.json` 等）と auto-memory（`~/.claude/projects/<project>/memory/`）が、同一リポジトリの git worktree 間で共有されるようになりました。従来は worktree ごとに独立した設定・メモリが管理されていたため、worktree を切り替えるたびに設定や学習内容が失われていました。同一リポジトリでの並行開発ワークフローでの一貫性が向上します。詳しくは[メモリのドキュメント](https://docs.anthropic.com/en/docs/claude-code/memory#storage-location)を参照してください。",
-      "category": "設定"
+      "detail_en": "Project settings files (such as `.claude/settings.json`) and auto-memory (`~/.claude/projects/<project>/memory/`) are now shared across git worktrees of the same repository. Previously, each worktree maintained independent settings and memory, so switching worktrees would lose previously learned context. This improves consistency in parallel development workflows within the same repository. See the [memory documentation](https://docs.anthropic.com/en/docs/claude-code/memory#storage-location) for details.",
+      "category": "設定",
+      "category_en": "Settings"
     },
     {
       "t": "改善: `/model` コマンドがスラッシュコマンドメニューで現在アクティブなモデルを表示するように",
+      "t_en": "Improvement: `/model` command now shows the currently active model in the slash command menu",
       "tags": ["改善"],
       "detail": "`/model` コマンドのスラッシュコマンドメニューに、現在アクティブなモデル名が表示されるようになりました。v2.1.51 で追加された人間が読めるラベル表示に加え、現在どのモデルを使用しているかがメニュー上で一目で確認できるようになります。",
-      "category": "UX"
+      "detail_en": "The slash command menu for `/model` now displays the name of the currently active model. In addition to the human-readable label introduced in v2.1.51, you can now see at a glance which model you are currently using directly from the menu.",
+      "category": "UX",
+      "category_en": "UX"
     },
     {
       "t": "改善: サブエージェントを含む長時間セッションで、コンテキストコンパクション時に重い progress メッセージペイロードを除去してメモリ使用量を改善",
+      "t_en": "Improvement: Reduced memory usage in long sessions with sub-agents by removing heavy progress message payloads during context compaction",
       "tags": ["改善", "Agent", "Perf"],
       "detail": "サブエージェントを含む長時間セッションでのコンテキストコンパクション処理が改善されました。コンパクション時に重い progress メッセージのペイロードを除去することで、メモリ使用量を削減します。多数のサブエージェントを使用する大規模なワークフローでの安定性が向上します。",
-      "category": "パフォーマンス"
+      "detail_en": "Context compaction processing in long sessions involving sub-agents has been improved. Removing heavy progress message payloads during compaction reduces memory usage. This improves stability in large-scale workflows that use many sub-agents.",
+      "category": "パフォーマンス",
+      "category_en": "Performance"
     },
     {
       "t": "修正: ローカルスラッシュコマンドの出力（/cost 等）がシステムメッセージではなくユーザー送信メッセージとして UI に表示される問題",
+      "t_en": "Fix: Output of local slash commands (e.g. /cost) displayed as user-sent messages instead of system messages in the UI",
       "tags": ["バグ修正"],
       "detail": "`/cost` などのローカルスラッシュコマンドの出力が、システムメッセージではなくユーザーが送信したメッセージとして UI に表示される問題が修正されました。コマンド出力が正しくシステムメッセージとして表示されるようになり、会話の可読性が向上します。",
-      "category": "UX"
+      "detail_en": "Fixed an issue where the output of local slash commands such as `/cost` was displayed in the UI as user-sent messages rather than system messages. Command output is now correctly displayed as system messages, improving conversation readability.",
+      "category": "UX",
+      "category_en": "UX"
     },
     {
       "t": "修正: bridge ポーリングループでのリスナーリーク",
+      "t_en": "Fix: Listener leak in the bridge polling loop",
       "tags": ["バグ修正", "Perf"],
       "detail": "bridge ポーリングループでイベントリスナーが正しく解除されず蓄積するリスナーリークが修正されました。長時間セッションでの不要なメモリ消費が解消されます。",
-      "category": "パフォーマンス"
+      "detail_en": "Fixed a listener leak where event listeners in the bridge polling loop were not properly removed and accumulated over time. This eliminates unnecessary memory consumption during long-running sessions.",
+      "category": "パフォーマンス",
+      "category_en": "Performance"
     },
     {
       "t": "修正: MCP OAuth フロークリーンアップでのリスナーリーク",
+      "t_en": "Fix: Listener leak in MCP OAuth flow cleanup",
       "tags": ["バグ修正", "MCP", "Perf"],
       "detail": "MCP OAuth 認証フローのクリーンアップ処理でイベントリスナーが正しく解除されないリスナーリークが修正されました。MCP サーバーへの OAuth 認証を頻繁に行う環境でのメモリ消費が改善されます。",
-      "category": "パフォーマンス"
+      "detail_en": "Fixed a listener leak where event listeners were not properly removed during MCP OAuth authentication flow cleanup. This improves memory consumption in environments that frequently perform OAuth authentication to MCP servers.",
+      "category": "パフォーマンス",
+      "category_en": "Performance"
     },
     {
       "t": "修正: hooks 設定メニュー操作時のメモリリーク",
+      "t_en": "Fix: Memory leak when operating the hooks settings menu",
       "tags": ["バグ修正", "Perf"],
       "detail": "hooks 設定メニュー（`/hooks`）を操作する際にメモリリークが発生する問題が修正されました。設定メニューを頻繁に開く場合のメモリ使用量が改善されます。",
-      "category": "パフォーマンス"
+      "detail_en": "Fixed a memory leak that occurred when operating the hooks settings menu (`/hooks`). Memory usage is improved for cases where the settings menu is opened frequently.",
+      "category": "パフォーマンス",
+      "category_en": "Performance"
     },
     {
       "t": "修正: インタラクティブパーミッションハンドラーの自動承認時のリスナーリーク",
+      "t_en": "Fix: Listener leak during auto-approval in the interactive permission handler",
       "tags": ["バグ修正", "Perf"],
       "detail": "インタラクティブパーミッションハンドラーが自動承認を処理する際にイベントリスナーが蓄積するリスナーリークが修正されました。自動承認ルールを多用する長時間セッションでのメモリ効率が向上します。",
-      "category": "パフォーマンス"
+      "detail_en": "Fixed a listener leak where event listeners accumulated when the interactive permission handler processed auto-approvals. This improves memory efficiency during long sessions that make heavy use of auto-approval rules.",
+      "category": "パフォーマンス",
+      "category_en": "Performance"
     },
     {
       "t": "修正: ファイルカウントキャッシュが glob ignore パターンを無視する問題",
+      "t_en": "Fix: File count cache ignoring glob ignore patterns",
       "tags": ["バグ修正"],
       "detail": "ファイルカウントキャッシュが glob ignore パターン（`.gitignore` や設定で指定された除外パターン）を無視し、除外されるべきファイルもカウントに含めてしまう問題が修正されました。ファイルカウントの精度が向上し、キャッシュが正しいファイル数を反映するようになります。",
-      "category": "安定性"
+      "detail_en": "Fixed an issue where the file count cache ignored glob ignore patterns (exclusion patterns specified in `.gitignore` or settings) and included files that should have been excluded in the count. File count accuracy is improved, and the cache now correctly reflects the actual file count.",
+      "category": "安定性",
+      "category_en": "Stability"
     },
     {
       "t": "修正: bash コマンドプレフィクスキャッシュのメモリリーク",
+      "t_en": "Fix: Memory leak in bash command prefix cache",
       "tags": ["バグ修正", "Perf"],
       "detail": "bash コマンドのプレフィクスキャッシュが無制限に増大するメモリリークが修正されました。多数の bash コマンドを実行する長時間セッションでのメモリ使用量が改善されます。",
-      "category": "パフォーマンス"
+      "detail_en": "Fixed a memory leak where the bash command prefix cache grew without bound. Memory usage is improved for long sessions that execute many bash commands.",
+      "category": "パフォーマンス",
+      "category_en": "Performance"
     },
     {
       "t": "修正: MCP サーバー再接続時のツール/リソースキャッシュリーク",
+      "t_en": "Fix: Tool/resource cache leak on MCP server reconnection",
       "tags": ["バグ修正", "MCP", "Perf"],
       "detail": "MCP サーバーが再接続した際に、以前のツールとリソースのキャッシュがクリアされず蓄積するキャッシュリークが修正されました。接続が不安定で再接続が頻繁に発生する MCP サーバー環境でのメモリ効率が向上します。",
-      "category": "パフォーマンス"
+      "detail_en": "Fixed a cache leak where tool and resource caches from previous connections were not cleared upon MCP server reconnection and continued to accumulate. This improves memory efficiency in MCP server environments with unstable connections that reconnect frequently.",
+      "category": "パフォーマンス",
+      "category_en": "Performance"
     },
     {
       "t": "修正: IDE ホスト IP 検出キャッシュがポート間で結果を誤って共有する問題",
+      "t_en": "Fix: IDE host IP detection cache incorrectly sharing results across ports",
       "tags": ["バグ修正", "IDE"],
       "detail": "IDE のホスト IP 検出キャッシュが、異なるポートに対して同じキャッシュ結果を共有してしまう問題が修正されました。複数の IDE インスタンスや異なるポートで動作する IDE 連携での接続信頼性が向上します。",
-      "category": "IDE"
+      "detail_en": "Fixed an issue where the IDE host IP detection cache shared the same cached result across different ports. This improves connection reliability when using multiple IDE instances or IDE integrations running on different ports.",
+      "category": "IDE",
+      "category_en": "IDE"
     },
     {
       "t": "修正: WebSocket トランスポート再接続時のリスナーリーク",
+      "t_en": "Fix: Listener leak on WebSocket transport reconnection",
       "tags": ["バグ修正", "Perf"],
       "detail": "WebSocket トランスポートが再接続する際にイベントリスナーが正しく解除されず蓄積するリスナーリークが修正されました。ネットワーク接続が不安定な環境での長時間セッションのメモリ効率が改善されます。",
-      "category": "パフォーマンス"
+      "detail_en": "Fixed a listener leak where event listeners were not properly removed upon WebSocket transport reconnection and accumulated over time. This improves memory efficiency during long sessions in environments with unstable network connections.",
+      "category": "パフォーマンス",
+      "category_en": "Performance"
     },
     {
       "t": "修正: git ルート検出キャッシュのメモリリーク（長時間セッションでの無制限増大の原因）",
+      "t_en": "Fix: Memory leak in git root detection cache (cause of unbounded growth in long sessions)",
       "tags": ["バグ修正", "Perf"],
       "detail": "git リポジトリのルートディレクトリを検出するキャッシュが無制限に増大し、長時間セッションでメモリが増加し続けるメモリリークが修正されました。大規模なリポジトリや多数のディレクトリを操作する長時間セッションでの安定性が向上します。",
-      "category": "パフォーマンス"
+      "detail_en": "Fixed a memory leak where the cache for detecting git repository root directories grew without bound, causing memory to increase indefinitely during long sessions. This improves stability in long sessions that operate on large repositories or a large number of directories.",
+      "category": "パフォーマンス",
+      "category_en": "Performance"
     },
     {
       "t": "修正: JSON パーシングキャッシュのメモリリーク（長時間セッションでの無制限増大）",
+      "t_en": "Fix: Memory leak in JSON parsing cache (unbounded growth in long sessions)",
       "tags": ["バグ修正", "Perf"],
       "detail": "JSON パーシングのキャッシュが長時間セッションで無制限に増大するメモリリークが修正されました。大量の JSON データを処理する長時間セッションでのメモリ使用量が改善されます。",
-      "category": "パフォーマンス"
+      "detail_en": "Fixed a memory leak where the JSON parsing cache grew without bound during long sessions. Memory usage is improved for long sessions that process large amounts of JSON data.",
+      "category": "パフォーマンス",
+      "category_en": "Performance"
     },
     {
       "t": "VSCode: 修正: リモートセッションが会話履歴に表示されない問題",
+      "t_en": "VSCode: Fix: Remote sessions not appearing in conversation history",
       "tags": ["バグ修正", "IDE"],
       "detail": "VS Code 拡張機能でリモートセッション（SSH、コンテナ等）が会話履歴に表示されない問題が修正されました。リモート開発環境での過去のセッション履歴が正しく表示されるようになります。",
-      "category": "IDE"
+      "detail_en": "Fixed an issue in the VS Code extension where remote sessions (SSH, containers, etc.) did not appear in the conversation history. Past session history in remote development environments is now displayed correctly.",
+      "category": "IDE",
+      "category_en": "IDE"
     },
     {
       "t": "修正: REPL bridge の初期接続フラッシュ中に新メッセージと履歴メッセージが混在する競合状態",
+      "t_en": "Fix: Race condition mixing new messages and history messages during the REPL bridge initial connection flush",
       "tags": ["バグ修正"],
       "detail": "REPL bridge の初期接続時に、履歴メッセージのフラッシュ中に新しいメッセージが到着すると、メッセージの順序が入れ替わる競合状態が修正されました。セッション再開時やブリッジ接続時のメッセージ表示順序の信頼性が向上します。",
-      "category": "安定性"
+      "detail_en": "Fixed a race condition during REPL bridge initial connection where a new message arriving while historical messages were being flushed could cause them to be displayed out of order. Message display order reliability is improved when resuming sessions or establishing bridge connections.",
+      "category": "安定性",
+      "category_en": "Stability"
     },
     {
       "t": "修正: 長時間実行中のチームメイトが会話コンパクション後も全メッセージを AppState に保持するメモリリーク",
+      "t_en": "Fix: Memory leak where long-running teammates retained all messages in AppState after conversation compaction",
       "tags": ["バグ修正", "Agent", "Perf"],
       "detail": "マルチエージェントチームで長時間実行中のチームメイトが、会話コンパクション後も全メッセージを AppState に保持し続けるメモリリークが修正されました。コンパクション後に不要なメッセージが適切に解放されるようになり、大規模なエージェントチームでの長時間セッションの安定性が向上します。",
-      "category": "マルチエージェント"
+      "detail_en": "Fixed a memory leak in multi-agent teams where long-running teammates continued to hold all messages in AppState even after conversation compaction. Unnecessary messages are now properly released after compaction, improving stability during long sessions with large agent teams.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-Agent"
     },
     {
       "t": "修正: MCP サーバーの fetch キャッシュが切断時にクリアされず、再接続が頻繁なサーバーでメモリ使用量が増大するメモリリーク",
+      "t_en": "Fix: Memory leak where MCP server fetch cache was not cleared on disconnect, causing memory growth on servers with frequent reconnections",
       "tags": ["バグ修正", "MCP", "Perf"],
       "detail": "MCP サーバーが切断された際に fetch キャッシュがクリアされず、再接続が頻繁に発生するサーバーでメモリ使用量が増大し続けるメモリリークが修正されました。不安定な接続環境での MCP サーバー利用時のメモリ効率が改善されます。",
-      "category": "パフォーマンス"
+      "detail_en": "Fixed a memory leak where the MCP server fetch cache was not cleared upon disconnection, causing memory usage to grow continuously on servers with frequent reconnections. Memory efficiency when using MCP servers in unstable connection environments is improved.",
+      "category": "パフォーマンス",
+      "category_en": "Performance"
     },
     {
       "t": "修正: `/clear` がキャッシュされたスキルをリセットしない問題（新しい会話に古いスキル内容が残る）",
+      "t_en": "Fix: `/clear` not resetting cached skills (stale skill content persisting into new conversations)",
       "tags": ["バグ修正"],
       "detail": "`/clear` コマンドで会話をクリアした際に、キャッシュされたスキルの内容がリセットされず、新しい会話に古いスキル内容が残り続ける問題が修正されました。`/clear` 後にスキルが最新の内容で正しく再読み込みされるようになります。",
-      "category": "安定性"
+      "detail_en": "Fixed an issue where using the `/clear` command to clear a conversation did not reset cached skill content, causing stale skill content to persist into new conversations. Skills are now correctly reloaded with up-to-date content after `/clear`.",
+      "category": "安定性",
+      "category_en": "Stability"
     }
   ],
   "2.1.66": [
     {
       "t": "改善: 不要なエラーログ出力を削減",
+      "t_en": "Improvement: Reduced unnecessary error log output",
       "tags": ["改善"],
       "detail": "不要なエラーログの出力が削減されました。実際にはエラーではない状況で出力されていたスプリアス（偽陽性）なエラーログが抑制され、ログの可読性と信頼性が向上します。開発中にコンソール出力を確認する際のノイズが減り、本当に対処が必要なエラーの特定が容易になります。",
-      "category": "安定性"
+      "detail_en": "Unnecessary error log output has been reduced. Spurious (false positive) error logs that were being emitted in situations that were not actual errors are now suppressed, improving log readability and reliability. This reduces noise when reviewing console output during development, making it easier to identify errors that genuinely need attention.",
+      "category": "安定性",
+      "category_en": "Stability"
     }
   ],
   "2.1.68": [
     {
       "t": "変更: Max / Team Premium ユーザーの Opus 4.6 デフォルトエフォートレベルを medium に変更",
+      "t_en": "Change: Default effort level for Opus 4.6 changed to medium for Max / Team Premium users",
       "tags": ["改善"],
       "detail": "Max および Team Premium サブスクリプションユーザーの Opus 4.6 のデフォルトエフォートレベルが medium に変更されました。エフォートレベルはタスクの複雑さに応じた推論の深さを制御する設定で、low / medium / high の3段階があります。medium はほとんどのコーディングタスクに十分な推論深度を提供しつつ、レスポンス速度とコストのバランスが取れています。必要に応じて `/model` のスライダーや `CLAUDE_CODE_EFFORT_LEVEL` 環境変数で変更できます。詳しくは[モデル設定のドキュメント](https://docs.anthropic.com/en/docs/claude-code/model-config#adjust-effort-level)を参照してください。",
-      "category": "設定"
+      "detail_en": "The default effort level for Opus 4.6 has been changed to medium for Max and Team Premium subscription users. The effort level controls the depth of reasoning relative to task complexity and has three tiers: low, medium, and high. Medium provides sufficient reasoning depth for most coding tasks while balancing response speed and cost. You can change it as needed using the slider in `/model` or the `CLAUDE_CODE_EFFORT_LEVEL` environment variable. See the [model configuration documentation](https://docs.anthropic.com/en/docs/claude-code/model-config#adjust-effort-level) for details.",
+      "category": "設定",
+      "category_en": "Settings"
     },
     {
       "t": "追加: \"ultrathink\" キーワードで次のターンのエフォートレベルを high に設定可能に",
+      "t_en": "Add: \"ultrathink\" keyword to set the effort level to high for the next turn",
       "tags": ["新機能"],
       "detail": "\"ultrathink\" キーワードが再導入されました。プロンプトに \"ultrathink\" を含めると、次のターンのエフォートレベルが一時的に high に設定され、より深い推論が行われます。デフォルトエフォートレベルが medium に変更された環境で、特定の複雑なタスクに対してのみ高い推論深度を利用したい場合に便利です。",
-      "category": "UX"
+      "detail_en": "The \"ultrathink\" keyword has been reintroduced. Including \"ultrathink\" in your prompt temporarily sets the effort level to high for the next turn, triggering deeper reasoning. This is useful in environments where the default effort level has been changed to medium, allowing you to request a higher level of reasoning only for specific complex tasks.",
+      "category": "UX",
+      "category_en": "UX"
     },
     {
       "t": "削除: ファーストパーティ API から Opus 4 / 4.1 を削除（ピン留めユーザーは自動的に Opus 4.6 に移行）",
+      "t_en": "Removal: Opus 4 / 4.1 removed from the first-party API (users with these models pinned are automatically migrated to Opus 4.6)",
       "tags": ["非推奨"],
       "detail": "Anthropic のファーストパーティ API において、Claude Code から Opus 4（claude-opus-4-20250514）および Opus 4.1（claude-opus-4-1-20250620）が削除されました。これらのモデルをピン留め（固定）していたユーザーは、自動的に最新の Opus 4.6 に移行されます。Opus 4.6 はこれらの旧モデルの後継であり、エフォートレベル制御や拡張コンテキストなどの新機能を提供します。サードパーティプロバイダー（Bedrock、Vertex AI、Foundry）経由で使用している場合は、環境変数でモデルを明示的にピン留めすることが推奨されます。詳しくは[モデル設定のドキュメント](https://docs.anthropic.com/en/docs/claude-code/model-config#available-models)を参照してください。",
-      "category": "設定"
+      "detail_en": "Opus 4 (claude-opus-4-20250514) and Opus 4.1 (claude-opus-4-1-20250620) have been removed from Claude Code in the Anthropic first-party API. Users who had these models pinned will be automatically migrated to the latest Opus 4.6. Opus 4.6 is the successor to these older models and provides new capabilities such as effort level control and extended context. If you are accessing these models through a third-party provider (Bedrock, Vertex AI, Foundry), it is recommended to explicitly pin the model using an environment variable. See the [model configuration documentation](https://docs.anthropic.com/en/docs/claude-code/model-config#available-models) for details.",
+      "category": "設定",
+      "category_en": "Settings"
     }
   ],
   "2.1.69": [
     {
       "t": "追加: `/claude-api` バンドルスキル（Claude API / Anthropic SDK を使ったアプリケーション構築を支援）",
+      "t_en": "Add: `/claude-api` bundled skill (assists with building applications using the Claude API / Anthropic SDK)",
       "tags": ["新機能", "SDK"],
       "detail": "新しいバンドルスキル `/claude-api` が追加されました。Claude API や Anthropic SDK を使ったアプリケーションの構築を支援するスキルで、コードが `anthropic` や `@anthropic-ai/sdk` をインポートしている場合に自動的に発動します。SDK の使い方、ツール利用、エージェント構築などのベストプラクティスに沿ったコード生成を支援します。",
-      "category": "SDK"
+      "detail_en": "A new bundled skill `/claude-api` has been added. This skill assists with building applications using the Claude API and Anthropic SDK, and activates automatically when your code imports `anthropic` or `@anthropic-ai/sdk`. It helps generate code that follows best practices for SDK usage, tool use, and agent construction.",
+      "category": "SDK",
+      "category_en": "SDK"
     },
     {
       "t": "追加: 音声入力（STT）で10言語を新規サポート（ロシア語、ポーランド語、トルコ語、オランダ語、ウクライナ語、ギリシャ語、チェコ語、デンマーク語、スウェーデン語、ノルウェー語）",
+      "t_en": "Add: 10 new languages supported for voice input (STT): Russian, Polish, Turkish, Dutch, Ukrainian, Greek, Czech, Danish, Swedish, Norwegian",
       "tags": ["新機能"],
       "detail": "音声入力（Speech-to-Text）機能で新たに10言語がサポートされました：ロシア語、ポーランド語、トルコ語、オランダ語、ウクライナ語、ギリシャ語、チェコ語、デンマーク語、スウェーデン語、ノルウェー語。これらの言語での音声認識が可能になり、非英語圏のユーザーがより自然に音声入力を活用できるようになります。",
-      "category": "国際化"
+      "detail_en": "Ten new languages are now supported for Speech-to-Text voice input: Russian, Polish, Turkish, Dutch, Ukrainian, Greek, Czech, Danish, Swedish, and Norwegian. Voice recognition is now available in these languages, allowing non-English-speaking users to take advantage of voice input more naturally.",
+      "category": "国際化",
+      "category_en": "Internationalization"
     },
     {
       "t": "追加: `InstructionsLoaded` hook イベント（CLAUDE.md やスキルの読み込み完了時に発火）",
+      "t_en": "Add: `InstructionsLoaded` hook event (fires when CLAUDE.md files and skills finish loading)",
       "tags": ["新機能"],
       "detail": "新しい hook イベント `InstructionsLoaded` が追加されました。CLAUDE.md ファイルやスキルの読み込みが完了した時点で発火し、読み込まれた指示内容に基づいた追加の処理やバリデーションを実行できます。例えば、プロジェクト固有の設定に応じた環境準備や、指示内容のロギングなどに活用できます。詳しくは[hooks のドキュメント](https://docs.anthropic.com/en/docs/claude-code/hooks#hook-events)を参照してください。",
-      "category": "Hooks"
+      "detail_en": "A new hook event `InstructionsLoaded` has been added. It fires when CLAUDE.md files and skills have finished loading, enabling you to run additional processing or validation based on the loaded instructions. Use cases include preparing the environment according to project-specific settings or logging instruction content. See the [hooks documentation](https://docs.anthropic.com/en/docs/claude-code/hooks#hook-events) for details.",
+      "category": "Hooks",
+      "category_en": "Hooks"
     },
     {
       "t": "追加: hook イベントに `agent_id` と `agent_type` フィールドを追加",
+      "t_en": "Add: `agent_id` and `agent_type` fields added to hook events",
       "tags": ["新機能", "Agent"],
       "detail": "すべての hook イベントの入力に `agent_id`（エージェントの一意識別子）と `agent_type`（エージェントの種類）フィールドが追加されました。これにより、hook ハンドラー内でどのエージェントがイベントを発火させたかを判別できるようになり、エージェント固有のロジック（特定のエージェントに対するバリデーションや追加コンテキストの注入など）が実装可能になります。詳しくは[hooks のドキュメント](https://docs.anthropic.com/en/docs/claude-code/hooks#common-input-fields)を参照してください。",
-      "category": "マルチエージェント"
+      "detail_en": "The `agent_id` (unique agent identifier) and `agent_type` (type of agent) fields have been added to the input of all hook events. This allows hook handlers to identify which agent fired the event, enabling agent-specific logic such as validation or additional context injection for particular agents. See the [hooks documentation](https://docs.anthropic.com/en/docs/claude-code/hooks#common-input-fields) for details.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-Agent"
     },
     {
       "t": "追加: スキルで `${CLAUDE_SKILL_DIR}` 変数が使用可能に（スキルディレクトリへの動的パス参照）",
+      "t_en": "Add: `${CLAUDE_SKILL_DIR}` variable available in skills (dynamic path reference to the skill directory)",
       "tags": ["新機能"],
       "detail": "スキルの SKILL.md 内で `${CLAUDE_SKILL_DIR}` 変数が使用可能になりました。この変数はスキルが格納されているディレクトリの絶対パスに展開されます。スキルのサポートファイル（テンプレート、スクリプト等）への参照を、スキルの配置場所に依存しない形で記述できるようになり、スキルの移植性が向上します。詳しくは[スキルのドキュメント](https://docs.anthropic.com/en/docs/claude-code/skills)を参照してください。",
-      "category": "エージェント設定"
+      "detail_en": "The `${CLAUDE_SKILL_DIR}` variable is now available within a skill's SKILL.md. This variable expands to the absolute path of the directory containing the skill. You can now reference supporting files (templates, scripts, etc.) in a way that is independent of where the skill is deployed, improving skill portability. See the [skills documentation](https://docs.anthropic.com/en/docs/claude-code/skills) for details.",
+      "category": "エージェント設定",
+      "category_en": "Agent Configuration"
     },
     {
       "t": "追加: `sandbox.enableWeakerNetworkIsolation` 設定（macOS でカスタム MITM プロキシの TLS 証明書検証を許可）",
+      "t_en": "Add: `sandbox.enableWeakerNetworkIsolation` setting (allows TLS certificate validation for custom MITM proxies on macOS)",
       "tags": ["新機能", "Security"],
       "detail": "新しい設定 `sandbox.enableWeakerNetworkIsolation` が追加されました（macOS のみ）。企業環境などでカスタム MITM（Man-in-the-Middle）プロキシを使用している場合、サンドボックスのネットワーク分離レベルを緩和して TLS 証明書の検証を許可します。これにより、企業のセキュリティインフラ（SSL 検査プロキシ等）を経由する環境でもサンドボックス機能を利用できるようになります。セキュリティレベルが低下するため、必要な場合のみ有効化してください。詳しくは[サンドボックス設定のドキュメント](https://docs.anthropic.com/en/docs/claude-code/settings#sandbox-settings)を参照してください。",
-      "category": "セキュリティ"
+      "detail_en": "A new setting `sandbox.enableWeakerNetworkIsolation` has been added (macOS only). When using a custom MITM (Man-in-the-Middle) proxy in a corporate environment, this setting relaxes the sandbox network isolation level to allow TLS certificate validation. This enables the use of sandbox functionality in environments that route traffic through corporate security infrastructure (such as SSL inspection proxies). Because this reduces the security level, only enable it when necessary. See the [sandbox settings documentation](https://docs.anthropic.com/en/docs/claude-code/settings#sandbox-settings) for details.",
+      "category": "セキュリティ",
+      "category_en": "Security"
     },
     {
       "t": "追加: `includeGitInstructions` 設定で組み込みの commit/PR 指示の無効化が可能に",
+      "t_en": "Add: `includeGitInstructions` setting to disable built-in commit/PR instructions",
       "tags": ["新機能"],
       "detail": "新しい設定 `includeGitInstructions` が追加されました。この設定を `false` にすると、Claude Code のシステムプロンプトに含まれる組み込みの git commit / PR 作成に関する指示を無効化できます。独自の commit スキルやワークフローを使用している場合に、組み込み指示との競合を避けることができます。詳しくは[設定のドキュメント](https://docs.anthropic.com/en/docs/claude-code/settings#available-settings)を参照してください。",
-      "category": "設定"
+      "detail_en": "A new setting `includeGitInstructions` has been added. Setting this to `false` disables the built-in git commit and PR creation instructions included in Claude Code's system prompt. This is useful when using custom commit skills or workflows to avoid conflicts with the built-in instructions. See the [settings documentation](https://docs.anthropic.com/en/docs/claude-code/settings#available-settings) for details.",
+      "category": "設定",
+      "category_en": "Settings"
     },
     {
       "t": "追加: `/reload-plugins` コマンド（保留中のプラグイン変更を即時反映）",
+      "t_en": "Add: `/reload-plugins` command (immediately apply pending plugin changes)",
       "tags": ["新機能", "Plugin"],
       "detail": "新しいコマンド `/reload-plugins` が追加されました。プラグインのインストール、更新、設定変更後にこのコマンドを実行すると、保留中の変更を即時に反映できます。従来はプラグイン変更後に Claude Code の再起動が必要でしたが、このコマンドにより再起動なしでプラグインの変更を適用できるようになります。",
-      "category": "Plugin"
+      "detail_en": "A new command `/reload-plugins` has been added. Running this command after installing, updating, or changing plugin settings immediately applies any pending changes. Previously, restarting Claude Code was required after making plugin changes, but this command now allows changes to take effect without a restart.",
+      "category": "Plugin",
+      "category_en": "Plugin"
     },
     {
       "t": "追加: `/remote-control` と `claude remote-control` にオプションの name 引数",
+      "t_en": "Add: Optional name argument for `/remote-control` and `claude remote-control`",
       "tags": ["新機能"],
       "detail": "`/remote-control` コマンドおよび `claude remote-control` サブコマンドにオプションの name 引数が追加されました。リモートコントロールセッションに名前を付けることで、複数のリモートセッションを管理する際に識別が容易になります。",
-      "category": "UX"
+      "detail_en": "An optional name argument has been added to the `/remote-control` command and the `claude remote-control` subcommand. Naming a remote control session makes it easier to identify when managing multiple remote sessions.",
+      "category": "UX",
+      "category_en": "UX"
     },
     {
       "t": "追加: エフォートレベルをロゴとスピナーに表示",
+      "t_en": "Add: Effort level displayed in the logo and spinner",
       "tags": ["新機能"],
       "detail": "現在のエフォートレベル（low / medium / high）がロゴとスピナーに表示されるようになりました。エフォートレベルは推論の深さを制御する設定で、タスクの複雑さに応じて切り替えます。常に表示されることで、現在の設定状態を一目で確認でき、意図しないレベルでの作業を防ぐことができます。",
-      "category": "UX"
+      "detail_en": "The current effort level (low / medium / high) is now displayed in the logo and spinner. The effort level is a setting that controls the depth of reasoning and can be switched based on task complexity. Having it always visible lets you confirm the current setting at a glance and prevents accidental work at an unintended level.",
+      "category": "UX",
+      "category_en": "UX"
     },
     {
       "t": "追加: `claude --agent` 時にターミナルタイトルにエージェント名を表示",
+      "t_en": "Add: Agent name displayed in the terminal title when using `claude --agent`",
       "tags": ["新機能", "Agent"],
       "detail": "`claude --agent <name>` でエージェントを指定して起動した場合、ターミナルのタイトルにエージェント名が表示されるようになりました。複数のターミナルで異なるエージェントを実行している場合に、どのターミナルでどのエージェントが動作しているかが一目でわかるようになります。",
-      "category": "エージェント設定"
+      "detail_en": "When launching with `claude --agent <name>` to specify an agent, the agent name is now displayed in the terminal title. This makes it easy to see at a glance which agent is running in which terminal when running different agents across multiple terminal windows.",
+      "category": "エージェント設定",
+      "category_en": "Agent Configuration"
     },
     {
       "t": "追加: 空の bash プロンプトで Ctrl+U により bash モードを終了可能に",
+      "t_en": "Add: Ctrl+U can now exit bash mode when the bash prompt is empty",
       "tags": ["新機能"],
       "detail": "bash モード（`!` で入ったインラインシェル）で、プロンプトが空の状態で Ctrl+U を押すと bash モードを終了できるようになりました。従来は Escape キーのみが終了手段でしたが、Ctrl+U でも終了可能になり、操作の柔軟性が向上します。",
-      "category": "UX"
+      "detail_en": "In bash mode (the inline shell entered with `!`), pressing Ctrl+U when the prompt is empty now exits bash mode. Previously the only way to exit was the Escape key, but Ctrl+U is now also supported, improving flexibility.",
+      "category": "UX",
+      "category_en": "UX"
     },
     {
       "t": "追加: MCP サーバーに `oauth.authServerMetadataUrl` 設定オプション",
+      "t_en": "Add: `oauth.authServerMetadataUrl` configuration option for MCP servers",
       "tags": ["新機能", "MCP"],
       "detail": "MCP サーバーの設定に `oauth.authServerMetadataUrl` オプションが追加されました。OAuth 認証サーバーのメタデータ URL を明示的に指定でき、自動検出（`.well-known/oauth-authorization-server`）が機能しない環境や、カスタム認証サーバーを使用している場合に有用です。詳しくは[MCP のドキュメント](https://docs.anthropic.com/en/docs/claude-code/mcp)を参照してください。",
-      "category": "MCP 連携"
+      "detail_en": "The `oauth.authServerMetadataUrl` option has been added to the MCP server configuration. You can now explicitly specify the OAuth authorization server metadata URL, which is useful in environments where auto-discovery (`.well-known/oauth-authorization-server`) does not work or when using a custom authorization server. See the [MCP documentation](https://docs.anthropic.com/en/docs/claude-code/mcp) for details.",
+      "category": "MCP 連携",
+      "category_en": "MCP Integration"
     },
     {
       "t": "追加: プラグインソースタイプ `git-subdir`",
+      "t_en": "Add: `git-subdir` plugin source type",
       "tags": ["新機能", "Plugin"],
       "detail": "プラグインのソースタイプとして `git-subdir` が追加されました。Git リポジトリ内の特定のサブディレクトリをプラグインソースとして指定でき、モノリポ（monorepo）構成のプラグインリポジトリから個別のプラグインをインストールできるようになります。詳しくは[プラグインのドキュメント](https://docs.anthropic.com/en/docs/claude-code/discover-plugins)を参照してください。",
-      "category": "Plugin"
+      "detail_en": "The `git-subdir` source type has been added for plugins. You can now specify a particular subdirectory within a Git repository as the plugin source, enabling installation of individual plugins from a monorepo-style plugin repository. See the [plugins documentation](https://docs.anthropic.com/en/docs/claude-code/discover-plugins) for details.",
+      "category": "Plugin",
+      "category_en": "Plugin"
     },
     {
       "t": "変更: Sonnet 4.5 ユーザー（Pro/Max/Team Premium）が自動的に Sonnet 4.6 に移行",
+      "t_en": "Change: Sonnet 4.5 users (Pro/Max/Team Premium) automatically migrated to Sonnet 4.6",
       "tags": ["改善"],
       "detail": "Pro、Max、Team Premium サブスクリプションで Sonnet 4.5 を使用していたユーザーが、自動的に Sonnet 4.6 に移行されました。Sonnet 4.6 は Sonnet 4.5 の後継モデルであり、パフォーマンスと機能が向上しています。特別な操作は不要で、自動的に新しいモデルが使用されます。",
-      "category": "設定"
+      "detail_en": "Users of Sonnet 4.5 on Pro, Max, and Team Premium subscriptions have been automatically migrated to Sonnet 4.6. Sonnet 4.6 is the successor to Sonnet 4.5 and offers improved performance and capabilities. No action is required — the new model is used automatically.",
+      "category": "設定",
+      "category_en": "Settings"
     },
     {
       "t": "改善: 起動パフォーマンスの向上（`--worktree` の git サブプロセス排除、macOS 設定ファイル再読み込み最適化、MCP `-p` のパイプライン化、音声ウォームアップ最適化）",
+      "t_en": "Improvement: Startup performance improvements (eliminated git subprocess for `--worktree`, optimized macOS settings file reload, pipelined MCP `-p`, optimized voice warmup)",
       "tags": ["改善", "Perf"],
       "detail": "複数の起動パフォーマンス最適化が実施されました。`--worktree` フラグ使用時に git サブプロセスの呼び出しを排除、macOS での設定ファイル再読み込みの最適化、エンタープライズ/チームユーザー向けの不要なキーチェーンルックアップのスキップ、MCP `-p`（パイプ）モードでの設定取得のパイプライン化、音声機能のウォームアップパルスアニメーション削除が含まれます。特にエンタープライズ環境やプラグインを多用する環境での起動時間が短縮されます。",
-      "category": "パフォーマンス"
+      "detail_en": "Multiple startup performance optimizations have been implemented. These include eliminating git subprocess calls when the `--worktree` flag is used, optimizing settings file reloading on macOS, skipping unnecessary keychain lookups for enterprise/team users, pipelining settings retrieval in MCP `-p` (pipe) mode, and removing the warmup pulse animation for the voice feature. Startup time is particularly improved in enterprise environments and environments that make heavy use of plugins.",
+      "category": "パフォーマンス",
+      "category_en": "Performance"
     },
     {
       "t": "改善: メモリ使用量の全体的な削減（ベースライン ~16MB 削減、長時間セッション・SDK/CCR セッション・大規模セッション再開時の最適化）",
+      "t_en": "Improvement: Overall reduction in memory usage (~16MB baseline reduction, optimizations for long sessions, SDK/CCR sessions, and large session resumption)",
       "tags": ["改善", "Perf"],
       "detail": "メモリ使用量の全体的な最適化が行われました。Yoga WASM のプリロード遅延化によりベースラインメモリが約16MB 削減、`onSubmit` ハンドラーの安定化による長時間セッションでのメモリ改善、SDK/CCR セッション向けの stream-json 出力によるメモリフットプリント削減、大規模セッション再開時のメモリ使用量最適化が含まれます。LSP ツールレンダリングやファイル操作でのメモリコンテキスト構築も改善されています。",
-      "category": "パフォーマンス"
+      "detail_en": "Overall memory usage has been optimized. Improvements include approximately 16MB baseline memory reduction by lazy-loading the Yoga WASM module, improved memory in long sessions by stabilizing `onSubmit` handlers, reduced memory footprint in SDK/CCR sessions via stream-json output, and optimized memory usage when resuming large sessions. Memory context construction in LSP tool rendering and file operations has also been improved.",
+      "category": "パフォーマンス",
+      "category_en": "Performance"
     },
     {
       "t": "改善: UI レンダリングのパフォーマンス向上（React Compiler によるネイティブバイナリ最適化、スピナーアニメーションの分離）",
+      "t_en": "Improvement: UI rendering performance improvements (native binary optimization via React Compiler, isolated spinner animation)",
       "tags": ["改善", "Perf"],
       "detail": "UI レンダリングのパフォーマンスが複数の方面で改善されました。React Compiler の導入によりネイティブバイナリでの UI レンダリングが最適化され、スピナーのアニメーションループが分離されてメインスレッドのブロッキングが軽減されました。また、デバッグログのフラッシュによるタイピング中のフレームスタルの解消、macOS での MCP OAuth サーバー使用時のフレームドロップの修正も含まれます。",
-      "category": "パフォーマンス"
+      "detail_en": "UI rendering performance has been improved on multiple fronts. The introduction of React Compiler optimizes UI rendering in the native binary, and the spinner animation loop has been isolated to reduce main thread blocking. Also included are fixes for frame stalls during typing caused by debug log flushing, and frame drops when using the MCP OAuth server on macOS.",
+      "category": "パフォーマンス",
+      "category_en": "Performance"
     },
     {
       "t": "改善: マルチエージェントタスクでのトークン使用量削減（サブエージェントレポートの簡潔化）",
+      "t_en": "Improvement: Reduced token usage in multi-agent tasks (more concise sub-agent reports)",
       "tags": ["改善", "Agent", "Perf"],
       "detail": "マルチエージェントタスクでのトークン使用量が最適化されました。サブエージェントが親エージェントに返すレポートがより簡潔になり、不要な詳細が省略されます。大規模なマルチエージェントワークフローでの API コストが削減され、コンテキストウィンドウの効率的な活用が可能になります。",
-      "category": "マルチエージェント"
+      "detail_en": "Token usage in multi-agent tasks has been optimized. Reports returned by sub-agents to the parent agent are now more concise, omitting unnecessary details. This reduces API costs in large-scale multi-agent workflows and enables more efficient use of the context window.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-Agent"
     },
     {
       "t": "修正: gitignore されたディレクトリからネストされたスキルが読み込まれるセキュリティ問題",
+      "t_en": "Fix: Security issue where nested skills were loaded from gitignored directories",
       "tags": ["バグ修正", "Security"],
       "detail": "ネストされたスキル自動検出機能で、gitignore されたディレクトリ内のスキルが読み込まれてしまうセキュリティ問題が修正されました。gitignore されたディレクトリには信頼されていないコードやサードパーティの依存関係が含まれる可能性があり、そこからスキルが読み込まれると悪意のある指示が実行される恐れがあります。修正後は gitignore されたディレクトリ内のスキルは自動検出の対象外となります。",
-      "category": "セキュリティ"
+      "detail_en": "Fixed a security issue in the nested skill auto-discovery feature where skills inside gitignored directories were being loaded. Gitignored directories may contain untrusted code or third-party dependencies, and loading skills from them could lead to execution of malicious instructions. After this fix, skills inside gitignored directories are excluded from auto-discovery.",
+      "category": "セキュリティ",
+      "category_en": "Security"
     },
     {
       "t": "修正: 信頼ダイアログがすべての `.mcp.json` サーバーをサイレントに有効化する問題",
+      "t_en": "Fix: Trust dialog silently enabling all `.mcp.json` servers",
       "tags": ["バグ修正", "Security", "MCP"],
       "detail": "ワークスペースの信頼ダイアログを承認した際に、すべての `.mcp.json` 内の MCP サーバーがユーザーに通知なく有効化されてしまう問題が修正されました。修正後は各 MCP サーバーの有効化が明示的に行われるようになり、意図しないサーバーへの接続を防止できます。",
-      "category": "セキュリティ"
+      "detail_en": "Fixed an issue where approving the workspace trust dialog silently enabled all MCP servers in `.mcp.json` without notifying the user. After this fix, enabling each MCP server is done explicitly, preventing unintended connections to servers.",
+      "category": "セキュリティ",
+      "category_en": "Security"
     },
     {
       "t": "修正: `acceptEdits` モードでのシンボリックリンクバイパス",
+      "t_en": "Fix: Symlink bypass in `acceptEdits` mode",
       "tags": ["バグ修正", "Security"],
       "detail": "`acceptEdits` パーミッションモードで、シンボリックリンクを使用してファイルシステム制限をバイパスできるセキュリティ問題が修正されました。シンボリックリンクの解決がパーミッションチェック前に行われるようになり、保護されたディレクトリ外への書き込みが防止されます。",
-      "category": "セキュリティ"
+      "detail_en": "Fixed a security issue in `acceptEdits` permission mode where symlinks could be used to bypass filesystem restrictions. Symlink resolution now occurs before permission checks, preventing writes outside of protected directories.",
+      "category": "セキュリティ",
+      "category_en": "Security"
     },
     {
       "t": "修正: `sandbox.network.allowManagedDomainsOnly` 有効時に許可外ドメインがブロックされない問題",
+      "t_en": "Fix: Non-allowlisted domains not being blocked when `sandbox.network.allowManagedDomainsOnly` is enabled",
       "tags": ["バグ修正", "Security"],
       "detail": "マネージド設定で `sandbox.network.allowManagedDomainsOnly` を有効にしている場合に、許可リストにないドメインへのネットワークアクセスが正しくブロックされない問題が修正されました。修正後はマネージドドメインのみへのアクセスが正しく強制され、企業のネットワークポリシーが確実に適用されます。",
-      "category": "セキュリティ"
+      "detail_en": "Fixed an issue where network access to domains not on the allowlist was not correctly blocked when `sandbox.network.allowManagedDomainsOnly` was enabled in managed settings. After this fix, access is correctly restricted to managed domains only, ensuring corporate network policies are reliably enforced.",
+      "category": "セキュリティ",
+      "category_en": "Security"
     },
     {
       "t": "修正: macOS で複数の OAuth MCP サーバー使用時にキーチェーンが破損する問題",
+      "t_en": "Fix: Keychain corruption when using multiple OAuth MCP servers on macOS",
       "tags": ["バグ修正", "MCP"],
       "detail": "macOS で複数の OAuth 対応 MCP サーバーを使用している場合に、キーチェーンのデータが破損する問題が修正されました。複数のサーバーが同時にキーチェーンにアクセスする際の競合が解消され、OAuth トークンの保存と取得が安定して行われるようになります。",
-      "category": "MCP 連携"
+      "detail_en": "Fixed an issue where keychain data became corrupted when using multiple OAuth-enabled MCP servers on macOS. The race condition that occurred when multiple servers accessed the keychain simultaneously has been resolved, enabling stable storage and retrieval of OAuth tokens.",
+      "category": "MCP 連携",
+      "category_en": "MCP Integration"
     },
     {
       "t": "修正: SDK/CCR セッション・長時間セッション・in-process チームメイト等での複数のメモリリーク",
+      "t_en": "Fix: Multiple memory leaks in SDK/CCR sessions, long-running sessions, in-process teammates, and more",
       "tags": ["バグ修正", "Perf"],
       "detail": "複数のメモリリークが修正されました。SDK/CCR セッションおよび長時間実行セッションでのメモリリーク、React Compiler および REPL レンダースコープでのメモリリーク、in-process チームメイトでのメモリ保持、インタラクティブモードの hook イベントでのメモリリークが含まれます。これらの修正により、長時間セッションやマルチエージェント環境での安定性が大幅に向上します。",
-      "category": "パフォーマンス"
+      "detail_en": "Multiple memory leaks have been fixed. These include memory leaks in SDK/CCR sessions and long-running sessions, memory leaks in React Compiler and REPL render scopes, memory retention in in-process teammates, and memory leaks in hook events in interactive mode. These fixes significantly improve stability in long sessions and multi-agent environments.",
+      "category": "パフォーマンス",
+      "category_en": "Performance"
     },
     {
       "t": "修正: `WorktreeCreate` / `WorktreeRemove` hooks が無視される問題",
+      "t_en": "Fix: `WorktreeCreate` / `WorktreeRemove` hooks being ignored",
       "tags": ["バグ修正"],
       "detail": "`WorktreeCreate` および `WorktreeRemove` hook イベントが設定されていても発火しない問題が修正されました。v2.1.50 で追加されたこれらの hook イベントが正しく動作するようになり、worktree の作成・削除時にカスタムロジック（例: VCS 固有の worktree 管理）を実行できるようになります。詳しくは[hooks のドキュメント](https://docs.anthropic.com/en/docs/claude-code/hooks#worktreecreate)を参照してください。",
-      "category": "安定性"
+      "detail_en": "Fixed an issue where `WorktreeCreate` and `WorktreeRemove` hook events did not fire even when configured. These hook events, added in v2.1.50, now work correctly, enabling custom logic (such as VCS-specific worktree management) to run when worktrees are created or removed. See the [hooks documentation](https://docs.anthropic.com/en/docs/claude-code/hooks#worktreecreate) for details.",
+      "category": "安定性",
+      "category_en": "Stability"
     },
     {
       "t": "修正: `--model claude-opus-4-0` / `--model claude-opus-4-1` が非推奨バージョンに解決される問題",
+      "t_en": "Fix: `--model claude-opus-4-0` / `--model claude-opus-4-1` resolving to deprecated versions",
       "tags": ["バグ修正"],
       "detail": "`--model claude-opus-4-0` や `--model claude-opus-4-1` を指定した場合に、非推奨の旧バージョンのモデルに解決されてしまう問題が修正されました。v2.1.68 で Opus 4 / 4.1 が削除された後、これらのモデル指定が正しく最新の Opus 4.6 にフォールバックするようになります。",
-      "category": "設定"
+      "detail_en": "Fixed an issue where specifying `--model claude-opus-4-0` or `--model claude-opus-4-1` resolved to deprecated older model versions. After the removal of Opus 4 / 4.1 in v2.1.68, these model specifications now correctly fall back to the latest Opus 4.6.",
+      "category": "設定",
+      "category_en": "Settings"
     },
     {
       "t": "修正: 多数のスキル/プラグインがある場合の起動遅延",
+      "t_en": "Fix: Slow startup when many skills/plugins are installed",
       "tags": ["バグ修正", "Perf", "Plugin"],
       "detail": "多数のスキルやプラグインがインストールされている環境で起動が遅くなる問題が修正されました。スキルとプラグインの読み込み処理が最適化され、大規模な設定環境でも迅速に起動できるようになります。",
-      "category": "パフォーマンス"
+      "detail_en": "Fixed an issue where startup was slow in environments with many skills and plugins installed. The loading process for skills and plugins has been optimized, enabling fast startup even in large-scale configurations.",
+      "category": "パフォーマンス",
+      "category_en": "Performance"
     },
     {
       "t": "修正: スキルの description にコロンが含まれると読み込みに失敗する問題",
+      "t_en": "Fix: Skill loading failure when the description contains a colon",
       "tags": ["バグ修正"],
       "detail": "SKILL.md の frontmatter で `description` フィールドにコロン（:）を含む記述があるとスキルの読み込みに失敗する問題が修正されました。YAML パーサーがコロンをキーと値の区切りとして解釈してしまう問題で、修正後はコロンを含む説明文も正しく処理されます。",
-      "category": "安定性"
+      "detail_en": "Fixed an issue where a skill failed to load if the `description` field in the SKILL.md frontmatter contained a colon (:). The YAML parser was interpreting the colon as a key-value separator. After this fix, description text containing colons is processed correctly.",
+      "category": "安定性",
+      "category_en": "Stability"
     },
     {
       "t": "VSCode: 追加: コンパクション表示を折りたたみ可能な「Compacted chat」カードとして表示",
+      "t_en": "VSCode: Add: Compaction displayed as a collapsible \"Compacted chat\" card",
       "tags": ["新機能", "IDE"],
       "detail": "VS Code 拡張機能で、コンテキストコンパクション（長い会話の要約・圧縮）が折りたたみ可能な「Compacted chat」カードとして表示されるようになりました。コンパクションの発生が視覚的にわかりやすくなり、要約内容を確認したい場合はカードを展開して確認できます。",
-      "category": "IDE"
+      "detail_en": "In the VS Code extension, context compaction (the summarization and compression of long conversations) is now displayed as a collapsible \"Compacted chat\" card. Compaction events are now visually clear, and you can expand the card to review the summary content.",
+      "category": "IDE",
+      "category_en": "IDE"
     },
     {
       "t": "VSCode: 改善: パーミッションモードピッカーが `permissions.disableBypassPermissionsMode` を尊重するように",
+      "t_en": "VSCode: Improvement: Permission mode picker now respects `permissions.disableBypassPermissionsMode`",
       "tags": ["改善", "IDE", "Security"],
       "detail": "VS Code 拡張機能のパーミッションモードピッカーが、マネージド設定の `permissions.disableBypassPermissionsMode` を尊重するようになりました。管理者がバイパスパーミッションモードを無効化している場合、VS Code のピッカーからもそのモードが選択できなくなり、セキュリティポリシーの一貫した適用が保証されます。",
-      "category": "IDE"
+      "detail_en": "The permission mode picker in the VS Code extension now respects the managed setting `permissions.disableBypassPermissionsMode`. When an administrator has disabled bypass permission mode, it can no longer be selected from the VS Code picker either, ensuring consistent enforcement of security policies.",
+      "category": "IDE",
+      "category_en": "IDE"
     },
     {
       "t": "VSCode: 修正: v2.1.63 でリグレッションした RTL テキストの逆順レンダリング",
+      "t_en": "VSCode: Fix: RTL text rendering in reverse order, a regression introduced in v2.1.63",
       "tags": ["バグ修正", "IDE"],
       "detail": "VS Code 拡張機能で、v2.1.63 で発生した RTL（右から左）テキスト（アラビア語、ヘブライ語等）のレンダリングが逆順になるリグレッションが修正されました。RTL テキストが正しい方向で表示されるようになります。",
-      "category": "IDE"
+      "detail_en": "Fixed a regression introduced in v2.1.63 in the VS Code extension where RTL (right-to-left) text (Arabic, Hebrew, etc.) was rendered in reverse order. RTL text is now displayed in the correct direction.",
+      "category": "IDE",
+      "category_en": "IDE"
     }
   ]
 }
