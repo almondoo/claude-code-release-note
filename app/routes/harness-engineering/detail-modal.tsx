@@ -3,6 +3,7 @@ import { DetailModalShell } from "~/components/detail-modal";
 import { HeaderTags } from "~/components/header-tags";
 import { ParagraphList, renderInlineMarkdown } from "~/components/paragraph-list";
 import { TipsList } from "~/components/tips-list";
+import { useT } from "~/i18n/useT";
 
 import type { HEItem } from "./constants";
 import { SECTIONS, SECTION_ICONS, TAG_COLORS } from "./constants";
@@ -58,45 +59,51 @@ const DataTable = ({
 // Gotchas list
 // ---------------------------------------------------------------------------
 
-const GotchasList = ({ items }: { items: string[] }) => (
-  <div className="flex flex-col gap-2">
-    <h3 className="text-[12px] font-bold uppercase tracking-wider text-amber-300 font-mono m-0">
-      注意点
-    </h3>
-    <ul className="m-0 pl-0 list-none flex flex-col gap-1.5">
-      {items.map((g, i) => (
-        <li key={i} className="flex gap-2 items-start text-[13px] text-slate-300 leading-relaxed">
-          <span className="text-amber-400 shrink-0 mt-0.5">⚠</span>
-          <span>{renderInlineMarkdown(g)}</span>
-        </li>
-      ))}
-    </ul>
-  </div>
-);
+const GotchasList = ({ items }: { items: string[] }) => {
+  const t = useT();
+  return (
+    <div className="flex flex-col gap-2">
+      <h3 className="text-[12px] font-bold uppercase tracking-wider text-amber-300 font-mono m-0">
+        {t.harness.gotchasLabel}
+      </h3>
+      <ul className="m-0 pl-0 list-none flex flex-col gap-1.5">
+        {items.map((g, i) => (
+          <li key={i} className="flex gap-2 items-start text-[13px] text-slate-300 leading-relaxed">
+            <span className="text-amber-400 shrink-0 mt-0.5">⚠</span>
+            <span>{renderInlineMarkdown(g)}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+};
 
 // ---------------------------------------------------------------------------
 // Real-world examples
 // ---------------------------------------------------------------------------
 
-const RealWorldList = ({ items }: { items: string[] }) => (
-  <div className="flex flex-col gap-2">
-    <h3 className="text-[12px] font-bold uppercase tracking-wider text-cyan-300 font-mono m-0">
-      実例
-    </h3>
+const RealWorldList = ({ items }: { items: string[] }) => {
+  const t = useT();
+  return (
     <div className="flex flex-col gap-2">
-      {items.map((rw, i) => (
-        <div
-          key={i}
-          className="bg-slate-800/50 border-l-2 border-cyan-500 pl-4 pr-3 py-2.5 rounded-r-lg"
-        >
-          <p className="m-0 text-[13px] text-slate-300 leading-relaxed">
-            {renderInlineMarkdown(rw)}
-          </p>
-        </div>
-      ))}
+      <h3 className="text-[12px] font-bold uppercase tracking-wider text-cyan-300 font-mono m-0">
+        {t.harness.realWorldLabel}
+      </h3>
+      <div className="flex flex-col gap-2">
+        {items.map((rw, i) => (
+          <div
+            key={i}
+            className="bg-slate-800/50 border-l-2 border-cyan-500 pl-4 pr-3 py-2.5 rounded-r-lg"
+          >
+            <p className="m-0 text-[13px] text-slate-300 leading-relaxed">
+              {renderInlineMarkdown(rw)}
+            </p>
+          </div>
+        ))}
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 // ---------------------------------------------------------------------------
 // Detail modal
@@ -115,6 +122,7 @@ export const DetailModal = ({
   onClose: () => void;
   reducedMotion: boolean | null;
 }): React.JSX.Element => {
+  const t = useT();
   const sectionIcon = SECTION_ICONS[
     SECTIONS.find((s) => s.items.some((i) => i.id === item.id))?.id ?? ""
   ]?.() ?? (
@@ -163,7 +171,9 @@ export const DetailModal = ({
       ))}
 
       {/* Code block */}
-      {item.code && <CodeBlockView block={{ lang: "text", label: "コード", value: item.code }} />}
+      {item.code && (
+        <CodeBlockView block={{ lang: "text", label: t.harness.codeLabel, value: item.code }} />
+      )}
 
       {/* Tips */}
       {item.tips && item.tips.length > 0 && <TipsList tips={item.tips} />}

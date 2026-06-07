@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 
 import { EmptyState } from "~/components/empty-state";
@@ -10,19 +10,26 @@ import { SummaryCard } from "~/components/summary-card";
 import { TabBar } from "~/components/tab-bar";
 import type { TabItem } from "~/components/tab-bar";
 import { usePageState } from "~/hooks/usePageState";
+import { dictFromMatches } from "~/i18n/meta";
+import { useT } from "~/i18n/useT";
 
 import type { AnyItem } from "./constants";
-import { CATEGORIES, CATEGORY_CONFIGS, ITEM_SECTION_MAP } from "./constants";
+import { getCategories, getCategoryConfigs, ITEM_SECTION_MAP } from "./constants";
 import { DetailModal } from "./detail-modal";
 
 // ---------------------------------------------------------------------------
 // Meta
 // ---------------------------------------------------------------------------
 
-export const meta = (): Array<{ title?: string; name?: string; content?: string }> => {
+export const meta = ({
+  matches,
+}: {
+  matches: readonly ({ data?: unknown } | undefined)[];
+}): Array<{ title?: string; name?: string; content?: string }> => {
+  const d = dictFromMatches(matches);
   return [
-    { title: "Claude Code ベストプラクティス" },
-    { name: "description", content: "Claude Code を最大限に活用するためのヒントとパターン" },
+    { title: d.bestPractices.metaTitle },
+    { name: "description", content: d.bestPractices.metaDescription },
   ];
 };
 
@@ -35,7 +42,7 @@ const CategoryTabBar = ({
   activeCategory,
   onCategoryChange,
 }: {
-  categories: typeof CATEGORIES;
+  categories: ReturnType<typeof getCategories>;
   activeCategory: string;
   onCategoryChange: (id: string) => void;
 }) => {
@@ -75,8 +82,15 @@ const CategoryTabBar = ({
 // CategoryContent – renders section tabs + content for the active category
 // ---------------------------------------------------------------------------
 
-const CategoryContent = ({ categoryId }: { categoryId: string }) => {
-  const config = CATEGORY_CONFIGS[categoryId];
+const CategoryContent = ({
+  categoryId,
+  categoryConfigs,
+}: {
+  categoryId: string;
+  categoryConfigs: ReturnType<typeof getCategoryConfigs>;
+}) => {
+  const t = useT();
+  const config = categoryConfigs[categoryId];
 
   const renderTabIcon = (tab: TabItem): React.ReactNode => {
     // For prompting which uses tabSectionMap, get icon from first mapped section
@@ -171,7 +185,9 @@ const CategoryContent = ({ categoryId }: { categoryId: string }) => {
                 <h2 className="text-base font-bold m-0" style={{ color: colors.color }}>
                   {section.name}
                 </h2>
-                <span className="text-xs text-slate-500">{section.items.length} 件</span>
+                <span className="text-xs text-slate-500">
+                  {t.bestPractices.count(section.items.length)}
+                </span>
               </div>
               <ItemGrid
                 items={section.items}
@@ -197,7 +213,7 @@ const CategoryContent = ({ categoryId }: { categoryId: string }) => {
       {/* Empty state */}
       {visibleItemCount === 0 && (
         <EmptyState
-          message={`条件に一致する${config.itemLabel}はありません`}
+          message={t.bestPractices.emptyMessage(config.itemLabel)}
           reducedMotion={reducedMotion}
         />
       )}
@@ -227,18 +243,22 @@ const CategoryContent = ({ categoryId }: { categoryId: string }) => {
 // ---------------------------------------------------------------------------
 
 const BestPractices = (): React.JSX.Element => {
-  const [activeCategory, setActiveCategory] = useState(CATEGORIES[0].id);
-  const config = CATEGORY_CONFIGS[activeCategory];
+  const t = useT();
+  const categories = useMemo(() => getCategories(t.bestPractices), [t]);
+  const categoryConfigs = useMemo(() => getCategoryConfigs(t.bestPractices), [t]);
+
+  const [activeCategory, setActiveCategory] = useState(categories[0].id);
+  const config = categoryConfigs[activeCategory];
 
   return (
     <div className="min-h-screen bg-slate-900 font-sans text-slate-100">
       <div className="max-w-[1400px] mx-auto px-4 py-8">
         {/* Header */}
         <PageHeader
-          title="ベストプラクティス"
+          title={t.bestPractices.pageTitle}
           description={config.description}
           stats={[
-            { value: config.sections.length, label: "カテゴリ" },
+            { value: config.sections.length, label: t.bestPractices.statCategory },
             { value: config.totalItems, label: config.itemLabel },
           ]}
           gradient={config.gradient}
@@ -246,13 +266,17 @@ const BestPractices = (): React.JSX.Element => {
 
         {/* Category tabs (upper tier) */}
         <CategoryTabBar
-          categories={CATEGORIES}
+          categories={categories}
           activeCategory={activeCategory}
           onCategoryChange={setActiveCategory}
         />
 
         {/* Category content (lower tier) - key forces remount */}
-        <CategoryContent key={activeCategory} categoryId={activeCategory} />
+        <CategoryContent
+          key={activeCategory}
+          categoryId={activeCategory}
+          categoryConfigs={categoryConfigs}
+        />
       </div>
     </div>
   );

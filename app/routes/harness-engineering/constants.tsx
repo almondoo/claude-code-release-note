@@ -5,6 +5,7 @@ import contextData from "~/data/harness-engineering/context.json";
 import practicesData from "~/data/harness-engineering/practices.json";
 import { PALETTE } from "~/theme/colors";
 import { AgentGearIcon } from "~/components/icons";
+import type { Dictionary } from "~/i18n/dict";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -70,13 +71,13 @@ export const TAB_SECTION_MAP: Record<string, string[]> = {
 
 export const ACCENT = "#06b6d4";
 
-export const TAB_DEFS: TabDef[] = [
-  { id: "all", label: "すべて", color: ACCENT },
-  { id: "config-files", label: "設定ファイル", color: PALETTE.orange.color },
-  { id: "execution-control", label: "実行制御", color: PALETTE.red.color },
-  { id: "agents", label: "エージェント", color: PALETTE.purple.color },
-  { id: "context", label: "コンテキスト", color: PALETTE.cyan.color },
-  { id: "practices", label: "実践ガイド", color: PALETTE.green.color },
+export const getTabDefs = (t: Dictionary): TabDef[] => [
+  { id: "all", label: t.harness.tabAll, color: ACCENT },
+  { id: "config-files", label: t.harness.tabConfigFiles, color: PALETTE.orange.color },
+  { id: "execution-control", label: t.harness.tabExecutionControl, color: PALETTE.red.color },
+  { id: "agents", label: t.harness.tabAgents, color: PALETTE.purple.color },
+  { id: "context", label: t.harness.tabContext, color: PALETTE.cyan.color },
+  { id: "practices", label: t.harness.tabPractices, color: PALETTE.green.color },
 ];
 
 // ---------------------------------------------------------------------------

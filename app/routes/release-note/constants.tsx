@@ -1,4 +1,4 @@
-import { TAG_COLORS, TAG_LABELS } from "~/components/badge";
+import { TAG_COLORS } from "~/components/badge";
 import {
   AgentGearIcon,
   BoltIcon,
@@ -14,6 +14,7 @@ import {
   WindowsIcon,
   WrenchIcon,
 } from "~/components/icons";
+import type { Dictionary } from "~/i18n/dict";
 import { RELEASES, VERSION_DETAILS } from "~/data/releases";
 
 export interface ReleaseItem {
@@ -40,11 +41,11 @@ export const VERSION_DETAILS_AVAILABLE = new Set(Object.keys(VERSION_DETAILS));
 
 export const totalAll = RELEASES.reduce((sum, r) => sum + r.items.length, 0);
 
-export const TAB_DEFS: TabDef[] = [
-  { id: "all", label: "すべて", color: "#3B82F6" },
+export const getTabDefs = (t: Dictionary): TabDef[] => [
+  { id: "all", label: t.releaseNote.tabAll, color: "#3B82F6" },
   ...ALL_TAGS.map((tag) => ({
     id: tag,
-    label: TAG_LABELS[tag] ?? tag,
+    label: t.tags[tag] ?? tag,
     color: TAG_COLORS[tag]?.text ?? "#3B82F6",
   })),
 ];

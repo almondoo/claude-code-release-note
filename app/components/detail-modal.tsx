@@ -3,6 +3,7 @@ import { useRef } from "react";
 
 import { CloseIcon } from "~/components/icons";
 import { useModalLock } from "~/hooks/useModalLock";
+import { useT } from "~/i18n/useT";
 
 interface DetailModalShellProps {
   accentColor: string;
@@ -30,6 +31,7 @@ export const DetailModalShell = ({
   bodyClassName = "p-6 overflow-y-auto flex-1 flex flex-col gap-5",
 }: DetailModalShellProps): React.JSX.Element => {
   const overlayRef = useRef<HTMLDivElement>(null);
+  const t = useT();
   useModalLock(onClose);
 
   return (
@@ -81,7 +83,7 @@ export const DetailModalShell = ({
           <div className="flex-1 min-w-0">{headerContent}</div>
           <button
             onClick={onClose}
-            aria-label="閉じる"
+            aria-label={t.common.close}
             className="close-btn bg-transparent border-none text-slate-500 cursor-pointer p-1 rounded-md flex items-center justify-center transition-colors shrink-0"
           >
             <CloseIcon />

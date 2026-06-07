@@ -6,6 +6,7 @@ import useCasesJson from "~/data/workflows/section-use-cases.json";
 import whenNotJson from "~/data/workflows/section-when-not.json";
 import tipsJson from "~/data/workflows/section-tips.json";
 import referencesJson from "~/data/workflows/section-references.json";
+import type { Dictionary } from "~/i18n/dict";
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
@@ -52,12 +53,12 @@ export const ACCENT = "#e0734d";
 
 // ── Tab definitions ────────────────────────────────────────────────────────
 
-export const TAB_DEFS = [
-  { id: "overview", label: "概要", color: ACCENT },
-  { id: "why", label: "なぜ使うか", color: ACCENT },
-  { id: "patterns", label: "6つのパターン", color: ACCENT },
-  { id: "use-cases", label: "ユースケース", color: ACCENT },
-  { id: "when-not", label: "使わない場合", color: ACCENT },
-  { id: "tips", label: "Tips", color: ACCENT },
-  { id: "references", label: "出典", color: ACCENT },
+export const getTabDefs = (t: Dictionary) => [
+  { id: "overview", label: t.workflows.tabOverview, color: ACCENT },
+  { id: "why", label: t.workflows.tabWhy, color: ACCENT },
+  { id: "patterns", label: t.workflows.tabPatterns, color: ACCENT },
+  { id: "use-cases", label: t.workflows.tabUseCases, color: ACCENT },
+  { id: "when-not", label: t.workflows.tabWhenNot, color: ACCENT },
+  { id: "tips", label: t.workflows.tabTips, color: ACCENT },
+  { id: "references", label: t.workflows.tabReferences, color: ACCENT },
 ];

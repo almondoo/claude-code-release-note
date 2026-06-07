@@ -4,6 +4,8 @@ import { Link, useParams, Navigate } from "react-router";
 
 import { Footer } from "~/components/footer";
 import { ArrowLeftIcon } from "~/components/icons";
+import { dictFromMatches } from "~/i18n/meta";
+import { useT } from "~/i18n/useT";
 
 import { TOPIC_MAP, DIFFICULTY_COLORS, type Approach } from "./constants";
 import { StepRenderer, IntroBlockRenderer } from "./step-renderer";
@@ -11,14 +13,17 @@ import { StepRenderer, IntroBlockRenderer } from "./step-renderer";
 // ── Meta ──────────────────────────────────────────────────────────────────
 
 export const meta = ({
+  matches,
   params,
 }: {
+  matches: readonly ({ data?: unknown } | undefined)[];
   params: { topic: string };
 }): Array<{ title?: string; name?: string; content?: string }> => {
+  const d = dictFromMatches(matches);
   const topic = TOPIC_MAP[params.topic];
   return [
     {
-      title: `${topic?.title ?? "ハンズオン"} - Claude Code ハンズオン`,
+      title: `${topic?.title ?? d.handsOn.metaTitleFallback}${d.handsOn.metaTitleSuffix}`,
     },
   ];
 };
@@ -87,6 +92,7 @@ const ApproachTabs = ({
 // ── Main Page ─────────────────────────────────────────────────────────────
 
 const HandsOnTopic = (): React.JSX.Element => {
+  const t = useT();
   const { topic: topicId } = useParams();
   const reducedMotion = useReducedMotion();
 
@@ -130,7 +136,7 @@ const HandsOnTopic = (): React.JSX.Element => {
             className="back-link inline-flex items-center gap-1.5 text-slate-500 no-underline text-[14px] font-sans py-1.5 px-3 rounded-md transition-all"
           >
             <ArrowLeftIcon />
-            ハンズオン一覧
+            {t.handsOn.backToList}
           </Link>
         </motion.div>
 
@@ -154,7 +160,7 @@ const HandsOnTopic = (): React.JSX.Element => {
                 className="text-[11px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full"
                 style={{ color: diff?.color, background: diff?.bg }}
               >
-                {diff?.label}
+                {t.handsOn.difficulty[topic.difficulty as "easy" | "medium" | "hard"]}
               </span>
               <span
                 className="text-[11px] font-medium px-2.5 py-1 rounded-full"
@@ -166,8 +172,8 @@ const HandsOnTopic = (): React.JSX.Element => {
                 {topic.estimatedTime}
               </span>
               <span className="text-[11px] text-slate-500">
-                {stepCount} ステップ
-                {hasApproaches && ` × ${topic.approaches!.length} アプローチ`}
+                {t.handsOn.steps(stepCount)}
+                {hasApproaches && t.handsOn.approaches(topic.approaches!.length)}
               </span>
             </div>
             <h1 className="text-[24px] font-bold text-slate-100 m-0 mb-2 leading-snug">
@@ -275,7 +281,7 @@ const HandsOnTopic = (): React.JSX.Element => {
               <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
               <polyline points="22 4 12 14.01 9 11.01" />
             </svg>
-            このハンズオンで学んだこと
+            {t.handsOn.learned}
           </h2>
           <ul className="text-[14px] text-slate-300 leading-[1.8] m-0 pl-5 flex flex-col gap-2">
             {topic.summary.map((item, i) => (
@@ -291,7 +297,7 @@ const HandsOnTopic = (): React.JSX.Element => {
             className="back-link inline-flex items-center gap-1.5 text-slate-500 no-underline text-[14px] font-sans py-2 px-4 rounded-md transition-all border border-slate-700"
           >
             <ArrowLeftIcon />
-            ハンズオン一覧へ戻る
+            {t.handsOn.backToListFull}
           </Link>
         </div>
 

@@ -1,4 +1,5 @@
 import { ParagraphList } from "~/components/paragraph-list";
+import { useT } from "~/i18n/useT";
 import { PATTERN_DIAGRAMS } from "./workflow-diagram";
 import type { Block } from "./constants";
 import { ACCENT } from "./constants";
@@ -76,6 +77,7 @@ const PatternCard = ({
   tagline?: string;
   content: string;
 }): React.JSX.Element => {
+  const t = useT();
   const DiagramComponent = PATTERN_DIAGRAMS[patternId];
 
   return (
@@ -85,7 +87,7 @@ const PatternCard = ({
     >
       {/* Diagram */}
       {DiagramComponent && (
-        <div className="overflow-x-auto rounded-lg" aria-label={`${name} の図`}>
+        <div className="overflow-x-auto rounded-lg" aria-label={t.workflows.diagramAria(name)}>
           <DiagramComponent />
         </div>
       )}

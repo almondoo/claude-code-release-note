@@ -3,6 +3,8 @@
 // Used by release-note.tsx and version-detail.tsx.
 // ---------------------------------------------------------------------------
 
+import { useT } from "~/i18n/useT";
+
 export interface TagColor {
   bg: string;
   text: string;
@@ -24,6 +26,11 @@ export const TAG_COLORS: Record<string, TagColor> = {
   Agent: { bg: "rgba(99, 102, 241, 0.15)", text: "#A5B4FC" },
 };
 
+/**
+ * Static Japanese display labels (internal key → Japanese label).
+ * Kept as a static export for backward compatibility.
+ * For i18n-aware display, use t.tags[tag] from useT() instead.
+ */
 export const TAG_LABELS: Record<string, string> = {
   新機能: "新機能",
   バグ修正: "バグ修正",
@@ -40,7 +47,12 @@ export const TAG_LABELS: Record<string, string> = {
   Agent: "エージェント",
 };
 
-/** 表示ラベルからタグカラーを引くためのマップ */
+/**
+ * Japanese display label → tag color lookup.
+ * Derived from static TAG_LABELS (Japanese keys) so that CategoryBadge,
+ * which receives Japanese category strings from JSON data, always resolves correctly
+ * regardless of the current UI locale.
+ */
 export const TAG_COLORS_BY_LABEL: Record<string, TagColor> = Object.fromEntries(
   Object.entries(TAG_LABELS).map(([tag, label]) => [label, TAG_COLORS[tag]]),
 );
@@ -51,6 +63,7 @@ interface BadgeProps {
 }
 
 export const Badge = ({ tag, small }: BadgeProps): React.JSX.Element => {
+  const t = useT();
   const colors = TAG_COLORS[tag];
   return (
     <span
@@ -65,7 +78,7 @@ export const Badge = ({ tag, small }: BadgeProps): React.JSX.Element => {
         letterSpacing: "0.2px",
       }}
     >
-      {TAG_LABELS[tag] ?? tag}
+      {t.tags[tag] ?? tag}
     </span>
   );
 };

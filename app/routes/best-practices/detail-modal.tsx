@@ -4,6 +4,7 @@ import { DetailModalShell } from "~/components/detail-modal";
 import { HeaderTags } from "~/components/header-tags";
 import { ParagraphList, renderInlineMarkdown } from "~/components/paragraph-list";
 import { TipsList } from "~/components/tips-list";
+import { useT } from "~/i18n/useT";
 
 import type { AnyItem, BPItem, PromptItem, HooksItem } from "./constants";
 import { CATEGORY_CONFIGS } from "./constants";
@@ -71,6 +72,8 @@ const BPDetailContent = ({
   reducedMotion: boolean | null;
   categoryId?: string;
 }) => {
+  const t = useT();
+  const bp = t.bestPractices;
   const sectionIcon = resolveSectionIcon(categoryId, item.id);
   const tagColors = CATEGORY_CONFIGS[categoryId].tagColors;
 
@@ -108,7 +111,7 @@ const BPDetailContent = ({
       {item.steps && item.steps.length > 0 && (
         <div className="flex flex-col gap-3">
           <h3 className="text-[12px] font-bold uppercase tracking-wider text-cyan-300 font-mono m-0">
-            フェーズ
+            {bp.sectionPhase}
           </h3>
           <div className="flex flex-col gap-2.5">
             {item.steps.map((step, i) => (
@@ -139,14 +142,16 @@ const BPDetailContent = ({
       {item.tips && item.tips.length > 0 && <TipsList tips={item.tips} />}
 
       {/* Code block */}
-      {item.code && <CodeBlockView block={{ lang: "text", label: "コード", value: item.code }} />}
+      {item.code && (
+        <CodeBlockView block={{ lang: "text", label: bp.sectionCode, value: item.code }} />
+      )}
 
       {/* Include/Exclude tables (for CLAUDE.md item) */}
       {item.include && item.exclude && (
         <div className="grid grid-cols-2 gap-3">
           <div className="rounded-lg border border-green-500/20 p-4">
             <h4 className="text-[12px] font-bold uppercase tracking-wider text-green-400 font-mono m-0 mb-2.5">
-              含めるもの
+              {bp.sectionInclude}
             </h4>
             <ul className="m-0 pl-0 list-none flex flex-col gap-1.5">
               {item.include.map((inc, i) => (
@@ -162,7 +167,7 @@ const BPDetailContent = ({
           </div>
           <div className="rounded-lg border border-red-500/20 p-4">
             <h4 className="text-[12px] font-bold uppercase tracking-wider text-red-400 font-mono m-0 mb-2.5">
-              除外するもの
+              {bp.sectionExclude}
             </h4>
             <ul className="m-0 pl-0 list-none flex flex-col gap-1.5">
               {item.exclude.map((exc, i) => (
@@ -183,7 +188,7 @@ const BPDetailContent = ({
       {item.locations && item.locations.length > 0 && (
         <div className="flex flex-col gap-2.5">
           <h3 className="text-[12px] font-bold uppercase tracking-wider text-purple-300 font-mono m-0">
-            配置場所
+            {bp.sectionLocations}
           </h3>
           <div className="flex flex-col gap-1.5">
             {item.locations.map((loc, i) => (
@@ -207,12 +212,12 @@ const BPDetailContent = ({
       {item.writerReviewer && (
         <div className="flex flex-col gap-2.5">
           <h3 className="text-[12px] font-bold uppercase tracking-wider text-cyan-300 font-mono m-0">
-            Writer / Reviewer パターン
+            {bp.sectionWriterReviewer}
           </h3>
           <div className="grid grid-cols-2 gap-3">
             <div className="rounded-lg border border-cyan-500/20 p-4">
               <h4 className="text-[12px] font-bold text-cyan-300 font-mono m-0 mb-2">
-                Session A（ライター）
+                {bp.sessionWriter}
               </h4>
               {item.writerReviewer.writer.map((w, i) => (
                 <p key={i} className="m-0 mt-1.5 text-[13px] text-slate-300 leading-relaxed italic">
@@ -222,7 +227,7 @@ const BPDetailContent = ({
             </div>
             <div className="rounded-lg border border-orange-500/20 p-4">
               <h4 className="text-[12px] font-bold text-orange-300 font-mono m-0 mb-2">
-                Session B（レビュアー）
+                {bp.sessionReviewer}
               </h4>
               {item.writerReviewer.reviewer.map((r, i) => (
                 <p key={i} className="m-0 mt-1.5 text-[13px] text-slate-300 leading-relaxed italic">
@@ -269,6 +274,8 @@ const PromptDetailContent = ({
   onClose: () => void;
   reducedMotion: boolean | null;
 }) => {
+  const t = useT();
+  const bp = t.bestPractices;
   const sectionIcon = resolveSectionIcon("prompting", item.id);
   const tagColors = CATEGORY_CONFIGS["prompting"].tagColors;
 
@@ -309,7 +316,7 @@ const PromptDetailContent = ({
       {item.code && item.code.length > 0 && (
         <div className="flex flex-col gap-3">
           <h3 className="text-[12px] font-bold uppercase tracking-wider text-emerald-300 font-mono m-0">
-            サンプルプロンプト
+            {bp.sectionSamplePrompt}
           </h3>
           <div className="flex flex-col gap-2.5">
             {item.code.map((block, i) => (
@@ -339,6 +346,8 @@ const SkillDetailContent = ({
   onClose: () => void;
   reducedMotion: boolean | null;
 }) => {
+  const t = useT();
+  const bp = t.bestPractices;
   const sectionIcon = resolveSectionIcon("skills", item.id);
   const tagColors = CATEGORY_CONFIGS["skills"].tagColors;
 
@@ -376,7 +385,7 @@ const SkillDetailContent = ({
       {item.steps && item.steps.length > 0 && (
         <div className="flex flex-col gap-3">
           <h3 className="text-[12px] font-bold uppercase tracking-wider text-cyan-300 font-mono m-0">
-            フェーズ
+            {bp.sectionPhase}
           </h3>
           <div className="flex flex-col gap-2.5">
             {item.steps.map((step, i) => (
@@ -407,7 +416,9 @@ const SkillDetailContent = ({
       {item.tips && item.tips.length > 0 && <TipsList tips={item.tips} />}
 
       {/* Code block */}
-      {item.code && <CodeBlockView block={{ lang: "text", label: "コード", value: item.code }} />}
+      {item.code && (
+        <CodeBlockView block={{ lang: "text", label: bp.sectionCode, value: item.code }} />
+      )}
     </DetailModalShell>
   );
 };
@@ -429,6 +440,8 @@ const HooksDetailContent = ({
   onClose: () => void;
   reducedMotion: boolean | null;
 }) => {
+  const t = useT();
+  const bp = t.bestPractices;
   const sectionIcon = resolveSectionIcon("hooks", item.id);
   const tagColors = CATEGORY_CONFIGS["hooks"].tagColors;
 
@@ -467,7 +480,7 @@ const HooksDetailContent = ({
       {item.steps && item.steps.length > 0 && (
         <div className="flex flex-col gap-3">
           <h3 className="text-[12px] font-bold uppercase tracking-wider text-cyan-300 font-mono m-0">
-            詳細
+            {bp.sectionDetail}
           </h3>
           <div className="flex flex-col gap-2.5">
             {item.steps.map((step, i) => (
@@ -507,7 +520,7 @@ const HooksDetailContent = ({
           <CodeBlockView
             block={{
               lang: item.code.trimStart().startsWith("{") ? "json" : "bash",
-              label: item.code.trimStart().startsWith("{") ? "settings.json" : "スクリプト",
+              label: item.code.trimStart().startsWith("{") ? "settings.json" : bp.sectionScript,
               value: item.code,
             }}
           />
@@ -535,7 +548,7 @@ const HooksDetailContent = ({
       {item.locations && item.locations.length > 0 && (
         <div className="flex flex-col gap-2.5">
           <h3 className="text-[12px] font-bold uppercase tracking-wider text-purple-300 font-mono m-0">
-            配置場所
+            {bp.sectionLocations}
           </h3>
           <div className="flex flex-col gap-1.5">
             {item.locations.map((loc, i) => (

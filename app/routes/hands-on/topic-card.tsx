@@ -1,6 +1,8 @@
 import { Link } from "react-router";
 import { motion, useReducedMotion } from "motion/react";
 
+import { useT } from "~/i18n/useT";
+
 import { type TopicMeta, DIFFICULTY_COLORS, TAG_COLORS, TOPIC_ICONS } from "./constants";
 
 interface TopicCardProps {
@@ -9,6 +11,7 @@ interface TopicCardProps {
 }
 
 export const TopicCard = ({ topic, index }: TopicCardProps): React.JSX.Element => {
+  const t = useT();
   const reducedMotion = useReducedMotion();
   const diff = DIFFICULTY_COLORS[topic.difficulty];
   const IconRenderer = TOPIC_ICONS[topic.icon];
@@ -41,7 +44,7 @@ export const TopicCard = ({ topic, index }: TopicCardProps): React.JSX.Element =
               className="text-[11px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full"
               style={{ color: diff.color, background: diff.bg }}
             >
-              {diff.label}
+              {t.handsOn.difficulty[topic.difficulty]}
             </span>
             <span
               className="text-[11px] font-medium px-2.5 py-1 rounded-full"
@@ -100,7 +103,10 @@ export const TopicCard = ({ topic, index }: TopicCardProps): React.JSX.Element =
               <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
               <polyline points="22 4 12 14.01 9 11.01" />
             </svg>
-            <span>前提: {topic.prerequisites.join(", ")}</span>
+            <span>
+              {t.handsOn.prerequisitePrefix}
+              {topic.prerequisites.join(", ")}
+            </span>
           </div>
         )}
       </Link>

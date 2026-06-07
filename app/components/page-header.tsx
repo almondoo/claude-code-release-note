@@ -1,14 +1,8 @@
 import { motion, useReducedMotion } from "motion/react";
 import { Link, useLocation } from "react-router";
 import { ArrowLeftIcon } from "~/components/icons";
-
-const ALL_PAGES = [
-  { to: "/", label: "リリースノート" },
-  { to: "/best-practices", label: "ベストプラクティス" },
-  { to: "/hands-on", label: "ハンズオン" },
-  { to: "/harness-engineering", label: "ハーネス＆コンテキストエンジニアリング" },
-  { to: "/workflows", label: "動的ワークフロー" },
-];
+import { useLocale } from "~/i18n/context";
+import { useT } from "~/i18n/useT";
 
 interface Stat {
   value: number | string;
@@ -34,6 +28,17 @@ export const PageHeader = ({
 }: PageHeaderProps): React.JSX.Element => {
   const location = useLocation();
   const reducedMotion = useReducedMotion();
+  const t = useT();
+  const { locale, setLocale } = useLocale();
+
+  const ALL_PAGES = [
+    { to: "/", label: t.nav.releaseNote },
+    { to: "/best-practices", label: t.nav.bestPractices },
+    { to: "/hands-on", label: t.nav.handsOn },
+    { to: "/harness-engineering", label: t.nav.harness },
+    { to: "/workflows", label: t.nav.workflows },
+  ];
+
   const currentPath = location.pathname;
   const isIndex = currentPath === "/";
 
@@ -59,6 +64,33 @@ export const PageHeader = ({
         }}
       />
       <div className="relative">
+        {/* Language toggle */}
+        <div
+          className="absolute top-0 right-0 flex items-center gap-1"
+          aria-label={t.nav.languageSwitchLabel}
+        >
+          <button
+            onClick={() => setLocale("ja")}
+            className={`text-[11px] font-semibold px-2.5 py-1 rounded-md transition-all border cursor-pointer ${
+              locale === "ja"
+                ? "bg-slate-600/50 text-slate-100 border-slate-500"
+                : "bg-transparent text-slate-500 border-transparent hover:text-slate-300 hover:border-slate-600"
+            }`}
+          >
+            {t.nav.languageJa}
+          </button>
+          <button
+            onClick={() => setLocale("en")}
+            className={`text-[11px] font-semibold px-2.5 py-1 rounded-md transition-all border cursor-pointer ${
+              locale === "en"
+                ? "bg-slate-600/50 text-slate-100 border-slate-500"
+                : "bg-transparent text-slate-500 border-transparent hover:text-slate-300 hover:border-slate-600"
+            }`}
+          >
+            {t.nav.languageEn}
+          </button>
+        </div>
+
         <div className="text-xs font-semibold text-slate-500 tracking-[3px] uppercase mb-3 font-mono">
           CLAUDE CODE
         </div>

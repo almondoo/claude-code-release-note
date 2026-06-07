@@ -5,19 +5,26 @@ import { EmptyState } from "~/components/empty-state";
 import { Footer } from "~/components/footer";
 import { PageHeader } from "~/components/page-header";
 import { SearchInput } from "~/components/search-input";
+import { dictFromMatches } from "~/i18n/meta";
+import { useT } from "~/i18n/useT";
 
 import { TOPICS, TOPICS_DATA } from "./constants";
 import { TopicCard } from "./topic-card";
 
 // ── Meta ──────────────────────────────────────────────────────────────────
 
-export const meta = (): Array<{
+export const meta = ({
+  matches,
+}: {
+  matches: readonly ({ data?: unknown } | undefined)[];
+}): Array<{
   title?: string;
   name?: string;
   content?: string;
 }> => {
+  const d = dictFromMatches(matches);
   return [
-    { title: "Claude Code ハンズオン" },
+    { title: d.handsOn.metaTitle },
     {
       name: "description",
       content: TOPICS_DATA.meta.description,
@@ -28,6 +35,7 @@ export const meta = (): Array<{
 // ── Main Page ─────────────────────────────────────────────────────────────
 
 const HandsOnHub = (): React.JSX.Element => {
+  const t = useT();
   const [query, setQuery] = useState("");
   const reducedMotion = useReducedMotion();
 
@@ -36,10 +44,10 @@ const HandsOnHub = (): React.JSX.Element => {
   const filteredTopics = useMemo(() => {
     if (!query) return TOPICS;
     return TOPICS.filter(
-      (t) =>
-        t.title.toLowerCase().includes(lowerQuery) ||
-        t.description.toLowerCase().includes(lowerQuery) ||
-        t.tags.some((tag) => tag.toLowerCase().includes(lowerQuery)),
+      (topic) =>
+        topic.title.toLowerCase().includes(lowerQuery) ||
+        topic.description.toLowerCase().includes(lowerQuery) ||
+        topic.tags.some((tag) => tag.toLowerCase().includes(lowerQuery)),
     );
   }, [query, lowerQuery]);
 
@@ -50,7 +58,7 @@ const HandsOnHub = (): React.JSX.Element => {
         <PageHeader
           title={TOPICS_DATA.meta.title}
           description={TOPICS_DATA.meta.description}
-          stats={[{ value: TOPICS.length, label: "お題" }]}
+          stats={[{ value: TOPICS.length, label: t.handsOn.statLabel }]}
           gradient={["rgba(99,102,241,0.08)", "rgba(168,85,247,0.05)"]}
         />
 
@@ -59,7 +67,7 @@ const HandsOnHub = (): React.JSX.Element => {
           <SearchInput
             value={query}
             onChange={setQuery}
-            placeholder="お題を検索..."
+            placeholder={t.handsOn.searchPlaceholder}
             accentColor="#6366F1"
           />
         </div>
@@ -67,7 +75,7 @@ const HandsOnHub = (): React.JSX.Element => {
         {/* Count */}
         <div className="flex items-center gap-2.5 mb-4 px-1">
           <span className="text-[14px] text-slate-500 font-medium">
-            {filteredTopics.length} / {TOPICS.length} お題
+            {t.handsOn.countSummary(filteredTopics.length, TOPICS.length)}
           </span>
         </div>
 
@@ -79,7 +87,7 @@ const HandsOnHub = (): React.JSX.Element => {
             ))}
           </div>
         ) : (
-          <EmptyState message="条件に一致するお題はありません" reducedMotion={reducedMotion} />
+          <EmptyState message={t.handsOn.noResults} reducedMotion={reducedMotion} />
         )}
 
         {/* Footer */}

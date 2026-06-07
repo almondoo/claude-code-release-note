@@ -4,19 +4,25 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Footer } from "~/components/footer";
 import { PageHeader } from "~/components/page-header";
 import { TabBar } from "~/components/tab-bar";
+import { dictFromMatches } from "~/i18n/meta";
+import { useT } from "~/i18n/useT";
 
-import { ACCENT, META, SECTIONS, TAB_DEFS } from "./constants";
+import { ACCENT, META, SECTIONS, getTabDefs } from "./constants";
 import { RenderBlock } from "./section-renderer";
 
 // ── Meta ───────────────────────────────────────────────────────────────────
 
-export const meta = (): Array<{ title?: string; name?: string; content?: string }> => {
+export const meta = ({
+  matches,
+}: {
+  matches: readonly ({ data?: unknown } | undefined)[];
+}): Array<{ title?: string; name?: string; content?: string }> => {
+  const d = dictFromMatches(matches);
   return [
-    { title: "動的ワークフロー（Dynamic Workflows）— Claude Code" },
+    { title: d.workflows.metaTitle },
     {
       name: "description",
-      content:
-        "Claude Code がタスク専用のハーネスをその場で書き、複数のサブエージェントを協調させる動的ワークフローの解説。",
+      content: d.workflows.metaDescription,
     },
   ];
 };
@@ -61,6 +67,8 @@ const WorkflowSection = ({
 // ── Main page ──────────────────────────────────────────────────────────────
 
 const WorkflowsPage = (): React.JSX.Element => {
+  const t = useT();
+  const tabDefs = getTabDefs(t);
   const [activeSectionId, setActiveSectionId] = useState(SECTIONS[0]?.id ?? "overview");
   const sectionRefs = useRef<Map<string, HTMLElement>>(new Map());
   const isScrollingRef = useRef(false);
@@ -129,7 +137,7 @@ const WorkflowsPage = (): React.JSX.Element => {
           {/* Anchor-jump TabBar */}
           <div className="sticky top-0 z-10 bg-slate-900/90 backdrop-blur-sm py-2 -mx-4 px-4 mb-6">
             <TabBar
-              tabs={TAB_DEFS}
+              tabs={tabDefs}
               activeTab={activeSectionId}
               onTabChange={handleSectionClick}
               reducedMotion={reducedMotion}
@@ -149,12 +157,8 @@ const WorkflowsPage = (): React.JSX.Element => {
 
           {/* Footer */}
           <Footer>
-            <p className="m-0 mb-1 text-[12px] text-slate-500">
-              本ページの情報は2026年6月時点のもの（リサーチプレビュー段階）です。仕様は変更される可能性があります。
-            </p>
-            <p className="m-0 text-slate-500/50">
-              動的ワークフロー（Dynamic Workflows）— Claude Code
-            </p>
+            <p className="m-0 mb-1 text-[12px] text-slate-500">{t.workflows.footerDate}</p>
+            <p className="m-0 text-slate-500/50">{t.workflows.footerCredit}</p>
           </Footer>
         </div>
       </div>

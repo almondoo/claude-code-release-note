@@ -5,6 +5,7 @@ import promptData from "~/data/prompting/prompting.json";
 import skillData from "~/data/skill-best-practices/skill-best-practices.json";
 import hooksData from "~/data/hooks-best-practices/hooks-best-practices.json";
 import dynamicWorkflowsData from "~/data/dynamic-workflows/dynamic-workflows.json";
+import type { Dictionary } from "~/i18n/dict";
 
 // ---------------------------------------------------------------------------
 // Types — shared
@@ -135,7 +136,7 @@ export interface CategoryConfig<T = AnyItem> {
 }
 
 // ---------------------------------------------------------------------------
-// best-practices config
+// best-practices config (static parts)
 // ---------------------------------------------------------------------------
 
 const bpSections = bpData.sections as BPSection[];
@@ -251,34 +252,8 @@ const bpSectionIcons: Record<string, () => React.JSX.Element> = {
   intuition: () => <LightbulbIcon width={18} height={18} />,
 };
 
-const bpConfig: CategoryConfig<BPItem> = {
-  id: "best-practices",
-  label: "ベストプラクティス",
-  color: "#6366F1",
-  gradient: ["rgba(99,102,241,0.08)", "rgba(16,185,129,0.05)"],
-  description:
-    "環境設定から並列セッションでのスケーリングまで、Claude Code を最大限に活用するためのヒントとパターン。",
-  sections: bpSections,
-  sectionColors: bpSectionColors,
-  sectionIcons: bpSectionIcons,
-  tabDefs: [
-    { id: "all", label: "すべて", color: "#3B82F6" },
-    ...bpSections.map((s) => ({
-      id: s.id,
-      label: s.name,
-      color: bpSectionColors[s.id]?.color || "#3B82F6",
-    })),
-  ],
-  tagColors: {
-    重要: { color: "#F87171", bg: "rgba(239, 68, 68, 0.15)" },
-  },
-  totalItems: bpSections.reduce((sum, s) => sum + s.items.length, 0),
-  itemLabel: "プラクティス",
-  searchPlaceholder: "プラクティスを検索...",
-};
-
 // ---------------------------------------------------------------------------
-// prompting config
+// prompting config (static parts)
 // ---------------------------------------------------------------------------
 
 const promptSections = promptData.sections as PromptSection[];
@@ -409,56 +384,8 @@ const promptTabSectionMap: Record<string, string[]> = {
   "tips-migration": ["capability-tips", "migration"],
 };
 
-const promptConfig: CategoryConfig<PromptItem> = {
-  id: "prompting",
-  label: "プロンプト",
-  color: "#3B82F6",
-  gradient: ["rgba(59,130,246,0.08)", "rgba(6,182,212,0.05)"],
-  description:
-    "Claude の最新モデルにおけるプロンプトエンジニアリングの包括的ガイド。明確さ、例示、XMLタグ、thinking、エージェントシステムなどを網羅。",
-  sections: promptSections,
-  sectionColors: promptSectionColors,
-  sectionIcons: promptSectionIcons,
-  tabDefs: [
-    { id: "all", label: "すべて", color: "#3B82F6" },
-    {
-      id: "foundations",
-      label: "基礎",
-      color: promptSectionColors["general-principles"]?.color || "#3B82F6",
-    },
-    {
-      id: "output",
-      label: "出力",
-      color: promptSectionColors["output-formatting"]?.color || "#3B82F6",
-    },
-    {
-      id: "tools-thinking",
-      label: "ツール・思考",
-      color: promptSectionColors["tool-use"]?.color || "#3B82F6",
-    },
-    {
-      id: "agentic",
-      label: "エージェント",
-      color: promptSectionColors.agentic?.color || "#3B82F6",
-    },
-    {
-      id: "tips-migration",
-      label: "Tips・移行",
-      color: promptSectionColors["capability-tips"]?.color || "#3B82F6",
-    },
-  ],
-  tabSectionMap: promptTabSectionMap,
-  tagColors: {
-    ビジョン: PALETTE.green,
-    デザイン: PALETTE.indigo,
-  },
-  totalItems: promptSections.reduce((sum, s) => sum + s.items.length, 0),
-  itemLabel: "プラクティス",
-  searchPlaceholder: "プラクティスを検索...",
-};
-
 // ---------------------------------------------------------------------------
-// skills config
+// skills config (static parts)
 // ---------------------------------------------------------------------------
 
 const skillSections = skillData.sections as BPSection[];
@@ -588,34 +515,8 @@ const skillSectionIcons: Record<string, () => React.JSX.Element> = {
   "advanced-code": () => <LightbulbIcon width={18} height={18} />,
 };
 
-const skillConfig: CategoryConfig<BPItem> = {
-  id: "skills",
-  label: "スキル",
-  color: "#8B5CF6",
-  gradient: ["rgba(139,92,246,0.08)", "rgba(6,182,212,0.05)"],
-  description: "Claude が発見・活用できる効果的な Agent Skills を作成するためのヒントとパターン。",
-  sections: skillSections,
-  sectionColors: skillSectionColors,
-  sectionIcons: skillSectionIcons,
-  tabDefs: [
-    { id: "all", label: "すべて", color: "#3B82F6" },
-    ...skillSections.map((s) => ({
-      id: s.id,
-      label: s.name,
-      color: skillSectionColors[s.id]?.color || "#3B82F6",
-    })),
-  ],
-  tagColors: {
-    重要: { color: "#F87171", bg: "rgba(239, 68, 68, 0.15)" },
-    テスト: PALETTE.green,
-  },
-  totalItems: skillSections.reduce((sum, s) => sum + s.items.length, 0),
-  itemLabel: "プラクティス",
-  searchPlaceholder: "プラクティスを検索...",
-};
-
 // ---------------------------------------------------------------------------
-// hooks config
+// hooks config (static parts)
 // ---------------------------------------------------------------------------
 
 const hooksSections = hooksData.sections as HooksSection[];
@@ -736,39 +637,8 @@ const hooksSectionIcons: Record<string, () => React.JSX.Element> = {
   ),
 };
 
-const hooksConfig: CategoryConfig<HooksItem> = {
-  id: "hooks",
-  label: "Hooks",
-  color: "#A855F7",
-  gradient: ["rgba(168,85,247,0.08)", "rgba(16,185,129,0.05)"],
-  description:
-    "Claude Code のライフサイクルに Hooks を組み込み、自動フォーマット・セキュリティチェック・通知・監査ログを決定論的に実行するためのガイド。",
-  sections: hooksSections,
-  sectionColors: hooksSectionColors,
-  sectionIcons: hooksSectionIcons,
-  tabDefs: [
-    { id: "all", label: "すべて", color: "#3B82F6" },
-    ...hooksSections.map((s) => ({
-      id: s.id,
-      label: s.name,
-      color: hooksSectionColors[s.id]?.color || "#3B82F6",
-    })),
-  ],
-  tagColors: {
-    重要: { color: "#F87171", bg: "rgba(239, 68, 68, 0.15)" },
-    デバッグ: PALETTE.yellow,
-    自動化: PALETTE.teal,
-    通知: PALETTE.blue,
-    フォーマット: PALETTE.cyan,
-    監査: PALETTE.purple,
-  },
-  totalItems: hooksSections.reduce((sum, s) => sum + s.items.length, 0),
-  itemLabel: "トピック",
-  searchPlaceholder: "Hooks を検索...",
-};
-
 // ---------------------------------------------------------------------------
-// dynamic-workflows config
+// dynamic-workflows config (static parts)
 // ---------------------------------------------------------------------------
 
 const dynamicWorkflowsSections = dynamicWorkflowsData.sections as BPSection[];
@@ -883,65 +753,209 @@ const dynamicWorkflowsSectionIcons: Record<string, () => React.JSX.Element> = {
   ),
 };
 
-const dynamicWorkflowsConfig: CategoryConfig<BPItem> = {
-  id: "dynamic-workflows",
-  label: "ダイナミックワークフロー",
-  color: "#10B981",
-  gradient: ["rgba(16,185,129,0.08)", "rgba(6,182,212,0.05)"],
-  description:
-    "Claude Code の動的ワークフロー（Workflow ツールによるマルチエージェント・オーケストレーション）を実務で使いこなすための Do/Don't・判断基準・チューニング・運用。公式ガイダンスと一次ソースで裏取り。",
-  sections: dynamicWorkflowsSections,
-  sectionColors: dynamicWorkflowsSectionColors,
-  sectionIcons: dynamicWorkflowsSectionIcons,
-  tabDefs: [
-    { id: "all", label: "すべて", color: "#3B82F6" },
-    ...dynamicWorkflowsSections.map((s) => ({
-      id: s.id,
-      label: s.name,
-      color: dynamicWorkflowsSectionColors[s.id]?.color || "#3B82F6",
-    })),
-  ],
-  tagColors: {
-    重要: { color: "#F87171", bg: "rgba(239, 68, 68, 0.15)" },
-    公式: PALETTE.blue,
-    仕様: PALETTE.cyan,
-    研究: PALETTE.purple,
-  },
-  totalItems: dynamicWorkflowsSections.reduce((sum, s) => sum + s.items.length, 0),
-  itemLabel: "プラクティス",
-  searchPlaceholder: "ワークフローを検索...",
-};
-
 // ---------------------------------------------------------------------------
-// Exports
+// Factory functions — build translated configs from dictionary
 // ---------------------------------------------------------------------------
 
-export const CATEGORIES = [
-  { id: "best-practices", label: "ベストプラクティス", color: "#6366F1" },
-  { id: "prompting", label: "プロンプト", color: "#3B82F6" },
-  { id: "skills", label: "スキル", color: "#8B5CF6" },
-  { id: "hooks", label: "Hooks", color: "#A855F7" },
-  { id: "dynamic-workflows", label: "ダイナミックワークフロー", color: "#10B981" },
+type BP = Dictionary["bestPractices"];
+
+export const getCategories = (t: BP) => [
+  { id: "best-practices", label: t.categoryBestPractices, color: "#6366F1" },
+  { id: "prompting", label: t.categoryPrompting, color: "#3B82F6" },
+  { id: "skills", label: t.categorySkills, color: "#8B5CF6" },
+  { id: "hooks", label: t.categoryHooks, color: "#A855F7" },
+  { id: "dynamic-workflows", label: t.categoryDynamicWorkflows, color: "#10B981" },
 ];
 
-export const CATEGORY_CONFIGS: Record<string, CategoryConfig> = {
-  "best-practices": bpConfig,
-  prompting: promptConfig,
-  skills: skillConfig,
-  hooks: hooksConfig,
-  "dynamic-workflows": dynamicWorkflowsConfig,
+export const getCategoryConfigs = (t: BP): Record<string, CategoryConfig> => {
+  const bpConfig: CategoryConfig<BPItem> = {
+    id: "best-practices",
+    label: t.categoryBestPractices,
+    color: "#6366F1",
+    gradient: ["rgba(99,102,241,0.08)", "rgba(16,185,129,0.05)"],
+    description: t.descBestPractices,
+    sections: bpSections,
+    sectionColors: bpSectionColors,
+    sectionIcons: bpSectionIcons,
+    tabDefs: [
+      { id: "all", label: t.tabAll, color: "#3B82F6" },
+      ...bpSections.map((s) => ({
+        id: s.id,
+        label: t.sectionLabels[s.id] ?? s.name,
+        color: bpSectionColors[s.id]?.color || "#3B82F6",
+      })),
+    ],
+    tagColors: {
+      重要: { color: "#F87171", bg: "rgba(239, 68, 68, 0.15)" },
+    },
+    totalItems: bpSections.reduce((sum, s) => sum + s.items.length, 0),
+    itemLabel: t.itemLabelPractice,
+    searchPlaceholder: t.searchPlaceholderPractice,
+  };
+
+  const promptConfig: CategoryConfig<PromptItem> = {
+    id: "prompting",
+    label: t.categoryPrompting,
+    color: "#3B82F6",
+    gradient: ["rgba(59,130,246,0.08)", "rgba(6,182,212,0.05)"],
+    description: t.descPrompting,
+    sections: promptSections,
+    sectionColors: promptSectionColors,
+    sectionIcons: promptSectionIcons,
+    tabDefs: [
+      { id: "all", label: t.tabAll, color: "#3B82F6" },
+      {
+        id: "foundations",
+        label: t.tabFoundations,
+        color: promptSectionColors["general-principles"]?.color || "#3B82F6",
+      },
+      {
+        id: "output",
+        label: t.tabOutput,
+        color: promptSectionColors["output-formatting"]?.color || "#3B82F6",
+      },
+      {
+        id: "tools-thinking",
+        label: t.tabToolsThinking,
+        color: promptSectionColors["tool-use"]?.color || "#3B82F6",
+      },
+      {
+        id: "agentic",
+        label: t.tabAgentic,
+        color: promptSectionColors.agentic?.color || "#3B82F6",
+      },
+      {
+        id: "tips-migration",
+        label: t.tabTipsMigration,
+        color: promptSectionColors["capability-tips"]?.color || "#3B82F6",
+      },
+    ],
+    tabSectionMap: promptTabSectionMap,
+    tagColors: {
+      ビジョン: PALETTE.green,
+      デザイン: PALETTE.indigo,
+    },
+    totalItems: promptSections.reduce((sum, s) => sum + s.items.length, 0),
+    itemLabel: t.itemLabelPractice,
+    searchPlaceholder: t.searchPlaceholderPractice,
+  };
+
+  const skillConfig: CategoryConfig<BPItem> = {
+    id: "skills",
+    label: t.categorySkills,
+    color: "#8B5CF6",
+    gradient: ["rgba(139,92,246,0.08)", "rgba(6,182,212,0.05)"],
+    description: t.descSkills,
+    sections: skillSections,
+    sectionColors: skillSectionColors,
+    sectionIcons: skillSectionIcons,
+    tabDefs: [
+      { id: "all", label: t.tabAll, color: "#3B82F6" },
+      ...skillSections.map((s) => ({
+        id: s.id,
+        label: t.sectionLabels[s.id] ?? s.name,
+        color: skillSectionColors[s.id]?.color || "#3B82F6",
+      })),
+    ],
+    tagColors: {
+      重要: { color: "#F87171", bg: "rgba(239, 68, 68, 0.15)" },
+      テスト: PALETTE.green,
+    },
+    totalItems: skillSections.reduce((sum, s) => sum + s.items.length, 0),
+    itemLabel: t.itemLabelPractice,
+    searchPlaceholder: t.searchPlaceholderPractice,
+  };
+
+  const hooksConfig: CategoryConfig<HooksItem> = {
+    id: "hooks",
+    label: t.categoryHooks,
+    color: "#A855F7",
+    gradient: ["rgba(168,85,247,0.08)", "rgba(16,185,129,0.05)"],
+    description: t.descHooks,
+    sections: hooksSections,
+    sectionColors: hooksSectionColors,
+    sectionIcons: hooksSectionIcons,
+    tabDefs: [
+      { id: "all", label: t.tabAll, color: "#3B82F6" },
+      ...hooksSections.map((s) => ({
+        id: s.id,
+        label: t.sectionLabels[s.id] ?? s.name,
+        color: hooksSectionColors[s.id]?.color || "#3B82F6",
+      })),
+    ],
+    tagColors: {
+      重要: { color: "#F87171", bg: "rgba(239, 68, 68, 0.15)" },
+      デバッグ: PALETTE.yellow,
+      自動化: PALETTE.teal,
+      通知: PALETTE.blue,
+      フォーマット: PALETTE.cyan,
+      監査: PALETTE.purple,
+    },
+    totalItems: hooksSections.reduce((sum, s) => sum + s.items.length, 0),
+    itemLabel: t.itemLabelTopic,
+    searchPlaceholder: t.searchPlaceholderHooks,
+  };
+
+  const dynamicWorkflowsConfig: CategoryConfig<BPItem> = {
+    id: "dynamic-workflows",
+    label: t.categoryDynamicWorkflows,
+    color: "#10B981",
+    gradient: ["rgba(16,185,129,0.08)", "rgba(6,182,212,0.05)"],
+    description: t.descDynamicWorkflows,
+    sections: dynamicWorkflowsSections,
+    sectionColors: dynamicWorkflowsSectionColors,
+    sectionIcons: dynamicWorkflowsSectionIcons,
+    tabDefs: [
+      { id: "all", label: t.tabAll, color: "#3B82F6" },
+      ...dynamicWorkflowsSections.map((s) => ({
+        id: s.id,
+        label: t.sectionLabels[s.id] ?? s.name,
+        color: dynamicWorkflowsSectionColors[s.id]?.color || "#3B82F6",
+      })),
+    ],
+    tagColors: {
+      重要: { color: "#F87171", bg: "rgba(239, 68, 68, 0.15)" },
+      公式: PALETTE.blue,
+      仕様: PALETTE.cyan,
+      研究: PALETTE.purple,
+    },
+    totalItems: dynamicWorkflowsSections.reduce((sum, s) => sum + s.items.length, 0),
+    itemLabel: t.itemLabelPractice,
+    searchPlaceholder: t.searchPlaceholderWorkflow,
+  };
+
+  return {
+    "best-practices": bpConfig,
+    prompting: promptConfig,
+    skills: skillConfig,
+    hooks: hooksConfig,
+    "dynamic-workflows": dynamicWorkflowsConfig,
+  };
 };
 
 // ---------------------------------------------------------------------------
 // Unified item → section lookup map
+// Built from static (untranslated) section data — sectionName comes from JSON.
 // ---------------------------------------------------------------------------
 
 export const ITEM_SECTION_MAP = new Map<
   string,
   { sectionName: string; sectionId: string; categoryId: string }
 >();
-for (const [categoryId, config] of Object.entries(CATEGORY_CONFIGS)) {
-  for (const section of config.sections) {
+
+const _allStaticSections: Array<{
+  categoryId: string;
+  sections: { id: string; name: string; items: { id: string }[] }[];
+}> = [
+  { categoryId: "best-practices", sections: bpSections },
+  { categoryId: "prompting", sections: promptSections },
+  { categoryId: "skills", sections: skillSections },
+  { categoryId: "hooks", sections: hooksSections },
+  { categoryId: "dynamic-workflows", sections: dynamicWorkflowsSections },
+];
+
+for (const { categoryId, sections } of _allStaticSections) {
+  for (const section of sections) {
     for (const item of section.items) {
       ITEM_SECTION_MAP.set(item.id, {
         sectionName: section.name,
@@ -951,3 +965,63 @@ for (const [categoryId, config] of Object.entries(CATEGORY_CONFIGS)) {
     }
   }
 }
+
+// ---------------------------------------------------------------------------
+// Static (non-translated) category data for detail-modal.tsx
+// Only includes the fields that don't require translation: sectionIcons,
+// sections (for item lookup), and tagColors.
+// ---------------------------------------------------------------------------
+
+export interface StaticCategoryConfig {
+  sections: { id: string; name: string; items: { id: string }[] }[];
+  sectionIcons: Record<string, () => React.JSX.Element>;
+  tagColors: Record<string, { color: string; bg: string }>;
+}
+
+export const CATEGORY_CONFIGS: Record<string, StaticCategoryConfig> = {
+  "best-practices": {
+    sections: bpSections,
+    sectionIcons: bpSectionIcons,
+    tagColors: {
+      重要: { color: "#F87171", bg: "rgba(239, 68, 68, 0.15)" },
+    },
+  },
+  prompting: {
+    sections: promptSections,
+    sectionIcons: promptSectionIcons,
+    tagColors: {
+      ビジョン: PALETTE.green,
+      デザイン: PALETTE.indigo,
+    },
+  },
+  skills: {
+    sections: skillSections,
+    sectionIcons: skillSectionIcons,
+    tagColors: {
+      重要: { color: "#F87171", bg: "rgba(239, 68, 68, 0.15)" },
+      テスト: PALETTE.green,
+    },
+  },
+  hooks: {
+    sections: hooksSections,
+    sectionIcons: hooksSectionIcons,
+    tagColors: {
+      重要: { color: "#F87171", bg: "rgba(239, 68, 68, 0.15)" },
+      デバッグ: PALETTE.yellow,
+      自動化: PALETTE.teal,
+      通知: PALETTE.blue,
+      フォーマット: PALETTE.cyan,
+      監査: PALETTE.purple,
+    },
+  },
+  "dynamic-workflows": {
+    sections: dynamicWorkflowsSections,
+    sectionIcons: dynamicWorkflowsSectionIcons,
+    tagColors: {
+      重要: { color: "#F87171", bg: "rgba(239, 68, 68, 0.15)" },
+      公式: PALETTE.blue,
+      仕様: PALETTE.cyan,
+      研究: PALETTE.purple,
+    },
+  },
+};

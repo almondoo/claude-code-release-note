@@ -66,8 +66,8 @@ export const HIGHLIGHT_STYLES: Record<
 
 // ── Difficulty colors ────────────────────────────────────────────────────
 
-export const DIFFICULTY_COLORS: Record<string, { color: string; bg: string; label: string }> = {
-  easy: { color: "#10B981", bg: "rgba(16,185,129,0.12)", label: "初級" },
-  medium: { color: "#F59E0B", bg: "rgba(245,158,11,0.12)", label: "中級" },
-  hard: { color: "#EF4444", bg: "rgba(239,68,68,0.12)", label: "上級" },
+export const DIFFICULTY_COLORS: Record<string, { color: string; bg: string }> = {
+  easy: { color: "#10B981", bg: "rgba(16,185,129,0.12)" },
+  medium: { color: "#F59E0B", bg: "rgba(245,158,11,0.12)" },
+  hard: { color: "#EF4444", bg: "rgba(239,68,68,0.12)" },
 };

@@ -1,6 +1,7 @@
-import { TAG_COLORS, TAG_LABELS } from "~/components/badge";
+import { TAG_COLORS } from "~/components/badge";
 import { BaseCard } from "~/components/base-card";
 import { ExternalLinkIcon } from "~/components/icons";
+import { useT } from "~/i18n/useT";
 
 import type { ReleaseItem } from "./constants";
 import { VERSION_DETAILS_AVAILABLE } from "./constants";
@@ -12,6 +13,7 @@ export const TagCountBadge = ({
   tag: string;
   count: number;
 }): React.JSX.Element => {
+  const t = useT();
   return (
     <span
       className="inline-flex items-center gap-[3px] px-[7px] py-[2px] rounded text-[11px] font-semibold"
@@ -21,7 +23,7 @@ export const TagCountBadge = ({
         letterSpacing: "0.2px",
       }}
     >
-      {TAG_LABELS[tag] ?? tag}
+      {t.tags[tag] ?? tag}
       <span className="opacity-50">{count}</span>
     </span>
   );
@@ -48,6 +50,7 @@ export const VersionCard = ({
   accentColor: string;
   onClick: () => void;
 }): React.JSX.Element => {
+  const t = useT();
   const sortedTags = computeSortedTagCounts(items);
   const hasDetails = VERSION_DETAILS_AVAILABLE.has(version);
 
@@ -65,7 +68,7 @@ export const VersionCard = ({
           v{version}
         </span>
         <span className="text-[12px] text-slate-500 font-mono bg-slate-900 px-2 py-[2px] rounded">
-          {items.length}件
+          {t.releaseNote.itemCount(items.length)}
         </span>
       </div>
 
@@ -92,7 +95,9 @@ export const VersionCard = ({
           </span>
         ))}
         {items.length > 2 && (
-          <span className="text-slate-500 text-[12px]">他 {items.length - 2} 件...</span>
+          <span className="text-slate-500 text-[12px]">
+            {t.releaseNote.moreItems(items.length - 2)}
+          </span>
         )}
       </div>
 
@@ -100,7 +105,7 @@ export const VersionCard = ({
       {hasDetails && (
         <div className="flex items-center gap-1 text-[11px] font-semibold text-blue-500 mt-auto">
           <ExternalLinkIcon />
-          詳細あり
+          {t.releaseNote.hasDetail}
         </div>
       )}
     </BaseCard>
