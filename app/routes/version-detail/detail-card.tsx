@@ -4,12 +4,19 @@ import { motion, AnimatePresence } from "motion/react";
 import { ChevronDownIcon } from "~/components/icons";
 import { Badge, TAG_COLORS_BY_LABEL, TAG_LABELS } from "~/components/badge";
 import { ParagraphList } from "~/components/paragraph-list";
+import { useL } from "~/i18n/localize";
 
 import type { ReleaseItem, DetailItem } from "./constants";
 
 const DEFAULT_CATEGORY_COLOR = { bg: "rgba(59, 130, 246, 0.1)", text: "#60A5FA" };
 
-export const CategoryBadge = ({ category }: { category: string }): React.JSX.Element => {
+export const CategoryBadge = ({
+  category,
+  displayLabel,
+}: {
+  category: string;
+  displayLabel: string;
+}): React.JSX.Element => {
   const colors = TAG_COLORS_BY_LABEL[category] ?? DEFAULT_CATEGORY_COLOR;
 
   return (
@@ -22,7 +29,7 @@ export const CategoryBadge = ({ category }: { category: string }): React.JSX.Ele
         letterSpacing: "0.2px",
       }}
     >
-      {category}
+      {displayLabel}
     </span>
   );
 };
@@ -37,6 +44,7 @@ export const DetailCard = ({
   reducedMotion: boolean | null;
 }): React.JSX.Element => {
   const [isOpen, setIsOpen] = useState(false);
+  const L = useL();
 
   const toggle = () => {
     setIsOpen((prev) => !prev);
@@ -77,10 +85,13 @@ export const DetailCard = ({
                 .map((tag) => (
                   <Badge key={tag} tag={tag} />
                 ))}
-              <CategoryBadge category={item.category} />
+              <CategoryBadge
+                category={item.category}
+                displayLabel={L(item.category, item.category_en)}
+              />
             </div>
             <p className="text-slate-100 text-sm leading-[1.7] m-0 font-sans break-words">
-              {item.t}
+              {L(item.t, item.t_en)}
             </p>
           </div>
           <div
@@ -107,7 +118,7 @@ export const DetailCard = ({
             <div className="px-[18px] pb-[18px] border-t border-slate-700/25">
               <div className="mt-4 p-4 bg-slate-900 rounded-lg border border-slate-700/40">
                 <ParagraphList
-                  content={item.detail}
+                  content={L(item.detail, item.detail_en)}
                   className="text-slate-300 text-[14px] leading-[1.9] m-0 font-sans break-words"
                 />
               </div>
@@ -120,6 +131,7 @@ export const DetailCard = ({
 };
 
 export const FallbackCard = ({ item }: { item: ReleaseItem }): React.JSX.Element => {
+  const L = useL();
   return (
     <div className="bg-surface rounded-xl border border-slate-700 px-[18px] py-4">
       <div className="flex gap-1.5 flex-wrap mb-2">
@@ -127,7 +139,7 @@ export const FallbackCard = ({ item }: { item: ReleaseItem }): React.JSX.Element
           <Badge key={tag} tag={tag} />
         ))}
       </div>
-      <p className="text-slate-300 text-sm leading-[1.7] m-0 font-sans">{item.t}</p>
+      <p className="text-slate-300 text-sm leading-[1.7] m-0 font-sans">{L(item.t, item.t_en)}</p>
     </div>
   );
 };

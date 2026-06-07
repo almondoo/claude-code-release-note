@@ -4,11 +4,15 @@ import { Link, useParams, Navigate } from "react-router";
 
 import { Footer } from "~/components/footer";
 import { ArrowLeftIcon } from "~/components/icons";
-import { dictFromMatches } from "~/i18n/meta";
+import { LanguageToggle } from "~/components/language-toggle";
+import { localeFromMatches, dictFromMatches } from "~/i18n/meta";
+import { pickLocale, useL } from "~/i18n/localize";
 import { useT } from "~/i18n/useT";
 
 import { TOPIC_MAP, DIFFICULTY_COLORS, type Approach } from "./constants";
 import { StepRenderer, IntroBlockRenderer } from "./step-renderer";
+
+type LocalizeFn = <T extends string | string[]>(ja: T, en?: T) => T;
 
 // ── Meta ──────────────────────────────────────────────────────────────────
 
@@ -20,10 +24,14 @@ export const meta = ({
   params: { topic: string };
 }): Array<{ title?: string; name?: string; content?: string }> => {
   const d = dictFromMatches(matches);
+  const locale = localeFromMatches(matches);
   const topic = TOPIC_MAP[params.topic];
+  const topicTitle = topic
+    ? pickLocale(topic.title, topic.title_en, locale)
+    : d.handsOn.metaTitleFallback;
   return [
     {
-      title: `${topic?.title ?? d.handsOn.metaTitleFallback}${d.handsOn.metaTitleSuffix}`,
+      title: `${topicTitle}${d.handsOn.metaTitleSuffix}`,
     },
   ];
 };
@@ -34,10 +42,12 @@ const ApproachTabs = ({
   approaches,
   activeId,
   onSelect,
+  L,
 }: {
   approaches: Approach[];
   activeId: string;
   onSelect: (id: string) => void;
+  L: LocalizeFn;
 }): React.JSX.Element => {
   return (
     <div className="mb-8">
@@ -72,14 +82,14 @@ const ApproachTabs = ({
                     color: isActive ? "#E2E8F0" : "#94A3B8",
                   }}
                 >
-                  {a.label}
+                  {L(a.label, a.label_en)}
                 </span>
               </div>
               <p
                 className="text-[12px] m-0 ml-4"
                 style={{ color: isActive ? "#94A3B8" : "#64748B" }}
               >
-                {a.description}
+                {L(a.description, a.description_en)}
               </p>
             </button>
           );
@@ -93,6 +103,7 @@ const ApproachTabs = ({
 
 const HandsOnTopic = (): React.JSX.Element => {
   const t = useT();
+  const L = useL();
   const { topic: topicId } = useParams();
   const reducedMotion = useReducedMotion();
 
@@ -129,7 +140,7 @@ const HandsOnTopic = (): React.JSX.Element => {
           initial={m ? false : { opacity: 0, x: -10 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.3 }}
-          className="mb-6"
+          className="mb-6 flex items-center justify-between"
         >
           <Link
             to="/hands-on"
@@ -138,6 +149,7 @@ const HandsOnTopic = (): React.JSX.Element => {
             <ArrowLeftIcon />
             {t.handsOn.backToList}
           </Link>
+          <LanguageToggle />
         </motion.div>
 
         {/* Topic Header */}
@@ -169,7 +181,7 @@ const HandsOnTopic = (): React.JSX.Element => {
                   background: "rgba(100,116,139,0.12)",
                 }}
               >
-                {topic.estimatedTime}
+                {L(topic.estimatedTime, topic.estimatedTime_en)}
               </span>
               <span className="text-[11px] text-slate-500">
                 {t.handsOn.steps(stepCount)}
@@ -177,7 +189,7 @@ const HandsOnTopic = (): React.JSX.Element => {
               </span>
             </div>
             <h1 className="text-[24px] font-bold text-slate-100 m-0 mb-2 leading-snug">
-              {topic.title}
+              {L(topic.title, topic.title_en)}
             </h1>
           </div>
         </motion.div>
@@ -191,7 +203,7 @@ const HandsOnTopic = (): React.JSX.Element => {
             className="mb-8 flex flex-col gap-4"
           >
             {topic.intro.map((block, i) => (
-              <IntroBlockRenderer key={i} block={block} />
+              <IntroBlockRenderer key={i} block={block} L={L} />
             ))}
           </motion.div>
         )}
@@ -202,6 +214,7 @@ const HandsOnTopic = (): React.JSX.Element => {
             approaches={topic.approaches!}
             activeId={activeApproach!.id}
             onSelect={setActiveApproachId}
+            L={L}
           />
         )}
 
@@ -216,7 +229,7 @@ const HandsOnTopic = (): React.JSX.Element => {
             className="mb-10"
           >
             {steps.map((step, i) => (
-              <StepRenderer key={step.id} step={step} index={i} accentColor={accentColor} />
+              <StepRenderer key={step.id} step={step} index={i} accentColor={accentColor} L={L} />
             ))}
           </motion.div>
         </AnimatePresence>
@@ -247,11 +260,11 @@ const HandsOnTopic = (): React.JSX.Element => {
                     <line x1="10" y1="22" x2="14" y2="22" />
                     <path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14" />
                   </svg>
-                  {tip.title}
+                  {L(tip.title, tip.title_en)}
                 </h2>
                 <div className="flex flex-col gap-3">
                   {tip.blocks.map((block, bi) => (
-                    <IntroBlockRenderer key={bi} block={block} />
+                    <IntroBlockRenderer key={bi} block={block} L={L} />
                   ))}
                 </div>
               </div>
@@ -284,7 +297,7 @@ const HandsOnTopic = (): React.JSX.Element => {
             {t.handsOn.learned}
           </h2>
           <ul className="text-[14px] text-slate-300 leading-[1.8] m-0 pl-5 flex flex-col gap-2">
-            {topic.summary.map((item, i) => (
+            {L(topic.summary, topic.summary_en).map((item, i) => (
               <li key={i}>{item}</li>
             ))}
           </ul>

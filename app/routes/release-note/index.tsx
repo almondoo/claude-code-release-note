@@ -6,6 +6,7 @@ import { EmptyState } from "~/components/empty-state";
 import { Footer } from "~/components/footer";
 import { PageHeader } from "~/components/page-header";
 import { SearchInput } from "~/components/search-input";
+import { useL } from "~/i18n/localize";
 import { dictFromMatches } from "~/i18n/meta";
 import { useT } from "~/i18n/useT";
 
@@ -32,6 +33,7 @@ const ReleaseNote = (): React.JSX.Element => {
   const reducedMotion = useReducedMotion();
   const tabsRef = useRef<HTMLDivElement>(null);
   const t = useT();
+  const L = useL();
 
   const m = reducedMotion
     ? { initial: undefined, animate: undefined, transition: undefined }
@@ -47,11 +49,11 @@ const ReleaseNote = (): React.JSX.Element => {
       ...release,
       items: release.items.filter((item) => {
         const tagMatch = activeTab === "all" || item.tags.includes(activeTab);
-        const queryMatch = !query || item.t.toLowerCase().includes(lowerQuery);
+        const queryMatch = !query || L(item.t, item.t_en).toLowerCase().includes(lowerQuery);
         return tagMatch && queryMatch;
       }),
     })).filter((release) => release.items.length > 0);
-  }, [activeTab, query]);
+  }, [activeTab, query, L]);
 
   const totalItems = filtered.reduce((sum, r) => sum + r.items.length, 0);
 

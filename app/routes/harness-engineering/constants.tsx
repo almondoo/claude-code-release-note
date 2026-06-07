@@ -13,27 +13,38 @@ import type { Dictionary } from "~/i18n/dict";
 
 export interface HETable {
   title: string;
+  title_en?: string;
   headers: string[];
+  headers_en?: string[];
   rows: string[][];
+  rows_en?: string[][];
 }
 
 export interface HEItem {
   id: string;
   title: string;
+  title_en?: string;
   summary: string;
+  summary_en?: string;
   content: string;
+  content_en?: string;
   tags: string[];
   tables?: HETable[];
   code?: string;
   tips?: string[];
+  tips_en?: string[];
   gotchas?: string[];
+  gotchas_en?: string[];
   realWorld?: string[];
+  realWorld_en?: string[];
 }
 
 export interface HESection {
   id: string;
   name: string;
+  name_en?: string;
   description: string;
+  description_en?: string;
   items: HEItem[];
 }
 

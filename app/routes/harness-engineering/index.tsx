@@ -10,6 +10,7 @@ import { TabBar } from "~/components/tab-bar";
 import type { TabItem } from "~/components/tab-bar";
 import { usePageState } from "~/hooks/usePageState";
 import { dictFromMatches } from "~/i18n/meta";
+import { useL } from "~/i18n/localize";
 import { useT } from "~/i18n/useT";
 
 import {
@@ -62,6 +63,7 @@ const renderTabIcon = (tab: TabItem): React.ReactNode => {
 
 const HarnessEngineering = (): React.JSX.Element => {
   const t = useT();
+  const L = useL();
   const tabDefs = getTabDefs(t);
   const {
     query,
@@ -73,8 +75,17 @@ const HarnessEngineering = (): React.JSX.Element => {
     openModal,
     closeModal,
   } = usePageState({
-    sections: SECTIONS.map((s) => ({ id: s.id, name: s.name, items: s.items })),
-    searchFields: (item) => [item.title, item.summary, item.content, ...item.tags],
+    sections: SECTIONS.map((s) => ({
+      id: s.id,
+      name: L(s.name, s.name_en),
+      items: s.items,
+    })),
+    searchFields: (item) => [
+      L(item.title, item.title_en),
+      L(item.summary, item.summary_en),
+      L(item.content, item.content_en),
+      ...item.tags,
+    ],
     tabSectionMap: TAB_SECTION_MAP,
   });
   const reducedMotion = useReducedMotion();
@@ -142,6 +153,10 @@ const HarnessEngineering = (): React.JSX.Element => {
               color: "#3B82F6",
               bg: "rgba(59,130,246,0.15)",
             };
+            const sectionData = SECTIONS.find((s) => s.id === section.id);
+            const sectionName = sectionData
+              ? L(sectionData.name, sectionData.name_en)
+              : section.name;
             return (
               <div key={section.id}>
                 {/* Section header */}
@@ -152,7 +167,7 @@ const HarnessEngineering = (): React.JSX.Element => {
                     </span>
                   )}
                   <h2 className="text-base font-bold m-0" style={{ color: colors.color }}>
-                    {section.name}
+                    {sectionName}
                   </h2>
                   <span className="text-xs text-slate-500">
                     {t.harness.itemCount(section.items.length)}
@@ -165,11 +180,11 @@ const HarnessEngineering = (): React.JSX.Element => {
                   keyExtractor={(item) => item.id}
                   renderItem={(item) => (
                     <SummaryCard
-                      title={item.title}
-                      description={item.summary}
+                      title={L(item.title, item.title_en)}
+                      description={L(item.summary, item.summary_en)}
                       tags={item.tags}
                       accentColor={colors.color}
-                      sectionName={section.name}
+                      sectionName={sectionName}
                       onClick={() => openModal(item.id)}
                       tagColors={TAG_COLORS}
                     />

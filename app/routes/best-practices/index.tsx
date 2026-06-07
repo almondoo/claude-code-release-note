@@ -11,6 +11,7 @@ import { TabBar } from "~/components/tab-bar";
 import type { TabItem } from "~/components/tab-bar";
 import { usePageState } from "~/hooks/usePageState";
 import { dictFromMatches } from "~/i18n/meta";
+import { useL } from "~/i18n/localize";
 import { useT } from "~/i18n/useT";
 
 import type { AnyItem } from "./constants";
@@ -90,6 +91,7 @@ const CategoryContent = ({
   categoryConfigs: ReturnType<typeof getCategoryConfigs>;
 }) => {
   const t = useT();
+  const L = useL();
   const config = categoryConfigs[categoryId];
 
   const renderTabIcon = (tab: TabItem): React.ReactNode => {
@@ -123,7 +125,15 @@ const CategoryContent = ({
     closeModal,
   } = usePageState({
     sections: config.sections.map((s) => ({ id: s.id, name: s.name, items: s.items })),
-    searchFields: (item: AnyItem) => [item.title, item.summary, item.content, ...item.tags],
+    searchFields: (item: AnyItem) => [
+      item.title,
+      item.title_en ?? "",
+      item.summary,
+      item.summary_en ?? "",
+      item.content,
+      item.content_en ?? "",
+      ...item.tags,
+    ],
     ...(config.tabSectionMap ? { tabSectionMap: config.tabSectionMap } : {}),
   });
 
@@ -194,8 +204,8 @@ const CategoryContent = ({
                 keyExtractor={(item: AnyItem) => item.id}
                 renderItem={(item: AnyItem) => (
                   <SummaryCard
-                    title={item.title}
-                    description={item.summary}
+                    title={L(item.title, item.title_en)}
+                    description={L(item.summary, item.summary_en)}
                     tags={item.tags}
                     accentColor={colors.color}
                     sectionName={section.name}

@@ -7,41 +7,64 @@ import topicParallelImplementation from "~/data/hands-on/topic-parallel-implemen
 export type HighlightVariant = "info" | "warning" | "success" | "tip";
 
 export type ContentBlock =
-  | { type: "text"; content: string }
-  | { type: "codeBlock"; language: string; code: string; filename?: string; caption?: string }
-  | { type: "highlight"; variant: HighlightVariant; title?: string; content: string }
-  | { type: "list"; ordered?: boolean; items: string[] };
+  | { type: "text"; content: string; content_en?: string }
+  | {
+      type: "codeBlock";
+      language: string;
+      code: string;
+      filename?: string;
+      caption?: string;
+      caption_en?: string;
+    }
+  | {
+      type: "highlight";
+      variant: HighlightVariant;
+      title?: string;
+      title_en?: string;
+      content: string;
+      content_en?: string;
+    }
+  | { type: "list"; ordered?: boolean; items: string[]; items_en?: string[] };
 
 export interface Step {
   id: string;
   label: string;
+  label_en?: string;
   title: string;
+  title_en?: string;
   description: string;
+  description_en?: string;
   blocks: ContentBlock[];
 }
 
 export interface Approach {
   id: string;
   label: string;
+  label_en?: string;
   description: string;
+  description_en?: string;
   steps: Step[];
 }
 
 export interface CommonTip {
   title: string;
+  title_en?: string;
   blocks: ContentBlock[];
 }
 
 export interface TopicDetail {
   topicId: string;
   title: string;
+  title_en?: string;
   difficulty: "easy" | "medium" | "hard";
   estimatedTime: string;
+  estimatedTime_en?: string;
   steps?: Step[];
   intro?: ContentBlock[];
   approaches?: Approach[];
   commonTips?: CommonTip[];
   summary: string[];
+  summary_en?: string[];
 }
 
 // ── Data ─────────────────────────────────────────────────────────────────

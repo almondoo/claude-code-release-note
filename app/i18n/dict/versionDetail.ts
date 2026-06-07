@@ -8,6 +8,8 @@ const ja = {
   hasDetail: "詳細情報あり",
   prevVersion: "前のバージョン",
   nextVersion: "次のバージョン",
+  metaTitle: (v: string) => `v${v} のリリース詳細 - Claude Code リリースノート`,
+  metaDescription: (v: string) => `Claude Code v${v} の変更内容・詳細情報を日本語で確認できます。`,
 };
 
 const en: typeof ja = {
@@ -19,6 +21,9 @@ const en: typeof ja = {
   hasDetail: "Detail available",
   prevVersion: "Previous version",
   nextVersion: "Next version",
+  metaTitle: (v: string) => `Release details for v${v} - Claude Code Release Notes`,
+  metaDescription: (v: string) =>
+    `Browse the full changelog and release details for Claude Code v${v}.`,
 };
 
 export const versionDetail = { ja, en };

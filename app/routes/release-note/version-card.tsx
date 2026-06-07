@@ -1,6 +1,7 @@
 import { TAG_COLORS } from "~/components/badge";
 import { BaseCard } from "~/components/base-card";
 import { ExternalLinkIcon } from "~/components/icons";
+import { useL } from "~/i18n/localize";
 import { useT } from "~/i18n/useT";
 
 import type { ReleaseItem } from "./constants";
@@ -51,6 +52,7 @@ export const VersionCard = ({
   onClick: () => void;
 }): React.JSX.Element => {
   const t = useT();
+  const L = useL();
   const sortedTags = computeSortedTagCounts(items);
   const hasDetails = VERSION_DETAILS_AVAILABLE.has(version);
 
@@ -91,7 +93,7 @@ export const VersionCard = ({
             key={i}
             className="text-slate-300 text-xs leading-normal overflow-hidden text-ellipsis whitespace-nowrap font-sans"
           >
-            {item.t}
+            {L(item.t, item.t_en)}
           </span>
         ))}
         {items.length > 2 && (

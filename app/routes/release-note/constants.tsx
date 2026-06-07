@@ -15,10 +15,11 @@ import {
   WrenchIcon,
 } from "~/components/icons";
 import type { Dictionary } from "~/i18n/dict";
-import { RELEASES, VERSION_DETAILS } from "~/data/releases";
+import { RELEASES as RAW_RELEASES, VERSION_DETAILS } from "~/data/releases";
 
 export interface ReleaseItem {
   t: string;
+  t_en?: string;
   tags: string[];
 }
 
@@ -33,7 +34,8 @@ export interface TabDef {
   color: string;
 }
 
-export { RELEASES };
+// JSON 推論型を、英語フィールド(t_en?)を含む ReleaseVersion[] へ型付け。
+export const RELEASES = RAW_RELEASES as ReleaseVersion[];
 
 export const ALL_TAGS = Object.keys(TAG_COLORS);
 

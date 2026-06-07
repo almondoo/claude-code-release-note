@@ -5,13 +5,14 @@
 // 使い方: export const meta = ({ matches }) => { const d = dictFromMatches(matches); ... }
 // ---------------------------------------------------------------------------
 
-import { DEFAULT_LOCALE, isLocale } from "./config";
+import { DEFAULT_LOCALE, isLocale, type Locale } from "./config";
 import { DICT, type Dictionary } from "./dict";
 
-export const dictFromMatches = (
-  matches: readonly ({ data?: unknown } | undefined)[],
-): Dictionary => {
+/** meta() の matches から root loader が解決した locale を取り出す（無効/未設定なら ja）。 */
+export const localeFromMatches = (matches: readonly ({ data?: unknown } | undefined)[]): Locale => {
   const rootData = matches[0]?.data as { locale?: unknown } | undefined;
-  const locale = isLocale(rootData?.locale) ? rootData.locale : DEFAULT_LOCALE;
-  return DICT[locale];
+  return isLocale(rootData?.locale) ? rootData.locale : DEFAULT_LOCALE;
 };
+
+export const dictFromMatches = (matches: readonly ({ data?: unknown } | undefined)[]): Dictionary =>
+  DICT[localeFromMatches(matches)];

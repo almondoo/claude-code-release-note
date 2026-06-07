@@ -3,6 +3,7 @@ import { Link } from "react-router";
 import { Badge } from "~/components/badge";
 import { DetailModalShell } from "~/components/detail-modal";
 import { renderInlineMarkdown } from "~/components/paragraph-list";
+import { useL } from "~/i18n/localize";
 import { useT } from "~/i18n/useT";
 
 import type { ReleaseItem } from "./constants";
@@ -21,6 +22,7 @@ export const DetailModal = ({
   reducedMotion: boolean | null;
 }): React.JSX.Element => {
   const t = useT();
+  const L = useL();
   const hasDetails = VERSION_DETAILS_AVAILABLE.has(version);
   const sortedTags = computeSortedTagCounts(items);
 
@@ -65,7 +67,7 @@ export const DetailModal = ({
                 ))}
               </div>
               <span className="text-slate-100 text-[14px] leading-relaxed break-words font-sans">
-                {renderInlineMarkdown(item.t)}
+                {renderInlineMarkdown(L(item.t, item.t_en))}
               </span>
             </div>
           </div>

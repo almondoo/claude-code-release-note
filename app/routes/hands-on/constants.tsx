@@ -8,16 +8,20 @@ export type Difficulty = "easy" | "medium" | "hard";
 export interface TopicMeta {
   id: string;
   title: string;
+  title_en?: string;
   description: string;
+  description_en?: string;
   difficulty: Difficulty;
   estimatedTime: string;
+  estimatedTime_en?: string;
   tags: string[];
   prerequisites: string[];
+  prerequisites_en?: string[];
   icon: string;
 }
 
 export interface TopicsData {
-  meta: { title: string; description: string };
+  meta: { title: string; title_en?: string; description: string; description_en?: string };
   topics: TopicMeta[];
 }
 

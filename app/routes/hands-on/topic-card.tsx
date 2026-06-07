@@ -1,6 +1,7 @@
 import { Link } from "react-router";
 import { motion, useReducedMotion } from "motion/react";
 
+import { useL } from "~/i18n/localize";
 import { useT } from "~/i18n/useT";
 
 import { type TopicMeta, DIFFICULTY_COLORS, TAG_COLORS, TOPIC_ICONS } from "./constants";
@@ -12,6 +13,7 @@ interface TopicCardProps {
 
 export const TopicCard = ({ topic, index }: TopicCardProps): React.JSX.Element => {
   const t = useT();
+  const L = useL();
   const reducedMotion = useReducedMotion();
   const diff = DIFFICULTY_COLORS[topic.difficulty];
   const IconRenderer = TOPIC_ICONS[topic.icon];
@@ -53,19 +55,19 @@ export const TopicCard = ({ topic, index }: TopicCardProps): React.JSX.Element =
                 background: "rgba(100,116,139,0.12)",
               }}
             >
-              {topic.estimatedTime}
+              {L(topic.estimatedTime, topic.estimatedTime_en)}
             </span>
           </div>
         </div>
 
         {/* Title */}
         <h3 className="text-[16px] font-bold text-slate-100 m-0 mb-2 leading-snug">
-          {topic.title}
+          {L(topic.title, topic.title_en)}
         </h3>
 
         {/* Description */}
         <p className="text-[13px] text-slate-300 m-0 mb-4 leading-relaxed flex-1">
-          {topic.description}
+          {L(topic.description, topic.description_en)}
         </p>
 
         {/* Tags */}
@@ -105,7 +107,7 @@ export const TopicCard = ({ topic, index }: TopicCardProps): React.JSX.Element =
             </svg>
             <span>
               {t.handsOn.prerequisitePrefix}
-              {topic.prerequisites.join(", ")}
+              {L(topic.prerequisites, topic.prerequisites_en).join(", ")}
             </span>
           </div>
         )}

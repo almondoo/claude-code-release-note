@@ -4,12 +4,29 @@ import { Link, useParams } from "react-router";
 import { TAG_COLORS } from "~/components/badge";
 import { Footer } from "~/components/footer";
 import { ArrowLeftIcon } from "~/components/icons";
+import { LanguageToggle } from "~/components/language-toggle";
+import { dictFromMatches } from "~/i18n/meta";
 import { useT } from "~/i18n/useT";
 
 import { RELEASES, VERSION_DETAILS, getAdjacentVersions } from "./constants";
 import { computeSortedTagCounts } from "../release-note/version-card";
 import { DetailCard, FallbackCard } from "./detail-card";
 import { NavButton } from "./nav-button";
+
+export const meta = ({
+  matches,
+  params,
+}: {
+  matches: readonly ({ data?: unknown } | undefined)[];
+  params: { version?: string };
+}): Array<{ title?: string; name?: string; content?: string }> => {
+  const d = dictFromMatches(matches);
+  const v = params.version ?? "";
+  return [
+    { title: d.versionDetail.metaTitle(v) },
+    { name: "description", content: d.versionDetail.metaDescription(v) },
+  ];
+};
 
 const VersionDetail = (): React.JSX.Element => {
   const { version } = useParams();
@@ -72,6 +89,7 @@ const VersionDetail = (): React.JSX.Element => {
             }}
           />
           <div className="relative">
+            <LanguageToggle className="absolute top-0 right-0" />
             <div className="text-xs font-semibold text-slate-500 tracking-[3px] uppercase mb-3 font-mono">
               CLAUDE CODE
             </div>

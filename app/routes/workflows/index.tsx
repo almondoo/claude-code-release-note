@@ -5,6 +5,7 @@ import { Footer } from "~/components/footer";
 import { PageHeader } from "~/components/page-header";
 import { TabBar } from "~/components/tab-bar";
 import { dictFromMatches } from "~/i18n/meta";
+import { useL } from "~/i18n/localize";
 import { useT } from "~/i18n/useT";
 
 import { ACCENT, META, SECTIONS, getTabDefs } from "./constants";
@@ -35,39 +36,45 @@ const WorkflowSection = ({
 }: {
   section: (typeof SECTIONS)[number];
   sectionRef: (el: HTMLElement | null) => void;
-}): React.JSX.Element => (
-  <section
-    ref={sectionRef}
-    data-section-id={section.id}
-    id={section.id}
-    className="scroll-mt-24"
-    aria-labelledby={`section-title-${section.id}`}
-  >
-    <div className="mb-6">
-      <h2
-        id={`section-title-${section.id}`}
-        className="text-base font-bold text-slate-100 m-0 mb-2"
-        style={{ color: ACCENT }}
-      >
-        {section.title}
-      </h2>
-      {section.description && (
-        <p className="text-[14px] text-slate-400 m-0">{section.description}</p>
-      )}
-    </div>
+}): React.JSX.Element => {
+  const L = useL();
+  return (
+    <section
+      ref={sectionRef}
+      data-section-id={section.id}
+      id={section.id}
+      className="scroll-mt-24"
+      aria-labelledby={`section-title-${section.id}`}
+    >
+      <div className="mb-6">
+        <h2
+          id={`section-title-${section.id}`}
+          className="text-base font-bold text-slate-100 m-0 mb-2"
+          style={{ color: ACCENT }}
+        >
+          {L(section.title, section.title_en)}
+        </h2>
+        {section.description && (
+          <p className="text-[14px] text-slate-400 m-0">
+            {L(section.description, section.description_en)}
+          </p>
+        )}
+      </div>
 
-    <div className="flex flex-col gap-5">
-      {section.blocks.map((block, i) => (
-        <RenderBlock key={i} block={block} />
-      ))}
-    </div>
-  </section>
-);
+      <div className="flex flex-col gap-5">
+        {section.blocks.map((block, i) => (
+          <RenderBlock key={i} block={block} />
+        ))}
+      </div>
+    </section>
+  );
+};
 
 // ── Main page ──────────────────────────────────────────────────────────────
 
 const WorkflowsPage = (): React.JSX.Element => {
   const t = useT();
+  const L = useL();
   const tabDefs = getTabDefs(t);
   const [activeSectionId, setActiveSectionId] = useState(SECTIONS[0]?.id ?? "overview");
   const sectionRefs = useRef<Map<string, HTMLElement>>(new Map());
@@ -126,9 +133,9 @@ const WorkflowsPage = (): React.JSX.Element => {
       <div className="max-w-[1400px] mx-auto px-4 py-8">
         {/* Page header */}
         <PageHeader
-          title={META.title}
-          description={META.premise}
-          stats={META.keyStats.map((s) => ({ value: s.value, label: s.label }))}
+          title={L(META.title, META.title_en)}
+          description={L(META.premise, META.premise_en)}
+          stats={META.keyStats.map((s) => ({ value: s.value, label: L(s.label, s.label_en) }))}
           gradient={["rgba(224,115,77,0.10)", "rgba(224,115,77,0.05)"]}
         />
 

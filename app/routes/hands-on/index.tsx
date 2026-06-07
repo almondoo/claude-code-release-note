@@ -5,7 +5,8 @@ import { EmptyState } from "~/components/empty-state";
 import { Footer } from "~/components/footer";
 import { PageHeader } from "~/components/page-header";
 import { SearchInput } from "~/components/search-input";
-import { dictFromMatches } from "~/i18n/meta";
+import { localeFromMatches, dictFromMatches } from "~/i18n/meta";
+import { pickLocale, useL } from "~/i18n/localize";
 import { useT } from "~/i18n/useT";
 
 import { TOPICS, TOPICS_DATA } from "./constants";
@@ -23,11 +24,12 @@ export const meta = ({
   content?: string;
 }> => {
   const d = dictFromMatches(matches);
+  const locale = localeFromMatches(matches);
   return [
     { title: d.handsOn.metaTitle },
     {
       name: "description",
-      content: TOPICS_DATA.meta.description,
+      content: pickLocale(TOPICS_DATA.meta.description, TOPICS_DATA.meta.description_en, locale),
     },
   ];
 };
@@ -36,6 +38,7 @@ export const meta = ({
 
 const HandsOnHub = (): React.JSX.Element => {
   const t = useT();
+  const L = useL();
   const [query, setQuery] = useState("");
   const reducedMotion = useReducedMotion();
 
@@ -56,8 +59,8 @@ const HandsOnHub = (): React.JSX.Element => {
       <div className="max-w-[1400px] mx-auto px-4 py-8">
         {/* Header */}
         <PageHeader
-          title={TOPICS_DATA.meta.title}
-          description={TOPICS_DATA.meta.description}
+          title={L(TOPICS_DATA.meta.title, TOPICS_DATA.meta.title_en)}
+          description={L(TOPICS_DATA.meta.description, TOPICS_DATA.meta.description_en)}
           stats={[{ value: TOPICS.length, label: t.handsOn.statLabel }]}
           gradient={["rgba(99,102,241,0.08)", "rgba(168,85,247,0.05)"]}
         />

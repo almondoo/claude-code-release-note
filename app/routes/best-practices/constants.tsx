@@ -23,26 +23,57 @@ export interface TabDef {
 
 export interface BPExample {
   strategy: string;
+  strategy_en?: string;
   detail?: string;
+  detail_en?: string;
   before: string;
+  before_en?: string;
   after: string;
+  after_en?: string;
+}
+
+export interface BPStep {
+  phase: string;
+  phase_en?: string;
+  description: string;
+  description_en?: string;
+  example: string;
+  example_en?: string;
+}
+
+export interface BPLocation {
+  path: string;
+  description: string;
+  description_en?: string;
 }
 
 export interface BPItem {
   id: string;
   title: string;
+  title_en?: string;
   summary: string;
+  summary_en?: string;
   content: string;
+  content_en?: string;
   tags: string[];
   examples?: BPExample[];
   tips?: string[];
-  steps?: { phase: string; description: string; example: string }[];
+  tips_en?: string[];
+  steps?: BPStep[];
   code?: string;
   fix?: string;
+  fix_en?: string;
   include?: string[];
+  include_en?: string[];
   exclude?: string[];
-  locations?: { path: string; description: string }[];
-  writerReviewer?: { writer: string[]; reviewer: string[] };
+  exclude_en?: string[];
+  locations?: BPLocation[];
+  writerReviewer?: {
+    writer: string[];
+    writer_en?: string[];
+    reviewer: string[];
+    reviewer_en?: string[];
+  };
 }
 
 export interface BPSection {
@@ -59,17 +90,22 @@ export interface BPSection {
 export interface PromptCode {
   lang: string;
   label: string;
+  label_en?: string;
   value: string;
 }
 
 export interface PromptItem {
   id: string;
   title: string;
+  title_en?: string;
   summary: string;
+  summary_en?: string;
   content: string;
+  content_en?: string;
   tags: string[];
   examples?: BPExample[];
   tips?: string[];
+  tips_en?: string[];
   code?: PromptCode[];
 }
 
@@ -87,6 +123,7 @@ export interface PromptSection {
 export interface CodeBlockDef {
   lang: string;
   label: string;
+  label_en?: string;
   value: string;
   recommended?: boolean;
 }
@@ -94,15 +131,19 @@ export interface CodeBlockDef {
 export interface HooksItem {
   id: string;
   title: string;
+  title_en?: string;
   summary: string;
+  summary_en?: string;
   content: string;
+  content_en?: string;
   tags: string[];
   code?: string;
   codeBlocks?: CodeBlockDef[];
   tips?: string[];
+  tips_en?: string[];
   examples?: BPExample[];
-  steps?: { phase: string; description: string; example: string }[];
-  locations?: { path: string; description: string }[];
+  steps?: BPStep[];
+  locations?: BPLocation[];
 }
 
 export interface HooksSection {
