@@ -1,18 +1,37 @@
 import { motion, useReducedMotion } from "motion/react";
 import { Link, useParams } from "react-router";
 
-import { TAG_COLORS, TAG_LABELS } from "~/components/badge";
+import { TAG_COLORS } from "~/components/badge";
 import { Footer } from "~/components/footer";
 import { ArrowLeftIcon } from "~/components/icons";
+import { LanguageToggle } from "~/components/language-toggle";
+import { dictFromMatches } from "~/i18n/meta";
+import { useT } from "~/i18n/useT";
 
 import { RELEASES, VERSION_DETAILS, getAdjacentVersions } from "./constants";
 import { computeSortedTagCounts } from "../release-note/version-card";
 import { DetailCard, FallbackCard } from "./detail-card";
 import { NavButton } from "./nav-button";
 
+export const meta = ({
+  matches,
+  params,
+}: {
+  matches: readonly ({ data?: unknown } | undefined)[];
+  params: { version?: string };
+}): Array<{ title?: string; name?: string; content?: string }> => {
+  const d = dictFromMatches(matches);
+  const v = params.version ?? "";
+  return [
+    { title: d.versionDetail.metaTitle(v) },
+    { name: "description", content: d.versionDetail.metaDescription(v) },
+  ];
+};
+
 const VersionDetail = (): React.JSX.Element => {
   const { version } = useParams();
   const reducedMotion = useReducedMotion();
+  const t = useT();
 
   const release = RELEASES.find((r) => r.v === version);
   const details = version ? VERSION_DETAILS[version] : null;
@@ -21,10 +40,10 @@ const VersionDetail = (): React.JSX.Element => {
   if (!release) {
     return (
       <div className="min-h-screen bg-slate-900 font-sans text-slate-100 flex items-center justify-center flex-col gap-4">
-        <h1 className="text-2xl font-bold">バージョンが見つかりません</h1>
+        <h1 className="text-2xl font-bold">{t.versionDetail.notFound}</h1>
         <Link to="/" className="text-blue-500 no-underline flex items-center gap-1.5 text-sm">
           <ArrowLeftIcon />
-          一覧に戻る
+          {t.versionDetail.backToList}
         </Link>
       </div>
     );
@@ -50,7 +69,7 @@ const VersionDetail = (): React.JSX.Element => {
             className="back-link inline-flex items-center gap-1.5 text-slate-500 no-underline text-[14px] font-sans mb-6 py-1.5 px-3 rounded-md transition-all"
           >
             <ArrowLeftIcon />
-            リリースノート一覧
+            {t.versionDetail.backLinkLabel}
           </Link>
         </motion.div>
 
@@ -70,6 +89,7 @@ const VersionDetail = (): React.JSX.Element => {
             }}
           />
           <div className="relative">
+            <LanguageToggle className="absolute top-0 right-0" />
             <div className="text-xs font-semibold text-slate-500 tracking-[3px] uppercase mb-3 font-mono">
               CLAUDE CODE
             </div>
@@ -78,7 +98,8 @@ const VersionDetail = (): React.JSX.Element => {
             </h1>
             <div className="flex gap-3 flex-wrap items-center mb-3">
               <span className="text-[14px] text-slate-300">
-                <strong className="text-slate-100">{release.items.length}</strong> 件の変更
+                <strong className="text-slate-100">{release.items.length}</strong>{" "}
+                {t.versionDetail.statChanges}
               </span>
               {details && (
                 <span
@@ -88,7 +109,7 @@ const VersionDetail = (): React.JSX.Element => {
                     color: "#6EE7B7",
                   }}
                 >
-                  詳細情報あり
+                  {t.versionDetail.hasDetail}
                 </span>
               )}
             </div>
@@ -103,7 +124,7 @@ const VersionDetail = (): React.JSX.Element => {
                     letterSpacing: "0.2px",
                   }}
                 >
-                  {TAG_LABELS[tag] ?? tag}
+                  {t.tags[tag] ?? tag}
                   <span className="opacity-50 ml-0.5">{count}</span>
                 </span>
               ))}

@@ -1,105 +1,127 @@
 {
   "id": "use-cases",
   "title": "ユースケース",
+  "title_en": "Use Cases",
   "description": "いつ・どうワークフローを作らせるかを創造的に考えるとよい。ワークフローは技術以外の作業でいっそう有用なこともある。",
+  "description_en": "Think creatively about when and how to have workflows created. Workflows can sometimes be even more useful for non-technical work.",
   "blocks": [
     {
       "type": "subsection",
       "title": "移行・リファクタ（Migrations and refactors）",
+      "title_en": "Migrations and Refactors",
       "blocks": [
         {
           "type": "paragraph",
-          "content": "Bun が Zig から Rust への書き換えにワークフローを使用（作者 Jarred Sumner、約75万行の Rust、既存テストスイートの99.8%が通過、最初のコミットからマージまで11日）。callsite・失敗テスト・モジュールなど操作対象を列挙し、修正ごとに worktree でサブエージェントを起動して直し、別エージェントが敵対的にレビューしてマージする。リソース集約的なコマンドを使わないよう指示すると、マシンのリソースを使い切らずに最大限並列化できる。"
+          "content": "Bun が Zig から Rust への書き換えにワークフローを使用（作者 Jarred Sumner、約75万行の Rust、既存テストスイートの99.8%が通過、最初のコミットからマージまで11日）。callsite・失敗テスト・モジュールなど操作対象を列挙し、修正ごとに worktree でサブエージェントを起動して直し、別エージェントが敵対的にレビューしてマージする。リソース集約的なコマンドを使わないよう指示すると、マシンのリソースを使い切らずに最大限並列化できる。",
+          "content_en": "Bun used workflows to rewrite from Zig to Rust (by author Jarred Sumner — approximately 750,000 lines of Rust, 99.8% of the existing test suite passing, 11 days from first commit to merge). Enumerate the targets (callsites, failing tests, modules, etc.), spawn a sub-agent in a worktree to fix each one, and have a separate agent adversarially review and merge. Instructing agents not to use resource-intensive commands allows maximum parallelization without exhausting the machine's resources."
         }
       ]
     },
     {
       "type": "subsection",
       "title": "ディープリサーチ（Deep research）",
+      "title_en": "Deep Research",
       "blocks": [
         {
           "type": "paragraph",
-          "content": "`/deep-research`（バンドルされたワークフロー）は web 検索を fan-out し、ソースを取得、主張を敵対的に検証し、引用付きレポートを統合する。web 検索に限らず、Slack の文脈から状況レポートを作る、コードベースを深掘りして機能の仕組みを調べる等にも応用できる。"
+          "content": "`/deep-research`（バンドルされたワークフロー）は web 検索を fan-out し、ソースを取得、主張を敵対的に検証し、引用付きレポートを統合する。web 検索に限らず、Slack の文脈から状況レポートを作る、コードベースを深掘りして機能の仕組みを調べる等にも応用できる。",
+          "content_en": "`/deep-research` (a bundled workflow) fans out web searches, fetches sources, adversarially verifies claims, and synthesizes a cited report. It is not limited to web search — it can also be applied to generating status reports from Slack context, deeply exploring a codebase to understand how a feature works, and more."
         }
       ]
     },
     {
       "type": "subsection",
       "title": "ディープ検証（Deep verification）",
+      "title_en": "Deep Verification",
       "blocks": [
         {
           "type": "paragraph",
-          "content": "レポートの全事実主張を1つのエージェントが洗い出し、各主張をサブエージェントで詳細に検証する。ソースの質を点検する検証エージェントを追加することもできる。"
+          "content": "レポートの全事実主張を1つのエージェントが洗い出し、各主張をサブエージェントで詳細に検証する。ソースの質を点検する検証エージェントを追加することもできる。",
+          "content_en": "A single agent identifies all factual claims in a report, then each claim is verified in detail by a sub-agent. You can also add a verification agent that checks the quality of the sources."
         }
       ]
     },
     {
       "type": "subsection",
       "title": "並べ替え（Sorting）",
+      "title_en": "Sorting",
       "blocks": [
         {
           "type": "paragraph",
-          "content": "1000行超を1プロンプトで並べ替えると品質が劣化し、コンテキストにも収まらない。代わりにトーナメント、ペアワイズ比較のパイプライン（絶対スコアより比較判断のほうが信頼できる）、または並列でバケットランクしてからマージする。各比較は独立したエージェントが担うので、スクリプト側の決定論的なループがトーナメント表を管理し、コンテキストには実行順だけが残る。"
+          "content": "1000行超を1プロンプトで並べ替えると品質が劣化し、コンテキストにも収まらない。代わりにトーナメント、ペアワイズ比較のパイプライン（絶対スコアより比較判断のほうが信頼できる）、または並列でバケットランクしてからマージする。各比較は独立したエージェントが担うので、スクリプト側の決定論的なループがトーナメント表を管理し、コンテキストには実行順だけが残る。",
+          "content_en": "Sorting 1,000+ items in a single prompt degrades quality and doesn't fit in context. Instead, use a tournament, a pipeline of pairwise comparisons (comparative judgment is more reliable than absolute scores), or parallel bucket ranking followed by merging. Each comparison is handled by an independent agent, so a deterministic loop on the script side manages the tournament bracket, and only the execution order remains in context."
         }
       ]
     },
     {
       "type": "subsection",
       "title": "メモリとルール遵守（Memory and rule adherence）",
+      "title_en": "Memory and Rule Adherence",
       "blocks": [
         {
           "type": "paragraph",
-          "content": "CLAUDE.md に入れても守られないルールは、ルールごとに検証エージェントを1つ割り当てるワークフローを作る。懐疑者（skeptic）ペルソナのサブエージェントでルール自体を点検すると誤検出を減らせる。逆方向も有効: 最近のセッションやコードレビューのコメントから繰り返し現れる訂正を洗い出し、並列エージェントでクラスタ化、各候補を敵対的に検証（このルールが実際のミスを防いだか）し、生き残ったルールを CLAUDE.md にまとめる。"
+          "content": "CLAUDE.md に入れても守られないルールは、ルールごとに検証エージェントを1つ割り当てるワークフローを作る。懐疑者（skeptic）ペルソナのサブエージェントでルール自体を点検すると誤検出を減らせる。逆方向も有効: 最近のセッションやコードレビューのコメントから繰り返し現れる訂正を洗い出し、並列エージェントでクラスタ化、各候補を敵対的に検証（このルールが実際のミスを防いだか）し、生き残ったルールを CLAUDE.md にまとめる。",
+          "content_en": "For rules that are not followed even when placed in CLAUDE.md, create a workflow that assigns one verification agent per rule. Inspecting the rules themselves with a sub-agent using a skeptic persona reduces false positives. The reverse direction is also effective: identify recurring corrections from recent sessions or code review comments, cluster them with parallel agents, adversarially verify each candidate (did this rule actually prevent a real mistake?), and consolidate the surviving rules into CLAUDE.md."
         }
       ]
     },
     {
       "type": "subsection",
       "title": "根本原因の調査（Root-cause investigation）",
+      "title_en": "Root-Cause Investigation",
       "blocks": [
         {
           "type": "paragraph",
-          "content": "デバッグは複数の独立した仮説を立てて検証するのが最善だが、単一コンテキストだと self-preferential bias に陥りうる。ログ・ファイル・データなど互いに素な証拠から仮説を立てるエージェントを別々に立て、各仮説を検証者・反証者のパネルにかける。コードに限らず、売上（なぜ3月に売上が落ちたか）、データ基盤（なぜパイプラインが失敗したか）などポストモーテム全般に使える。"
+          "content": "デバッグは複数の独立した仮説を立てて検証するのが最善だが、単一コンテキストだと self-preferential bias に陥りうる。ログ・ファイル・データなど互いに素な証拠から仮説を立てるエージェントを別々に立て、各仮説を検証者・反証者のパネルにかける。コードに限らず、売上（なぜ3月に売上が落ちたか）、データ基盤（なぜパイプラインが失敗したか）などポストモーテム全般に使える。",
+          "content_en": "Debugging is best done by forming and testing multiple independent hypotheses, but a single context can fall into self-preferential bias. Spin up separate agents to form hypotheses from disjoint evidence (logs, files, data), then submit each hypothesis to a panel of verifiers and refuters. This applies not only to code but to post-mortems in general — why sales dropped in March, why a pipeline failed, and so on."
         }
       ]
     },
     {
       "type": "subsection",
       "title": "大規模トリアージ（Triaging at scale）",
+      "title_en": "Triaging at Scale",
       "blocks": [
         {
           "type": "paragraph",
-          "content": "各項目を分類し、すでに追跡済みのものと重複排除し、対応（修正を試みる、または人間にエスカレーション）する。quarantine（隔離）パターンが有用: 信頼できない公開コンテンツを読むエージェントには高権限のアクションを禁じ、その情報を受け取って実行する役割は別のエージェントに分ける。`/loop` と組み合わせると継続的に処理できる。"
+          "content": "各項目を分類し、すでに追跡済みのものと重複排除し、対応（修正を試みる、または人間にエスカレーション）する。quarantine（隔離）パターンが有用: 信頼できない公開コンテンツを読むエージェントには高権限のアクションを禁じ、その情報を受け取って実行する役割は別のエージェントに分ける。`/loop` と組み合わせると継続的に処理できる。",
+          "content_en": "Classify each item, deduplicate against already-tracked items, and take action (attempt a fix or escalate to a human). The quarantine pattern is useful: forbid high-privilege actions for agents that read untrusted public content, and delegate the role of receiving that information and acting on it to a separate agent. Combine with `/loop` for continuous processing."
         }
       ]
     },
     {
       "type": "subsection",
       "title": "探索とセンス（Exploration and taste）",
+      "title_en": "Exploration and Taste",
       "blocks": [
         {
           "type": "paragraph",
-          "content": "デザインや命名などセンスに基づく領域で、良い解の条件を示すルーブリックを持つレビューエージェントを使い、複数の解を探索する。レビューエージェントが基準を満たしたと判断したら完了。トーナメントで順位付け・選択することもできる。"
+          "content": "デザインや命名などセンスに基づく領域で、良い解の条件を示すルーブリックを持つレビューエージェントを使い、複数の解を探索する。レビューエージェントが基準を満たしたと判断したら完了。トーナメントで順位付け・選択することもできる。",
+          "content_en": "In taste-dependent domains such as design and naming, explore multiple solutions using a review agent equipped with a rubric that specifies the criteria for a good answer. The process is complete when the review agent determines the criteria are met. You can also use a tournament for ranking and selection."
         }
       ]
     },
     {
       "type": "subsection",
       "title": "評価（Evals）",
+      "title_en": "Evals",
       "blocks": [
         {
           "type": "paragraph",
-          "content": "worktree のエージェントで成果物を作り、比較エージェントがルーブリックに照らして比較・採点する軽量な eval を回せる。作ったスキルを特定の基準で評価・改良するなど。"
+          "content": "worktree のエージェントで成果物を作り、比較エージェントがルーブリックに照らして比較・採点する軽量な eval を回せる。作ったスキルを特定の基準で評価・改良するなど。",
+          "content_en": "Run lightweight evals where a worktree agent produces an artifact and a comparison agent scores it against a rubric — for example, evaluating and refining a skill you created against specific criteria."
         }
       ]
     },
     {
       "type": "subsection",
       "title": "モデル・知能のルーティング（Model and intelligence routing）",
+      "title_en": "Model and Intelligence Routing",
       "blocks": [
         {
           "type": "paragraph",
-          "content": "タスクに合わせて調整した分類器エージェントが、どのモデルを使うかを決める。例: 「auth モジュールの仕組みを説明して」に最適なモデルは、auth モジュールのファイル数やコードベースの形状による。分類器が事前に調査して、想定される複雑さに応じて Sonnet か Opus にルーティングする。"
+          "content": "タスクに合わせて調整した分類器エージェントが、どのモデルを使うかを決める。例: 「auth モジュールの仕組みを説明して」に最適なモデルは、auth モジュールのファイル数やコードベースの形状による。分類器が事前に調査して、想定される複雑さに応じて Sonnet か Opus にルーティングする。",
+          "content_en": "A classifier agent tuned to the task decides which model to use. For example, the best model for \"explain how the auth module works\" depends on the number of files in the auth module and the shape of the codebase. The classifier investigates upfront and routes to Sonnet or Opus based on expected complexity."
         }
       ]
     }

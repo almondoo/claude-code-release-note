@@ -1,14 +1,8 @@
 import { motion, useReducedMotion } from "motion/react";
 import { Link, useLocation } from "react-router";
 import { ArrowLeftIcon } from "~/components/icons";
-
-const ALL_PAGES = [
-  { to: "/", label: "リリースノート" },
-  { to: "/best-practices", label: "ベストプラクティス" },
-  { to: "/hands-on", label: "ハンズオン" },
-  { to: "/harness-engineering", label: "ハーネス＆コンテキストエンジニアリング" },
-  { to: "/workflows", label: "動的ワークフロー" },
-];
+import { LanguageToggle } from "~/components/language-toggle";
+import { useT } from "~/i18n/useT";
 
 interface Stat {
   value: number | string;
@@ -34,6 +28,16 @@ export const PageHeader = ({
 }: PageHeaderProps): React.JSX.Element => {
   const location = useLocation();
   const reducedMotion = useReducedMotion();
+  const t = useT();
+
+  const ALL_PAGES = [
+    { to: "/", label: t.nav.releaseNote },
+    { to: "/best-practices", label: t.nav.bestPractices },
+    { to: "/hands-on", label: t.nav.handsOn },
+    { to: "/harness-engineering", label: t.nav.harness },
+    { to: "/workflows", label: t.nav.workflows },
+  ];
+
   const currentPath = location.pathname;
   const isIndex = currentPath === "/";
 
@@ -59,6 +63,9 @@ export const PageHeader = ({
         }}
       />
       <div className="relative">
+        {/* Language toggle */}
+        <LanguageToggle className="absolute top-0 right-0" />
+
         <div className="text-xs font-semibold text-slate-500 tracking-[3px] uppercase mb-3 font-mono">
           CLAUDE CODE
         </div>

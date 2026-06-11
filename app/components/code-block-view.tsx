@@ -1,4 +1,5 @@
 import { CopyButton } from "~/components/copy-button";
+import { useT } from "~/i18n/useT";
 
 export interface CodeBlock {
   lang: string;
@@ -8,6 +9,7 @@ export interface CodeBlock {
 }
 
 export const CodeBlockView = ({ block }: { block: CodeBlock }): React.JSX.Element => {
+  const t = useT();
   return (
     <div
       className="rounded-lg overflow-hidden border"
@@ -43,7 +45,7 @@ export const CodeBlockView = ({ block }: { block: CodeBlock }): React.JSX.Elemen
               >
                 <polyline points="20 6 9 17 4 12" />
               </svg>
-              推奨
+              {t.common.recommended}
             </span>
           )}
         </div>

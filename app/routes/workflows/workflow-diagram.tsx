@@ -1,5 +1,7 @@
 import React from "react";
 
+import { useT } from "~/i18n/useT";
+
 // ---------------------------------------------------------------------------
 // Color tokens
 // ---------------------------------------------------------------------------
@@ -104,6 +106,7 @@ const SvgDefs = () => (
 // ---------------------------------------------------------------------------
 
 export const ClassifyAndActDiagram = (): React.JSX.Element => {
+  const t = useT();
   const tip = [230, 110] as const; // classifier diamond right vertex (branch source)
   const r = 22;
   const eDiamond = toShape(100, 110, 200, 110, 30, 5); // task → classifier
@@ -116,7 +119,7 @@ export const ClassifyAndActDiagram = (): React.JSX.Element => {
       className="w-full h-auto"
       preserveAspectRatio="xMidYMid meet"
       role="img"
-      aria-label="分類して行動パターン: task → classifier ひし形 → agent A / B / C への3分岐"
+      aria-label={t.workflows.svgAriaClassify}
       xmlns="http://www.w3.org/2000/svg"
     >
       <SvgDefs />
@@ -215,6 +218,7 @@ export const ClassifyAndActDiagram = (): React.JSX.Element => {
 // ---------------------------------------------------------------------------
 
 export const FanOutSynthesizeDiagram = (): React.JSX.Element => {
+  const t = useT();
   const workers = [48, 100, 140, 192];
   const eSynth = toShape(254, 120, 368, 120, 24, 5); // barrier → synthesize
   return (
@@ -223,7 +227,7 @@ export const FanOutSynthesizeDiagram = (): React.JSX.Element => {
       className="w-full h-auto"
       preserveAspectRatio="xMidYMid meet"
       role="img"
-      aria-label="ファンアウトと統合パターン: task → 4ワーカー → barrier → synthesize"
+      aria-label={t.workflows.svgAriaFanOut}
       xmlns="http://www.w3.org/2000/svg"
     >
       <SvgDefs />
@@ -311,6 +315,7 @@ export const FanOutSynthesizeDiagram = (): React.JSX.Element => {
 // ---------------------------------------------------------------------------
 
 export const AdversarialVerificationDiagram = (): React.JSX.Element => {
+  const t = useT();
   const worker = [120, 110, 28] as const;
   const verifiers = [55, 110, 165];
   return (
@@ -319,7 +324,7 @@ export const AdversarialVerificationDiagram = (): React.JSX.Element => {
       className="w-full h-auto"
       preserveAspectRatio="xMidYMid meet"
       role="img"
-      aria-label="対立的検証パターン: worker と verifiers 3つが双方向矢印で接続"
+      aria-label={t.workflows.svgAriaAdversarial}
       xmlns="http://www.w3.org/2000/svg"
     >
       <SvgDefs />
@@ -373,169 +378,173 @@ export const AdversarialVerificationDiagram = (): React.JSX.Element => {
 // 4. GenerateAndFilterDiagram
 // ---------------------------------------------------------------------------
 
-export const GenerateAndFilterDiagram = (): React.JSX.Element => (
-  <svg
-    viewBox="0 0 540 260"
-    className="w-full h-auto"
-    preserveAspectRatio="xMidYMid meet"
-    role="img"
-    aria-label="生成とフィルタリングパターン: generators → ideas → filter → best / discarded"
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <SvgDefs />
+export const GenerateAndFilterDiagram = (): React.JSX.Element => {
+  const t = useT();
+  return (
+    <svg
+      viewBox="0 0 540 260"
+      className="w-full h-auto"
+      preserveAspectRatio="xMidYMid meet"
+      role="img"
+      aria-label={t.workflows.svgAriaGenerationFilter}
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <SvgDefs />
 
-    {/* generators label */}
-    <text x="50" y="28" textAnchor="middle" fill={C.subText} fontSize="11" fontFamily="inherit">
-      generators
-    </text>
+      {/* generators label */}
+      <text x="50" y="28" textAnchor="middle" fill={C.subText} fontSize="11" fontFamily="inherit">
+        generators
+      </text>
 
-    {/* generator circles */}
-    {[55, 110, 165].map((cy, i) => (
-      <circle
-        key={i}
-        cx="50"
-        cy={cy}
-        r="20"
-        fill={C.nodeFill}
-        stroke={C.nodeStroke}
-        strokeWidth="2"
-      />
-    ))}
+      {/* generator circles */}
+      {[55, 110, 165].map((cy, i) => (
+        <circle
+          key={i}
+          cx="50"
+          cy={cy}
+          r="20"
+          fill={C.nodeFill}
+          stroke={C.nodeStroke}
+          strokeWidth="2"
+        />
+      ))}
 
-    {/* generator → ideas lines */}
-    {[55, 110, 165].map((cy, i) => (
-      <line
-        key={i}
-        x1="72"
-        y1={cy}
-        x2="148"
-        y2={cy}
-        stroke={C.nodeStroke}
-        strokeWidth="2"
-        markerEnd="url(#arrow-slate)"
-      />
-    ))}
+      {/* generator → ideas lines */}
+      {[55, 110, 165].map((cy, i) => (
+        <line
+          key={i}
+          x1="72"
+          y1={cy}
+          x2="148"
+          y2={cy}
+          stroke={C.nodeStroke}
+          strokeWidth="2"
+          markerEnd="url(#arrow-slate)"
+        />
+      ))}
 
-    {/* ideas rectangles (5 items, spread across y) */}
-    {[40, 70, 105, 140, 170].map((cy, i) => (
+      {/* ideas rectangles (5 items, spread across y) */}
+      {[40, 70, 105, 140, 170].map((cy, i) => (
+        <rect
+          key={i}
+          x="155"
+          y={cy}
+          width="50"
+          height="22"
+          rx="4"
+          fill={C.nodeFill}
+          stroke={C.nodeStroke}
+          strokeWidth="1.5"
+        />
+      ))}
+      <text x="180" y="210" textAnchor="middle" fill={C.subText} fontSize="11" fontFamily="inherit">
+        ideas
+      </text>
+
+      {/* ideas → filter convergence lines (fan into the filter; no stacked arrowheads) */}
+      {[51, 81, 116, 151, 181].map((cy, i) => (
+        <line key={i} x1="205" y1={cy} x2="277" y2={110} stroke={C.nodeStroke} strokeWidth="1.5" />
+      ))}
+
+      {/* filter box (accent) */}
       <rect
-        key={i}
-        x="155"
-        y={cy}
-        width="50"
+        x="277"
+        y="82"
+        width="80"
+        height="56"
+        rx="8"
+        fill={C.nodeFill}
+        stroke={C.accent}
+        strokeWidth="2"
+      />
+      <text
+        x="317"
+        y="107"
+        textAnchor="middle"
+        fill={C.accent}
+        fontSize="13"
+        fontFamily="inherit"
+        fontWeight="600"
+      >
+        filter
+      </text>
+      <text x="317" y="125" textAnchor="middle" fill={C.subText} fontSize="10" fontFamily="inherit">
+        rubric + dedupe
+      </text>
+
+      {/* filter → best (accent solid arrow, upper right) */}
+      <line
+        x1="357"
+        y1="98"
+        x2="418"
+        y2="68"
+        stroke={C.accent}
+        strokeWidth="2"
+        markerEnd="url(#arrow-accent)"
+      />
+
+      {/* best boxes */}
+      <rect
+        x="425"
+        y="45"
+        width="52"
+        height="20"
+        rx="4"
+        fill={C.nodeFill}
+        stroke={C.accent}
+        strokeWidth="1.5"
+      />
+      <rect
+        x="425"
+        y="70"
+        width="52"
+        height="20"
+        rx="4"
+        fill={C.nodeFill}
+        stroke={C.accent}
+        strokeWidth="1.5"
+      />
+      <text x="451" y="38" textAnchor="middle" fill={C.accent} fontSize="11" fontFamily="inherit">
+        best
+      </text>
+
+      {/* filter → discarded (dashed grey arrow, lower right) */}
+      <line
+        x1="357"
+        y1="124"
+        x2="418"
+        y2="162"
+        stroke={C.discardedStroke}
+        strokeWidth="2"
+        strokeDasharray="5,4"
+        markerEnd="url(#arrow-discard)"
+      />
+
+      {/* discarded box */}
+      <rect
+        x="425"
+        y="152"
+        width="80"
         height="22"
         rx="4"
         fill={C.nodeFill}
-        stroke={C.nodeStroke}
+        stroke={C.discardedStroke}
         strokeWidth="1.5"
+        strokeDasharray="5,4"
       />
-    ))}
-    <text x="180" y="210" textAnchor="middle" fill={C.subText} fontSize="11" fontFamily="inherit">
-      ideas
-    </text>
-
-    {/* ideas → filter convergence lines (fan into the filter; no stacked arrowheads) */}
-    {[51, 81, 116, 151, 181].map((cy, i) => (
-      <line key={i} x1="205" y1={cy} x2="277" y2={110} stroke={C.nodeStroke} strokeWidth="1.5" />
-    ))}
-
-    {/* filter box (accent) */}
-    <rect
-      x="277"
-      y="82"
-      width="80"
-      height="56"
-      rx="8"
-      fill={C.nodeFill}
-      stroke={C.accent}
-      strokeWidth="2"
-    />
-    <text
-      x="317"
-      y="107"
-      textAnchor="middle"
-      fill={C.accent}
-      fontSize="13"
-      fontFamily="inherit"
-      fontWeight="600"
-    >
-      filter
-    </text>
-    <text x="317" y="125" textAnchor="middle" fill={C.subText} fontSize="10" fontFamily="inherit">
-      rubric + dedupe
-    </text>
-
-    {/* filter → best (accent solid arrow, upper right) */}
-    <line
-      x1="357"
-      y1="98"
-      x2="418"
-      y2="68"
-      stroke={C.accent}
-      strokeWidth="2"
-      markerEnd="url(#arrow-accent)"
-    />
-
-    {/* best boxes */}
-    <rect
-      x="425"
-      y="45"
-      width="52"
-      height="20"
-      rx="4"
-      fill={C.nodeFill}
-      stroke={C.accent}
-      strokeWidth="1.5"
-    />
-    <rect
-      x="425"
-      y="70"
-      width="52"
-      height="20"
-      rx="4"
-      fill={C.nodeFill}
-      stroke={C.accent}
-      strokeWidth="1.5"
-    />
-    <text x="451" y="38" textAnchor="middle" fill={C.accent} fontSize="11" fontFamily="inherit">
-      best
-    </text>
-
-    {/* filter → discarded (dashed grey arrow, lower right) */}
-    <line
-      x1="357"
-      y1="124"
-      x2="418"
-      y2="162"
-      stroke={C.discardedStroke}
-      strokeWidth="2"
-      strokeDasharray="5,4"
-      markerEnd="url(#arrow-discard)"
-    />
-
-    {/* discarded box */}
-    <rect
-      x="425"
-      y="152"
-      width="80"
-      height="22"
-      rx="4"
-      fill={C.nodeFill}
-      stroke={C.discardedStroke}
-      strokeWidth="1.5"
-      strokeDasharray="5,4"
-    />
-    <text x="465" y="167" textAnchor="middle" fill={C.subText} fontSize="11" fontFamily="inherit">
-      discarded
-    </text>
-  </svg>
-);
+      <text x="465" y="167" textAnchor="middle" fill={C.subText} fontSize="11" fontFamily="inherit">
+        discarded
+      </text>
+    </svg>
+  );
+};
 
 // ---------------------------------------------------------------------------
 // 5. TournamentDiagram
 // ---------------------------------------------------------------------------
 
 export const TournamentDiagram = (): React.JSX.Element => {
+  const t = useT();
   const eUp1 = toShape(68, 45, 200, 95, 20, 3);
   const eUp2 = toShape(68, 95, 200, 95, 20, 3);
   const eLo1 = toShape(68, 145, 200, 165, 20, 3);
@@ -548,7 +557,7 @@ export const TournamentDiagram = (): React.JSX.Element => {
       className="w-full h-auto"
       preserveAspectRatio="xMidYMid meet"
       role="img"
-      aria-label="トーナメントパターン: attempts → pairwise judges → final → winner"
+      aria-label={t.workflows.svgAriaTournament}
       xmlns="http://www.w3.org/2000/svg"
     >
       <SvgDefs />
@@ -702,6 +711,7 @@ export const TournamentDiagram = (): React.JSX.Element => {
 // ---------------------------------------------------------------------------
 
 export const LoopUntilDoneDiagram = (): React.JSX.Element => {
+  const t = useT();
   const eDiamond = toShape(108, 140, 255, 140, 40, 5); // agent → new findings?
   return (
     <svg
@@ -709,7 +719,7 @@ export const LoopUntilDoneDiagram = (): React.JSX.Element => {
       className="w-full h-auto"
       preserveAspectRatio="xMidYMid meet"
       role="img"
-      aria-label="完了まで繰り返すパターン: agent → new findings? ひし形 → done または yes ループで agent へ戻る"
+      aria-label={t.workflows.svgAriaLoopUntilDone}
       xmlns="http://www.w3.org/2000/svg"
     >
       <SvgDefs />

@@ -1,9 +1,12 @@
 import { BeforeAfterExamples } from "~/components/before-after-examples";
+import type { BeforeAfterExample } from "~/components/before-after-examples";
 import { CodeBlockView } from "~/components/code-block-view";
 import { DetailModalShell } from "~/components/detail-modal";
 import { HeaderTags } from "~/components/header-tags";
 import { ParagraphList, renderInlineMarkdown } from "~/components/paragraph-list";
 import { TipsList } from "~/components/tips-list";
+import { useL } from "~/i18n/localize";
+import { useT } from "~/i18n/useT";
 
 import type { AnyItem, BPItem, PromptItem, HooksItem } from "./constants";
 import { CATEGORY_CONFIGS } from "./constants";
@@ -71,8 +74,22 @@ const BPDetailContent = ({
   reducedMotion: boolean | null;
   categoryId?: string;
 }) => {
+  const t = useT();
+  const L = useL();
+  const bp = t.bestPractices;
   const sectionIcon = resolveSectionIcon(categoryId, item.id);
   const tagColors = CATEGORY_CONFIGS[categoryId].tagColors;
+
+  const translatedExamples: BeforeAfterExample[] | undefined = item.examples?.map((ex) => ({
+    strategy: L(ex.strategy, ex.strategy_en),
+    detail: ex.detail !== undefined ? L(ex.detail, ex.detail_en) : undefined,
+    before: L(ex.before, ex.before_en),
+    after: L(ex.after, ex.after_en),
+  }));
+
+  const translatedTips = item.tips ? L(item.tips, item.tips_en) : undefined;
+  const translatedInclude = item.include ? L(item.include, item.include_en) : undefined;
+  const translatedExclude = item.exclude ? L(item.exclude, item.exclude_en) : undefined;
 
   return (
     <DetailModalShell
@@ -83,9 +100,11 @@ const BPDetailContent = ({
       icon={sectionIcon}
       headerContent={
         <>
-          <h2 className="text-base font-bold text-slate-100 m-0 leading-snug">{item.title}</h2>
+          <h2 className="text-base font-bold text-slate-100 m-0 leading-snug">
+            {L(item.title, item.title_en)}
+          </h2>
           <p className="text-[14px] text-slate-300 mt-1.5 font-sans leading-[1.6] m-0">
-            {item.summary}
+            {L(item.summary, item.summary_en)}
           </p>
           <HeaderTags
             sectionName={sectionName}
@@ -97,59 +116,66 @@ const BPDetailContent = ({
       }
     >
       {/* Content paragraphs */}
-      <ParagraphList content={item.content} />
+      <ParagraphList content={L(item.content, item.content_en)} />
 
       {/* Before/After examples table */}
-      {item.examples && item.examples.length > 0 && (
-        <BeforeAfterExamples examples={item.examples} />
+      {translatedExamples && translatedExamples.length > 0 && (
+        <BeforeAfterExamples examples={translatedExamples} />
       )}
 
       {/* Steps (workflow phases) */}
       {item.steps && item.steps.length > 0 && (
         <div className="flex flex-col gap-3">
           <h3 className="text-[12px] font-bold uppercase tracking-wider text-cyan-300 font-mono m-0">
-            フェーズ
+            {bp.sectionPhase}
           </h3>
           <div className="flex flex-col gap-2.5">
-            {item.steps.map((step, i) => (
-              <div
-                key={i}
-                className="rounded-lg border border-slate-700 p-4 flex gap-3 items-start"
-              >
+            {item.steps.map((step, i) => {
+              const phaseLabel = L(step.phase, step.phase_en);
+              return (
                 <div
-                  className="w-7 h-7 rounded-full flex items-center justify-center shrink-0 text-xs font-bold"
-                  style={{ background: accentColor + "18", color: accentColor }}
+                  key={i}
+                  className="rounded-lg border border-slate-700 p-4 flex gap-3 items-start"
                 >
-                  {i + 1}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="text-sm font-semibold text-slate-100 mb-1">{step.phase}</div>
-                  <div className="text-[13px] text-slate-300 leading-relaxed mb-2">
-                    {renderInlineMarkdown(step.description)}
+                  <div
+                    className="w-7 h-7 rounded-full flex items-center justify-center shrink-0 text-xs font-bold"
+                    style={{ background: accentColor + "18", color: accentColor }}
+                  >
+                    {i + 1}
                   </div>
-                  <CodeBlockView block={{ lang: "text", label: step.phase, value: step.example }} />
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-semibold text-slate-100 mb-1">{phaseLabel}</div>
+                    <div className="text-[13px] text-slate-300 leading-relaxed mb-2">
+                      {renderInlineMarkdown(L(step.description, step.description_en))}
+                    </div>
+                    <CodeBlockView
+                      block={{ lang: "text", label: phaseLabel, value: step.example }}
+                    />
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}
 
       {/* Tips list */}
-      {item.tips && item.tips.length > 0 && <TipsList tips={item.tips} />}
+      {translatedTips && translatedTips.length > 0 && <TipsList tips={translatedTips} />}
 
       {/* Code block */}
-      {item.code && <CodeBlockView block={{ lang: "text", label: "コード", value: item.code }} />}
+      {item.code && (
+        <CodeBlockView block={{ lang: "text", label: bp.sectionCode, value: item.code }} />
+      )}
 
       {/* Include/Exclude tables (for CLAUDE.md item) */}
-      {item.include && item.exclude && (
+      {translatedInclude && translatedExclude && (
         <div className="grid grid-cols-2 gap-3">
           <div className="rounded-lg border border-green-500/20 p-4">
             <h4 className="text-[12px] font-bold uppercase tracking-wider text-green-400 font-mono m-0 mb-2.5">
-              含めるもの
+              {bp.sectionInclude}
             </h4>
             <ul className="m-0 pl-0 list-none flex flex-col gap-1.5">
-              {item.include.map((inc, i) => (
+              {translatedInclude.map((inc, i) => (
                 <li
                   key={i}
                   className="flex gap-1.5 items-start text-[13px] text-slate-300 leading-relaxed"
@@ -162,10 +188,10 @@ const BPDetailContent = ({
           </div>
           <div className="rounded-lg border border-red-500/20 p-4">
             <h4 className="text-[12px] font-bold uppercase tracking-wider text-red-400 font-mono m-0 mb-2.5">
-              除外するもの
+              {bp.sectionExclude}
             </h4>
             <ul className="m-0 pl-0 list-none flex flex-col gap-1.5">
-              {item.exclude.map((exc, i) => (
+              {translatedExclude.map((exc, i) => (
                 <li
                   key={i}
                   className="flex gap-1.5 items-start text-[13px] text-slate-300 leading-relaxed"
@@ -183,7 +209,7 @@ const BPDetailContent = ({
       {item.locations && item.locations.length > 0 && (
         <div className="flex flex-col gap-2.5">
           <h3 className="text-[12px] font-bold uppercase tracking-wider text-purple-300 font-mono m-0">
-            配置場所
+            {bp.sectionLocations}
           </h3>
           <div className="flex flex-col gap-1.5">
             {item.locations.map((loc, i) => (
@@ -195,7 +221,7 @@ const BPDetailContent = ({
                   {loc.path}
                 </code>
                 <span className="text-[13px] text-slate-300 leading-relaxed">
-                  {renderInlineMarkdown(loc.description)}
+                  {renderInlineMarkdown(L(loc.description, loc.description_en))}
                 </span>
               </div>
             ))}
@@ -207,14 +233,14 @@ const BPDetailContent = ({
       {item.writerReviewer && (
         <div className="flex flex-col gap-2.5">
           <h3 className="text-[12px] font-bold uppercase tracking-wider text-cyan-300 font-mono m-0">
-            Writer / Reviewer パターン
+            {bp.sectionWriterReviewer}
           </h3>
           <div className="grid grid-cols-2 gap-3">
             <div className="rounded-lg border border-cyan-500/20 p-4">
               <h4 className="text-[12px] font-bold text-cyan-300 font-mono m-0 mb-2">
-                Session A（ライター）
+                {bp.sessionWriter}
               </h4>
-              {item.writerReviewer.writer.map((w, i) => (
+              {L(item.writerReviewer.writer, item.writerReviewer.writer_en).map((w, i) => (
                 <p key={i} className="m-0 mt-1.5 text-[13px] text-slate-300 leading-relaxed italic">
                   {renderInlineMarkdown(w)}
                 </p>
@@ -222,9 +248,9 @@ const BPDetailContent = ({
             </div>
             <div className="rounded-lg border border-orange-500/20 p-4">
               <h4 className="text-[12px] font-bold text-orange-300 font-mono m-0 mb-2">
-                Session B（レビュアー）
+                {bp.sessionReviewer}
               </h4>
-              {item.writerReviewer.reviewer.map((r, i) => (
+              {L(item.writerReviewer.reviewer, item.writerReviewer.reviewer_en).map((r, i) => (
                 <p key={i} className="m-0 mt-1.5 text-[13px] text-slate-300 leading-relaxed italic">
                   {renderInlineMarkdown(r)}
                 </p>
@@ -244,7 +270,7 @@ const BPDetailContent = ({
             Fix
           </span>
           <span className="text-[14px] text-slate-300 leading-relaxed font-sans">
-            {renderInlineMarkdown(item.fix)}
+            {renderInlineMarkdown(L(item.fix, item.fix_en))}
           </span>
         </div>
       )}
@@ -269,8 +295,20 @@ const PromptDetailContent = ({
   onClose: () => void;
   reducedMotion: boolean | null;
 }) => {
+  const t = useT();
+  const L = useL();
+  const bp = t.bestPractices;
   const sectionIcon = resolveSectionIcon("prompting", item.id);
   const tagColors = CATEGORY_CONFIGS["prompting"].tagColors;
+
+  const translatedExamples: BeforeAfterExample[] | undefined = item.examples?.map((ex) => ({
+    strategy: L(ex.strategy, ex.strategy_en),
+    detail: ex.detail !== undefined ? L(ex.detail, ex.detail_en) : undefined,
+    before: L(ex.before, ex.before_en),
+    after: L(ex.after, ex.after_en),
+  }));
+
+  const translatedTips = item.tips ? L(item.tips, item.tips_en) : undefined;
 
   return (
     <DetailModalShell
@@ -281,9 +319,11 @@ const PromptDetailContent = ({
       icon={sectionIcon}
       headerContent={
         <>
-          <h2 className="text-base font-bold text-slate-100 m-0 leading-snug">{item.title}</h2>
+          <h2 className="text-base font-bold text-slate-100 m-0 leading-snug">
+            {L(item.title, item.title_en)}
+          </h2>
           <p className="text-[14px] text-slate-300 mt-1.5 font-sans leading-[1.6] m-0">
-            {item.summary}
+            {L(item.summary, item.summary_en)}
           </p>
           <HeaderTags
             sectionName={sectionName}
@@ -295,25 +335,32 @@ const PromptDetailContent = ({
       }
     >
       {/* Content paragraphs */}
-      <ParagraphList content={item.content} />
+      <ParagraphList content={L(item.content, item.content_en)} />
 
       {/* Before/After examples table */}
-      {item.examples && item.examples.length > 0 && (
-        <BeforeAfterExamples examples={item.examples} />
+      {translatedExamples && translatedExamples.length > 0 && (
+        <BeforeAfterExamples examples={translatedExamples} />
       )}
 
       {/* Tips list */}
-      {item.tips && item.tips.length > 0 && <TipsList tips={item.tips} />}
+      {translatedTips && translatedTips.length > 0 && <TipsList tips={translatedTips} />}
 
       {/* Code blocks (array of CodeBlock) */}
       {item.code && item.code.length > 0 && (
         <div className="flex flex-col gap-3">
           <h3 className="text-[12px] font-bold uppercase tracking-wider text-emerald-300 font-mono m-0">
-            サンプルプロンプト
+            {bp.sectionSamplePrompt}
           </h3>
           <div className="flex flex-col gap-2.5">
             {item.code.map((block, i) => (
-              <CodeBlockView key={i} block={block} />
+              <CodeBlockView
+                key={i}
+                block={{
+                  lang: block.lang,
+                  label: L(block.label, block.label_en),
+                  value: block.value,
+                }}
+              />
             ))}
           </div>
         </div>
@@ -339,8 +386,20 @@ const SkillDetailContent = ({
   onClose: () => void;
   reducedMotion: boolean | null;
 }) => {
+  const t = useT();
+  const L = useL();
+  const bp = t.bestPractices;
   const sectionIcon = resolveSectionIcon("skills", item.id);
   const tagColors = CATEGORY_CONFIGS["skills"].tagColors;
+
+  const translatedExamples: BeforeAfterExample[] | undefined = item.examples?.map((ex) => ({
+    strategy: L(ex.strategy, ex.strategy_en),
+    detail: ex.detail !== undefined ? L(ex.detail, ex.detail_en) : undefined,
+    before: L(ex.before, ex.before_en),
+    after: L(ex.after, ex.after_en),
+  }));
+
+  const translatedTips = item.tips ? L(item.tips, item.tips_en) : undefined;
 
   return (
     <DetailModalShell
@@ -351,9 +410,11 @@ const SkillDetailContent = ({
       icon={sectionIcon}
       headerContent={
         <>
-          <h2 className="text-base font-bold text-slate-100 m-0 leading-snug">{item.title}</h2>
+          <h2 className="text-base font-bold text-slate-100 m-0 leading-snug">
+            {L(item.title, item.title_en)}
+          </h2>
           <p className="text-[14px] text-slate-300 mt-1.5 font-sans leading-[1.6] m-0">
-            {item.summary}
+            {L(item.summary, item.summary_en)}
           </p>
           <HeaderTags
             sectionName={sectionName}
@@ -365,49 +426,56 @@ const SkillDetailContent = ({
       }
     >
       {/* Content paragraphs */}
-      <ParagraphList content={item.content} />
+      <ParagraphList content={L(item.content, item.content_en)} />
 
       {/* Before/After examples table */}
-      {item.examples && item.examples.length > 0 && (
-        <BeforeAfterExamples examples={item.examples} />
+      {translatedExamples && translatedExamples.length > 0 && (
+        <BeforeAfterExamples examples={translatedExamples} />
       )}
 
       {/* Steps (workflow phases) */}
       {item.steps && item.steps.length > 0 && (
         <div className="flex flex-col gap-3">
           <h3 className="text-[12px] font-bold uppercase tracking-wider text-cyan-300 font-mono m-0">
-            フェーズ
+            {bp.sectionPhase}
           </h3>
           <div className="flex flex-col gap-2.5">
-            {item.steps.map((step, i) => (
-              <div
-                key={i}
-                className="rounded-lg border border-slate-700 p-4 flex gap-3 items-start"
-              >
+            {item.steps.map((step, i) => {
+              const phaseLabel = L(step.phase, step.phase_en);
+              return (
                 <div
-                  className="w-7 h-7 rounded-full flex items-center justify-center shrink-0 text-xs font-bold"
-                  style={{ background: accentColor + "18", color: accentColor }}
+                  key={i}
+                  className="rounded-lg border border-slate-700 p-4 flex gap-3 items-start"
                 >
-                  {i + 1}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="text-sm font-semibold text-slate-100 mb-1">{step.phase}</div>
-                  <div className="text-[13px] text-slate-300 leading-relaxed mb-2">
-                    {renderInlineMarkdown(step.description)}
+                  <div
+                    className="w-7 h-7 rounded-full flex items-center justify-center shrink-0 text-xs font-bold"
+                    style={{ background: accentColor + "18", color: accentColor }}
+                  >
+                    {i + 1}
                   </div>
-                  <CodeBlockView block={{ lang: "text", label: step.phase, value: step.example }} />
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-semibold text-slate-100 mb-1">{phaseLabel}</div>
+                    <div className="text-[13px] text-slate-300 leading-relaxed mb-2">
+                      {renderInlineMarkdown(L(step.description, step.description_en))}
+                    </div>
+                    <CodeBlockView
+                      block={{ lang: "text", label: phaseLabel, value: step.example }}
+                    />
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}
 
       {/* Tips list */}
-      {item.tips && item.tips.length > 0 && <TipsList tips={item.tips} />}
+      {translatedTips && translatedTips.length > 0 && <TipsList tips={translatedTips} />}
 
       {/* Code block */}
-      {item.code && <CodeBlockView block={{ lang: "text", label: "コード", value: item.code }} />}
+      {item.code && (
+        <CodeBlockView block={{ lang: "text", label: bp.sectionCode, value: item.code }} />
+      )}
     </DetailModalShell>
   );
 };
@@ -429,8 +497,20 @@ const HooksDetailContent = ({
   onClose: () => void;
   reducedMotion: boolean | null;
 }) => {
+  const t = useT();
+  const L = useL();
+  const bp = t.bestPractices;
   const sectionIcon = resolveSectionIcon("hooks", item.id);
   const tagColors = CATEGORY_CONFIGS["hooks"].tagColors;
+
+  const translatedExamples: BeforeAfterExample[] | undefined = item.examples?.map((ex) => ({
+    strategy: L(ex.strategy, ex.strategy_en),
+    detail: ex.detail !== undefined ? L(ex.detail, ex.detail_en) : undefined,
+    before: L(ex.before, ex.before_en),
+    after: L(ex.after, ex.after_en),
+  }));
+
+  const translatedTips = item.tips ? L(item.tips, item.tips_en) : undefined;
 
   return (
     <DetailModalShell
@@ -442,9 +522,11 @@ const HooksDetailContent = ({
       bodyClassName="p-6 overflow-y-auto flex-1 min-h-0 flex flex-col gap-5"
       headerContent={
         <>
-          <h2 className="text-base font-bold text-slate-100 m-0 leading-snug">{item.title}</h2>
+          <h2 className="text-base font-bold text-slate-100 m-0 leading-snug">
+            {L(item.title, item.title_en)}
+          </h2>
           <p className="text-[14px] text-slate-300 mt-1.5 font-sans leading-[1.6] m-0">
-            {item.summary}
+            {L(item.summary, item.summary_en)}
           </p>
           <HeaderTags
             sectionName={sectionName}
@@ -456,18 +538,18 @@ const HooksDetailContent = ({
       }
     >
       {/* Content paragraphs */}
-      <ParagraphList content={item.content} />
+      <ParagraphList content={L(item.content, item.content_en)} />
 
       {/* Before/After examples */}
-      {item.examples && item.examples.length > 0 && (
-        <BeforeAfterExamples examples={item.examples} />
+      {translatedExamples && translatedExamples.length > 0 && (
+        <BeforeAfterExamples examples={translatedExamples} />
       )}
 
       {/* Steps (handler types / phases) */}
       {item.steps && item.steps.length > 0 && (
         <div className="flex flex-col gap-3">
           <h3 className="text-[12px] font-bold uppercase tracking-wider text-cyan-300 font-mono m-0">
-            詳細
+            {bp.sectionDetail}
           </h3>
           <div className="flex flex-col gap-2.5">
             {item.steps.map((step, i) => (
@@ -484,13 +566,15 @@ const HooksDetailContent = ({
                 <div className="flex-1 min-w-0">
                   <div className="text-sm font-semibold text-slate-100 mb-1">
                     <code className="font-mono text-[13px] bg-slate-700/50 px-1.5 py-0.5 rounded">
-                      {step.phase}
+                      {L(step.phase, step.phase_en)}
                     </code>
                   </div>
                   <div className="text-[13px] text-slate-300 leading-relaxed mb-2">
-                    {renderInlineMarkdown(step.description)}
+                    {renderInlineMarkdown(L(step.description, step.description_en))}
                   </div>
-                  <div className="text-[12px] text-slate-400 italic">{step.example}</div>
+                  <div className="text-[12px] text-slate-400 italic">
+                    {L(step.example, step.example_en)}
+                  </div>
                 </div>
               </div>
             ))}
@@ -499,7 +583,7 @@ const HooksDetailContent = ({
       )}
 
       {/* Tips list */}
-      {item.tips && item.tips.length > 0 && <TipsList tips={item.tips} />}
+      {translatedTips && translatedTips.length > 0 && <TipsList tips={translatedTips} />}
 
       {/* Single code block */}
       {item.code && (
@@ -507,7 +591,7 @@ const HooksDetailContent = ({
           <CodeBlockView
             block={{
               lang: item.code.trimStart().startsWith("{") ? "json" : "bash",
-              label: item.code.trimStart().startsWith("{") ? "settings.json" : "スクリプト",
+              label: item.code.trimStart().startsWith("{") ? "settings.json" : bp.sectionScript,
               value: item.code,
             }}
           />
@@ -522,7 +606,7 @@ const HooksDetailContent = ({
               key={i}
               block={{
                 lang: block.lang,
-                label: block.label,
+                label: L(block.label, block.label_en),
                 value: block.value,
                 recommended: block.recommended,
               }}
@@ -535,7 +619,7 @@ const HooksDetailContent = ({
       {item.locations && item.locations.length > 0 && (
         <div className="flex flex-col gap-2.5">
           <h3 className="text-[12px] font-bold uppercase tracking-wider text-purple-300 font-mono m-0">
-            配置場所
+            {bp.sectionLocations}
           </h3>
           <div className="flex flex-col gap-1.5">
             {item.locations.map((loc, i) => (
@@ -547,7 +631,7 @@ const HooksDetailContent = ({
                   {loc.path}
                 </code>
                 <span className="text-[13px] text-slate-300 leading-relaxed">
-                  {renderInlineMarkdown(loc.description)}
+                  {renderInlineMarkdown(L(loc.description, loc.description_en))}
                 </span>
               </div>
             ))}

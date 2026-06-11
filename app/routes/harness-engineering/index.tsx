@@ -9,6 +9,9 @@ import { SummaryCard } from "~/components/summary-card";
 import { TabBar } from "~/components/tab-bar";
 import type { TabItem } from "~/components/tab-bar";
 import { usePageState } from "~/hooks/usePageState";
+import { dictFromMatches } from "~/i18n/meta";
+import { useL } from "~/i18n/localize";
+import { useT } from "~/i18n/useT";
 
 import {
   ACCENT,
@@ -16,7 +19,7 @@ import {
   TOTAL_ITEMS,
   SECTION_COLORS,
   SECTION_ICONS,
-  TAB_DEFS,
+  getTabDefs,
   TAB_SECTION_MAP,
   ITEM_SECTION_MAP,
   TAG_COLORS,
@@ -27,13 +30,17 @@ import { DetailModal } from "./detail-modal";
 // Meta
 // ---------------------------------------------------------------------------
 
-export const meta = (): Array<{ title?: string; name?: string; content?: string }> => {
+export const meta = ({
+  matches,
+}: {
+  matches: readonly ({ data?: unknown } | undefined)[];
+}): Array<{ title?: string; name?: string; content?: string }> => {
+  const d = dictFromMatches(matches);
   return [
-    { title: "ハーネス＆コンテキストエンジニアリング — Claude Code" },
+    { title: d.harness.metaTitle },
     {
       name: "description",
-      content:
-        "Claude Code のハーネス設計（コンテキスト管理含む）を最適化するための包括的リファレンス",
+      content: d.harness.metaDescription,
     },
   ];
 };
@@ -55,6 +62,9 @@ const renderTabIcon = (tab: TabItem): React.ReactNode => {
 };
 
 const HarnessEngineering = (): React.JSX.Element => {
+  const t = useT();
+  const L = useL();
+  const tabDefs = getTabDefs(t);
   const {
     query,
     setQuery,
@@ -65,8 +75,17 @@ const HarnessEngineering = (): React.JSX.Element => {
     openModal,
     closeModal,
   } = usePageState({
-    sections: SECTIONS.map((s) => ({ id: s.id, name: s.name, items: s.items })),
-    searchFields: (item) => [item.title, item.summary, item.content, ...item.tags],
+    sections: SECTIONS.map((s) => ({
+      id: s.id,
+      name: L(s.name, s.name_en),
+      items: s.items,
+    })),
+    searchFields: (item) => [
+      L(item.title, item.title_en),
+      L(item.summary, item.summary_en),
+      L(item.content, item.content_en),
+      ...item.tags,
+    ],
     tabSectionMap: TAB_SECTION_MAP,
   });
   const reducedMotion = useReducedMotion();
@@ -87,18 +106,18 @@ const HarnessEngineering = (): React.JSX.Element => {
       <div className="max-w-[1400px] mx-auto px-4 py-8">
         {/* Header */}
         <PageHeader
-          title="ハーネス＆コンテキストエンジニアリング"
-          description="CLAUDE.md・Hooks・サブエージェント・Skills・コンテキストウィンドウ管理 — Claude Code のハーネスエンジニアリング（コンテキストエンジニアリング含む）の包括的リファレンス。"
+          title={t.harness.pageTitle}
+          description={t.harness.pageDescription}
           stats={[
-            { value: SECTIONS.length, label: "セクション" },
-            { value: TOTAL_ITEMS, label: "トピック" },
+            { value: SECTIONS.length, label: t.harness.statSection },
+            { value: TOTAL_ITEMS, label: t.harness.statTopic },
           ]}
           gradient={["rgba(6,182,212,0.08)", "rgba(6,182,212,0.03)"]}
         />
 
         {/* Tabs */}
         <TabBar
-          tabs={TAB_DEFS}
+          tabs={tabDefs}
           activeTab={activeTab}
           onTabChange={handleTabChange}
           renderIcon={renderTabIcon}
@@ -115,7 +134,7 @@ const HarnessEngineering = (): React.JSX.Element => {
           <SearchInput
             value={query}
             onChange={setQuery}
-            placeholder="トピックを検索..."
+            placeholder={t.harness.searchPlaceholder}
             accentColor={ACCENT}
           />
         </motion.div>
@@ -123,7 +142,7 @@ const HarnessEngineering = (): React.JSX.Element => {
         {/* Count */}
         <div className="flex items-center gap-2.5 mb-4 px-1">
           <span className="text-[14px] text-slate-500 font-medium">
-            {visibleItemCount} / {TOTAL_ITEMS} トピック
+            {t.harness.topicCount(visibleItemCount, TOTAL_ITEMS)}
           </span>
         </div>
 
@@ -134,6 +153,10 @@ const HarnessEngineering = (): React.JSX.Element => {
               color: "#3B82F6",
               bg: "rgba(59,130,246,0.15)",
             };
+            const sectionData = SECTIONS.find((s) => s.id === section.id);
+            const sectionName = sectionData
+              ? L(sectionData.name, sectionData.name_en)
+              : section.name;
             return (
               <div key={section.id}>
                 {/* Section header */}
@@ -144,9 +167,11 @@ const HarnessEngineering = (): React.JSX.Element => {
                     </span>
                   )}
                   <h2 className="text-base font-bold m-0" style={{ color: colors.color }}>
-                    {section.name}
+                    {sectionName}
                   </h2>
-                  <span className="text-xs text-slate-500">{section.items.length} 件</span>
+                  <span className="text-xs text-slate-500">
+                    {t.harness.itemCount(section.items.length)}
+                  </span>
                 </div>
 
                 {/* Cards */}
@@ -155,11 +180,11 @@ const HarnessEngineering = (): React.JSX.Element => {
                   keyExtractor={(item) => item.id}
                   renderItem={(item) => (
                     <SummaryCard
-                      title={item.title}
-                      description={item.summary}
+                      title={L(item.title, item.title_en)}
+                      description={L(item.summary, item.summary_en)}
                       tags={item.tags}
                       accentColor={colors.color}
-                      sectionName={section.name}
+                      sectionName={sectionName}
                       onClick={() => openModal(item.id)}
                       tagColors={TAG_COLORS}
                     />
@@ -173,7 +198,7 @@ const HarnessEngineering = (): React.JSX.Element => {
 
         {/* Empty state */}
         {visibleItemCount === 0 && (
-          <EmptyState message="条件に一致するトピックはありません" reducedMotion={reducedMotion} />
+          <EmptyState message={t.harness.emptyMessage} reducedMotion={reducedMotion} />
         )}
 
         {/* Footer */}

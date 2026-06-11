@@ -1,49 +1,69 @@
 {
   "id": "patterns",
   "title": "6つのパターン",
+  "title_en": "6 Patterns",
   "description": "ワークフローを組み立てるとき Claude が使い、また組み合わせる代表的なパターン。",
+  "description_en": "Representative patterns that Claude uses and combines when constructing workflows.",
   "blocks": [
     {
       "type": "pattern",
       "patternId": "classify-and-act",
       "name": "Classify-and-act（分類して振り分け）",
+      "name_en": "Classify-and-act",
       "tagline": "分類器でタスクを仕分け、種類ごとに処理を変える",
-      "content": "分類器エージェントがタスクの種類を判定し、種類に応じて別のエージェントや振る舞いにルーティングする。あるいは最後に分類器を使って最終的な出力を決める。\n\n### いつ使うか\n\n- 問い合わせやチケットを種別（一般質問・返金・技術サポートなど）で判定し、それぞれ専用のプロンプトや担当ハンドラへ振り分けたいとき。\n\n- 入力の難易度を先に見極め、軽いものは Haiku、難しいものは Opus へ回すといったモデル・コスト最適化のルーティング。\n\n- 「どの処理系で扱うか」を決めるのが主眼で、並列分散（fan-out）や勝者選抜（tournament）が要らない場面に向く。"
+      "tagline_en": "Sort tasks with a classifier and apply different handling per category",
+      "content": "分類器エージェントがタスクの種類を判定し、種類に応じて別のエージェントや振る舞いにルーティングする。あるいは最後に分類器を使って最終的な出力を決める。\n\n### いつ使うか\n\n- 問い合わせやチケットを種別（一般質問・返金・技術サポートなど）で判定し、それぞれ専用のプロンプトや担当ハンドラへ振り分けたいとき。\n\n- 入力の難易度を先に見極め、軽いものは Haiku、難しいものは Opus へ回すといったモデル・コスト最適化のルーティング。\n\n- 「どの処理系で扱うか」を決めるのが主眼で、並列分散（fan-out）や勝者選抜（tournament）が要らない場面に向く。",
+      "content_en": "A classifier agent determines the type of a task and routes it to a different agent or behavior based on that type. Alternatively, a classifier can be used at the end to decide the final output.\n\n### When to use\n\n- When you want to evaluate inquiries or tickets by category (general questions, refunds, technical support, etc.) and route each to a dedicated prompt or handler.\n\n- Model and cost optimization routing: assess the difficulty of an input upfront and route easy inputs to Haiku and hard ones to Opus.\n\n- Best suited when the primary goal is deciding \"which pipeline handles this\" and fan-out or tournament is not needed."
     },
     {
       "type": "pattern",
       "patternId": "fan-out-and-synthesize",
       "name": "Fan-out-and-synthesize（分散して統合）",
+      "name_en": "Fan-out-and-synthesize",
       "tagline": "小ステップに分割→各エージェント→統合（バリア）",
-      "content": "タスクを多数の小さなステップに分割し、各ステップにエージェントを走らせ、結果を統合（synthesize）する。\n\n小さなステップが大量にある場合や、各ステップが自分専用のクリーンなコンテキストで干渉・相互汚染を避けたい場合に特に有効。\n\nsynthesize ステップは barrier（バリア）＝すべての fan-out エージェントの完了を待ってから、構造化された出力を1つにまとめる同期点として働く。\n\n### いつ使うか\n\n- 1つのコンテキストに収まらない大量で独立したサブタスクを並列処理したいとき（例: 500ファイル規模の移行、コードベース全体のバグ一掃監査）。\n\n- 複数の独立した方向へ同時に調べる breadth-first リサーチで、リードが各エージェントの結果を1つに統合する構成（マルチエージェント・リサーチ型）。\n\n- サブタスク同士が独立していて最後にまとめられるときに最適で、順位付けや反復が主眼の場面とは区別する。"
+      "tagline_en": "Split into small steps → each agent → synthesize (barrier)",
+      "content": "タスクを多数の小さなステップに分割し、各ステップにエージェントを走らせ、結果を統合（synthesize）する。\n\n小さなステップが大量にある場合や、各ステップが自分専用のクリーンなコンテキストで干渉・相互汚染を避けたい場合に特に有効。\n\nsynthesize ステップは barrier（バリア）＝すべての fan-out エージェントの完了を待ってから、構造化された出力を1つにまとめる同期点として働く。\n\n### いつ使うか\n\n- 1つのコンテキストに収まらない大量で独立したサブタスクを並列処理したいとき（例: 500ファイル規模の移行、コードベース全体のバグ一掃監査）。\n\n- 複数の独立した方向へ同時に調べる breadth-first リサーチで、リードが各エージェントの結果を1つに統合する構成（マルチエージェント・リサーチ型）。\n\n- サブタスク同士が独立していて最後にまとめられるときに最適で、順位付けや反復が主眼の場面とは区別する。",
+      "content_en": "Split a task into many small steps, run an agent on each step, and synthesize the results.\n\nParticularly effective when there are a large number of small steps, or when each step should work in its own clean context to avoid interference and cross-contamination.\n\nThe synthesize step acts as a barrier — a synchronization point that waits for all fan-out agents to complete before merging the structured outputs into one.\n\n### When to use\n\n- When you want to process a large number of independent sub-tasks in parallel that don't fit in a single context (e.g., migrating 500 files, auditing an entire codebase for bugs).\n\n- Breadth-first research that fans out to multiple independent directions simultaneously, with a lead agent synthesizing each agent's results into one (multi-agent research pattern).\n\n- Best when sub-tasks are independent and can be merged at the end; distinguish from scenarios where ranking or iteration is the main goal."
     },
     {
       "type": "pattern",
       "patternId": "adversarial-verification",
       "name": "Adversarial verification（敵対的検証）",
+      "name_en": "Adversarial verification",
       "tagline": "各エージェントの出力を別エージェントが基準で検証",
-      "content": "spawn した各エージェントに対し、その出力をルーブリックや基準に照らして敵対的に検証する別のエージェントを走らせる。\n\n### いつ使うか\n\n- 実装直後のコードや成果物を、別コンテキストの新鮮なエージェントに粗探しさせて信頼性を高めたいとき（自己レビューより独立レビューが効く）。\n\n- レポートやバグ報告の各主張を複数視点・複数回でクロスチェックし、偽陽性を潰したいとき（脆弱性レビューを複数プロンプトで走らせ多数決する等）。\n\n- 目的が「新しい価値の創出」ではなく「出力の正しさ・信頼性の担保」であるときに選ぶ。"
+      "tagline_en": "A separate agent adversarially verifies each agent's output against a rubric",
+      "content": "spawn した各エージェントに対し、その出力をルーブリックや基準に照らして敵対的に検証する別のエージェントを走らせる。\n\n### いつ使うか\n\n- 実装直後のコードや成果物を、別コンテキストの新鮮なエージェントに粗探しさせて信頼性を高めたいとき（自己レビューより独立レビューが効く）。\n\n- レポートやバグ報告の各主張を複数視点・複数回でクロスチェックし、偽陽性を潰したいとき（脆弱性レビューを複数プロンプトで走らせ多数決する等）。\n\n- 目的が「新しい価値の創出」ではなく「出力の正しさ・信頼性の担保」であるときに選ぶ。",
+      "content_en": "For each spawned agent, run a separate agent that adversarially verifies the output against a rubric or set of criteria.\n\n### When to use\n\n- When you want to increase reliability by having a fresh agent in a separate context find flaws in newly written code or artifacts (independent review is more effective than self-review).\n\n- When you want to cross-check each claim in a report or bug report from multiple perspectives and multiple passes to eliminate false positives (e.g., running a vulnerability review with multiple prompts and taking a majority vote).\n\n- Choose when the goal is \"ensuring the correctness and reliability of output\" rather than \"creating new value.\""
     },
     {
       "type": "pattern",
       "patternId": "generate-and-filter",
       "name": "Generate-and-filter（生成してフィルタ）",
+      "name_en": "Generate-and-filter",
       "tagline": "多数生成→ルーブリックで選別→重複除去",
-      "content": "あるトピックでアイデアを多数生成し、ルーブリックや検証でフィルタし、重複を除去して、最高品質で検証済みのものだけを返す。\n\n### いつ使うか\n\n- 設計案・命名・プロンプトやスキルの草案を数多く生成し、ルーブリックや評価エージェントで基準を満たすものだけ残したいとき。\n\n- 生成→評価のループで品質を反復的に引き上げたいとき（evaluator-optimizer 型）。`/deep-research` が各主張に投票して生き残りだけ返すのも同型。\n\n- まず量を出してから品質バーで絞る方式。全候補を比べて1つだけ選ぶ tournament と違い、基準を超えれば複数残ってよい場面に向く。"
+      "tagline_en": "Generate many → filter by rubric → deduplicate",
+      "content": "あるトピックでアイデアを多数生成し、ルーブリックや検証でフィルタし、重複を除去して、最高品質で検証済みのものだけを返す。\n\n### いつ使うか\n\n- 設計案・命名・プロンプトやスキルの草案を数多く生成し、ルーブリックや評価エージェントで基準を満たすものだけ残したいとき。\n\n- 生成→評価のループで品質を反復的に引き上げたいとき（evaluator-optimizer 型）。`/deep-research` が各主張に投票して生き残りだけ返すのも同型。\n\n- まず量を出してから品質バーで絞る方式。全候補を比べて1つだけ選ぶ tournament と違い、基準を超えれば複数残ってよい場面に向く。",
+      "content_en": "Generate a large number of ideas on a topic, filter them with a rubric or validation, remove duplicates, and return only the highest-quality, verified results.\n\n### When to use\n\n- When you want to generate many design proposals, names, or draft prompts or skills, and keep only those that meet the bar set by a rubric or evaluator agent.\n\n- When you want to iteratively raise quality through a generate → evaluate loop (evaluator-optimizer pattern). `/deep-research` voting on each claim and returning only survivors follows the same pattern.\n\n- A \"generate quantity first, then filter by quality bar\" approach. Unlike tournament — which compares all candidates and picks just one — this suits scenarios where multiple results above the bar are acceptable."
     },
     {
       "type": "pattern",
       "patternId": "tournament",
       "name": "Tournament（トーナメント）",
+      "name_en": "Tournament",
       "tagline": "同じ課題に別アプローチで競わせ、ペアワイズ判定で勝者を決める",
-      "content": "仕事を分割するのではなく、エージェントどうしを競わせる。N個のエージェントがそれぞれ異なるアプローチで同じタスクに挑み、プロンプトやモデルがその結果をペアワイズ（一対一）に判定し、勝者が決まるまで繰り返す。\n\n### いつ使うか\n\n- デザイン・文章・命名のような主観的でセンス依存の出力や、複数アーキテクチャ案の優劣を、絶対スコアより信頼できるペアワイズ比較で決めたいとき。\n\n- 複数の案を異なる角度から作って互いに競わせ、勝者を1つ選ぶ・順位を付けたいとき。\n\n- 最終的に「1つの勝者／明確な順位」を出すのが目的の場面に向き、基準クリアを複数残す generate-and-filter とは異なる。"
+      "tagline_en": "Compete with different approaches on the same task; determine the winner by pairwise judgment",
+      "content": "仕事を分割するのではなく、エージェントどうしを競わせる。N個のエージェントがそれぞれ異なるアプローチで同じタスクに挑み、プロンプトやモデルがその結果をペアワイズ（一対一）に判定し、勝者が決まるまで繰り返す。\n\n### いつ使うか\n\n- デザイン・文章・命名のような主観的でセンス依存の出力や、複数アーキテクチャ案の優劣を、絶対スコアより信頼できるペアワイズ比較で決めたいとき。\n\n- 複数の案を異なる角度から作って互いに競わせ、勝者を1つ選ぶ・順位を付けたいとき。\n\n- 最終的に「1つの勝者／明確な順位」を出すのが目的の場面に向き、基準クリアを複数残す generate-and-filter とは異なる。",
+      "content_en": "Rather than dividing the work, pit agents against each other. N agents each tackle the same task with a different approach, and a prompt or model judges the results pairwise until a winner emerges.\n\n### When to use\n\n- When you want to settle subjective, taste-dependent outputs like designs, copy, or names — or compare multiple architecture proposals — using pairwise comparison (more reliable than absolute scores).\n\n- When you want to produce multiple proposals from different angles, pit them against each other, and select one winner or produce a ranking.\n\n- Best suited when the goal is to produce \"one winner / a clear ranking\"; distinct from generate-and-filter, which allows multiple results to survive if they clear the bar."
     },
     {
       "type": "pattern",
       "patternId": "loop-until-done",
       "name": "Loop until done（完了まで反復）",
+      "name_en": "Loop until done",
       "tagline": "停止条件を満たすまでエージェントを spawn し続ける",
-      "content": "作業量が未知のタスクで、固定回数の代わりに停止条件（新しい発見がない、ログにエラーが残っていない等）が満たされるまでエージェントの spawn を繰り返す。\n\n### いつ使うか\n\n- 失敗テストが0になるまで直し続ける、対象が尽きるまでバグを一掃するなど、完了条件を満たすまで反復したいとき。\n\n- 事前に反復回数が決まらない探索的タスク（「テストが通るまで」反復してCコンパイラを構築した事例が典型）。\n\n- 反復回数を固定できないときに選ぶ。ただし1回の run あたり最大1,000エージェントという上限がある点に注意。"
+      "tagline_en": "Keep spawning agents until a stopping condition is met",
+      "content": "作業量が未知のタスクで、固定回数の代わりに停止条件（新しい発見がない、ログにエラーが残っていない等）が満たされるまでエージェントの spawn を繰り返す。\n\n### いつ使うか\n\n- 失敗テストが0になるまで直し続ける、対象が尽きるまでバグを一掃するなど、完了条件を満たすまで反復したいとき。\n\n- 事前に反復回数が決まらない探索的タスク（「テストが通るまで」反復してCコンパイラを構築した事例が典型）。\n\n- 反復回数を固定できないときに選ぶ。ただし1回の run あたり最大1,000エージェントという上限がある点に注意。",
+      "content_en": "For tasks where the amount of work is unknown, repeatedly spawn agents until a stopping condition is met (no new findings, no errors remaining in the log, etc.) instead of a fixed number of iterations.\n\n### When to use\n\n- When you want to iterate until a completion condition is met — for example, fixing failing tests until the count reaches zero, or sweeping out bugs until none remain.\n\n- Exploratory tasks where the number of iterations cannot be determined upfront (the canonical example is building a C compiler by iterating \"until tests pass\").\n\n- Choose when the iteration count cannot be fixed. Note the limit of 1,000 agents per run."
     }
   ]
 }

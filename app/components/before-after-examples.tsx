@@ -1,3 +1,5 @@
+import { useT } from "~/i18n/useT";
+
 export interface BeforeAfterExample {
   strategy: string;
   detail?: string;
@@ -10,10 +12,11 @@ export const BeforeAfterExamples = ({
 }: {
   examples: BeforeAfterExample[];
 }): React.JSX.Element => {
+  const t = useT();
   return (
     <div className="flex flex-col gap-3">
       <h3 className="text-[12px] font-bold uppercase tracking-wider text-cyan-300 font-mono m-0">
-        具体例（Before → After）
+        {t.common.beforeAfter}
       </h3>
       <div className="flex flex-col gap-2.5">
         {examples.map((ex, i) => (

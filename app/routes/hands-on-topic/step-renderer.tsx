@@ -6,14 +6,16 @@ import { renderInlineMarkdown } from "~/components/paragraph-list";
 import type { ContentBlock, Step } from "./constants";
 import { HIGHLIGHT_STYLES } from "./constants";
 
+type LocalizeFn = <T extends string | string[]>(ja: T, en?: T) => T;
+
 // ── Block Renderer ───────────────────────────────────────────────────────
 
-const renderBlock = (block: ContentBlock, key: number): React.ReactNode => {
+const renderBlock = (block: ContentBlock, key: number, L: LocalizeFn): React.ReactNode => {
   switch (block.type) {
     case "text":
       return (
         <p key={key} className="text-[14px] text-slate-300 leading-[1.8] m-0">
-          {renderInlineMarkdown(block.content)}
+          {renderInlineMarkdown(L(block.content, block.content_en))}
         </p>
       );
 
@@ -24,7 +26,7 @@ const renderBlock = (block: ContentBlock, key: number): React.ReactNode => {
           key={key}
           className="text-[14px] text-slate-300 leading-[1.8] m-0 pl-5 flex flex-col gap-2"
         >
-          {block.items.map((item, i) => (
+          {L(block.items, block.items_en).map((item, i) => (
             <li key={i}>{renderInlineMarkdown(item)}</li>
           ))}
         </Tag>
@@ -47,11 +49,11 @@ const renderBlock = (block: ContentBlock, key: number): React.ReactNode => {
               className="text-[12px] font-bold uppercase tracking-wider font-mono"
               style={{ color: style.color }}
             >
-              {block.title}
+              {L(block.title, block.title_en)}
             </span>
           )}
           <span className="text-[14px] text-slate-300 leading-[1.8] font-sans">
-            {renderInlineMarkdown(block.content)}
+            {renderInlineMarkdown(L(block.content, block.content_en))}
           </span>
         </div>
       );
@@ -64,7 +66,7 @@ const renderBlock = (block: ContentBlock, key: number): React.ReactNode => {
           language={block.language}
           code={block.code}
           filename={block.filename}
-          caption={block.caption}
+          caption={block.caption !== undefined ? L(block.caption, block.caption_en) : undefined}
         />
       );
 
@@ -77,10 +79,12 @@ const renderBlock = (block: ContentBlock, key: number): React.ReactNode => {
 
 export const IntroBlockRenderer = ({
   block,
+  L,
 }: {
   block: ContentBlock;
+  L: LocalizeFn;
 }): React.JSX.Element | null => {
-  return renderBlock(block, 0) as React.JSX.Element | null;
+  return renderBlock(block, 0, L) as React.JSX.Element | null;
 };
 
 // ── Step Renderer ────────────────────────────────────────────────────────
@@ -89,12 +93,14 @@ interface StepRendererProps {
   step: Step;
   index: number;
   accentColor: string;
+  L: LocalizeFn;
 }
 
 export const StepRenderer = ({
   step,
   index,
   accentColor,
+  L,
 }: StepRendererProps): React.JSX.Element => {
   const reducedMotion = useReducedMotion();
 
@@ -130,14 +136,18 @@ export const StepRenderer = ({
             className="text-[11px] font-bold uppercase tracking-wider font-mono"
             style={{ color: accentColor }}
           >
-            {step.label}
+            {L(step.label, step.label_en)}
           </span>
         </div>
-        <h3 className="text-[18px] font-bold text-slate-100 m-0 mb-1.5">{step.title}</h3>
-        <p className="text-[13px] text-slate-500 m-0 mb-5">{step.description}</p>
+        <h3 className="text-[18px] font-bold text-slate-100 m-0 mb-1.5">
+          {L(step.title, step.title_en)}
+        </h3>
+        <p className="text-[13px] text-slate-500 m-0 mb-5">
+          {L(step.description, step.description_en)}
+        </p>
 
         <div className="flex flex-col gap-4">
-          {step.blocks.map((block, i) => renderBlock(block, i))}
+          {step.blocks.map((block, i) => renderBlock(block, i, L))}
         </div>
       </div>
     </motion.div>

@@ -2,14 +2,18 @@ import { RELEASES, VERSION_DETAILS as VERSION_DETAILS_DATA } from "~/data/releas
 
 export interface ReleaseItem {
   t: string;
+  t_en?: string;
   tags: string[];
 }
 
 export interface DetailItem {
   t: string;
+  t_en?: string;
   tags: string[];
   detail: string;
+  detail_en?: string;
   category: string;
+  category_en?: string;
 }
 
 export { RELEASES };

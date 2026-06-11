@@ -3,13 +3,18 @@
     {
       "id": "bundled-skills",
       "name": "バンドルスキル",
+      "name_en": "Bundled Skills",
       "description": "Claude Code に同梱される組み込みスキル",
+      "description_en": "Built-in skills bundled with Claude Code",
       "items": [
         {
           "id": "bundled-skills-overview",
           "title": "バンドルスキルの概要",
+          "title_en": "Overview of Bundled Skills",
           "summary": "Claude Code に同梱されるプロンプトベースのスキル。ビルトインコマンドと異なり、並列エージェント起動やファイル読み取りが可能。",
+          "summary_en": "Prompt-based skills bundled with Claude Code. Unlike built-in commands, they can launch parallel agents and read files.",
           "content": "バンドルスキルは Claude Code に同梱され、すべてのセッションで利用可能です。ビルトインコマンド（固定ロジック）とは異なりプロンプトベースで動作し、並列エージェント起動やファイル読み取りが可能です。\n\n呼び出しは通常のスキルと同じで `/` の後にスキル名を入力します。\n\nカスタムコマンドはスキルに統合されました。`.claude/commands/deploy.md` と `.claude/skills/deploy/SKILL.md` はどちらも `/deploy` を定義し、同じように動作します。既存の `.claude/commands/` ファイルは引き続き動作しますが、スキル形式ではサポートファイル用ディレクトリ、frontmatter による呼び出し制御、Claude による自動ロードが使えるため、新規作成はスキルを推奨します。同名のコマンドとスキルが存在する場合はスキルが優先されます。",
+          "content_en": "Bundled skills ship with Claude Code and are available in every session. Unlike built-in commands (fixed logic), they operate prompt-based and can launch parallel agents and read files.\n\nInvocation is the same as regular skills — type `/` followed by the skill name.\n\nCustom commands have been integrated into skills. Both `.claude/commands/deploy.md` and `.claude/skills/deploy/SKILL.md` define `/deploy` and behave the same way. Existing `.claude/commands/` files continue to work, but for new creations skills are recommended because they support a directory for support files, frontmatter-based invocation control, and automatic loading by Claude. If a command and a skill with the same name both exist, the skill takes precedence.",
           "tags": [],
           "tips": [
             "/batch <instruction> — 大規模変更を並列実行。5〜30ユニットに分解し、隔離 git worktree でエージェント起動→実装→テスト→PR 作成",
@@ -17,6 +22,13 @@
             "/debug [description] — デバッグログの読み取りとトラブルシュート。--debug なしの場合 /debug 実行時点からログ記録開始",
             "/loop [interval] <prompt> — プロンプトを指定間隔で繰り返し実行。デプロイ監視に有用",
             "/simplify [focus] — 3つのレビューエージェントを並列起動し品質チェック→修正を適用"
+          ],
+          "tips_en": [
+            "/batch <instruction> — Runs large-scale changes in parallel. Decomposes into 5–30 units and launches agents in isolated git worktrees → implement → test → create PR",
+            "/claude-api — Loads language-specific (Python, TypeScript, Java, Go, Ruby, C#, PHP, cURL) API references and the Agent SDK. Auto-triggered when anthropic / @anthropic-ai/sdk / claude_agent_sdk imports are detected",
+            "/debug [description] — Reads debug logs and troubleshoots. Without --debug, starts logging from the point /debug is executed",
+            "/loop [interval] <prompt> — Repeatedly executes a prompt at the specified interval. Useful for deploy monitoring",
+            "/simplify [focus] — Launches 3 review agents in parallel to perform quality checks and apply fixes"
           ]
         }
       ]
@@ -24,40 +36,60 @@
     {
       "id": "core-principles",
       "name": "コア原則",
+      "name_en": "Core Principles",
       "description": "効果的なスキルの基本的な考え方",
+      "description_en": "Fundamental thinking for effective skills",
       "items": [
         {
           "id": "conciseness",
           "title": "簡潔さが鍵",
+          "title_en": "Conciseness Is Key",
           "summary": "コンテキストウィンドウは共有リソース。Claude が既に知っていることは書かない。",
+          "summary_en": "The context window is a shared resource. Do not write what Claude already knows.",
           "content": "コンテキストウィンドウは共有リソース。起動時はスキルの name と description のみプリロード。SKILL.md は関連時のみ、追加ファイルは必要時のみ読み込み。読み込み後は他のコンテキストと競合します。\n\n「Claude は既に賢い」前提で、まだ持っていないコンテキストだけを追加してください。\n\nスキルが呼び出されるとそのコンテンツはセッション全体を通じてコンテキストに残ります。自動コンパクション時は各スキルの最新呼び出し分を最大 5,000 トークンまで再アタッチし、複数スキルの合計上限は 25,000 トークン（最近呼び出したスキルから優先）です。",
+          "content_en": "The context window is a shared resource. At startup, only the skill's name and description are preloaded. SKILL.md is loaded only when relevant; additional files are loaded only when needed. Once loaded, they compete with other context.\n\nAssume \"Claude is already smart\" and only add context it does not yet have.\n\nOnce a skill is invoked, its content remains in context throughout the session. During auto-compaction, the latest invocation of each skill is reattached up to 5,000 tokens, with a combined cap of 25,000 tokens across all skills (prioritizing the most recently invoked skills).",
           "tags": ["重要"],
           "examples": [
             {
               "strategy": "PDF テキスト抽出の説明",
+              "strategy_en": "Explanation of PDF text extraction",
               "detail": "簡潔版は約50トークン、冗長版は約150トークン",
+              "detail_en": "The concise version is approximately 50 tokens; the verbose version is approximately 150 tokens",
               "before": "PDF（Portable Document Format）ファイルは、テキスト、画像、その他のコンテンツを含む一般的なファイル形式です。PDF からテキストを抽出するにはライブラリが必要です。多数のライブラリがありますが、pdfplumber が推奨されます。まず pip でインストールし...",
-              "after": "pdfplumber でテキスト抽出:\nimport pdfplumber\nwith pdfplumber.open(\"file.pdf\") as pdf:\n    text = pdf.pages[0].extract_text()"
+              "before_en": "PDF (Portable Document Format) files are a common file format containing text, images, and other content. A library is required to extract text from a PDF. There are many libraries available, but pdfplumber is recommended. First install it via pip...",
+              "after": "pdfplumber でテキスト抽出:\nimport pdfplumber\nwith pdfplumber.open(\"file.pdf\") as pdf:\n    text = pdf.pages[0].extract_text()",
+              "after_en": "Extract text with pdfplumber:\nimport pdfplumber\nwith pdfplumber.open(\"file.pdf\") as pdf:\n    text = pdf.pages[0].extract_text()"
             }
           ]
         },
         {
           "id": "degrees-of-freedom",
           "title": "適切な自由度を設定する",
+          "title_en": "Set the Appropriate Degree of Freedom",
           "summary": "タスクの脆弱性と変動性に応じて、指示の具体性レベルを合わせる。",
+          "summary_en": "Match the level of instruction specificity to the fragility and variability of the task.",
           "content": "スキルの自由度を3段階で考えます。\n\n■ 高い自由度 — 複数アプローチが有効な場合。例: コードレビュー。テキスト指示で十分。\n\n■ 中程度の自由度 — 推奨パターンがあるが変動許容。例: レポート生成テンプレート。\n\n■ 低い自由度 — 脆弱な操作で一貫性が重要。例: DB マイグレーション。正確なスクリプトを指定。\n\n崖のある橋（DB マイグレーション）ではガードレールを、広い野原（コードレビュー）では方向性だけを与えてください。",
+          "content_en": "Think of skill freedom in three levels.\n\n■ High freedom — when multiple approaches are valid. Example: code review. Text instructions are sufficient.\n\n■ Medium freedom — when a recommended pattern exists but variation is acceptable. Example: report generation templates.\n\n■ Low freedom — when fragile operations require consistency. Example: DB migrations. Specify exact scripts.\n\nProvide guardrails for a bridge with cliffs (DB migrations), and only direction for an open field (code review).",
           "tags": ["重要"],
           "tips": [
             "高い自由度：コードレビュー、リファクタリング提案 — テキストベースの指示で十分",
             "中程度の自由度：推奨パターンがあるがカスタマイズ可能 — テンプレートやパラメータ付きスクリプトを提供",
             "低い自由度：DB マイグレーション、デプロイスクリプト — 正確なコマンドを指定し「変更やフラグの追加をしないこと」と明記"
+          ],
+          "tips_en": [
+            "High freedom: code reviews, refactoring suggestions — text-based instructions are sufficient",
+            "Medium freedom: recommended patterns exist but customization is possible — provide templates or parameterized scripts",
+            "Low freedom: DB migrations, deploy scripts — specify exact commands and explicitly state \"do not make changes or add flags\""
           ]
         },
         {
           "id": "test-with-models",
           "title": "使用予定の全モデルでテストする",
+          "title_en": "Test with All Models You Plan to Use",
           "summary": "スキルはモデルの追加機能として動作する。Haiku、Sonnet、Opus それぞれで効果が異なる。",
+          "summary_en": "Skills act as add-ons to the underlying model. Effectiveness differs across Haiku, Sonnet, and Opus.",
           "content": "スキルの効果は基盤モデルに依存します。Haiku では詳細な指示が必要、Sonnet は明確で効率的な指示が最適、Opus には簡潔な指示が最適です。\n\n複数モデルで使用する場合は、すべてのモデルでうまく機能する指示を目指してください。",
+          "content_en": "Skill effectiveness depends on the underlying model. Haiku requires detailed instructions; Sonnet performs best with clear and efficient instructions; Opus works best with concise instructions.\n\nIf used across multiple models, aim for instructions that work well across all of them.",
           "tags": ["テスト"]
         }
       ]
@@ -65,33 +97,51 @@
     {
       "id": "skill-structure",
       "name": "スキル構成",
+      "name_en": "Skill Structure",
       "description": "SKILL.md の構造、命名、description の書き方",
+      "description_en": "Structure of SKILL.md, naming conventions, and how to write descriptions",
       "items": [
         {
           "id": "content-types",
           "title": "スキルコンテンツの種類",
+          "title_en": "Types of Skill Content",
           "summary": "スキルは「リファレンス型」と「タスク型」の2種類に分類でき、呼び出し方やコンテンツの書き方が異なる。",
+          "summary_en": "Skills can be categorized into two types — \"Reference\" and \"Task\" — each with different invocation patterns and content writing approaches.",
           "content": "スキルファイルには任意の指示を記述できますが、呼び出し方を意識するとコンテンツの方向性が定まります。\n\nリファレンス型 — 既存の作業に適用する知識（規約、パターン、スタイルガイド、ドメイン知識）。インラインで実行され、会話コンテキストと併用されます。\n\nタスク型 — 特定のアクション（デプロイ、コミット、コード生成）の手順指示。/skill-name で直接呼び出すことが多く、Claude の自動起動を防ぐために disable-model-invocation: true を設定します。",
+          "content_en": "A skill file can contain any instructions, but thinking about how it will be invoked helps shape the content direction.\n\nReference type — knowledge applied to existing work (conventions, patterns, style guides, domain knowledge). Executed inline and used alongside conversation context.\n\nTask type — step-by-step instructions for specific actions (deploy, commit, code generation). Often invoked directly with /skill-name, and disable-model-invocation: true is set to prevent Claude from auto-triggering it.",
           "tags": [],
           "code": "# リファレンス型\n---\nname: api-conventions\ndescription: API 設計パターン\n---\nAPI エンドポイントのルール:\n- RESTful な命名規則\n- 一貫したエラー形式\n\n# タスク型\n---\nname: deploy\ndescription: 本番環境にデプロイ\ncontext: fork\ndisable-model-invocation: true\n---\n1. テスト実行\n2. ビルド\n3. デプロイ",
+          "code_en": "# Reference type\n---\nname: api-conventions\ndescription: API design patterns\n---\nRules for API endpoints:\n- RESTful naming conventions\n- Consistent error format\n\n# Task type\n---\nname: deploy\ndescription: Deploy to production\ncontext: fork\ndisable-model-invocation: true\n---\n1. Run tests\n2. Build\n3. Deploy",
           "tips": [
             "リファレンス型: 規約やパターンなどの知識。インラインで会話コンテキストと併用",
             "タスク型: 手順指示。/skill-name で直接呼び出し。disable-model-invocation: true 推奨",
             "複雑なスキルはサポートファイルに分離して SKILL.md を簡潔に保つ"
+          ],
+          "tips_en": [
+            "Reference type: knowledge such as conventions and patterns. Used inline alongside conversation context",
+            "Task type: step-by-step instructions. Invoked directly with /skill-name. disable-model-invocation: true is recommended",
+            "For complex skills, separate into support files to keep SKILL.md concise"
           ]
         },
         {
           "id": "naming-conventions",
           "title": "命名規則",
+          "title_en": "Naming Conventions",
           "summary": "動名詞形（verb + -ing）で、スキルが提供するアクティビティや能力を明確に表現する。",
+          "summary_en": "Use gerund form (verb + -ing) to clearly express the activity or capability the skill provides.",
           "content": "name フィールドの制約: 小文字・数字・ハイフンのみ、最大64文字、予約語（anthropic、claude）と XMLタグは不可。\n\n一貫した命名パターンでスキルの参照・整理・検索を容易にします。",
+          "content_en": "Constraints for the name field: lowercase letters, numbers, and hyphens only; maximum 64 characters; reserved words (anthropic, claude) and XML tags are not allowed.\n\nConsistent naming patterns make skills easier to reference, organize, and search.",
           "tags": [],
           "examples": [
             {
               "strategy": "命名パターン",
+              "strategy_en": "Naming patterns",
               "detail": "動名詞形（推奨）vs 曖昧な名前",
+              "detail_en": "Gerund form (recommended) vs. vague names",
               "before": "helper, utils, tools, documents, data, files",
-              "after": "processing-pdfs, analyzing-spreadsheets, managing-databases, testing-code, writing-documentation"
+              "before_en": "helper, utils, tools, documents, data, files",
+              "after": "processing-pdfs, analyzing-spreadsheets, managing-databases, testing-code, writing-documentation",
+              "after_en": "processing-pdfs, analyzing-spreadsheets, managing-databases, testing-code, writing-documentation"
             }
           ],
           "tips": [
@@ -100,20 +150,34 @@
             "許容：アクション型 — process-pdfs, analyze-spreadsheets",
             "避ける：曖昧な名前 — helper, utils, tools",
             "避ける：汎用的すぎる名前 — documents, data, files"
+          ],
+          "tips_en": [
+            "Recommended: gerund form — processing-pdfs, writing-documentation",
+            "Acceptable: noun phrase — pdf-processing, spreadsheet-analysis",
+            "Acceptable: action form — process-pdfs, analyze-spreadsheets",
+            "Avoid: vague names — helper, utils, tools",
+            "Avoid: overly generic names — documents, data, files"
           ]
         },
         {
           "id": "effective-descriptions",
           "title": "効果的な description を書く",
+          "title_en": "Writing Effective Descriptions",
           "summary": "三人称で書き、具体的なキーワードを含め、「何をするか」と「いつ使うか」の両方を記述する。",
+          "summary_en": "Write in third person, include specific keywords, and describe both \"what it does\" and \"when to use it\".",
           "content": "description はスキル発見の要です。Claude がスキル選択に使用するため、「何をするか」と「いつ使うか」の両方を記述します。常に三人称で書いてください（システムプロンプトに注入されるため）。\n\n最大1024文字、XMLタグは不可。省略時は SKILL.md の最初の段落が使用されます。スキル一覧では `description` と `when_to_use` の合計が 1,536 文字で切り詰められるため、重要なユースケースを先頭に記述してください。",
+          "content_en": "The description is the key to skill discovery. Because Claude uses it to select skills, describe both \"what it does\" and \"when to use it\". Always write in third person (because it is injected into the system prompt).\n\nMaximum 1,024 characters; XML tags are not allowed. When omitted, the first paragraph of SKILL.md is used. In the skill list, the combined `description` and `when_to_use` is truncated at 1,536 characters, so place the most important use cases at the top.",
           "tags": [],
           "examples": [
             {
               "strategy": "description の書き方",
+              "strategy_en": "How to write a description",
               "detail": "具体的なトリガーワードと使用条件を含める",
+              "detail_en": "Include specific trigger words and conditions for use",
               "before": "ドキュメントを手伝う / データを処理する / ファイル関連の作業をする",
-              "after": "PDF ファイルからテキストとテーブルを抽出し、フォームに入力し、ドキュメントを結合する。PDF ファイルの操作時、またはユーザーが PDF・フォーム・ドキュメント抽出に言及した場合に使用。"
+              "before_en": "Help with documents / Process data / Work on file-related tasks",
+              "after": "PDF ファイルからテキストとテーブルを抽出し、フォームに入力し、ドキュメントを結合する。PDF ファイルの操作時、またはユーザーが PDF・フォーム・ドキュメント抽出に言及した場合に使用。",
+              "after_en": "Extracts text and tables from PDF files, fills in forms, and merges documents. Use when working with PDF files or when the user mentions PDFs, forms, or document extraction."
             }
           ],
           "tips": [
@@ -123,21 +187,36 @@
             "「何をするか」+「いつ使うか」の両方を記述する",
             "具体的なファイル形式、キーワード、トリガー条件を含める",
             "`description` + `when_to_use` 合計 1,536 文字で切り詰められるため、重要なユースケースを先頭に配置する"
+          ],
+          "tips_en": [
+            "Write in third person — Good example: \"Analyzes Excel files and generates reports\"",
+            "Avoid: \"I will help you process Excel files\" (first person)",
+            "Avoid: \"You can use this to process Excel files\" (second person)",
+            "Describe both \"what it does\" + \"when to use it\"",
+            "Include specific file formats, keywords, and trigger conditions",
+            "Place the most important use cases at the top since `description` + `when_to_use` combined is truncated at 1,536 characters"
           ]
         },
         {
           "id": "yaml-frontmatter",
           "title": "YAML フロントマター要件",
+          "title_en": "YAML Frontmatter Requirements",
           "summary": "すべてのフィールドはオプション。description は推奨。name は64文字以下で小文字+数字+ハイフンのみ。",
+          "summary_en": "All fields are optional. description is recommended. name must be 64 characters or fewer, using only lowercase letters, numbers, and hyphens.",
           "content": "Agent Skills（agentskills.io）オープンスタンダードに準拠。Claude Code は呼び出し制御、サブエージェント実行、動的コンテキスト注入を拡張。全フィールドはオプション。description のみ推奨。\n\n主要フィールド: name（64文字以下、小文字+数字+ハイフン）、description（1024文字以下）、when_to_use（Claude がスキルを呼び出すタイミングの追加コンテキスト。description に付加されスキル一覧に表示。合計 1,536 文字の上限に含まれる）、argument-hint、arguments（名前付き位置引数の定義。スペース区切り文字列または YAML リスト。`$name` 形式でコンテンツ内で参照可能）、disable-model-invocation、user-invocable、allowed-tools、disallowed-tools（スキルがアクティブな間 Claude の利用可能ツールから除外するツールを指定。制限は次のユーザーメッセージ送信時にリセット。v2.1.152 追加）、model、effort（low/medium/high/xhigh/max。xhigh は Opus 4.7 以上のみ）、context（fork でサブエージェント実行）、agent（サブエージェント型）、hooks（ライフサイクルフック。once で1回のみ実行）、paths（glob で自動ロードを制限）、shell（!`command` ブロックで使用するシェル。bash（デフォルト）または powershell。powershell は CLAUDE_CODE_USE_POWERSHELL_TOOL=1 が必要）。\n\nSKILL.md は500行以下推奨。超える場合は段階的開示パターンで分割。",
+          "content_en": "Conforms to the Agent Skills (agentskills.io) open standard. Claude Code extends it with invocation control, sub-agent execution, and dynamic context injection. All fields are optional; only description is recommended.\n\nKey fields: name (64 characters or fewer, lowercase + numbers + hyphens), description (1,024 characters or fewer), when_to_use (additional context for when Claude should invoke the skill; appended to description and shown in the skill list; counted within the 1,536-character combined cap), argument-hint, arguments (defines named positional arguments as a space-separated string or YAML list; referenced in skill content via `$name` format), disable-model-invocation, user-invocable, allowed-tools, disallowed-tools (specifies tools to exclude from Claude's available tools while the skill is active; restriction resets when the next user message is sent; added in v2.1.152), model, effort (low/medium/high/xhigh/max; xhigh requires Opus 4.7 or above), context (fork for sub-agent execution), agent (sub-agent type), hooks (lifecycle hooks; once executes only once), paths (restricts auto-loading with globs), shell (shell used for !`command` blocks; bash (default) or powershell; powershell requires CLAUDE_CODE_USE_POWERSHELL_TOOL=1).\n\nSKILL.md is recommended to be 500 lines or fewer. If exceeded, split using the progressive disclosure pattern.",
           "tags": [],
-          "code": "---\nname: pdf-processing\ndescription: PDF からテキスト・テーブル抽出。PDF 関連の作業時に使用。\neffort: high\npaths: \"**/*.pdf, docs/**\"\n---\n\n# PDF 処理\n## クイックスタート\npdfplumber でテキスト抽出:\n```python\nimport pdfplumber\nwith pdfplumber.open(\"file.pdf\") as pdf:\n    text = pdf.pages[0].extract_text()\n```\n## 高度な機能\n**フォーム入力**: [FORMS.md](FORMS.md) を参照\n**API**: [REFERENCE.md](REFERENCE.md) を参照"
+          "code": "---\nname: pdf-processing\ndescription: PDF からテキスト・テーブル抽出。PDF 関連の作業時に使用。\neffort: high\npaths: \"**/*.pdf, docs/**\"\n---\n\n# PDF 処理\n## クイックスタート\npdfplumber でテキスト抽出:\n```python\nimport pdfplumber\nwith pdfplumber.open(\"file.pdf\") as pdf:\n    text = pdf.pages[0].extract_text()\n```\n## 高度な機能\n**フォーム入力**: [FORMS.md](FORMS.md) を参照\n**API**: [REFERENCE.md](REFERENCE.md) を参照",
+          "code_en": "---\nname: pdf-processing\ndescription: Extracts text and tables from PDFs. Use when working with PDF-related tasks.\neffort: high\npaths: \"**/*.pdf, docs/**\"\n---\n\n# PDF Processing\n## Quick Start\nExtract text with pdfplumber:\n```python\nimport pdfplumber\nwith pdfplumber.open(\"file.pdf\") as pdf:\n    text = pdf.pages[0].extract_text()\n```\n## Advanced Features\n**Form filling**: See [FORMS.md](FORMS.md)\n**API**: See [REFERENCE.md](REFERENCE.md)"
         },
         {
           "id": "invocation-control",
           "title": "呼び出し制御",
+          "title_en": "Invocation Control",
           "summary": "disable-model-invocation と user-invocable で、スキルを誰が呼び出すかとコンテキストへの読み込み方を制御する。",
+          "summary_en": "Use disable-model-invocation and user-invocable to control who can invoke a skill and how it is loaded into context.",
           "content": "デフォルトではユーザーと Claude の両方が呼び出し可能。disable-model-invocation: true でユーザーのみに制限（description がコンテキスト外、副作用のあるワークフロー向け）。\n\nuser-invocable: false で Claude のみに制限（/ メニュー非表示、背景知識向け。description は常にコンテキスト内）。",
+          "content_en": "By default, both the user and Claude can invoke a skill. Setting disable-model-invocation: true restricts invocation to the user only (description is excluded from context; suitable for workflows with side effects).\n\nSetting user-invocable: false restricts invocation to Claude only (hidden from the / menu; suitable for background knowledge; description is always in context).",
           "tags": [],
           "tips": [
             "デフォルト — ユーザー・Claude 両方が呼び出し可能。description が常にコンテキストに存在",
@@ -145,82 +224,133 @@
             "user-invocable: false — Claude のみ。description が常にコンテキストに存在。/ メニューに非表示",
             "user-invocable は / メニューの表示のみを制御。Claude の自動呼び出しをブロックするには disable-model-invocation: true を使う",
             "`disable-model-invocation: true` のスキルは、メッセージ途中の `/<skill-name>` 呼び出しでも正しく起動する（v2.1.110 で修正済み）。プロンプト本文の末尾にスキル呼び出しを添える使い方も安全に行える"
+          ],
+          "tips_en": [
+            "Default — both the user and Claude can invoke. description is always present in context",
+            "disable-model-invocation: true — user only. description is not included in context",
+            "user-invocable: false — Claude only. description is always in context. Hidden from the / menu",
+            "user-invocable only controls visibility in the / menu. Use disable-model-invocation: true to block Claude's automatic invocation",
+            "Skills with `disable-model-invocation: true` are correctly triggered even by `/<skill-name>` mid-message (fixed in v2.1.110). Appending a skill invocation at the end of a prompt body is also safe"
           ]
         },
         {
           "id": "string-substitutions",
           "title": "文字列置換",
+          "title_en": "String Substitutions",
           "summary": "スキル内で $ARGUMENTS、$ARGUMENTS[N]、$N、${CLAUDE_SESSION_ID}、${CLAUDE_SKILL_DIR} の動的変数が使用可能。",
+          "summary_en": "Dynamic variables $ARGUMENTS, $ARGUMENTS[N], $N, ${CLAUDE_SESSION_ID}, and ${CLAUDE_SKILL_DIR} are available within skills.",
           "content": "実行時にプレースホルダーが実際の値に置換されます。\n\n$ARGUMENTS — 全引数（未使用時は末尾に追加）。$ARGUMENTS[N] / $N — 0ベース位置引数。\n\n`arguments` フロントマターフィールド（任意）: スペース区切り文字列または YAML リストで名前付き位置引数を定義。`$name` 形式でスキルコンテンツ内で参照可能。例: `arguments: [issue, branch]` → `$issue`（第1引数）、`$branch`（第2引数）に展開。\n\n${CLAUDE_SESSION_ID} — セッション ID。${CLAUDE_SKILL_DIR} — SKILL.md のディレクトリ（プラグインではスキルのサブディレクトリ）。",
+          "content_en": "Placeholders are replaced with actual values at runtime.\n\n$ARGUMENTS — all arguments (appended to the end when not used explicitly). $ARGUMENTS[N] / $N — zero-based positional arguments.\n\n`arguments` frontmatter field (optional): defines named positional arguments as a space-separated string or YAML list. Referenced within skill content using the `$name` format. Example: `arguments: [issue, branch]` → expands to `$issue` (first argument), `$branch` (second argument).\n\n${CLAUDE_SESSION_ID} — session ID. ${CLAUDE_SKILL_DIR} — directory of SKILL.md (in plugins, the skill's subdirectory).",
           "tags": [],
-          "code": "---\nname: fix-issue\ndescription: GitHub Issue を修正する\ndisable-model-invocation: true\n---\n\nGitHub Issue $ARGUMENTS を修正してください。\n\n# 複数引数の例: /migrate-component SearchBar React Vue\n# $0=SearchBar, $1=React, $2=Vue"
+          "code": "---\nname: fix-issue\ndescription: GitHub Issue を修正する\ndisable-model-invocation: true\n---\n\nGitHub Issue $ARGUMENTS を修正してください。\n\n# 複数引数の例: /migrate-component SearchBar React Vue\n# $0=SearchBar, $1=React, $2=Vue",
+          "code_en": "---\nname: fix-issue\ndescription: Fix a GitHub Issue\ndisable-model-invocation: true\n---\n\nPlease fix GitHub Issue $ARGUMENTS.\n\n# Multiple arguments example: /migrate-component SearchBar React Vue\n# $0=SearchBar, $1=React, $2=Vue"
         },
         {
           "id": "nested-directory-discovery",
           "title": "ネストされたディレクトリからの自動検出",
+          "title_en": "Auto-Discovery from Nested Directories",
           "summary": "サブディレクトリ内の .claude/skills/ を自動的に検出。モノレポでのパッケージ別スキルをサポート。",
+          "summary_en": "Automatically discovers .claude/skills/ inside subdirectories. Supports per-package skills in monorepos.",
           "content": "ファイル編集時、Claude Code はサブディレクトリ内の .claude/skills/ を自動検出します。例: packages/frontend/ 編集中は packages/frontend/.claude/skills/ も検出。モノレポでパッケージ別スキルを提供可能です。\n\n適用範囲の優先順位: エンタープライズ（マネージド設定）> パーソナル（~/.claude/skills/）> プロジェクト（.claude/skills/）> プラグイン。同名スキルは上位が優先。.claude/commands/ も動作するが同名スキルが優先されます。",
+          "content_en": "When editing files, Claude Code automatically detects .claude/skills/ inside subdirectories. Example: while editing packages/frontend/, packages/frontend/.claude/skills/ is also detected. This enables per-package skills in monorepos.\n\nScope priority: Enterprise (managed config) > Personal (~/.claude/skills/) > Project (.claude/skills/) > Plugin. Skills with the same name: the higher-priority scope wins. .claude/commands/ also works, but a skill with the same name takes precedence.",
           "tags": [],
           "tips": [
             "モノレポでは各パッケージに .claude/skills/ を配置可能",
             "優先順位: エンタープライズ > パーソナル > プロジェクト > プラグイン"
+          ],
+          "tips_en": [
+            "In a monorepo, you can place .claude/skills/ in each package",
+            "Priority order: Enterprise > Personal > Project > Plugin"
           ]
         },
         {
           "id": "skills-from-add-dir",
           "title": "--add-dir ディレクトリからのスキル",
+          "title_en": "Skills from --add-dir Directories",
           "summary": "--add-dir で追加したディレクトリの .claude/skills/ からスキルが自動ロードされ、編集時のライブ変更検出も機能する。",
+          "summary_en": "Skills in .claude/skills/ of directories added via --add-dir are automatically loaded, and live change detection during editing also works.",
           "content": "--add-dir で追加されたディレクトリ内の .claude/skills/ にあるスキルは自動的にロードされます。ライブ変更検出にも対応しているため、セッション中にスキルを編集しても再起動なしで反映されます。\n\n注意: --add-dir ディレクトリの CLAUDE.md はデフォルトでは読み込まれません。読み込むには環境変数 CLAUDE_CODE_ADDITIONAL_DIRECTORIES_CLAUDE_MD=1 を設定してください。",
+          "content_en": "Skills in .claude/skills/ inside directories added via --add-dir are automatically loaded. Live change detection is also supported, so edits to skills during a session are reflected without restarting.\n\nNote: CLAUDE.md in --add-dir directories is not loaded by default. To load it, set the environment variable CLAUDE_CODE_ADDITIONAL_DIRECTORIES_CLAUDE_MD=1.",
           "tags": [],
           "tips": [
             "スキルの自動ロードとライブ変更検出がサポートされる",
             "CLAUDE.md は別途 CLAUDE_CODE_ADDITIONAL_DIRECTORIES_CLAUDE_MD=1 の設定が必要",
             "`/reload-skills` コマンドでセッション再起動なしにスキルディレクトリを再スキャンできる（v2.1.152 追加）。`SessionStart` フックが `reloadSkills: true` を返すことでも再スキャンを起動可能"
+          ],
+          "tips_en": [
+            "Automatic skill loading and live change detection are supported",
+            "CLAUDE.md requires separately setting CLAUDE_CODE_ADDITIONAL_DIRECTORIES_CLAUDE_MD=1",
+            "The `/reload-skills` command re-scans skill directories without restarting the session (added in v2.1.152). A `SessionStart` hook returning `reloadSkills: true` can also trigger a re-scan"
           ]
         },
         {
           "id": "paths-activation",
           "title": "paths による自動アクティベーションの制限",
+          "title_en": "Restricting Auto-Activation with paths",
           "summary": "glob パターンでスキルの自動ロード対象ファイルを制限する。",
+          "summary_en": "Restrict which files trigger automatic skill loading using glob patterns.",
           "content": "paths フロントマターで自動ロードをファイルパターンで制限。カンマ区切りまたは YAML リストで glob 指定。マッチするファイル操作時のみ自動ロード。/skill-name の明示的呼び出しは制限外。",
+          "content_en": "Restrict automatic loading to file patterns using the paths frontmatter. Specify globs as a comma-separated string or YAML list. Auto-loading occurs only when matching files are being worked on. Explicit invocation via /skill-name is not restricted.",
           "tags": [],
-          "code": "---\nname: frontend-conventions\ndescription: フロントエンドのコーディング規約\npaths: \"src/components/**/*.tsx, src/hooks/**/*.ts\"\n---"
+          "code": "---\nname: frontend-conventions\ndescription: フロントエンドのコーディング規約\npaths: \"src/components/**/*.tsx, src/hooks/**/*.ts\"\n---",
+          "code_en": "---\nname: frontend-conventions\ndescription: Frontend coding conventions\npaths: \"src/components/**/*.tsx, src/hooks/**/*.ts\"\n---"
         },
         {
           "id": "plugin-skills-namespace",
           "title": "プラグインスキルのネームスペース",
+          "title_en": "Plugin Skill Namespaces",
           "summary": "プラグインスキルは plugin-name:skill-name の名前空間を使用し、他のレベルのスキルと名前が衝突しない。",
+          "summary_en": "Plugin skills use the plugin-name:skill-name namespace and do not conflict with skills at other levels.",
           "content": "プラグインスキルは <plugin>/skills/<skill-name>/SKILL.md に配置し、plugin-name:skill-name の名前空間で管理されます。他レベルのスキルと名前が衝突しません。\n\n${CLAUDE_SKILL_DIR} はプラグインルートではなくスキルのサブディレクトリを指します。",
+          "content_en": "Plugin skills are placed at <plugin>/skills/<skill-name>/SKILL.md and managed with the plugin-name:skill-name namespace, avoiding name conflicts with skills at other levels.\n\n${CLAUDE_SKILL_DIR} points to the skill's subdirectory, not the plugin root.",
           "tags": [],
           "tips": [
             "呼び出し例: /plugin-name:skill-name",
             "${CLAUDE_SKILL_DIR} はプラグインルートではなくスキルのサブディレクトリを指す"
+          ],
+          "tips_en": [
+            "Invocation example: /plugin-name:skill-name",
+            "${CLAUDE_SKILL_DIR} points to the skill's subdirectory, not the plugin root"
           ]
         },
         {
           "id": "dynamic-context-injection",
           "title": "動的コンテキスト注入",
+          "title_en": "Dynamic Context Injection",
           "summary": "!`<command>` 構文でシェルコマンドを実行し、結果をスキルコンテンツに挿入する。",
+          "summary_en": "Execute shell commands with the !`<command>` syntax and insert the results into skill content.",
           "content": "!`<command>` 構文でスキル送信前にシェルコマンドを実行し出力を挿入（前処理。Claude は最終結果のみ受信）。PR 要約、ログ取得、環境情報注入に有用。",
+          "content_en": "Using the !`<command>` syntax, shell commands are executed and their output is inserted before the skill is sent (preprocessing — Claude receives only the final result). Useful for PR summaries, log retrieval, and environment information injection.",
           "tags": [],
           "code": "## PR コンテキスト\n- PR の差分: !`gh pr diff`\n- PR のコメント: !`gh pr view --comments`\n- 変更ファイル: !`gh pr diff --name-only`\n\n## タスク\nこの PR を要約してください...",
+          "code_en": "## PR Context\n- PR diff: !`gh pr diff`\n- PR comments: !`gh pr view --comments`\n- Changed files: !`gh pr diff --name-only`\n\n## Task\nPlease summarize this PR...",
           "tips": [
             "`\"disableSkillShellExecution\": true` を settings に設定すると、ユーザー・プロジェクト・プラグイン・--add-dir 由来のスキルの `!\\`command\\`` 実行を無効化できる。マネージド設定で使用するとユーザーが上書きできないため組織ポリシーの適用に有用"
+          ],
+          "tips_en": [
+            "Setting `\"disableSkillShellExecution\": true` in settings disables `!\\`command\\`` execution for skills from user, project, plugin, and --add-dir sources. Useful for enforcing organizational policies when used in managed configuration, since users cannot override it"
           ]
         },
         {
           "id": "subagent-execution",
           "title": "サブエージェントでの実行",
+          "title_en": "Execution as a Sub-agent",
           "summary": "context: fork でスキルを隔離されたサブエージェントで実行する。スキルのコンテンツがサブエージェントのプロンプトになる。",
+          "summary_en": "Use context: fork to run the skill in an isolated sub-agent. The skill's content becomes the sub-agent's prompt.",
           "content": "context: fork で隔離されたサブエージェントで実行。スキル内容がプロンプトになり会話履歴にアクセスしません。agent で型を指定（Explore / Plan / general-purpose またはカスタム .claude/agents/）。省略時は general-purpose。\n\n注意: 明示的なタスク指示を持つスキルでのみ有効。ガイドラインのみでは有意な出力を返しません。\n\nスキルとサブエージェントは双方向に連携します。「スキル + context: fork」ではスキル内容がタスクになりエージェント型が実行環境を提供。逆に「サブエージェント + skills フィールド」ではサブエージェント本体がシステムプロンプト、プリロードされたスキルが参照資料として機能します。",
+          "content_en": "With context: fork, the skill runs in an isolated sub-agent. The skill content becomes the prompt, with no access to conversation history. Specify the agent type with agent (Explore / Plan / general-purpose or a custom .claude/agents/); defaults to general-purpose when omitted.\n\nNote: Only effective for skills with explicit task instructions. Skills containing only guidelines will not produce meaningful output.\n\nSkills and sub-agents interact bidirectionally. With \"skill + context: fork\", the skill content becomes the task and the agent type provides the execution environment. Conversely, with \"sub-agent + skills field\", the sub-agent itself is the system prompt and preloaded skills serve as reference material.",
           "tags": [],
-          "code": "---\nname: deep-research\ndescription: トピックを徹底的にリサーチする\ncontext: fork\nagent: Explore\n---\n\n$ARGUMENTS を徹底的にリサーチしてください：\n\n1. Glob と Grep で関連ファイルを検索\n2. コードを読んで分析\n3. 具体的なファイル参照とともに発見事項をまとめる"
+          "code": "---\nname: deep-research\ndescription: トピックを徹底的にリサーチする\ncontext: fork\nagent: Explore\n---\n\n$ARGUMENTS を徹底的にリサーチしてください：\n\n1. Glob と Grep で関連ファイルを検索\n2. コードを読んで分析\n3. 具体的なファイル参照とともに発見事項をまとめる",
+          "code_en": "---\nname: deep-research\ndescription: Thoroughly research a topic\ncontext: fork\nagent: Explore\n---\n\nThoroughly research $ARGUMENTS:\n\n1. Search for related files with Glob and Grep\n2. Read and analyze the code\n3. Summarize findings with specific file references"
         },
         {
           "id": "skill-permission-control",
           "title": "スキルのアクセス制御",
+          "title_en": "Skill Access Control",
           "summary": "Claude がどのスキルを呼び出せるかを /permissions で制御する。特定スキルの許可/拒否も可能。",
+          "summary_en": "Control which skills Claude can invoke via /permissions. Individual skills can also be allowed or denied.",
           "content": "3つの制御方法: /permissions で Skill ツール全体を deny、Skill(name) / Skill(name *) で個別許可/拒否、disable-model-invocation: true でフロントマター制御。\n\ndescription バジェットはコンテキストウィンドウの1%（フォールバック: 8,000文字）。SLASH_COMMAND_TOOL_CHAR_BUDGET でオーバーライド可能。一部のビルトインコマンド（/init, /review, /security-review など）は Skill ツール経由で利用可能。/compact など多くのビルトインコマンドは利用不可。",
+          "content_en": "Three control methods: deny the entire Skill tool via /permissions; allow or deny individual skills with Skill(name) / Skill(name *); control via frontmatter with disable-model-invocation: true.\n\nThe description budget is 1% of the context window (fallback: 8,000 characters). Can be overridden with SLASH_COMMAND_TOOL_CHAR_BUDGET. Some built-in commands (/init, /review, /security-review, etc.) are available via the Skill tool. Many built-in commands such as /compact are not available.",
           "tags": [],
           "tips": [
             "全無効化: /permissions の deny に Skill を追加",
@@ -228,6 +358,13 @@
             "特定の拒否: Skill(deploy *)",
             "description バジェット: コンテキストウィンドウの1%（フォールバック: 8,000文字）",
             "`skillOverrides` は `\"on\"` / `\"name-only\"` / `\"user-invocable-only\"` / `\"off\"` の4状態をサポート。`\"name-only\"` はモデルへは名前のみ（description なし）で表示し `/` メニューには表示する。`/skills` メニューでスキルをハイライトして Space キーで状態を切り替え可能"
+          ],
+          "tips_en": [
+            "Disable all: add Skill to the deny list in /permissions",
+            "Allow specific: Skill(commit), Skill(review-pr *)",
+            "Deny specific: Skill(deploy *)",
+            "description budget: 1% of the context window (fallback: 8,000 characters)",
+            "`skillOverrides` supports 4 states: `\"on\"` / `\"name-only\"` / `\"user-invocable-only\"` / `\"off\"`. `\"name-only\"` shows only the name (without description) to the model while still showing it in the `/` menu. Toggle state by highlighting a skill in the `/skills` menu and pressing Space"
           ]
         }
       ]
@@ -235,44 +372,65 @@
     {
       "id": "progressive-disclosure",
       "name": "段階的開示",
+      "name_en": "Progressive Disclosure",
       "description": "SKILL.md を目次として、詳細は必要時にのみ読み込む",
+      "description_en": "Use SKILL.md as a table of contents and load details only when needed",
       "items": [
         {
           "id": "progressive-overview",
           "title": "段階的開示の概要",
+          "title_en": "Overview of Progressive Disclosure",
           "summary": "SKILL.md はオンボーディングガイドの目次のように、必要に応じて詳細資料を指し示す。",
+          "summary_en": "SKILL.md acts like the table of contents of an onboarding guide, pointing to detailed resources only when needed.",
           "content": "SKILL.md は目次として機能し、Claude を詳細資料に必要時のみ誘導します。500行以下推奨。\n\nClaude は参照ファイルを必要時のみ読み込むため、大きなファイルをバンドルしてもアクセスされるまでトークンを消費しません。",
+          "content_en": "SKILL.md functions as a table of contents, directing Claude to detailed resources only when needed. Recommended to be 500 lines or fewer.\n\nBecause Claude loads referenced files only when needed, bundling large files does not consume tokens until they are accessed.",
           "tags": [],
-          "code": "pdf/\n├── SKILL.md         # メイン指示\n├── FORMS.md         # フォーム入力ガイド\n├── reference.md     # API リファレンス\n├── examples.md      # 使用例\n└── scripts/\n    ├── analyze_form.py\n    ├── fill_form.py\n    └── validate.py"
+          "code": "pdf/\n├── SKILL.md         # メイン指示\n├── FORMS.md         # フォーム入力ガイド\n├── reference.md     # API リファレンス\n├── examples.md      # 使用例\n└── scripts/\n    ├── analyze_form.py\n    ├── fill_form.py\n    └── validate.py",
+          "code_en": "pdf/\n├── SKILL.md         # Main instructions\n├── FORMS.md         # Form filling guide\n├── reference.md     # API reference\n├── examples.md      # Usage examples\n└── scripts/\n    ├── analyze_form.py\n    ├── fill_form.py\n    └── validate.py"
         },
         {
           "id": "pattern-references",
           "title": "パターン1: 参照付きハイレベルガイド",
+          "title_en": "Pattern 1: High-Level Guide with References",
           "summary": "SKILL.md にクイックスタートを置き、詳細な機能は別ファイルへのリンクで参照する。",
+          "summary_en": "Place a quick start in SKILL.md and reference detailed features via links to separate files.",
           "content": "基本的な使い方を SKILL.md に直接記載し、高度な機能は別ファイルへの参照として記述。Claude は必要時のみ読み込みます。",
+          "content_en": "Document basic usage directly in SKILL.md and describe advanced features as references to separate files. Claude loads them only when needed.",
           "tags": [],
-          "code": "---\nname: pdf-processing\ndescription: PDF からテキスト・テーブル抽出\n---\n## クイックスタート\n```python\nimport pdfplumber\nwith pdfplumber.open(\"file.pdf\") as pdf:\n    text = pdf.pages[0].extract_text()\n```\n## 高度な機能\n**フォーム入力**: [FORMS.md](FORMS.md)\n**API**: [REFERENCE.md](REFERENCE.md)\n**使用例**: [EXAMPLES.md](EXAMPLES.md)"
+          "code": "---\nname: pdf-processing\ndescription: PDF からテキスト・テーブル抽出\n---\n## クイックスタート\n```python\nimport pdfplumber\nwith pdfplumber.open(\"file.pdf\") as pdf:\n    text = pdf.pages[0].extract_text()\n```\n## 高度な機能\n**フォーム入力**: [FORMS.md](FORMS.md)\n**API**: [REFERENCE.md](REFERENCE.md)\n**使用例**: [EXAMPLES.md](EXAMPLES.md)",
+          "code_en": "---\nname: pdf-processing\ndescription: Extracts text and tables from PDFs\n---\n## Quick Start\n```python\nimport pdfplumber\nwith pdfplumber.open(\"file.pdf\") as pdf:\n    text = pdf.pages[0].extract_text()\n```\n## Advanced Features\n**Form filling**: [FORMS.md](FORMS.md)\n**API**: [REFERENCE.md](REFERENCE.md)\n**Examples**: [EXAMPLES.md](EXAMPLES.md)"
         },
         {
           "id": "pattern-domain",
           "title": "パターン2: ドメイン別構成",
+          "title_en": "Pattern 2: Domain-Based Organization",
           "summary": "複数ドメインを持つスキルは、ドメインごとにファイルを分離して無関係なコンテキストの読み込みを回避。",
+          "summary_en": "For skills spanning multiple domains, separate files by domain to avoid loading irrelevant context.",
           "content": "ドメインごとにファイルを整理し無関係なコンテキスト読み込みを回避。例: BigQuery スキルで売上の質問には sales.md のみ読み込み。\n\nSKILL.md に概要を記載し各参照ファイルへリンク。",
+          "content_en": "Organize files by domain to avoid loading irrelevant context. Example: for a BigQuery skill, only sales.md is loaded for sales-related questions.\n\nInclude an overview in SKILL.md and link to each reference file.",
           "tags": [],
-          "code": "bigquery-skill/\n├── SKILL.md (概要とナビ)\n└── reference/\n    ├── finance.md (収益、ARR)\n    ├── sales.md (商談、パイプライン)\n    ├── product.md (API使用状況)\n    └── marketing.md (キャンペーン)"
+          "code": "bigquery-skill/\n├── SKILL.md (概要とナビ)\n└── reference/\n    ├── finance.md (収益、ARR)\n    ├── sales.md (商談、パイプライン)\n    ├── product.md (API使用状況)\n    └── marketing.md (キャンペーン)",
+          "code_en": "bigquery-skill/\n├── SKILL.md (overview and navigation)\n└── reference/\n    ├── finance.md (revenue, ARR)\n    ├── sales.md (deals, pipeline)\n    ├── product.md (API usage)\n    └── marketing.md (campaigns)"
         },
         {
           "id": "avoid-nesting",
           "title": "深いネスト参照を避ける",
+          "title_en": "Avoid Deeply Nested References",
           "summary": "参照は SKILL.md から1階層のみ。ネストされた参照は Claude が部分的にしか読まない可能性がある。",
+          "summary_en": "Keep references to one level from SKILL.md. Nested references may result in Claude only reading them partially.",
           "content": "参照ファイルは SKILL.md から直接リンク（1階層のみ）。ネストされた参照は Claude が部分的にしか読まない可能性があります。\n\n100行超の参照ファイルには先頭に目次を含め、部分プレビュー時でも全体像を把握可能にしてください。",
+          "content_en": "Link reference files directly from SKILL.md (one level only). Nested references may result in Claude only reading them partially.\n\nFor reference files exceeding 100 lines, include a table of contents at the top so the overall structure is clear even during partial preview.",
           "tags": [],
           "examples": [
             {
               "strategy": "参照の深さ",
+              "strategy_en": "Reference depth",
               "detail": "SKILL.md からの参照は1階層に留める",
+              "detail_en": "Keep references from SKILL.md to one level deep",
               "before": "SKILL.md → advanced.md → details.md → 実際の情報...\n（3階層のネスト — Claude が途中で部分読みする可能性）",
-              "after": "SKILL.md → advanced.md（直接参照）\nSKILL.md → reference.md（直接参照）\nSKILL.md → examples.md（直接参照）\n（すべて1階層 — 完全なファイル読み込みを保証）"
+              "before_en": "SKILL.md → advanced.md → details.md → actual information...\n(3 levels of nesting — Claude may only partially read along the way)",
+              "after": "SKILL.md → advanced.md（直接参照）\nSKILL.md → reference.md（直接参照）\nSKILL.md → examples.md（直接参照）\n（すべて1階層 — 完全なファイル読み込みを保証）",
+              "after_en": "SKILL.md → advanced.md (direct reference)\nSKILL.md → reference.md (direct reference)\nSKILL.md → examples.md (direct reference)\n(All one level deep — guarantees complete file loading)"
             }
           ]
         }
@@ -281,42 +439,63 @@
     {
       "id": "workflows",
       "name": "ワークフロー",
+      "name_en": "Workflows",
       "description": "複雑なタスクの手順化とフィードバックループ",
+      "description_en": "Structuring complex tasks into steps and implementing feedback loops",
       "items": [
         {
           "id": "complex-workflows",
           "title": "複雑なタスクにはワークフローを使う",
+          "title_en": "Use Workflows for Complex Tasks",
           "summary": "明確で順序立てたステップに分割し、チェックリストで進捗を追跡する。",
+          "summary_en": "Break tasks into clear, ordered steps and track progress with a checklist.",
           "content": "複雑な操作を順序立てたステップに分割し、チェックリストで進捗追跡。Claude がバリデーションをスキップすることを防ぎます。",
+          "content_en": "Divide complex operations into ordered steps and track progress with a checklist. This prevents Claude from skipping validation steps.",
           "tags": [],
-          "code": "## PDF フォーム入力ワークフロー\n\n進捗管理:\n- [ ] 1: フォーム分析 (analyze_form.py)\n- [ ] 2: マッピング作成 (fields.json)\n- [ ] 3: 検証 (validate_fields.py)\n- [ ] 4: 入力 (fill_form.py)\n- [ ] 5: 出力検証 (verify_output.py)"
+          "code": "## PDF フォーム入力ワークフロー\n\n進捗管理:\n- [ ] 1: フォーム分析 (analyze_form.py)\n- [ ] 2: マッピング作成 (fields.json)\n- [ ] 3: 検証 (validate_fields.py)\n- [ ] 4: 入力 (fill_form.py)\n- [ ] 5: 出力検証 (verify_output.py)",
+          "code_en": "## PDF Form Filling Workflow\n\nProgress tracking:\n- [ ] 1: Analyze form (analyze_form.py)\n- [ ] 2: Create mapping (fields.json)\n- [ ] 3: Validate (validate_fields.py)\n- [ ] 4: Fill in (fill_form.py)\n- [ ] 5: Verify output (verify_output.py)"
         },
         {
           "id": "feedback-loops",
           "title": "フィードバックループを実装する",
+          "title_en": "Implement Feedback Loops",
           "summary": "バリデータ実行 → エラー修正 → 繰り返し。このパターンが出力品質を大幅に向上させる。",
+          "summary_en": "Run validator → fix errors → repeat. This pattern significantly improves output quality.",
           "content": "「バリデータ実行→エラー修正→繰り返し」で出力品質を大幅に向上。編集後すぐに検証し、通らない限り次に進まないこと。コード付きスキルでは検証スクリプト、コードなしではチェックリストを使用。",
+          "content_en": "\"Run validator → fix errors → repeat\" significantly improves output quality. Validate immediately after editing, and do not proceed to the next step until it passes. Use validation scripts for skills with code, and checklists for skills without code.",
           "tags": [],
           "steps": [
             {
               "phase": "1. 編集",
+              "phase_en": "1. Edit",
               "description": "対象ファイルに変更を加える",
-              "example": "word/document.xml を編集する"
+              "description_en": "Make changes to the target file",
+              "example": "word/document.xml を編集する",
+              "example_en": "Edit word/document.xml"
             },
             {
               "phase": "2. 即座に検証",
+              "phase_en": "2. Validate Immediately",
               "description": "バリデーションスクリプトまたはチェックリストで検証する",
-              "example": "python ooxml/scripts/validate.py unpacked_dir/"
+              "description_en": "Validate using a validation script or checklist",
+              "example": "python ooxml/scripts/validate.py unpacked_dir/",
+              "example_en": "python ooxml/scripts/validate.py unpacked_dir/"
             },
             {
               "phase": "3. 修正（必要な場合）",
+              "phase_en": "3. Fix (if necessary)",
               "description": "検証が失敗した場合、エラーメッセージを確認して修正し、再度検証する",
-              "example": "エラーメッセージを確認 → 問題を修正 → validate.py を再実行"
+              "description_en": "If validation fails, review the error message, fix the issue, and validate again",
+              "example": "エラーメッセージを確認 → 問題を修正 → validate.py を再実行",
+              "example_en": "Review error message → fix the issue → re-run validate.py"
             },
             {
               "phase": "4. 検証通過後のみ進行",
+              "phase_en": "4. Proceed Only After Validation Passes",
               "description": "検証が通った場合のみ次のステップに進む",
-              "example": "python ooxml/scripts/pack.py unpacked_dir/ output.docx"
+              "description_en": "Proceed to the next step only when validation passes",
+              "example": "python ooxml/scripts/pack.py unpacked_dir/ output.docx",
+              "example_en": "python ooxml/scripts/pack.py unpacked_dir/ output.docx"
             }
           ]
         }
@@ -325,34 +504,52 @@
     {
       "id": "content-guidelines",
       "name": "コンテンツガイドライン",
+      "name_en": "Content Guidelines",
       "description": "時間依存情報の回避と用語の一貫性",
+      "description_en": "Avoiding time-sensitive information and maintaining consistent terminology",
       "items": [
         {
           "id": "avoid-time-sensitive",
           "title": "時間依存の情報を避ける",
+          "title_en": "Avoid Time-Sensitive Information",
           "summary": "古くなる情報を含めない。レガシーパターンは折りたたみセクションに保存する。",
+          "summary_en": "Do not include information that will become outdated. Store legacy patterns in collapsible sections.",
           "content": "古くなる情報を避け、現在のメソッドを明記。旧パターンは折りたたみ可能な「Old patterns」セクションで歴史的コンテキストとして提供します。",
+          "content_en": "Avoid information that will become outdated and clearly state the current method. Provide old patterns as historical context in a collapsible \"Old patterns\" section.",
           "tags": [],
           "examples": [
             {
               "strategy": "時間依存情報の処理",
+              "strategy_en": "Handling time-sensitive information",
               "detail": "条件分岐ではなく、現在のメソッドを明記する",
+              "detail_en": "Clearly state the current method instead of using conditional branching",
               "before": "2025年8月以前は旧 API を使用してください。\n2025年8月以降は新 API を使用してください。",
-              "after": "## 現在のメソッド\nv2 API エンドポイント: api.example.com/v2/messages\n\n## 旧パターン\n<details>\n<summary>レガシー v1 API（2025-08 に廃止）</summary>\nv1 API: api.example.com/v1/messages（サポート終了）\n</details>"
+              "before_en": "Before August 2025, use the old API.\nAfter August 2025, use the new API.",
+              "after": "## 現在のメソッド\nv2 API エンドポイント: api.example.com/v2/messages\n\n## 旧パターン\n<details>\n<summary>レガシー v1 API（2025-08 に廃止）</summary>\nv1 API: api.example.com/v1/messages（サポート終了）\n</details>",
+              "after_en": "## Current Method\nv2 API endpoint: api.example.com/v2/messages\n\n## Old Patterns\n<details>\n<summary>Legacy v1 API (deprecated in 2025-08)</summary>\nv1 API: api.example.com/v1/messages (end of support)\n</details>"
             }
           ]
         },
         {
           "id": "consistent-terminology",
           "title": "一貫した用語を使う",
+          "title_en": "Use Consistent Terminology",
           "summary": "1つの用語を選び、スキル全体で統一する。混在は Claude の理解と遵守を妨げる。",
+          "summary_en": "Choose one term and use it consistently throughout the skill. Mixing terms hinders Claude's understanding and compliance.",
           "content": "1つの用語を選びスキル全体で統一。混在すると Claude が別概念と解釈する可能性があります。",
+          "content_en": "Choose one term and use it consistently throughout the skill. Mixing terms can cause Claude to interpret them as different concepts.",
           "tags": [],
           "tips": [
             "良い例：常に「API エンドポイント」 — 「URL」「API ルート」「パス」を混在させない",
             "良い例：常に「フィールド」 — 「ボックス」「要素」「コントロール」を混在させない",
             "良い例：常に「抽出する」 — 「取得する」「プルする」「ゲットする」を混在させない",
             "スキル全体の用語リストを作成して一貫性を保つことも有効"
+          ],
+          "tips_en": [
+            "Good example: always use \"API endpoint\" — do not mix with \"URL\", \"API route\", or \"path\"",
+            "Good example: always use \"field\" — do not mix with \"box\", \"element\", or \"control\"",
+            "Good example: always use \"extract\" — do not mix with \"retrieve\", \"pull\", or \"get\"",
+            "Creating a terminology list for the entire skill is also effective for maintaining consistency"
           ]
         }
       ]
@@ -360,84 +557,131 @@
     {
       "id": "common-patterns",
       "name": "共通パターン",
+      "name_en": "Common Patterns",
       "description": "テンプレート、例示、条件分岐の定番パターン",
+      "description_en": "Standard patterns for templates, examples, and conditional branching",
       "items": [
         {
           "id": "template-pattern",
           "title": "テンプレートパターン",
+          "title_en": "Template Pattern",
           "summary": "出力フォーマットのテンプレートを提供する。厳密さのレベルは要件に合わせる。",
+          "summary_en": "Provide a template for the output format. Match the level of strictness to the requirements.",
           "content": "出力フォーマットのテンプレートを提供。厳密な要件（API レスポンス等）には「必ずこのテンプレートを使用すること」、柔軟なガイダンス（分析レポート等）には「デフォルトフォーマット。状況に応じて判断してください」と指定。",
+          "content_en": "Provide a template for the output format. For strict requirements (API responses, etc.), specify \"always use this template\"; for flexible guidance (analysis reports, etc.), specify \"default format — use your judgment based on the situation\".",
           "tags": [],
-          "code": "# 厳密な要件:\n「必ずこのテンプレートを使用すること」\n# [タイトル]\n## エグゼクティブサマリー\n## 主な発見\n## 推奨事項\n\n# 柔軟なガイダンス:\n「デフォルトフォーマット。状況に応じて判断」\n# [タイトル]\n## 概要\n## 推奨事項"
+          "code": "# 厳密な要件:\n「必ずこのテンプレートを使用すること」\n# [タイトル]\n## エグゼクティブサマリー\n## 主な発見\n## 推奨事項\n\n# 柔軟なガイダンス:\n「デフォルトフォーマット。状況に応じて判断」\n# [タイトル]\n## 概要\n## 推奨事項",
+          "code_en": "# Strict requirements:\n\"Always use this template\"\n# [Title]\n## Executive Summary\n## Key Findings\n## Recommendations\n\n# Flexible guidance:\n\"Default format — use your judgment based on the situation\"\n# [Title]\n## Overview\n## Recommendations"
         },
         {
           "id": "examples-pattern",
           "title": "例示パターン",
+          "title_en": "Examples Pattern",
           "summary": "入力/出力ペアの例を提供する。説明だけよりも、求めるスタイルと詳細度をより明確に伝えられる。",
+          "summary_en": "Provide input/output pair examples. They communicate the desired style and level of detail more clearly than descriptions alone.",
           "content": "入力/出力ペアの例を提供し、求めるスタイルと詳細度を明確に。コミットメッセージやドキュメント生成など一貫したフォーマットが必要なタスクに特に有効。複数の例でパターンの一般化を促進。",
+          "content_en": "Provide input/output pair examples to clearly communicate the desired style and level of detail. Especially effective for tasks requiring a consistent format, such as commit messages and documentation generation. Multiple examples promote pattern generalization.",
           "tags": [],
-          "code": "## コミットメッセージ形式\n\n**例1:**\n入力: JWT 認証を追加\n出力: feat(auth): JWT ベースの認証を実装\n\n**例2:**\n入力: レポートの日付バグを修正\n出力: fix(reports): タイムゾーン変換の日付フォーマットを修正\n\n**例3:**\n入力: 依存関係更新とリファクタリング\n出力: chore: 依存関係の更新とエラーハンドリングのリファクタリング"
+          "code": "## コミットメッセージ形式\n\n**例1:**\n入力: JWT 認証を追加\n出力: feat(auth): JWT ベースの認証を実装\n\n**例2:**\n入力: レポートの日付バグを修正\n出力: fix(reports): タイムゾーン変換の日付フォーマットを修正\n\n**例3:**\n入力: 依存関係更新とリファクタリング\n出力: chore: 依存関係の更新とエラーハンドリングのリファクタリング",
+          "code_en": "## Commit Message Format\n\n**Example 1:**\nInput: Add JWT authentication\nOutput: feat(auth): implement JWT-based authentication\n\n**Example 2:**\nInput: Fix date bug in reports\nOutput: fix(reports): fix date format in timezone conversion\n\n**Example 3:**\nInput: Update dependencies and refactor\nOutput: chore: update dependencies and refactor error handling"
         },
         {
           "id": "generate-visual-output",
           "title": "ビジュアル出力の生成",
+          "title_en": "Generating Visual Output",
           "summary": "スキルにスクリプトをバンドルし、インタラクティブな HTML ファイルを生成してブラウザで表示するパターン。",
+          "summary_en": "A pattern for bundling scripts with a skill to generate interactive HTML files and display them in a browser.",
           "content": "スキルにスクリプトをバンドルし、インタラクティブな HTML を生成してブラウザで開くパターンです。scripts/ フォルダにスクリプトを配置し、SKILL.md で実行方法を記載します。\n\n依存関係グラフ、テストカバレッジレポート、API ドキュメント、DB スキーマの可視化など、あらゆるビジュアル出力に応用可能です。バンドルスクリプトが重い処理を担い、Claude はオーケストレーションを担当します。",
+          "content_en": "A pattern for bundling scripts with a skill to generate interactive HTML and open it in a browser. Place scripts in the scripts/ folder and document how to run them in SKILL.md.\n\nApplicable to any visual output, such as dependency graphs, test coverage reports, API documentation, and DB schema visualizations. Bundled scripts handle the heavy processing while Claude handles orchestration.",
           "tags": [],
           "code": "codebase-visualizer/\n├── SKILL.md\n└── scripts/\n    └── visualize.py\n\n---\nname: codebase-visualizer\ndescription: コードベースのツリー可視化を生成\nallowed-tools: Bash(python *)\n---\n```bash\npython ${CLAUDE_SKILL_DIR}/scripts/visualize.py .\n```\ncodebase-map.html を生成してブラウザで開きます。",
+          "code_en": "codebase-visualizer/\n├── SKILL.md\n└── scripts/\n    └── visualize.py\n\n---\nname: codebase-visualizer\ndescription: Generates a tree visualization of the codebase\nallowed-tools: Bash(python *)\n---\n```bash\npython ${CLAUDE_SKILL_DIR}/scripts/visualize.py .\n```\nGenerates codebase-map.html and opens it in the browser.",
           "tips": [
             "allowed-tools でスクリプト実行に必要なツールを許可する",
             "${CLAUDE_SKILL_DIR} で作業ディレクトリに依存せずスクリプトを参照",
             "Python の組み込みライブラリのみ使用すればインストール不要"
+          ],
+          "tips_en": [
+            "Use allowed-tools to permit the tools needed to run scripts",
+            "Use ${CLAUDE_SKILL_DIR} to reference scripts without depending on the working directory",
+            "Using only Python's built-in libraries requires no installation"
           ]
         },
         {
           "id": "conditional-workflow",
           "title": "条件分岐ワークフローパターン",
+          "title_en": "Conditional Branching Workflow Pattern",
           "summary": "判断ポイントに基づいて Claude を適切なワークフローに誘導する。",
+          "summary_en": "Guide Claude to the appropriate workflow based on decision points.",
           "content": "判断ポイントで Claude を適切なワークフローに誘導。複雑な場合は別ファイルに分離し、タスクに応じて適切なファイルを読むよう指示。",
+          "content_en": "Guide Claude to the appropriate workflow at decision points. For complex cases, separate into individual files and instruct Claude to read the appropriate file based on the task.",
           "tags": [],
-          "code": "## ドキュメント変更ワークフロー\n\n1. 変更タイプを判断：\n   **新規作成？** → 作成ワークフローへ\n   **既存編集？** → 編集ワークフローへ\n\n2. 作成ワークフロー：\n   - docx-js で構築 → .docx エクスポート\n\n3. 編集ワークフロー：\n   - 展開 → XML 修正 → 検証 → 再パック"
+          "code": "## ドキュメント変更ワークフロー\n\n1. 変更タイプを判断：\n   **新規作成？** → 作成ワークフローへ\n   **既存編集？** → 編集ワークフローへ\n\n2. 作成ワークフロー：\n   - docx-js で構築 → .docx エクスポート\n\n3. 編集ワークフロー：\n   - 展開 → XML 修正 → 検証 → 再パック",
+          "code_en": "## Document Change Workflow\n\n1. Determine the change type:\n   **New creation?** → Go to creation workflow\n   **Editing existing?** → Go to editing workflow\n\n2. Creation workflow:\n   - Build with docx-js → export as .docx\n\n3. Editing workflow:\n   - Unpack → modify XML → validate → repack"
         }
       ]
     },
     {
       "id": "evaluation",
       "name": "評価と改善",
+      "name_en": "Evaluation and Improvement",
       "description": "評価駆動開発と Claude A/B パターンによる反復改善",
+      "description_en": "Evaluation-driven development and iterative improvement with the Claude A/B pattern",
       "items": [
         {
           "id": "evaluation-driven",
           "title": "まず評価を構築する",
+          "title_en": "Build Evaluations First",
           "summary": "ドキュメントを書く前に評価を作成する。想像上の問題ではなく、実際の問題を解決するスキルを確保する。",
+          "summary_en": "Create evaluations before writing documentation. This ensures the skill solves real problems, not imagined ones.",
           "content": "ドキュメント前に評価を作成し実際の問題を解決するスキルに。\n\n1. ギャップ特定 — スキルなしで失敗を記録\n\n2. 評価作成 — 3シナリオ構築\n\n3. ベースライン確立 — スキルなしのパフォーマンス測定\n\n4. 最小限の指示を記述\n\n5. 反復 — 評価→比較→改善",
+          "content_en": "Create evaluations before writing documentation to ensure the skill solves real problems.\n\n1. Identify gaps — record failures without the skill\n\n2. Create evaluations — build 3 scenarios\n\n3. Establish a baseline — measure performance without the skill\n\n4. Write minimal instructions\n\n5. Iterate — evaluate → compare → improve",
           "tags": [],
-          "code": "// 評価シナリオの構造例\n{\n  \"skills\": [\"pdf-processing\"],\n  \"query\": \"この PDF からすべてのテキストを抽出して output.txt に保存して\",\n  \"files\": [\"test-files/document.pdf\"],\n  \"expected_behavior\": [\n    \"適切な PDF ライブラリを使用してファイルを読み取る\",\n    \"すべてのページからテキストを抽出する\",\n    \"output.txt に読みやすい形式で保存する\"\n  ]\n}"
+          "code": "// 評価シナリオの構造例\n{\n  \"skills\": [\"pdf-processing\"],\n  \"query\": \"この PDF からすべてのテキストを抽出して output.txt に保存して\",\n  \"files\": [\"test-files/document.pdf\"],\n  \"expected_behavior\": [\n    \"適切な PDF ライブラリを使用してファイルを読み取る\",\n    \"すべてのページからテキストを抽出する\",\n    \"output.txt に読みやすい形式で保存する\"\n  ]\n}",
+          "code_en": "// Example evaluation scenario structure\n{\n  \"skills\": [\"pdf-processing\"],\n  \"query\": \"Extract all text from this PDF and save it to output.txt\",\n  \"files\": [\"test-files/document.pdf\"],\n  \"expected_behavior\": [\n    \"Read the file using an appropriate PDF library\",\n    \"Extract text from all pages\",\n    \"Save to output.txt in a readable format\"\n  ]\n}"
         },
         {
           "id": "iterative-development",
           "title": "Claude との反復開発",
+          "title_en": "Iterative Development with Claude",
           "summary": "Claude A（設計担当）でスキルを作成し、Claude B（テスト担当）で実タスクに使用して改善する。",
+          "summary_en": "Create the skill with Claude A (design role) and use Claude B (test role) on real tasks to iterate and improve.",
           "content": "Claude A（設計担当）でスキル作成、Claude B（テスト担当）で実タスクにテスト。繰り返す情報を特定→スキル作成→テスト→観察に基づき反復。",
+          "content_en": "Create the skill with Claude A (design role) and test it on real tasks with Claude B (test role). Identify repeated information → create skill → test → iterate based on observations.",
           "tags": [],
           "tips": [
             "Claude B がルールを忘れた場合 → ルールの表現を強化（\"always\" → \"MUST\"）",
             "Claude B が特定ファイルを繰り返し読む場合 → そのコンテンツを SKILL.md に昇格",
             "Claude B が参照ファイルにアクセスしない場合 → 不要か、リンクが不十分",
             "チームメンバーからのフィードバックも取り入れる — 自分の使用パターンの盲点をカバー"
+          ],
+          "tips_en": [
+            "If Claude B forgets rules → strengthen the expression of the rule (\"always\" → \"MUST\")",
+            "If Claude B repeatedly reads a specific file → promote that content into SKILL.md",
+            "If Claude B does not access a reference file → it is either unnecessary or the link is insufficient",
+            "Incorporate feedback from team members — covers blind spots in your own usage patterns"
           ]
         },
         {
           "id": "observe-navigation",
           "title": "Claude のナビゲーションを観察する",
+          "title_en": "Observe Claude's Navigation",
           "summary": "Claude がスキルを実際にどう使っているかを観察し、仮定ではなく観察に基づいて改善する。",
+          "summary_en": "Observe how Claude actually uses the skill in practice and improve based on observations, not assumptions.",
           "content": "仮定ではなく実際の観察に基づいて改善。name と description がスキルトリガー判断に使用されるためメタデータの精度が重要。",
+          "content_en": "Improve based on actual observations, not assumptions. Metadata accuracy is important because name and description are used to determine when to trigger a skill.",
           "tags": [],
           "tips": [
             "予期しない探索パス — Claude が想定外の順序でファイルを読む場合、構造が直感的でない可能性",
             "見逃された接続 — Claude が重要ファイルへの参照を辿らない場合、リンクをより明示的にする",
             "特定セクションへの過度な依存 — Claude が同じファイルを繰り返し読む場合、SKILL.md への移動を検討",
             "無視されるコンテンツ — Claude がバンドルファイルにアクセスしない場合、不要かシグナルが弱い"
+          ],
+          "tips_en": [
+            "Unexpected navigation paths — if Claude reads files in an unexpected order, the structure may not be intuitive",
+            "Missed connections — if Claude does not follow references to important files, make the links more explicit",
+            "Over-reliance on a specific section — if Claude repeatedly reads the same file, consider moving it into SKILL.md",
+            "Ignored content — if Claude does not access a bundled file, it is either unnecessary or the signal is weak"
           ]
         }
       ]
@@ -445,34 +689,50 @@
     {
       "id": "advanced-code",
       "name": "上級: 実行コード",
+      "name_en": "Advanced: Executable Code",
       "description": "スクリプト付きスキルのエラー処理、ユーティリティ、依存関係管理",
+      "description_en": "Error handling, utilities, and dependency management for skills with scripts",
       "items": [
         {
           "id": "solve-dont-punt",
           "title": "解決する、丸投げしない",
+          "title_en": "Solve It, Don't Punt It",
           "summary": "スクリプトのエラー条件を処理する。Claude に推測させるのではなく、明示的にハンドリングする。",
+          "summary_en": "Handle error conditions in scripts. Handle them explicitly rather than leaving Claude to guess.",
           "content": "エラー条件はスクリプト内で処理し Claude に丸投げしない。設定パラメータは値の理由を記載。",
+          "content_en": "Handle error conditions within scripts rather than leaving them to Claude. For configuration parameters, document the reason for each value.",
           "tags": [],
           "examples": [
             {
               "strategy": "エラーハンドリング",
+              "strategy_en": "Error handling",
               "detail": "スクリプト内で問題を解決する",
+              "detail_en": "Solve the problem within the script",
               "before": "def process_file(path):\n    return open(path).read()\n    # 失敗したら Claude 任せ",
-              "after": "def process_file(path):\n    try:\n        with open(path) as f:\n            return f.read()\n    except FileNotFoundError:\n        print(f\"{path} not found, creating\")\n        with open(path, \"w\") as f:\n            f.write(\"\")\n        return \"\""
+              "before_en": "def process_file(path):\n    return open(path).read()\n    # If it fails, leave it to Claude",
+              "after": "def process_file(path):\n    try:\n        with open(path) as f:\n            return f.read()\n    except FileNotFoundError:\n        print(f\"{path} not found, creating\")\n        with open(path, \"w\") as f:\n            f.write(\"\")\n        return \"\"",
+              "after_en": "def process_file(path):\n    try:\n        with open(path) as f:\n            return f.read()\n    except FileNotFoundError:\n        print(f\"{path} not found, creating\")\n        with open(path, \"w\") as f:\n            f.write(\"\")\n        return \"\""
             },
             {
               "strategy": "設定パラメータの文書化",
+              "strategy_en": "Documenting configuration parameters",
               "detail": "マジックナンバーを避け、値の理由を記載",
+              "detail_en": "Avoid magic numbers and document the reason for each value",
               "before": "TIMEOUT = 47  # なぜ47？\nRETRIES = 5   # なぜ5？",
-              "after": "# HTTP リクエストは通常30秒以内に完了\nREQUEST_TIMEOUT = 30\n# 3回のリトライで信頼性と速度を両立\nMAX_RETRIES = 3"
+              "before_en": "TIMEOUT = 47  # Why 47?\nRETRIES = 5   # Why 5?",
+              "after": "# HTTP リクエストは通常30秒以内に完了\nREQUEST_TIMEOUT = 30\n# 3回のリトライで信頼性と速度を両立\nMAX_RETRIES = 3",
+              "after_en": "# HTTP requests typically complete within 30 seconds\nREQUEST_TIMEOUT = 30\n# 3 retries balance reliability and speed\nMAX_RETRIES = 3"
             }
           ]
         },
         {
           "id": "utility-scripts",
           "title": "ユーティリティスクリプトを提供する",
+          "title_en": "Provide Utility Scripts",
           "summary": "事前作成のスクリプトは生成コードより信頼性が高く、トークンと時間を節約する。",
+          "summary_en": "Pre-written scripts are more reliable than generated code and save tokens and time.",
           "content": "事前作成スクリプトは生成コードより信頼性が高くトークンを節約。「実行」と「参照」を明確に区別。",
+          "content_en": "Pre-written scripts are more reliable than generated code and save tokens. Clearly distinguish between \"execute\" and \"read for reference\".",
           "tags": [],
           "tips": [
             "実行（最も一般的）：「analyze_form.py を実行してフィールドを抽出」",
@@ -480,13 +740,23 @@
             "スクリプトの出力フォーマットを明記すると Claude が結果を正しく解釈できる",
             "コマンドの使用例とサンプル出力を SKILL.md に記載する"
           ],
-          "code": "## ユーティリティスクリプト\n\n**analyze_form.py**: フォームフィールド抽出\npython scripts/analyze_form.py input.pdf > fields.json\n\n**validate_boxes.py**: 重複チェック\npython scripts/validate_boxes.py fields.json\n\n**fill_form.py**: フィールド値適用\npython scripts/fill_form.py input.pdf fields.json output.pdf"
+          "tips_en": [
+            "Execute (most common): \"Run analyze_form.py to extract fields\"",
+            "Read for reference: \"See analyze_form.py for the extraction algorithm\"",
+            "Documenting the script's output format helps Claude interpret results correctly",
+            "Include command usage examples and sample output in SKILL.md"
+          ],
+          "code": "## ユーティリティスクリプト\n\n**analyze_form.py**: フォームフィールド抽出\npython scripts/analyze_form.py input.pdf > fields.json\n\n**validate_boxes.py**: 重複チェック\npython scripts/validate_boxes.py fields.json\n\n**fill_form.py**: フィールド値適用\npython scripts/fill_form.py input.pdf fields.json output.pdf",
+          "code_en": "## Utility Scripts\n\n**analyze_form.py**: Form field extraction\npython scripts/analyze_form.py input.pdf > fields.json\n\n**validate_boxes.py**: Duplicate check\npython scripts/validate_boxes.py fields.json\n\n**fill_form.py**: Apply field values\npython scripts/fill_form.py input.pdf fields.json output.pdf"
         },
         {
           "id": "verifiable-outputs",
           "title": "検証可能な中間出力を作成する",
+          "title_en": "Create Verifiable Intermediate Outputs",
           "summary": "plan-validate-execute パターンで、計画をスクリプトで検証してから実行する。",
+          "summary_en": "Use the plan-validate-execute pattern to validate plans with scripts before executing them.",
           "content": "「計画-検証-実行」パターンでエラーを早期発見。構造化された計画をスクリプトで検証してから実行。\n\n検証スクリプトは具体的なエラーメッセージを出力。",
+          "content_en": "The \"plan-validate-execute\" pattern catches errors early. Validate structured plans with scripts before executing.\n\nValidation scripts should output specific error messages.",
           "tags": [],
           "tips": [
             "使用場面：バッチ操作、破壊的な変更、複雑なバリデーションルール、高リスク操作",
@@ -494,52 +764,86 @@
             "機械検証可能：スクリプトが客観的な検証を提供する",
             "可逆的な計画：Claude はオリジナルに触れずに計画を反復できる",
             "検証スクリプトのエラーメッセージは具体的に — 修正方法が分かるように"
+          ],
+          "tips_en": [
+            "Use cases: batch operations, destructive changes, complex validation rules, high-risk operations",
+            "Catch errors early: validation discovers issues before changes are applied",
+            "Machine-verifiable: scripts provide objective validation",
+            "Reversible plans: Claude can iterate on the plan without touching the original",
+            "Make validation script error messages specific — clear enough to know how to fix them"
           ]
         },
         {
           "id": "hooks-in-skills",
           "title": "スキルのライフサイクルフック",
+          "title_en": "Skill Lifecycle Hooks",
           "summary": "フロントマターの hooks フィールドでスキルのライフサイクルにスコープされたフックを定義。once: true でセッション内1回のみ実行。",
+          "summary_en": "Define hooks scoped to the skill's lifecycle using the hooks field in frontmatter. Use once: true to execute only once per session.",
           "content": "hooks フィールドでスキルにスコープされたフックを定義。スキルがアクティブな間のみ実行され終了時にクリーンアップ。全フックイベント対応。\n\nonce: true でセッション内1回のみ実行後に自動削除。スキル専用（エージェントでは不可）。",
+          "content_en": "Define hooks scoped to the skill using the hooks field. Hooks execute only while the skill is active and are cleaned up when it ends. All hook events are supported.\n\nonce: true executes the hook only once per session and then removes it automatically. Available for skills only (not agents).",
           "tags": [],
           "code": "---\nname: secure-operations\nhooks:\n  PreToolUse:\n    - matcher: \"Bash\"\n      hooks:\n        - type: command\n          command: \"./scripts/security-check.sh\"\n---\n\n# once の例（セッション内1回のみ）\n---\nname: initial-setup\nhooks:\n  SessionStart:\n    - hooks:\n        - type: command\n          command: \"./scripts/setup.sh\"\n          once: true\n---",
+          "code_en": "---\nname: secure-operations\nhooks:\n  PreToolUse:\n    - matcher: \"Bash\"\n      hooks:\n        - type: command\n          command: \"./scripts/security-check.sh\"\n---\n\n# once example (executes only once per session)\n---\nname: initial-setup\nhooks:\n  SessionStart:\n    - hooks:\n        - type: command\n          command: \"./scripts/setup.sh\"\n          once: true\n---",
           "tips": [
             "フックはスキルがアクティブな間のみ実行され、終了時にクリーンアップされる",
             "once: true はスキル専用フィールド（エージェントでは使用不可）",
             "全フックイベント対応: PreToolUse, PostToolUse, Stop, SessionStart 等"
+          ],
+          "tips_en": [
+            "Hooks execute only while the skill is active and are cleaned up when it ends",
+            "once: true is a skill-only field (not available for agents)",
+            "All hook events are supported: PreToolUse, PostToolUse, Stop, SessionStart, etc."
           ]
         },
         {
           "id": "extended-thinking-in-skills",
           "title": "スキル内での拡張思考",
+          "title_en": "Extended Thinking within Skills",
           "summary": "スキルのコンテンツに \"ultrathink\" を含めると拡張思考（thinking モード）が有効になる。",
+          "summary_en": "Including \"ultrathink\" in skill content activates extended thinking (thinking mode).",
           "content": "スキルのコンテンツ内に \"ultrathink\" という単語を含めると、そのスキル実行時に拡張思考（extended thinking / thinking モード）が有効になります。\n\n複雑な推論や多段階の判断が必要なスキルで、より深い思考プロセスを活用したい場合に使用します。",
+          "content_en": "Including the word \"ultrathink\" in skill content activates extended thinking (extended thinking / thinking mode) when that skill runs.\n\nUse it for skills that require complex reasoning or multi-step judgment where you want to leverage a deeper thinking process.",
           "tags": [],
           "tips": [
             "\"ultrathink\" はスキルコンテンツ内のどこに記述しても有効",
             "複雑な推論や多段階の判断が必要なスキルに適している"
+          ],
+          "tips_en": [
+            "\"ultrathink\" is effective wherever it appears in the skill content",
+            "Suitable for skills that require complex reasoning or multi-step judgment"
           ]
         },
         {
           "id": "mcp-tool-references",
           "title": "MCP ツール参照",
+          "title_en": "MCP Tool References",
           "summary": "MCP ツールは完全修飾名（ServerName:tool_name）を使う。プレフィックスなしではツールが見つからない。",
+          "summary_en": "Use the fully qualified name (ServerName:tool_name) for MCP tools. Without the prefix, Claude cannot find the tool.",
           "content": "MCP ツールは常に ServerName:tool_name の完全修飾名を使用。プレフィックスなしでは Claude がツールを見つけられません。",
+          "content_en": "Always use the fully qualified name ServerName:tool_name for MCP tools. Without the prefix, Claude cannot find the tool.",
           "tags": [],
-          "code": "## MCP ツール参照\n\n形式: ServerName:tool_name\n\n例:\n- BigQuery:bigquery_schema\n- GitHub:create_issue\n- Slack:send_message\n\n※ サーバープレフィックスがないと tool not found エラー"
+          "code": "## MCP ツール参照\n\n形式: ServerName:tool_name\n\n例:\n- BigQuery:bigquery_schema\n- GitHub:create_issue\n- Slack:send_message\n\n※ サーバープレフィックスがないと tool not found エラー",
+          "code_en": "## MCP Tool References\n\nFormat: ServerName:tool_name\n\nExamples:\n- BigQuery:bigquery_schema\n- GitHub:create_issue\n- Slack:send_message\n\n* Without the server prefix, you will get a \"tool not found\" error"
         },
         {
           "id": "package-dependencies",
           "title": "依存パッケージを明示する",
+          "title_en": "Explicitly Declare Package Dependencies",
           "summary": "パッケージがインストール済みと仮定しない。インストール手順を明記する。",
+          "summary_en": "Do not assume packages are already installed. Explicitly document installation instructions.",
           "content": "パッケージの利用を仮定せずインストール手順を明記。ファイルパスは常にフォワードスラッシュ。",
+          "content_en": "Document installation instructions explicitly rather than assuming packages are available. Always use forward slashes for file paths.",
           "tags": [],
           "examples": [
             {
               "strategy": "依存関係の明示",
+              "strategy_en": "Explicitly declaring dependencies",
               "detail": "インストール手順を含める",
+              "detail_en": "Include installation instructions",
               "before": "pdf ライブラリを使ってファイルを処理してください。",
-              "after": "必要パッケージをインストール:\npip install pypdf\n\nfrom pypdf import PdfReader\nreader = PdfReader(\"file.pdf\")"
+              "before_en": "Please process the file using a PDF library.",
+              "after": "必要パッケージをインストール:\npip install pypdf\n\nfrom pypdf import PdfReader\nreader = PdfReader(\"file.pdf\")",
+              "after_en": "Install required packages:\npip install pypdf\n\nfrom pypdf import PdfReader\nreader = PdfReader(\"file.pdf\")"
             }
           ]
         }
@@ -548,42 +852,68 @@
     {
       "id": "troubleshooting",
       "name": "トラブルシューティング",
+      "name_en": "Troubleshooting",
       "description": "スキルが期待通りに動作しない場合の対処法",
+      "description_en": "How to handle situations where a skill does not behave as expected",
       "items": [
         {
           "id": "skill-not-triggering",
           "title": "スキルが起動しない",
+          "title_en": "Skill Is Not Triggering",
           "summary": "description のキーワード不足やスキル一覧での非表示が原因。確認手順と対処法。",
+          "summary_en": "Caused by insufficient keywords in the description or the skill not appearing in the list. Verification steps and remedies.",
           "content": "Claude がスキルを使わない場合の確認手順:\n\n1. description にユーザーが自然に使う言葉やキーワードが含まれているか確認する\n\n2. 「利用可能なスキルは？」と質問し、スキルが一覧に表示されるか確認する\n\n3. description の表現に合うようにリクエストを言い換えてみる\n\n4. user-invocable が false でなければ /skill-name で直接呼び出してテストする",
+          "content_en": "Steps to check when Claude is not using the skill:\n\n1. Check whether the description includes words and keywords users naturally use\n\n2. Ask \"What skills are available?\" and check whether the skill appears in the list\n\n3. Try rephrasing the request to match the description's wording\n\n4. If user-invocable is not false, test by invoking directly with /skill-name",
           "tags": [],
           "tips": [
             "description にユーザーが自然に使うキーワードを含める",
             "「利用可能なスキルは？」でスキル一覧を確認",
             "/skill-name で直接呼び出してスキル自体の動作を検証"
+          ],
+          "tips_en": [
+            "Include keywords users naturally use in the description",
+            "Check the skill list with \"What skills are available?\"",
+            "Verify the skill itself works by invoking it directly with /skill-name"
           ]
         },
         {
           "id": "skill-triggers-too-often",
           "title": "スキルが過剰に起動する",
+          "title_en": "Skill Triggers Too Often",
           "summary": "description が広すぎるか、手動呼び出し専用にすべきスキルの対処法。",
+          "summary_en": "The description is too broad, or the skill should be restricted to manual invocation only.",
           "content": "Claude が意図しない場面でスキルを使う場合:\n\n1. description をより具体的にする — 広範なキーワードを避け、特定のユースケースに絞る\n\n2. disable-model-invocation: true を設定し、手動呼び出し（/skill-name）のみに制限する",
+          "content_en": "When Claude uses the skill in unintended situations:\n\n1. Make the description more specific — avoid broad keywords and focus on specific use cases\n\n2. Set disable-model-invocation: true to restrict to manual invocation (/skill-name) only",
           "tags": [],
           "tips": [
             "description を具体的にする — 広範なキーワードを避ける",
             "disable-model-invocation: true で手動呼び出し専用にする"
+          ],
+          "tips_en": [
+            "Make the description specific — avoid broad keywords",
+            "Use disable-model-invocation: true to restrict to manual invocation only"
           ]
         },
         {
           "id": "skill-descriptions-truncated",
           "title": "スキルの description が途中で切れる",
+          "title_en": "Skill Description Is Truncated",
           "summary": "description バジェットの制約により長い description が切り詰められる場合の対処法。",
+          "summary_en": "How to handle long descriptions being truncated due to the description budget constraint.",
           "content": "スキルの description はコンテキストに読み込まれますが、スキル数が多いとバジェット内に収めるため切り詰められます。バジェットはコンテキストウィンドウの1%で動的にスケーリングし、フォールバックは8,000文字です。\n\n各エントリの `description` + `when_to_use` 合計は 1,536 文字でキャップされるため、重要なユースケースを先頭に記述してください（`maxSkillDescriptionChars` 設定でカスタマイズ可能）。予算全体は `skillListingBudgetFraction` 設定または `SLASH_COMMAND_TOOL_CHAR_BUDGET` 環境変数で引き上げ可能です。",
+          "content_en": "Skill descriptions are loaded into context, but when there are many skills they are truncated to fit within the budget. The budget scales dynamically at 1% of the context window, with a fallback of 8,000 characters.\n\nThe combined `description` + `when_to_use` per entry is capped at 1,536 characters, so place the most important use cases at the top (customizable via the `maxSkillDescriptionChars` setting). The overall budget can be raised via the `skillListingBudgetFraction` setting or the `SLASH_COMMAND_TOOL_CHAR_BUDGET` environment variable.",
           "tags": [],
           "tips": [
             "重要なキーワードを description の先頭に配置する（`description` + `when_to_use` 合計 1,536 文字制限）",
             "`maxSkillDescriptionChars` 設定で各エントリの文字数上限をカスタマイズ可能",
             "`skillListingBudgetFraction` 設定または `SLASH_COMMAND_TOOL_CHAR_BUDGET` 環境変数で予算全体を引き上げ可能",
             "不要なスキルの description を短くするか disable-model-invocation: true で除外する"
+          ],
+          "tips_en": [
+            "Place important keywords at the top of the description (`description` + `when_to_use` combined 1,536-character limit)",
+            "The `maxSkillDescriptionChars` setting allows customizing the character cap per entry",
+            "The overall budget can be raised via the `skillListingBudgetFraction` setting or the `SLASH_COMMAND_TOOL_CHAR_BUDGET` environment variable",
+            "Shorten the descriptions of unnecessary skills or exclude them with disable-model-invocation: true"
           ]
         }
       ]

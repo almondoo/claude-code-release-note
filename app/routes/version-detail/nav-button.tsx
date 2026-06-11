@@ -1,6 +1,7 @@
 import { Link } from "react-router";
 
 import { ChevronLeftIcon, ChevronRightIcon } from "~/components/icons";
+import { useT } from "~/i18n/useT";
 
 export const NavButton = ({
   to,
@@ -11,6 +12,7 @@ export const NavButton = ({
   label: string;
   direction: "prev" | "next";
 }): React.JSX.Element => {
+  const t = useT();
   return (
     <Link
       to={`/version/${to}`}
@@ -21,7 +23,7 @@ export const NavButton = ({
       {direction === "prev" ? <ChevronLeftIcon /> : <ChevronRightIcon />}
       <div className={direction === "next" ? "text-right" : "text-left"}>
         <div className="text-[12px] text-slate-500 mb-0.5">
-          {direction === "prev" ? "前のバージョン" : "次のバージョン"}
+          {direction === "prev" ? t.versionDetail.prevVersion : t.versionDetail.nextVersion}
         </div>
         <div className="font-mono font-semibold">v{label}</div>
       </div>

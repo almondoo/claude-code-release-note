@@ -4,19 +4,26 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Footer } from "~/components/footer";
 import { PageHeader } from "~/components/page-header";
 import { TabBar } from "~/components/tab-bar";
+import { dictFromMatches } from "~/i18n/meta";
+import { useL } from "~/i18n/localize";
+import { useT } from "~/i18n/useT";
 
-import { ACCENT, META, SECTIONS, TAB_DEFS } from "./constants";
+import { ACCENT, META, SECTIONS, getTabDefs } from "./constants";
 import { RenderBlock } from "./section-renderer";
 
 // ── Meta ───────────────────────────────────────────────────────────────────
 
-export const meta = (): Array<{ title?: string; name?: string; content?: string }> => {
+export const meta = ({
+  matches,
+}: {
+  matches: readonly ({ data?: unknown } | undefined)[];
+}): Array<{ title?: string; name?: string; content?: string }> => {
+  const d = dictFromMatches(matches);
   return [
-    { title: "動的ワークフロー（Dynamic Workflows）— Claude Code" },
+    { title: d.workflows.metaTitle },
     {
       name: "description",
-      content:
-        "Claude Code がタスク専用のハーネスをその場で書き、複数のサブエージェントを協調させる動的ワークフローの解説。",
+      content: d.workflows.metaDescription,
     },
   ];
 };
@@ -29,38 +36,46 @@ const WorkflowSection = ({
 }: {
   section: (typeof SECTIONS)[number];
   sectionRef: (el: HTMLElement | null) => void;
-}): React.JSX.Element => (
-  <section
-    ref={sectionRef}
-    data-section-id={section.id}
-    id={section.id}
-    className="scroll-mt-24"
-    aria-labelledby={`section-title-${section.id}`}
-  >
-    <div className="mb-6">
-      <h2
-        id={`section-title-${section.id}`}
-        className="text-base font-bold text-slate-100 m-0 mb-2"
-        style={{ color: ACCENT }}
-      >
-        {section.title}
-      </h2>
-      {section.description && (
-        <p className="text-[14px] text-slate-400 m-0">{section.description}</p>
-      )}
-    </div>
+}): React.JSX.Element => {
+  const L = useL();
+  return (
+    <section
+      ref={sectionRef}
+      data-section-id={section.id}
+      id={section.id}
+      className="scroll-mt-24"
+      aria-labelledby={`section-title-${section.id}`}
+    >
+      <div className="mb-6">
+        <h2
+          id={`section-title-${section.id}`}
+          className="text-base font-bold text-slate-100 m-0 mb-2"
+          style={{ color: ACCENT }}
+        >
+          {L(section.title, section.title_en)}
+        </h2>
+        {section.description && (
+          <p className="text-[14px] text-slate-400 m-0">
+            {L(section.description, section.description_en)}
+          </p>
+        )}
+      </div>
 
-    <div className="flex flex-col gap-5">
-      {section.blocks.map((block, i) => (
-        <RenderBlock key={i} block={block} />
-      ))}
-    </div>
-  </section>
-);
+      <div className="flex flex-col gap-5">
+        {section.blocks.map((block, i) => (
+          <RenderBlock key={i} block={block} />
+        ))}
+      </div>
+    </section>
+  );
+};
 
 // ── Main page ──────────────────────────────────────────────────────────────
 
 const WorkflowsPage = (): React.JSX.Element => {
+  const t = useT();
+  const L = useL();
+  const tabDefs = getTabDefs(t);
   const [activeSectionId, setActiveSectionId] = useState(SECTIONS[0]?.id ?? "overview");
   const sectionRefs = useRef<Map<string, HTMLElement>>(new Map());
   const isScrollingRef = useRef(false);
@@ -118,9 +133,9 @@ const WorkflowsPage = (): React.JSX.Element => {
       <div className="max-w-[1400px] mx-auto px-4 py-8">
         {/* Page header */}
         <PageHeader
-          title={META.title}
-          description={META.premise}
-          stats={META.keyStats.map((s) => ({ value: s.value, label: s.label }))}
+          title={L(META.title, META.title_en)}
+          description={L(META.premise, META.premise_en)}
+          stats={META.keyStats.map((s) => ({ value: s.value, label: L(s.label, s.label_en) }))}
           gradient={["rgba(224,115,77,0.10)", "rgba(224,115,77,0.05)"]}
         />
 
@@ -129,7 +144,7 @@ const WorkflowsPage = (): React.JSX.Element => {
           {/* Anchor-jump TabBar */}
           <div className="sticky top-0 z-10 bg-slate-900/90 backdrop-blur-sm py-2 -mx-4 px-4 mb-6">
             <TabBar
-              tabs={TAB_DEFS}
+              tabs={tabDefs}
               activeTab={activeSectionId}
               onTabChange={handleSectionClick}
               reducedMotion={reducedMotion}
@@ -149,12 +164,8 @@ const WorkflowsPage = (): React.JSX.Element => {
 
           {/* Footer */}
           <Footer>
-            <p className="m-0 mb-1 text-[12px] text-slate-500">
-              本ページの情報は2026年6月時点のもの（リサーチプレビュー段階）です。仕様は変更される可能性があります。
-            </p>
-            <p className="m-0 text-slate-500/50">
-              動的ワークフロー（Dynamic Workflows）— Claude Code
-            </p>
+            <p className="m-0 mb-1 text-[12px] text-slate-500">{t.workflows.footerDate}</p>
+            <p className="m-0 text-slate-500/50">{t.workflows.footerCredit}</p>
           </Footer>
         </div>
       </div>

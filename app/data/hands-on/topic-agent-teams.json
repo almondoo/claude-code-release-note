@@ -1,32 +1,42 @@
 {
   "topicId": "agent-teams",
   "title": "Agent Teams で複数エージェントを協調させる",
+  "title_en": "Coordinating Multiple Agents with Agent Teams",
   "difficulty": "medium",
   "estimatedTime": "30分",
+  "estimatedTime_en": "30 min",
   "steps": [
     {
       "id": "step-1",
       "label": "STEP 1",
+      "label_en": "STEP 1",
       "title": "Agent Teams の概要を理解する",
+      "title_en": "Understanding the Overview of Agent Teams",
       "description": "Agent Teams は Claude Code 内で複数のサブエージェントを起動し、タスクを分担して並行作業を実現する機能です。",
+      "description_en": "Agent Teams is a feature in Claude Code that launches multiple sub-agents to distribute tasks and enable parallel execution.",
       "blocks": [
         {
           "type": "highlight",
           "variant": "tip",
           "title": "このハンズオンの読み方",
-          "content": "本ガイドでは、仕組みを理解しやすくするために内部ツール名（TeamCreate, TaskCreate など）を記載しています。実際の操作ではこれらを直接呼び出す必要はなく、Claude Code に自然言語で指示するだけで OK です。"
+          "title_en": "How to Read This Hands-on Guide",
+          "content": "本ガイドでは、仕組みを理解しやすくするために内部ツール名（TeamCreate, TaskCreate など）を記載しています。実際の操作ではこれらを直接呼び出す必要はなく、Claude Code に自然言語で指示するだけで OK です。",
+          "content_en": "This guide includes internal tool names (TeamCreate, TaskCreate, etc.) to help you understand how things work. In practice, you do not need to call these directly — just give Claude Code instructions in natural language."
         },
         {
           "type": "text",
-          "content": "Agent Teams を使うと、あなたが操作している Claude Code セッション（これを「リーダー」と呼びます）が、複数の子エージェント（「チームメイト」）を自動で起動します。各チームメイトは独立したコンテキストを持ち、並行してファイル編集やコマンド実行を行えます。"
+          "content": "Agent Teams を使うと、あなたが操作している Claude Code セッション（これを「リーダー」と呼びます）が、複数の子エージェント（「チームメイト」）を自動で起動します。各チームメイトは独立したコンテキストを持ち、並行してファイル編集やコマンド実行を行えます。",
+          "content_en": "With Agent Teams, the Claude Code session you are operating (called the \"leader\") automatically launches multiple child agents (\"teammates\"). Each teammate has an independent context and can perform file edits and command execution in parallel."
         },
         {
           "type": "highlight",
           "variant": "info",
           "title": "リーダーとチームメイトの関係",
-          "content": "リーダー = あなたが会話している Claude Code セッション。チームメイト = リーダーが裏で起動する子プロセス。あなたはリーダーに指示を出すだけで、チームメイトとは直接やり取りしません。"
+          "title_en": "The Relationship Between the Leader and Teammates",
+          "content": "リーダー = あなたが会話している Claude Code セッション。チームメイト = リーダーが裏で起動する子プロセス。あなたはリーダーに指示を出すだけで、チームメイトとは直接やり取りしません。",
+          "content_en": "Leader = the Claude Code session you are conversing with. Teammates = child processes launched by the leader in the background. You only give instructions to the leader; you do not interact directly with teammates."
         },
-        { "type": "text", "content": "ユースケース:" },
+        { "type": "text", "content": "ユースケース:", "content_en": "Use cases:" },
         {
           "type": "list",
           "items": [
@@ -34,200 +44,273 @@
             "テスト作成と実装を並行で進める",
             "複数のバグ修正を同時進行",
             "大規模リファクタリングの分担"
+          ],
+          "items_en": [
+            "Simultaneous frontend and backend development",
+            "Running test creation and implementation in parallel",
+            "Working on multiple bug fixes at the same time",
+            "Distributing large-scale refactoring work"
           ]
         },
         {
           "type": "highlight",
           "variant": "warning",
           "title": "前提条件",
-          "content": "Claude Code がインストールされ、正常に動作するセッションが開始されていることが必要です。また、Agent Teams は実験的機能のため、事前に環境変数の設定が必要です（次の STEP で説明します）。"
+          "title_en": "Prerequisites",
+          "content": "Claude Code がインストールされ、正常に動作するセッションが開始されていることが必要です。また、Agent Teams は実験的機能のため、事前に環境変数の設定が必要です（次の STEP で説明します）。",
+          "content_en": "Claude Code must be installed and a working session must be active. In addition, because Agent Teams is an experimental feature, you need to configure an environment variable beforehand (described in the next STEP)."
         }
       ]
     },
     {
       "id": "step-2",
       "label": "STEP 2",
+      "label_en": "STEP 2",
       "title": "環境変数を設定する",
+      "title_en": "Configuring Environment Variables",
       "description": "Agent Teams は実験的機能のため、使用前に環境変数の設定が必要です。",
+      "description_en": "Because Agent Teams is an experimental feature, you must configure an environment variable before use.",
       "blocks": [
         {
           "type": "text",
-          "content": "Agent Teams はまだ実験的機能（Experimental）として提供されています。使用するには、Claude Code の設定ファイルに環境変数を追加する必要があります。"
+          "content": "Agent Teams はまだ実験的機能（Experimental）として提供されています。使用するには、Claude Code の設定ファイルに環境変数を追加する必要があります。",
+          "content_en": "Agent Teams is still offered as an experimental feature. To use it, you must add an environment variable to the Claude Code configuration file."
         },
         {
           "type": "codeBlock",
           "language": "json",
           "code": "// ~/.claude/settings.json に追加\n{\n  \"env\": {\n    \"CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS\": \"1\"\n  }\n}",
           "filename": "~/.claude/settings.json",
-          "caption": "この設定を追加した後、Claude Code を再起動してください"
+          "caption": "この設定を追加した後、Claude Code を再起動してください",
+          "caption_en": "Restart Claude Code after adding this configuration"
         },
         {
           "type": "highlight",
           "variant": "warning",
           "title": "設定ファイルの場所",
-          "content": "~/.claude/settings.json はホームディレクトリ直下の .claude フォルダにあります。ファイルが存在しない場合は新規作成してください。既に他の設定がある場合は、env キーを追加する形でマージしてください。"
+          "title_en": "Configuration File Location",
+          "content": "~/.claude/settings.json はホームディレクトリ直下の .claude フォルダにあります。ファイルが存在しない場合は新規作成してください。既に他の設定がある場合は、env キーを追加する形でマージしてください。",
+          "content_en": "~/.claude/settings.json is located in the .claude folder directly under your home directory. If the file does not exist, create it. If other settings already exist, merge by adding the env key."
         },
         {
           "type": "highlight",
           "variant": "tip",
           "title": "設定の確認方法",
-          "content": "設定後に Claude Code を起動し、「チームを作成してください」と指示してエラーにならなければ設定完了です。"
+          "title_en": "How to Verify the Configuration",
+          "content": "設定後に Claude Code を起動し、「チームを作成してください」と指示してエラーにならなければ設定完了です。",
+          "content_en": "After configuring, launch Claude Code and instruct it to \"create a team.\" If no error occurs, the configuration is complete."
         }
       ]
     },
     {
       "id": "step-3",
       "label": "STEP 3",
+      "label_en": "STEP 3",
       "title": "チームを作成する",
+      "title_en": "Creating a Team",
       "description": "自然言語でチーム作成を指示し、作業の土台を準備します。",
+      "description_en": "Instruct Claude Code in natural language to create a team and prepare the foundation for work.",
       "blocks": [
         {
           "type": "text",
-          "content": "Claude Code のセッション内で、チームの作成を自然言語で指示します。チーム名と目的を伝えるだけで、必要な設定ファイルが自動的に作成されます。"
+          "content": "Claude Code のセッション内で、チームの作成を自然言語で指示します。チーム名と目的を伝えるだけで、必要な設定ファイルが自動的に作成されます。",
+          "content_en": "Inside a Claude Code session, instruct it in natural language to create a team. Simply communicate the team name and purpose, and the required configuration files are created automatically."
         },
         {
           "type": "codeBlock",
           "language": "text",
           "code": "# Claude Code への指示例:\n「ログイン画面と認証APIを並行で実装したいので、\nチームを作成してください」\n\n# Claude Code が自動で行うこと:\n1. チーム名を決めて作成（例: auth-feature）\n2. チーム設定ファイルと共有タスクリストを生成",
-          "caption": "チーム名は Claude Code が自動で付けますが、指定しても OK です"
+          "caption": "チーム名は Claude Code が自動で付けますが、指定しても OK です",
+          "caption_en": "Claude Code assigns a team name automatically, but you may specify one yourself"
         },
-        { "type": "text", "content": "この指示により、以下が自動的にセットアップされます:" },
+        {
+          "type": "text",
+          "content": "この指示により、以下が自動的にセットアップされます:",
+          "content_en": "This instruction automatically sets up the following:"
+        },
         {
           "type": "list",
-          "items": ["チーム設定ファイル（メンバー管理用）", "共有タスクリスト（進捗管理用）"]
+          "items": ["チーム設定ファイル（メンバー管理用）", "共有タスクリスト（進捗管理用）"],
+          "items_en": [
+            "Team configuration file (for member management)",
+            "Shared task list (for progress tracking)"
+          ]
         },
         {
           "type": "highlight",
           "variant": "tip",
           "title": "チーム名のコツ",
-          "content": "チーム名はプロジェクトや機能を反映した名前にしましょう。例: auth-feature, refactor-api, bug-fixes。日本語名も使えますが、英語の方がファイルパスとの相性が良いです。"
+          "title_en": "Tips for Team Naming",
+          "content": "チーム名はプロジェクトや機能を反映した名前にしましょう。例: auth-feature, refactor-api, bug-fixes。日本語名も使えますが、英語の方がファイルパスとの相性が良いです。",
+          "content_en": "Choose a team name that reflects the project or feature. Examples: auth-feature, refactor-api, bug-fixes. Japanese names are supported, but English names work better with file paths."
         }
       ]
     },
     {
       "id": "step-4",
       "label": "STEP 4",
+      "label_en": "STEP 4",
       "title": "タスクを作成してチームメイトを起動する",
+      "title_en": "Creating Tasks and Launching Teammates",
       "description": "作業内容を指示すると、リーダーがタスクを作成し、担当するチームメイトを自動で起動します。",
+      "description_en": "When you describe the work, the leader creates tasks and automatically launches the teammates assigned to handle them.",
       "blocks": [
         {
           "type": "text",
-          "content": "リーダー（あなたのセッション）に作業内容を伝えると、タスクの作成とチームメイトの起動が自動で行われます。"
+          "content": "リーダー（あなたのセッション）に作業内容を伝えると、タスクの作成とチームメイトの起動が自動で行われます。",
+          "content_en": "When you tell the leader (your session) what work needs to be done, task creation and teammate launching are handled automatically."
         },
         {
           "type": "codeBlock",
           "language": "text",
           "code": "# 指示例:\n「以下の2つのタスクを作成して、それぞれ担当エージェントを\n起動してください:\n\n1. ログイン画面の実装\n   - src/pages/Login.tsx にメールアドレス+パスワードのフォームを作成\n   - src/hooks/useAuth.ts に認証状態管理のカスタムフックを作成\n   - バリデーションは zod を使用\n   - 認証APIのエンドポイントは POST /api/auth/login\n\n2. 認証APIの実装\n   - src/routes/auth.ts にログイン・ログアウト・トークンリフレッシュの3エンドポイントを作成\n   - JWT認証（jsonwebtoken パッケージ使用）\n   - src/middleware/requireAuth.ts に認証ミドルウェアを作成」",
-          "caption": "リーダーが自動でタスク作成 → チームメイト起動 → 割り当てを行います"
+          "caption": "リーダーが自動でタスク作成 → チームメイト起動 → 割り当てを行います",
+          "caption_en": "The leader automatically handles task creation → teammate launch → assignment"
         },
         {
           "type": "highlight",
           "variant": "info",
           "title": "タスクの中身",
-          "content": "各タスクには「タイトル」「詳細な説明」「進行中に表示されるラベル」が設定されます。これらはリーダーが自動で適切に設定しますが、指示が曖昧だと説明も曖昧になります。"
+          "title_en": "Task Contents",
+          "content": "各タスクには「タイトル」「詳細な説明」「進行中に表示されるラベル」が設定されます。これらはリーダーが自動で適切に設定しますが、指示が曖昧だと説明も曖昧になります。",
+          "content_en": "Each task is assigned a \"title,\" a \"detailed description,\" and a \"label displayed while in progress.\" The leader sets these automatically and appropriately, but if your instructions are vague, the descriptions will be vague as well."
         },
         {
           "type": "highlight",
           "variant": "warning",
           "title": "重要: 指示は具体的に",
-          "content": "「ログイン画面をよろしく」のような曖昧な指示は避けましょう。上の例のように、ファイルパス・使用ライブラリ・APIエンドポイントまで指定するほどチームメイトの作業品質が上がります。"
+          "title_en": "Important: Be Specific with Instructions",
+          "content": "「ログイン画面をよろしく」のような曖昧な指示は避けましょう。上の例のように、ファイルパス・使用ライブラリ・APIエンドポイントまで指定するほどチームメイトの作業品質が上がります。",
+          "content_en": "Avoid vague instructions like \"please handle the login screen.\" The more specific you are — including file paths, libraries to use, and API endpoints as shown in the example above — the higher the quality of the teammates' work."
         },
         {
           "type": "highlight",
           "variant": "tip",
           "title": "タスクの状態遷移",
-          "content": "各タスクは pending（未着手）→ in_progress（作業中）→ completed（完了）と自動で遷移します。あなたが手動で状態を変える必要はありません。"
+          "title_en": "Task State Transitions",
+          "content": "各タスクは pending（未着手）→ in_progress（作業中）→ completed（完了）と自動で遷移します。あなたが手動で状態を変える必要はありません。",
+          "content_en": "Each task transitions automatically through pending (not started) → in_progress (in progress) → completed (done). You do not need to change the state manually."
         }
       ]
     },
     {
       "id": "step-5",
       "label": "STEP 5",
+      "label_en": "STEP 5",
       "title": "チームメイト間の連携を理解する",
+      "title_en": "Understanding Coordination Between Teammates",
       "description": "チームメイト同士がどう連携するかを知っておきましょう。",
+      "description_en": "Learn how teammates coordinate with each other.",
       "blocks": [
         {
           "type": "text",
-          "content": "チームメイトはリーダーを介してメッセージをやり取りできます。例えば、バックエンドのチームメイトが作った API の型をフロントエンドのチームメイトに共有する、といった連携が可能です。"
+          "content": "チームメイトはリーダーを介してメッセージをやり取りできます。例えば、バックエンドのチームメイトが作った API の型をフロントエンドのチームメイトに共有する、といった連携が可能です。",
+          "content_en": "Teammates can exchange messages through the leader. For example, the backend teammate can share API types it created with the frontend teammate."
         },
         {
           "type": "codeBlock",
           "language": "text",
           "code": "# 連携が必要な場合の指示例:\n「認証API担当のエージェントに、POST /api/auth/login の\nレスポンス型（トークンの形式やユーザー情報の構造）を\nログイン画面担当のエージェントに共有するよう伝えてください」\n\n# リーダーが自動で行うこと:\n1. 認証API担当にメッセージを送信して型情報を聞く\n2. 担当からの返答を受け取る\n3. ログイン画面担当にその情報を転送する",
-          "caption": "あなたはリーダーに頼むだけ。メッセージの送受信はリーダーが自動で行います"
+          "caption": "あなたはリーダーに頼むだけ。メッセージの送受信はリーダーが自動で行います",
+          "caption_en": "You only need to ask the leader. The leader handles sending and receiving messages automatically"
         },
         {
           "type": "highlight",
           "variant": "info",
           "title": "メッセージは自動配信",
-          "content": "チームメイトからの完了報告や質問は、リーダーに自動配信されます。あなたが手動で受信箱をチェックする必要はありません。"
+          "title_en": "Messages Are Delivered Automatically",
+          "content": "チームメイトからの完了報告や質問は、リーダーに自動配信されます。あなたが手動で受信箱をチェックする必要はありません。",
+          "content_en": "Completion reports and questions from teammates are delivered to the leader automatically. You do not need to manually check an inbox."
         },
         {
           "type": "highlight",
           "variant": "tip",
           "title": "broadcast は慎重に",
-          "content": "全チームメイトへの一斉送信（broadcast）はコストが高くなります。通常は特定のチームメイトへの直接メッセージで十分です。全員に影響する重大な方針変更がある場合のみ使いましょう。"
+          "title_en": "Use Broadcasts Sparingly",
+          "content": "全チームメイトへの一斉送信（broadcast）はコストが高くなります。通常は特定のチームメイトへの直接メッセージで十分です。全員に影響する重大な方針変更がある場合のみ使いましょう。",
+          "content_en": "Broadcasting to all teammates is costly. A direct message to a specific teammate is usually sufficient. Use broadcasts only for significant policy changes that affect everyone."
         }
       ]
     },
     {
       "id": "step-6",
       "label": "STEP 6",
+      "label_en": "STEP 6",
       "title": "タスクの進捗を管理する",
+      "title_en": "Managing Task Progress",
       "description": "チーム全体の進捗を把握し、必要に応じて調整します。",
+      "description_en": "Get an overview of the team's overall progress and adjust as needed.",
       "blocks": [
         {
           "type": "text",
-          "content": "リーダーに進捗を聞くだけで、全タスクの状態を一覧で確認できます。"
+          "content": "リーダーに進捗を聞くだけで、全タスクの状態を一覧で確認できます。",
+          "content_en": "Simply ask the leader for a progress update to see the status of all tasks at a glance."
         },
         {
           "type": "codeBlock",
           "language": "text",
           "code": "# 進捗確認の指示例:\n「現在のタスク進捗を見せてください」\n\n# リーダーの回答例:\nタスク #1: ログイン画面の実装   ✓ 完了\nタスク #2: 認証APIの実装        ◆ 作業中\nタスク #3: 認証の結合テスト     ○ 未着手（#1, #2 の完了待ち）",
-          "caption": "タスクの状態は「未着手」「作業中」「完了」のいずれかです"
+          "caption": "タスクの状態は「未着手」「作業中」「完了」のいずれかです",
+          "caption_en": "Task status is one of: \"not started,\" \"in progress,\" or \"completed\""
         },
-        { "type": "text", "content": "タスク間に依存関係を設定することもできます:" },
+        {
+          "type": "text",
+          "content": "タスク間に依存関係を設定することもできます:",
+          "content_en": "You can also set dependencies between tasks:"
+        },
         {
           "type": "codeBlock",
           "language": "text",
           "code": "# 依存関係の指示例:\n「結合テストのタスクは、ログイン画面と認証APIの\n両方が完了してから開始してください」\n\n# 結果:\nタスク #1: ログイン画面 → \n                         → タスク #3: 結合テスト\nタスク #2: 認証API     →",
-          "caption": "#1 と #2 が両方完了するまで #3 は自動的にブロックされます"
+          "caption": "#1 と #2 が両方完了するまで #3 は自動的にブロックされます",
+          "caption_en": "Task #3 is automatically blocked until both #1 and #2 are complete"
         },
         {
           "type": "highlight",
           "variant": "tip",
           "title": "途中で方針変更したい場合",
-          "content": "「認証APIをJWTではなくセッション認証に変更してください」のように指示すれば、リーダーがタスクの更新と担当エージェントへの指示変更を行います。"
+          "title_en": "Changing Direction Mid-way",
+          "content": "「認証APIをJWTではなくセッション認証に変更してください」のように指示すれば、リーダーがタスクの更新と担当エージェントへの指示変更を行います。",
+          "content_en": "If you instruct it to \"change the authentication API from JWT to session-based authentication,\" the leader will update the task and revise the instructions to the assigned agent."
         }
       ]
     },
     {
       "id": "step-7",
       "label": "STEP 7",
+      "label_en": "STEP 7",
       "title": "チームをシャットダウンする",
+      "title_en": "Shutting Down the Team",
       "description": "すべてのタスクが完了したら、チームをクリーンアップします。",
+      "description_en": "Once all tasks are complete, clean up the team.",
       "blocks": [
         {
           "type": "text",
-          "content": "全タスクが完了したら、チームの解散を指示します。リーダーが各チームメイトを安全に停止し、設定ファイルを削除します。"
+          "content": "全タスクが完了したら、チームの解散を指示します。リーダーが各チームメイトを安全に停止し、設定ファイルを削除します。",
+          "content_en": "Once all tasks are complete, instruct the leader to disband the team. The leader safely stops each teammate and removes the configuration files."
         },
         {
           "type": "codeBlock",
           "language": "text",
           "code": "# シャットダウンの指示例:\n「全タスクが完了したので、チームを解散してください」\n\n# リーダーが自動で行うこと:\n1. 全タスクの完了を確認\n2. 各チームメイトに停止リクエストを送信\n3. チームメイトが承認して停止\n4. チームの設定ファイルとタスクリストを削除",
-          "caption": "チームメイトが作業中の場合、停止は拒否されます（安全装置）"
+          "caption": "チームメイトが作業中の場合、停止は拒否されます（安全装置）",
+          "caption_en": "If a teammate is still working, the stop request will be refused (safety mechanism)"
         },
         {
           "type": "highlight",
           "variant": "info",
           "title": "まとめ: 全体のフロー",
-          "content": "① 環境変数を設定 → ② チーム作成を指示 → ③ タスクとチームメイト起動を指示 → ④ リーダーが自動でメッセージング・進捗管理 → ⑤ 全完了後にチーム解散を指示。あなたが行うのは ①〜③ と ⑤ の指示だけです。"
+          "title_en": "Summary: Overall Flow",
+          "content": "① 環境変数を設定 → ② チーム作成を指示 → ③ タスクとチームメイト起動を指示 → ④ リーダーが自動でメッセージング・進捗管理 → ⑤ 全完了後にチーム解散を指示。あなたが行うのは ①〜③ と ⑤ の指示だけです。",
+          "content_en": "① Configure the environment variable → ② Instruct team creation → ③ Instruct task and teammate launch → ④ The leader automatically handles messaging and progress management → ⑤ Instruct team disbanding after everything is complete. You only need to give instructions for ①–③ and ⑤."
         },
         {
           "type": "highlight",
           "variant": "tip",
           "title": "うまくいかないとき",
-          "content": "チームメイトが想定と違う作業をしている場合は、リーダーに「〇〇エージェントに△△するよう修正指示を出してください」と伝えます。チームメイトが応答しない場合は、チームを解散して新しいチームで再スタートするのが確実です。"
+          "title_en": "When Things Do Not Go as Expected",
+          "content": "チームメイトが想定と違う作業をしている場合は、リーダーに「〇〇エージェントに△△するよう修正指示を出してください」と伝えます。チームメイトが応答しない場合は、チームを解散して新しいチームで再スタートするのが確実です。",
+          "content_en": "If a teammate is doing something different from what was expected, tell the leader to \"issue a correction instruction to the [X] agent to do [Y].\" If a teammate is not responding, disbanding the team and restarting with a new team is the reliable approach."
         }
       ]
     }
@@ -240,5 +323,14 @@
     "チームメイト間のメッセージ連携の仕組み",
     "タスクの依存関係による実行順序の制御",
     "チームの解散とクリーンアップ"
+  ],
+  "summary_en": [
+    "Agent Teams is an experimental feature that requires setting the environment variable CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1",
+    "Agent Teams can be operated with natural language instructions alone",
+    "The relationship between the leader (your session) and teammates (child processes)",
+    "The end-to-end flow of task creation, teammate launch, and progress checking",
+    "How messaging between teammates works",
+    "Controlling execution order through task dependencies",
+    "Disbanding and cleaning up the team"
   ]
 }

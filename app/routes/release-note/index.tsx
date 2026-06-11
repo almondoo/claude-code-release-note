@@ -6,15 +6,23 @@ import { EmptyState } from "~/components/empty-state";
 import { Footer } from "~/components/footer";
 import { PageHeader } from "~/components/page-header";
 import { SearchInput } from "~/components/search-input";
+import { useL } from "~/i18n/localize";
+import { dictFromMatches } from "~/i18n/meta";
+import { useT } from "~/i18n/useT";
 
-import { RELEASES, TAB_DEFS, TAG_ICONS, totalAll } from "./constants";
+import { RELEASES, getTabDefs, TAG_ICONS, totalAll } from "./constants";
 import { DetailModal } from "./detail-modal";
 import { VersionCard } from "./version-card";
 
-export const meta = (): Array<{ title?: string; name?: string; content?: string }> => {
+export const meta = ({
+  matches,
+}: {
+  matches: readonly ({ data?: unknown } | undefined)[];
+}): Array<{ title?: string; name?: string; content?: string }> => {
+  const d = dictFromMatches(matches);
   return [
-    { title: "Claude Code リリースノート" },
-    { name: "description", content: "Claude Code の全バージョンのリリースノートを閲覧できます" },
+    { title: d.releaseNote.metaTitle },
+    { name: "description", content: d.releaseNote.metaDescription },
   ];
 };
 
@@ -24,6 +32,8 @@ const ReleaseNote = (): React.JSX.Element => {
   const [modalVersion, setModalVersion] = useState<string | null>(null);
   const reducedMotion = useReducedMotion();
   const tabsRef = useRef<HTMLDivElement>(null);
+  const t = useT();
+  const L = useL();
 
   const m = reducedMotion
     ? { initial: undefined, animate: undefined, transition: undefined }
@@ -31,21 +41,23 @@ const ReleaseNote = (): React.JSX.Element => {
 
   const closeModal = useCallback(() => setModalVersion(null), []);
 
+  const tabDefs = getTabDefs(t);
+
   const filtered = useMemo(() => {
     const lowerQuery = query.toLowerCase();
     return RELEASES.map((release) => ({
       ...release,
       items: release.items.filter((item) => {
         const tagMatch = activeTab === "all" || item.tags.includes(activeTab);
-        const queryMatch = !query || item.t.toLowerCase().includes(lowerQuery);
+        const queryMatch = !query || L(item.t, item.t_en).toLowerCase().includes(lowerQuery);
         return tagMatch && queryMatch;
       }),
     })).filter((release) => release.items.length > 0);
-  }, [activeTab, query]);
+  }, [activeTab, query, L]);
 
   const totalItems = filtered.reduce((sum, r) => sum + r.items.length, 0);
 
-  const activeTabDef = TAB_DEFS.find((t) => t.id === activeTab) ?? TAB_DEFS[0];
+  const activeTabDef = tabDefs.find((tab) => tab.id === activeTab) ?? tabDefs[0];
   const accentColor = activeTabDef.color;
 
   const modalRelease = modalVersion ? RELEASES.find((r) => r.v === modalVersion) : null;
@@ -61,10 +73,10 @@ const ReleaseNote = (): React.JSX.Element => {
       <div className="max-w-[1400px] mx-auto p-8 px-4">
         {/* Header */}
         <PageHeader
-          title="リリースノート"
+          title={t.releaseNote.pageTitle}
           stats={[
-            { value: RELEASES.length, label: "バージョン" },
-            { value: totalAll, label: "件の変更" },
+            { value: RELEASES.length, label: t.releaseNote.statVersions },
+            { value: totalAll, label: t.releaseNote.statChanges },
           ]}
           extraStats={
             <span className="font-mono text-xs">
@@ -81,7 +93,7 @@ const ReleaseNote = (): React.JSX.Element => {
           ref={tabsRef}
           className="flex gap-1.5 mb-3.5 overflow-x-auto py-1 scrollbar-none"
         >
-          {TAB_DEFS.map((tab) => {
+          {tabDefs.map((tab) => {
             const active = activeTab === tab.id;
             const Icon = tab.id !== "all" ? TAG_ICONS[tab.id] : null;
             return (
@@ -121,12 +133,12 @@ const ReleaseNote = (): React.JSX.Element => {
             <SearchInput
               value={query}
               onChange={setQuery}
-              placeholder="キーワードで検索..."
+              placeholder={t.releaseNote.searchPlaceholder}
               accentColor={accentColor}
             />
           </div>
           <span className="text-xs text-slate-500 font-medium whitespace-nowrap font-mono">
-            {filtered.length}ver / {totalItems}件
+            {t.releaseNote.countSummary(filtered.length, totalItems)}
           </span>
         </motion.div>
 
@@ -156,7 +168,7 @@ const ReleaseNote = (): React.JSX.Element => {
         {/* Empty state */}
         <AnimatePresence>
           {filtered.length === 0 && (
-            <EmptyState message="条件に一致する変更はありません" reducedMotion={reducedMotion} />
+            <EmptyState message={t.releaseNote.noResults} reducedMotion={reducedMotion} />
           )}
         </AnimatePresence>
 

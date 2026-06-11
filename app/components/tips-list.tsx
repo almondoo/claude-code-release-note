@@ -1,10 +1,12 @@
 import { renderInlineMarkdown } from "~/components/paragraph-list";
+import { useT } from "~/i18n/useT";
 
 export const TipsList = ({ tips }: { tips: string[] }): React.JSX.Element => {
+  const t = useT();
   return (
     <div className="flex flex-col gap-2.5">
       <h3 className="text-[12px] font-bold uppercase tracking-wider text-orange-300 font-mono m-0">
-        ポイント
+        {t.common.point}
       </h3>
       <ul className="m-0 pl-0 list-none flex flex-col gap-1.5">
         {tips.map((tip, i) => (

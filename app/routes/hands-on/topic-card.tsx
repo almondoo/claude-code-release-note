@@ -1,6 +1,9 @@
 import { Link } from "react-router";
 import { motion, useReducedMotion } from "motion/react";
 
+import { useL } from "~/i18n/localize";
+import { useT } from "~/i18n/useT";
+
 import { type TopicMeta, DIFFICULTY_COLORS, TAG_COLORS, TOPIC_ICONS } from "./constants";
 
 interface TopicCardProps {
@@ -9,6 +12,8 @@ interface TopicCardProps {
 }
 
 export const TopicCard = ({ topic, index }: TopicCardProps): React.JSX.Element => {
+  const t = useT();
+  const L = useL();
   const reducedMotion = useReducedMotion();
   const diff = DIFFICULTY_COLORS[topic.difficulty];
   const IconRenderer = TOPIC_ICONS[topic.icon];
@@ -41,7 +46,7 @@ export const TopicCard = ({ topic, index }: TopicCardProps): React.JSX.Element =
               className="text-[11px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full"
               style={{ color: diff.color, background: diff.bg }}
             >
-              {diff.label}
+              {t.handsOn.difficulty[topic.difficulty]}
             </span>
             <span
               className="text-[11px] font-medium px-2.5 py-1 rounded-full"
@@ -50,19 +55,19 @@ export const TopicCard = ({ topic, index }: TopicCardProps): React.JSX.Element =
                 background: "rgba(100,116,139,0.12)",
               }}
             >
-              {topic.estimatedTime}
+              {L(topic.estimatedTime, topic.estimatedTime_en)}
             </span>
           </div>
         </div>
 
         {/* Title */}
         <h3 className="text-[16px] font-bold text-slate-100 m-0 mb-2 leading-snug">
-          {topic.title}
+          {L(topic.title, topic.title_en)}
         </h3>
 
         {/* Description */}
         <p className="text-[13px] text-slate-300 m-0 mb-4 leading-relaxed flex-1">
-          {topic.description}
+          {L(topic.description, topic.description_en)}
         </p>
 
         {/* Tags */}
@@ -100,7 +105,10 @@ export const TopicCard = ({ topic, index }: TopicCardProps): React.JSX.Element =
               <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
               <polyline points="22 4 12 14.01 9 11.01" />
             </svg>
-            <span>前提: {topic.prerequisites.join(", ")}</span>
+            <span>
+              {t.handsOn.prerequisitePrefix}
+              {L(topic.prerequisites, topic.prerequisites_en).join(", ")}
+            </span>
           </div>
         )}
       </Link>

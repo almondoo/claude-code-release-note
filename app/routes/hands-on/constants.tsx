@@ -8,16 +8,20 @@ export type Difficulty = "easy" | "medium" | "hard";
 export interface TopicMeta {
   id: string;
   title: string;
+  title_en?: string;
   description: string;
+  description_en?: string;
   difficulty: Difficulty;
   estimatedTime: string;
+  estimatedTime_en?: string;
   tags: string[];
   prerequisites: string[];
+  prerequisites_en?: string[];
   icon: string;
 }
 
 export interface TopicsData {
-  meta: { title: string; description: string };
+  meta: { title: string; title_en?: string; description: string; description_en?: string };
   topics: TopicMeta[];
 }
 
@@ -28,10 +32,10 @@ export const TOPICS = TOPICS_DATA.topics;
 
 // ── Colors ───────────────────────────────────────────────────────────────
 
-export const DIFFICULTY_COLORS: Record<Difficulty, { color: string; bg: string; label: string }> = {
-  easy: { color: "#10B981", bg: "rgba(16,185,129,0.12)", label: "初級" },
-  medium: { color: "#F59E0B", bg: "rgba(245,158,11,0.12)", label: "中級" },
-  hard: { color: "#EF4444", bg: "rgba(239,68,68,0.12)", label: "上級" },
+export const DIFFICULTY_COLORS: Record<Difficulty, { color: string; bg: string }> = {
+  easy: { color: "#10B981", bg: "rgba(16,185,129,0.12)" },
+  medium: { color: "#F59E0B", bg: "rgba(245,158,11,0.12)" },
+  hard: { color: "#EF4444", bg: "rgba(239,68,68,0.12)" },
 };
 
 export const TAG_COLORS: Record<string, { color: string; bg: string }> = {

@@ -3,13 +3,18 @@
     {
       "id": "overview",
       "name": "概要",
+      "name_en": "Overview",
       "description": "Hooks の基本概念とハンドラタイプ",
+      "description_en": "Core concepts of Hooks and handler types",
       "items": [
         {
           "id": "what-are-hooks",
           "title": "Hooks とは何か",
+          "title_en": "What are Hooks?",
           "summary": "Claude Code のライフサイクルの特定のタイミングで自動実行される、ユーザー定義のシェルコマンド・HTTPエンドポイント・LLMプロンプト・エージェント。",
+          "summary_en": "User-defined shell commands, HTTP endpoints, LLM prompts, and agents that run automatically at specific points in Claude Code's lifecycle.",
           "content": "Hooks は、Claude Code のライフサイクルの特定のタイミングで自動実行される、ユーザー定義のアクションです。LLM に判断を委ねるのではなく、**決定論的（deterministic）に**特定のアクションが必ず実行されることを保証します。\n\nCLAUDE.md の指示は勧告的（advisory）ですが、Hooks は決定的（deterministic）です。「毎回必ず実行する」アクションには Hooks を使いましょう。",
+          "content_en": "Hooks are user-defined actions that run automatically at specific points in Claude Code's lifecycle. Rather than relying on LLM judgment, they **deterministically** guarantee that certain actions always execute.\n\nWhile CLAUDE.md instructions are advisory, Hooks are deterministic. Use Hooks for actions that must run every single time.",
           "tags": ["重要"],
           "tips": [
             "ファイル編集後の自動フォーマット",
@@ -18,38 +23,58 @@
             "セッション開始時のコンテキスト注入",
             "設定変更の監査ログ記録",
             "特定の権限プロンプトの自動承認"
+          ],
+          "tips_en": [
+            "Auto-format files after editing",
+            "Block dangerous commands before execution",
+            "Notify when Claude is waiting for input",
+            "Inject context at session start",
+            "Record audit logs for configuration changes",
+            "Auto-approve specific permission prompts"
           ]
         },
         {
           "id": "handler-types",
           "title": "5つのハンドラタイプ",
+          "title_en": "5 Handler Types",
           "summary": "command, http, prompt, agent, mcp_tool の5つのタイプから用途に応じて選択する。",
+          "summary_en": "Choose from 5 types — command, http, prompt, agent, and mcp_tool — based on your use case.",
           "content": "Hooks には5つのハンドラタイプがあり、それぞれ異なるユースケースに適しています。決定論的なルール（ファイルパターンのブロックなど）には `command` を使い、判断が必要な場面では `prompt` や `agent` を使い分けましょう。v2.1.118 で `mcp_tool` が追加され、接続済み MCP サーバーのツールを hook から直接呼び出せるようになりました。",
+          "content_en": "Hooks have 5 handler types, each suited to different use cases. Use `command` for deterministic rules (such as blocking file patterns), and choose between `prompt` and `agent` when judgment is required. `mcp_tool` was added in v2.1.118, allowing you to call tools on connected MCP servers directly from a hook.",
           "tags": [],
           "steps": [
             {
               "phase": "command",
               "description": "シェルコマンドを実行。stdin で JSON を受信し、exit code / stdout / stderr で結果を返す。shell フィールドで \"bash\" / \"powershell\" を指定可能。デフォルトタイムアウト: 600秒。v2.1.139 以降、`args: string[]` フィールドでコマンドを exec form（シェルなし直接実行）で起動できる。`${CLAUDE_PROJECT_DIR}` などのプレースホルダーのクォート問題を回避できる。例: `{\"command\": \"node\", \"args\": [\"${CLAUDE_PROJECT_DIR}/.claude/hooks/script.js\"]}`",
-              "example": "ファイル操作、フォーマット、バリデーション"
+              "description_en": "Runs a shell command. Receives JSON on stdin and returns results via exit code / stdout / stderr. The shell field can specify \"bash\" or \"powershell\". Default timeout: 600 seconds. Since v2.1.139, the `args: string[]` field lets you launch commands in exec form (direct execution without a shell), avoiding quoting issues with placeholders like `${CLAUDE_PROJECT_DIR}`. Example: `{\"command\": \"node\", \"args\": [\"${CLAUDE_PROJECT_DIR}/.claude/hooks/script.js\"]}`",
+              "example": "ファイル操作、フォーマット、バリデーション",
+              "example_en": "File operations, formatting, validation"
             },
             {
               "phase": "http",
               "description": "HTTP エンドポイントに JSON を POST する。headers で認証ヘッダーを設定可能（$VAR 構文、allowedEnvVars で許可リストを指定）。デフォルトタイムアウト: 30秒",
-              "example": "外部サービス連携、チーム共有の監査サービス"
+              "description_en": "POSTs JSON to an HTTP endpoint. Authentication headers can be set via the headers field ($VAR syntax; use allowedEnvVars to specify an allowlist). Default timeout: 30 seconds.",
+              "example": "外部サービス連携、チーム共有の監査サービス",
+              "example_en": "External service integration, team-shared audit services"
             },
             {
               "phase": "prompt",
               "description": "Claude モデルへの単一ターンの評価を送信（デフォルト: Haiku）。model フィールドで使用モデルを変更可能。デフォルトタイムアウト: 30秒",
-              "example": "判断が必要な条件評価"
+              "description_en": "Sends a single-turn evaluation to a Claude model (default: Haiku). The model field can be used to change which model is used. Default timeout: 30 seconds.",
+              "example": "判断が必要な条件評価",
+              "example_en": "Conditional evaluation requiring judgment"
             },
             {
               "phase": "agent",
               "description": "ツールアクセス付きサブエージェントを起動する。Read, Grep, Glob, Edit, Bash ツールが使用可能。prompt フィールドで $ARGUMENTS を使い hook 入力 JSON を参照。最大50ターンのツール使用が可能。デフォルトタイムアウト: 60秒",
-              "example": "ファイル検査やテスト実行を伴う検証"
+              "description_en": "Launches a subagent with tool access. The Read, Grep, Glob, Edit, and Bash tools are available. Use $ARGUMENTS in the prompt field to reference the hook input JSON. Supports up to 50 turns of tool use. Default timeout: 60 seconds.",
+              "example": "ファイル検査やテスト実行を伴う検証",
+              "example_en": "Validation involving file inspection or test execution"
             },
             {
               "phase": "mcp_tool",
               "description": "接続済み MCP サーバーのツールを直接呼び出す（v2.1.118 追加）。server（サーバー名）と tool（ツール名）を指定し、input で引数を渡す。`${tool_input.field}` など `${path}` 構文で hook 入力 JSON から値を差し込める。ツール出力は JSON / プレーンテキストとして処理される",
+              "description_en": "Calls a tool on a connected MCP server directly (added in v2.1.118). Specify server (server name) and tool (tool name), and pass arguments via input. Use `${path}` syntax such as `${tool_input.field}` to interpolate values from the hook input JSON. Tool output is processed as JSON or plain text.",
               "example": "{\"type\": \"mcp_tool\", \"server\": \"my_server\", \"tool\": \"security_scan\", \"input\": {\"file_path\": \"${tool_input.file_path}\"}}"
             }
           ]
@@ -59,13 +84,18 @@
     {
       "id": "events",
       "name": "イベント一覧",
+      "name_en": "Event Reference",
       "description": "ブロッキング可能なイベントとノンブロッキングイベント",
+      "description_en": "Blockable events and non-blocking events",
       "items": [
         {
           "id": "blocking-events",
           "title": "ブロッキング可能なイベント",
+          "title_en": "Blockable Events",
           "summary": "アクションを阻止できるイベント。危険コマンドのブロック、権限の自動承認、タスク完了の検証に使用。",
+          "summary_en": "Events that can prevent actions. Used to block dangerous commands, auto-approve permissions, and validate task completion.",
           "content": "ブロッキング可能なイベントでは、hook が exit code 2 を返すことでアクションを阻止できます。セキュリティやバリデーションに不可欠なイベントです。",
+          "content_en": "In blockable events, a hook can prevent an action by returning exit code 2. These events are essential for security and validation.",
           "tags": ["重要"],
           "tips": [
             "`PreToolUse` — ツール実行前に発火。危険コマンドのブロック、入力の書き換えに使用",
@@ -81,13 +111,31 @@
             "`TeammateIdle` — チームメイトがアイドル状態になる時に発火。作業継続の判断に使用",
             "`PreCompact` — コンテキスト圧縮前に発火。exit code 2 で圧縮をブロックできる",
             "`Elicitation` / `ElicitationResult` — MCP サーバーがユーザー入力を要求した時に発火"
+          ],
+          "tips_en": [
+            "`PreToolUse` — Fires before tool execution. Used to block dangerous commands and rewrite inputs.",
+            "`PermissionRequest` — Fires when a permission dialog is shown. Used to auto-approve/deny specific operations. Does not fire in non-interactive mode (-p) → use `PreToolUse` instead.",
+            "`UserPromptSubmit` — Fires when the user submits a prompt. Used to filter prompts.",
+            "`UserPromptExpansion` — Fires when a slash command is expanded into a prompt. Blockable. Use `hookSpecificOutput.suppressOriginalPrompt` to suppress the original prompt; `additionalContext` and `sessionTitle` can also be set. The matcher matches against the command name.",
+            "`Stop` — Fires when Claude completes a response. Used to validate task completion. Does not fire on user interruption (StopFailure fires on API errors). Since v2.1.145, the input JSON includes `background_tasks` (running background tasks) and `session_crons` (in-session crons).",
+            "`SubagentStop` — Fires when a subagent completes. Used to validate subagent output. Since v2.1.145, the input JSON includes `background_tasks` and `session_crons`.",
+            "`TaskCreated` — Fires when a task is created by the TaskCreate tool. Used to enforce naming conventions, require descriptions, and block specific tasks. Return exit code 2 to reject task creation; stderr is returned as feedback.",
+            "`TaskCompleted` — Fires when a task is marked complete. Used to validate completion criteria.",
+            "`ConfigChange` — Fires when a settings file changes. Used to block unauthorized changes.",
+            "`WorktreeCreate` — Fires when a worktree is created. Supports command type only. Used for custom worktree logic.",
+            "`TeammateIdle` — Fires when a teammate becomes idle. Used to decide whether to continue work.",
+            "`PreCompact` — Fires before context compaction. Return exit code 2 to block compaction.",
+            "`Elicitation` / `ElicitationResult` — Fires when an MCP server requests user input."
           ]
         },
         {
           "id": "non-blocking-events",
           "title": "ノンブロッキングイベント",
+          "title_en": "Non-Blocking Events",
           "summary": "阻止不可のイベント。コンテキスト注入、ログ記録、通知、クリーンアップに使用。",
+          "summary_en": "Events that cannot block actions. Used for context injection, logging, notifications, and cleanup.",
           "content": "ノンブロッキングイベントはアクションを阻止できませんが、情報提供やサイドエフェクト（ログ記録、通知、フォーマット等）に最適です。",
+          "content_en": "Non-blocking events cannot prevent actions, but they are ideal for informational purposes and side effects such as logging, notifications, and formatting.",
           "tags": [],
           "tips": [
             "`SessionStart` — セッション開始/再開時に発火。command タイプのみ対応。コンテキスト注入、環境変数の設定に使用",
@@ -106,68 +154,100 @@
             "`PermissionDenied` — オートモード分類器がツール呼び出しを拒否した時に発火。`hookSpecificOutput.retry: true` を返すとモデルに再試行を許可。matcher はツール名にマッチ",
             "`MessageDisplay` — アシスタントメッセージのテキスト表示中に発火（v2.1.152 追加）。`hookSpecificOutput.displayContent` で表示テキストを置換可能。ノンブロッキングだが表示内容のフィルタリング・変換に使用",
             "`Setup` — CI / ヘッドレスセッションでの一回限りの準備処理に使用するイベント。`init` / `maintenance` matcher をサポート。`SessionStart` と異なり、対話セッションでは発火しない"
+          ],
+          "tips_en": [
+            "`SessionStart` — Fires when a session starts or resumes. Supports command type only. Used for context injection and setting environment variables.",
+            "`PostToolUse` — Fires after a tool succeeds. Used for code formatting and logging. Providing feedback with `decision: \"block\"` is possible (the action itself cannot be blocked). All tool output can be replaced via `hookSpecificOutput.updatedToolOutput` (since v2.1.121, supports all tools, not just MCP tools). The MCP-tool-specific `updatedMCPToolOutput` remains available. Since v2.1.119, the input JSON includes `duration_ms` (tool execution time, excluding permission prompts and PreToolUse hooks), enabling detection of slow tools and telemetry reporting. Since v2.1.147, adding `continueOnBlock: true` to the settings JSON lets the turn continue when `decision: \"block\"` is returned, sending the rejection reason as feedback without ending the turn.",
+            "`PostToolUseFailure` — Fires after a tool fails. Used for error analysis and notifications. Since v2.1.119, also includes `duration_ms`.",
+            "`PostToolBatch` — Fires after an entire batch of parallel tool calls completes. Unlike individual `PostToolUse` events, this is used for processing at batch completion. Non-blocking.",
+            "`Notification` — Fires when a notification is sent. Used for desktop notifications.",
+            "`SubagentStart` — Fires when a subagent starts. Used for context injection.",
+            "`SessionEnd` — Fires when a session ends. Used for cleanup processing. Default timeout: 1.5 seconds (configurable via CLAUDE_CODE_SESSIONEND_HOOKS_TIMEOUT_MS).",
+            "`StopFailure` — Fires when a turn ends due to an API error. Used for error alerts.",
+            "`PostCompact` — Fires after context compaction. Used for logging and notifications.",
+            "`InstructionsLoaded` — Fires when CLAUDE.md or similar files are loaded. Used for audit logging.",
+            "`WorktreeRemove` — Fires when a worktree is removed. Supports command type only. Used for cleanup.",
+            "`CwdChanged` — Fires when the working directory changes. Supports command type only. Environment variables can be persisted via CLAUDE_ENV_FILE. Used for reloading environment settings on directory change.",
+            "`FileChanged` — Fires when a watched file changes. Supports command type only. Environment variables can be persisted via CLAUDE_ENV_FILE. Watched files can be dynamically updated via watchPaths.",
+            "`PermissionDenied` — Fires when the auto-mode classifier rejects a tool call. Return `hookSpecificOutput.retry: true` to allow the model to retry. The matcher matches against tool names.",
+            "`MessageDisplay` — Fires while assistant message text is being displayed (added in v2.1.152). The displayed text can be replaced via `hookSpecificOutput.displayContent`. Non-blocking, but used for filtering and transforming displayed content.",
+            "`Setup` — Event used for one-time setup in CI / headless sessions. Supports `init` / `maintenance` matchers. Unlike `SessionStart`, does not fire in interactive sessions."
           ]
         },
         {
           "id": "event-matchers",
           "title": "イベントごとの Matcher 対象",
+          "title_en": "Matcher Targets per Event",
           "summary": "各イベントの matcher フィールドが何にマッチするかの一覧。正規表現が使用可能で、大文字小文字を区別する。",
+          "summary_en": "A reference for what the matcher field matches in each event. Regular expressions are supported and matching is case-sensitive.",
           "content": "matcher はイベントごとにマッチ対象が異なります。省略・空文字・`\"*\"` で全マッチします。正規表現が使用可能ですが、**大文字小文字を区別する**点に注意してください。matcher がサポートされないイベントでは省略します。",
+          "content_en": "The matcher target differs by event. Omitting it, using an empty string, or using `\"*\"` matches everything. Regular expressions are supported, but note that matching is **case-sensitive**. Omit the matcher for events that do not support it.",
           "tags": [],
           "steps": [
             {
               "phase": "PreToolUse / PostToolUse / PostToolUseFailure / PermissionRequest / PermissionDenied",
               "description": "ツール名にマッチ",
+              "description_en": "Matches against the tool name",
               "example": "Bash, Edit, Write, Read, Glob, Grep, Agent, WebFetch, WebSearch, Notebook.*, mcp__github__.*"
             },
             {
               "phase": "SessionStart",
               "description": "セッション開始の理由にマッチ",
+              "description_en": "Matches against the session start reason",
               "example": "startup, resume, clear, compact"
             },
             {
               "phase": "SessionEnd",
               "description": "セッション終了の理由にマッチ",
+              "description_en": "Matches against the session end reason",
               "example": "clear, resume, logout, prompt_input_exit, bypass_permissions_disabled, other"
             },
             {
               "phase": "ConfigChange",
               "description": "変更された設定の種類にマッチ",
+              "description_en": "Matches against the type of setting that changed",
               "example": "user_settings, project_settings, local_settings, policy_settings, skills"
             },
             {
               "phase": "Notification",
               "description": "通知の種類にマッチ",
+              "description_en": "Matches against the notification type",
               "example": "permission_prompt, idle_prompt, auth_success, elicitation_dialog, elicitation_complete, elicitation_response"
             },
             {
               "phase": "SubagentStart / SubagentStop",
               "description": "エージェントタイプにマッチ",
+              "description_en": "Matches against the agent type",
               "example": "Bash, Explore, Plan, カスタム名"
             },
             {
               "phase": "StopFailure",
               "description": "エラータイプにマッチ",
+              "description_en": "Matches against the error type",
               "example": "rate_limit, authentication_failed, billing_error, invalid_request, server_error, max_output_tokens, unknown"
             },
             {
               "phase": "PreCompact / PostCompact",
               "description": "圧縮のトリガーにマッチ",
+              "description_en": "Matches against the compaction trigger",
               "example": "manual, auto"
             },
             {
               "phase": "InstructionsLoaded",
               "description": "ロード理由にマッチ",
+              "description_en": "Matches against the load reason",
               "example": "session_start, nested_traversal, path_glob_match, include, compact"
             },
             {
               "phase": "Elicitation / ElicitationResult",
               "description": "MCP サーバー名にマッチ",
+              "description_en": "Matches against the MCP server name",
               "example": "mcp__memory, mcp__github"
             },
             {
               "phase": "FileChanged",
               "description": "ファイルのベースネーム（ディレクトリなし）にマッチ。パイプ区切りで複数指定可能",
+              "description_en": "Matches against the file's basename (without directory). Multiple values can be specified using pipe separation.",
               "example": ".envrc|.env, package.json, tsconfig.json"
             }
           ]
@@ -177,46 +257,60 @@
     {
       "id": "configuration",
       "name": "設定と構造",
+      "name_en": "Configuration & Structure",
       "description": "設定ファイルの配置場所と基本構造",
+      "description_en": "Where to place settings files and their basic structure",
       "items": [
         {
           "id": "config-locations",
           "title": "設定ファイルの配置場所と優先順位",
+          "title_en": "Settings File Locations and Priority",
           "summary": "6つの設定ソースが加算的に評価される。セキュリティはグローバル、プロジェクト固有はローカルに配置。",
+          "summary_en": "6 configuration sources are evaluated additively. Place security hooks in global config, project-specific hooks in local config.",
           "content": "Hooks は**加算的（additive）**です。全ソースの hooks が実行されます。優先順位は、設定値の競合時にどちらが勝つかを決定するものです。\n\nセキュリティ関連の hooks はグローバル設定 `~/.claude/settings.json` に、プロジェクト固有のフォーマッターは `.claude/settings.json` に配置してチームで共有、個人的な開発環境設定は `.claude/settings.local.json` に配置しましょう。",
+          "content_en": "Hooks are **additive**. Hooks from all sources are executed. Priority determines which value wins when settings conflict.\n\nPlace security-related hooks in the global config `~/.claude/settings.json`, project-specific formatters in `.claude/settings.json` for team sharing, and personal development environment settings in `.claude/settings.local.json`.",
           "tags": [],
           "locations": [
             {
               "path": "マネージドポリシー設定",
-              "description": "優先度1（最高）。組織全体に適用。管理者が制御"
+              "description": "優先度1（最高）。組織全体に適用。管理者が制御",
+              "description_en": "Priority 1 (highest). Applies across the organization. Controlled by administrators."
             },
             {
               "path": ".claude/settings.local.json",
-              "description": "優先度2。プロジェクト単位。ローカルのみ（gitignore推奨）"
+              "description": "優先度2。プロジェクト単位。ローカルのみ（gitignore推奨）",
+              "description_en": "Priority 2. Per-project. Local only (recommended to gitignore)."
             },
             {
               "path": ".claude/settings.json",
-              "description": "優先度3。プロジェクト単位。Git コミット可能、チーム共有向け"
+              "description": "優先度3。プロジェクト単位。Git コミット可能、チーム共有向け",
+              "description_en": "Priority 3. Per-project. Can be committed to Git; intended for team sharing."
             },
             {
               "path": "~/.claude/settings.json",
-              "description": "優先度4。全プロジェクト共通。セキュリティ系 hooks の配置先"
+              "description": "優先度4。全プロジェクト共通。セキュリティ系 hooks の配置先",
+              "description_en": "Priority 4. Shared across all projects. The place to put security-related hooks."
             },
             {
               "path": "プラグイン hooks/hooks.json",
-              "description": "優先度5。プラグイン有効時に適用"
+              "description": "優先度5。プラグイン有効時に適用",
+              "description_en": "Priority 5. Applied when the plugin is enabled."
             },
             {
               "path": "スキル/エージェント frontmatter",
-              "description": "優先度6。スキル/エージェント実行中のみ有効"
+              "description": "優先度6。スキル/エージェント実行中のみ有効",
+              "description_en": "Priority 6. Active only while the skill/agent is running."
             }
           ]
         },
         {
           "id": "config-structure",
           "title": "設定の基本構造",
+          "title_en": "Basic Configuration Structure",
           "summary": "イベント名・Matcher・ハンドラの3層構造。Exit Code でブロッキングを制御する。",
+          "summary_en": "A 3-layer structure of event name, Matcher, and handler. Exit codes control blocking behavior.",
           "content": "Hooks の設定は、イベント名をキーとし、Matcher パターンとハンドラの配列で構成されます。Matcher は省略・空文字・`\"*\"` で全マッチ、正規表現（`\"Edit|Write\"` 等）も使用可能です（**大文字小文字を区別**）。",
+          "content_en": "Hook configuration uses event names as keys, with arrays of Matcher patterns and handlers. The Matcher matches everything when omitted, empty, or set to `\"*\"`, and regular expressions (e.g., `\"Edit|Write\"`) are also supported (**case-sensitive**).",
           "tags": [],
           "tips": [
             "Exit Code `0` — 成功。アクション続行。stdout の JSON が解析される。`UserPromptSubmit` と `SessionStart` では stdout がコンテキストとして Claude に追加されるが、他のイベントでは verbose モードでのみ表示",
@@ -229,13 +323,27 @@
             "hooks は Claude Code の作業ディレクトリで実行される",
             "v2.1.141 以降、hook の JSON 出力に `terminalSequence` フィールドを含めることで、`/dev/tty` なしでデスクトップ通知・ウィンドウタイトル変更・ベル音を送出できる。OSC 0/1/2（タイトル）、OSC 9（iTerm2/WezTerm 通知）、OSC 777（Ghostty/Warp 通知）、BEL をサポート"
           ],
+          "tips_en": [
+            "Exit Code `0` — Success. Action continues. The JSON in stdout is parsed. For `UserPromptSubmit` and `SessionStart`, stdout is added as context for Claude; for other events, it is only shown in verbose mode.",
+            "Exit Code `2` — Blocking error. Blocks the action. stderr becomes feedback to Claude.",
+            "Other Exit Codes — Non-blocking error. Continues. stderr is shown in verbose mode.",
+            "`if` — Filters by tool name + arguments using permission rule syntax (tool events only, v2.1.85+).",
+            "`shell` — Specifies the shell to use for command type (`\"bash\"` / `\"powershell\"`).",
+            "`once: true` — Executes only once per session and is then removed (skills-only hooks only).",
+            "All matching hooks are **executed in parallel**. Identical command strings / URLs are automatically **deduplicated**.",
+            "Hooks run in Claude Code's working directory.",
+            "Since v2.1.141, including a `terminalSequence` field in a hook's JSON output lets you send desktop notifications, change window titles, and trigger bell sounds without `/dev/tty`. Supports OSC 0/1/2 (title), OSC 9 (iTerm2/WezTerm notifications), OSC 777 (Ghostty/Warp notifications), and BEL."
+          ],
           "code": "{\n  \"hooks\": {\n    \"イベント名\": [\n      {\n        \"matcher\": \"正規表現パターン（省略可）\",\n        \"hooks\": [\n          {\n            \"type\": \"command\",\n            \"command\": \"実行するコマンド\",\n            \"if\": \"Bash(git *)\",\n            \"timeout\": 600,\n            \"statusMessage\": \"検証中...\",\n            \"async\": false,\n            \"shell\": \"bash\",\n            \"once\": false\n          }\n        ]\n      }\n    ]\n  }\n}"
         },
         {
           "id": "env-vars",
           "title": "利用可能な環境変数",
+          "title_en": "Available Environment Variables",
           "summary": "hook スクリプト内で使用できる環境変数。プロジェクトパスの参照や環境変数の永続化に使用。",
+          "summary_en": "Environment variables available inside hook scripts. Used to reference project paths and persist environment variables.",
           "content": "hook スクリプト内ではいくつかの環境変数が自動的に設定されます。特に `CLAUDE_PROJECT_DIR` はスクリプトパスの参照に必須です。`CLAUDE_ENV_FILE` は `SessionStart`、`CwdChanged`、`FileChanged` の各イベントで利用可能で、Bash ツール実行時に永続化したい環境変数を書き込めます。",
+          "content_en": "Several environment variables are automatically set inside hook scripts. In particular, `CLAUDE_PROJECT_DIR` is essential for referencing script paths. `CLAUDE_ENV_FILE` is available in the `SessionStart`, `CwdChanged`, and `FileChanged` events, and you can write environment variables to it to persist them when the Bash tool runs.",
           "tags": [],
           "tips": [
             "`CLAUDE_PROJECT_DIR` — プロジェクトルートのパス。スクリプトパスの参照に使用（スペースを含む場合は引用符で囲む）",
@@ -245,48 +353,67 @@
             "`CLAUDE_PLUGIN_DATA` — プラグインの永続データディレクトリ",
             "**共通入力フィールド（stdin JSON）**: `session_id`, `transcript_path`, `cwd`, `permission_mode`, `hook_event_name` が全イベントで利用可能。サブエージェント内では `agent_id`, `agent_type` も含まれる。また `effort.level`（low|medium|high|xhigh|max）は PreToolUse・PostToolUse・Stop・SubagentStop 等の tool-use コンテキストで、かつモデルが effort をサポートする場合に付与される（v2.1.133+）",
             "`CLAUDE_EFFORT` — v2.1.133 以降、現在のエフォートレベル（`low`|`medium`|`high`|`xhigh`|`max`）を示す環境変数。全イベントで利用可能。stdin JSON の `effort.level` フィールドと同じ値"
+          ],
+          "tips_en": [
+            "`CLAUDE_PROJECT_DIR` — The project root path. Used to reference script paths (wrap in quotes if the path contains spaces).",
+            "`CLAUDE_ENV_FILE` — Available in SessionStart / CwdChanged / FileChanged. Writing export statements here sets environment variables when the Bash tool runs.",
+            "`CLAUDE_CODE_REMOTE` — Set to `\"true\"` in web environments.",
+            "`CLAUDE_PLUGIN_ROOT` — The plugin installation directory.",
+            "`CLAUDE_PLUGIN_DATA` — The plugin's persistent data directory.",
+            "**Common input fields (stdin JSON)**: `session_id`, `transcript_path`, `cwd`, `permission_mode`, and `hook_event_name` are available in all events. Inside subagents, `agent_id` and `agent_type` are also included. Additionally, `effort.level` (low|medium|high|xhigh|max) is included in tool-use contexts such as PreToolUse, PostToolUse, Stop, and SubagentStop when the model supports effort (v2.1.133+).",
+            "`CLAUDE_EFFORT` — Since v2.1.133, an environment variable indicating the current effort level (`low`|`medium`|`high`|`xhigh`|`max`). Available in all events. Same value as the `effort.level` field in the stdin JSON."
           ]
         },
         {
           "id": "decision-patterns",
           "title": "イベント別の決定制御パターン",
+          "title_en": "Decision Control Patterns by Event",
           "summary": "イベントごとに異なる JSON 出力フォーマットでアクションの許可/拒否を制御する。",
+          "summary_en": "Control allow/deny decisions using different JSON output formats per event.",
           "content": "ブロッキング可能なイベントでは、hook の stdout に JSON を出力することでアクションを制御できます。イベントによって出力フォーマットが異なるため、正しいスキーマを使用することが重要です。\n\nexit code 2 + stderr メッセージによるブロックは全ブロッキングイベント共通で使用できます。JSON 出力はより細かい制御（入力の書き換え、権限ルールの追加等）が必要な場合に使用します。\n\n全ハンドラ共通の JSON フィールドとして、`continue`（false で Claude を完全停止）、`stopReason`（停止理由）、`suppressOutput`（verbose 出力を抑制）、`systemMessage`（ユーザーへの警告表示）があります。複数の `PreToolUse` フックが `updatedInput` を返す場合、並列実行のため最後に完了したフックの値が採用される点に注意してください。",
+          "content_en": "In blockable events, you can control actions by writing JSON to the hook's stdout. Because the output format differs per event, it is important to use the correct schema.\n\nBlocking via exit code 2 + a stderr message is available for all blockable events. Use JSON output when finer control is needed (such as rewriting inputs or adding permission rules).\n\nJSON fields common to all handlers include `continue` (set to false to fully stop Claude), `stopReason` (reason for stopping), `suppressOutput` (suppress verbose output), and `systemMessage` (display a warning to the user). Note that when multiple `PreToolUse` hooks return `updatedInput`, the value from the last hook to complete is used due to parallel execution.",
           "tags": [],
           "steps": [
             {
               "phase": "PreToolUse",
               "description": "hookSpecificOutput で `permissionDecision: allow|deny|ask|defer` を指定。`updatedInput` で入力を書き換え可能。`additionalContext` でコンテキストを追加可能。allow を返しても deny ルール（マネージドポリシー含む）が優先される",
+              "description_en": "Specify `permissionDecision: allow|deny|ask|defer` in hookSpecificOutput. Input can be rewritten with `updatedInput`. Context can be added with `additionalContext`. Even if allow is returned, deny rules (including managed policy) take precedence.",
               "example": "{\"hookSpecificOutput\": {\"hookEventName\": \"PreToolUse\", \"permissionDecision\": \"allow|deny|ask|defer\"}}"
             },
             {
               "phase": "PermissionRequest",
               "description": "hookSpecificOutput の decision で allow/deny を指定。updatedPermissions で権限ルールの追加/置換/削除、setMode でモード変更、addDirectories/removeDirectories も可能",
+              "description_en": "Specify allow/deny in hookSpecificOutput's decision field. updatedPermissions can add/replace/remove permission rules, setMode can change the mode, and addDirectories/removeDirectories are also available.",
               "example": "{\"hookSpecificOutput\": {\"hookEventName\": \"PermissionRequest\", \"decision\": {\"behavior\": \"allow|deny\", \"updatedPermissions\": [{\"type\": \"setMode\", \"mode\": \"acceptEdits\", \"destination\": \"session\"}]}}}"
             },
             {
               "phase": "PermissionDenied",
               "description": "hookSpecificOutput の retry で再試行を許可。true を返すとモデルが拒否されたツール呼び出しを再試行できる",
+              "description_en": "Allow retry via hookSpecificOutput's retry field. Returning true allows the model to retry the rejected tool call.",
               "example": "{\"hookSpecificOutput\": {\"hookEventName\": \"PermissionDenied\", \"retry\": true}}"
             },
             {
               "phase": "Stop / SubagentStop / UserPromptSubmit / PostToolUse / PostToolUseFailure / ConfigChange",
               "description": "トップレベルの decision で block を指定し、reason でフィードバックを返す。PostToolUse / PostToolUseFailure はアクション実行後のため、ブロックではなくフィードバック提供として機能する",
+              "description_en": "Specify block in the top-level decision field and return feedback via reason. Because PostToolUse / PostToolUseFailure fire after the action has run, blocking acts as feedback rather than preventing the action.",
               "example": "{\"decision\": \"block\", \"reason\": \"未完了のタスクがあります\"}"
             },
             {
               "phase": "TaskCreated / TeammateIdle / TaskCompleted",
               "description": "exit code 2 でフィードバックを返すか、JSON で continue: false を指定してタスク作成の拒否やチームメイト/タスクの停止",
+              "description_en": "Return feedback via exit code 2, or specify continue: false in JSON to reject task creation or stop a teammate/task.",
               "example": "{\"continue\": false, \"stopReason\": \"テストが未通過です\"}"
             },
             {
               "phase": "Elicitation / ElicitationResult",
               "description": "hookSpecificOutput の action で accept/decline/cancel を指定。content でレスポンスを返す",
+              "description_en": "Specify accept/decline/cancel in hookSpecificOutput's action field. Return a response via content.",
               "example": "{\"hookSpecificOutput\": {\"hookEventName\": \"Elicitation\", \"action\": \"accept\", \"content\": {\"field\": \"value\"}}}"
             },
             {
               "phase": "SessionStart",
               "description": "v2.1.152 以降、hookSpecificOutput に `reloadSkills: true` を返すとスキルディレクトリを再スキャン。`sessionTitle` でセッションタイトルを設定可能（startup / resume 時）",
+              "description_en": "Since v2.1.152, returning `reloadSkills: true` in hookSpecificOutput rescans the skills directory. `sessionTitle` can be used to set the session title (at startup / resume).",
               "example": "{\"hookSpecificOutput\": {\"hookEventName\": \"SessionStart\", \"reloadSkills\": true, \"sessionTitle\": \"My Session\"}}"
             }
           ]
@@ -296,13 +423,18 @@
     {
       "id": "best-practices",
       "name": "ベストプラクティス",
+      "name_en": "Best Practices",
       "description": "Hooks を効果的に使うための10のプラクティス",
+      "description_en": "10 practices for using Hooks effectively",
       "items": [
         {
           "id": "security-first",
           "title": "セキュリティファースト",
+          "title_en": "Security First",
           "summary": "最初に危険コマンドブロッカーをグローバル設定に追加。2分で全プロジェクトを保護できる。",
+          "summary_en": "Add a dangerous command blocker to the global config first. Protects all projects in 2 minutes.",
           "content": "最初に危険コマンドブロッカーをグローバル設定に追加しましょう。`~/.claude/settings.json` に `PreToolUse` の hook を追加し、`Bash` ツールの実行前に危険なパターンをチェックするシェルスクリプトを呼び出します。",
+          "content_en": "Start by adding a dangerous command blocker to your global config. Add a `PreToolUse` hook to `~/.claude/settings.json` that calls a shell script to check for dangerous patterns before the `Bash` tool runs.",
           "tags": ["重要"],
           "codeBlocks": [
             {
@@ -320,12 +452,16 @@
         {
           "id": "separate-scripts",
           "title": "スクリプトファイルに分離する",
+          "title_en": "Separate Logic into Script Files",
           "summary": "複雑なロジックはインラインコマンドではなく、別ファイルに分離して保守性を高める。",
+          "summary_en": "Extract complex logic into separate files rather than inline commands to improve maintainability.",
           "content": "複雑なロジックはインラインコマンドではなく、別ファイルに分離しましょう。インラインコマンドは読みにくく、デバッグも困難です。",
+          "content_en": "Extract complex logic into separate files rather than using inline commands. Inline commands are hard to read and debug.",
           "tags": [],
           "examples": [
             {
               "strategy": "スクリプトファイルに分離",
+              "strategy_en": "Separate into script files",
               "before": "{\n  \"type\": \"command\",\n  \"command\": \"INPUT=$(cat); FILE=$(echo $INPUT | jq -r '.tool_input.file_path'); if [[ $FILE == *.env* ]]; then echo 'blocked' >&2; exit 2; fi\"\n}",
               "after": "{\n  \"type\": \"command\",\n  \"command\": \"\\\"$CLAUDE_PROJECT_DIR\\\"/.claude/hooks/protect-files.sh\"\n}"
             }
@@ -334,37 +470,51 @@
         {
           "id": "jq-parse",
           "title": "jq で JSON を確実にパースする",
+          "title_en": "Parse JSON Reliably with jq",
           "summary": "hook は stdin で JSON を受け取る。jq を使って安全にパースし、// empty でnull対策する。",
+          "summary_en": "Hooks receive JSON on stdin. Use jq to parse it safely and use // empty to handle null values.",
           "content": "hook は stdin で JSON を受け取ります。`jq` を使って安全にパースしましょう。`// empty` を使うことで、フィールドが存在しない場合に `null` 文字列ではなく空文字列を返します。",
+          "content_en": "Hooks receive JSON on stdin. Use `jq` to parse it safely. Using `// empty` returns an empty string instead of the string `null` when a field does not exist.",
           "tags": [],
           "code": "#!/bin/bash\nINPUT=$(cat)\nFILE_PATH=$(echo \"$INPUT\" | jq -r '.tool_input.file_path // empty')\nTOOL_NAME=$(echo \"$INPUT\" | jq -r '.tool_name // empty')"
         },
         {
           "id": "async-processing",
           "title": "非同期処理を活用する",
+          "title_en": "Leverage Async Processing",
           "summary": "長時間実行されるチェックは async: true で非ブロッキング実行にする。",
+          "summary_en": "Run long-running checks as non-blocking background tasks with async: true.",
           "content": "テストスイートやセキュリティスキャンなど、長時間実行されるチェックは `async: true` で非ブロッキング実行にしましょう。Claude の応答をブロックせずにバックグラウンドで処理を実行できます。\n\n注: 非同期 `PostToolUse` hook で応答ペイロードを返さない場合でも、v2.1.119 以降はセッショントランスクリプトに空エントリが書き込まれなくなりました。何も出力しない通知スクリプト等を安心して async 実行できます。",
+          "content_en": "Run long-running checks such as test suites and security scans as non-blocking background tasks with `async: true`. This allows processing to happen in the background without blocking Claude's responses.\n\nNote: Even if an async `PostToolUse` hook returns no response payload, since v2.1.119 no empty entry is written to the session transcript. You can safely run async notification scripts and similar that produce no output.",
           "tags": ["自動化"],
           "code": "{\n  \"hooks\": {\n    \"PostToolUse\": [\n      {\n        \"matcher\": \"Edit|Write\",\n        \"hooks\": [\n          {\n            \"type\": \"command\",\n            \"command\": \"\\\"$CLAUDE_PROJECT_DIR\\\"/.claude/hooks/run-full-tests.sh\",\n            \"async\": true,\n            \"statusMessage\": \"バックグラウンドでテスト実行中...\"\n          }\n        ]\n      }\n    ]\n  }\n}"
         },
         {
           "id": "stop-hook-loop",
           "title": "Stop フックの無限ループを防ぐ",
+          "title_en": "Prevent Infinite Loops in Stop Hooks",
           "summary": "Stop フックでは stop_hook_active フィールドをチェックして、無限ループを回避する。",
+          "summary_en": "In Stop hooks, always check the stop_hook_active field to avoid infinite loops.",
           "content": "`Stop` フックが Claude にフィードバックを返すと、Claude はそのフィードバックに応答し、再度 `Stop` イベントが発火します。これにより無限ループが発生する可能性があります。必ず `stop_hook_active` フィールドをチェックしてください。",
+          "content_en": "When a `Stop` hook returns feedback to Claude, Claude responds to that feedback and the `Stop` event fires again, potentially causing an infinite loop. Always check the `stop_hook_active` field.",
           "tags": ["重要"],
           "code": "#!/bin/bash\nINPUT=$(cat)\n\n# 重要: Stop フックが既にアクティブなら即座に終了\nif [ \"$(echo \"$INPUT\" | jq -r '.stop_hook_active')\" = \"true\" ]; then\n  exit 0\nfi\n\n# ここに検証ロジックを記述\n# 例: テストが通っているか確認"
         },
         {
           "id": "matcher-scope",
           "title": "Matcher を最小限に絞る",
+          "title_en": "Keep Matchers as Narrow as Possible",
           "summary": "Matcher を広げすぎると意図しない副作用が発生する。特定のツールだけに限定する。",
+          "summary_en": "Overly broad matchers cause unintended side effects. Restrict to specific tools.",
           "content": "Matcher を広げすぎると意図しない副作用が発生します。特に `PermissionRequest` の自動承認は、特定のツールに限定することが重要です。",
+          "content_en": "Overly broad matchers cause unintended side effects. It is especially important to restrict auto-approval of `PermissionRequest` to specific tools.",
           "tags": [],
           "examples": [
             {
               "strategy": "Matcher を最小限に",
+              "strategy_en": "Keep matchers narrow",
               "detail": "全ての権限プロンプトを自動承認するのは危険",
+              "detail_en": "Auto-approving all permission prompts is dangerous",
               "before": "{\n  \"matcher\": \".*\",\n  \"hooks\": [{ \"type\": \"command\", \"command\": \"echo '{\\\"hookSpecificOutput\\\":{...\\\"allow\\\"...}}'\" }]\n}",
               "after": "{\n  \"matcher\": \"ExitPlanMode\",\n  \"hooks\": [{ \"type\": \"command\", \"command\": \"echo '{\\\"hookSpecificOutput\\\":{...\\\"allow\\\"...}}'\" }]\n}"
             }
@@ -373,32 +523,44 @@
         {
           "id": "shell-profile",
           "title": "シェルプロファイルの干渉を防ぐ",
+          "title_en": "Prevent Shell Profile Interference",
           "summary": "~/.zshrc や ~/.bashrc の echo 文が hook の JSON 出力を壊す。インタラクティブシェルに限定する。",
+          "summary_en": "echo statements in ~/.zshrc or ~/.bashrc can corrupt a hook's JSON output. Restrict profile output to interactive shells.",
           "content": "`~/.zshrc` や `~/.bashrc` の `echo` 文が hook の JSON 出力を壊すことがあります。プロファイルの出力はインタラクティブシェルに限定しましょう。",
+          "content_en": "`echo` statements in `~/.zshrc` or `~/.bashrc` can corrupt a hook's JSON output. Restrict profile output to interactive shells.",
           "tags": ["デバッグ"],
           "code": "# ~/.zshrc に追加\nif [[ $- == *i* ]]; then\n  echo \"Shell ready\"  # インタラクティブシェルでのみ出力\nfi"
         },
         {
           "id": "error-handling",
           "title": "エラーハンドリングを堅牢にする",
+          "title_en": "Implement Robust Error Handling",
           "summary": "set -euo pipefail を使い、jq の存在確認やJSON パースエラーを適切に処理する。",
+          "summary_en": "Use set -euo pipefail and properly handle jq availability checks and JSON parse errors.",
           "content": "本番で使用する hook スクリプトでは、堅牢なエラーハンドリングを実装しましょう。`set -euo pipefail` でエラー時に即座に停止し、`jq` の存在確認やJSONパースエラーのハンドリングを行います。",
+          "content_en": "Implement robust error handling in hook scripts used in production. Use `set -euo pipefail` to halt immediately on errors, and handle `jq` availability checks and JSON parse errors.",
           "tags": [],
           "code": "#!/bin/bash\nset -euo pipefail\n\nINPUT=$(cat) || { echo \"stdin の読み取りに失敗\" >&2; exit 1; }\n\n# jq が利用可能か確認\nif ! command -v jq &> /dev/null; then\n  echo \"jq がインストールされていません\" >&2\n  exit 1\nfi\n\nTOOL_NAME=$(echo \"$INPUT\" | jq -r '.tool_name // empty') || {\n  echo \"JSON パースに失敗\" >&2\n  exit 1\n}"
         },
         {
           "id": "project-dir",
           "title": "$CLAUDE_PROJECT_DIR を活用する",
+          "title_en": "Use $CLAUDE_PROJECT_DIR",
           "summary": "スクリプトのパスは $CLAUDE_PROJECT_DIR 環境変数を使って参照。絶対パスのハードコーディングを避ける。",
+          "summary_en": "Reference script paths using the $CLAUDE_PROJECT_DIR environment variable. Avoid hardcoding absolute paths.",
           "content": "スクリプトのパスは `$CLAUDE_PROJECT_DIR` 環境変数を使って参照しましょう。絶対パスのハードコーディングを避けることで、チームメンバー間でのパスの違いを吸収できます。",
+          "content_en": "Reference script paths using the `$CLAUDE_PROJECT_DIR` environment variable. Avoiding hardcoded absolute paths accommodates differences in paths between team members.",
           "tags": [],
           "code": "{\n  \"type\": \"command\",\n  \"command\": \"\\\"$CLAUDE_PROJECT_DIR\\\"/.claude/hooks/my-script.sh\"\n}"
         },
         {
           "id": "if-field",
           "title": "if フィールドでツール引数を条件フィルタする",
+          "title_en": "Filter by Tool Arguments with the if Field",
           "summary": "matcher はツール名でフィルタするが、if フィールドはツール名+引数パターンでさらに絞り込める（v2.1.85+）。",
+          "summary_en": "While matcher filters by tool name, the if field allows further narrowing by tool name + argument pattern (v2.1.85+).",
           "content": "`if` フィールドはパーミッションルール構文を使って、ツール名と引数の組み合わせでフックの発火を制御します。`matcher` がグループレベルでツール名のみをフィルタするのに対し、`if` はハンドラレベルでツール呼び出しの引数まで条件指定でき、hook プロセス自体の起動をスキップできます。\n\n`if` はツールイベント（`PreToolUse`, `PostToolUse`, `PostToolUseFailure`, `PermissionRequest`, `PermissionDenied`）でのみ使用可能です。他のイベントに指定するとフックが実行されなくなります。",
+          "content_en": "The `if` field uses permission rule syntax to control hook firing based on a combination of tool name and arguments. While `matcher` filters only by tool name at the group level, `if` allows conditions down to the arguments of a tool call at the handler level, and can skip launching the hook process entirely.\n\n`if` can only be used in tool events (`PreToolUse`, `PostToolUse`, `PostToolUseFailure`, `PermissionRequest`, `PermissionDenied`). Specifying it for other events will cause the hook not to run.",
           "tags": [],
           "code": "{\n  \"hooks\": {\n    \"PreToolUse\": [\n      {\n        \"matcher\": \"Bash\",\n        \"hooks\": [\n          {\n            \"type\": \"command\",\n            \"if\": \"Bash(git *)\",\n            \"command\": \"\\\"$CLAUDE_PROJECT_DIR\\\"/.claude/hooks/check-git-policy.sh\"\n          }\n        ]\n      },\n      {\n        \"matcher\": \"Edit\",\n        \"hooks\": [\n          {\n            \"type\": \"command\",\n            \"if\": \"Edit(*.ts)\",\n            \"command\": \"\\\"$CLAUDE_PROJECT_DIR\\\"/.claude/hooks/check-ts-style.sh\"\n          }\n        ]\n      }\n    ]\n  }\n}",
           "tips": [
@@ -406,13 +568,22 @@
             "matcher（グループレベル）で大まかに絞り、if（ハンドラレベル）で細かく絞るのが効率的",
             "複数ツール名のマッチは if では不可 → matcher でパイプ区切りを使うか、別ハンドラに分ける",
             "v2.1.85 未満では無視されるため、バージョン互換性に注意"
+          ],
+          "tips_en": [
+            "Same syntax as permission rules: `Bash(git *)`, `Edit(*.ts)`, etc.",
+            "It is efficient to do a coarse filter at the group level with matcher and a fine filter at the handler level with if.",
+            "Matching multiple tool names is not possible with if → use pipe-separated values in matcher or split into separate handlers.",
+            "Ignored in versions below v2.1.85, so be aware of version compatibility."
           ]
         },
         {
           "id": "status-message",
           "title": "statusMessage でユーザー体験を向上させる",
+          "title_en": "Improve User Experience with statusMessage",
           "summary": "hook の実行中に何をしているか表示して、ユーザーの待ち時間のストレスを軽減する。",
+          "summary_en": "Show what the hook is doing during execution to reduce stress from waiting.",
           "content": "hook の実行中に何をしているか表示することで、ユーザーの待ち時間のストレスを軽減できます。`statusMessage` フィールドに短い説明を設定しましょう。",
+          "content_en": "Showing what the hook is doing during execution reduces the stress of waiting. Set a short description in the `statusMessage` field.",
           "tags": [],
           "code": "{\n  \"type\": \"command\",\n  \"command\": \"./check-security.sh\",\n  \"statusMessage\": \"セキュリティチェック実行中...\"\n}"
         }
@@ -421,23 +592,30 @@
     {
       "id": "recipes",
       "name": "レシピ集",
+      "name_en": "Recipes",
       "description": "すぐに使える実践的な Hooks レシピ",
+      "description_en": "Ready-to-use practical Hooks recipes",
       "items": [
         {
           "id": "desktop-notification",
           "title": "デスクトップ通知",
+          "title_en": "Desktop Notifications",
           "summary": "Claude が入力を待っている時にデスクトップ通知を受け取る（macOS / Linux 対応）。",
+          "summary_en": "Receive a desktop notification when Claude is waiting for input (macOS / Linux).",
           "content": "Claude が入力を待っている時にデスクトップ通知を受け取ります。macOS では `osascript`、Linux では `notify-send` を使用します。",
+          "content_en": "Receive a desktop notification when Claude is waiting for input. Uses `osascript` on macOS and `notify-send` on Linux.",
           "tags": ["通知"],
           "codeBlocks": [
             {
               "lang": "json",
               "label": "macOS 版",
+              "label_en": "macOS",
               "value": "{\n  \"hooks\": {\n    \"Notification\": [\n      {\n        \"matcher\": \"\",\n        \"hooks\": [\n          {\n            \"type\": \"command\",\n            \"command\": \"osascript -e 'display notification \\\"Claude Code が入力を待っています\\\" with title \\\"Claude Code\\\"'\"\n          }\n        ]\n      }\n    ]\n  }\n}"
             },
             {
               "lang": "json",
               "label": "Linux 版",
+              "label_en": "Linux",
               "value": "{\n  \"hooks\": {\n    \"Notification\": [\n      {\n        \"matcher\": \"\",\n        \"hooks\": [\n          {\n            \"type\": \"command\",\n            \"command\": \"notify-send 'Claude Code' 'Claude Code が入力を待っています'\"\n          }\n        ]\n      }\n    ]\n  }\n}"
             }
           ]
@@ -445,18 +623,23 @@
         {
           "id": "auto-format",
           "title": "ファイル編集後の自動フォーマット",
+          "title_en": "Auto-Format After File Edits",
           "summary": "Edit/Write 後に Prettier やその他のフォーマッターを自動実行する。",
+          "summary_en": "Automatically run Prettier or other formatters after Edit/Write.",
           "content": "ファイル編集後にフォーマッターを自動実行します。言語別に異なるフォーマッターを呼び分けることも可能です。",
+          "content_en": "Automatically run a formatter after file edits. You can also dispatch different formatters per language.",
           "tags": ["フォーマット", "自動化"],
           "codeBlocks": [
             {
               "lang": "json",
               "label": "Prettier（シンプル版）",
+              "label_en": "Prettier (simple)",
               "value": "{\n  \"hooks\": {\n    \"PostToolUse\": [\n      {\n        \"matcher\": \"Edit|Write\",\n        \"hooks\": [\n          {\n            \"type\": \"command\",\n            \"command\": \"jq -r '.tool_input.file_path' | xargs pnpm dlx prettier --write 2>/dev/null || true\"\n          }\n        ]\n      }\n    ]\n  }\n}"
             },
             {
               "lang": "bash",
               "label": "言語別フォーマッター（auto-format.sh）",
+              "label_en": "Per-language formatter (auto-format.sh)",
               "value": "#!/bin/bash\nINPUT=$(cat)\nFILE_PATH=$(echo \"$INPUT\" | jq -r '.tool_input.file_path // empty')\n\nif [ -z \"$FILE_PATH\" ]; then exit 0; fi\n\ncase \"$FILE_PATH\" in\n  *.py)    black \"$FILE_PATH\" 2>/dev/null || true ;;\n  *.go)    gofmt -w \"$FILE_PATH\" 2>/dev/null || true ;;\n  *.rs)    rustfmt \"$FILE_PATH\" 2>/dev/null || true ;;\n  *.js|*.ts|*.jsx|*.tsx|*.json|*.css|*.md)\n           pnpm dlx prettier --write \"$FILE_PATH\" 2>/dev/null || true ;;\nesac\nexit 0"
             }
           ]
@@ -464,8 +647,11 @@
         {
           "id": "protect-files",
           "title": "保護ファイルへの編集ブロック",
+          "title_en": "Block Edits to Protected Files",
           "summary": ".env、ロックファイル、秘密鍵などの保護ファイルへの編集を PreToolUse でブロックする。",
+          "summary_en": "Use PreToolUse to block edits to protected files such as .env, lock files, and private keys.",
           "content": "機密ファイルやロックファイルへの意図しない編集を防ぎます。`PreToolUse` で `Edit|Write` ツールをマッチし、ファイルパスが保護パターンに該当する場合は exit code 2 でブロックします。",
+          "content_en": "Prevent unintended edits to sensitive files and lock files. Match the `Edit|Write` tool with `PreToolUse` and block with exit code 2 when the file path matches a protected pattern.",
           "tags": [],
           "codeBlocks": [
             {
@@ -483,18 +669,23 @@
         {
           "id": "context-injection",
           "title": "コンテキスト注入",
+          "title_en": "Context Injection",
           "summary": "セッション開始時やコンテキスト圧縮後にリマインダーやプロジェクト情報を自動注入する。",
+          "summary_en": "Automatically inject reminders and project information at session start or after context compaction.",
           "content": "セッション開始時やコンテキスト圧縮後に、プロジェクト固有のリマインダーや動的な情報を自動で注入します。`SessionStart` イベントの matcher に `compact` を指定すると、コンテキスト圧縮後にのみ発火します。",
+          "content_en": "Automatically inject project-specific reminders and dynamic information at session start or after context compaction. Specify `compact` in the `SessionStart` event's matcher to fire only after context compaction.",
           "tags": ["自動化"],
           "codeBlocks": [
             {
               "lang": "json",
               "label": "静的リマインダー",
+              "label_en": "Static reminder",
               "value": "{\n  \"hooks\": {\n    \"SessionStart\": [\n      {\n        \"matcher\": \"compact\",\n        \"hooks\": [\n          {\n            \"type\": \"command\",\n            \"command\": \"echo 'リマインダー: Bun を使用。コミット前に bun test を実行。'\"\n          }\n        ]\n      }\n    ]\n  }\n}"
             },
             {
               "lang": "bash",
               "label": "動的コンテキスト注入（inject-context.sh）",
+              "label_en": "Dynamic context injection (inject-context.sh)",
               "value": "#!/bin/bash\necho \"=== プロジェクトコンテキスト ===\"\necho \"最近のコミット:\"\ngit log --oneline -5 2>/dev/null || echo \"(Git 情報取得不可)\"\necho \"\"\necho \"現在のブランチ: $(git branch --show-current 2>/dev/null || echo 'unknown')\"\necho \"\"\necho \"未コミットの変更:\"\ngit diff --stat 2>/dev/null || echo \"(なし)\""
             }
           ]
@@ -502,112 +693,154 @@
         {
           "id": "bash-logging",
           "title": "Bash コマンドのログ記録",
+          "title_en": "Bash Command Logging",
           "summary": "Claude が実行した全ての Bash コマンドをタイムスタンプ付きで監査ログに記録する。",
+          "summary_en": "Record all Bash commands executed by Claude in an audit log with timestamps.",
           "content": "Claude が実行した全ての Bash コマンドをタイムスタンプ付きで監査ログに記録します。`PostToolUse` で `Bash` ツールをマッチし、`jq` でログエントリを構築してファイルに追記します。",
+          "content_en": "Record all Bash commands executed by Claude in an audit log with timestamps. Match the `Bash` tool with `PostToolUse`, build a log entry with `jq`, and append it to a file.",
           "tags": ["監査"],
           "code": "{\n  \"hooks\": {\n    \"PostToolUse\": [\n      {\n        \"matcher\": \"Bash\",\n        \"hooks\": [\n          {\n            \"type\": \"command\",\n            \"command\": \"jq -c '{timestamp: (now | todate), command: .tool_input.command, cwd: .cwd}' >> ~/.claude/command-audit.log\"\n          }\n        ]\n      }\n    ]\n  }\n}"
         },
         {
           "id": "config-audit",
           "title": "設定変更の監査ログ",
+          "title_en": "Configuration Change Audit Log",
           "summary": "Claude Code の設定ファイルが変更された時に監査ログを記録する。",
+          "summary_en": "Record an audit log when Claude Code's settings files change.",
           "content": "`ConfigChange` イベントで設定ファイルの変更を監視し、タイムスタンプ・変更元・ファイルパスを記録します。",
+          "content_en": "Monitor settings file changes with the `ConfigChange` event and record the timestamp, source, and file path.",
           "tags": ["監査"],
           "code": "{\n  \"hooks\": {\n    \"ConfigChange\": [\n      {\n        \"matcher\": \"\",\n        \"hooks\": [\n          {\n            \"type\": \"command\",\n            \"command\": \"jq -c '{timestamp: (now | todate), source: .source, file: .file_path}' >> ~/claude-config-audit.log\"\n          }\n        ]\n      }\n    ]\n  }\n}"
         },
         {
           "id": "mcp-monitoring",
           "title": "MCP ツールの監視",
+          "title_en": "MCP Tool Monitoring",
           "summary": "特定の MCP ツール（GitHub 等）の呼び出しを監視してログに出力する。",
+          "summary_en": "Monitor calls to specific MCP tools (such as GitHub) and output them to a log.",
           "content": "`PreToolUse` の matcher に `mcp__github__.*` を指定すると、GitHub MCP ツールの全呼び出しを監視できます。同様に他の MCP ツールも監視可能です。",
+          "content_en": "Specifying `mcp__github__.*` in the `PreToolUse` matcher lets you monitor all calls to GitHub MCP tools. Other MCP tools can be monitored in the same way.",
           "tags": ["監査"],
           "code": "{\n  \"hooks\": {\n    \"PreToolUse\": [\n      {\n        \"matcher\": \"mcp__github__.*\",\n        \"hooks\": [\n          {\n            \"type\": \"command\",\n            \"command\": \"echo \\\"GitHub ツール呼び出し: $(jq -r '.tool_name')\\\" >&2\"\n          }\n        ]\n      }\n    ]\n  }\n}"
         },
         {
           "id": "prompt-validation",
           "title": "Prompt フックでタスク完了を検証",
+          "title_en": "Validate Task Completion with a Prompt Hook",
           "summary": "Stop イベントで prompt タイプの hook を使い、全タスクが完了しているか LLM に検証させる。",
+          "summary_en": "Use a prompt-type hook in the Stop event to have an LLM verify that all tasks are complete.",
           "content": "`prompt` タイプの hook を使うと、Claude モデル（デフォルト: Haiku）に判断を委ねることができます。`Stop` イベントで使用して、ユーザーが依頼した全てのタスクが完了しているかを検証します。",
+          "content_en": "Using a `prompt`-type hook lets you delegate judgment to a Claude model (default: Haiku). Use it with the `Stop` event to verify that all tasks requested by the user are complete.",
           "tags": ["自動化"],
           "code": "{\n  \"hooks\": {\n    \"Stop\": [\n      {\n        \"hooks\": [\n          {\n            \"type\": \"prompt\",\n            \"prompt\": \"ユーザーが依頼した全てのタスクが完了しているか確認してください。未完了のタスクがあれば {\\\"ok\\\": false, \\\"reason\\\": \\\"残りのタスク: ...\\\"} で返してください。\"\n          }\n        ]\n      }\n    ]\n  }\n}"
         },
         {
           "id": "agent-test",
           "title": "Agent フックでテストを自動実行",
+          "title_en": "Auto-Run Tests with an Agent Hook",
           "summary": "Stop イベントで agent タイプの hook を使い、テストスイートの実行をサブエージェントに委譲する。",
+          "summary_en": "Use an agent-type hook in the Stop event to delegate test suite execution to a subagent.",
           "content": "`agent` タイプの hook はツールアクセス付きのサブエージェントを起動します。ファイルの読み取りやテスト実行など、ツールを使った検証が必要な場合に使います。",
+          "content_en": "An `agent`-type hook launches a subagent with tool access. Use it when validation requiring tools — such as reading files or running tests — is needed.",
           "tags": ["自動化"],
           "code": "{\n  \"hooks\": {\n    \"Stop\": [\n      {\n        \"hooks\": [\n          {\n            \"type\": \"agent\",\n            \"prompt\": \"ユニットテストが全て通ることを確認してください。テストスイートを実行し、結果を確認してください。$ARGUMENTS\",\n            \"timeout\": 120\n          }\n        ]\n      }\n    ]\n  }\n}"
         },
         {
           "id": "http-hook",
           "title": "HTTP フックで外部サービスに通知",
+          "title_en": "Notify External Services with an HTTP Hook",
           "summary": "HTTP エンドポイントに JSON を POST して外部サービスと連携する。環境変数でトークンを管理。",
+          "summary_en": "POST JSON to an HTTP endpoint to integrate with external services. Manage tokens via environment variables.",
           "content": "`http` タイプの hook は指定した URL に JSON を POST します。`allowedEnvVars` で明示的に許可した環境変数のみヘッダーで使用できます。",
+          "content_en": "An `http`-type hook POSTs JSON to the specified URL. Only environment variables explicitly permitted via `allowedEnvVars` can be used in headers.",
           "tags": ["自動化"],
           "code": "{\n  \"hooks\": {\n    \"PostToolUse\": [\n      {\n        \"hooks\": [\n          {\n            \"type\": \"http\",\n            \"url\": \"http://localhost:8080/hooks/tool-use\",\n            \"headers\": {\n              \"Authorization\": \"Bearer $MY_TOKEN\"\n            },\n            \"allowedEnvVars\": [\"MY_TOKEN\"]\n          }\n        ]\n      }\n    ]\n  }\n}"
         },
         {
           "id": "auto-approve",
           "title": "ExitPlanMode の自動承認",
+          "title_en": "Auto-Approve ExitPlanMode",
           "summary": "PermissionRequest イベントで特定の操作（ExitPlanMode 等）を自動承認する。",
+          "summary_en": "Use the PermissionRequest event to auto-approve specific operations such as ExitPlanMode.",
           "content": "`PermissionRequest` イベントで特定のツールの権限要求を自動承認します。`hookSpecificOutput` に `decision.behavior: \"allow\"` を含む JSON を stdout に出力します。\n\n`updatedPermissions` 配列に `setMode` エントリを含めることで、セッションの権限モードを変更することも可能です（例: `acceptEdits`, `bypassPermissions` 等）。`destination: \"session\"` で現在のセッションにのみ適用されます。",
+          "content_en": "Auto-approve permission requests for specific tools using the `PermissionRequest` event. Output JSON containing `decision.behavior: \"allow\"` in `hookSpecificOutput` to stdout.\n\nIncluding a `setMode` entry in the `updatedPermissions` array also lets you change the session's permission mode (e.g., `acceptEdits`, `bypassPermissions`). Use `destination: \"session\"` to apply only to the current session.",
           "tags": ["自動化"],
           "code": "{\n  \"hooks\": {\n    \"PermissionRequest\": [\n      {\n        \"matcher\": \"ExitPlanMode\",\n        \"hooks\": [\n          {\n            \"type\": \"command\",\n            \"command\": \"echo '{\\\"hookSpecificOutput\\\": {\\\"hookEventName\\\": \\\"PermissionRequest\\\", \\\"decision\\\": {\\\"behavior\\\": \\\"allow\\\"}}}'\"\n          }\n        ]\n      }\n    ]\n  }\n}"
         },
         {
           "id": "permission-set-mode",
           "title": "PermissionRequest で権限モードを切り替える",
+          "title_en": "Switch Permission Mode via PermissionRequest",
           "summary": "ExitPlanMode の自動承認時にセッションの権限モードを acceptEdits 等に変更する。",
+          "summary_en": "Change the session's permission mode to acceptEdits or similar when auto-approving ExitPlanMode.",
           "content": "`PermissionRequest` フックで `updatedPermissions` 配列に `setMode` エントリを含めると、自動承認と同時にセッションの権限モードを変更できます。`destination: \"session\"` で現在のセッションのみに適用されます。\n\nプラン完了後に自動的に `acceptEdits` モードへ移行させるなど、ワークフローの自動化に活用できます。",
+          "content_en": "Including a `setMode` entry in the `updatedPermissions` array in a `PermissionRequest` hook lets you change the session's permission mode at the same time as auto-approving. Use `destination: \"session\"` to apply only to the current session.\n\nThis can be used to automate workflows, such as automatically switching to `acceptEdits` mode after a plan is complete.",
           "tags": ["自動化"],
           "code": "{\n  \"hooks\": {\n    \"PermissionRequest\": [\n      {\n        \"matcher\": \"ExitPlanMode\",\n        \"hooks\": [\n          {\n            \"type\": \"command\",\n            \"command\": \"echo '{\\\"hookSpecificOutput\\\": {\\\"hookEventName\\\": \\\"PermissionRequest\\\", \\\"decision\\\": {\\\"behavior\\\": \\\"allow\\\", \\\"updatedPermissions\\\": [{\\\"type\\\": \\\"setMode\\\", \\\"mode\\\": \\\"acceptEdits\\\", \\\"destination\\\": \\\"session\\\"}]}}}'\"\n          }\n        ]\n      }\n    ]\n  }\n}"
         },
         {
           "id": "session-cleanup",
           "title": "セッション終了時のクリーンアップ",
+          "title_en": "Cleanup on Session End",
           "summary": "SessionEnd イベントで一時ファイルの削除などのクリーンアップ処理を自動実行する。",
+          "summary_en": "Use the SessionEnd event to automatically run cleanup tasks such as deleting temporary files.",
           "content": "`SessionEnd` イベントでセッション終了時にクリーンアップ処理を実行します。matcher に `clear` を指定すると、`/clear` コマンド実行時のみ発火します。",
+          "content_en": "Run cleanup processing at session end using the `SessionEnd` event. Specifying `clear` in the matcher causes the hook to fire only when the `/clear` command is run.",
           "tags": ["自動化"],
           "code": "{\n  \"hooks\": {\n    \"SessionEnd\": [\n      {\n        \"matcher\": \"clear\",\n        \"hooks\": [\n          {\n            \"type\": \"command\",\n            \"command\": \"rm -f /tmp/claude-scratch-*.txt\"\n          }\n        ]\n      }\n    ]\n  }\n}"
         },
         {
           "id": "env-injection",
           "title": "SessionStart で環境変数を永続化",
+          "title_en": "Persist Environment Variables at SessionStart",
           "summary": "CLAUDE_ENV_FILE に export 文を書き込むことで、Bash ツール実行時に環境変数を自動設定する。",
+          "summary_en": "Write export statements to CLAUDE_ENV_FILE to automatically set environment variables when the Bash tool runs.",
           "content": "`SessionStart` hook では `CLAUDE_ENV_FILE` 環境変数が利用可能です。このファイルに `export` 文を書き込むと、Claude が Bash ツールを実行する際に環境変数が自動的に設定されます。プロジェクト固有の環境設定やツールのパス設定に便利です。",
+          "content_en": "The `CLAUDE_ENV_FILE` environment variable is available in the `SessionStart` hook. Writing `export` statements to this file causes environment variables to be automatically set when Claude runs the Bash tool. Useful for project-specific environment settings and tool path configuration.",
           "tags": ["自動化"],
           "code": "{\n  \"hooks\": {\n    \"SessionStart\": [\n      {\n        \"matcher\": \"\",\n        \"hooks\": [\n          {\n            \"type\": \"command\",\n            \"command\": \"if [ -n \\\"$CLAUDE_ENV_FILE\\\" ]; then echo 'export NODE_ENV=development' >> \\\"$CLAUDE_ENV_FILE\\\"; echo 'export PYTHONPATH=./src' >> \\\"$CLAUDE_ENV_FILE\\\"; fi\"\n          }\n        ]\n      }\n    ]\n  }\n}"
         },
         {
           "id": "worktree-custom",
           "title": "WorktreeCreate でカスタム worktree を作成",
+          "title_en": "Create Custom Worktrees with WorktreeCreate",
           "summary": "WorktreeCreate hook で Git 以外のバージョン管理や独自のディレクトリ構造に対応する。",
+          "summary_en": "Use the WorktreeCreate hook to support non-Git version control systems or custom directory structures.",
           "content": "`WorktreeCreate` hook は stdout に絶対パスを出力する必要があります。Claude Code はこの出力を worktree のパスとして使用します。Git 以外のバージョン管理システムや独自のディレクトリ構造を使いたい場合に、デフォルトの `git worktree` の動作を置き換えられます。\n\nstdout にはパスのみを出力し、他の出力は stderr にリダイレクトしてください。",
+          "content_en": "The `WorktreeCreate` hook must output an absolute path to stdout. Claude Code uses this output as the worktree path. This can replace the default `git worktree` behavior when you want to use a non-Git version control system or a custom directory structure.\n\nOutput only the path to stdout; redirect any other output to stderr.",
           "tags": [],
           "code": "#!/bin/bash\nINPUT=$(cat)\nNAME=$(echo \"$INPUT\" | jq -r '.name')\nDIR=\"$HOME/.claude/worktrees/$NAME\"\nmkdir -p \"$DIR\" >&2\n# stdout にはパスのみ出力（Claude Code がこのパスを使用する）\necho \"$DIR\""
         },
         {
           "id": "cwd-changed-env",
           "title": "CwdChanged でディレクトリ変更時に環境を再読み込み",
+          "title_en": "Reload Environment on Directory Change with CwdChanged",
           "summary": "ディレクトリ移動時に CLAUDE_ENV_FILE を使ってプロジェクト固有の環境変数を自動設定する。",
+          "summary_en": "Use CLAUDE_ENV_FILE to automatically set project-specific environment variables when the directory changes.",
           "content": "`CwdChanged` イベントは、Claude が `cd` コマンドでディレクトリを移動した際に発火します。command タイプのみ対応で、`CLAUDE_ENV_FILE` に書き込むことで以降の Bash コマンドに環境変数を永続化できます。\n\ndirenv のようなツールと組み合わせて、プロジェクト固有の環境設定を自動的にロードする用途に最適です。hook の stdout に `watchPaths` を JSON で返すと、`FileChanged` の監視対象を動的に更新できます。",
+          "content_en": "The `CwdChanged` event fires when Claude changes directory using the `cd` command. Supports command type only. Writing to `CLAUDE_ENV_FILE` persists environment variables for subsequent Bash commands.\n\nIdeal for automatically loading project-specific environment settings when combined with tools like direnv. Returning `watchPaths` as JSON in the hook's stdout dynamically updates the files watched by `FileChanged`.",
           "tags": ["自動化"],
           "code": "{\n  \"hooks\": {\n    \"CwdChanged\": [\n      {\n        \"hooks\": [\n          {\n            \"type\": \"command\",\n            \"command\": \"if [ -n \\\"$CLAUDE_ENV_FILE\\\" ] && [ -f \\\"$PWD/.envrc\\\" ] && command -v direnv > /dev/null 2>&1; then direnv export bash >> \\\"$CLAUDE_ENV_FILE\\\"; fi\"\n          }\n        ]\n      }\n    ]\n  }\n}"
         },
         {
           "id": "file-changed-watch",
           "title": "FileChanged で設定ファイルの変更を監視",
+          "title_en": "Watch for Config File Changes with FileChanged",
           "summary": "監視対象ファイルの変更・追加・削除を検知し、環境変数の再読み込みなどを自動実行する。",
+          "summary_en": "Detect changes, additions, and deletions to watched files and automatically reload environment variables.",
           "content": "`FileChanged` イベントは、監視対象のファイルがディスク上で変更されたときに発火します。matcher にパイプ区切りのファイル名（ベースネーム）を指定して監視対象を絞り込めます。\n\n入力の `event` フィールドには `change`（変更）、`add`（追加）、`unlink`（削除）のいずれかが渡されます。`CwdChanged` と組み合わせて、direnv のようなディレクトリごとの環境管理を実現できます。",
+          "content_en": "The `FileChanged` event fires when a watched file changes on disk. Narrow the watched targets by specifying pipe-separated file names (basenames) in the matcher.\n\nThe input's `event` field contains one of `change` (modified), `add` (created), or `unlink` (deleted). Combined with `CwdChanged`, this enables per-directory environment management similar to direnv.",
           "tags": ["自動化"],
           "code": "{\n  \"hooks\": {\n    \"FileChanged\": [\n      {\n        \"matcher\": \".envrc|.env\",\n        \"hooks\": [\n          {\n            \"type\": \"command\",\n            \"command\": \"if [ -n \\\"$CLAUDE_ENV_FILE\\\" ] && command -v direnv > /dev/null 2>&1; then direnv export bash >> \\\"$CLAUDE_ENV_FILE\\\"; fi\"\n          }\n        ]\n      }\n    ]\n  }\n}"
         },
         {
           "id": "task-created-validation",
           "title": "TaskCreated でタスク作成を検証",
+          "title_en": "Validate Task Creation with TaskCreated",
           "summary": "TaskCreate ツールによるタスク作成時に命名規則や必須フィールドを検証し、不正なタスクをブロックする。",
+          "summary_en": "Validate naming conventions and required fields when tasks are created by the TaskCreate tool, and block invalid tasks.",
           "content": "`TaskCreated` イベントは `TaskCreate` ツールでタスクが作成される際に発火するブロッキングイベントです。exit code 2 でタスク作成を拒否し、stderr のメッセージがフィードバックとして返されます。\n\n命名規則の強制、説明の必須化、特定のタスクの禁止など、タスク品質のゲートキーピングに活用できます。matcher はサポートされず、全てのタスク作成で発火します。",
+          "content_en": "The `TaskCreated` event is a blocking event that fires when a task is created by the `TaskCreate` tool. Return exit code 2 to reject task creation; the stderr message is returned as feedback.\n\nUseful for gatekeeping task quality by enforcing naming conventions, requiring descriptions, or prohibiting specific tasks. The matcher is not supported; the event fires for all task creation.",
           "tags": ["自動化"],
           "code": "#!/bin/bash\nINPUT=$(cat)\nTASK_NAME=$(echo \"$INPUT\" | jq -r '.tool_input.name // empty')\nDESCRIPTION=$(echo \"$INPUT\" | jq -r '.tool_input.description // empty')\n\n# タスク名が命名規則に従っているか確認\nif ! echo \"$TASK_NAME\" | grep -qE '^[a-z][a-z0-9-]+$'; then\n  echo \"タスク名は小文字・数字・ハイフンのみ使用可能です: $TASK_NAME\" >&2\n  exit 2\nfi\n\n# 説明が空でないか確認\nif [ -z \"$DESCRIPTION\" ]; then\n  echo \"タスクには説明が必須です\" >&2\n  exit 2\nfi\n\nexit 0"
         }
@@ -616,59 +849,91 @@
     {
       "id": "troubleshooting",
       "name": "トラブルシューティング",
+      "name_en": "Troubleshooting",
       "description": "よくある問題の診断と解決方法",
+      "description_en": "Diagnosing and resolving common problems",
       "items": [
         {
           "id": "hook-not-firing",
           "title": "フックが発火しない",
+          "title_en": "Hook Not Firing",
           "summary": "イベント名、Matcher の大文字小文字、PermissionRequest の制約を確認する。",
+          "summary_en": "Check the event name, matcher case sensitivity, and PermissionRequest constraints.",
           "content": "フックが発火しない場合、以下を順番に確認してください。",
+          "content_en": "If a hook is not firing, check the following in order.",
           "tags": ["デバッグ"],
           "tips": [
             "`/hooks` コマンドで正しいイベントに登録されているか確認",
             "Matcher パターンが大文字小文字を含め正確にマッチするか確認",
             "イベントタイプが正しいか確認（`PreToolUse` はツール実行前、`PostToolUse` は実行後）",
             "`PermissionRequest` は非インタラクティブモード（`-p`）では発火しない → `PreToolUse` を使用"
+          ],
+          "tips_en": [
+            "Use the `/hooks` command to verify the hook is registered to the correct event.",
+            "Verify that the Matcher pattern matches exactly, including case.",
+            "Verify the event type is correct (`PreToolUse` fires before tool execution, `PostToolUse` fires after).",
+            "`PermissionRequest` does not fire in non-interactive mode (`-p`) → use `PreToolUse` instead."
           ]
         },
         {
           "id": "hook-error",
           "title": "フックエラーが出力に表示される",
+          "title_en": "Hook Error Displayed in Output",
           "summary": "手動でテストして原因を特定。実行権限、jq の有無、パスの正確性を確認する。",
+          "summary_en": "Test manually to identify the cause. Check execute permissions, jq availability, and path accuracy.",
           "content": "hook エラーが発生した場合、手動でテストして原因を特定しましょう。スクリプトに実行権限がない、`jq` がインストールされていない、パスが間違っているなどが主な原因です。",
+          "content_en": "When a hook error occurs, test manually to identify the cause. Common causes include missing execute permissions on the script, `jq` not being installed, or an incorrect path.",
           "tags": ["デバッグ"],
           "code": "echo '{\"tool_name\":\"Bash\",\"tool_input\":{\"command\":\"ls\"}}' | ./my-hook.sh\necho $?  # exit code を確認",
           "tips": [
             "スクリプトに実行権限がない → `chmod +x` する",
             "`jq` がインストールされていない → brew install jq / apt install jq",
             "パスが間違っている → `$CLAUDE_PROJECT_DIR` を使用"
+          ],
+          "tips_en": [
+            "Script has no execute permission → run `chmod +x`.",
+            "`jq` is not installed → brew install jq / apt install jq.",
+            "Path is incorrect → use `$CLAUDE_PROJECT_DIR`."
           ]
         },
         {
           "id": "json-parse-error",
           "title": "JSON パースエラー",
+          "title_en": "JSON Parse Error",
           "summary": "シェルプロファイルの echo 文が JSON 出力を壊している可能性がある。",
+          "summary_en": "echo statements in shell profiles may be corrupting the JSON output.",
           "content": "hook の JSON 出力が壊れる場合、シェルプロファイル（`~/.zshrc` / `~/.bashrc`）の `echo` 文が原因の可能性があります。プロファイルの出力をインタラクティブシェルに限定してください。",
+          "content_en": "If hook JSON output is corrupted, the cause may be `echo` statements in your shell profile (`~/.zshrc` / `~/.bashrc`). Restrict profile output to interactive shells.",
           "tags": ["デバッグ"],
           "code": "# ~/.zshrc に追加\nif [[ $- == *i* ]]; then\n  echo \"Shell ready\"  # インタラクティブシェルでのみ出力\nfi"
         },
         {
           "id": "stop-loop",
           "title": "Stop フックが無限ループする",
+          "title_en": "Stop Hook Loops Infinitely",
           "summary": "stop_hook_active フィールドをチェックしていない場合に発生する。",
+          "summary_en": "Occurs when the stop_hook_active field is not checked.",
           "content": "`Stop` フックが無限ループする場合、`stop_hook_active` フィールドのチェックが欠けています。Stop フックの先頭で必ずこのフィールドを確認してください。",
+          "content_en": "If a `Stop` hook loops infinitely, the `stop_hook_active` field check is missing. Always check this field at the beginning of a Stop hook.",
           "tags": ["デバッグ"],
           "code": "#!/bin/bash\nINPUT=$(cat)\n\n# 重要: この行がないと無限ループする\nif [ \"$(echo \"$INPUT\" | jq -r '.stop_hook_active')\" = \"true\" ]; then\n  exit 0\nfi"
         },
         {
           "id": "debug-methods",
           "title": "デバッグ方法",
+          "title_en": "Debugging Methods",
           "summary": "Ctrl+O で verbose モード切り替え、claude --debug で全実行詳細を表示する。",
+          "summary_en": "Toggle verbose mode with Ctrl+O, or use claude --debug to show all execution details.",
           "content": "hook のデバッグには2つの主な方法があります。verbose モードでは hook の出力がトランスクリプトに表示され、debug モードではマッチした hook や exit code など全ての実行詳細が表示されます。",
+          "content_en": "There are two main methods for debugging hooks. Verbose mode shows hook output in the transcript, while debug mode shows all execution details including matched hooks and exit codes.",
           "tags": ["デバッグ"],
           "tips": [
             "`Ctrl+O` で verbose モードを切り替え、hook の出力をトランスクリプトで確認",
             "`claude --debug` で全実行詳細（マッチした hook、exit code 等）を表示"
+          ],
+          "tips_en": [
+            "Toggle verbose mode with `Ctrl+O` to review hook output in the transcript.",
+            "Use `claude --debug` to display all execution details (matched hooks, exit codes, etc.)."
           ]
         }
       ]
@@ -676,13 +941,18 @@
     {
       "id": "security",
       "name": "セキュリティ",
+      "name_en": "Security",
       "description": "セキュリティ上の重要な注意点と参考リンク",
+      "description_en": "Important security considerations and reference links",
       "items": [
         {
           "id": "security-considerations",
           "title": "セキュリティ上の注意点",
+          "title_en": "Security Considerations",
           "summary": "権限の自動承認は最小限に。保護ファイルリストの維持、監査ログの記録を徹底する。",
+          "summary_en": "Keep auto-approvals minimal. Maintain a protected files list and ensure audit logging.",
           "content": "Hooks はセキュリティの強化に活用できますが、不適切な設定はセキュリティリスクにもなります。以下の点に注意してください。",
+          "content_en": "While Hooks can strengthen security, improper configuration can also introduce security risks. Pay attention to the following points.",
           "tags": ["重要"],
           "tips": [
             "**権限の自動承認は最小限に**: `PermissionRequest` の自動承認は特定のツールに限定する",
@@ -696,30 +966,61 @@
             "**PermissionRequest の updatedInput**: v2.1.110 以降、`allow` 時に `updatedInput` で変更したツール入力は `permissions.deny` ルールで再チェックされる。hook で入力を書き換えて deny 回避する設計は成立しない前提で運用する",
             "**Bash 拒否ルールの強化（v2.1.113）**: 拒否ルールは `env`/`sudo`/`watch`/`ionice`/`setsid` 等の exec ラッパー経由のコマンドにもマッチするようになり、`Bash(find:*)` 許可でも `find -exec`/`-delete` は自動承認されない。macOS では `/private/{etc,var,tmp,home}` が `Bash(rm:*)` 配下で危険削除対象として扱われる",
             "**dangerouslyDisableSandbox**: v2.1.113 以降、サンドボックス外のコマンド実行は明示のパーミッションプロンプトを経由する（v2.1.113 で無音実行の脆弱性を修正）"
+          ],
+          "tips_en": [
+            "**Keep auto-approvals minimal**: Restrict auto-approval in `PermissionRequest` to specific tools.",
+            "**Maintain a protected files list**: Block sensitive files such as `.env`, `*.pem`, and `*.key` using `PreToolUse`.",
+            "**Enable audit logging**: Record logs with `PostToolUse` and `ConfigChange` in production and team development environments.",
+            "**Managed policy takes highest priority**: Organizational managed policy settings cannot be overridden by user or project settings.",
+            "**Deny rules take priority over hooks**: Even if `allow` is returned from `PreToolUse`, permission setting deny rules take precedence.",
+            "**HTTP hook token management**: Only environment variables explicitly permitted via `allowedEnvVars` can be used in headers.",
+            "**disableAllHooks**: Set `\"disableAllHooks\": true` in settings.json to disable all hooks. When set via managed policy, this disables all hooks including user/project hooks.",
+            "**allowManagedHooksOnly**: When set via managed policy, blocks user, project, and plugin hooks, allowing only administrator-defined hooks to run.",
+            "**PermissionRequest updatedInput**: Since v2.1.110, tool input modified via `updatedInput` when returning `allow` is re-checked against `permissions.deny` rules. Do not design hooks to rewrite input in order to bypass deny rules.",
+            "**Strengthened Bash deny rules (v2.1.113)**: Deny rules now also match commands invoked via exec wrappers such as `env`/`sudo`/`watch`/`ionice`/`setsid`, so even with `Bash(find:*)` allowed, `find -exec`/`-delete` are not auto-approved. On macOS, `/private/{etc,var,tmp,home}` is treated as a dangerous deletion target under `Bash(rm:*)`.",
+            "**dangerouslyDisableSandbox**: Since v2.1.113, commands executed outside the sandbox go through an explicit permission prompt (a silent execution vulnerability was fixed in v2.1.113)."
           ]
         },
         {
           "id": "hooks-permission-modes",
           "title": "Hooks と権限モードの関係",
+          "title_en": "Relationship Between Hooks and Permission Modes",
           "summary": "PreToolUse フックは全ての権限モードチェックより先に実行される。deny は強制できるが allow は緩和できない。",
+          "summary_en": "PreToolUse hooks run before all permission mode checks. Deny can be enforced, but allow cannot relax existing restrictions.",
           "content": "`PreToolUse` フックは権限モードのチェックよりも前に実行されます。フックが `permissionDecision: \"deny\"` を返すと、`bypassPermissions` モードや `--dangerously-skip-permissions` フラグが有効でもツール呼び出しがブロックされます。\n\nただし逆は成り立ちません。フックが `\"allow\"` を返しても、設定の deny ルール（マネージドポリシー含む）が優先されます。つまり、フックは制限を強化できますが、権限ルールで設定された制限を緩和することはできません。",
+          "content_en": "`PreToolUse` hooks run before permission mode checks. If a hook returns `permissionDecision: \"deny\"`, the tool call is blocked even when `bypassPermissions` mode or the `--dangerously-skip-permissions` flag is active.\n\nHowever, the reverse is not true. Even if a hook returns `\"allow\"`, the deny rules in the configuration (including managed policy) take precedence. In other words, hooks can strengthen restrictions, but cannot relax restrictions set by permission rules.",
           "tags": ["重要"],
           "tips": [
             "PreToolUse の deny は bypassPermissions モードでも有効 → 組織ポリシーの強制に使える",
             "PreToolUse の allow は対話型プロンプトをスキップするだけで、deny ルールは上書きしない",
             "ask ルールがマッチする場合、allow を返してもユーザーにプロンプトが表示される"
+          ],
+          "tips_en": [
+            "PreToolUse deny is effective even in bypassPermissions mode → can be used to enforce organizational policy.",
+            "PreToolUse allow only skips the interactive prompt; it does not override deny rules.",
+            "If an ask rule matches, a prompt is shown to the user even if allow is returned."
           ]
         },
         {
           "id": "reference-links",
           "title": "参考リンク",
+          "title_en": "Reference Links",
           "summary": "公式ドキュメント、ガイド、コミュニティリソースへのリンク集。",
+          "summary_en": "A collection of links to official documentation, guides, and community resources.",
           "content": "Hooks についてさらに詳しく学ぶための参考リンクです。",
+          "content_en": "Reference links for learning more about Hooks.",
           "tags": [],
           "tips": [
             "公式 Hooks リファレンス — https://code.claude.com/docs/en/hooks — 全イベントスキーマ、JSON フォーマット、詳細仕様",
             "公式 Hooks ガイド — https://code.claude.com/docs/en/hooks-guide — ユースケース別の設定例",
             "Bash コマンドバリデータの参考実装 — https://github.com/anthropics/claude-code/blob/main/examples/hooks/bash_command_validator_example.py",
+            "Claude Code Hooks Mastery — https://github.com/disler/claude-code-hooks-mastery",
+            "Awesome Claude Code — https://github.com/hesreallyhim/awesome-claude-code"
+          ],
+          "tips_en": [
+            "Official Hooks Reference — https://code.claude.com/docs/en/hooks — All event schemas, JSON formats, and detailed specifications.",
+            "Official Hooks Guide — https://code.claude.com/docs/en/hooks-guide — Configuration examples by use case.",
+            "Reference implementation for Bash command validator — https://github.com/anthropics/claude-code/blob/main/examples/hooks/bash_command_validator_example.py",
             "Claude Code Hooks Mastery — https://github.com/disler/claude-code-hooks-mastery",
             "Awesome Claude Code — https://github.com/hesreallyhim/awesome-claude-code"
           ]
