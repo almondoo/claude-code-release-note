@@ -290,5 +290,25 @@
       "category": "IDE",
       "category_en": "IDE"
     }
+  ],
+  "2.1.173": [
+    {
+      "t": "修正: `[1m]` サフィックス付きの Fable 5 モデル名が正規化されない問題 — Fable 5 は標準で 1M コンテキストを含むためサフィックスを自動的に除去",
+      "t_en": "Fixed Fable 5 model names with a `[1m]` suffix not being normalized — Fable 5 includes 1M context by default, so the suffix is now stripped automatically",
+      "tags": ["バグ修正"],
+      "detail": "Claude Code では、`/model claude-opus-4-8[1m]` のようにモデル名へ `[1m]` サフィックスを付けることで 1M トークンのコンテキストウィンドウを指定できます。しかし Fable 5（`claude-fable-5`）は標準で 1M コンテキストを備えているため、このサフィックスは本来不要であり、付与されたまま正規化（除去）されない問題がありました。\n\n今回の修正により、Fable 5 のモデル名に `[1m]` サフィックスが付いていても自動的に除去されるようになりました。これにより、サフィックス付きの指定が原因でモデル名の解決が不整合になることがなくなります。v2.1.172 で修正されたサフィックスの二重付与（`[1M][1m]`）に続く、モデル名正規化まわりの改善です。\n\n`[1m]` サフィックスの詳細は[モデル設定のドキュメント](https://code.claude.com/docs/en/model-config#extended-context)を参照してください。",
+      "detail_en": "In Claude Code, you can request a 1M-token context window by appending the `[1m]` suffix to a model name, such as `/model claude-opus-4-8[1m]`. However, Fable 5 (`claude-fable-5`) includes 1M context by default, so the suffix is unnecessary — yet it was not being normalized (stripped) when present.\n\nWith this fix, the `[1m]` suffix on Fable 5 model names is now stripped automatically, preventing inconsistent model name resolution caused by suffixed entries. This follows the doubled-suffix fix (`[1M][1m]`) in v2.1.172 as part of ongoing model name normalization improvements.\n\nSee the [model configuration documentation](https://code.claude.com/docs/en/model-config#extended-context) for details on the `[1m]` suffix.",
+      "category": "モデル",
+      "category_en": "Model"
+    },
+    {
+      "t": "修正: 設定でサンドボックスを有効にした Windows 環境で起動時に誤った「sandbox dependencies missing」警告が表示される問題",
+      "t_en": "Fixed a spurious \"sandbox dependencies missing\" startup warning on Windows when sandbox was enabled in settings",
+      "tags": ["バグ修正", "Windows"],
+      "detail": "設定でサンドボックス機能を有効にしている Windows 環境において、起動時に「sandbox dependencies missing（サンドボックスの依存関係が見つからない）」という誤った警告が表示される問題が修正されました。\n\nサンドボックス機能は OS ごとに異なる仕組みで実現されており、起動時の依存関係チェックが Windows 環境で誤判定を起こしていました。今回の修正により、実際には問題がないにもかかわらず警告が表示されることがなくなり、Windows ユーザーの起動時のノイズが解消されます。",
+      "detail_en": "Fixed an issue where a spurious \"sandbox dependencies missing\" warning was shown at startup on Windows when the sandbox feature was enabled in settings.\n\nSandboxing is implemented with different mechanisms per OS, and the startup dependency check was misfiring on Windows. With this fix, the warning is no longer shown when there is no actual problem, removing startup noise for Windows users.",
+      "category": "サンドボックス",
+      "category_en": "Sandbox"
+    }
   ]
 }
