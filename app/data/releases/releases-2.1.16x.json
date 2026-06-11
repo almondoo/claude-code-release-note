@@ -8,8 +8,8 @@
         "tags": ["新機能", "Security"]
       },
       {
-        "t": "追加: `acceptEdits` モードでビルドツール設定ファイル（package.json 等）の書き込み前に確認を求めるように",
-        "t_en": "Added: Confirmation prompt before writing to build tool configuration files (e.g. package.json) in `acceptEdits` mode",
+        "t": "追加: `acceptEdits` モードでパッケージマネージャー設定ファイル（`.npmrc`、`.yarnrc*`、`bunfig.toml` 等）の書き込み前に確認を求めるように",
+        "t_en": "Added: Confirmation prompt before writing to package manager config files (e.g. `.npmrc`, `.yarnrc*`, `bunfig.toml`) in `acceptEdits` mode",
         "tags": ["新機能", "Security"]
       },
       {
@@ -43,8 +43,8 @@
         "tags": ["バグ修正", "Windows"]
       },
       {
-        "t": "修正: 完了したバックグラウンドエージェントが `claude agents` で進行中として表示され続ける問題",
-        "t_en": "Fixed: Completed background agents continuing to show as in-progress in `claude agents`",
+        "t": "修正: 作業を再開したバックグラウンドエージェントが `claude agents` のリストで Completed として表示される問題",
+        "t_en": "Fixed: Background agents that resumed work being shown under Completed in the agents list",
         "tags": ["バグ修正", "Agent"]
       },
       {
@@ -130,7 +130,7 @@
       {
         "t": "削除: JetBrains プラグインインストール提案を削除",
         "t_en": "Removed: JetBrains plugin installation suggestion removed",
-        "tags": ["改善"]
+        "tags": ["非推奨", "IDE"]
       },
       {
         "t": "変更: dynamic-workflow のトリガーキーワードを「workflow」から「ultracode」に変更",
@@ -145,7 +145,7 @@
       {
         "t": "追加: `OTEL_RESOURCE_ATTRIBUTES` をメトリクスラベルとして付与",
         "t_en": "Added: `OTEL_RESOURCE_ATTRIBUTES` attached as metrics labels",
-        "tags": ["改善"]
+        "tags": ["新機能"]
       },
       {
         "t": "改善: `claude agents` に done/total 進捗表示を追加",
@@ -250,7 +250,7 @@
       {
         "t": "追加: [VSCode] 文字化けグリフが表示された際のヒントを追加",
         "t_en": "Added: [VSCode] Hint added when garbled glyphs are detected",
-        "tags": ["改善", "IDE"]
+        "tags": ["新機能", "IDE"]
       }
     ]
   },
@@ -260,7 +260,7 @@
       {
         "t": "追加: `claude agents --json` の出力に `waitingFor` フィールドを追加",
         "t_en": "Added: `waitingFor` field in `claude agents --json` output",
-        "tags": ["改善", "Agent"]
+        "tags": ["新機能", "Agent"]
       },
       {
         "t": "改善: `--tools` に Grep/Glob を明示指定すると専用の検索ツールが有効化されるように",
@@ -313,8 +313,8 @@
         "tags": ["バグ修正"]
       },
       {
-        "t": "修正: MCP タイムアウト値が 1000ms 未満の場合に誤って切り捨てられる問題",
-        "t_en": "Fixed: MCP timeout values below 1000ms being incorrectly truncated",
+        "t": "修正: MCP のサーバー別 `timeout` が 1000ms 未満のとき全ツール呼び出しが 1 秒で中断される問題（1000ms 未満の値は無視されフォールバック）",
+        "t_en": "Fixed: MCP per-server `timeout` values below 1000ms aborting every tool call; sub-1000ms values are now ignored (falling back to `MCP_TOOL_TIMEOUT` or default)",
         "tags": ["バグ修正", "MCP"]
       },
       {
@@ -324,17 +324,17 @@
       },
       {
         "t": "修正: `claude agents` のステータステキストが 60〜120 桁で見切れる問題",
-        "t_en": "Fixed: `claude agents` status text getting cut off at 60–120 characters",
+        "t_en": "Fixed: `claude agents` status text getting cut off at 60–120 columns on wide terminals",
         "tags": ["バグ修正", "Agent"]
       },
       {
         "t": "修正: 長いセッション名が 40 桁で切り詰められる問題",
-        "t_en": "Fixed: Long session names being truncated at 40 characters",
+        "t_en": "Fixed: Long session names being truncated at 40 columns",
         "tags": ["バグ修正"]
       },
       {
-        "t": "修正: エージェントビューで初回再接続時に表示が跳ねる問題",
-        "t_en": "Fixed: Display jumping on first reconnect in the agent view",
+        "t": "修正: バックグラウンドサービス再起動後の初回アタッチ時に `claude agents` がセッションリストに戻ってしまう問題",
+        "t_en": "Fixed: `claude agents` attach occasionally bouncing back to the session list on the first try after a background-service restart",
         "tags": ["バグ修正", "Agent"]
       },
       {
@@ -361,6 +361,41 @@
         "t": "修正: 実行中のバックグラウンドセッションを開く際に約 5 秒のストールが発生する問題",
         "t_en": "Fixed: ~5-second stall when opening a running background session",
         "tags": ["バグ修正", "Agent", "Perf"]
+      },
+      {
+        "t": "改善: 起動時の通知を重要度でグループ化し、セッション情報とアナウンスを 1 行にまとめるように",
+        "t_en": "Quieter startup: notices group by severity, and session info and announcements share a single line per launch",
+        "tags": ["改善"]
+      },
+      {
+        "t": "改善: 起動時の警告メッセージを短く明確に書き直し、具体的な修正方法を案内するように",
+        "t_en": "Startup warnings rewritten to be shorter and clearer, each with a concrete fix",
+        "tags": ["改善"]
+      },
+      {
+        "t": "改善: 起動プロンプトの警告（ディープリンク / 事前入力プロンプト）が操作するまで入力欄の下に固定表示されるように",
+        "t_en": "Launch-prompt warnings (deep link/pre-filled prompt) now stay pinned below the input until you act instead of scrolling away",
+        "tags": ["改善"]
+      },
+      {
+        "t": "改善: 失敗したターンが複数行の赤いエラーブロックではなくコンパクトな警告行で表示されるように",
+        "t_en": "Failed turns now show a compact warning line instead of a multi-line red error block",
+        "tags": ["改善"]
+      },
+      {
+        "t": "改善: バックグラウンドサービスの起動と `claude update` の検証で、5 秒でタイムアウトせず新バイナリのエンドポイントセキュリティスキャン完了を待つように改善",
+        "t_en": "Improved background service startup and `claude update` verification to wait out endpoint-security scanning of new binaries instead of failing after 5 seconds",
+        "tags": ["改善"]
+      },
+      {
+        "t": "改善: バックグラウンドディスパッチのスポーン失敗時に errno がない場合はエラークラス名を報告するように",
+        "t_en": "Background dispatch spawn failures now report the error class name when no errno is available",
+        "tags": ["改善", "Agent"]
+      },
+      {
+        "t": "改善: 「Claude in Chrome 有効」と「マーケットプレイスインストール済み」の起動メッセージを削除し、モデルの自動更新とチームオンボーディングのヒントをロゴ下の通知として表示するように",
+        "t_en": "Removed the \"Claude in Chrome enabled\" and \"marketplace installed\" startup messages; model auto-updates and the team-onboarding tip now show as quiet notices under the logo",
+        "tags": ["改善"]
       }
     ]
   },
@@ -368,9 +403,9 @@
     "v": "2.1.163",
     "items": [
       {
-        "t": "追加: プラグインフロントマターに `requiredMinimumVersion` と `requiredMaximumVersion` を追加 — 対象バージョン範囲を指定可能に",
-        "t_en": "Added: `requiredMinimumVersion` and `requiredMaximumVersion` in plugin frontmatter to specify the compatible version range",
-        "tags": ["新機能", "Plugin"]
+        "t": "追加: バージョン管理用の managed settings として `requiredMinimumVersion` と `requiredMaximumVersion` を追加 — 許可バージョン範囲外では Claude Code が起動を拒否",
+        "t_en": "Added: `requiredMinimumVersion` and `requiredMaximumVersion` managed settings — Claude Code refuses to start if its version is outside the allowed range",
+        "tags": ["新機能", "Security"]
       },
       {
         "t": "追加: `/plugin list` コマンド — インストール済みプラグインを一覧表示",
@@ -380,11 +415,11 @@
       {
         "t": "追加: `/btw` に「c to copy」ショートカットを追加",
         "t_en": "Added: \"c to copy\" shortcut in `/btw`",
-        "tags": ["改善"]
+        "tags": ["新機能"]
       },
       {
-        "t": "追加: Hooks が `additionalContext` を返してターンを継続できるように",
-        "t_en": "Added: Hooks can now return `additionalContext` to continue the turn",
+        "t": "追加: Stop/SubagentStop フックが `additionalContext` を返してターンを継続できるように",
+        "t_en": "Added: Stop and SubagentStop hooks can now return `additionalContext` to continue the turn",
         "tags": ["新機能"]
       },
       {
@@ -428,8 +463,8 @@
         "tags": ["バグ修正", "Agent"]
       },
       {
-        "t": "修正: エージェントビューを終了する際にターミナル表示がずれる問題",
-        "t_en": "Fixed: Terminal display misalignment when exiting the agent view",
+        "t": "修正: エージェントビューを終了する際にターミナル表示がずれ、数秒間ハングする問題",
+        "t_en": "Fixed: Terminal display misalignment and multi-second hang when exiting the agent view",
         "tags": ["バグ修正", "Agent"]
       },
       {
@@ -471,6 +506,11 @@
         "t": "改善: サブスクリプション提案を起動時アナウンス枠に表示するように",
         "t_en": "Improved: Subscription suggestions now shown in the startup announcement area",
         "tags": ["改善"]
+      },
+      {
+        "t": "改善: `claude agents` のステートグループビューからの dispatch が、エージェントビューを開いたディレクトリでセッションを開始するように",
+        "t_en": "`claude agents` dispatching from the state-grouped view now starts the session in the directory the agent view was opened from",
+        "tags": ["改善", "Agent"]
       }
     ]
   },
@@ -503,8 +543,8 @@
         "tags": ["改善", "Security"]
       },
       {
-        "t": "改善: `MAX_THINKING_TOKENS=0` と思考トグルが thinking を無効化するように",
-        "t_en": "Improved: `MAX_THINKING_TOKENS=0` and the thinking toggle now properly disable thinking",
+        "t": "改善: `MAX_THINKING_TOKENS=0` と思考トグルが thinking を無効化するように（Claude API のみ）",
+        "t_en": "Improved: `MAX_THINKING_TOKENS=0`, `--thinking disabled`, and the thinking toggle now properly disable thinking on Claude API (models that think by default)",
         "tags": ["改善"]
       },
       {
@@ -548,9 +588,9 @@
         "tags": ["バグ修正", "Windows"]
       },
       {
-        "t": "修正: 孤立した `claude --bg-pty-host` プロセスが CPU 100% でスピンする問題",
-        "t_en": "Fixed: Orphaned `claude --bg-pty-host` processes spinning at 100% CPU",
-        "tags": ["バグ修正", "Perf"]
+        "t": "修正: 孤立した `claude --bg-pty-host` プロセスが CPU 100% でスピンする問題（macOS）",
+        "t_en": "Fixed: Orphaned `claude --bg-pty-host` processes spinning at 100% CPU on macOS",
+        "tags": ["バグ修正", "Perf", "Platform"]
       },
       {
         "t": "修正: `/voice` 切り替え後に `/login` を要求される問題",
@@ -588,8 +628,8 @@
         "tags": ["バグ修正"]
       },
       {
-        "t": "修正: バックグラウンドエージェントのメッセージ行間に不要な空行が表示される問題",
-        "t_en": "Fixed: Spurious blank lines appearing between message lines in background agents",
+        "t": "修正: Unicode 非対応ターミナルでバックグラウンドエージェントのメッセージ行間に不要な空行が表示される問題",
+        "t_en": "Fixed: Spurious blank lines appearing between message lines in background agents on terminals that do not support Unicode box-drawing characters",
         "tags": ["バグ修正", "Agent"]
       }
     ]
@@ -665,7 +705,7 @@
       {
         "t": "修正: バックグラウンド git コマンドがキャッシュ済み認証情報なしで実行された際に Windows 起動時に Git Credential Manager のポップアップが表示される問題",
         "t_en": "Fixed Git Credential Manager's \"Connect to GitHub\" popup appearing on Windows at startup when background git commands ran without cached credentials",
-        "tags": ["バグ修正"]
+        "tags": ["バグ修正", "Windows"]
       },
       {
         "t": "修正: カスタム statusline を使用しているユーザーでフッターヒント（「esc to interrupt」等）が表示されない問題",
@@ -695,7 +735,7 @@
       {
         "t": "修正: Windows で MCPB プラグインキャッシュが不必要に無効化され再展開が発生する問題",
         "t_en": "Fixed MCPB plugin cache being spuriously invalidated on Windows, causing unnecessary re-extraction",
-        "tags": ["バグ修正", "Plugin"]
+        "tags": ["バグ修正", "Plugin", "Windows"]
       },
       {
         "t": "修正: プラグインの `.in_use` PID ロックファイルが無制限に蓄積される問題、クラッシュセッションの古いマーカーを1日1回クリーンアップ",
@@ -755,7 +795,7 @@
       {
         "t": "改善: Windows の自動アップデーターが `claude.exe` を別プロセスが保持している場合にセッション内での再試行を停止",
         "t_en": "Auto-updater on Windows now stops retrying within a session once `claude.exe` is held by another process",
-        "tags": ["改善"]
+        "tags": ["改善", "Windows"]
       },
       {
         "t": "改善: スラッシュコマンドメニューのスキルタグのカラーコントラストを改善",

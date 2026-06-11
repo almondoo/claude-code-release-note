@@ -10,11 +10,11 @@
       "category_en": "Security"
     },
     {
-      "t": "追加: `acceptEdits` モードでビルドツール設定ファイルへの書き込み前に確認プロンプトを表示（コード実行権限付与の可能性があるファイル）",
-      "t_en": "Added: Confirmation prompt before writing to build tool config files in `acceptEdits` mode (files that may grant code execution permissions)",
+      "t": "追加: `acceptEdits` モードでパッケージマネージャー設定ファイルへの書き込み前に確認プロンプトを表示（コード実行権限付与の可能性があるファイル）",
+      "t_en": "Added: Confirmation prompt before writing to package manager config files in `acceptEdits` mode (files that may grant code execution permissions)",
       "tags": ["新機能", "Security"],
-      "detail": "`acceptEdits` モード（編集を自動承認するモード）で動作中であっても、ビルドツールの設定ファイル（`package.json` のスクリプト、`Makefile`、`CMakeLists.txt` 等）への書き込みは確認プロンプトを表示するようになりました。\n\nこれらのファイルはビルドコマンド経由でコード実行の権限を実質的に付与できるため、特別な注意が必要です。自動承認モードでも意図せずコード実行の窓口が開かれることを防ぐための安全策です。\n\n詳しくは[セキュリティのドキュメント](https://code.claude.com/docs/en/security)を参照してください。",
-      "detail_en": "Even in `acceptEdits` mode (which auto-approves edits), a confirmation prompt is now shown before writing to build tool configuration files (`package.json` scripts, `Makefile`, `CMakeLists.txt`, etc.).\n\nThese files can effectively grant code execution permissions via build commands, so they require special caution. This is a safety measure to prevent unintentionally opening a code execution path even in auto-approval mode.\n\nSee the [security documentation](https://code.claude.com/docs/en/security) for details.",
+      "detail": "`acceptEdits` モード（編集を自動承認するモード）で動作中であっても、パッケージマネージャーの設定ファイル（`.npmrc`、`.yarnrc*`、`bunfig.toml` 等）への書き込みは確認プロンプトを表示するようになりました。\n\nこれらのファイルはレジストリのリダイレクトやインストールスクリプトの設定を通じてコード実行の権限を実質的に付与できるため、特別な注意が必要です。自動承認モードでも意図せずコード実行の窓口が開かれることを防ぐための安全策です。\n\n詳しくは[セキュリティのドキュメント](https://code.claude.com/docs/en/security)を参照してください。",
+      "detail_en": "Even in `acceptEdits` mode (which auto-approves edits), a confirmation prompt is now shown before writing to package manager configuration files (`.npmrc`, `.yarnrc*`, `bunfig.toml`, etc.).\n\nThese files can effectively grant code execution permissions via registry redirects and install script settings, so they require special caution. This is a safety measure to prevent unintentionally opening a code execution path even in auto-approval mode.\n\nSee the [security documentation](https://code.claude.com/docs/en/security) for details.",
       "category": "セキュリティ",
       "category_en": "Security"
     },
@@ -73,11 +73,11 @@
       "category_en": "Platform Compatibility"
     },
     {
-      "t": "修正: 完了したバックグラウンドエージェントが Completed ではなく進行中として表示される問題",
-      "t_en": "Fixed: Completed background agent shown as in-progress instead of Completed",
+      "t": "修正: 作業を再開したバックグラウンドエージェントが `claude agents` のリストで Completed として表示される問題",
+      "t_en": "Fixed: Background agents that resumed work being shown under Completed in the agents list",
       "tags": ["バグ修正", "Agent"],
-      "detail": "バックグラウンドエージェントが作業を完了しているにもかかわらず、`claude agents` のリストで「Completed」タブではなく進行中として表示されることがある問題が修正されました。\n\n完了済みのエージェントセッションが正しくステータス分類されるようになりました。",
-      "detail_en": "Fixed an issue where a background agent that had finished its work was sometimes shown as in-progress rather than under the \"Completed\" tab in `claude agents`.\n\nCompleted agent sessions are now correctly classified by status.",
+      "detail": "作業を再開して実行中のバックグラウンドエージェントが、`claude agents` のリストで進行中ではなく「Completed」タブの下に表示されてしまう問題が修正されました。\n\n再開したエージェントセッションが正しく進行中としてステータス分類されるようになりました。",
+      "detail_en": "Fixed an issue where a background agent that had resumed work was shown under the \"Completed\" tab in the `claude agents` list instead of as in-progress.\n\nResumed agent sessions are now correctly classified as in-progress.",
       "category": "マルチエージェント",
       "category_en": "Multi-Agent"
     },
@@ -148,8 +148,8 @@
       "t": "修正: サードパーティプロバイダーで Auto モード非利用時のメッセージが不正確に表示される問題",
       "t_en": "Fixed: Inaccurate message displayed for Auto mode unavailability when using third-party providers",
       "tags": ["バグ修正"],
-      "detail": "Amazon Bedrock、Google Vertex AI、Azure OpenAI などのサードパーティプロバイダー経由で利用している場合に、Auto モードが利用できない旨のメッセージが不正確な内容で表示される問題が修正されました。\n\nサードパーティプロバイダー向けに適切なメッセージが表示されるようになりました。",
-      "detail_en": "Fixed an issue where an inaccurate message about Auto mode being unavailable was displayed when using third-party providers such as Amazon Bedrock, Google Vertex AI, or Azure OpenAI.\n\nAn appropriate message is now displayed for third-party provider contexts.",
+      "detail": "Amazon Bedrock、Google Vertex AI、Azure AI Foundry などのサードパーティプロバイダー経由で利用している場合に、Auto モードが利用できない旨のメッセージが不正確な内容で表示される問題が修正されました。\n\nサードパーティプロバイダー向けに適切なメッセージが表示されるようになりました。",
+      "detail_en": "Fixed an issue where an inaccurate message about Auto mode being unavailable was displayed when using third-party providers such as Amazon Bedrock, Google Vertex AI, or Azure AI Foundry.\n\nAn appropriate message is now displayed for third-party provider contexts.",
       "category": "プラットフォーム互換性",
       "category_en": "Platform Compatibility"
     },
@@ -237,7 +237,7 @@
     {
       "t": "変更: dynamic-workflow のトリガーキーワードを「workflow」から「ultracode」に変更",
       "t_en": "Changed: dynamic-workflow trigger keyword changed from \"workflow\" to \"ultracode\"",
-      "tags": ["改善"],
+      "tags": ["改善", "Agent"],
       "detail": "dynamic-workflow 機能（自動的にワークフローを構築して実行する機能）のトリガーキーワードが「workflow」から「ultracode」に変更されました。\n\nこれにより、`/effort ultracode` コマンドとの整合性が取れるようになりました。既存のプロンプトで「workflow」を使用してこの機能をトリガーしていた場合は、「ultracode」に変更する必要があります。",
       "detail_en": "The trigger keyword for the dynamic-workflow feature (which automatically builds and executes workflows) has been changed from \"workflow\" to \"ultracode\".\n\nThis aligns it with the `/effort ultracode` command. If you were triggering this feature with \"workflow\" in existing prompts, you will need to change it to \"ultracode\".",
       "category": "コマンド",
@@ -303,8 +303,8 @@
       "t": "修正: managed-settings ポリシーが組織のピン設定とともにサードパーティプロバイダーのセッションもブロックする問題",
       "t_en": "Fixed: managed-settings policy blocking third-party provider sessions along with org pin settings",
       "tags": ["バグ修正", "Security"],
-      "detail": "組織の managed-settings で特定のモデルをピン留めするポリシーを設定していた場合に、そのポリシーがサードパーティプロバイダー（Amazon Bedrock、Google Vertex AI 等）を使用するセッションまで誤ってブロックしてしまう問題が修正されました。\n\nモデルのピン設定はデフォルトの Anthropic API に対してのみ適用されるようになり、サードパーティプロバイダーのセッションは影響を受けなくなりました。\n\n詳しくは[セキュリティのドキュメント](https://code.claude.com/docs/en/security)を参照してください。",
-      "detail_en": "Fixed an issue where a managed-settings policy that pinned a specific model would also incorrectly block sessions using third-party providers (Amazon Bedrock, Google Vertex AI, etc.).\n\nModel pin settings now apply only to the default Anthropic API, and third-party provider sessions are no longer affected.\n\nSee the [security documentation](https://code.claude.com/docs/en/security) for details.",
+      "detail": "managed-settings の `forceLoginOrgUUID`/`forceLoginMethod` ポリシー（組織アカウントへのログイン強制）が、組織のピン留めとともにサードパーティプロバイダー（Amazon Bedrock、Google Vertex AI、Microsoft Foundry、Mantle）を使用するセッションまで誤ってブロックしてしまう問題が修正されました。\n\nこれは v2.1.146 で混入したリグレッションです。",
+      "detail_en": "Fixed an issue where the `forceLoginOrgUUID`/`forceLoginMethod` managed-settings policies (which force login to an organization account) were incorrectly blocking sessions using third-party providers (Amazon Bedrock, Google Vertex AI, Microsoft Foundry, Mantle) alongside the org pin.\n\nThis was a regression introduced in v2.1.146.",
       "category": "セキュリティ",
       "category_en": "Security"
     },
@@ -530,8 +530,8 @@
       "t": "修正: 処理開始直後の早すぎる Esc による中断が無視される問題",
       "t_en": "Fixed: Interrupt via Esc pressed too early immediately after processing starts being ignored",
       "tags": ["バグ修正"],
-      "detail": "処理が開始された直後の早すぎるタイミングで Esc キーを押した場合に、その中断操作が無視されてしまう問題が修正されました。\n\n処理開始直後でも Esc による中断が確実に受け付けられるようになりました。",
-      "detail_en": "Fixed an issue where pressing the Esc key too early immediately after processing starts would cause the interrupt to be ignored.\n\nInterrupts via Esc are now reliably accepted even immediately after processing begins.",
+      "detail": "処理が開始された直後の早すぎるタイミングで Esc キーを押した場合に、その中断操作が無視されてしまう問題が修正されました。特に stream-json / SDK セッションで顕著でした。\n\n処理開始直後でも Esc による中断が確実に受け付けられるようになりました。",
+      "detail_en": "Fixed an issue where pressing the Esc key too early immediately after processing starts would cause the interrupt to be ignored. This was especially noticeable in stream-json / SDK sessions.\n\nInterrupts via Esc are now reliably accepted even immediately after processing begins.",
       "category": "入力",
       "category_en": "Input"
     },
@@ -539,17 +539,17 @@
       "t": "修正: 分類器クエリに絵文字が含まれると 400 API エラーが発生する問題",
       "t_en": "Fixed: 400 API error occurring when classifier query contains emoji",
       "tags": ["バグ修正"],
-      "detail": "分類器（リクエストの処理方針を決定するコンポーネント）へのクエリに絵文字が含まれていると、API が 400 エラーを返してしまう問題が修正されました。\n\n絵文字を含む入力でもエラーが発生せず、正常に処理されるようになりました。",
-      "detail_en": "Fixed an issue where the API would return a 400 error when a query to the classifier (the component that determines how a request is processed) contained emoji.\n\nInputs containing emoji are now processed without errors.",
+      "detail": "分類器（リクエストの処理方針を決定するコンポーネント）へのサイドクエリに絵文字が含まれていると、API が 400 エラーを返してしまう問題が修正されました。MCP サーバーの description が切り詰め境界付近にある場合にも同様の問題が発生することがありました。\n\n絵文字を含む入力でもエラーが発生せず、正常に処理されるようになりました。",
+      "detail_en": "Fixed an issue where the API would return a 400 error when side queries to the classifier (the component that determines how a request is processed) contained emoji. A similar issue could also occur when MCP server descriptions were near the truncation boundary.\n\nInputs containing emoji are now processed without errors.",
       "category": "API",
       "category_en": "API"
     },
     {
-      "t": "修正: MCP のタイムアウト値が 1000ms 未満の場合に誤って切り捨てられる問題",
-      "t_en": "Fixed: MCP timeout value being incorrectly truncated when set below 1000ms",
+      "t": "修正: MCP のサーバー別 `timeout` が 1000ms 未満のとき全ツール呼び出しが 1 秒で中断される問題（1000ms 未満の値は無視されフォールバック）",
+      "t_en": "Fixed: MCP per-server `timeout` values below 1000ms aborting every tool call; sub-1000ms values are now ignored (falling back to `MCP_TOOL_TIMEOUT` or default)",
       "tags": ["バグ修正", "MCP"],
-      "detail": "MCP サーバーのタイムアウト値を 1000ms 未満に設定した場合に、その値が誤って切り捨てられて意図しないタイムアウト動作になる問題が修正されました。\n\n1000ms 未満の細かいタイムアウト値も正しく適用されるようになりました。",
-      "detail_en": "Fixed an issue where setting an MCP server timeout value below 1000ms would cause the value to be incorrectly truncated, resulting in unintended timeout behavior.\n\nFine-grained timeout values below 1000ms are now applied correctly.",
+      "detail": "MCP サーバーごとの `timeout` 設定値を 1000ms 未満にすると、1 秒のウォッチドッグタイマーに丸められ、すべてのツール呼び出しが 1 秒で中断されてしまう問題が修正されました。\n\n修正後は 1000ms 未満の値は無視され、`MCP_TOOL_TIMEOUT` 環境変数またはデフォルト値にフォールバックします。あわせて `claude mcp get` の出力に、その値が無視される旨の注記が表示されるようになりました。",
+      "detail_en": "Fixed an issue where per-server MCP `timeout` config values below 1000ms were floored to a 1-second watchdog timer that aborted every tool call.\n\nSub-1000ms values are now ignored, falling back to the `MCP_TOOL_TIMEOUT` environment variable or the default, and `claude mcp get` annotates them accordingly.",
       "category": "MCP 連携",
       "category_en": "MCP Integration"
     },
@@ -581,13 +581,13 @@
       "category_en": "Rendering"
     },
     {
-      "t": "修正: エージェントビューに初めて再接続した際に表示が跳ねることがある問題",
-      "t_en": "Fixed: Display jumping when first reconnecting to the agent view",
+      "t": "修正: バックグラウンドサービス再起動後の初回アタッチ時に `claude agents` がセッションリストに戻ってしまう問題",
+      "t_en": "Fixed: `claude agents` attach occasionally bouncing back to the session list on the first try after a background-service restart",
       "tags": ["バグ修正", "Agent"],
-      "detail": "エージェントビューに初めて再接続した際に、画面表示が一瞬跳ねる（ちらつく）ことがある問題が修正されました。\n\n再接続時の描画処理が安定化され、スムーズに表示されるようになりました。",
-      "detail_en": "Fixed an issue where the display would momentarily jump (flicker) when first reconnecting to the agent view.\n\nRendering during reconnection has been stabilized, resulting in smooth display.",
-      "category": "レンダリング",
-      "category_en": "Rendering"
+      "detail": "バックグラウンドサービスの再起動後、`claude agents` でセッションにアタッチしようとすると、初回の試行でセッションリストに即座に戻されてしまうことがある問題が修正されました。\n\n再起動直後でも初回のアタッチが安定して成功するようになりました。",
+      "detail_en": "Fixed an issue where attaching to a session from `claude agents` would occasionally bounce straight back to the session list on the first try after a background-service restart.\n\nThe first attach attempt now succeeds reliably even right after a restart.",
+      "category": "セッション管理",
+      "category_en": "Session Management"
     },
     {
       "t": "修正: ディスパッチ欄・返信欄での Ctrl+V による画像ペーストが機能しない問題",
@@ -633,12 +633,75 @@
       "detail_en": "Fixed an issue where opening a running background session would stall for approximately 5 seconds.\n\nThe wait time when opening a session has been eliminated, allowing immediate interaction.",
       "category": "パフォーマンス",
       "category_en": "Performance"
+    },
+    {
+      "t": "改善: 起動時の通知を重要度でグループ化し、セッション情報とアナウンスを 1 行にまとめるように",
+      "t_en": "Quieter startup: notices group by severity, and session info and announcements share a single line per launch",
+      "tags": ["改善"],
+      "detail": "起動時に表示される通知が重要度ごとにグループ化されるようになりました。また、セッション情報とアナウンスが起動ごとに 1 行にまとめて表示されるようになり、起動時の出力が整理されました。\n\nこれにより、重要な警告が埋もれにくくなり、起動ログをすばやく把握できます。",
+      "detail_en": "Startup notices are now grouped by severity level. Session info and announcements are also combined into a single line per launch, reducing startup output clutter.\n\nThis makes important warnings easier to spot and helps users quickly parse the startup log.",
+      "category": "UX",
+      "category_en": "UX"
+    },
+    {
+      "t": "改善: 起動時の警告メッセージを短く明確に書き直し、具体的な修正方法を案内するように",
+      "t_en": "Startup warnings rewritten to be shorter and clearer, each with a concrete fix",
+      "tags": ["改善"],
+      "detail": "起動時に表示される警告メッセージが短く明確に書き直されました。各警告には具体的な修正方法の案内が含まれるようになりました。\n\n何が問題で、どう対処すればよいかが一目でわかるようになり、ユーザーが問題を素早く解決できます。",
+      "detail_en": "Startup warning messages have been rewritten to be shorter and clearer. Each warning now includes a concrete guide on how to fix the issue.\n\nUsers can immediately understand what is wrong and how to address it, enabling faster resolution.",
+      "category": "UX",
+      "category_en": "UX"
+    },
+    {
+      "t": "改善: 起動プロンプトの警告（ディープリンク / 事前入力プロンプト）が操作するまで入力欄の下に固定表示されるように",
+      "t_en": "Launch-prompt warnings (deep link/pre-filled prompt) now stay pinned below the input until you act instead of scrolling away",
+      "tags": ["改善"],
+      "detail": "ディープリンクや事前入力プロンプトなどの起動プロンプト警告が、ユーザーが操作するまで入力欄の下に固定表示されるようになりました。以前は警告がスクロールで流れてしまうことがありました。\n\n重要な警告を見落とすことなく確認・対応できるようになりました。",
+      "detail_en": "Launch-prompt warnings (such as those for deep links or pre-filled prompts) now stay pinned below the input field until the user takes action. Previously, warnings could scroll away before being noticed.\n\nUsers can now review and respond to important warnings without missing them.",
+      "category": "UX",
+      "category_en": "UX"
+    },
+    {
+      "t": "改善: 失敗したターンが複数行の赤いエラーブロックではなくコンパクトな警告行で表示されるように",
+      "t_en": "Failed turns now show a compact warning line instead of a multi-line red error block",
+      "tags": ["改善"],
+      "detail": "ターンが失敗した際の表示が、複数行にわたる赤いエラーブロックからコンパクトな警告行に変更されました。\n\n画面を大きく占有せずにエラーを確認でき、作業の流れを妨げにくくなりました。",
+      "detail_en": "When a turn fails, the display has been changed from a multi-line red error block to a compact warning line.\n\nErrors can now be seen without taking up a large portion of the screen, making it less disruptive to the workflow.",
+      "category": "UX",
+      "category_en": "UX"
+    },
+    {
+      "t": "改善: バックグラウンドサービスの起動と `claude update` の検証で、5 秒でタイムアウトせず新バイナリのエンドポイントセキュリティスキャン完了を待つように改善",
+      "t_en": "Improved background service startup and `claude update` verification to wait out endpoint-security scanning of new binaries instead of failing after 5 seconds",
+      "tags": ["改善"],
+      "detail": "バックグラウンドサービスの起動と `claude update` による更新検証の処理が改善されました。新しいバイナリに対するエンドポイントセキュリティツールのスキャンが完了するまで待機するようになり、以前は 5 秒でタイムアウトして失敗していた問題が解消されました。\n\nEDR などのエンドポイントセキュリティを導入した環境でもアップデートが正常に完了するようになりました。",
+      "detail_en": "Background service startup and `claude update` verification have been improved to wait for endpoint-security tools to finish scanning new binaries, instead of failing after a 5-second timeout.\n\nUpdates now complete successfully even in environments with endpoint security (such as EDR) that scan new binaries.",
+      "category": "安定性",
+      "category_en": "Stability"
+    },
+    {
+      "t": "改善: バックグラウンドディスパッチのスポーン失敗時に errno がない場合はエラークラス名を報告するように",
+      "t_en": "Background dispatch spawn failures now report the error class name when no errno is available",
+      "tags": ["改善", "Agent"],
+      "detail": "バックグラウンドディスパッチのスポーン（プロセス起動）に失敗した際、errno（エラー番号）が取得できない場合でもエラークラス名を報告するようになりました。\n\n以前は errno がない場合にエラー情報が不明確なままでしたが、エラークラス名により原因の特定がしやすくなりました。",
+      "detail_en": "When a background dispatch spawn fails, the error class name is now reported when no errno is available.\n\nPreviously, error information was unclear when no errno was present, but the error class name makes it easier to identify the cause.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-Agent"
+    },
+    {
+      "t": "改善: 「Claude in Chrome 有効」と「マーケットプレイスインストール済み」の起動メッセージを削除し、モデルの自動更新とチームオンボーディングのヒントをロゴ下の通知として表示するように",
+      "t_en": "Removed the \"Claude in Chrome enabled\" and \"marketplace installed\" startup messages; model auto-updates and the team-onboarding tip now show as quiet notices under the logo",
+      "tags": ["改善"],
+      "detail": "起動時に表示されていた「Claude in Chrome 有効」と「マーケットプレイスインストール済み」のメッセージが削除されました。モデルの自動更新通知とチームオンボーディングのヒントは、ロゴ下の静かな通知として表示されるようになりました。\n\n起動時の出力がよりシンプルになり、重要な情報に集中しやすくなりました。",
+      "detail_en": "The \"Claude in Chrome enabled\" and \"marketplace installed\" startup messages have been removed. Model auto-update notifications and the team-onboarding tip now appear as quiet notices under the logo.\n\nStartup output is now simpler, making it easier to focus on important information.",
+      "category": "UX",
+      "category_en": "UX"
     }
   ],
   "2.1.163": [
     {
-      "t": "追加: バージョン管理用の managed settings `requiredMinimumVersion` と `requiredMaximumVersion` を追加",
-      "t_en": "Added: `requiredMinimumVersion` and `requiredMaximumVersion` managed settings for version control",
+      "t": "追加: バージョン管理用の managed settings として `requiredMinimumVersion` と `requiredMaximumVersion` を追加 — 許可バージョン範囲外では Claude Code が起動を拒否",
+      "t_en": "Added: `requiredMinimumVersion` and `requiredMaximumVersion` managed settings — Claude Code refuses to start if its version is outside the allowed range",
       "tags": ["新機能", "Security"],
       "detail": "組織が配布する managed settings（管理者が一元管理する設定）に、使用可能な Claude Code のバージョン範囲を強制するための `requiredMinimumVersion` と `requiredMaximumVersion` が追加されました。\n\nこれにより、IT 管理者は組織内で許可するバージョンの下限・上限を指定でき、範囲外のバージョンの使用を制御できます。セキュリティパッチの適用徹底や、検証済みバージョンへの統一に役立ちます。\n\n詳しくは[サーバー管理設定のドキュメント](https://code.claude.com/docs/en/server-managed-settings)を参照してください。",
       "detail_en": "`requiredMinimumVersion` and `requiredMaximumVersion` have been added to managed settings (administrator-centrally-managed settings distributed by organizations) to enforce the allowable Claude Code version range.\n\nIT administrators can now specify lower and upper bounds for allowed versions within the organization, controlling use of out-of-range versions. Useful for ensuring security patches are applied and standardizing on a validated version.\n\nSee the [server-managed settings documentation](https://code.claude.com/docs/en/server-managed-settings) for details.",
@@ -664,11 +727,11 @@
       "category_en": "UX"
     },
     {
-      "t": "追加: Hooks が `additionalContext` を返してエラーラベルなしでターンを継続できるように",
-      "t_en": "Added: Hooks can return `additionalContext` to continue the turn without an error label",
+      "t": "追加: Stop/SubagentStop フックが `additionalContext` を返してエラーラベルなしでターンを継続できるように",
+      "t_en": "Added: Stop and SubagentStop hooks can return `additionalContext` to continue the turn without an error label",
       "tags": ["新機能"],
-      "detail": "Hooks が `additionalContext` を返すことで、エラーラベルを表示せずにターンを継続できるようになりました。\n\nフックが終了コード 0 とともに `hookSpecificOutput.additionalContext` を JSON で返すと、その内容がシステムリマインダーとして会話に挿入されます。終了コード 2 によるブロック（エラー表示あり）とは異なり、エラーを示さずに Claude へ追加のコンテキストやフィードバックを渡せます。\n\n詳しくは [hooks のドキュメント](https://code.claude.com/docs/en/hooks#add-context-for-claude)を参照してください。",
-      "detail_en": "Hooks can now return `additionalContext` to continue the turn without showing an error label.\n\nWhen a hook returns `hookSpecificOutput.additionalContext` as JSON with exit code 0, the content is inserted into the conversation as a system reminder. Unlike blocking with exit code 2 (which shows an error), this allows passing additional context or feedback to Claude without indicating an error.\n\nSee the [hooks documentation](https://code.claude.com/docs/en/hooks#add-context-for-claude) for details.",
+      "detail": "Stop および SubagentStop フックが `additionalContext` を返すことで、エラーラベルを表示せずにターンを継続できるようになりました。\n\nフックが `hookSpecificOutput.additionalContext` を JSON で返すと、その内容がシステムリマインダーとして会話に挿入されます。終了コード 2 によるブロック（エラー表示あり）とは異なり、エラーを示さずに Claude へ追加のコンテキストやフィードバックを渡せます。\n\n詳しくは [hooks のドキュメント](https://code.claude.com/docs/en/hooks#add-context-for-claude)を参照してください。",
+      "detail_en": "Stop and SubagentStop hooks can now return `additionalContext` to continue the turn without showing an error label.\n\nWhen a hook returns `hookSpecificOutput.additionalContext` as JSON, the content is inserted into the conversation as a system reminder. Unlike blocking with exit code 2 (which shows an error), this allows passing additional context or feedback to Claude without indicating an error.\n\nSee the [hooks documentation](https://code.claude.com/docs/en/hooks#add-context-for-claude) for details.",
       "category": "ツール改善",
       "category_en": "Tool Improvements"
     },
@@ -745,11 +808,11 @@
       "category_en": "Session Management"
     },
     {
-      "t": "修正: エージェントビューを終了する際にターミナルの表示がずれる問題",
-      "t_en": "Fixed: Terminal display shifting when exiting the agent view",
+      "t": "修正: エージェントビューを終了する際にターミナルの表示がずれる問題、数秒間ハングする問題",
+      "t_en": "Fixed: Terminal display shifting when exiting the agent view, and multi-second hang",
       "tags": ["バグ修正", "Agent"],
-      "detail": "エージェントビューを終了する際に、ターミナルの表示がずれてしまう問題が修正されました。\n\nエージェントビューから通常画面への復帰時のレイアウトが正しく再描画されるようになりました。",
-      "detail_en": "Fixed an issue where the terminal display would shift when exiting the agent view.\n\nThe layout is now correctly redrawn when returning from the agent view to the normal screen.",
+      "detail": "エージェントビューを終了する際に、ターミナルの表示がずれてしまう問題と、数秒間ハングする問題が修正されました。\n\nエージェントビューから通常画面への復帰時のレイアウトが正しく再描画されるようになり、ハングも解消されました。",
+      "detail_en": "Fixed issues when exiting the agent view: the terminal display shifting and a multi-second hang.\n\nThe layout is now correctly redrawn when returning from the agent view to the normal screen, and the hang is resolved.",
       "category": "レンダリング",
       "category_en": "Rendering"
     },
@@ -824,6 +887,15 @@
       "detail_en": "Subscription-related suggestions are now displayed in the startup announcement area.\n\nRelevant notices are shown in the appropriate location at startup, allowing you to view them without them interfering with other information.",
       "category": "UX",
       "category_en": "UX"
+    },
+    {
+      "t": "改善: `claude agents` のステートグループビューからの dispatch が、エージェントビューを開いたディレクトリでセッションを開始するように",
+      "t_en": "`claude agents` dispatching from the state-grouped view now starts the session in the directory the agent view was opened from",
+      "tags": ["改善", "Agent"],
+      "detail": "`claude agents` のステートグループ表示から新しいセッションを dispatch した際に、エージェントビューを開いた元のディレクトリで新しいセッションが開始されるようになりました。\n\n以前はディレクトリが正しく引き継がれず、意図しない作業ディレクトリでセッションが開始されることがありました。これにより、dispatch 後のセッションが期待どおりの環境で開始されます。",
+      "detail_en": "When dispatching a new session from the state-grouped view in `claude agents`, the new session now starts in the directory from which the agent view was opened.\n\nPreviously, the directory was not correctly inherited, causing sessions to start in an unintended working directory. Sessions dispatched this way now start in the expected environment.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-Agent"
     }
   ],
   "2.1.165": [
@@ -866,11 +938,11 @@
       "category_en": "Security"
     },
     {
-      "t": "改善: `MAX_THINKING_TOKENS=0` と思考トグルが、既定で思考するモデルでも思考を無効化するように",
-      "t_en": "Improved: `MAX_THINKING_TOKENS=0` and the thinking toggle now disable thinking even on models that think by default",
+      "t": "改善: `MAX_THINKING_TOKENS=0`、`--thinking disabled`、思考トグルが、既定で思考するモデル（Claude API のみ）でも思考を無効化するように",
+      "t_en": "Improved: `MAX_THINKING_TOKENS=0`, `--thinking disabled`, and the thinking toggle now properly disable thinking on Claude API (models that think by default)",
       "tags": ["改善"],
-      "detail": "`MAX_THINKING_TOKENS=0` の指定や思考のトグル操作が、既定（デフォルト）で extended thinking が有効なモデルに対しても思考を無効化するようになりました。\n\nこれまでは一部のモデルでこれらの設定が思考の無効化に反映されないことがありましたが、設定どおりに思考をオフにできるようになり、トークン消費やレイテンシを抑えたい場合に確実に制御できます。\n\n詳しくは[モデル設定（extended thinking）のドキュメント](https://code.claude.com/docs/en/model-config#extended-thinking)を参照してください。",
-      "detail_en": "Setting `MAX_THINKING_TOKENS=0` or using the thinking toggle now disables thinking even on models that have extended thinking enabled by default.\n\nPreviously, these settings were not always reflected to disable thinking on some models, but thinking can now be turned off as configured, giving reliable control when you want to reduce token consumption or latency.\n\nSee the [model configuration (extended thinking) documentation](https://code.claude.com/docs/en/model-config#extended-thinking) for details.",
+      "detail": "`MAX_THINKING_TOKENS=0` の指定、`--thinking disabled` フラグ、思考のトグル操作が、既定（デフォルト）で extended thinking が有効なモデルに対しても思考を無効化するようになりました（Claude API のみ）。\n\nこれまでは一部のモデルでこれらの設定が思考の無効化に反映されないことがありましたが、設定どおりに思考をオフにできるようになり、トークン消費やレイテンシを抑えたい場合に確実に制御できます。\n\n詳しくは[モデル設定（extended thinking）のドキュメント](https://code.claude.com/docs/en/model-config#extended-thinking)を参照してください。",
+      "detail_en": "Setting `MAX_THINKING_TOKENS=0`, using `--thinking disabled`, or using the thinking toggle now properly disables thinking even on models that have extended thinking enabled by default (Claude API only).\n\nPreviously, these settings were not always reflected to disable thinking on some models, but thinking can now be turned off as configured, giving reliable control when you want to reduce token consumption or latency.\n\nSee the [model configuration (extended thinking) documentation](https://code.claude.com/docs/en/model-config#extended-thinking) for details.",
       "category": "設定",
       "category_en": "Configuration"
     },
@@ -947,11 +1019,11 @@
       "category_en": "Platform Compatibility"
     },
     {
-      "t": "修正: 孤立した `claude --bg-pty-host` プロセスが CPU を 100% 消費し続ける問題",
-      "t_en": "Fixed: Orphaned `claude --bg-pty-host` processes continuously consuming 100% CPU",
-      "tags": ["バグ修正"],
-      "detail": "親プロセスから切り離された孤立状態の `claude --bg-pty-host` プロセスが、CPU を 100% 消費し続けてしまう問題が修正されました。\n\n不要になったプロセスが適切に終了し、CPU リソースを浪費しなくなりました。",
-      "detail_en": "Fixed an issue where orphaned `claude --bg-pty-host` processes separated from their parent process would continue consuming 100% CPU.\n\nProcesses that are no longer needed now terminate properly and no longer waste CPU resources.",
+      "t": "修正: 孤立した `claude --bg-pty-host` プロセスが CPU を 100% 消費し続ける問題（macOS）",
+      "t_en": "Fixed: Orphaned `claude --bg-pty-host` processes continuously consuming 100% CPU on macOS",
+      "tags": ["バグ修正", "Perf", "Platform"],
+      "detail": "macOS において、親プロセスから切り離された孤立状態の `claude --bg-pty-host` プロセスが、CPU を 100% 消費し続けてしまう問題が修正されました。\n\n不要になったプロセスが適切に終了し、CPU リソースを浪費しなくなりました。",
+      "detail_en": "Fixed an issue on macOS where orphaned `claude --bg-pty-host` processes separated from their parent process would continue consuming 100% CPU.\n\nProcesses that are no longer needed now terminate properly and no longer waste CPU resources.",
       "category": "安定性",
       "category_en": "Stability"
     },
@@ -977,8 +1049,8 @@
       "t": "修正: managed-settings の述語が `${VAR}` 参照を含む場合にマッチしない問題",
       "t_en": "Fixed: managed-settings predicates not matching when they contain `${VAR}` references",
       "tags": ["バグ修正", "Security"],
-      "detail": "managed-settings の述語（条件）が `${VAR}` 形式の変数参照を含む場合に正しくマッチしない問題が修正されました。\n\n変数参照を含む条件でも述語が正しく評価され、管理設定が意図どおりに適用されます。",
-      "detail_en": "Fixed an issue where managed-settings predicates (conditions) containing `${VAR}` format variable references would not match correctly.\n\nPredicates with variable references are now evaluated correctly, and managed settings are applied as intended.",
+      "detail": "managed-settings の述語（条件）が `${VAR}` 形式の変数参照を含む場合に正しくマッチしない問題が修正されました。`allowedMcpServers` / `deniedMcpServers` など変数参照を含む設定が影響を受けていました。\n\n変数参照を含む条件でも述語が正しく評価され、管理設定が意図どおりに適用されます。",
+      "detail_en": "Fixed an issue where managed-settings predicates (conditions) containing `${VAR}` format variable references would not match correctly. Settings such as `allowedMcpServers` / `deniedMcpServers` that included variable references were affected.\n\nPredicates with variable references are now evaluated correctly, and managed settings are applied as intended.",
       "category": "セキュリティ",
       "category_en": "Security"
     },
@@ -1019,11 +1091,11 @@
       "category_en": "Input"
     },
     {
-      "t": "修正: バックグラウンドエージェントの行間に空行が表示される問題",
-      "t_en": "Fixed: Empty lines appearing between rows in the background agent list",
+      "t": "修正: Unicode 非対応ターミナルでバックグラウンドエージェントのメッセージ行間に不要な空行が表示される問題",
+      "t_en": "Fixed: Empty lines appearing between background agent message rows on terminals that do not support Unicode box-drawing characters",
       "tags": ["バグ修正", "Agent"],
-      "detail": "バックグラウンドエージェントの一覧で、行と行の間に余分な空行が表示される問題が修正されました。\n\n一覧の表示が詰まって正しくレイアウトされるようになりました。",
-      "detail_en": "Fixed an issue where extra empty lines would appear between rows in the background agent list.\n\nThe list is now compact and laid out correctly.",
+      "detail": "Unicode のボックス描画文字に対応していないターミナルで、バックグラウンドエージェントのメッセージ一覧において行と行の間に余分な空行が表示される問題が修正されました。\n\nUnicode 非対応環境でも一覧の表示が詰まって正しくレイアウトされるようになりました。",
+      "detail_en": "Fixed an issue where extra empty lines would appear between rows in the background agent message list on terminals that do not support Unicode box-drawing characters.\n\nThe list is now compact and laid out correctly even on non-Unicode environments.",
       "category": "レンダリング",
       "category_en": "Rendering"
     }
@@ -1135,7 +1207,7 @@
     {
       "t": "修正: バックグラウンド git コマンドがキャッシュ済み認証情報なしで実行された際に Windows 起動時に Git Credential Manager のポップアップが表示される問題",
       "t_en": "Fixed Git Credential Manager's \"Connect to GitHub\" popup appearing on Windows at startup when background git commands ran without cached credentials",
-      "tags": ["バグ修正"],
+      "tags": ["バグ修正", "Windows"],
       "detail": "Claude Code の起動時に、バックグラウンドで実行される git コマンドがキャッシュ済み認証情報なしで動作した際に Git Credential Manager の「Connect to GitHub」ポップアップが Windows 上に表示される問題が修正されました。\n\n起動時の不要なポップアップが抑止され、Windows 上でよりクリーンな起動体験が得られます。",
       "detail_en": "Fixed an issue on Windows where the Git Credential Manager's \"Connect to GitHub\" popup would appear at Claude Code startup when background git commands ran without cached credentials.\n\nThe unnecessary popup at startup is now suppressed, providing a cleaner startup experience on Windows.",
       "category": "Git 連携",
@@ -1189,7 +1261,7 @@
     {
       "t": "修正: Windows で MCPB プラグインキャッシュが不必要に無効化され再展開が発生する問題",
       "t_en": "Fixed MCPB plugin cache being spuriously invalidated on Windows, causing unnecessary re-extraction",
-      "tags": ["バグ修正", "Plugin"],
+      "tags": ["バグ修正", "Plugin", "Windows"],
       "detail": "Windows 上で MCPB プラグインのキャッシュが不必要に無効化され、プラグインの再展開が繰り返し発生する問題が修正されました。\n\nキャッシュが正しく維持されるようになり、Windows 上でのプラグイン読み込みが高速になります。",
       "detail_en": "Fixed an issue on Windows where the MCPB plugin cache was spuriously invalidated, causing unnecessary re-extraction of the plugin.\n\nThe cache is now maintained correctly, leading to faster plugin loading on Windows.",
       "category": "プラグイン",
@@ -1297,7 +1369,7 @@
     {
       "t": "改善: Windows の自動アップデーターが `claude.exe` を別プロセスが保持している場合にセッション内での再試行を停止",
       "t_en": "Auto-updater on Windows now stops retrying within a session once `claude.exe` is held by another process",
-      "tags": ["改善"],
+      "tags": ["改善", "Windows"],
       "detail": "Windows の自動アップデーターが `claude.exe` を別のプロセスが保持している場合、セッション中に何度も再試行し続ける動作が修正されました。別プロセスによるファイルロックが検出された時点でセッション内での再試行を停止するようになります。\n\n不要な再試行によるリソース消費が抑えられ、アップデーターの動作が改善されます。",
       "detail_en": "Fixed the Windows auto-updater from continuously retrying within a session when `claude.exe` is held by another process. It now stops retrying once a file lock by another process is detected.\n\nThis reduces unnecessary resource consumption from repeated retries and improves auto-updater behavior.",
       "category": "プラットフォーム互換性",
