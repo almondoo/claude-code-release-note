@@ -613,5 +613,165 @@
         "tags": ["バグ修正"]
       }
     ]
+  },
+  {
+    "v": "2.1.169",
+    "items": [
+      {
+        "t": "追加: セルフホストランナーに `post-session` ライフサイクルフックとプロセス終了ウィンドウの設定オプションを追加",
+        "t_en": "Self-hosted runner: added a `post-session` lifecycle hook that runs after the session ends and before the workspace is deleted, so you can snapshot uncommitted work or export logs; also made the child-process SIGTERM→SIGKILL window configurable (default unchanged at 5s)",
+        "tags": ["新機能", "Platform"]
+      },
+      {
+        "t": "追加: すべてのカスタマイズを無効にして起動する `--safe-mode` フラグと `CLAUDE_CODE_SAFE_MODE` 環境変数",
+        "t_en": "Added `--safe-mode` flag (and `CLAUDE_CODE_SAFE_MODE`) to start Claude Code with all customizations (CLAUDE.md, plugins, skills, hooks, MCP servers) disabled for troubleshooting",
+        "tags": ["新機能"]
+      },
+      {
+        "t": "追加: プロンプトキャッシュを維持したまま作業ディレクトリを変更する `/cd` コマンド",
+        "t_en": "Added `/cd` command to move a session to a new working directory without breaking the prompt cache mid-session",
+        "tags": ["新機能"]
+      },
+      {
+        "t": "追加: 同梱スキル・ワークフロー・組み込みスラッシュコマンドをモデルから隠す `disableBundledSkills` 設定と `CLAUDE_CODE_DISABLE_BUNDLED_SKILLS` 環境変数",
+        "t_en": "Added a `disableBundledSkills` setting and `CLAUDE_CODE_DISABLE_BUNDLED_SKILLS` environment variable to hide bundled skills, workflows, and built-in slash commands from the model",
+        "tags": ["新機能"]
+      },
+      {
+        "t": "修正: 長い入力行で Up/Down キーが折り返し行をスキップしてコマンド履歴に飛ぶ問題",
+        "t_en": "Fixed Up/Down arrows jumping to command history past the wrapped rows of a long input line — they now move through each visual row first, and history recall enters at the near edge",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: 企業管理 MCP ポリシーが再接続時・初回セッション時・リモート設定読み込み前に適用されない問題",
+        "t_en": "Fixed enterprise managed MCP policies (`allowedMcpServers`/`deniedMcpServers`) not being enforced on reconnect, IDE-typed configs, `--mcp-config` servers during the first session after install, or before remote settings loaded; also fixed slow cold starts for orgs without remote settings",
+        "tags": ["バグ修正", "MCP", "Security"]
+      },
+      {
+        "t": "修正: claude.ai 認証ユーザーで macOS のターン開始時に約 30〜50ms の UI スタックが発生する問題",
+        "t_en": "Fixed a ~30-50ms UI stall at the start of each turn for macOS users logged in with claude.ai credentials",
+        "tags": ["バグ修正", "Perf"]
+      },
+      {
+        "t": "修正: Windows で `claude -p` がスラッシュコマンド・スキルスキャン待ちで遅延またはハングする問題（2.1.161 で発生したリグレッション）",
+        "t_en": "Fixed `claude -p` being slow or appearing to hang on Windows while waiting for the slash-command/skill scan (regression in 2.1.161)",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: OAuth トークンリフレッシュと重なった際にリモートコントロールが「reconnecting」でスタックする問題",
+        "t_en": "Fixed Remote Control getting stuck on \"reconnecting\" after resuming a session when an OAuth token refresh happened at the same time",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: バックグラウンド git コマンドがキャッシュ済み認証情報なしで実行された際に Windows 起動時に Git Credential Manager のポップアップが表示される問題",
+        "t_en": "Fixed Git Credential Manager's \"Connect to GitHub\" popup appearing on Windows at startup when background git commands ran without cached credentials",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: カスタム statusline を使用しているユーザーでフッターヒント（「esc to interrupt」等）が表示されない問題",
+        "t_en": "Fixed footer hints (e.g. \"esc to interrupt\") not showing for users with a custom statusline",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: リモートセッションの worker が待機中に終了した場合、再アタッチのたびに古いパーミッション・ダイアログプロンプトが再表示される問題",
+        "t_en": "Fixed stale permission and dialog prompts reappearing every time you reattached to a remote session whose worker had died while waiting on them",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: `claude agents --json` がブロック中・ディスパッチ直後のバックグラウンドセッションを除外する問題、`--all` フラグと新フィールド `id`・`state` を追加",
+        "t_en": "Fixed `claude agents --json` omitting blocked and just-dispatched background sessions; added `--all` to include completed sessions, plus new `id` and `state` fields",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: Windows Terminal の WSL でエージェント一覧から戻る際に古いフレームが残る問題",
+        "t_en": "Fixed agents view leaving a stale/garbled frame after navigating back from an agent on WSL in Windows Terminal",
+        "tags": ["バグ修正", "Windows", "Agent"]
+      },
+      {
+        "t": "修正: バックグラウンドエージェントがプリウォームされた worker にディスパッチされた際にプロジェクトレベルの `env` 設定（`ANTHROPIC_MODEL` 等）を無視する問題",
+        "t_en": "Fixed background agents ignoring project-level settings `env` values (e.g. `ANTHROPIC_MODEL`) when dispatched onto a pre-warmed worker",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: Windows で MCPB プラグインキャッシュが不必要に無効化され再展開が発生する問題",
+        "t_en": "Fixed MCPB plugin cache being spuriously invalidated on Windows, causing unnecessary re-extraction",
+        "tags": ["バグ修正", "Plugin"]
+      },
+      {
+        "t": "修正: プラグインの `.in_use` PID ロックファイルが無制限に蓄積される問題、クラッシュセッションの古いマーカーを1日1回クリーンアップ",
+        "t_en": "Fixed plugin `.in_use` PID lock files accumulating without bound; stale markers from crashed sessions are now swept once per day",
+        "tags": ["バグ修正", "Plugin"]
+      },
+      {
+        "t": "修正: 信頼確認なしに未信頼のプロジェクト設定が OTEL クライアント証明書パスを設定できる問題",
+        "t_en": "Fixed untrusted project settings being able to set OTEL client-certificate paths without trust confirmation",
+        "tags": ["バグ修正", "Security"]
+      },
+      {
+        "t": "改善: ターン進行中でも `/workflows` が即座に開くように",
+        "t_en": "/workflows now opens immediately even while a turn is in progress",
+        "tags": ["改善"]
+      },
+      {
+        "t": "改善: `TaskCreate` の信頼性向上（不正な入力の自動修復・未ロードツールのバリデーションエラーにスキーマを付加）",
+        "t_en": "Improved `TaskCreate` reliability: malformed inputs are repaired automatically and validation errors for unloaded tools include the schema",
+        "tags": ["改善"]
+      },
+      {
+        "t": "改善: 組織が API キー認証を無効化している際のエラーメッセージを改善（有効な API キーのソースに基づくガイダンスを追加）",
+        "t_en": "Improved the error message shown when your organization has disabled API key authentication, with guidance based on where the active API key comes from",
+        "tags": ["改善"]
+      },
+      {
+        "t": "改善: レスポンスのストリーミング中およびスピナーアニメーション中の CPU 使用率を低減",
+        "t_en": "Reduced CPU usage while responses stream and during spinner animations",
+        "tags": ["改善", "Perf"]
+      },
+      {
+        "t": "改善: Vertex/Foundry にデフォルト5分のアイドルタイムアウトを復元し、停滞したストリームを無限ハングの代わりに中断",
+        "t_en": "Restored a default 5-minute idle timeout on Vertex/Foundry so a stalled stream aborts instead of hanging indefinitely; set `API_FORCE_IDLE_TIMEOUT=0` to opt out",
+        "tags": ["改善", "Platform"]
+      },
+      {
+        "t": "改善: リモート管理設定に無効なエントリが含まれる場合、残りの有効なポリシーを適用してバリデーションエラーを表示",
+        "t_en": "Remote-managed settings with an invalid entry now apply their remaining valid policies and surface the validation error, instead of silently dropping the whole payload",
+        "tags": ["改善"]
+      },
+      {
+        "t": "改善: バックグラウンドセッションが retire→wake 時に `--ide`・`--chrome`・`--bare`・`--remote-control` 等のフラグを維持するように",
+        "t_en": "Background sessions now preserve `--ide`, `--chrome`, `--bare`, `--remote-control`, and other flags across retire→wake, and respawn state validation was hardened",
+        "tags": ["改善", "Agent"]
+      },
+      {
+        "t": "改善: バックグラウンドセッションが worktree に入るまで共有チェックアウトへの編集がブロックされることを事前通知",
+        "t_en": "Background sessions are now told that shared-checkout edits are blocked until they enter a worktree, avoiding a wasted rejected edit before `EnterWorktree`",
+        "tags": ["改善", "Agent"]
+      },
+      {
+        "t": "改善: 「CLAUDE.md が長すぎる」警告のしきい値がモデルのコンテキストウィンドウに応じてスケールするように",
+        "t_en": "The \"CLAUDE.md is too long\" warning threshold now scales with the model's context window",
+        "tags": ["改善"]
+      },
+      {
+        "t": "改善: Windows の自動アップデーターが `claude.exe` を別プロセスが保持している場合にセッション内での再試行を停止",
+        "t_en": "Auto-updater on Windows now stops retrying within a session once `claude.exe` is held by another process",
+        "tags": ["改善"]
+      },
+      {
+        "t": "改善: スラッシュコマンドメニューのスキルタグのカラーコントラストを改善",
+        "t_en": "Improved color contrast for skill tags in the slash-command menu",
+        "tags": ["改善"]
+      },
+      {
+        "t": "改善: 支払い方法のない Apple/Google 請求サブスクライバーのプロモクレジット申請時に追加場所を案内",
+        "t_en": "Promo credit claims for Apple/Google-billed subscribers without a payment method now explain where to add one",
+        "tags": ["改善"]
+      },
+      {
+        "t": "改善: 複数の並行セッション実行時に `claude agents` の使用を提案するヒントを追加",
+        "t_en": "Added a tip suggesting `claude agents` when running multiple concurrent sessions",
+        "tags": ["改善", "Agent"]
+      }
+    ]
   }
 ]

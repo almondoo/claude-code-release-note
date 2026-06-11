@@ -1,0 +1,294 @@
+{
+  "2.1.170": [
+    {
+      "t": "Claude Fable 5 を発表: 一般提供向けに安全対策を施した Mythos クラスのモデル",
+      "t_en": "Introducing Claude Fable 5: a Mythos-class model that we've made safe for general use. Fable's capabilities exceed those of any model we've ever made generally available. Update to version 2.1.170 for access. https://www.anthropic.com/news/claude-fable-5-mythos-5",
+      "tags": ["新機能"],
+      "detail": "Claude 5 ファミリーの最初のモデルである Claude Fable 5 が発表されました。Fable 5 は「Mythos」という新しいモデル階層に属し、これまで一般提供されたいかなるモデルをも上回る能力を持ちます。\n\nFable 5 は、デュアルユース能力（一般的な用途にも悪意ある用途にも転用できる能力）に対して追加の安全対策を施した一般提供版です。同一の基盤となる Claude Mythos 5 は、より高度な機能を必要とする承認済み組織のみに提供されます。\n\nv2.1.170 以降にアップデートすることで Fable 5 にアクセスできます。詳細は[公式発表](https://www.anthropic.com/news/claude-fable-5-mythos-5)をご覧ください。",
+      "detail_en": "Claude Fable 5 has been announced as the first model in the Claude 5 family. Fable 5 belongs to a new model tier called \"Mythos\" and surpasses the capabilities of any model previously made generally available.\n\nFable 5 is the general availability version with additional safety measures applied to dual-use capabilities (capabilities that can be used for both benign and harmful purposes). The underlying Claude Mythos 5 model is available only to approved organizations that require more advanced functionality.\n\nUpdate to v2.1.170 or later to access Fable 5. See the [official announcement](https://www.anthropic.com/news/claude-fable-5-mythos-5) for details.",
+      "category": "モデル",
+      "category_en": "Model"
+    },
+    {
+      "t": "修正: VS Code 統合ターミナルや Claude Code 環境変数を継承したシェルから起動した場合にセッションのトランスクリプトが保存されず `--resume` に表示されない問題",
+      "t_en": "Fixed sessions not saving transcripts (and not appearing in --resume) when launched from the VS Code integrated terminal or any shell that inherited Claude Code environment variables.",
+      "tags": ["バグ修正", "IDE"],
+      "detail": "VS Code の統合ターミナルや、Claude Code の環境変数を継承したシェルから Claude Code を起動した場合に、セッションのトランスクリプトが保存されず、`--resume` で再開リストに表示されない問題が修正されました。\n\n修正により、起動元のターミナル環境に関わらず、セッションのトランスクリプトが正しく保存され、`claude --resume` で過去のセッションに復帰できるようになりました。",
+      "detail_en": "Fixed an issue where sessions launched from the VS Code integrated terminal, or any shell that inherited Claude Code environment variables, would not save transcripts and would not appear in the `--resume` list.\n\nWith this fix, session transcripts are correctly saved regardless of the launch terminal environment, and past sessions can be resumed with `claude --resume`.",
+      "category": "IDE",
+      "category_en": "IDE"
+    }
+  ],
+  "2.1.172": [
+    {
+      "t": "追加: サブエージェントが独自のサブエージェントを生成可能に（最大5階層）",
+      "t_en": "Sub-agents can now spawn their own sub-agents (up to 5 levels deep)",
+      "tags": ["新機能", "Agent"],
+      "detail": "サブエージェントが自身のサブエージェントをさらに生成できるようになりました。従来はサブエージェントから更にサブエージェントを生成することはできませんでしたが、今回の更新で最大5階層の深さまでネスト可能になりました。\n\nこれにより、複雑なタスクをより細かく分割して並列処理させるような、高度なマルチエージェントワークフローが構築可能になります。5階層という上限は今後のフィードバック次第で変わりうる出発点として設定されています。\n\n詳細は[サブエージェントのドキュメント](https://code.claude.com/docs/en/sub-agents)を参照してください。",
+      "detail_en": "Sub-agents can now spawn their own sub-agents, supporting nesting up to 5 levels deep. Previously, sub-agents could not spawn further sub-agents, but this update enables up to 5 levels of nesting.\n\nThis enables advanced multi-agent workflows where complex tasks can be broken down further and processed in parallel. The 5-level limit is a starting point that may change based on future feedback.\n\nSee the [sub-agents documentation](https://code.claude.com/docs/en/sub-agents) for details.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-Agent"
+    },
+    {
+      "t": "改善: Amazon Bedrock が `AWS_REGION` 未設定時に `~/.aws` 設定ファイルから AWS SDK と同じ優先順位でリージョンを読み取るように。`/status` でリージョンの取得元を確認可能",
+      "t_en": "Amazon Bedrock now reads the AWS region from `~/.aws` config files when `AWS_REGION` isn't set, matching AWS SDK precedence; `/status` shows where the region came from",
+      "tags": ["改善", "Platform"],
+      "detail": "Amazon Bedrock を使用する際、`AWS_REGION` 環境変数が設定されていない場合に `~/.aws/config` などの設定ファイルからリージョンを読み取るようになりました。この動作は AWS SDK の優先順位に合わせたものです。\n\nまた、`/status` コマンドでリージョンがどこから取得されたか（環境変数か設定ファイルか）を確認できるようになりました。これにより、Bedrock 利用時のリージョン設定のトラブルシューティングが容易になります。",
+      "detail_en": "When using Amazon Bedrock, Claude Code now reads the AWS region from `~/.aws/config` and related configuration files when the `AWS_REGION` environment variable is not set. This behavior matches AWS SDK precedence.\n\nAdditionally, the `/status` command now shows where the region was obtained from (environment variable or config file), making it easier to troubleshoot region configuration when using Bedrock.",
+      "category": "プラットフォーム互換性",
+      "category_en": "Platform Compatibility"
+    },
+    {
+      "t": "追加: `/plugin` でマーケットプレイスのプラグインを閲覧する際に検索バーを追加",
+      "t_en": "Added a search bar when browsing a marketplace's plugins in `/plugin`",
+      "tags": ["新機能", "Plugin"],
+      "detail": "`/plugin` コマンドでマーケットプレイスのプラグイン一覧を閲覧する際に、検索バーが追加されました。\n\nプラグインの数が増えるにつれて目的のプラグインを見つけるのが困難になっていましたが、検索バーを使ってキーワードで絞り込めるようになりました。",
+      "detail_en": "A search bar has been added when browsing marketplace plugins in `/plugin`.\n\nAs the number of plugins grows, finding the desired plugin was becoming difficult. The search bar allows you to filter by keyword.",
+      "category": "プラグイン",
+      "category_en": "Plugin"
+    },
+    {
+      "t": "改善: `claude_code.lines_of_code.count` OTEL メトリクスに `model` 属性を追加",
+      "t_en": "Added `model` attribute to the `claude_code.lines_of_code.count` OTEL metric",
+      "tags": ["改善"],
+      "detail": "OpenTelemetry（OTEL）の `claude_code.lines_of_code.count` メトリクスに `model` 属性が追加されました。\n\n`model` 属性はすでに `claude_code.token.usage` や `claude_code.cost.usage` メトリクスに存在していましたが、今回 `lines_of_code.count` にも追加されたことで、モデル別にコード生成量を集計・分析できるようになります。詳細は[モニタリングのドキュメント](https://code.claude.com/docs/en/monitoring-usage)を参照してください。",
+      "detail_en": "The `model` attribute has been added to the OpenTelemetry (OTEL) `claude_code.lines_of_code.count` metric.\n\nThe `model` attribute already existed on `claude_code.token.usage` and `claude_code.cost.usage` metrics. Now that it has been added to `lines_of_code.count` as well, you can aggregate and analyze code generation volume by model. See the [monitoring documentation](https://code.claude.com/docs/en/monitoring-usage) for details.",
+      "category": "API",
+      "category_en": "API"
+    },
+    {
+      "t": "修正: 使用クレジットなしで 1M コンテキストを使用したセッションが永続的にスタックする問題 — 自動的に標準コンテキスト制限以下にコンパクト化",
+      "t_en": "Fixed sessions using 1M context without usage credits getting permanently stuck — the session now automatically compacts back under the standard context limit",
+      "tags": ["バグ修正"],
+      "detail": "使用クレジットを持たないユーザーが 1M コンテキストを使用すると、セッションが永続的にスタックしてしまう問題が修正されました。\n\nセッションが標準コンテキスト制限を超えた際に自動的にコンパクト化し、標準制限以下に戻るようになりました。",
+      "detail_en": "Fixed an issue where sessions using 1M context without usage credits would get permanently stuck.\n\nThe session now automatically compacts back under the standard context limit when it exceeds the standard context limit.",
+      "category": "セッション管理",
+      "category_en": "Session Management"
+    },
+    {
+      "t": "修正: 会話に複数の画像が含まれる場合に「画像を処理できませんでした」エラーが繰り返し表示される問題",
+      "t_en": "Fixed a repeating \"an image in the conversation could not be processed and was removed\" error when the conversation contained multiple images",
+      "tags": ["バグ修正"],
+      "detail": "会話に複数の画像が含まれている場合に、「会話内の画像を処理できなかったため削除されました」というエラーメッセージが繰り返し表示される問題が修正されました。\n\n画像処理エラーが発生した場合でも、エラーメッセージが重複表示されることなく適切に処理されるようになりました。",
+      "detail_en": "Fixed an issue where the error message \"an image in the conversation could not be processed and was removed\" would repeatedly appear when the conversation contained multiple images.\n\nEven when an image processing error occurs, the error message is now handled correctly without being shown multiple times.",
+      "category": "安定性",
+      "category_en": "Stability"
+    },
+    {
+      "t": "修正: ワーカーが返答した後も最大30秒間エージェントビューでセッションがビジースピナーのまま「Working」状態に留まる問題",
+      "t_en": "Fixed the agents view keeping a session under Working with a busy spinner for up to 30 seconds after the worker replied",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "エージェントビューにおいて、ワーカーが返答を完了した後も最大30秒間「Working」ステータスとビジースピナーが表示され続ける問題が修正されました。\n\n修正により、ワーカーが返答するとセッションの状態が即座に更新されるようになりました。",
+      "detail_en": "Fixed an issue in the agents view where a session would continue to show \"Working\" status with a busy spinner for up to 30 seconds after the worker had already replied.\n\nWith this fix, the session state is immediately updated as soon as the worker replies.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-Agent"
+    },
+    {
+      "t": "修正: バックグラウンドエージェントが事前ウォーム済みワーカーにディスパッチされた際に別ディレクトリのプロジェクト設定（`.mcp.json` の承認・信頼）を読み取る可能性がある問題",
+      "t_en": "Fixed background agents potentially reading another directory's project settings (`.mcp.json` approvals, trust) when dispatched onto a pre-warmed worker",
+      "tags": ["バグ修正", "Agent", "Security"],
+      "detail": "バックグラウンドエージェントが事前にウォームアップされたワーカーにディスパッチされた場合、そのワーカーが別のディレクトリで使用されていた際のプロジェクト設定（`.mcp.json` の承認情報や信頼設定）を誤って読み取ってしまう問題が修正されました。\n\nこの問題はセキュリティ上のリスクをもたらす可能性がありましたが、修正によりエージェントは正しいディレクトリのプロジェクト設定のみを参照するようになりました。",
+      "detail_en": "Fixed an issue where a background agent dispatched onto a pre-warmed worker could incorrectly read project settings (`.mcp.json` approvals and trust settings) from a different directory that the worker had previously been used with.\n\nThis issue posed a potential security risk, but the fix ensures agents only reference the project settings of the correct directory.",
+      "category": "セキュリティ",
+      "category_en": "Security"
+    },
+    {
+      "t": "修正: デーモン自動更新後に旧バージョンで開始したセッションへのバックグラウンドセッションアタッチが EAUTH で失敗する問題",
+      "t_en": "Fixed background-session attach failing with EAUTH for sessions started on an older version after the daemon auto-updated",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "デーモンが自動更新された後、更新前の旧バージョンで開始したバックグラウンドセッションにアタッチしようとすると EAUTH エラーで失敗する問題が修正されました。\n\n修正により、デーモンが自動更新された後でも、以前のバージョンで開始したセッションに正常にアタッチできるようになりました。",
+      "detail_en": "Fixed an issue where trying to attach to a background session that was started on an older version would fail with an EAUTH error after the daemon had auto-updated.\n\nWith this fix, sessions started on a previous version can be successfully attached to even after the daemon has auto-updated.",
+      "category": "セッション管理",
+      "category_en": "Session Management"
+    },
+    {
+      "t": "修正: ネストされたエージェントが停止した後もバックグラウンドのサブエージェントがエージェントパネルで「active」のままスタックする問題",
+      "t_en": "Fixed a background sub-agent staying stuck as \"active\" in the agent panel after a nested agent it spawned was stopped",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "バックグラウンドで動作するサブエージェントが生成したネストされたエージェントが停止した後も、親サブエージェントがエージェントパネルで「active」ステータスのままスタックしてしまう問題が修正されました。\n\n修正により、ネストされたエージェントが停止すると、親サブエージェントのステータスも適切に更新されるようになりました。",
+      "detail_en": "Fixed an issue where a background sub-agent would remain stuck as \"active\" in the agent panel after a nested agent it had spawned was stopped.\n\nWith this fix, when a nested agent is stopped, the parent sub-agent's status is also correctly updated.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-Agent"
+    },
+    {
+      "t": "修正: `claude agents` のディスパッチ入力で `/model` の候補が誤ったスラッシュ付きで表示され、組織で無効なモデルも表示される問題",
+      "t_en": "Fixed `/model` suggestions in the `claude agents` dispatch input rendering with a misleading slash prefix and showing models disabled for your org",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "`claude agents` のディスパッチ入力でモデルを指定する際、`/model` の候補が誤ってスラッシュプレフィックス付きで表示され（例: `/claude-opus-4`）、さらに組織で無効化されているモデルも候補に表示される問題が修正されました。\n\n修正により、候補が正しいフォーマットで表示され、組織で利用可能なモデルのみが表示されるようになりました。",
+      "detail_en": "Fixed an issue where `/model` suggestions in the `claude agents` dispatch input were rendered with a misleading slash prefix (e.g., `/claude-opus-4`) and also showed models that were disabled for the organization.\n\nWith this fix, suggestions are displayed in the correct format and only show models available to the organization.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-Agent"
+    },
+    {
+      "t": "修正: `availableModels` の制限がサブエージェントのモデルオーバーライド・エージェントディスパッチのモデルピッカー・アドバイザーモデルに適用されない問題",
+      "t_en": "Fixed `availableModels` restrictions not being applied to subagent model overrides, the agent dispatch model picker, and the advisor model",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "`availableModels` で設定したモデルの制限が、サブエージェントのモデルオーバーライド、エージェントディスパッチ時のモデルピッカー、アドバイザーモデルに対して適用されない問題が修正されました。\n\n修正により、`availableModels` の設定が全ての箇所で一貫して適用されるようになりました。",
+      "detail_en": "Fixed an issue where `availableModels` restrictions were not being applied to subagent model overrides, the agent dispatch model picker, and the advisor model.\n\nWith this fix, `availableModels` settings are consistently applied across all locations.",
+      "category": "設定",
+      "category_en": "Configuration"
+    },
+    {
+      "t": "修正: バージョン固有の ID（`claude-opus-4-8` 等）を使用したエントリを含む `availableModels` 許可リストで `/model` ピッカーの Opus・Sonnet 1M 行が非表示になる問題",
+      "t_en": "Fixed `availableModels` allowlists hiding the `/model` picker's Opus and Sonnet 1M rows when entries use version-specific IDs like `claude-opus-4-8`",
+      "tags": ["バグ修正"],
+      "detail": "`availableModels` の許可リストに `claude-opus-4-8` のようなバージョン固有のモデル ID が含まれている場合、`/model` ピッカーで Opus や Sonnet の 1M コンテキスト行が非表示になってしまう問題が修正されました。\n\n修正により、バージョン固有のIDを使用しても 1M コンテキスト対応モデルの行が正しく表示されるようになりました。",
+      "detail_en": "Fixed an issue where `availableModels` allowlists would hide the Opus and Sonnet 1M rows in the `/model` picker when entries used version-specific IDs like `claude-opus-4-8`.\n\nWith this fix, 1M-context model rows are correctly displayed even when version-specific IDs are used.",
+      "category": "設定",
+      "category_en": "Configuration"
+    },
+    {
+      "t": "修正: Bedrock の `/model` ピッカーがプロバイダーが提供しないモデルを表示し、選択するとセッションモデルが無音で切り替わり複数行に選択マーカーが点灯する問題",
+      "t_en": "Fixed the `/model` picker on Bedrock offering models the provider doesn't serve — selecting one silently switched the session model and lit the selection marker on multiple rows",
+      "tags": ["バグ修正", "Platform"],
+      "detail": "Amazon Bedrock 使用時に、`/model` ピッカーが Bedrock プロバイダーが実際には提供していないモデルを候補として表示する問題が修正されました。そのモデルを選択すると、セッションモデルが無言で切り替わり、複数の行に選択マーカーが表示されるという追加の不具合もありました。\n\n修正により、Bedrock で利用可能なモデルのみが表示されるようになり、選択マーカーも正しく1行のみに表示されます。",
+      "detail_en": "Fixed an issue where the `/model` picker when using Amazon Bedrock would offer models that Bedrock doesn't actually serve. Selecting one of these models would silently switch the session model and light the selection marker on multiple rows.\n\nWith this fix, only models available on Bedrock are displayed, and the selection marker is correctly shown on only one row.",
+      "category": "プラットフォーム互換性",
+      "category_en": "Platform Compatibility"
+    },
+    {
+      "t": "修正: `ANTHROPIC_DEFAULT_OPUS_MODEL` に既に含まれる場合にモデル ID に 1M コンテキストサフィックスが二重（例: `[1M][1m]`）に付く問題",
+      "t_en": "Fixed model IDs getting a doubled 1M-context suffix (e.g. `[1M][1m]`) when `ANTHROPIC_DEFAULT_OPUS_MODEL` already includes one",
+      "tags": ["バグ修正"],
+      "detail": "`ANTHROPIC_DEFAULT_OPUS_MODEL` 環境変数にすでに 1M コンテキストサフィックスを含むモデル ID が設定されている場合、表示上で `[1M][1m]` のようにサフィックスが二重に付いてしまう問題が修正されました。\n\n修正によりサフィックスの重複が解消され、モデル ID が正しく表示されます。",
+      "detail_en": "Fixed an issue where model IDs would get a doubled 1M-context suffix (e.g. `[1M][1m]`) when `ANTHROPIC_DEFAULT_OPUS_MODEL` was set to a model ID that already included the suffix.\n\nWith this fix, the duplicate suffix is eliminated and model IDs are displayed correctly.",
+      "category": "設定",
+      "category_en": "Configuration"
+    },
+    {
+      "t": "修正: `opusplan` モデル設定が有資格ユーザーのプランモードで 1M コンテキストを使用しない問題。`opusplan[1m]` の回避策もプランモードで Opus に正しく切り替わるように修正",
+      "t_en": "Fixed `opusplan` model setting not shipping with 1M context in plan mode for entitled users; the `opusplan[1m]` workaround now also correctly switches to Opus in plan mode",
+      "tags": ["バグ修正"],
+      "detail": "`opusplan` モデル設定を使用している場合、1M コンテキストの利用資格があるユーザーでもプランモード中に 1M コンテキストが使用されない問題が修正されました。\n\nまた、回避策として使用されていた `opusplan[1m]` 設定がプランモードで正しく Opus に切り替わらない問題も併せて修正されました。",
+      "detail_en": "Fixed an issue where the `opusplan` model setting would not use 1M context in plan mode for users with the entitlement.\n\nAdditionally, the `opusplan[1m]` workaround that was being used as a fix now correctly switches to Opus in plan mode.",
+      "category": "設定",
+      "category_en": "Configuration"
+    },
+    {
+      "t": "修正: `WebFetch(domain:*.example.com)` のワイルドカードドメインルールがサブドメインにマッチしない問題と、中間にワイルドカードを含むファイルパーミッションルール（例: `Read(secrets-*/config.json)`）が起動時に拒否される問題",
+      "t_en": "Fixed `WebFetch(domain:*.example.com)` wildcard domain rules never matching subdomains in allow, deny, and ask position, and file permission rules with mid-pattern wildcards (e.g. `Read(secrets-*/config.json)`) being rejected at startup",
+      "tags": ["バグ修正", "Security"],
+      "detail": "2つのパーミッションルールに関する問題が修正されました。\n\n1つ目は `WebFetch(domain:*.example.com)` のようなワイルドカードドメインルールが、allow・deny・ask のいずれの位置に設定してもサブドメインにマッチしない問題です。\n\n2つ目は `Read(secrets-*/config.json)` のようにパターンの中間にワイルドカード（`*`）を含むファイルパーミッションルールが、起動時に無効として拒否される問題です。修正により、どちらのルールも期待どおりに機能するようになりました。",
+      "detail_en": "Two permission rule issues have been fixed.\n\nFirst, wildcard domain rules like `WebFetch(domain:*.example.com)` were never matching subdomains regardless of whether they were in allow, deny, or ask position.\n\nSecond, file permission rules with mid-pattern wildcards like `Read(secrets-*/config.json)` were being rejected at startup as invalid. Both rules now work as expected.",
+      "category": "パーミッション",
+      "category_en": "Permissions"
+    },
+    {
+      "t": "修正: サブエージェントのチャットタブが開いている間に上矢印キーのプロンプト履歴がメインエージェントのプロンプトを表示する問題",
+      "t_en": "Fixed up-arrow prompt history showing the main agent's prompts while a subagent's chat tab is open",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "サブエージェントのチャットタブを開いている状態で上矢印キーを押してプロンプト履歴を遡ると、そのサブエージェントの履歴ではなく、メインエージェントのプロンプト履歴が表示されてしまう問題が修正されました。\n\n修正により、各エージェントのチャットタブで上矢印キーを押すと、そのエージェント自身のプロンプト履歴が正しく表示されるようになりました。",
+      "detail_en": "Fixed an issue where pressing the up-arrow key to browse prompt history while a subagent's chat tab was open would show the main agent's prompt history instead of the subagent's history.\n\nWith this fix, pressing the up-arrow key in each agent's chat tab correctly shows that agent's own prompt history.",
+      "category": "入力",
+      "category_en": "Input"
+    },
+    {
+      "t": "修正: リモートセッションでマウントされたチームメモリストア（`CLAUDE_MEMORY_STORES`）がメモリ検索で見つからない問題",
+      "t_en": "Fixed memory recall not finding mounted team memory stores (`CLAUDE_MEMORY_STORES`) in remote sessions",
+      "tags": ["バグ修正"],
+      "detail": "リモートセッションにおいて、`CLAUDE_MEMORY_STORES` 環境変数でマウントされたチームメモリストアがメモリ検索時に参照されない問題が修正されました。\n\n修正により、リモートセッションでもチームメモリストアのコンテンツが正しく検索・参照されるようになりました。",
+      "detail_en": "Fixed an issue where team memory stores mounted via the `CLAUDE_MEMORY_STORES` environment variable were not being found during memory recall in remote sessions.\n\nWith this fix, team memory store content is correctly searched and referenced in remote sessions as well.",
+      "category": "メモリ",
+      "category_en": "Memory"
+    },
+    {
+      "t": "修正: プロンプト文字列やコメントに `Date.now()`/`Math.random()` が含まれるだけでワークフローの検証が拒否される問題",
+      "t_en": "Fixed workflow validation rejecting scripts whose prompt strings or comments merely mention `Date.now()`/`Math.random()`",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "ワークフロースクリプトのプロンプト文字列やコメント内に `Date.now()` や `Math.random()` という記述があるだけで、ワークフローの検証が拒否されてしまう問題が修正されました。これらの関数は非決定的な動作をするためワークフロー内での実行を制限しているものの、文字列やコメントとして言及するだけで検証が失敗するのは過剰な制限でした。\n\n修正により、文字列リテラルやコメント内での言及は問題なく、実際にコードとして実行される場合のみ検証エラーになるようになりました。",
+      "detail_en": "Fixed an issue where workflow validation would reject scripts that merely mentioned `Date.now()` or `Math.random()` within prompt strings or comments. While execution of these non-deterministic functions within workflows is restricted, failing validation simply for mentioning them in strings or comments was overly strict.\n\nWith this fix, mentions within string literals or comments are fine; only actual code execution of these functions triggers a validation error.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-Agent"
+    },
+    {
+      "t": "改善: マウストラッキングを完全にサポートしていない Windows コンソールでのマウストラッキングを無効化",
+      "t_en": "Disable mouse tracking on Windows consoles that don't fully support it",
+      "tags": ["改善"],
+      "detail": "マウストラッキングを完全にサポートしていない Windows コンソール環境では、マウストラッキングが自動的に無効化されるようになりました。\n\n一部の Windows コンソールでマウストラッキングが有効になっていると、予期しない文字の表示や操作の誤動作が発生することがありました。この修正により、そのような環境での動作が安定します。",
+      "detail_en": "Mouse tracking is now automatically disabled on Windows consoles that don't fully support it.\n\nOn some Windows consoles, having mouse tracking enabled could cause unexpected characters to appear or inputs to malfunction. This fix stabilizes behavior in such environments.",
+      "category": "プラットフォーム互換性",
+      "category_en": "Platform Compatibility"
+    },
+    {
+      "t": "修正: `/plugin` マーケットプレイスで長いリスト表示後にカーソルが消失する問題と、プラグインブラウザから Esc で誤ったタブに戻る問題",
+      "t_en": "Fixed the `/plugin` marketplace list losing its cursor after backing out of a long plugin list, and Esc from the plugin browser returning to the wrong tab",
+      "tags": ["バグ修正", "Plugin"],
+      "detail": "`/plugin` マーケットプレイスで2つの UI 問題が修正されました。\n\n1つ目は、長いプラグインリストを表示してから戻った後にカーソルが消失する問題です。2つ目は、プラグインブラウザで Esc キーを押して戻る際に、正しいタブではなく誤ったタブに戻ってしまう問題です。修正により、どちらも期待どおりに動作するようになりました。",
+      "detail_en": "Two UI issues in the `/plugin` marketplace have been fixed.\n\nFirst, the cursor was disappearing after backing out of a long plugin list. Second, pressing Esc in the plugin browser was returning to the wrong tab instead of the correct one. Both now work as expected.",
+      "category": "プラグイン",
+      "category_en": "Plugin"
+    },
+    {
+      "t": "改善: 冗長なメッセージ正規化の除去とストリーミングツール使用状態が変化しない場合のフルメッセージ履歴変換を回避し、長い会話でのパフォーマンスを向上",
+      "t_en": "Improved performance in long conversations by removing redundant message normalization and avoiding full message-history transforms when streaming tool-use state is unchanged",
+      "tags": ["改善", "Perf"],
+      "detail": "長い会話でのパフォーマンスが2点の最適化により改善されました。\n\n1つ目は冗長なメッセージ正規化処理の除去です。2つ目はストリーミング中にツール使用状態が変化しない場合にフルメッセージ履歴の変換処理をスキップするようにしたことです。長い会話でのレスポンスの遅延が改善されます。",
+      "detail_en": "Performance in long conversations has been improved through two optimizations.\n\nFirst, redundant message normalization processing has been removed. Second, full message-history transforms are now skipped when the streaming tool-use state is unchanged. This reduces response latency in long conversations.",
+      "category": "パフォーマンス",
+      "category_en": "Performance"
+    },
+    {
+      "t": "改善: アイドル時の CPU 使用率を削減 — `/goal` ステータスチップがアイドル中に 5Hz でターミナルを再レンダリングしなくなり、サブエージェント並列実行中の UI 再レンダリングも減少",
+      "t_en": "Reduced idle CPU usage: `/goal` status chip no longer re-renders the terminal at 5 Hz while idle, and fewer UI re-renders while subagents run in parallel",
+      "tags": ["改善", "Perf"],
+      "detail": "アイドル時の CPU 使用率が2点の改善により削減されました。\n\n1つ目は `/goal` ステータスチップがアイドル中に 5Hz（毎秒5回）でターミナルを再レンダリングしていた動作の停止です。2つ目はサブエージェントが並列実行中の不要な UI 再レンダリングの削減です。これにより、特に長時間の操作中にシステムリソースの消費を抑えられます。",
+      "detail_en": "Idle CPU usage has been reduced through two improvements.\n\nFirst, the `/goal` status chip no longer re-renders the terminal at 5 Hz (5 times per second) while idle. Second, unnecessary UI re-renders while subagents run in parallel have been reduced. This helps conserve system resources, especially during extended operations.",
+      "category": "パフォーマンス",
+      "category_en": "Performance"
+    },
+    {
+      "t": "改善: Claude in Chrome のツール読み込みを改善 — ブラウザツールが1ツールずつではなく単一のバッチ呼び出しで読み込まれるように",
+      "t_en": "Improved Claude in Chrome tool loading: browser tools now load in a single batched call instead of one per tool",
+      "tags": ["改善", "MCP"],
+      "detail": "Claude in Chrome のブラウザツールの読み込みが最適化されました。以前は各ツールを個別の呼び出しで読み込んでいましたが、単一のバッチ呼び出しに変更されました。\n\nこの変更により、ブラウザツールの初期化が高速化され、Claude in Chrome を使用する際の起動時間が改善されます。",
+      "detail_en": "The loading of Claude in Chrome browser tools has been optimized. Previously, each tool was loaded with an individual call, but this has been changed to a single batched call.\n\nThis change speeds up browser tool initialization and improves startup time when using Claude in Chrome.",
+      "category": "MCP 連携",
+      "category_en": "MCP Integration"
+    },
+    {
+      "t": "改善: 非インタラクティブモードでの利用規約拒否メッセージを改善 — 新しいセッションの開始またはモデルの変更を提案するように",
+      "t_en": "Improved the non-interactive Usage Policy refusal message to suggest starting a new session or changing your model",
+      "tags": ["改善"],
+      "detail": "非インタラクティブモードで利用規約（Usage Policy）に基づく拒否が発生した場合のエラーメッセージが改善されました。\n\n以前は単純な拒否メッセージのみでしたが、新しいセッションを開始するか、使用するモデルを変更することで問題を解決できる可能性があることを提案するメッセージが追加されました。",
+      "detail_en": "The error message shown when a Usage Policy refusal occurs in non-interactive mode has been improved.\n\nPreviously it was just a simple refusal message, but it now suggests that you may be able to resolve the issue by starting a new session or changing the model you're using.",
+      "category": "UX",
+      "category_en": "UX"
+    },
+    {
+      "t": "改善: `/code-review` で claude.ai に未サインインの場合も `ultra` オプションを表示し、クラウドレビューに claude.ai アカウントが必要な旨を説明",
+      "t_en": "`/code-review` now keeps the `ultra` option visible when you're not signed in to claude.ai, with an explanation that the cloud review requires a claude.ai account",
+      "tags": ["改善"],
+      "detail": "`/code-review` コマンドで提供される `ultra` オプション（クラウドを使用した高精度レビュー機能）が、claude.ai にサインインしていない場合でも表示されるようになりました。\n\n以前はサインインしていない場合にオプション自体が非表示でしたが、クラウドレビューには claude.ai アカウントが必要である旨の説明とともに表示されるようになりました。これにより、機能の存在を知りアカウント登録を検討できます。",
+      "detail_en": "The `ultra` option in `/code-review` (a high-accuracy review feature using cloud processing) is now visible even when you're not signed in to claude.ai.\n\nPreviously the option was hidden when not signed in, but it now appears with an explanation that the cloud review requires a claude.ai account. This lets you discover the feature and consider creating an account.",
+      "category": "UX",
+      "category_en": "UX"
+    },
+    {
+      "t": "改善: Remote Control フッターインジケーターを \"/rc active\" に短縮し、狭いターミナルでは非表示に",
+      "t_en": "Shortened the Remote Control footer indicator to \"/rc active\" and hid it on narrow terminals",
+      "tags": ["改善"],
+      "detail": "Remote Control 機能が有効な場合にターミナルのフッターに表示されるインジケーターが「/rc active」という短い表記に変更されました。\n\nまた、ターミナルの幅が狭い場合にはインジケーターが自動的に非表示になるようになりました。これにより、狭いターミナルでも画面を広く使えます。",
+      "detail_en": "The indicator shown in the terminal footer when Remote Control is active has been shortened to \"/rc active\".\n\nAdditionally, the indicator is now automatically hidden on narrow terminals, allowing more screen space to be used effectively in narrow terminal environments.",
+      "category": "UX",
+      "category_en": "UX"
+    },
+    {
+      "t": "改善: コンテナをアクティブに保てないリモートセッションでの `/loop` の宣伝を停止",
+      "t_en": "Stopped promoting `/loop` in remote sessions, where pending loops don't keep the container alive",
+      "tags": ["改善"],
+      "detail": "リモートセッションでは保留中のループがコンテナをアクティブに保てないため、リモートセッションにおいて `/loop` コマンドの案内が表示されなくなりました。\n\n`/loop` はリモートセッションでは正常に機能しないため、ユーザーに誤解を与えないよう、リモートセッション中は宣伝を停止することにしました。",
+      "detail_en": "Promotion of the `/loop` command is no longer shown in remote sessions, where pending loops don't keep the container alive.\n\nSince `/loop` doesn't work correctly in remote sessions, promoting it was stopped to avoid misleading users.",
+      "category": "UX",
+      "category_en": "UX"
+    },
+    {
+      "t": "修正: [VSCode] PowerShell ツール呼び出しが適切なコマンド表示・権限ダイアログではなく生の JSON としてレンダリングされる問題と、シェル出力から ANSI エスケープコードが除去されない問題",
+      "t_en": "[VSCode] Fixed PowerShell tool calls rendering as raw JSON instead of a proper command display and permission dialog, and stripped ANSI escape codes from displayed shell output",
+      "tags": ["バグ修正", "IDE"],
+      "detail": "VS Code 拡張機能において、PowerShell 経由でツール呼び出しが行われた際に適切なコマンド表示と権限ダイアログが表示される代わりに、生の JSON データとしてレンダリングされてしまう問題が修正されました。\n\nまた、シェル出力に含まれる ANSI エスケープコード（カラーコード等）が表示テキストから除去されずにそのまま表示される問題も合わせて修正されました。これらの修正により VS Code での PowerShell 利用時の UX が改善されます。",
+      "detail_en": "Fixed an issue in the VS Code extension where tool calls made via PowerShell would render as raw JSON data instead of showing a proper command display and permission dialog.\n\nAdditionally, ANSI escape codes (such as color codes) in shell output were not being stripped from displayed text, which has also been fixed. These fixes improve the UX when using PowerShell in VS Code.",
+      "category": "IDE",
+      "category_en": "IDE"
+    }
+  ]
+}
