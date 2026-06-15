@@ -310,5 +310,326 @@
       "category": "サンドボックス",
       "category_en": "Sandbox"
     }
+  ],
+  "2.1.174": [
+    {
+      "t": "追加: マウスホイール加速を無効化する `wheelScrollAccelerationEnabled` 設定",
+      "t_en": "Added `wheelScrollAccelerationEnabled` setting to disable mouse-wheel acceleration",
+      "tags": ["新機能"],
+      "detail": "フルスクリーンレンダリングモードで、マウスホイールを速く回した際にスクロール距離がノッチ数以上に伸びる加速挙動が気になるユーザー向けに、`wheelScrollAccelerationEnabled` 設定が追加されました。`settings.json` に `\"wheelScrollAccelerationEnabled\": false` と指定することで、ホイール速度にかかわらず一定のスクロール速度を維持できます。\n\nこの設定はフルスクリーンモード（`/tui fullscreen` コマンド、または `CLAUDE_CODE_NO_FLICKER=1` 環境変数で有効化）でのみ効果があります。詳細は[フルスクリーンのドキュメント](https://code.claude.com/docs/en/fullscreen#mouse-wheel-scrolling)を参照してください。",
+      "detail_en": "For users who found the accelerating scroll behavior distracting in fullscreen rendering mode — where scrolling the mouse wheel faster would cause the scroll distance to exceed the number of notches — the `wheelScrollAccelerationEnabled` setting has been added. Setting `\"wheelScrollAccelerationEnabled\": false` in `settings.json` maintains a constant scroll speed regardless of wheel velocity.\n\nThis setting only takes effect in fullscreen mode (enabled via the `/tui fullscreen` command or the `CLAUDE_CODE_NO_FLICKER=1` environment variable). See the [fullscreen documentation](https://code.claude.com/docs/en/fullscreen#mouse-wheel-scrolling) for details.",
+      "category": "設定",
+      "category_en": "Configuration"
+    },
+    {
+      "t": "修正: `/model` ピッカーで Default が解決するモデルファミリーが非表示になる問題",
+      "t_en": "Fixed `/model` picker hiding model family that Default resolves to",
+      "tags": ["バグ修正"],
+      "detail": "`/model` ピッカーで「Default」を選択している場合、実際に解決されるモデルファミリー（例: claude-sonnet-4 ファミリー）の行がピッカーに表示されない問題が修正されました。\n\n修正により、Default が解決する先のモデルファミリーがピッカーに正しく表示され、どのモデルが使用されるかを把握しやすくなりました。",
+      "detail_en": "Fixed an issue where the `/model` picker would hide the model family row that Default resolves to (e.g., the claude-sonnet-4 family).\n\nWith this fix, the model family that Default resolves to is correctly shown in the picker, making it easier to understand which model will be used.",
+      "category": "設定",
+      "category_en": "Configuration"
+    },
+    {
+      "t": "修正: カスタム `ANTHROPIC_DEFAULT_SONNET_MODEL` 設定時に `/model` ピッカーにハードコードされた Sonnet ラベルが表示される問題",
+      "t_en": "Fixed `/model` picker showing hardcoded Sonnet label with custom `ANTHROPIC_DEFAULT_SONNET_MODEL`",
+      "tags": ["バグ修正"],
+      "detail": "`ANTHROPIC_DEFAULT_SONNET_MODEL` 環境変数でカスタムモデルを指定している場合でも、`/model` ピッカーのラベルがハードコードされた「Sonnet」という名称で表示される問題が修正されました。\n\n修正により、カスタムモデルが設定されている場合はそのモデル名が正しく表示されるようになりました。",
+      "detail_en": "Fixed an issue where the `/model` picker would display a hardcoded \"Sonnet\" label even when a custom model was specified via the `ANTHROPIC_DEFAULT_SONNET_MODEL` environment variable.\n\nWith this fix, the correct model name is displayed when a custom model is configured.",
+      "category": "設定",
+      "category_en": "Configuration"
+    },
+    {
+      "t": "修正: エンタープライズアカウントに「Fable 5 がクレジットを消費しています」バナーが誤って表示される問題",
+      "t_en": "Fixed \"Fable 5 consuming credits\" banner incorrectly showing for enterprise accounts",
+      "tags": ["バグ修正"],
+      "detail": "エンタープライズアカウントのユーザーに対して、「Fable 5 がクレジットを消費しています」というバナー通知が誤って表示される問題が修正されました。このバナーはエンタープライズ以外のアカウントで Fable 5 を使用した際の使用量通知として意図されたものですが、エンタープライズアカウントでは誤って表示されていました。\n\n修正により、バナーが表示される対象が正しく絞り込まれ、エンタープライズアカウントには表示されなくなりました。",
+      "detail_en": "Fixed an issue where the \"Fable 5 consuming credits\" banner notification was incorrectly shown for enterprise account users. This banner is intended as a usage notification when using Fable 5 on non-enterprise accounts, but it was incorrectly appearing for enterprise accounts.\n\nWith this fix, the banner is correctly scoped to the appropriate audience and no longer appears for enterprise accounts.",
+      "category": "UX",
+      "category_en": "UX"
+    },
+    {
+      "t": "修正: Bedrock GovCloud リージョンで推論プロファイルのプレフィックスが誤って導出される問題",
+      "t_en": "Fixed Bedrock GovCloud regions deriving wrong inference profile prefix",
+      "tags": ["バグ修正", "Platform"],
+      "detail": "Amazon Bedrock の GovCloud リージョン（`us-gov-west-1` など）を使用する場合に、推論プロファイル（inference profile）の ARN プレフィックスが誤って導出される問題が修正されました。誤ったプレフィックスのせいでモデル呼び出しが失敗するケースがありました。\n\n修正により、GovCloud リージョンでも正しいプレフィックスが使用され、推論プロファイル経由のモデル呼び出しが正常に機能するようになりました。",
+      "detail_en": "Fixed an issue where the inference profile ARN prefix was incorrectly derived when using Amazon Bedrock GovCloud regions (such as `us-gov-west-1`). The incorrect prefix was causing model invocations to fail.\n\nWith this fix, the correct prefix is used in GovCloud regions, and model calls via inference profiles now work correctly.",
+      "category": "プラットフォーム互換性",
+      "category_en": "Platform Compatibility"
+    },
+    {
+      "t": "修正: バックグラウンドセッションがデーモンを起動したシェルのプロバイダー環境変数を継承する問題",
+      "t_en": "Fixed background sessions inheriting provider env from shell starting daemon",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "バックグラウンドセッションが、デーモンプロセスを起動したシェルのプロバイダー関連環境変数（API キーやエンドポイント設定など）を誤って継承してしまう問題が修正されました。これにより、意図しないプロバイダーや認証情報でバックグラウンドセッションが動作することがありました。\n\n修正により、バックグラウンドセッションはデーモン起動シェルの環境ではなく、セッション本来の設定を参照するようになりました。",
+      "detail_en": "Fixed an issue where background sessions were incorrectly inheriting provider-related environment variables (such as API keys and endpoint settings) from the shell that started the daemon process. This could cause background sessions to operate with unintended providers or credentials.\n\nWith this fix, background sessions reference their own session configuration rather than the daemon-launching shell's environment.",
+      "category": "セッション管理",
+      "category_en": "Session Management"
+    },
+    {
+      "t": "修正: macOS/Linux でシェル割り込み後に Claude Code 終了時に 1〜2 秒の一時停止が発生する問題",
+      "t_en": "Fixed 1-2 second pause exiting Claude Code after shell interrupt on macOS/Linux",
+      "tags": ["バグ修正"],
+      "detail": "macOS や Linux 環境でシェルの割り込み（Ctrl+C 等）を行った後に Claude Code を終了しようとすると、終了処理に 1〜2 秒の余分な待ち時間が発生する問題が修正されました。\n\n修正により、シェル割り込み後でも Claude Code がスムーズかつ即座に終了するようになりました。",
+      "detail_en": "Fixed an issue on macOS and Linux where exiting Claude Code after a shell interrupt (e.g., Ctrl+C) would cause a 1-2 second delay in the exit process.\n\nWith this fix, Claude Code exits smoothly and immediately even after a shell interrupt.",
+      "category": "安定性",
+      "category_en": "Stability"
+    },
+    {
+      "t": "修正: git コミットの共同著者帰属に誤ったモデル名が表示される問題",
+      "t_en": "Fixed git commit co-author attribution showing incorrect model name",
+      "tags": ["バグ修正"],
+      "detail": "Claude Code が生成した変更を git コミットする際に付与される共同著者（Co-authored-by）帰属行に、実際に使用したモデル名ではなく誤ったモデル名が表示される問題が修正されました。\n\n修正により、コミットの帰属行に正しいモデル名が記録されるようになりました。",
+      "detail_en": "Fixed an issue where the Co-authored-by attribution line added to git commits for Claude Code-generated changes would show an incorrect model name instead of the model that was actually used.\n\nWith this fix, the correct model name is recorded in the commit attribution line.",
+      "category": "Git 連携",
+      "category_en": "Git Integration"
+    },
+    {
+      "t": "修正: `/advisor` がブロック済みのアドバイザーモデルを事前選択する問題",
+      "t_en": "Fixed `/advisor` pre-selecting blocked advisor model",
+      "tags": ["バグ修正"],
+      "detail": "`/advisor` コマンドを使用した際に、`availableModels` 等の設定によりブロックされているモデルが事前選択されてしまう問題が修正されました。ブロックされたモデルが選択されていると、アドバイザー機能が正常に動作しませんでした。\n\n修正により、`/advisor` は利用可能なモデルの中から適切なアドバイザーモデルを選択するようになりました。",
+      "detail_en": "Fixed an issue where the `/advisor` command would pre-select a model that was blocked by `availableModels` or other settings. Having a blocked model selected would prevent the advisor feature from working correctly.\n\nWith this fix, `/advisor` now selects an appropriate advisor model from those that are available.",
+      "category": "設定",
+      "category_en": "Configuration"
+    },
+    {
+      "t": "修正: スキルのホットリロードで変更されたスキルのみ送信されず全リストが再送信される問題",
+      "t_en": "Fixed skill hot-reload re-sending entire listing instead of changed skills only",
+      "tags": ["バグ修正"],
+      "detail": "スキルファイルを編集した際のホットリロード処理で、変更されたスキルだけを再送信すべきところ、全スキルのリストを毎回再送信してしまう問題が修正されました。スキルの数が多い場合は不要なデータ転送が発生していました。\n\n修正により、ホットリロード時は変更されたスキルのみが差分として送信されるようになりました。",
+      "detail_en": "Fixed an issue where skill hot-reload was re-sending the entire skill listing on every change instead of only the skills that changed. This caused unnecessary data transfer, especially when many skills were defined.\n\nWith this fix, only the changed skills are sent as a diff during hot-reload.",
+      "category": "UX",
+      "category_en": "UX"
+    },
+    {
+      "t": "修正: Workflow ツールの `agent()` サブエージェントに帰属ヘッダーが付与されない問題",
+      "t_en": "Fixed Workflow tool `agent()` subagents missing attribution headers",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "Workflow ツールの `agent()` 関数を使って起動したサブエージェントに、他のサブエージェントと同様に付与されるべき帰属ヘッダーが付与されない問題が修正されました。帰属ヘッダーがないと、どのエージェントが何を行ったかの追跡が困難になります。\n\n修正により、Workflow ツール経由のサブエージェントにも帰属ヘッダーが正しく付与されるようになりました。",
+      "detail_en": "Fixed an issue where subagents launched via the Workflow tool's `agent()` function were missing the attribution headers that other subagents receive. Without attribution headers, it was difficult to trace which agent performed which action.\n\nWith this fix, subagents launched via the Workflow tool are also correctly given attribution headers.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-Agent"
+    },
+    {
+      "t": "[VSCode] 追加: Account & usage ダイアログにキャッシュミスや内訳を含む使用帰属を表示",
+      "t_en": "[VSCode] Added usage attribution to Account & usage dialog showing cache misses and breakdowns",
+      "tags": ["新機能", "IDE"],
+      "detail": "VS Code 拡張機能の Account & usage ダイアログ（`/usage` から開く）に、使用量の帰属情報が追加されました。キャッシュミス・長いコンテキスト・高並列サブエージェントなど、使用量の10%以上を占める要因が自動的に検出・表示されます。\n\nさらに、スキル・サブエージェント・プラグイン・MCP サーバーそれぞれの使用量帰属テーブルも表示されます。これにより、トークン消費が多い原因を特定してコスト管理に活用できます。詳細は[アカウントと使用量のドキュメント](https://code.claude.com/docs/en/ide-integrations#check-account-and-usage)を参照してください。",
+      "detail_en": "Usage attribution information has been added to the Account & usage dialog in the VS Code extension (opened via `/usage`). Factors accounting for more than 10% of usage — such as cache misses, long context, and highly parallel subagents — are automatically detected and displayed.\n\nAttribution tables for skills, subagents, plugins, and MCP servers are also shown. This makes it easier to identify the cause of high token consumption for cost management. See the [account and usage documentation](https://code.claude.com/docs/en/ide-integrations#check-account-and-usage) for details.",
+      "category": "IDE",
+      "category_en": "IDE"
+    }
+  ],
+  "2.1.175": [
+    {
+      "t": "追加: `enforceAvailableModels` マネージド設定 — Default モデルを許可リストに拘束し、ユーザー/プロジェクト設定による拡大を禁止",
+      "t_en": "Added `enforceAvailableModels` managed setting: constrains Default model to allowlist; user/project settings cannot widen it",
+      "tags": ["新機能"],
+      "detail": "マネージド設定（または policy 設定）に `\"enforceAvailableModels\": true` を追加すると、`/model` ピッカーの「Default」オプションも `availableModels` 許可リストに拘束されるようになります。従来 `availableModels` は `/model` コマンド・`--model` フラグ・`ANTHROPIC_MODEL` 環境変数・サブエージェントなど名前指定のモデル選択を制限する一方、Default は除外されていました。\n\n`enforceAvailableModels` を有効にすると、Default が許可リスト外のモデルに解決される場合はリストの先頭モデルに自動フォールバックします。また、ユーザー設定やプロジェクト設定で許可リストを拡大することはできません。組織全体でモデル使用を厳密に管理したい管理者に向けた設定です。詳細は[モデル選択制限のドキュメント](https://code.claude.com/docs/en/model-config#restrict-model-selection)を参照してください。",
+      "detail_en": "Adding `\"enforceAvailableModels\": true` to managed (or policy) settings causes the \"Default\" option in the `/model` picker to also be constrained by the `availableModels` allowlist. Previously, `availableModels` restricted named model selections (via `/model`, `--model`, `ANTHROPIC_MODEL`, subagents, etc.) but excluded Default.\n\nWith `enforceAvailableModels` enabled, if Default would resolve to a model outside the allowlist, it automatically falls back to the first model in the list. User and project settings cannot widen the allowlist. This setting is intended for administrators who want strict control over model usage across an organization. See the [restrict model selection documentation](https://code.claude.com/docs/en/model-config#restrict-model-selection) for details.",
+      "category": "設定",
+      "category_en": "Configuration"
+    }
+  ],
+  "2.1.176": [
+    {
+      "t": "追加: セッションタイトルが会話の言語で自動生成されるように。`language` 設定で変更可能",
+      "t_en": "Session titles now generate in conversation language; configurable via `language` setting",
+      "tags": ["新機能"],
+      "detail": "セッションタイトルが会話で使用されている言語で自動生成されるようになりました。これまではセッションタイトルが常に英語で生成されていましたが、日本語などの言語で会話している場合はその言語でタイトルが付くようになります。\n\nタイトル生成言語を明示的に指定したい場合は、`settings.json` の `language` 設定を使用してください。詳細は[設定のドキュメント](https://code.claude.com/docs/en/settings#available-settings)を参照してください。",
+      "detail_en": "Session titles are now automatically generated in the language of the conversation. Previously, session titles were always generated in English, but now they are titled in whichever language the conversation is conducted in.\n\nIf you want to explicitly specify the language for title generation, use the `language` setting in `settings.json`. See the [settings documentation](https://code.claude.com/docs/en/settings#available-settings) for details.",
+      "category": "国際化",
+      "category_en": "Internationalization"
+    },
+    {
+      "t": "追加: フッター行に正規表現マッチしたリンクバッジを表示する `footerLinksRegexes` 設定",
+      "t_en": "Added `footerLinksRegexes` for regex-matched link badges in footer row",
+      "tags": ["新機能"],
+      "detail": "`footerLinksRegexes` 設定が新たに追加されました。正規表現パターンを指定することで、マッチするリンクバッジをターミナルのフッター行に表示できます。\n\n特定のリポジトリや URL パターンに関連するリンクを素早く参照したい場合に活用できる機能です。",
+      "detail_en": "The `footerLinksRegexes` setting has been added. By specifying regex patterns, matching link badges can be displayed in the terminal's footer row.\n\nThis is useful for quickly referencing links related to specific repositories or URL patterns.",
+      "category": "設定",
+      "category_en": "Configuration"
+    },
+    {
+      "t": "改善: Bedrock 認証情報を固定1時間ではなく `Expiration` まで有効な期間キャッシュするように",
+      "t_en": "Improved Bedrock credential caching: credentials cached until `Expiration` instead of fixed 1 hour",
+      "tags": ["改善", "Platform"],
+      "detail": "Amazon Bedrock の認証情報キャッシュが改善されました。従来は `awsCredentialExport` が返す認証情報を一律1時間キャッシュしていましたが、認証情報の JSON に含まれる `Credentials.Expiration` フィールドを読み取り、その有効期限まで動的にキャッシュするようになりました。\n\n期限切れ直前に認証情報を自動で再取得するため、不要な再認証呼び出しが削減されます。有効期限が1時間より短い短命な認証情報でも期限切れのまま使い続けるリスクがなくなります。詳細は[高度な認証情報設定のドキュメント](https://code.claude.com/docs/en/amazon-bedrock#advanced-credential-configuration)を参照してください。",
+      "detail_en": "Amazon Bedrock credential caching has been improved. Previously, credentials returned by `awsCredentialExport` were cached for a fixed 1 hour. Now, the `Credentials.Expiration` field in the credential JSON is read and credentials are cached dynamically until that expiration time.\n\nCredentials are automatically refreshed just before they expire, reducing unnecessary re-authentication calls. There is also no longer a risk of using expired credentials when they have a shorter-than-1-hour lifetime. See the [advanced credential configuration documentation](https://code.claude.com/docs/en/amazon-bedrock#advanced-credential-configuration) for details.",
+      "category": "プラットフォーム互換性",
+      "category_en": "Platform Compatibility"
+    },
+    {
+      "t": "修正: `availableModels` 適用漏れ — エイリアスモデルの選択がブロック済みモデルにリダイレクトできていた問題",
+      "t_en": "Fixed `availableModels` enforcement: alias model picks cannot redirect to blocked models",
+      "tags": ["バグ修正"],
+      "detail": "`availableModels` 許可リストでブロックされているはずのモデルであっても、`opus`・`sonnet` などのエイリアス名を選択した際にそのモデルへリダイレクトされてしまう穴が修正されました。エイリアスが実モデルに解決される段階でブロックチェックが行われていなかったことが原因です。\n\n修正により、エイリアスモデルの選択も許可リストに対して正しく検証されるようになりました。詳細は[モデル選択制限のドキュメント](https://code.claude.com/docs/en/model-config#restrict-model-selection)を参照してください。",
+      "detail_en": "Fixed a gap in `availableModels` enforcement where selecting an alias name (such as `opus` or `sonnet`) could redirect to a model that should have been blocked by the allowlist. The block check was not being applied at the point where aliases resolved to real models.\n\nWith this fix, alias model selections are also correctly validated against the allowlist. See the [restrict model selection documentation](https://code.claude.com/docs/en/model-config#restrict-model-selection) for details.",
+      "category": "設定",
+      "category_en": "Configuration"
+    },
+    {
+      "t": "修正: Opus 4.8 を持たない組織で Fable 5 の自動モードが失敗する問題 — 利用可能な最良の Opus にフォールバック",
+      "t_en": "Fixed auto mode failing on Fable 5 for orgs without Opus 4.8; classifier falls back to best available Opus",
+      "tags": ["バグ修正"],
+      "detail": "Fable 5 の自動モード（auto mode）では、タスクの複雑さに応じてモデルを自動選択する分類器が内部で動作しています。この分類器が Opus 4.8 を前提としていたため、Opus 4.8 を利用できない組織では自動モードが失敗する問題がありました。\n\n修正により、Opus 4.8 が利用できない場合は組織が利用可能な最良の Opus モデルにフォールバックするようになりました。",
+      "detail_en": "Fable 5's auto mode uses an internal classifier that automatically selects a model based on task complexity. This classifier assumed the availability of Opus 4.8, causing auto mode to fail for organizations that don't have access to Opus 4.8.\n\nWith this fix, when Opus 4.8 is not available, the classifier falls back to the best Opus model available to the organization.",
+      "category": "設定",
+      "category_en": "Configuration"
+    },
+    {
+      "t": "修正: フックの `if` 条件でツールパスのパターン（例: `Edit(src/**)` ）が正しくマッチしない問題",
+      "t_en": "Fixed hook `if` conditions for tool paths; patterns like `Edit(src/**)` now match correctly",
+      "tags": ["バグ修正"],
+      "detail": "フック定義の `if` フィールドに `Edit(src/**)` のようなグロブパターンを指定しても、Read/Edit/Write ツールのパス引数に対して正しくマッチしない問題が修正されました。パーミッションルールと同じ構文が `if` 条件でも使えるべきところ、パス評価のロジックが適用されていませんでした。\n\n修正により、`if` フィールドのツールパスパターンがパーミッションルールと同じ構文で正しく評価されるようになりました。詳細は[hooks のドキュメント](https://code.claude.com/docs/en/hooks#common-fields)を参照してください。",
+      "detail_en": "Fixed an issue where glob patterns like `Edit(src/**)` specified in a hook's `if` field were not correctly matching the path arguments of Read/Edit/Write tool calls. The same syntax used in permission rules should work in `if` conditions, but the path evaluation logic was not being applied.\n\nWith this fix, tool path patterns in the `if` field are correctly evaluated using the same syntax as permission rules. See the [hooks documentation](https://code.claude.com/docs/en/hooks#common-fields) for details.",
+      "category": "設定",
+      "category_en": "Configuration"
+    },
+    {
+      "t": "修正: `.claude/settings.json` が絶対パスのシンボリックリンクの場合に Linux サンドボックスが起動失敗する問題",
+      "t_en": "Fixed Linux sandbox failing when `.claude/settings.json` is absolute symlink",
+      "tags": ["バグ修正"],
+      "detail": "Linux 環境で `.claude/settings.json` が絶対パスを指すシンボリックリンクとして配置されている場合、サンドボックスが起動に失敗する問題が修正されました。サンドボックスはシンボリックリンクの解決前のパスを使ってアクセス制御を行っており、絶対パスリンクの場合にパスの解決が正しく機能しませんでした。\n\n修正により、シンボリックリンク（絶対パス・相対パスを問わず）越しでもサンドボックスが正常に起動するようになりました。",
+      "detail_en": "Fixed an issue on Linux where the sandbox would fail to start when `.claude/settings.json` was placed as a symlink pointing to an absolute path. The sandbox was performing access control using the path before symlink resolution, which did not work correctly for absolute path symlinks.\n\nWith this fix, the sandbox starts correctly even when accessing settings via a symlink, whether absolute or relative.",
+      "category": "サンドボックス",
+      "category_en": "Sandbox"
+    },
+    {
+      "t": "修正: tmux over SSH で `/copy` とマウス選択によるコピーがクリップボードに届かない問題",
+      "t_en": "Fixed `/copy` and mouse-selection copy not reaching clipboard in tmux over SSH",
+      "tags": ["バグ修正"],
+      "detail": "SSH 越しに tmux を使用している環境で、`/copy` コマンドやマウス選択によるテキストコピーがローカルのクリップボードに反映されない問題が修正されました。tmux over SSH の組み合わせではクリップボード転送のパスが特殊で、コピー操作が正常に到達していませんでした。\n\n修正により、SSH 接続＋tmux 環境でもコピー操作がクリップボードに正しく届くようになりました。",
+      "detail_en": "Fixed an issue where `/copy` command and mouse-selection copy operations were not reaching the local clipboard when using tmux over SSH. The combination of tmux over SSH has a special clipboard transfer path, and copy operations were not successfully reaching the clipboard.\n\nWith this fix, copy operations correctly reach the clipboard even in SSH + tmux environments.",
+      "category": "UX",
+      "category_en": "UX"
+    },
+    {
+      "t": "修正: Remote Control がセッションのモデルを無言で切り替える問題",
+      "t_en": "Fixed Remote Control silently switching session model",
+      "tags": ["バグ修正"],
+      "detail": "Remote Control 機能が有効な状態で、ユーザーに通知することなくセッションのモデルが自動的に切り替わってしまう問題が修正されました。意図せずモデルが変更されることで、期待しない応答や課金上の問題が発生する可能性がありました。\n\n修正により、Remote Control を使用中に不意なモデル切り替えが起きなくなりました。",
+      "detail_en": "Fixed an issue where Remote Control would silently switch the session's model without notifying the user. Unexpected model changes could lead to unexpected responses and billing concerns.\n\nWith this fix, unintended model switches no longer occur while using Remote Control.",
+      "category": "UX",
+      "category_en": "UX"
+    },
+    {
+      "t": "修正: Remote Control の切断通知に人間が読める理由ではなく数値コードが表示される問題",
+      "t_en": "Fixed Remote Control disconnect notifications showing numeric code instead of human-readable reason",
+      "tags": ["バグ修正"],
+      "detail": "Remote Control セッションが切断された際の通知に、人間が読みやすい理由テキストではなく数値コード（例: `1006`）が表示される問題が修正されました。数値コードだけでは切断の原因がわからず、トラブルシューティングが困難でした。\n\n修正により、切断理由が人間が読みやすいテキストで表示されるようになりました。",
+      "detail_en": "Fixed an issue where Remote Control session disconnect notifications showed a numeric code (e.g., `1006`) instead of a human-readable reason. The numeric code alone made it difficult to understand the cause of the disconnection and troubleshoot.\n\nWith this fix, disconnect reasons are displayed as human-readable text.",
+      "category": "UX",
+      "category_en": "UX"
+    },
+    {
+      "t": "修正: Remote Control セッションがアカウントサインイン時に切断されない問題",
+      "t_en": "Fixed Remote Control sessions not disconnecting on account sign-in",
+      "tags": ["バグ修正"],
+      "detail": "アカウントへのサインインが行われた際に、既存の Remote Control セッションが適切に切断されない問題が修正されました。サインイン後も古いセッションが残ることで、認証状態の不整合が生じる可能性がありました。\n\n修正により、アカウントサインイン時に Remote Control セッションが正しく切断されるようになりました。",
+      "detail_en": "Fixed an issue where existing Remote Control sessions were not properly disconnected when an account sign-in occurred. Stale sessions remaining after sign-in could cause authentication state inconsistencies.\n\nWith this fix, Remote Control sessions are correctly disconnected on account sign-in.",
+      "category": "UX",
+      "category_en": "UX"
+    },
+    {
+      "t": "修正: `/cd` やワークツリー移動後もセッションが移動前のディレクトリの git ブランチを報告し続ける問題",
+      "t_en": "Fixed `/cd` and worktree moves leaving session reporting previous directory's git branch",
+      "tags": ["バグ修正"],
+      "detail": "`/cd` コマンドや git ワークツリーへの移動を行った後も、セッションが前のディレクトリの git ブランチ情報を報告し続ける問題が修正されました。ステータス表示やプロンプトのブランチ名が古い情報のままになることで、どのブランチで作業しているか混乱が生じていました。\n\n修正により、ディレクトリ移動後は新しい作業ディレクトリの git ブランチ情報が正しく反映されるようになりました。",
+      "detail_en": "Fixed an issue where the session continued to report the git branch of the previous directory even after using `/cd` or moving to a git worktree. The stale branch name in status displays and prompts caused confusion about which branch was being worked on.\n\nWith this fix, the correct git branch information for the new working directory is reflected after a directory change.",
+      "category": "Git 連携",
+      "category_en": "Git Integration"
+    },
+    {
+      "t": "修正: `claude agents` で1つのウィンドウで戻るを押すと他のウィンドウがデタッチされる問題",
+      "t_en": "Fixed `claude agents`: pressing back in one window no longer detaches other windows",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "`claude agents` で複数のウィンドウを開いている場合に、1つのウィンドウで「戻る」操作を行うと、他のウィンドウまでデタッチ（接続解除）されてしまう問題が修正されました。\n\n修正により、戻る操作は操作を行ったウィンドウにのみ影響し、他のウィンドウには影響しなくなりました。",
+      "detail_en": "Fixed an issue where pressing back in one window of `claude agents` when multiple windows were open would cause other windows to be detached.\n\nWith this fix, the back action only affects the window where it was performed and no longer impacts other windows.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-Agent"
+    },
+    {
+      "t": "修正: ターン途中の `/bg` 実行後に残タスクがなかった場合、バックグラウンドセッションが永遠に「Working」と表示される問題",
+      "t_en": "Fixed backgrounded sessions showing \"Working\" forever when `/bg` mid-turn had nothing left",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "ターンの途中で `/bg` コマンドを実行してセッションをバックグラウンドに移行させた際、残りのタスクがなかった場合にセッションのステータスが「Working」のまま永遠に更新されない問題が修正されました。\n\n修正により、`/bg` 移行後に実行すべき作業がない場合、セッションのステータスが適切にアイドル状態へ移行するようになりました。",
+      "detail_en": "Fixed an issue where a session backgrounded with `/bg` mid-turn would show \"Working\" forever when there was nothing left to execute.\n\nWith this fix, when there is no remaining work after a `/bg` transition, the session status correctly transitions to idle.",
+      "category": "セッション管理",
+      "category_en": "Session Management"
+    },
+    {
+      "t": "修正: PR URL によるバックグラウンドエージェントの検索が機能しない問題",
+      "t_en": "Fixed background agent search by PR URL",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "バックグラウンドエージェントの一覧でプルリクエスト URL を使った検索が機能しない問題が修正されました。PR URL でエージェントを素早く特定できる機能が期待どおりに動作していませんでした。\n\n修正により、PR URL を入力してバックグラウンドエージェントを正しく絞り込めるようになりました。",
+      "detail_en": "Fixed an issue where searching for a background agent using a pull request URL was not working. The ability to quickly identify agents by PR URL was not functioning as expected.\n\nWith this fix, entering a PR URL correctly filters the background agent list.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-Agent"
+    },
+    {
+      "t": "修正: Windows のエージェントビューの入力欄でテキストカーソルが表示されない問題",
+      "t_en": "Fixed agents view input showing no text cursor on Windows",
+      "tags": ["バグ修正", "Windows", "Agent"],
+      "detail": "Windows 環境のエージェントビューにある入力欄でテキストカーソル（キャレット）が表示されず、どこに入力されるかわかりにくい問題が修正されました。\n\n修正により、Windows のエージェントビュー入力欄でもカーソルが正しく表示されるようになりました。",
+      "detail_en": "Fixed an issue where the text cursor (caret) was not displayed in the agents view input field on Windows, making it unclear where text would be entered.\n\nWith this fix, the cursor is correctly displayed in the agents view input field on Windows.",
+      "category": "入力",
+      "category_en": "Input"
+    },
+    {
+      "t": "修正: `claude --bg -cn <name>` でセッション名が設定されない問題",
+      "t_en": "Fixed `claude --bg -cn <name>` not seeding session name",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "`claude --bg -cn <name>` コマンドでバックグラウンドセッションを起動する際に、`-cn` フラグで指定したセッション名が反映されない問題が修正されました。名前付きセッションとして起動しているはずが、名前なしのセッションとして扱われていました。\n\n修正により、`-cn` フラグで指定した名前が正しくセッション名として設定されるようになりました。",
+      "detail_en": "Fixed an issue where the session name specified with the `-cn` flag was not being applied when starting a background session with `claude --bg -cn <name>`. The session was being treated as unnamed even though it should have been started as a named session.\n\nWith this fix, the name specified with the `-cn` flag is correctly set as the session name.",
+      "category": "セッション管理",
+      "category_en": "Session Management"
+    },
+    {
+      "t": "修正: バックグラウンドセッションの再起動前に Windows ネットワークパスが正規化されない問題",
+      "t_en": "Fixed background sessions to neutralize Windows network paths before respawn",
+      "tags": ["バグ修正", "Windows", "Agent"],
+      "detail": "Windows 環境でバックグラウンドセッションが再起動（respawn）される際に、UNC パス（`\\\\server\\share` 形式）などの Windows ネットワークパスが事前に正規化されないことでエラーが発生する問題が修正されました。\n\n修正により、再起動前にネットワークパスが適切に正規化されるようになり、Windows ネットワーク環境でのバックグラウンドセッション再起動が安定して動作するようになりました。",
+      "detail_en": "Fixed an issue on Windows where errors occurred during background session respawn because Windows network paths (such as UNC paths in `\\\\server\\share` format) were not normalized beforehand.\n\nWith this fix, network paths are properly normalized before respawn, making background session restart more stable in Windows network environments.",
+      "category": "プラットフォーム互換性",
+      "category_en": "Platform Compatibility"
+    },
+    {
+      "t": "修正: バックグラウンドセッションの再起動が不正な形式の resume ID を拒否する問題",
+      "t_en": "Fixed background-session respawn rejecting malformed resume IDs",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "バックグラウンドセッションの再起動処理において、形式が正しくない resume ID が含まれている場合に再起動全体が拒否・失敗する問題が修正されました。一部のシナリオで resume ID が不正な形式になることがあり、セッション再起動ができなくなっていました。\n\n修正により、不正な形式の resume ID を適切に処理し、バックグラウンドセッションの再起動が正常に完了するようになりました。",
+      "detail_en": "Fixed an issue where background session respawn would be rejected and fail when a malformed resume ID was encountered. In some scenarios, resume IDs could end up in a malformed state, preventing session restart.\n\nWith this fix, malformed resume IDs are handled appropriately and background session respawn completes successfully.",
+      "category": "セッション管理",
+      "category_en": "Session Management"
+    },
+    {
+      "t": "修正: `~/.claude/daemon` に ReadOnly 属性がある場合に Windows のバックグラウンドサービスデーモンが起動しない問題",
+      "t_en": "Fixed Windows background-service daemon not starting with ReadOnly attribute on `~/.claude/daemon`",
+      "tags": ["バグ修正", "Windows", "Agent"],
+      "detail": "Windows 環境で `~/.claude/daemon` ディレクトリやファイルに ReadOnly 属性が設定されている場合に、バックグラウンドサービスデーモンが起動できない問題が修正されました。クラウドストレージの同期やポリシー設定によって ReadOnly 属性が付与される環境で問題が発生していました。\n\n修正により、ReadOnly 属性があっても Windows のバックグラウンドサービスデーモンが正常に起動するようになりました。",
+      "detail_en": "Fixed an issue on Windows where the background service daemon would fail to start when the `~/.claude/daemon` directory or files had the ReadOnly attribute set. This problem occurred in environments where the ReadOnly attribute was applied by cloud storage synchronization or policy settings.\n\nWith this fix, the Windows background service daemon starts correctly even when the ReadOnly attribute is present.",
+      "category": "プラットフォーム互換性",
+      "category_en": "Platform Compatibility"
+    },
+    {
+      "t": "修正: アイドル時間が長すぎると認証メソッドエラーでクラウドセッションが失敗する問題",
+      "t_en": "Fixed cloud sessions failing with auth method error when idle too long",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "クラウドセッションが長時間アイドル状態になった後に操作を再開しようとすると、認証メソッドエラーが発生してセッションが失敗する問題が修正されました。認証トークンの有効期限切れ後に適切な再認証が行われていませんでした。\n\n修正により、長時間アイドル後でもクラウドセッションが認証エラーなく正常に動作を再開できるようになりました。",
+      "detail_en": "Fixed an issue where cloud sessions would fail with an auth method error when attempting to resume operation after being idle for too long. Proper re-authentication was not being performed after auth token expiration.\n\nWith this fix, cloud sessions can correctly resume operation without authentication errors even after extended idle periods.",
+      "category": "セッション管理",
+      "category_en": "Session Management"
+    },
+    {
+      "t": "改善: 自動更新ウィンドウの問題に対してバックグラウンドセッションがより明確なガイダンスを表示",
+      "t_en": "Background sessions show clearer guidance for auto-update window issues",
+      "tags": ["改善", "Agent"],
+      "detail": "バックグラウンドセッションで自動更新に関連したウィンドウの問題が発生した場合に表示されるガイダンスメッセージが改善されました。以前は問題の解決方法がわかりにくいメッセージが表示されていましたが、ユーザーが取るべき対処手順をより明確に案内するようになりました。\n\nこれにより、自動更新まわりのトラブルが発生した際にユーザーが自己解決しやすくなります。",
+      "detail_en": "The guidance message displayed when background sessions encounter auto-update related window issues has been improved. Previously the message was unclear about how to resolve the issue, but it now more clearly guides users through the steps they should take.\n\nThis makes it easier for users to self-resolve issues related to auto-updates.",
+      "category": "UX",
+      "category_en": "UX"
+    }
   ]
 }
