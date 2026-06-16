@@ -631,5 +631,205 @@
       "category": "UX",
       "category_en": "UX"
     }
+  ],
+  "2.1.178": [
+    {
+      "t": "追加: パーミッションルールに `Tool(param:value)` 構文を追加 — `*` ワイルドカードでツール入力パラメーターをマッチ可能に",
+      "t_en": "Added `Tool(param:value)` syntax for permission rules to match tool input parameters with `*` wildcard",
+      "tags": ["新機能", "Security"],
+      "detail": "パーミッションルールに `Tool(param:value)` という新しい構文が追加されました。この構文を使うと、ツールの入力パラメーターの値に基づいてルールを適用できるようになります。値の部分には `*` ワイルドカードも利用可能です。\n\n例えば `Bash(command:git*)` と記述すると `git` で始まるコマンドを実行する Bash ツール呼び出しにのみルールを適用できます。詳しくは[パーミッションのドキュメント](https://code.claude.com/docs/en/permissions#permission-rule-syntax)を参照してください。",
+      "detail_en": "A new `Tool(param:value)` syntax has been added to permission rules. This syntax allows rules to be applied based on the values of tool input parameters. The `*` wildcard is also supported in the value portion.\n\nFor example, writing `Bash(command:git*)` applies the rule only to Bash tool calls that execute commands starting with `git`. See the [permissions documentation](https://code.claude.com/docs/en/permissions#permission-rule-syntax) for details.",
+      "category": "パーミッション",
+      "category_en": "Permissions"
+    },
+    {
+      "t": "追加: ネストされた `.claude/skills` ディレクトリのスキルを読み込み可能に — 名前衝突時は `<dir>:<name>` 形式で表示",
+      "t_en": "Skills in nested `.claude/skills` directories now load; nested skills appear as `<dir>:<name>` on name clashes",
+      "tags": ["新機能"],
+      "detail": "`.claude/skills` ディレクトリのサブディレクトリに配置したスキルも読み込まれるようになりました。スキル名が衝突する場合は `<dir>:<name>` 形式（例: `tools:search`）で区別して表示されます。\n\nスキルをカテゴリごとにサブディレクトリで整理できるようになり、大量のスキルを管理しやすくなります。詳しくは[スキルのドキュメント](https://code.claude.com/docs/en/skills)を参照してください。",
+      "detail_en": "Skills placed in subdirectories of `.claude/skills` are now loaded. When skill names clash, they appear in `<dir>:<name>` format (e.g., `tools:search`) to disambiguate them.\n\nThis allows skills to be organized by category in subdirectories, making it easier to manage a large number of skills. See the [skills documentation](https://code.claude.com/docs/en/skills) for details.",
+      "category": "スキル",
+      "category_en": "Skills"
+    },
+    {
+      "t": "改善: ネストされた `.claude/` ディレクトリのエージェント・ワークフロー・出力スタイルは作業ディレクトリに最も近いものが優先",
+      "t_en": "Nested `.claude/` directories: closest agent, workflow, and output-style to working directory wins on collisions",
+      "tags": ["改善"],
+      "detail": "複数の `.claude/` ディレクトリが存在する場合（例: プロジェクトルートとサブディレクトリの両方に `.claude/` がある構成）、エージェント・ワークフロー・出力スタイルの定義が衝突する際は現在の作業ディレクトリに最も近いものが優先されるようになりました。\n\nモノレポや複雑なディレクトリ構成で複数の `.claude/` 設定を使い分ける際の予測可能性が向上します。詳しくは[.claude ディレクトリのドキュメント](https://code.claude.com/docs/en/claude-directory)を参照してください。",
+      "detail_en": "When multiple `.claude/` directories exist (for example, when both a project root and a subdirectory have `.claude/`), the agent, workflow, and output-style definition closest to the current working directory wins when there are collisions.\n\nThis improves predictability when using multiple `.claude/` configurations in monorepos or complex directory structures. See the [.claude directory documentation](https://code.claude.com/docs/en/claude-directory) for details.",
+      "category": "設定",
+      "category_en": "Settings"
+    },
+    {
+      "t": "改善: 自動モードのサブエージェント生成を起動前にクラシファイアで評価するように",
+      "t_en": "Improved auto mode: subagent spawns evaluated by classifier before launch",
+      "tags": ["改善", "Agent"],
+      "detail": "auto モードにおいて、サブエージェントを起動する前にクラシファイアによる評価を行うようになりました。これにより、タスクの性質に応じてサブエージェントを生成するかどうかをより適切に判断できるようになります。\n\n不要なサブエージェントの起動が抑制され、シンプルなタスクではオーバーヘッドなく処理が完了するようになります。",
+      "detail_en": "In auto mode, subagent spawns are now evaluated by a classifier before launching. This allows for more appropriate judgment about whether to spawn a subagent based on the nature of the task.\n\nUnnecessary subagent spawning is suppressed, allowing simple tasks to complete without overhead.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-Agent"
+    },
+    {
+      "t": "改善: `/doctor` のフラットツリーレイアウト・ステータスアイコン・コマンド名ハイライトを改善",
+      "t_en": "Improved `/doctor` with flat tree layout, clearer status icons, and highlighted command names",
+      "tags": ["改善"],
+      "detail": "`/doctor` コマンドの診断結果表示がリデザインされました。ネストされたツリーからフラットなツリーレイアウトに変更され、ステータスアイコンがより視認しやすくなり、コマンド名がハイライト表示されるようになりました。\n\n診断結果が一目で把握しやすくなり、問題箇所の特定が素早くできるようになります。",
+      "detail_en": "The diagnostic output display of the `/doctor` command has been redesigned. It has been changed from a nested tree to a flat tree layout, status icons are now more legible, and command names are highlighted.\n\nDiagnostic results are now easier to grasp at a glance, allowing for quicker identification of issues.",
+      "category": "コマンド",
+      "category_en": "Command"
+    },
+    {
+      "t": "改善: スキル一覧の切り捨て警告に影響を受けるスキル説明の件数を表示するように",
+      "t_en": "Improved skill listing truncation warning to show affected skill description count",
+      "tags": ["改善"],
+      "detail": "スキルの説明が多すぎてプロンプトに収まらず切り捨てが発生した際に表示される警告メッセージに、影響を受けたスキル説明の件数が表示されるようになりました。\n\n切り捨てがどの程度の規模で発生しているか把握でき、スキルの整理やコンテキスト節約への対処判断がしやすくなります。",
+      "detail_en": "The warning message displayed when skill descriptions are too numerous to fit in the prompt and truncation occurs now shows the count of affected skill descriptions.\n\nThis makes it easier to understand the scale of truncation and decide whether to organize skills or take other measures to save context.",
+      "category": "スキル",
+      "category_en": "Skills"
+    },
+    {
+      "t": "変更: ワークフロープロンプトのキーワードを紫色のシマー表示に変更 — 「run a workflow」などの明示的なフレーズでのみトリガー",
+      "t_en": "Changed workflow prompt keyword to purple shimmer, triggers only on explicit phrases like \"run a workflow\"",
+      "tags": ["改善", "Agent"],
+      "detail": "ワークフロー機能をトリガーするプロンプトキーワードの表示が紫色のシマー（shimmer）エフェクトに変更されました。また、トリガー条件が厳格化され、「run a workflow」などの明示的なフレーズが含まれる場合にのみ起動するようになりました。\n\n意図せずワークフローが起動してしまうケースが減り、ユーザーが明確に指示した場合のみ動作するようになります。詳しくは[ワークフローのドキュメント](https://code.claude.com/docs/en/workflows#ask-for-a-workflow-in-your-prompt)を参照してください。",
+      "detail_en": "The display of the workflow trigger keyword in prompts has been changed to a purple shimmer effect. The trigger conditions have also been tightened so that it only activates when explicit phrases like \"run a workflow\" are included.\n\nThis reduces unintentional workflow launches and ensures they only activate when the user has explicitly requested it. See the [workflows documentation](https://code.claude.com/docs/en/workflows#ask-for-a-workflow-in-your-prompt) for details.",
+      "category": "ワークフロー",
+      "category_en": "Workflow"
+    },
+    {
+      "t": "改善: Remote Control のエラーメッセージをフッター常時表示インジケーターとゲート/チェック/エンタイトルメントの明確な説明付きに改善",
+      "t_en": "Improved Remote Control error messages with persistent footer indicator and clearer gate/check/entitlement explanations",
+      "tags": ["改善"],
+      "detail": "Remote Control のエラーメッセージが改善されました。エラーが発生した際にフッターに常時表示されるインジケーターが追加され、ゲート・チェック・エンタイトルメントに関する説明がより明確になりました。\n\nエラーの原因を素早く特定し、適切な対処を取りやすくなります。",
+      "detail_en": "Remote Control error messages have been improved. A persistent indicator is now shown in the footer when an error occurs, and explanations of gate, check, and entitlement conditions are now clearer.\n\nThis makes it easier to quickly identify the cause of errors and take appropriate action.",
+      "category": "UX",
+      "category_en": "UX"
+    },
+    {
+      "t": "変更: `/bug` で説明入力を必須化 — モデルの拒否テキストを GitHub Issue のタイトルに使用しないように",
+      "t_en": "`/bug` now requires description before submitting, no longer uses model-refusal text as GitHub issue title",
+      "tags": ["改善"],
+      "detail": "`/bug` コマンドでバグ報告を送信する前に説明の入力が必須になりました。これまではモデルの拒否テキストがそのまま GitHub Issue のタイトルとして使用されることがあり、Issue の内容がわかりにくくなっていました。\n\n説明を必須にすることで、より意味のある Issue タイトルと説明が生成されるようになります。",
+      "detail_en": "A description is now required before submitting a bug report with `/bug`. Previously, model-refusal text could be used directly as the GitHub Issue title, making the issue content unclear.\n\nRequiring a description ensures more meaningful issue titles and descriptions are generated.",
+      "category": "コマンド",
+      "category_en": "Command"
+    },
+    {
+      "t": "修正: 古い WebSocket/OAuth ファイルディスクリプタ環境変数によるメモリ不足クラッシュ",
+      "t_en": "Fixed out-of-memory crash from stale websocket/OAuth file-descriptor environment variable",
+      "tags": ["バグ修正"],
+      "detail": "古くなった WebSocket または OAuth のファイルディスクリプタを参照する環境変数が残っていると、メモリ不足（OOM）クラッシュが発生する問題が修正されました。\n\n修正により、古いファイルディスクリプタの環境変数が適切にクリーンアップされ、このクラッシュが発生しなくなりました。",
+      "detail_en": "Fixed an issue where stale environment variables referencing obsolete WebSocket or OAuth file descriptors would cause an out-of-memory (OOM) crash.\n\nWith this fix, stale file-descriptor environment variables are properly cleaned up, preventing this crash from occurring.",
+      "category": "安定性",
+      "category_en": "Stability"
+    },
+    {
+      "t": "修正: OAuth トークンが別アカウントのものである場合に Claude in Chrome の接続が無音で失敗する問題",
+      "t_en": "Fixed Claude in Chrome silent connection failure when OAuth token belongs to different account",
+      "tags": ["バグ修正", "MCP"],
+      "detail": "Claude in Chrome で使用する OAuth トークンが現在サインインしているアカウントとは異なるアカウントのものである場合に、接続が無音で失敗してしまう問題が修正されました。エラーメッセージが表示されず原因の特定が困難でした。\n\n修正により、トークンのアカウント不一致を検出してユーザーにわかりやすくエラーを通知するようになりました。",
+      "detail_en": "Fixed an issue where Claude in Chrome would silently fail to connect when the OAuth token belonged to a different account than the one currently signed in. No error message was displayed, making it difficult to identify the cause.\n\nWith this fix, account mismatches in the token are detected and the user is notified with a clear error message.",
+      "category": "MCP 連携",
+      "category_en": "MCP Integration"
+    },
+    {
+      "t": "修正: ディレクトリ修飾名を持つネストされた `.claude/skills` がパーミッションプロンプトでブロックされる問題",
+      "t_en": "Fixed nested `.claude/skills` with directory-qualified names blocked by permission prompts",
+      "tags": ["バグ修正"],
+      "detail": "ネストされた `.claude/skills` ディレクトリ内のスキルが `<dir>:<name>` 形式のディレクトリ修飾名を持つ場合に、パーミッションプロンプトでブロックされてしまい使用できない問題が修正されました。\n\n修正により、ディレクトリ修飾名を持つスキルもパーミッション処理が正しく行われ、許可リストや承認ダイアログを通じて正常に使用できるようになりました。",
+      "detail_en": "Fixed an issue where skills in nested `.claude/skills` directories with directory-qualified names in `<dir>:<name>` format were being blocked by permission prompts and could not be used.\n\nWith this fix, permission handling for skills with directory-qualified names works correctly, allowing them to be used normally through allowlists or approval dialogs.",
+      "category": "スキル",
+      "category_en": "Skills"
+    },
+    {
+      "t": "修正: サブエージェントのトランスクリプト表示・ライブ進捗表示・メッセージ欠落・バックグラウンド時の再起動問題",
+      "t_en": "Fixed subagent transcript viewing, live progress display, message dropping, and restart-on-background issues",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "サブエージェントに関する複数の問題が修正されました。具体的には、トランスクリプトの表示が正しく機能しない問題・ライブ進捗の表示が更新されない問題・メッセージが欠落する問題・バックグラウンド移行時にセッションが再起動してしまう問題が対象です。\n\nこれらの修正により、サブエージェントの状態をリアルタイムで正確に把握できるようになり、マルチエージェントワークフローの信頼性が向上します。",
+      "detail_en": "Multiple issues related to subagents have been fixed: transcripts not displaying correctly, live progress not updating, messages being dropped, and sessions restarting when moving to background.\n\nThese fixes allow subagent status to be accurately tracked in real time and improve the reliability of multi-agent workflows.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-Agent"
+    },
+    {
+      "t": "修正: カスタム API ゲートウェイでデーモン起動時に `claude agents` ワーカーが 401 で失敗する問題",
+      "t_en": "Fixed `claude agents` workers failing with 401 when daemon started with custom API gateway",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "カスタム API ゲートウェイを使用してデーモンを起動した場合に、`claude agents` のワーカーが 401 認証エラーで失敗する問題が修正されました。カスタムゲートウェイの認証情報がワーカーに正しく引き継がれていませんでした。\n\n修正により、カスタム API ゲートウェイ環境でも `claude agents` ワーカーが正しく認証されて動作するようになりました。",
+      "detail_en": "Fixed an issue where `claude agents` workers would fail with a 401 authentication error when the daemon was started with a custom API gateway. The custom gateway credentials were not being correctly passed to the workers.\n\nWith this fix, `claude agents` workers authenticate correctly even in custom API gateway environments.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-Agent"
+    },
+    {
+      "t": "修正: コンパクト化が `--fallback-model` を無視する問題",
+      "t_en": "Fixed compaction not honoring `--fallback-model`",
+      "tags": ["バグ修正"],
+      "detail": "コンテキストのコンパクト化処理が `--fallback-model` フラグで指定したフォールバックモデルを使用せず、無視してしまう問題が修正されました。\n\n修正により、コンパクト化処理でも `--fallback-model` の指定が正しく尊重されるようになりました。",
+      "detail_en": "Fixed an issue where context compaction was ignoring the fallback model specified with the `--fallback-model` flag and not using it.\n\nWith this fix, compaction correctly honors the `--fallback-model` specification.",
+      "category": "セッション管理",
+      "category_en": "Session Management"
+    },
+    {
+      "t": "修正: セッション外で認証情報が更新された後もモデルリクエストが失敗し続ける問題",
+      "t_en": "Fixed model requests continuing to fail after credentials refreshed outside session",
+      "tags": ["バグ修正"],
+      "detail": "セッションの外部で認証情報（APIキーや OAuth トークンなど）が更新された後も、セッション内のモデルリクエストが失敗し続ける問題が修正されました。セッションが古い認証情報をキャッシュし続けていたことが原因でした。\n\n修正により、外部で認証情報が更新された場合にセッションが新しい認証情報を取得してリクエストを正常に処理するようになりました。",
+      "detail_en": "Fixed an issue where model requests would continue to fail even after credentials (such as API keys or OAuth tokens) were refreshed outside of the session. The session was continuing to cache stale credentials.\n\nWith this fix, when credentials are updated externally, the session picks up the new credentials and processes requests correctly.",
+      "category": "認証",
+      "category_en": "Authentication"
+    },
+    {
+      "t": "修正: バックグラウンドセッションがターン終了後も「Working」のまま永遠に表示される問題",
+      "t_en": "Fixed background sessions showing \"Working\" forever after turn finished",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "バックグラウンドセッションがターンを完了した後も、ステータスが「Working」のまま永遠に更新されない問題が修正されました。セッションの完了状態がエージェントビューに正しく伝わっていませんでした。\n\n修正により、バックグラウンドセッションがターンを完了するとステータスが正しくアイドル状態に更新されるようになりました。",
+      "detail_en": "Fixed an issue where background sessions would continue to show \"Working\" forever even after completing a turn. The completion state of the session was not being correctly communicated to the agents view.\n\nWith this fix, when a background session completes a turn, the status correctly updates to idle.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-Agent"
+    },
+    {
+      "t": "修正: `CLAUDE_CODE_PLUGIN_KEEP_MARKETPLACE_ON_FAILURE=1` が新規マーケットプレイスのインストールを妨げる問題",
+      "t_en": "Fixed `CLAUDE_CODE_PLUGIN_KEEP_MARKETPLACE_ON_FAILURE=1` preventing fresh marketplace installs",
+      "tags": ["バグ修正", "Plugin"],
+      "detail": "`CLAUDE_CODE_PLUGIN_KEEP_MARKETPLACE_ON_FAILURE=1` 環境変数が設定されている場合に、マーケットプレイスの新規インストールが阻害される問題が修正されました。この環境変数は失敗時に既存のマーケットプレイスを保持するためのものですが、初回インストール時にも誤って干渉していました。\n\n修正により、環境変数が設定されていても新規マーケットプレイスのインストールが正常に行えるようになりました。",
+      "detail_en": "Fixed an issue where the `CLAUDE_CODE_PLUGIN_KEEP_MARKETPLACE_ON_FAILURE=1` environment variable was preventing fresh marketplace installs. This environment variable is intended to preserve existing marketplaces on failure, but it was incorrectly interfering with initial installs as well.\n\nWith this fix, fresh marketplace installs proceed correctly even when the environment variable is set.",
+      "category": "プラグイン",
+      "category_en": "Plugin"
+    },
+    {
+      "t": "修正: サブエージェントの `disallowedTools` に指定した MCP サーバーレベルのスペックが無音で無視される問題",
+      "t_en": "Fixed MCP server-level specs in subagent `disallowedTools` being silently ignored",
+      "tags": ["バグ修正", "MCP", "Agent"],
+      "detail": "サブエージェントの `disallowedTools` 設定に MCP サーバーレベルのスペック（例: `mcp__server-name`）を指定しても無音で無視されてしまい、ツール制限が機能しない問題が修正されました。\n\n修正により、`disallowedTools` に指定した MCP サーバーレベルのスペックが正しく適用され、サブエージェントが対象ツールを使用できないようになりました。",
+      "detail_en": "Fixed an issue where MCP server-level specs (e.g., `mcp__server-name`) specified in a subagent's `disallowedTools` setting were being silently ignored and the tool restrictions were not taking effect.\n\nWith this fix, MCP server-level specs in `disallowedTools` are correctly applied, preventing subagents from using the targeted tools.",
+      "category": "MCP 連携",
+      "category_en": "MCP Integration"
+    },
+    {
+      "t": "修正: vim モードのアンドゥがコマンドを1つずつステップせずにまとめてマージする問題",
+      "t_en": "Fixed vim mode undo merging commands instead of stepping through one at a time",
+      "tags": ["バグ修正"],
+      "detail": "vim モードでアンドゥ（`u` キー）を実行すると、コマンドが1つずつ取り消されるべきところが複数のコマンドがまとめてマージされて一度に取り消される問題が修正されました。\n\n修正により、vim モードのアンドゥが期待どおり1コマンドずつ順番に取り消されるようになりました。",
+      "detail_en": "Fixed an issue in vim mode where pressing undo (`u` key) would merge multiple commands and undo them all at once instead of stepping through them one at a time.\n\nWith this fix, vim mode undo correctly reverses commands one at a time in sequence.",
+      "category": "入力",
+      "category_en": "Input"
+    },
+    {
+      "t": "修正: `claude agents` でカスタム URI スキームのステータスラインリンクが開かない問題",
+      "t_en": "Fixed statusline links with custom URI schemes not opening in `claude agents`",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "`claude agents` のステータスラインに表示されるリンクのうち、カスタム URI スキーム（例: `vscode://` や `obsidian://` など）を使用したものが開かない問題が修正されました。標準の `http://` や `https://` スキームのリンクのみ機能していました。\n\n修正により、カスタム URI スキームのリンクも `claude agents` のステータスラインから正しく開けるようになりました。",
+      "detail_en": "Fixed an issue where statusline links in `claude agents` with custom URI schemes (e.g., `vscode://` or `obsidian://`) could not be opened. Only links with standard `http://` or `https://` schemes were working.\n\nWith this fix, links with custom URI schemes can also be opened correctly from the `claude agents` statusline.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-Agent"
+    },
+    {
+      "t": "修正: Esc キーで CJK IME 候補ウィンドウを閉じると実行中の Claude タスクがキャンセルされる問題",
+      "t_en": "Fixed pressing Esc to dismiss CJK IME candidate window canceling running Claude task",
+      "tags": ["バグ修正"],
+      "detail": "日本語・中国語・韓国語（CJK）の IME 候補ウィンドウが表示されているときに Esc キーを押して候補ウィンドウを閉じると、実行中の Claude タスクまでキャンセルされてしまう問題が修正されました。IME の Esc キー操作がアプリケーション全体のキャンセル操作として誤って解釈されていました。\n\n修正により、IME 候補ウィンドウを Esc キーで閉じても、実行中の Claude タスクに影響しなくなりました。",
+      "detail_en": "Fixed an issue where pressing Esc to dismiss the CJK (Japanese, Chinese, Korean) IME candidate window would also cancel the running Claude task. The Esc key action for IME was being incorrectly interpreted as an application-wide cancel operation.\n\nWith this fix, closing the IME candidate window with Esc no longer affects the running Claude task.",
+      "category": "国際化",
+      "category_en": "Internationalization"
+    }
   ]
 }
