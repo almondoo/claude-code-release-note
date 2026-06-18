@@ -1,0 +1,355 @@
+{
+  "2.1.181": [
+    {
+      "t": "追加: `/config key=value` 構文でプロンプトから任意の設定を直接変更可能に（例: `/config thinking=false`）",
+      "t_en": "Added `/config key=value` syntax to set any setting from the prompt (e.g. `/config thinking=false`)",
+      "tags": ["新機能"],
+      "detail": "プロンプトから直接 `/config key=value` 構文を使って任意の設定を変更できるようになりました。これまで設定を変更するには設定 UI を開く必要がありましたが、チャット入力中にインラインで設定を切り替えられます。\n\n例えば `/config thinking=false` で extended thinking を無効化したり、`/config effortLevel=high` でエフォートレベルを変更したりできます。インタラクティブ REPL、`-p`（print モード）、Remote Control のいずれの環境でも動作します。\n\nよく使う設定の切り替えをワークフローに組み込む際に特に有用で、セッション中のモデル挙動を素早く調整できます。",
+      "detail_en": "You can now use the `/config key=value` syntax directly from the prompt to change any setting. Previously, changing settings required opening the settings UI, but now you can toggle settings inline while typing in the chat input.\n\nFor example, `/config thinking=false` disables extended thinking, and `/config effortLevel=high` changes the effort level. This works in interactive REPL, `-p` (print mode), and Remote Control environments.\n\nThis is especially useful for incorporating common setting toggles into your workflow, allowing you to quickly adjust model behavior during a session.",
+      "category": "設定",
+      "category_en": "Configuration"
+    },
+    {
+      "t": "追加: macOS でサンドボックス化されたコマンドが Apple Events を送信できるようにするオプトイン設定 `sandbox.allowAppleEvents` を追加",
+      "t_en": "Added `sandbox.allowAppleEvents` opt-in setting for sandboxed commands to send Apple Events on macOS",
+      "tags": ["新機能", "Security"],
+      "detail": "macOS の Seatbelt サンドボックスはデフォルトで Apple Events（`osascript` やアプリ間通信）の送信を遮断します。これにより、ブラウザ認証フローや `open` コマンドなど、他のアプリへの通信が必要な操作が error -600 で失敗することがありました。\n\n`sandbox.allowAppleEvents: true` をプロジェクトまたはユーザー設定に追加することで、サンドボックス化されたコマンドが他のアプリへ Apple Events を送信できるようになります。これはオプトイン設定のため、既存のセキュリティ動作はデフォルトで維持されます。\n\nこの設定は同バージョンの error -600 修正（項目13）と関連しています。サンドボックス環境で `osascript` や macOS のアプリ間連携を使用する場合にこの設定を有効にしてください。",
+      "detail_en": "macOS's Seatbelt sandbox blocks Apple Events (such as `osascript` and inter-app communication) by default. This caused operations requiring communication with other apps, such as browser auth flows and the `open` command, to fail with error -600.\n\nAdding `sandbox.allowAppleEvents: true` to your project or user settings enables sandboxed commands to send Apple Events to other apps. Because this is an opt-in setting, the existing security behavior is maintained by default.\n\nThis setting is related to the error -600 fix also in this version (item 13). Enable this setting when using `osascript` or macOS inter-app integration in sandboxed environments.",
+      "category": "サンドボックス",
+      "category_en": "Sandbox"
+    },
+    {
+      "t": "追加: モバイルプッシュ通知を抑制する環境変数 `CLAUDE_CLIENT_PRESENCE_FILE` を追加",
+      "t_en": "Added `CLAUDE_CLIENT_PRESENCE_FILE` environment variable to suppress mobile push notifications",
+      "tags": ["新機能"],
+      "detail": "Remote Control 機能でモバイルデバイスと接続している際に、プッシュ通知を細かく制御できる環境変数 `CLAUDE_CLIENT_PRESENCE_FILE` が追加されました。この変数に指定したパスのファイルが存在する間、Claude Code は「ユーザーが端末の前にいる」と判断し、モバイルへのプッシュ通知を送信しません。\n\n運用イメージとしては、PC で作業を開始する際にそのファイルを作成し、離席時にファイルを削除することでモバイル通知を受け取る、というワークフローが想定されています。スクリプトや自動化ツールとの連携でプレゼンスを動的に管理することも可能です。\n\nモバイル通知が多すぎて煩わしいと感じていたユーザーや、PC の前にいるときは通知を止めたいユーザーに有用な設定です。",
+      "detail_en": "The `CLAUDE_CLIENT_PRESENCE_FILE` environment variable has been added to give fine-grained control over push notifications when connected to a mobile device via the Remote Control feature. While the file at the path specified by this variable exists, Claude Code considers the user to be \"present at their device\" and suppresses push notifications to mobile.\n\nThe intended workflow is to create the file when starting work at your PC, and delete it when stepping away to receive mobile notifications. You can also integrate it with scripts or automation tools to dynamically manage presence.\n\nThis is useful for users who find too many mobile notifications distracting, or who want to stop notifications when they're already at their PC.",
+      "category": "設定",
+      "category_en": "Configuration"
+    },
+    {
+      "t": "改善: 同梱の Bun ランタイムを 1.4 にアップグレード",
+      "t_en": "Upgraded bundled Bun runtime to 1.4",
+      "tags": ["改善"],
+      "detail": "Claude Code に同梱されている Bun ランタイムが 1.4 にアップグレードされました。Bun は Node.js 互換の高速 JavaScript ランタイムで、Claude Code の内部処理に使用されています。\n\nBun 1.4 ではパフォーマンスの向上、互換性の改善、各種バグ修正が含まれています。ユーザー側での設定変更は不要で、アップデート後は透過的に恩恵を受けられます。",
+      "detail_en": "The Bun runtime bundled with Claude Code has been upgraded to version 1.4. Bun is a fast, Node.js-compatible JavaScript runtime used internally by Claude Code.\n\nBun 1.4 includes performance improvements, enhanced compatibility, and various bug fixes. No configuration changes are required on the user's side — the benefits are applied transparently after updating.",
+      "category": "安定性",
+      "category_en": "Stability"
+    },
+    {
+      "t": "改善: 長い段落のストリーミング表示が行単位で順次表示されるように",
+      "t_en": "Improved streaming of long paragraphs: text now appears line-by-line",
+      "tags": ["改善"],
+      "detail": "長い段落のストリーミング表示が改善され、テキストが行単位で順次表示されるようになりました。以前は長い段落が一度に表示されたり、不規則なタイミングで表示されることがありましたが、より滑らかで読みやすいストリーミング体験が得られます。",
+      "detail_en": "Streaming display of long paragraphs has been improved so that text now appears line-by-line. Previously, long paragraphs could appear all at once or at irregular intervals. This provides a smoother, more readable streaming experience.",
+      "category": "レンダリング",
+      "category_en": "Rendering"
+    },
+    {
+      "t": "改善: API 接続が thinking 中に切断された場合の自動リトライに対応",
+      "t_en": "Improved auto-retry: API connection drops mid-thinking now automatically retry",
+      "tags": ["改善"],
+      "detail": "モデルが extended thinking を実行中に API 接続が切断された場合、自動的にリトライするようになりました。以前はこのケースでリトライが発生せずエラーになることがありましたが、一時的なネットワーク障害が発生しても処理が継続されます。",
+      "detail_en": "When the API connection drops while the model is performing extended thinking, it now automatically retries. Previously, this case could result in an error without retrying. Now, processing continues even when temporary network interruptions occur.",
+      "category": "ネットワーク",
+      "category_en": "Network"
+    },
+    {
+      "t": "改善: サブエージェントパネルのアイドル状態のエージェントを30秒後に自動非表示、リストは最大5行に制限しスクロールヒントを表示",
+      "t_en": "Improved subagent panel: idle subagents auto-hide after 30s, list caps at 5 rows with scroll hints",
+      "tags": ["改善", "Agent"],
+      "detail": "サブエージェントパネルの表示が改善されました。アイドル状態のサブエージェントは30秒後に自動的に非表示になり、パネルの表示がすっきりします。また、リストは最大5行に制限され、それ以上のエージェントがある場合はスクロールヒントが表示されます。\n\n多数のサブエージェントを扱うワークフローでの視認性が向上し、アクティブなエージェントに集中しやすくなります。",
+      "detail_en": "The subagent panel display has been improved. Idle subagents automatically hide after 30 seconds, keeping the panel tidy. The list is also capped at 5 rows, with scroll hints appearing when there are more agents.\n\nThis improves visibility in workflows with many subagents and makes it easier to focus on active agents.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-Agent"
+    },
+    {
+      "t": "改善: MCP OAuth ブラウザページのビジュアルスタイルを Claude Code に合わせ、認証成功時に自動クローズするように",
+      "t_en": "Improved MCP OAuth browser page to match Claude Code's visual style and auto-close on success",
+      "tags": ["改善", "MCP"],
+      "detail": "MCP の OAuth 認証に使用されるブラウザページのビジュアルスタイルが Claude Code のデザインに合わせて更新されました。また、認証が成功するとブラウザページが自動的に閉じられるようになり、手動でタブを閉じる手間がなくなりました。",
+      "detail_en": "The visual style of the browser page used for MCP OAuth authentication has been updated to match Claude Code's design. Additionally, the browser page now automatically closes upon successful authentication, eliminating the need to manually close the tab.",
+      "category": "MCP 連携",
+      "category_en": "MCP Integration"
+    },
+    {
+      "t": "変更: フルスクリーンモードでの URL 開くには Cmd+クリック（macOS）/ Ctrl+クリックが必要に",
+      "t_en": "Changed fullscreen mode URL opening to require Cmd+click (macOS) / Ctrl+click",
+      "tags": ["改善"],
+      "detail": "フルスクリーンモードで URL を開く操作が変更され、macOS では Cmd+クリック、その他の OS では Ctrl+クリックが必要になりました。以前はクリックだけで URL が開いていましたが、誤クリックによる意図しないブラウザ起動を防ぐための変更です。",
+      "detail_en": "Opening URLs in fullscreen mode now requires Cmd+click on macOS or Ctrl+click on other OS. Previously, a simple click would open a URL. This change prevents unintended browser launches from accidental clicks.",
+      "category": "UX",
+      "category_en": "UX"
+    },
+    {
+      "t": "変更: verbose モード以外では「N件のメモリを改善しました」の行に個別ファイル名を表示しないように",
+      "t_en": "Changed the \"Improved N memories\" line to not list individual files outside verbose mode",
+      "tags": ["改善"],
+      "detail": "メモリ改善後に表示される「N件のメモリを改善しました」という行で、verbose モード以外では個別のファイル名が列挙されなくなりました。通常の使用では件数のみが表示されるため出力がすっきりし、詳細なファイルリストを確認したい場合は verbose モードを使用してください。",
+      "detail_en": "The \"Improved N memories\" line shown after memory improvements no longer lists individual file names outside verbose mode. In normal usage, only the count is shown, keeping the output clean. Use verbose mode if you want to see the detailed file list.",
+      "category": "メモリ",
+      "category_en": "Memory"
+    },
+    {
+      "t": "修正: カスタム `ANTHROPIC_BASE_URL` および Foundry でプロンプトキャッシュの読み取りが機能しない問題",
+      "t_en": "Fixed prompt caching not reading on custom `ANTHROPIC_BASE_URL` and on Foundry",
+      "tags": ["バグ修正", "Platform"],
+      "detail": "カスタムの `ANTHROPIC_BASE_URL` を設定している環境や Foundry 経由で API を利用している場合に、プロンプトキャッシュの読み取りが正常に機能しない問題が修正されました。\n\nこの修正により、カスタムエンドポイントや Foundry を使用する環境でもプロンプトキャッシュが期待通りに動作し、コスト効率とレスポンス速度の改善が得られます。",
+      "detail_en": "Fixed an issue where prompt cache reads were not working correctly when using a custom `ANTHROPIC_BASE_URL` or when accessing the API via Foundry.\n\nWith this fix, prompt caching works as expected in environments using custom endpoints or Foundry, delivering the expected improvements in cost efficiency and response speed.",
+      "category": "プラットフォーム互換性",
+      "category_en": "Platform Compatibility"
+    },
+    {
+      "t": "修正: ネットワークドライブやクラウド同期フォルダで Write/Edit が 0 バイトまたは切り詰められたファイルを生成する問題",
+      "t_en": "Fixed Write/Edit producing 0-byte or truncated files on network drives and cloud-synced folders",
+      "tags": ["バグ修正"],
+      "detail": "ネットワークドライブやクラウド同期フォルダ（OneDrive、Google Drive、iCloud Drive など）上のファイルに対して Write または Edit を実行すると、0 バイトのファイルや内容が切り詰められたファイルが生成されることがある問題が修正されました。\n\nファイル書き込み時の I/O 処理が改善され、非ローカルストレージ環境でも確実にファイルが書き込まれるようになりました。",
+      "detail_en": "Fixed an issue where running Write or Edit on files located on network drives or cloud-synced folders (such as OneDrive, Google Drive, or iCloud Drive) could produce 0-byte files or files with truncated content.\n\nThe I/O handling during file writes has been improved to ensure reliable file writing even in non-local storage environments.",
+      "category": "ツール改善",
+      "category_en": "Tool Improvement"
+    },
+    {
+      "t": "修正: macOS で `open`・`osascript`・ブラウザ認証フローが error -600 で失敗する問題",
+      "t_en": "Fixed `open`, `osascript`, and browser-based auth flows failing with error -600 on macOS",
+      "tags": ["バグ修正"],
+      "detail": "macOS 上でサンドボックスが有効な環境において、`open` コマンド、`osascript`、およびブラウザ経由の認証フローが error -600 で失敗する問題が修正されました。\n\nこの問題は macOS の Seatbelt サンドボックスが Apple Events を遮断することで発生していました。今回の修正でこれらの操作が正常に動作するようになります。なお、サンドボックス環境で意図的に Apple Events を許可する場合は、新たに追加された `sandbox.allowAppleEvents` 設定（項目2）も参照してください。",
+      "detail_en": "Fixed an issue where the `open` command, `osascript`, and browser-based auth flows would fail with error -600 in sandboxed environments on macOS.\n\nThis problem was caused by macOS's Seatbelt sandbox blocking Apple Events. This fix allows these operations to work correctly. Note that if you want to intentionally allow Apple Events in a sandboxed environment, see the newly added `sandbox.allowAppleEvents` setting (item 2).",
+      "category": "サンドボックス",
+      "category_en": "Sandbox"
+    },
+    {
+      "t": "修正: 起動リグレッション — 最初のプロンプトが managed-settings のフェッチを待機するようになっていた問題",
+      "t_en": "Fixed startup regression: first prompt no longer waits for managed-settings fetch",
+      "tags": ["バグ修正", "Perf"],
+      "detail": "起動時のリグレッションが修正されました。以前のバージョンで導入された変更により、最初のプロンプト送信が managed-settings のフェッチ完了を待機するようになっていました。\n\nこの修正により、managed-settings のフェッチ状態に関わらず最初のプロンプトが即座に処理されるようになり、起動後の体感的なレスポンス速度が改善されます。",
+      "detail_en": "A startup regression has been fixed. A change introduced in a previous version caused the first prompt submission to wait for the managed-settings fetch to complete.\n\nWith this fix, the first prompt is processed immediately regardless of the managed-settings fetch state, improving the perceived response speed after startup.",
+      "category": "パフォーマンス",
+      "category_en": "Performance"
+    },
+    {
+      "t": "修正: ネットワーク状態が悪い環境で起動時に最大15秒間ターミナルが空白のままブロックされる問題",
+      "t_en": "Fixed startup blocking with blank terminal for up to 15 seconds on degraded networks",
+      "tags": ["バグ修正", "Perf"],
+      "detail": "ネットワーク接続が不安定または低速な環境で Claude Code を起動した際に、ターミナルが空白のまま最大15秒間フリーズしてしまう問題が修正されました。\n\nネットワーク依存の初期化処理の非同期化により、ネットワーク状態に関わらず起動が速やかに完了するようになりました。",
+      "detail_en": "Fixed an issue where launching Claude Code on an unstable or slow network would cause the terminal to freeze with a blank screen for up to 15 seconds.\n\nNetwork-dependent initialization processing has been made asynchronous, allowing startup to complete quickly regardless of network conditions.",
+      "category": "パフォーマンス",
+      "category_en": "Performance"
+    },
+    {
+      "t": "修正: `.claude.json` に壊れた null のプロジェクトエントリが含まれる場合に起動クラッシュする問題",
+      "t_en": "Fixed startup crash when `.claude.json` contains corrupted null project entries",
+      "tags": ["バグ修正"],
+      "detail": "`.claude.json` ファイルに壊れた null のプロジェクトエントリが含まれている場合に、起動時にクラッシュする問題が修正されました。\n\n不正なエントリが存在しても起動が正常に完了するようにガード処理が追加されました。",
+      "detail_en": "Fixed a startup crash that occurred when the `.claude.json` file contained corrupted null project entries.\n\nGuard logic has been added to allow startup to complete normally even when invalid entries are present.",
+      "category": "安定性",
+      "category_en": "Stability"
+    },
+    {
+      "t": "修正: Spotlight が再インデックス中に macOS TUI がセッション開始時にフリーズする問題",
+      "t_en": "Fixed macOS TUI freezing at session start when Spotlight is busy reindexing",
+      "tags": ["バグ修正"],
+      "detail": "macOS で Spotlight が再インデックス処理中（例: 大規模なファイル操作後）に Claude Code の TUI がセッション開始時にフリーズする問題が修正されました。\n\nSpotlight の処理状態に依存しない起動フローに改善されました。",
+      "detail_en": "Fixed an issue where Claude Code's TUI would freeze at session start on macOS when Spotlight was busy reindexing (e.g., after large file operations).\n\nThe startup flow has been improved to not depend on Spotlight's processing state.",
+      "category": "安定性",
+      "category_en": "Stability"
+    },
+    {
+      "t": "修正: 長時間アイドル状態のセッションが30日トランスクリプトクリーンアップで履歴を失う問題",
+      "t_en": "Fixed long-running idle sessions losing history from 30-day transcript cleanup",
+      "tags": ["バグ修正"],
+      "detail": "長時間アイドル状態のセッション（例: バックグラウンドで起動したままのセッション）が30日間のトランスクリプト自動クリーンアップ処理によって履歴を失う問題が修正されました。\n\nアクティブなセッションのトランスクリプトはクリーンアップ対象から除外されるよう処理が改善されました。",
+      "detail_en": "Fixed an issue where long-running idle sessions (e.g., sessions left running in the background) would lose their history due to the 30-day automatic transcript cleanup.\n\nThe cleanup process has been improved to exclude transcripts of active sessions.",
+      "category": "セッション管理",
+      "category_en": "Session Management"
+    },
+    {
+      "t": "修正: フォアグラウンドサブエージェントが無制限のネストチェーンを生成する問題",
+      "t_en": "Fixed foreground subagents spawning unbounded nested chains",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "フォアグラウンドで動作するサブエージェントが際限なくネストされたサブエージェントチェーンを生成し続ける問題が修正されました。\n\n深度の上限が適切に適用されるようになり、無限ループや過剰なリソース消費が防止されます。",
+      "detail_en": "Fixed an issue where foreground subagents could spawn unbounded nested chains of sub-agents.\n\nDepth limits are now properly enforced, preventing infinite loops and excessive resource consumption.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-Agent"
+    },
+    {
+      "t": "修正: モデル切り替え後に `/recap` と会話フォークが旧モデルを使用する問題",
+      "t_en": "Fixed `/recap` and conversation forks using previous model after model switch",
+      "tags": ["バグ修正"],
+      "detail": "セッション中にモデルを切り替えた後、`/recap` コマンドや会話フォークが切り替え前の旧モデルを使用してしまう問題が修正されました。\n\n修正により、モデル切り替え後は `/recap` および会話フォークが現在選択されているモデルを正しく使用します。",
+      "detail_en": "Fixed an issue where `/recap` and conversation forks would use the previous model after switching models during a session.\n\nWith this fix, `/recap` and conversation forks correctly use the currently selected model after a model switch.",
+      "category": "会話管理",
+      "category_en": "Conversation Management"
+    },
+    {
+      "t": "修正: サブエージェントの「Thinking」経過時間が親エージェントの経過時間を表示する問題",
+      "t_en": "Fixed subagent \"Thinking\" duration showing parent agent's elapsed time",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "サブエージェントが「Thinking」状態にある際に表示される経過時間が、そのサブエージェント自身ではなく親エージェントの経過時間を反映してしまう問題が修正されました。\n\n各サブエージェントが独自の経過時間を正確に表示するようになりました。",
+      "detail_en": "Fixed an issue where the elapsed time shown for a subagent in the \"Thinking\" state was reflecting the parent agent's elapsed time instead of the subagent's own time.\n\nEach subagent now accurately displays its own elapsed time.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-Agent"
+    },
+    {
+      "t": "修正: ネストされたエージェントでブロックされているサブエージェントが「waiting」ではなく経過時間をカウントアップし続ける問題",
+      "t_en": "Fixed subagents blocked on nested agent showing ticking elapsed time instead of \"waiting\"",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "ネストされたエージェントの完了を待ってブロックされているサブエージェントが、「waiting」と表示される代わりに経過時間のカウントアップを続ける問題が修正されました。\n\n待機中のサブエージェントは正しく「waiting」状態として表示されるようになりました。",
+      "detail_en": "Fixed an issue where subagents blocked waiting for a nested agent to complete would continue counting up their elapsed time instead of showing \"waiting\".\n\nSubagents that are waiting now correctly display a \"waiting\" state.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-Agent"
+    },
+    {
+      "t": "修正: API リトライ成功後もリトライインジケーターが画面に残り続ける問題",
+      "t_en": "Fixed API retry indicator staying on screen after retry succeeded",
+      "tags": ["バグ修正"],
+      "detail": "API リクエストのリトライが成功した後も、リトライ中であることを示すインジケーターが画面に残り続ける問題が修正されました。リトライが成功したタイミングで正しくインジケーターが消去されます。",
+      "detail_en": "Fixed an issue where the indicator showing that an API request was being retried would remain on screen even after the retry had succeeded. The indicator is now correctly cleared when a retry succeeds.",
+      "category": "UX",
+      "category_en": "UX"
+    },
+    {
+      "t": "修正: AWS `awsCredentialExport` の認証情報が毎分リフレッシュを引き起こす問題",
+      "t_en": "Fixed AWS `awsCredentialExport` credentials causing refreshes every minute",
+      "tags": ["バグ修正", "Platform"],
+      "detail": "AWS の `awsCredentialExport` 設定を使用している場合に、認証情報が毎分リフレッシュされてしまう問題が修正されました。\n\n過剰なリフレッシュは不要な AWS API コールを引き起こしていました。修正により、認証情報は適切なタイミングのみリフレッシュされるようになりました。",
+      "detail_en": "Fixed an issue where using AWS `awsCredentialExport` configuration would cause credentials to be refreshed every minute.\n\nExcessive refreshes were causing unnecessary AWS API calls. With this fix, credentials are only refreshed at appropriate intervals.",
+      "category": "プラットフォーム互換性",
+      "category_en": "Platform Compatibility"
+    },
+    {
+      "t": "修正: `claude mcp get`/`list` が tools/list の失敗時に `✓ Connected` と表示する問題",
+      "t_en": "Fixed `claude mcp get`/`list` showing `✓ Connected` when tools/list fails",
+      "tags": ["バグ修正", "MCP"],
+      "detail": "`claude mcp get` または `claude mcp list` コマンド実行時に、MCP サーバーとの接続は確立されているが tools/list の呼び出しが失敗している場合でも `✓ Connected` と表示されてしまう問題が修正されました。\n\n接続状態の確認がより正確になり、ツール一覧の取得に失敗した場合は接続が不完全であることが明示されます。",
+      "detail_en": "Fixed an issue where `claude mcp get` or `claude mcp list` would display `✓ Connected` even when the connection to the MCP server was established but the tools/list call had failed.\n\nConnection status checking is now more accurate, and an incomplete connection is clearly indicated when the tool list retrieval fails.",
+      "category": "MCP 連携",
+      "category_en": "MCP Integration"
+    },
+    {
+      "t": "修正: `/remote-control` が接続中に古い「connecting…」の行を残す問題",
+      "t_en": "Fixed `/remote-control` leaving stale \"connecting…\" line",
+      "tags": ["バグ修正"],
+      "detail": "`/remote-control` コマンドで接続を確立した後も「connecting…」の行が古いまま残り続ける問題が修正されました。接続状態が変わると表示が適切に更新されるようになりました。",
+      "detail_en": "Fixed an issue where the \"connecting…\" line would remain stale after a connection was established with the `/remote-control` command. The display is now properly updated when the connection state changes.",
+      "category": "UX",
+      "category_en": "UX"
+    },
+    {
+      "t": "修正: ExitWorktree が「Could not verify worktree state」エラーでクリーンなワークツリーの削除を拒否する問題",
+      "t_en": "Fixed ExitWorktree refusing to remove clean worktree with \"Could not verify worktree state\"",
+      "tags": ["バグ修正"],
+      "detail": "ExitWorktree ツールが、実際にはクリーンな状態のワークツリーに対して「Could not verify worktree state」エラーを返し、削除を拒否する問題が修正されました。\n\nワークツリーの状態検証ロジックが改善され、クリーンなワークツリーが正常に削除されるようになりました。",
+      "detail_en": "Fixed an issue where the ExitWorktree tool would return a \"Could not verify worktree state\" error and refuse to remove a worktree that was actually in a clean state.\n\nThe worktree state verification logic has been improved, allowing clean worktrees to be correctly removed.",
+      "category": "Git 連携",
+      "category_en": "Git Integration"
+    },
+    {
+      "t": "修正: `settings.json` が相対シンボリックリンクの場合に設定変更が ENOENT で失敗する問題",
+      "t_en": "Fixed settings changes failing with ENOENT when settings.json is relative symlink",
+      "tags": ["バグ修正"],
+      "detail": "`settings.json` が相対パスを参照するシンボリックリンクになっている場合、設定変更時に ENOENT エラーが発生して変更が保存できない問題が修正されました。\n\nシンボリックリンクの解決ロジックが改善され、相対シンボリックリンクでも設定変更が正常に保存されます。",
+      "detail_en": "Fixed an issue where attempting to change settings would fail with an ENOENT error when `settings.json` was a symbolic link pointing to a relative path.\n\nThe symlink resolution logic has been improved so that settings changes are correctly saved even with relative symbolic links.",
+      "category": "設定",
+      "category_en": "Configuration"
+    },
+    {
+      "t": "修正: コンテキストリマインダーで IDE の選択行番号が1ずれる問題",
+      "t_en": "Fixed IDE selection line numbers in context reminders being off by one",
+      "tags": ["バグ修正", "IDE"],
+      "detail": "IDE との連携において、コンテキストリマインダーに表示される選択範囲の行番号が1つずれて表示される問題が修正されました。行番号が正確に表示されるようになり、コードの参照箇所を正確に把握できます。",
+      "detail_en": "Fixed an issue where the line numbers for selected ranges shown in context reminders during IDE integration were off by one.\n\nLine numbers are now displayed accurately, allowing you to precisely identify the referenced code locations.",
+      "category": "IDE",
+      "category_en": "IDE"
+    },
+    {
+      "t": "修正: フルスクリーンでネイティブターミナル選択後に Ctrl+C でクリップボードが上書きされる問題",
+      "t_en": "Fixed Ctrl+C in fullscreen after native terminal selection overwriting clipboard",
+      "tags": ["バグ修正"],
+      "detail": "フルスクリーンモードでネイティブターミナルのテキスト選択を行った後に Ctrl+C を押すと、意図せずクリップボードの内容が上書きされてしまう問題が修正されました。Ctrl+C が期待通りの動作をするようになりました。",
+      "detail_en": "Fixed an issue where pressing Ctrl+C in fullscreen mode after making a native terminal text selection would unintentionally overwrite the clipboard contents. Ctrl+C now behaves as expected.",
+      "category": "入力",
+      "category_en": "Input"
+    },
+    {
+      "t": "修正: Ctrl+V でテキストを貼り付けようとすると「No image found」と表示される問題",
+      "t_en": "Fixed Ctrl+V showing \"No image found\" instead of pasting text",
+      "tags": ["バグ修正"],
+      "detail": "Ctrl+V でテキストを貼り付けようとすると、テキストが貼り付けられる代わりに「No image found」というエラーメッセージが表示されてしまう問題が修正されました。Ctrl+V でテキストが正常に貼り付けられるようになりました。",
+      "detail_en": "Fixed an issue where pressing Ctrl+V to paste text would display the error message \"No image found\" instead of pasting the text. Ctrl+V now correctly pastes text.",
+      "category": "入力",
+      "category_en": "Input"
+    },
+    {
+      "t": "修正: Windows/OneDrive でエージェント作成が「EEXIST」で失敗する問題",
+      "t_en": "Fixed agent creation failing with \"EEXIST\" on Windows/OneDrive",
+      "tags": ["バグ修正", "Windows", "Agent"],
+      "detail": "Windows 環境または OneDrive で同期されているディレクトリでエージェントを作成しようとすると、「EEXIST」エラーが発生して作成が失敗する問題が修正されました。\n\nファイル作成時の競合処理が改善され、Windows や OneDrive 環境でもエージェントが正常に作成されるようになりました。",
+      "detail_en": "Fixed an issue where attempting to create an agent on Windows or in a OneDrive-synced directory would fail with an \"EEXIST\" error.\n\nConflict handling during file creation has been improved, allowing agents to be created correctly in Windows and OneDrive environments.",
+      "category": "エージェント設定",
+      "category_en": "Agent Configuration"
+    },
+    {
+      "t": "修正: AskUserQuestion のプレビューコンテンツが切り詰められる問題",
+      "t_en": "Fixed AskUserQuestion preview content being cut off",
+      "tags": ["バグ修正"],
+      "detail": "AskUserQuestion ツールで表示されるプレビューコンテンツが途中で切り詰められてしまう問題が修正されました。プレビューに全内容が正しく表示されるようになりました。",
+      "detail_en": "Fixed an issue where the preview content shown in the AskUserQuestion tool was being cut off. The full content is now correctly displayed in the preview.",
+      "category": "UX",
+      "category_en": "UX"
+    },
+    {
+      "t": "修正: AskUserQuestion の複数選択で「その他」の自由記述回答が欠落する問題",
+      "t_en": "Fixed AskUserQuestion multi-select dropping \"Other\" free-text answer",
+      "tags": ["バグ修正"],
+      "detail": "AskUserQuestion ツールの複数選択形式で「その他」を選択して自由記述で回答を入力した場合、その自由記述回答が送信時に欠落してしまう問題が修正されました。「その他」の回答が正しくエージェントに伝わるようになりました。",
+      "detail_en": "Fixed an issue where selecting \"Other\" in an AskUserQuestion multi-select and entering a free-text answer would result in that free-text answer being dropped upon submission. The \"Other\" answer is now correctly passed to the agent.",
+      "category": "UX",
+      "category_en": "UX"
+    },
+    {
+      "t": "修正: `/stats` の日付が UTC マイナスのタイムゾーンで1日早く表示される問題",
+      "t_en": "Fixed `/stats` dates showing one day early in UTC-negative timezones",
+      "tags": ["バグ修正"],
+      "detail": "UTC-5 や UTC-8 などの UTC マイナスのタイムゾーン環境で `/stats` コマンドを使用すると、日付が実際より1日早く表示される問題が修正されました。ローカルタイムゾーンに合わせた正確な日付が表示されるようになりました。",
+      "detail_en": "Fixed an issue where using the `/stats` command in UTC-negative timezones (such as UTC-5 or UTC-8) would display dates one day earlier than the actual date. Dates are now displayed correctly according to the local timezone.",
+      "category": "UX",
+      "category_en": "UX"
+    },
+    {
+      "t": "修正: Linux で `/copy` およびコピーオンセレクトがクリップボードユーティリティを検出できない問題",
+      "t_en": "Fixed `/copy` and copy-on-select on Linux not detecting clipboard utility",
+      "tags": ["バグ修正"],
+      "detail": "Linux 環境で `/copy` コマンドやテキスト選択時の自動コピー機能が、`xclip` や `xsel`、`wl-clipboard` などのクリップボードユーティリティを正常に検出できない問題が修正されました。クリップボードへのコピーが Linux でも正しく動作するようになりました。",
+      "detail_en": "Fixed an issue on Linux where the `/copy` command and copy-on-select functionality could not correctly detect clipboard utilities such as `xclip`, `xsel`, or `wl-clipboard`.\n\nCopying to the clipboard now works correctly on Linux.",
+      "category": "プラットフォーム互換性",
+      "category_en": "Platform Compatibility"
+    },
+    {
+      "t": "修正: タブインデントされたコードが Write プレビューで誤ったインデントでレンダリングされる問題",
+      "t_en": "Fixed tab-indented code rendering with incorrect indentation in Write preview",
+      "tags": ["バグ修正"],
+      "detail": "タブ文字でインデントされたコードを Write ツールでファイルに書き込む際のプレビュー表示で、インデントが誤った幅でレンダリングされる問題が修正されました。タブインデントのコードが正確にプレビュー表示されるようになりました。",
+      "detail_en": "Fixed an issue where code indented with tab characters would render with incorrect indentation in the Write tool's preview. Tab-indented code is now displayed accurately in the preview.",
+      "category": "レンダリング",
+      "category_en": "Rendering"
+    },
+    {
+      "t": "修正: ターン途中にキューされたユーザープロンプトがフル幅の背景ハイライトなしで表示される問題",
+      "t_en": "Fixed user prompts queued mid-turn not showing full-width background highlight",
+      "tags": ["バグ修正"],
+      "detail": "エージェントの処理ターン中にユーザーがプロンプトをキューに入れた場合、そのプロンプトがフル幅の背景ハイライトなしで表示される問題が修正されました。キューされたプロンプトも通常のプロンプトと同様に正しくスタイリングされます。",
+      "detail_en": "Fixed an issue where user prompts queued during an agent's processing turn would be displayed without the full-width background highlight. Queued prompts are now styled correctly, the same as normal prompts.",
+      "category": "UX",
+      "category_en": "UX"
+    },
+    {
+      "t": "修正: Ghostty でアクティビティスピナーのパルスが誤ったグリフサイズで停止する問題",
+      "t_en": "Fixed activity spinner's pulse dwelling on wrong glyph size in Ghostty",
+      "tags": ["バグ修正"],
+      "detail": "Ghostty ターミナルエミュレーターにおいて、アクティビティスピナーのパルスアニメーションが誤ったグリフサイズで停止してしまう問題が修正されました。Ghostty でもスピナーが正しくアニメーションするようになりました。",
+      "detail_en": "Fixed an issue in the Ghostty terminal emulator where the activity spinner's pulse animation would stop on the wrong glyph size.\n\nThe spinner now animates correctly in Ghostty.",
+      "category": "レンダリング",
+      "category_en": "Rendering"
+    }
+  ]
+}
