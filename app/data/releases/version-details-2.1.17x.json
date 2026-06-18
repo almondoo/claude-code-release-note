@@ -831,5 +831,88 @@
       "category": "国際化",
       "category_en": "Internationalization"
     }
+  ],
+  "2.1.179": [
+    {
+      "t": "修正: ストリーミング途中の接続切断時に部分的なレスポンスが保持されるように",
+      "t_en": "Fixed mid-stream connection drops: partial responses now preserved",
+      "tags": ["バグ修正"],
+      "detail": "API とのストリーミング通信中にネットワーク接続が切断された場合、それまでに受信済みの部分的なレスポンスが破棄されてしまう問題が修正されました。接続切断のタイミング次第では、長時間かかる処理の結果が完全に失われる場合があり、ユーザーがゼロからやり直す必要がありました。\n\n修正により、ストリーミングが途中で切断された場合でも、受信済みの部分レスポンスがセッション内に保持されるようになりました。完全なレスポンスは得られなくても、それまでの出力が手がかりとなり、再試行や問題の診断に活用できます。",
+      "detail_en": "Fixed an issue where partial responses received during a streaming API connection would be discarded if the network connection dropped mid-stream. Depending on the timing of the disconnection, the results of a long-running process could be completely lost, requiring the user to start over from scratch.\n\nWith this fix, partial responses already received are preserved in the session even if the stream is interrupted mid-way. While a complete response is not obtained, the partial output can serve as a reference for retrying or diagnosing the issue.",
+      "category": "ネットワーク",
+      "category_en": "Network"
+    },
+    {
+      "t": "修正: Windows Terminal および VS Code 上の WSL2 でマウスホイールスクロールが効かない問題",
+      "t_en": "Fixed mouse-wheel scrolling in WSL2 under Windows Terminal and VS Code",
+      "tags": ["バグ修正", "Windows"],
+      "detail": "Windows Terminal または VS Code の統合ターミナル上で WSL2 環境の Claude Code を使用している場合に、マウスホイールによるスクロールが機能しない問題が修正されました。WSL2 を経由したターミナルエミュレータでのマウスイベントの伝達処理に不具合があり、スクロール入力が無視されていました。\n\n修正により、Windows Terminal および VS Code 上の WSL2 環境でもマウスホイールスクロールが正常に動作するようになりました。長い出力や会話履歴をマウスで快適に閲覧できます。",
+      "detail_en": "Fixed an issue where mouse-wheel scrolling did not work when using Claude Code in a WSL2 environment on Windows Terminal or the VS Code integrated terminal. There was a defect in the handling of mouse event propagation through the terminal emulator via WSL2, causing scroll input to be ignored.\n\nWith this fix, mouse-wheel scrolling works correctly in WSL2 environments on Windows Terminal and VS Code. You can now comfortably browse long outputs and conversation history using the mouse.",
+      "category": "プラットフォーム互換性",
+      "category_en": "Platform Compatibility"
+    },
+    {
+      "t": "修正: 大きなディレクトリに対するサンドボックスの `denyRead`/`allowRead` グロブでセッションが操作不能になる問題",
+      "t_en": "Fixed sandbox `denyRead`/`allowRead` glob over a large directory making the session unusable",
+      "tags": ["バグ修正", "Perf"],
+      "detail": "サンドボックス設定の `denyRead` または `allowRead` に対して大きなディレクトリをカバーするグロブパターンを指定した場合に、グロブの展開処理がブロッキングで行われ、セッション全体がフリーズして操作不能になる問題が修正されました。ファイル数の多いディレクトリ（例: `node_modules` 配下など）を対象にするとセッションが応答しなくなるケースがありました。\n\n修正により、大きなディレクトリに対するグロブパターンを指定してもセッションが正常に動作し続けます。サンドボックスのアクセス制御を細かく設定するワークフローで信頼性が向上しました。",
+      "detail_en": "Fixed an issue where specifying a glob pattern covering a large directory in the sandbox `denyRead` or `allowRead` settings would cause the glob expansion to run as a blocking operation, freezing the entire session and making it unusable. Sessions would become unresponsive when targeting directories with many files, such as under `node_modules`.\n\nWith this fix, the session continues to function normally even when glob patterns targeting large directories are specified. This improves reliability in workflows that use fine-grained sandbox access control.",
+      "category": "サンドボックス",
+      "category_en": "Sandbox"
+    },
+    {
+      "t": "修正: フィードバックアンケートで1桁の返信がセッション評価として誤って記録される問題",
+      "t_en": "Fixed feedback survey capturing a single-digit reply as a session rating",
+      "tags": ["バグ修正"],
+      "detail": "フィードバックアンケートの表示中に、ユーザーが入力した1桁の数字（例: コマンドの一部として入力した `1` や `5` など）がセッション評価スコアとして誤って記録されてしまう問題が修正されました。アンケートの入力フォーカス管理に不備があり、意図しないキー入力がスコアとして解釈されていました。\n\n修正により、フィードバックアンケートのスコア入力が意図した操作のみを受け付けるようになり、誤った評価データが記録されなくなりました。",
+      "detail_en": "Fixed an issue where single-digit numbers entered by the user during a feedback survey (e.g., `1` or `5` entered as part of a command) were being incorrectly recorded as session rating scores. There was a deficiency in the survey's input focus management, causing unintended keystrokes to be interpreted as scores.\n\nWith this fix, the feedback survey's score input only accepts intended actions, preventing incorrect rating data from being recorded.",
+      "category": "UX",
+      "category_en": "UX"
+    },
+    {
+      "t": "修正: ウェルカム画面に複数のプロモーションバナーが積み重なって表示される問題",
+      "t_en": "Fixed welcome screen stacking multiple promotional banners",
+      "tags": ["バグ修正"],
+      "detail": "Claude Code のウェルカム画面において、複数のプロモーションバナーが重複して表示される問題が修正されました。バナーの表示制御ロジックに不具合があり、条件が重複して評価された場合に同一バナーや複数バナーが縦に積み重なってレイアウトが乱れるケースがありました。\n\n修正により、ウェルカム画面には適切なバナーが1つだけ表示されるようになり、表示が整理されてファーストビューの視認性が改善されました。",
+      "detail_en": "Fixed an issue where multiple promotional banners were being displayed redundantly on the Claude Code welcome screen. There was a defect in the banner display control logic, causing the same or multiple banners to stack vertically and disrupt the layout when conditions were evaluated with overlap.\n\nWith this fix, only the appropriate single banner is shown on the welcome screen, resulting in a cleaner display and improved first-view visibility.",
+      "category": "UX",
+      "category_en": "UX"
+    },
+    {
+      "t": "修正: サブエージェント表示中に Ctrl+O でサブエージェントのトランスクリプトが表示されない問題",
+      "t_en": "Fixed Ctrl+O not showing the subagent's transcript when viewing a subagent",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "サブエージェントの実行状況を表示しているパネルで `Ctrl+O` を押しても、そのサブエージェントのトランスクリプト（会話履歴）が開かれない問題が修正されました。フォーカスコンテキストの判定に不具合があり、サブエージェントビューでのキーバインドが親セッションの操作として処理されていました。\n\n修正により、サブエージェントを表示中に `Ctrl+O` を押すと、そのサブエージェントのトランスクリプトが正しく表示されるようになりました。並列実行中の各エージェントの動作を個別に追跡しやすくなります。",
+      "detail_en": "Fixed an issue where pressing `Ctrl+O` in the panel displaying a sub-agent's execution status would not open that sub-agent's transcript (conversation history). There was a defect in the focus context determination, causing key bindings in the subagent view to be processed as parent session operations.\n\nWith this fix, pressing `Ctrl+O` while viewing a sub-agent correctly displays that sub-agent's transcript. This makes it easier to individually track the behavior of each agent running in parallel.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-Agent"
+    },
+    {
+      "t": "修正: プロンプト入力欄をクリックしてもサブエージェント/フッターパネルからフォーカスが戻らない問題",
+      "t_en": "Fixed clicking the prompt input not returning focus from the subagent/footer panel",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "サブエージェントパネルやフッターパネルが展開されている状態でプロンプト入力欄をクリックしても、フォーカスがそれらのパネルに留まったままでプロンプト入力欄に移らない問題が修正されました。パネル間のフォーカス管理に不具合があり、クリックイベントが正しくフォーカス移動につながっていませんでした。\n\n修正により、パネルが表示されている状態でもプロンプト入力欄をクリックするとフォーカスが即座に切り替わり、そのままキーボードで入力できるようになりました。",
+      "detail_en": "Fixed an issue where clicking the prompt input field while the subagent panel or footer panel was expanded would not return focus to the prompt input, leaving focus stuck in those panels. There was a defect in focus management between panels, causing click events to not correctly trigger focus transitions.\n\nWith this fix, clicking the prompt input field while panels are displayed immediately switches focus to it, allowing keyboard input right away.",
+      "category": "入力",
+      "category_en": "Input"
+    },
+    {
+      "t": "修正: リモートセッションのバックグラウンドタスクが「still running」のままスタックして見える問題",
+      "t_en": "Fixed remote session background tasks appearing stuck as \"still running\"",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "リモートセッションでバックグラウンドタスクを実行した場合に、タスクが実際には完了しているにもかかわらず UI 上で「still running」と表示されたままになる問題が修正されました。リモートセッションとローカルの状態同期に不具合があり、タスク完了イベントが正しく伝播されていませんでした。\n\n修正により、リモートセッションのバックグラウンドタスクが完了した際に UI の状態も正しく更新されるようになりました。タスクの完了を誤って判断してセッションを中断するといった誤操作を防げます。",
+      "detail_en": "Fixed an issue where background tasks in remote sessions would continue to show as \"still running\" in the UI even after the tasks had actually completed. There was a defect in the state synchronization between the remote session and local state, causing task completion events to not propagate correctly.\n\nWith this fix, the UI state is correctly updated when background tasks in remote sessions complete. This prevents erroneous operations such as interrupting a session based on a mistaken belief that a task has not finished.",
+      "category": "セッション管理",
+      "category_en": "Session Management"
+    },
+    {
+      "t": "改善: リモートセッションでのプラグイン読み込みパフォーマンスを向上",
+      "t_en": "Improved plugin loading performance in remote sessions",
+      "tags": ["改善", "Plugin", "Perf"],
+      "detail": "リモートセッションにおけるプラグインの読み込み処理が最適化され、セッション開始時のプラグイン初期化にかかる時間が短縮されました。従来は各プラグインの読み込みが逐次的に行われていたため、プラグイン数が多いほど起動が遅くなる傾向がありました。\n\n最適化により、リモートセッションでのプラグイン読み込みが高速化され、特に複数プラグインを利用するワークフローで体感できる起動速度の改善が見込まれます。",
+      "detail_en": "The plugin loading process in remote sessions has been optimized, reducing the time required for plugin initialization at session startup. Previously, each plugin was loaded sequentially, which tended to slow down startup the more plugins were installed.\n\nWith this optimization, plugin loading in remote sessions is faster, and a noticeable improvement in startup speed can be expected especially in workflows that use multiple plugins.",
+      "category": "パフォーマンス",
+      "category_en": "Performance"
+    }
   ]
 }
