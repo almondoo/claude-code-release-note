@@ -351,5 +351,160 @@
       "category": "レンダリング",
       "category_en": "Rendering"
     }
+  ],
+  "2.1.183": [
+    {
+      "t": "改善: auto モードの安全性を強化 — 破壊的な git コマンド（`git reset --hard` 等）や `terraform destroy`・`pulumi destroy` を、明示的に依頼されない限りブロックするように",
+      "t_en": "Enhanced auto mode safety with blocks on destructive git commands and terraform/pulumi destroy unless explicitly requested",
+      "tags": ["改善", "Security"],
+      "detail": "auto モードでは分類器が各ツール呼び出しを評価し、ユーザーが明示的に依頼していない破壊的な操作をブロックします。v2.1.183 ではこの保護が強化され、`git reset --hard`・`git checkout -- .`・`git clean -fd`・`git stash drop` といったローカルの作業内容を破棄する git コマンドが、明示的な依頼なしには実行されなくなりました。`git commit --amend` も、そのセッション中にエージェント自身が作成したコミット以外には適用されません。\n\nさらに `terraform destroy`・`pulumi destroy`・`cdk destroy` などインフラを破棄するコマンドも、対象スタックを明示的に指定した依頼がない限りブロックされます。これらは会話中で明示的に依頼すれば実行できます。\n\nこれにより、auto モードでエージェントに作業を任せている間も、うっかりした作業破棄やインフラ破壊から保護される安全網が強化されました。詳しくは[auto モードの設定ドキュメント](https://code.claude.com/docs/en/auto-mode-config)を参照してください。",
+      "detail_en": "In auto mode, a classifier evaluates each tool call and blocks destructive operations that the user hasn't explicitly requested. In v2.1.183, this protection was strengthened so that destructive git commands that discard local work — such as `git reset --hard`, `git checkout -- .`, `git clean -fd`, and `git stash drop` — are no longer executed without an explicit request. `git commit --amend` is also only applied to commits the agent itself created during that session.\n\nIn addition, infrastructure-destroying commands such as `terraform destroy`, `pulumi destroy`, and `cdk destroy` are blocked unless a request explicitly names the target stack. These can be executed if you explicitly ask for them in the conversation.\n\nThis strengthens the safety net that protects you from accidental work loss or infrastructure destruction while delegating tasks to the agent in auto mode. See the [auto mode configuration documentation](https://code.claude.com/docs/en/auto-mode-config) for details.",
+      "category": "セキュリティ",
+      "category_en": "Security"
+    },
+    {
+      "t": "追加: 非推奨になったモデルや新バージョンへ自動更新されるモデルについて、リクエスト時に警告を表示するように",
+      "t_en": "Added deprecation warnings for requested models with automatic updates to newer versions",
+      "tags": ["新機能"],
+      "detail": "リクエストしたモデルが非推奨になっている場合や、自動的に新しいバージョンへ更新される場合に、その旨を知らせる警告が表示されるようになりました。print モード（`-p`）では警告が stderr に出力され、サブエージェントの frontmatter で指定されたモデルも対象に含まれます。\n\nこれまではモデルが裏で別バージョンに切り替わってもユーザーが気づきにくく、想定と異なるモデルで推論が実行される混乱がありました。今回の変更により、モデルの非推奨化や自動更新を見落とさずに把握できます。",
+      "detail_en": "When a requested model has been deprecated or is automatically updated to a newer version, a warning is now displayed to notify you. In print mode (`-p`), the warning is written to stderr, and models specified in a subagent's frontmatter are also covered.\n\nPreviously, it was hard to notice when a model was switched to a different version behind the scenes, causing confusion when inference ran on a model other than the one expected. This change lets you stay aware of model deprecations and automatic updates without missing them.",
+      "category": "API",
+      "category_en": "API"
+    },
+    {
+      "t": "追加: web セッションのコミットから claude.ai のセッションリンクを省略する `attribution.sessionUrl` 設定を追加",
+      "t_en": "Introduced `attribution.sessionUrl` setting to omit claude.ai session links from commits in web sessions",
+      "tags": ["新機能"],
+      "detail": "web セッション（claude.ai/code）や Remote Control からのコミットでは、git コミットや PR の説明に `https://claude.ai/code/...` 形式のセッションリンクが付加されていました。`attribution.commit` を空にしてもこの URL だけは除去できないという課題がありましたが、v2.1.183 で独立した設定キー `attribution.sessionUrl` が追加され、セッションリンクのみを選択的に省略できるようになりました。\n\nコミット履歴に外部リンクを残したくない場合や、社内ポリシーでセッション URL の混入を避けたい場合に有用です。詳しくは[設定ドキュメントの attribution セクション](https://code.claude.com/docs/en/settings#attribution-settings)を参照してください。",
+      "detail_en": "For commits made from a web session (claude.ai/code) or Remote Control, Claude Code attached a session link in the `https://claude.ai/code/...` format to git commits and PR descriptions. There was an issue where this URL alone couldn't be removed even by emptying `attribution.commit`. In v2.1.183, an independent setting key `attribution.sessionUrl` was added, allowing you to selectively omit just the session link.\n\nThis is useful when you don't want to leave external links in your commit history, or when company policy requires avoiding session URLs. See the [attribution section of the settings documentation](https://code.claude.com/docs/en/settings#attribution-settings) for details.",
+      "category": "Git 連携",
+      "category_en": "Git Integration"
+    },
+    {
+      "t": "追加: 利用可能な省略キーを一覧表示する `/config --help` を追加",
+      "t_en": "Added `/config --help` to list available shorthand keys",
+      "tags": ["新機能"],
+      "detail": "v2.1.181 で追加された `/config key=value` の省略記法に対し、利用可能な省略キーを一覧表示する `/config --help` が追加されました。どのキーが設定可能かを、ドキュメントを開かずにその場で確認できます。\n\n設定名をうろ覚えのままでも、`/config --help` を実行すれば候補を確認してから設定変更を行えます。詳しくは[設定ドキュメント](https://code.claude.com/docs/en/settings)を参照してください。",
+      "detail_en": "Building on the `/config key=value` shorthand added in v2.1.181, `/config --help` was added to list the available shorthand keys. You can check which keys are configurable right there, without opening the documentation.\n\nEven if you only vaguely remember a setting's name, running `/config --help` lets you confirm the candidates before making a change. See the [settings documentation](https://code.claude.com/docs/en/settings) for details.",
+      "category": "設定",
+      "category_en": "Configuration"
+    },
+    {
+      "t": "変更: `/config` のトグル操作 — Enter と Space で設定を変更、Esc で保存して閉じるように",
+      "t_en": "Modified `/config` toggle behavior: Enter and Space now change settings; Esc saves and closes",
+      "tags": ["改善"],
+      "detail": "`/config` のインタラクティブ UI における操作が変更されました。従来は Enter キーのみで設定を変更していましたが、Enter に加えて Space キーでも設定をトグルできるようになりました。また Esc キーの挙動が「変更を破棄して閉じる」から「変更を保存して閉じる」に変わりました。\n\nSpace でのトグルは一般的な UI 慣習に沿った操作であり、Esc で保存されるようになったことで、設定変更後にうっかり Esc を押して変更が失われてしまうことを防げます。",
+      "detail_en": "The interaction in the `/config` interactive UI has been changed. Previously, only the Enter key changed a setting, but now Space can toggle settings in addition to Enter. The behavior of the Esc key also changed from \"discard changes and close\" to \"save changes and close.\"\n\nToggling with Space follows common UI conventions, and since Esc now saves, you're protected from accidentally pressing Esc after changing a setting and losing your changes.",
+      "category": "設定",
+      "category_en": "Configuration"
+    },
+    {
+      "t": "変更: 起動時の「setup issues」行を削除。設定の問題は `/doctor` で確認するように",
+      "t_en": "Removed startup \"setup issues\" line; use `/doctor` for configuration issues",
+      "tags": ["改善"],
+      "detail": "起動時にロゴの下へ表示されていた「setup issues」の行が削除されました。この行は設定上の問題の要約を示していましたが、起動画面をクリーンに保つために廃止されました。\n\n設定の問題を確認したい場合は、セッション内で `/doctor` コマンドを実行するか、`--debug` フラグを付けて起動してください。詳しくは[設定ドキュメント](https://code.claude.com/docs/en/settings#invalid-entries-in-managed-settings)を参照してください。",
+      "detail_en": "The \"setup issues\" line that appeared below the logo at startup has been removed. This line summarized configuration problems, but it was retired to keep the startup screen clean.\n\nWhen you want to check for configuration issues, run the `/doctor` command within a session, or launch with the `--debug` flag. See the [settings documentation](https://code.claude.com/docs/en/settings#invalid-entries-in-managed-settings) for details.",
+      "category": "UX",
+      "category_en": "UX"
+    },
+    {
+      "t": "修正: サブエージェント生成時およびセッションタイトル生成時に thinking ブロックの表示エラーが発生する問題",
+      "t_en": "Fixed thinking block display errors on subagent spawns and session-title generation",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "一部の構成で、サブエージェントの生成時やセッションタイトルの自動生成時に、thinking ブロックの表示に関するエラー（`Extra inputs are not permitted` の 400 エラー）が発生していた問題が修正されました。thinking が無効化されている構成でも、サブエージェントの生成やタイトル生成が正常に行われるようになりました。",
+      "detail_en": "Fixed an issue where, in some configurations, errors related to thinking block display (a 400 error with `Extra inputs are not permitted`) occurred when spawning subagents or auto-generating session titles. Subagent spawns and title generation now work correctly even in configurations where thinking is disabled.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-Agent"
+    },
+    {
+      "t": "修正: サブエージェント内で WebSearch が空の結果を返す問題",
+      "t_en": "Fixed WebSearch returning empty results in subagents",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "サブエージェント内で WebSearch ツールを呼び出した際に、検索結果が空で返ってしまう問題が修正されました。サブエージェントでも親セッションと同様に Web 検索が正しく機能するようになりました。",
+      "detail_en": "Fixed an issue where calling the WebSearch tool inside a subagent returned empty results. Web search now works correctly in subagents, just as it does in the parent session.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-Agent"
+    },
+    {
+      "t": "修正: vim モードのヒストリナビゲーション後にターミナルカーソルの位置がずれる問題",
+      "t_en": "Fixed terminal cursor positioning after vim mode history navigation",
+      "tags": ["バグ修正"],
+      "detail": "vim モードを有効にしている環境で、ヒストリナビゲーション（上下キーによる履歴移動）を行った後に、ターミナルカーソルがプロンプトより上の誤った位置に残ってしまう問題が修正されました。カーソルが正しい入力位置に表示されるようになりました。",
+      "detail_en": "Fixed an issue where, with vim mode enabled, the terminal cursor would be left in an incorrect position above the prompt after history navigation (moving through history with the arrow keys). The cursor is now displayed at the correct input position.",
+      "category": "入力",
+      "category_en": "Input"
+    },
+    {
+      "t": "修正: 大量のネストされたサブエージェント実行時に Windows Terminal でフルスクリーン TUI が破損する問題",
+      "t_en": "Fixed fullscreen TUI corruption in Windows Terminal under heavy nested-subagent load",
+      "tags": ["バグ修正", "Windows", "Agent"],
+      "detail": "Windows Terminal で大量のネストされたサブエージェントを実行している際に、フルスクリーン TUI が破損する（ステータスラインが画面中央に表示される、スピナー行が重複する、テキストが結合するなど）問題が修正されました。高負荷時でも Windows Terminal の表示が安定するようになりました。",
+      "detail_en": "Fixed an issue where the fullscreen TUI would become corrupted (the status line appearing in the middle of the screen, spinner lines duplicating, text merging together, etc.) when running a large number of nested subagents in Windows Terminal. The Windows Terminal display now stays stable even under heavy load.",
+      "category": "レンダリング",
+      "category_en": "Rendering"
+    },
+    {
+      "t": "修正: thinking ブロックのみでターンが無音で終了する問題（モデルが自動的に再プロンプトするように）",
+      "t_en": "Fixed turns completing silently with only thinking blocks; model now re-prompts",
+      "tags": ["バグ修正"],
+      "detail": "モデルのレスポンスが thinking ブロックのみで、テキスト出力やツール使用を含まない場合に、ターンが無音のまま終了しユーザーに何も表示されない問題が修正されました。この状況を検出した場合、Claude が自動的に再プロンプトを行い、実際の応答を生成するようになりました。",
+      "detail_en": "Fixed an issue where, when a model's response contained only thinking blocks and no text output or tool use, the turn would complete silently and display nothing to the user. When this situation is detected, Claude now automatically re-prompts and generates an actual response.",
+      "category": "会話管理",
+      "category_en": "Conversation"
+    },
+    {
+      "t": "修正: ユーザーレベルのスキルがスラッシュコマンドのオートコンプリートに重複表示される問題",
+      "t_en": "Fixed user-level skills appearing multiple times in slash-command autocomplete",
+      "tags": ["バグ修正", "Plugin"],
+      "detail": "複数のプラグインが有効な環境で、ユーザーレベルのスキルがスラッシュコマンドのオートコンプリート候補に重複して表示される問題が修正されました。各スキルが一度だけ表示されるようになりました。",
+      "detail_en": "Fixed an issue where, in environments with multiple plugins enabled, user-level skills appeared multiple times in the slash-command autocomplete suggestions. Each skill is now displayed only once.",
+      "category": "コマンド",
+      "category_en": "Commands"
+    },
+    {
+      "t": "修正: 認証が必要な MCP サーバーが認証スタブツールをモデルに公開してしまう問題",
+      "t_en": "Fixed MCP servers requiring authentication exposing auth-stub tools to the model",
+      "tags": ["バグ修正", "MCP"],
+      "detail": "認証が必要な MCP サーバーは、認証が未完了の場合に本来のツールの代わりに「認証スタブ」ツールを返します。headless / SDK モードでこの認証スタブツールが誤ってモデルのコンテキストに公開されてしまう問題が修正されました。認証が完了していない MCP サーバーのスタブツールがモデルへ渡らないようになりました。",
+      "detail_en": "MCP servers that require authentication return \"auth stub\" tools instead of their real tools when authentication is incomplete. Fixed an issue where these auth-stub tools were mistakenly exposed to the model's context in headless / SDK mode. Stub tools from MCP servers that haven't completed authentication are no longer passed to the model.",
+      "category": "MCP 連携",
+      "category_en": "MCP Integration"
+    },
+    {
+      "t": "修正: シェル初期化が遅い環境で tmux の teammate ペインの起動に失敗する問題",
+      "t_en": "Fixed tmux teammate panes failing to launch with slow shell initialization",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "シェルの初期化（`.zshrc` 等の読み込み）が遅い環境で、tmux の teammate ペインの起動に失敗する問題が修正されました。あわせて、エージェント生成中に入力されたキーストロークが新しい tmux ペインへ漏れ込んでしまう問題も修正されています。",
+      "detail_en": "Fixed an issue where tmux teammate panes failed to launch in environments with slow shell initialization (loading `.zshrc`, etc.). At the same time, an issue where keystrokes entered during agent spawning leaked into the new tmux pane was also fixed.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-Agent"
+    },
+    {
+      "t": "修正: teammate がターンを終了するとバックグラウンドタスクが kill される問題",
+      "t_en": "Fixed background tasks being killed when teammates finish turns",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "teammate が自身のターンを終了した際に、その teammate が起動していたバックグラウンドタスクまで一緒に終了（kill）されてしまう問題が修正されました。teammate のターン完了後も、バックグラウンドタスクが継続して実行されるようになりました。",
+      "detail_en": "Fixed an issue where, when a teammate finished its own turn, the background tasks that teammate had launched were terminated (killed) along with it. Background tasks now continue running even after a teammate's turn completes.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-Agent"
+    },
+    {
+      "t": "修正: auto モードでスケジュールされたタスクがキーボード入力として扱われる問題",
+      "t_en": "Fixed scheduled tasks being treated as keyboard input in auto mode",
+      "tags": ["バグ修正"],
+      "detail": "スケジュールされたタスクや webhook トリガーの配信が、キーボード入力として誤って処理される問題が修正されました。auto モードでこの誤認識が起きると、ペンディング中のアクションが意図せず承認されたり、セッションタイトルが誤って設定されることがありましたが、これらがタスク通知として正しく分類されるようになりました。",
+      "detail_en": "Fixed an issue where the delivery of scheduled tasks or webhook triggers was mistakenly processed as keyboard input. When this misrecognition occurred in auto mode, pending actions could be unintentionally approved or session titles could be set incorrectly; these are now correctly classified as task notifications.",
+      "category": "入力",
+      "category_en": "Input"
+    },
+    {
+      "t": "修正: フォーカスモードで PostToolUse フックのタイミング行が誤って表示される問題",
+      "t_en": "Fixed focus mode showing incorrect PostToolUse hook timing lines",
+      "tags": ["バグ修正"],
+      "detail": "フォーカスモードにおいて、各レスポンスの下に「Ran N PostToolUse hooks」というフックのタイミング行が誤って表示される問題が修正されました。ノイズを抑えたクリーンな表示を意図したフォーカスモードで、内部フックのメタ情報が表示されないようになりました。",
+      "detail_en": "Fixed an issue where focus mode incorrectly displayed a hook timing line reading \"Ran N PostToolUse hooks\" below each response. In focus mode, which is intended to provide a clean, noise-reduced display, internal hook meta-information is no longer shown.",
+      "category": "レンダリング",
+      "category_en": "Rendering"
+    }
   ]
 }
