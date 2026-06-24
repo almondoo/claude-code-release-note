@@ -44,33 +44,88 @@ one at a time from Step 1, marking each `completed` with `TaskUpdate` as you fin
 Tracking the steps keeps the verification (`git diff`, typecheck) from being skipped under
 time pressure.
 
-1. **Fetch official info + load existing data** — Pull the change items from the
-   CHANGELOG and, in parallel, read the current JSON files to find the latest version
-   already present.
-   - If the user supplied the change details directly, you may skip the CHANGELOG
-     `WebFetch` — but still do the Step 2 cross-check.
-2. **Detect the gap + cross-check** — Compare the official info against the current JSON
-   and identify the not-yet-added versions.
+This skill is **subagent-driven for information gathering**: fetching the CHANGELOG and
+researching the docs are large, read-only, parallelizable jobs that would otherwise flood
+your context, so they go to subagents. You keep the *integration* work — deciding the gap,
+translating, choosing tags, and editing the JSON. See "Subagent delegation" below for the
+division of labor and the exact dispatch prompts.
+
+1. **Gather official info + existing data (subagents, in parallel)** — In one turn, dispatch
+   the CHANGELOG-fetch subagent and the existing-data subagent together (they have no
+   dependency). The first returns the recent change items as structured data; the second
+   returns the latest version already present. See "Fetch the CHANGELOG + existing data"
+   under "Information sources".
+   - If the user supplied the change details directly, you may skip the CHANGELOG subagent —
+     but still run the docs-research subagent in Step 3 for the cross-check.
+2. **Detect the gap (main)** — Compare the returned change items against the latest present
+   version and identify the not-yet-added versions. This is an integration judgment, so do
+   it yourself rather than delegating.
    - Comparison key: `v` (the version number).
    - Existing data is immutable. Only check whether the newest versions are missing; do
      not edit versions that are already present.
    - If the CHANGELOG alone leaves you unsure, confirm with `AskUserQuestion` rather than
      guessing — CHANGELOG one-liners are easy to misread.
-3. **Translate + edit JSON** — Translate the verified gap into Japanese and update the
-   files per the schema below.
+   - If there is no gap (every recent version is already present), skip Step 3 entirely and go
+     straight to the all-skipped report in Step 4 — don't dispatch docs-research subagents for
+     zero versions.
+3. **Research docs + translate + edit JSON** — Dispatch one docs-research subagent per gap
+   version (in parallel) to gather the `detail` background, **cross-check each CHANGELOG line
+   against the docs**, and verify doc URLs (see "Research background detail from the docs"
+   under "Information sources"). Then, on main, reconcile any discrepancy the subagent flagged
+   in `cross_check` (the CHANGELOG one-liner is not authoritative — fix the summary if the
+   docs say otherwise), translate into Japanese, choose tags / `category`, and edit the files
+   per the schema below.
+   - If the new versions fall outside the newest existing range file (each file covers 10
+     versions — e.g. `releases-2.1.18x.json` = 180–189), first create the new
+     `releases-2.1.Nx.json` + `version-details-2.1.Nx.json` and add their imports to `index.ts`
+     (see "index.ts rule"), then write the data. Otherwise append to the existing range files.
    - Before editing: run `git diff` to check for uncommitted changes (tell the user if any
      exist — this repo is sometimes edited by parallel sessions).
    - After editing: run `git diff` again to confirm nothing unintended changed.
    - On error: if a JSON syntax error or type error appears, confirm with the user before
      reverting your changes.
-4. **Validate + report** — Run the JSON syntax check + `pnpm run typecheck`, then report in
-   this format:
+4. **Validate + report** — Run the JSON syntax check, then run `pnpm run typecheck` in the
+   background or via a `test-verifier` subagent (it takes ≥10s, so don't block on it).
+   Optionally dispatch a reviewer subagent to check the diff with a fresh lens (see
+   "Subagent delegation"). Then report in this format:
 
 ```
 更新結果:
 - 追加: N件（新規追加したバージョン一覧）
 - スキップ: N件（既に最新のため変更なし）
 ```
+
+## Subagent delegation
+
+The fetch/research work is large, read-only, and parallelizable — exactly what subagents
+are good at — while the decisions that need full context stay with you on the main thread.
+
+| Step | Work | Who | Why |
+|------|------|-----|-----|
+| 1 | Fetch CHANGELOG + extract change items | subagent (`Explore`) | The full CHANGELOG floods context; return structured data instead |
+| 1 | Find the latest version already present | subagent (`Explore`) | A multi-file read; you only need the version number back |
+| 2 | Detect the gap (which versions are missing) | **main** | Integration judgment over the two returns |
+| 3 | Per-version docs background + URL verification | subagent (`docs-researcher`), one per version, in parallel | Read-only research; parallelizes across versions; verifying URLs in the subagent keeps dead links out |
+| 3 | Translate, choose tags / `category`, edit JSON | **main** | Literal tag/`category` values and the exact `t` match across two files are integration decisions — easy to get wrong if delegated |
+| 3 | `git diff` safety gate (before/after editing) | **main** | You need to see uncommitted changes directly |
+| 4 | `pnpm run typecheck` validation | background / `test-verifier` subagent | Takes ≥10s; don't block the main thread |
+| 4 | Final diff review (optional) | reviewer subagent | A fresh lens catches tag mis-classification and `t` mismatches |
+
+**Agent types**: this repo has no custom `.claude/agents/`, so use broadly-available types —
+`Explore` (read-only, has `WebFetch`) — or `docs-researcher`, which also has `WebFetch` — for
+the CHANGELOG fetch and existing-data reads, `docs-researcher` for docs lookup (fall back to
+`Explore` / `general-purpose` if it isn't registered), and any reviewer agent for the optional
+final check.
+
+**Make subagents return data, not prose.** Each dispatch prompt below specifies a JSON
+return shape — insist on it, because you compute and translate from these returns and loose
+prose forces re-work. Run independent dispatches in the **same turn** so they execute
+concurrently (CHANGELOG + existing-data together; then all per-version docs subagents
+together).
+
+**Caveat**: if the `Agent` tool isn't available — e.g. this skill is running inside a
+subagent, which typically can't spawn further subagents — fall back to doing the
+fetch/research inline with `WebFetch`. The rest of the workflow is unchanged.
 
 ## Data files
 
@@ -82,33 +137,95 @@ time pressure.
 
 ## Information sources
 
-### Step 1: Pull change items from the CHANGELOG
+### Fetch the CHANGELOG + existing data (subagents, in parallel)
 
-```
-WebFetch https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md
-```
+Don't `WebFetch` the CHANGELOG yourself — the full file is large and pollutes your context.
+Dispatch a read-only subagent (the built-in `Explore` agent works; it has `WebFetch`) and
+have it return only the structured change items. In the **same turn**, dispatch a second
+subagent to read the existing data, since the two are independent. You compute the gap from
+their two returns yourself (the Detect step of the workflow).
 
-Extract the change items from the target version's section. The full CHANGELOG is large,
-so pull only the versions you need. This feeds mainly the `t` (one-line summary) field in
-`releases-*.json`.
+**CHANGELOG-fetch subagent** (label e.g. `fetch-changelog`):
 
-### Step 2: Pull background detail from the Claude Code Docs
+> With `WebFetch`, get the **raw** CHANGELOG at
+> `https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md` — use the raw
+> URL, not the `github.com/.../blob/...` page: raw returns clean Markdown, while the blob page
+> returns HTML chrome that is harder to parse reliably. Extract every change item for the
+> **most recent ~15 versions** (newest first). The file is large — return data, not prose, and
+> do not translate or drop any item. For each version return JSON:
+> `{ "v": "X.Y.Z", "items": [{ "en": "<verbatim CHANGELOG line>", "area_hint": "<SDK|MCP|IDE|Windows|... or empty>" }] }`.
 
-```
-WebFetch https://code.claude.com/docs/en/overview
-```
+**Existing-data subagent** (label e.g. `read-existing`):
 
-For each change item, fill in the technical background, usage, and scope from the docs.
-This feeds the `detail` field in `version-details-*.json`.
+> In `app/data/releases/`, list the `releases-2.1.*.json` files and pick the newest range
+> **numerically** — parse the digits before the `x` in each filename and take the largest.
+> (Plain alphabetical sort is wrong: `releases-2.1.9x.json` sorts after `releases-2.1.18x.json`,
+> but `18x` (180–189) is the newer range.) Read that file, look at the **end** of its array,
+> and return JSON:
+> `{ "latest_version": "X.Y.Z", "release_file": "releases-2.1.Nx.json", "detail_file": "version-details-2.1.Nx.json" }`.
 
-- The CHANGELOG only gives a one-line summary, so consult the docs to write a real
-  explanation.
-- If the docs have nothing on it, build `detail` from the CHANGELOG plus general technical
-  knowledge.
-- Identify the official docs page for each item and embed it as an inline link at the end
-  of `detail` (see the link syntax below).
-- Add a fragment (`#section-name`) to the URL so the link jumps straight to the section.
-- If no URL exists or it is unreachable, add no link.
+This feeds mainly the `t` (one-line summary) field in `releases-*.json`. Filter the
+CHANGELOG return down to versions newer than `latest_version` to get the gap.
+
+### Research background detail from the docs (one subagent per version, in parallel)
+
+Once you know the gap versions, dispatch **one docs-research subagent per version** in a
+single turn so they run in parallel (one subagent even if there's only one version; if there
+are many, dispatch them all together). Inline that version's items (each `en` + `area_hint`)
+into the prompt as a JSON array — include all of them, even 10+. Use the `docs-researcher`
+agent if available (it's tuned for authoritative docs lookup); otherwise `Explore` or
+`general-purpose` work. Each
+subagent does three jobs: fills in the technical background for that version's items,
+**cross-checks each CHANGELOG line against the docs** (the one-liners are AI-written and can
+misstate the change — this is the fact-check that keeps wrong summaries out of the release
+notes), and **verifies the doc URLs so you never embed a dead link**.
+
+**Docs-research subagent** (label e.g. `docs:2.1.84`):
+
+> For Claude Code version `<v>`, here are the change items: `<items with en text + area_hint>`.
+> For each item, research the official docs (start at
+> `https://code.claude.com/docs/en/overview` and the relevant section) and return JSON per
+> item: `{ "en": "<original line>", "background": "<2-4 sentences: what the problem was, what changed, the user benefit, the technical background>", "doc_url": "<verified https://code.claude.com/docs/en/...#fragment, or empty>", "cross_check": "<'matches' if the docs confirm the line; otherwise a short note on what the one-liner gets wrong, omits, or overstates>", "category_hint": "<suggested Japanese category or empty>" }`.
+> **Cross-check the line against the docs.** The CHANGELOG one-liner is AI-written and can be
+> inaccurate. Confirm the docs describe the same change; if they contradict it, materially
+> refine it, or omit part of it, describe the gap in `cross_check` (otherwise set `matches`).
+> If the docs say nothing about the item, set `cross_check` to `not in docs` — don't treat
+> silence as confirmation.
+> **Verify each `doc_url` by actually fetching it** — confirm the page resolves and the
+> `#fragment` matches a real heading. If you can't verify a URL, return an empty `doc_url`
+> rather than guessing. Use only the `https://code.claude.com/docs/en/` URL form.
+> A doc link is worth finding for: new CLI commands/subcommands, new settings/env vars, new
+> hooks events, MCP/plugin configuration, permission/security-model changes, and new
+> platform support. For pure internal bug fixes, performance/memory fixes, and
+> rendering/display fixes there is usually no useful page — return an empty `doc_url`.
+> Likely pages: `/cli-usage`, `/hooks`, `/mcp`, `/settings`, `/security`, `/plugins`,
+> `/discover-plugins`, `/ide-integrations`, `/overview`.
+
+(This guidance is inlined into the dispatch prompt on purpose — the subagent never receives
+the rest of this SKILL.md, so a "see the section below" reference would be a dead link to
+it. The final call on whether to embed a link still happens on main, per the "Documentation
+link rules" and "Official docs URL reference" sections below.)
+
+The returns feed the `detail` field in `version-details-*.json`. You still own the final
+Japanese prose, the `category` choice, and which link (if any) to embed — the subagent gives
+you verified raw material, not the finished `detail`. **Act on each `cross_check`:**
+
+- `matches` → translate the CHANGELOG line into the Japanese `t` as-is.
+- a discrepancy note (the line contradicts the docs, overstates, or omits something) → trust
+  the docs: write `t` to reflect what the docs actually say, not the wrong one-liner, and
+  spell out the correct behavior in `detail`.
+- `not in docs` → the docs are silent, so the CHANGELOG line is your only source; translate it
+  as-is with no doc link, and if the claim looks doubtful, confirm with `AskUserQuestion`
+  rather than guessing.
+
+Treat `area_hint` (from the CHANGELOG-fetch return) and `category_hint` as *advisory* inputs
+to your tag / `category` decision — weigh them against the Tags and category sections below;
+don't adopt them blindly.
+
+- The CHANGELOG only gives a one-line summary, so the subagent's `background` is what lets
+  you write a real explanation instead of paraphrasing the CHANGELOG.
+- If the docs have nothing on an item, the subagent returns an empty `doc_url`; build
+  `detail` from the CHANGELOG line plus general technical knowledge, with no link.
 
 ## Data schema
 
@@ -285,10 +402,18 @@ that fits an existing 10-version range, `index.ts` needs no change. (Do **not** 
 
 ## Validation checklist
 
-1. Cross-checked against the official docs.
-2. JSON syntax is valid: `node -e "require('<file-path>')"`.
-3. Typecheck passes: `pnpm run typecheck`.
+1. Cross-checked against the official docs — the docs-research subagent fact-checked each
+   CHANGELOG line (its `cross_check` field). Confirm you reconciled every flagged discrepancy
+   and didn't write a summary the docs contradict; spot-check anything that looks off, since
+   you own the final `detail`.
+2. JSON syntax is valid: run `node -e "require('<file-path>')"` on **every JSON file you
+   edited** — the `releases-*.json` and the `version-details-*.json` (and a new range file if
+   you added one). (`index.ts` is TypeScript, so the typecheck below covers it.)
+3. Typecheck passes: `pnpm run typecheck` — run it in the background or via a
+   `test-verifier` subagent so it doesn't block you (it takes ≥10s).
 4. The translation reads as natural Japanese.
+5. (Optional) A reviewer subagent checked the diff for tag / `category` errors and `t`
+   mismatches between the two files.
 
 ## Out of scope
 
@@ -299,12 +424,16 @@ that fits an existing 10-version range, `index.ts` needs no change. (Do **not** 
 
 ## Constraints & cautions
 
-- Do not add a version already present in `releases-*.json` (duplicate check is mandatory).
-- Always append to the **end** of the array in `releases-*.json` — inserting mid-array breaks
-  the display order.
-- Make the `t` in `version-details-*.json` match the `t` in `releases-*.json` exactly.
+- Do not add a version already present in `releases-*.json` — duplicates render as repeated
+  cards in the UI.
+- Always append to the **end** of the array in `releases-*.json` — the list renders in array
+  order, so a mid-array insert reorders the displayed history.
+- Make the `t` in `version-details-*.json` match the `t` in `releases-*.json` exactly — the
+  card reads from `releases-*.json` and the detail modal reads from `version-details-*.json`,
+  so a mismatch shows two different summaries for the same entry.
 - Keep each JSON file under 50KB; if a file would exceed it, split into the next
-  10-version-range file.
+  10-version-range file (and add its import to `index.ts`) — oversized data files bloat the
+  bundle and are harder to edit safely.
 
 ## Common mistakes
 
@@ -322,3 +451,5 @@ that fits an existing 10-version range, `index.ts` needs no change. (Do **not** 
 | `detail` copies the CHANGELOG verbatim | Enrich with background from the docs and spell out the user benefit |
 | Adding the import to `constants.tsx` | The import target is `app/data/releases/index.ts` |
 | Translating a tag / category value | Tag and `category` strings are literal data — keep them in Japanese |
+| Letting a fetch / research subagent return prose | Demand the JSON return shape in the dispatch prompt; you translate and decide `category` / links on main |
+| `WebFetch`-ing the CHANGELOG on the main thread when subagents are available | Delegate it to a subagent (see "Subagent delegation") so the large file doesn't flood your context; only fall back to inline `WebFetch` when you can't spawn subagents |
