@@ -354,8 +354,8 @@
   ],
   "2.1.183": [
     {
-      "t": "改善: auto モードの安全性を強化 — 破壊的な git コマンド（`git reset --hard` 等）や `terraform destroy`・`pulumi destroy` を、明示的に依頼されない限りブロックするように",
-      "t_en": "Enhanced auto mode safety with blocks on destructive git commands and terraform/pulumi destroy unless explicitly requested",
+      "t": "改善: auto モードの安全性を強化 — 破壊的な git コマンド（`git reset --hard` 等）・`git commit --amend`（当該セッションでエージェントが作成したコミット以外）・`terraform destroy`・`pulumi destroy`・`cdk destroy` を、明示的に依頼されない限りブロックするように",
+      "t_en": "Enhanced auto mode safety: now blocks destructive git commands (`git reset --hard`, etc.), `git commit --amend` (for commits not made by the agent this session), and `terraform/pulumi/cdk destroy` unless explicitly requested",
       "tags": ["改善", "Security"],
       "detail": "auto モードでは分類器が各ツール呼び出しを評価し、ユーザーが明示的に依頼していない破壊的な操作をブロックします。v2.1.183 ではこの保護が強化され、`git reset --hard`・`git checkout -- .`・`git clean -fd`・`git stash drop` といったローカルの作業内容を破棄する git コマンドが、明示的な依頼なしには実行されなくなりました。`git commit --amend` も、そのセッション中にエージェント自身が作成したコミット以外には適用されません。\n\nさらに `terraform destroy`・`pulumi destroy`・`cdk destroy` などインフラを破棄するコマンドも、対象スタックを明示的に指定した依頼がない限りブロックされます。これらは会話中で明示的に依頼すれば実行できます。\n\nこれにより、auto モードでエージェントに作業を任せている間も、うっかりした作業破棄やインフラ破壊から保護される安全網が強化されました。詳しくは[auto モードの設定ドキュメント](https://code.claude.com/docs/en/auto-mode-config)を参照してください。",
       "detail_en": "In auto mode, a classifier evaluates each tool call and blocks destructive operations that the user hasn't explicitly requested. In v2.1.183, this protection was strengthened so that destructive git commands that discard local work — such as `git reset --hard`, `git checkout -- .`, `git clean -fd`, and `git stash drop` — are no longer executed without an explicit request. `git commit --amend` is also only applied to commits the agent itself created during that session.\n\nIn addition, infrastructure-destroying commands such as `terraform destroy`, `pulumi destroy`, and `cdk destroy` are blocked unless a request explicitly names the target stack. These can be executed if you explicitly ask for them in the conversation.\n\nThis strengthens the safety net that protects you from accidental work loss or infrastructure destruction while delegating tasks to the agent in auto mode. See the [auto mode configuration documentation](https://code.claude.com/docs/en/auto-mode-config) for details.",
@@ -372,8 +372,8 @@
       "category_en": "API"
     },
     {
-      "t": "追加: web セッションのコミットから claude.ai のセッションリンクを省略する `attribution.sessionUrl` 設定を追加",
-      "t_en": "Introduced `attribution.sessionUrl` setting to omit claude.ai session links from commits in web sessions",
+      "t": "追加: web および Remote Control セッションのコミットと PR から claude.ai のセッションリンクを省略する `attribution.sessionUrl` 設定を追加",
+      "t_en": "Added `attribution.sessionUrl` setting to omit the claude.ai session link from commits and PRs in web and Remote Control sessions",
       "tags": ["新機能"],
       "detail": "web セッション（claude.ai/code）や Remote Control からのコミットでは、git コミットや PR の説明に `https://claude.ai/code/...` 形式のセッションリンクが付加されていました。`attribution.commit` を空にしてもこの URL だけは除去できないという課題がありましたが、v2.1.183 で独立した設定キー `attribution.sessionUrl` が追加され、セッションリンクのみを選択的に省略できるようになりました。\n\nコミット履歴に外部リンクを残したくない場合や、社内ポリシーでセッション URL の混入を避けたい場合に有用です。詳しくは[設定ドキュメントの attribution セクション](https://code.claude.com/docs/en/settings#attribution-settings)を参照してください。",
       "detail_en": "For commits made from a web session (claude.ai/code) or Remote Control, Claude Code attached a session link in the `https://claude.ai/code/...` format to git commits and PR descriptions. There was an issue where this URL alone couldn't be removed even by emptying `attribution.commit`. In v2.1.183, an independent setting key `attribution.sessionUrl` was added, allowing you to selectively omit just the session link.\n\nThis is useful when you don't want to leave external links in your commit history, or when company policy requires avoiding session URLs. See the [attribution section of the settings documentation](https://code.claude.com/docs/en/settings#attribution-settings) for details.",
@@ -819,20 +819,20 @@
   ],
   "2.1.187": [
     {
-      "t": "追加: サンドボックス化されたコマンドが認証情報ファイルを読み取れないようにする `sandbox.credentials` 設定を追加",
-      "t_en": "Added `sandbox.credentials` setting to block sandboxed commands from reading credential files",
+      "t": "追加: サンドボックス化されたコマンドが認証情報ファイルおよびシークレット環境変数を読み取れないようにする `sandbox.credentials` 設定を追加",
+      "t_en": "Added `sandbox.credentials` setting to block sandboxed commands from reading credential files and secret environment variables",
       "tags": ["新機能", "Security"],
-      "detail": "Bash サンドボックスのデフォルトの読み取りポリシーはコンピュータ全体の読み取りを許可しており、`~/.aws/credentials` や `~/.ssh/` といった認証情報ファイルも読み取れる状態でした。これらを遮断するには、これまで `sandbox.filesystem.denyRead` に各ディレクトリを手動で列挙する必要がありました。\n\nv2.1.187 で `sandbox.credentials` 設定が追加され、サンドボックス化されたコマンドが一般的な認証情報ファイルを読み取れないように一括でブロックできるようになりました。個別に denyRead を書かなくても、機密性の高い認証情報をサンドボックス内のコマンドから保護できます。\n\nエージェントに Bash コマンドを自律実行させる際に、SSH 鍵やクラウドの認証情報が誤って読み取られたり外部へ送信されたりするリスクを下げられます。詳しくは[サンドボックスのドキュメント](https://code.claude.com/docs/en/sandboxing#filesystem-isolation)を参照してください。",
-      "detail_en": "The Bash sandbox's default read policy allows reading the entire computer, including credential files such as `~/.aws/credentials` and `~/.ssh/`. To block these, you previously had to manually list each directory in `sandbox.filesystem.denyRead`.\n\nIn v2.1.187, the `sandbox.credentials` setting was added so you can block sandboxed commands from reading common credential files all at once. You can protect sensitive credentials from commands inside the sandbox without writing individual denyRead entries.\n\nWhen letting an agent run Bash commands autonomously, this reduces the risk of SSH keys or cloud credentials being read inadvertently or exfiltrated. See the [sandbox documentation](https://code.claude.com/docs/en/sandboxing#filesystem-isolation) for details.",
+      "detail": "Bash サンドボックスのデフォルトの読み取りポリシーはコンピュータ全体の読み取りを許可しており、`~/.aws/credentials` や `~/.ssh/` といった認証情報ファイルも読み取れる状態でした。これらを遮断するには、これまで `sandbox.filesystem.denyRead` に各ディレクトリを手動で列挙する必要がありました。\n\nv2.1.187 で `sandbox.credentials` 設定が追加され、サンドボックス化されたコマンドが一般的な認証情報ファイルおよびシークレット環境変数を読み取れないように一括でブロックできるようになりました。個別に denyRead を書かなくても、機密性の高い認証情報やシークレット環境変数をサンドボックス内のコマンドから保護できます。\n\nエージェントに Bash コマンドを自律実行させる際に、SSH 鍵やクラウドの認証情報・シークレット環境変数が誤って読み取られたり外部へ送信されたりするリスクを下げられます。詳しくは[サンドボックスのドキュメント](https://code.claude.com/docs/en/sandboxing#filesystem-isolation)を参照してください。",
+      "detail_en": "The Bash sandbox's default read policy allows reading the entire computer, including credential files such as `~/.aws/credentials` and `~/.ssh/`. To block these, you previously had to manually list each directory in `sandbox.filesystem.denyRead`.\n\nIn v2.1.187, the `sandbox.credentials` setting was added so you can block sandboxed commands from reading common credential files and secret environment variables all at once. You can protect sensitive credentials and secret environment variables from commands inside the sandbox without writing individual denyRead entries.\n\nWhen letting an agent run Bash commands autonomously, this reduces the risk of SSH keys, cloud credentials, or secret environment variables being read inadvertently or exfiltrated. See the [sandbox documentation](https://code.claude.com/docs/en/sandboxing#filesystem-isolation) for details.",
       "category": "サンドボックス",
       "category_en": "Sandbox"
     },
     {
-      "t": "改善: 組織によるモデル制限がモデルピッカーに制限理由のメッセージとともに表示されるように",
-      "t_en": "Organization model restrictions now appear in the model picker with restriction messaging",
-      "tags": ["改善"],
-      "detail": "組織（Enterprise / Team）の管理者がモデルの利用を制限している場合に、その制限がモデルピッカー上に明示されるようになりました。\n\nこれまでは制限されたモデルを選択しようとしても理由が分かりにくく、なぜ特定のモデルが使えないのかが伝わりませんでした。今回の変更で、制限対象のモデルには制限理由のメッセージが添えて表示され、利用可否とその理由をその場で把握できます。\n\n組織のポリシーでモデルがガバナンスされている環境でも、ユーザーが混乱なくモデルを選択できます。",
-      "detail_en": "When an organization (Enterprise / Team) administrator restricts model usage, those restrictions are now surfaced in the model picker.\n\nPreviously, when you tried to select a restricted model, the reason was unclear and it wasn't obvious why a particular model couldn't be used. With this change, restricted models are shown with restriction messaging, so you can see availability and the reason on the spot.\n\nEven in environments where models are governed by organizational policy, users can choose a model without confusion.",
+      "t": "追加: 組織が設定したモデル制限をモデルピッカー・`--model`・`/model`・`ANTHROPIC_MODEL` に適用し、制限されたモデル選択時に「組織の設定により制限されています」と表示",
+      "t_en": "Added: org-configured model restrictions to the model picker, `--model`, `/model`, and `ANTHROPIC_MODEL`, with a \"restricted by your organization's settings\" message when a restricted model is selected",
+      "tags": ["新機能"],
+      "detail": "組織（Enterprise / Team）の管理者が設定したモデル制限が、モデルピッカー・`--model` フラグ・`/model` コマンド・`ANTHROPIC_MODEL` 環境変数の4箇所すべてに適用されるようになりました。制限されたモデルを選択しようとすると「組織の設定により制限されています」というメッセージが表示されます。\n\nこれまでは制限されたモデルを選択しようとしても理由が分かりにくく、なぜ特定のモデルが使えないのかが伝わりませんでした。今回の変更で、モデルの指定方法を問わず組織ポリシーが一貫して適用され、制限理由もその場で把握できます。\n\n組織のポリシーでモデルがガバナンスされている環境でも、ユーザーが混乱なくモデルを選択・把握できます。",
+      "detail_en": "Model restrictions configured by an organization (Enterprise / Team) administrator are now enforced across all four model selection points: the model picker, the `--model` flag, the `/model` command, and the `ANTHROPIC_MODEL` environment variable. When you attempt to select a restricted model, a \"restricted by your organization's settings\" message is displayed.\n\nPreviously, when you tried to select a restricted model, the reason was unclear and it wasn't obvious why a particular model couldn't be used. With this change, organizational policy is applied consistently regardless of how you specify a model, and the restriction reason is visible on the spot.\n\nEven in environments where models are governed by organizational policy, users can select and understand model availability without confusion.",
       "category": "UX",
       "category_en": "UX"
     },

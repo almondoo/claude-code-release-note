@@ -293,9 +293,9 @@
     {
       "t": "追加: `fmt`、`comm`、`cmp`、`numfmt`、`expr`、`test`、`printf`、`getconf`、`seq`、`tsort`、`pr` を bash 自動承認許可リストに追加",
       "t_en": "Add: `fmt`, `comm`, `cmp`, `numfmt`, `expr`, `test`, `printf`, `getconf`, `seq`, `tsort`, `pr` to bash auto-approval allowlist",
-      "tags": ["改善", "Security"],
-      "detail": "標準的な UNIX テキスト処理・ユーティリティコマンド（`fmt`、`comm`、`cmp`、`numfmt`、`expr`、`test`、`printf`、`getconf`、`seq`、`tsort`、`pr`）が bash の自動承認許可リストに追加されました。これらのコマンドは読み取り専用または計算用途のため、パーミッションプロンプトなしで実行されるようになり、ワークフローがスムーズになります。",
-      "detail_en": "Standard UNIX text processing and utility commands (`fmt`, `comm`, `cmp`, `numfmt`, `expr`, `test`, `printf`, `getconf`, `seq`, `tsort`, `pr`) have been added to the bash auto-approval allowlist. Since these commands are read-only or for computation purposes, they now execute without permission prompts, making workflows smoother.",
+      "tags": ["新機能", "Security"],
+      "detail": "標準的な UNIX テキスト処理・ユーティリティコマンド（`fmt`、`comm`、`cmp`、`numfmt`、`expr`、`test`、`printf`、`getconf`、`seq`、`tsort`、`pr`）が bash の自動承認許可リストに新たに追加されました。これらのコマンドは読み取り専用または計算用途のため、パーミッションプロンプトなしで実行されるようになり、ワークフローがスムーズになります。",
+      "detail_en": "Standard UNIX text processing and utility commands (`fmt`, `comm`, `cmp`, `numfmt`, `expr`, `test`, `printf`, `getconf`, `seq`, `tsort`, `pr`) have been newly added to the bash auto-approval allowlist. Since these commands are read-only or for computation purposes, they now execute without permission prompts, making workflows smoother.",
       "category": "セキュリティ",
       "category_en": "Security"
     },
@@ -599,13 +599,13 @@
       "category_en": "UX"
     },
     {
-      "t": "変更: サードパーティプロキシでのツール検索が環境変数設定時にゲートをバイパスするよう変更（`CLAUDE_CODE_PROXY_SUPPORTS_TOOL_REFERENCE` を置き換え・削除）",
-      "t_en": "Change: Tool search with third-party proxies now bypasses the gate when environment variable is set (replaces and removes `CLAUDE_CODE_PROXY_SUPPORTS_TOOL_REFERENCE`)",
-      "tags": ["改善", "Platform"],
-      "detail": "サードパーティプロキシ使用時のツール検索動作が変更されました。環境変数が設定されている場合、ツール検索がサードパーティプロキシのゲートをバイパスするようになりました。従来の `CLAUDE_CODE_PROXY_SUPPORTS_TOOL_REFERENCE` 環境変数は削除されています。",
-      "detail_en": "Tool search behavior when using third-party proxies has changed. When the environment variable is set, tool search now bypasses the third-party proxy gate. The former `CLAUDE_CODE_PROXY_SUPPORTS_TOOL_REFERENCE` environment variable has been removed.",
-      "category": "プラットフォーム互換性",
-      "category_en": "Platform Compatibility"
+      "t": "修正: `ENABLE_TOOL_SEARCH` 設定時に `ANTHROPIC_BASE_URL` でもツール検索が有効化されないバグ",
+      "t_en": "Fix: Tool search failing to activate when `ANTHROPIC_BASE_URL` is set, even when `ENABLE_TOOL_SEARCH` is configured",
+      "tags": ["バグ修正"],
+      "detail": "`ANTHROPIC_BASE_URL` が設定されている環境でも、`ENABLE_TOOL_SEARCH` が設定されている限りツール検索が正しく有効化されるよう修正されました。以前は `ANTHROPIC_BASE_URL` の存在がツール検索の起動を妨げていましたが、この修正により両方の環境変数を組み合わせて使用できます。",
+      "detail_en": "Fixed an issue where tool search failed to activate when `ANTHROPIC_BASE_URL` was set. Tool search now correctly activates as long as `ENABLE_TOOL_SEARCH` is configured, regardless of whether `ANTHROPIC_BASE_URL` is set. Previously, the presence of `ANTHROPIC_BASE_URL` prevented tool search from starting.",
+      "category": "バグ修正",
+      "category_en": "Bug Fix"
     },
     {
       "t": "変更: CLAUDE.md の HTML コメントが自動注入時に Claude から非表示になるよう変更",
@@ -644,13 +644,13 @@
       "category_en": "UX"
     },
     {
-      "t": "改善: bash コマンドのパースをネイティブモジュール（tree-sitter）に切り替え、誤検知のパーミッションプロンプトを削減",
-      "t_en": "Improvement: Switched bash command parsing to native module (tree-sitter), reducing false positive permission prompts",
-      "tags": ["改善", "Security"],
-      "detail": "bash コマンドのパース処理がネイティブモジュール（tree-sitter ベース）に切り替わりました。コマンドの構造をより正確に解析できるようになり、安全なコマンドに対する誤検知のパーミッションプロンプトが大幅に削減されます。特に複合コマンドやパイプラインを含むコマンドでの精度が向上しています。",
-      "detail_en": "Bash command parsing has been switched to a native module (tree-sitter based). Commands can now be analyzed with greater structural accuracy, significantly reducing false positive permission prompts for safe commands. Accuracy is especially improved for commands containing compound commands and pipelines.",
-      "category": "セキュリティ",
-      "category_en": "Security"
+      "t": "改善: bash コマンドのパースをネイティブモジュールに切り替え、初期化を高速化しメモリリークを解消",
+      "t_en": "Improve: Switched bash command parsing to a native module — faster initialization and no memory leak",
+      "tags": ["改善", "Perf"],
+      "detail": "bash コマンドのパース処理がネイティブモジュールに切り替わりました。初期化が高速化され、以前のパーサーで発生していたメモリリークが解消されます。",
+      "detail_en": "Bash command parsing has been switched to a native module. This results in faster initialization and eliminates the memory leak that occurred in the previous parser.",
+      "category": "パフォーマンス",
+      "category_en": "Performance"
     },
     {
       "t": "改善: バンドルサイズを約510KB削減",
