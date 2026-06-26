@@ -653,20 +653,20 @@
       "category_en": "Multi-Agent"
     },
     {
-      "t": "改善: Fast モードがデフォルトで Opus 4.7 を使用するように",
-      "t_en": "Improvement: Fast mode now uses Opus 4.7 by default",
+      "t": "改善: Fast モードがデフォルトで Opus 4.7 を使用するように（従来は Opus 4.6）",
+      "t_en": "Improvement: Fast mode now uses Opus 4.7 by default (previously Opus 4.6)",
       "tags": ["改善"],
-      "detail": "Fast モード（高速応答を優先するモード）がデフォルトで Claude Opus 4.7 を使用するようになりました。Opus 4.7 は高い推論能力を保ちながら高速なレスポンスを提供します。\n\nFast モードでより高品質な回答が得られるようになります。",
-      "detail_en": "Fast mode (a mode that prioritizes fast responses) now uses Claude Opus 4.7 by default. Opus 4.7 provides fast responses while maintaining high reasoning capability.\n\nHigher quality answers are now available in Fast mode.",
+      "detail": "Fast モード（高速応答を優先するモード）がデフォルトで Claude Opus 4.7 を使用するようになりました（従来は Opus 4.6）。Opus 4.7 は高い推論能力を保ちながら高速なレスポンスを提供します。\n\n従来どおり Opus 4.6 で Fast モードを使用したい場合は、環境変数 `CLAUDE_CODE_OPUS_4_6_FAST_MODE_OVERRIDE=1` を設定することで Opus 4.6 に固定できます。",
+      "detail_en": "Fast mode (a mode that prioritizes fast responses) now uses Claude Opus 4.7 by default (previously Opus 4.6). Opus 4.7 provides fast responses while maintaining high reasoning capability.\n\nTo continue using Fast mode with Opus 4.6, set the environment variable `CLAUDE_CODE_OPUS_4_6_FAST_MODE_OVERRIDE=1` to pin fast mode to Opus 4.6.",
       "category": "設定",
       "category_en": "Configuration"
     },
     {
-      "t": "改善: ルートに `SKILL.md` を持つプラグインをスキルとして認識するように",
-      "t_en": "Improvement: Plugins with `SKILL.md` at root now recognized as skills",
+      "t": "改善: ルートに `SKILL.md` を持ち `skills/` サブディレクトリを持たないプラグインをスキルとして認識するように",
+      "t_en": "Improvement: Plugins with `SKILL.md` at root and no `skills/` subdirectory now recognized as skills",
       "tags": ["改善", "Plugin"],
-      "detail": "プラグインのルートディレクトリに `SKILL.md` ファイルが存在する場合、プラグイン全体をスキルとして公開できるようになりました。これまで `skills/` サブディレクトリ内にスキルを配置する必要がありましたが、シンプルなプラグイン構成でのスキル提供が容易になります。\n\nプラグイン開発者はよりシンプルな構成でスキルを提供できます。詳しくは[プラグインのドキュメント](https://code.claude.com/docs/en/plugins)を参照してください。",
-      "detail_en": "When a `SKILL.md` file exists in the root directory of a plugin, the entire plugin can now be published as a skill. Previously, skills had to be placed within a `skills/` subdirectory, but providing skills with a simple plugin configuration is now easier.\n\nPlugin developers can provide skills with a simpler structure. See the [plugin documentation](https://code.claude.com/docs/en/plugins) for details.",
+      "detail": "プラグインのルートディレクトリに `SKILL.md` ファイルが存在し、かつ `skills/` サブディレクトリを持たない場合、プラグイン全体をスキルとして公開できるようになりました。これまで `skills/` サブディレクトリ内にスキルを配置する必要がありましたが、シンプルなプラグイン構成でのスキル提供が容易になります。\n\nプラグイン開発者はよりシンプルな構成でスキルを提供できます。詳しくは[プラグインのドキュメント](https://code.claude.com/docs/en/plugins)を参照してください。",
+      "detail_en": "When a `SKILL.md` file exists in the root directory of a plugin and the plugin has no `skills/` subdirectory, the entire plugin can now be published as a skill. Previously, skills had to be placed within a `skills/` subdirectory, but providing skills with a simple plugin configuration is now easier.\n\nPlugin developers can provide skills with a simpler structure. See the [plugin documentation](https://code.claude.com/docs/en/plugins) for details.",
       "category": "Plugin",
       "category_en": "Plugin"
     },
@@ -970,11 +970,11 @@
       "category_en": "Multi-Agent"
     },
     {
-      "t": "修正: `/bg` がフォークに「continue」を送信せず待機しない問題",
-      "t_en": "Fix: `/bg` not waiting before sending \"continue\" to fork",
+      "t": "修正: プロンプトなしで `/bg` を実行するとフォークに「continue」を誤送信する問題",
+      "t_en": "Fix: `/bg` without a prompt incorrectly sending \"continue\" to the forked session",
       "tags": ["バグ修正", "Agent"],
-      "detail": "`/bg` でセッションをバックグラウンドに移す際に、フォークされたセッションへ「continue」メッセージを送信する前に待機処理が行われず、タイミング問題が発生する問題が修正されました。\n\n`/bg` の移行処理が正しい順序で実行されるようになります。",
-      "detail_en": "An issue where the wait before sending the \"continue\" message to the forked session was missing when moving a session to the background with `/bg`, causing timing problems, has been fixed.\n\nThe `/bg` transition process now executes in the correct order.",
+      "detail": "プロンプトを指定せずに `/bg` でセッションをバックグラウンドに移した際に、フォークされたセッションへ「continue」メッセージが誤って送信されてしまう問題が修正されました。\n\n修正後は、プロンプトなしで `/bg` を実行するとフォークされたセッションは入力を待機するようになります。",
+      "detail_en": "An issue where running `/bg` without a prompt would incorrectly send a \"continue\" message to the forked session has been fixed.\n\nAfter this fix, when `/bg` is run without a prompt, the forked session now waits for input instead of being automatically continued.",
       "category": "マルチエージェント",
       "category_en": "Multi-Agent"
     },

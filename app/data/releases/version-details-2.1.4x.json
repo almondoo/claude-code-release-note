@@ -1,11 +1,47 @@
 {
   "2.1.41": [
     {
-      "t": "修正: AWS 認証のリフレッシュが無期限にハングする問題に 3 分のタイムアウトを追加",
-      "t_en": "Fix: Added 3-minute timeout for AWS auth refresh that could hang indefinitely",
-      "tags": ["バグ修正", "Platform"],
-      "detail": "AWS (Amazon Bedrock) 経由で Claude Code を使用している場合、認証トークンのリフレッシュ処理が応答を返さずに無期限にハングすることがありました。この問題により、セッションが完全にフリーズし、ユーザーは手動でプロセスを終了する必要がありました。今回の修正で 3 分のタイムアウトが追加され、リフレッシュが失敗した場合でもセッションが回復可能になりました。タイムアウト後は適切なエラーメッセージが表示され、再認証を促すようになります。",
-      "detail_en": "When using Claude Code via AWS (Amazon Bedrock), the authentication token refresh process could hang indefinitely without returning a response. This caused sessions to freeze completely, forcing users to manually kill the process. This fix adds a 3-minute timeout so that sessions can recover even if a refresh fails. After the timeout, an appropriate error message is displayed prompting re-authentication.",
+      "t": "追加: Claude Code セッション内から別の Claude Code を起動することを防止するガード",
+      "t_en": "Add: Guard to prevent launching another Claude Code from within a Claude Code session",
+      "tags": ["新機能", "Security"],
+      "detail": "Claude Code のセッション内から別の Claude Code インスタンスを起動しようとした場合に、それを検出してブロックするガード機能が追加されました。ネストされた Claude Code セッションは予期しない動作やリソース競合を引き起こす可能性があるため、起動時に既存セッション内で実行されていないかをチェックします。これにより、エージェントが誤って再帰的に Claude Code を呼び出すことによる問題を未然に防止できます。",
+      "detail_en": "A guard has been added that detects and blocks attempts to launch another Claude Code instance from within a Claude Code session. Since nested Claude Code sessions can cause unexpected behavior and resource conflicts, a check is performed at startup to determine whether the process is already running inside an existing session. This proactively prevents problems caused by agents accidentally calling Claude Code recursively.",
+      "category": "セキュリティ",
+      "category_en": "Security"
+    },
+    {
+      "t": "修正: Bedrock / Vertex / Foundry ユーザーで Agent Teams が誤ったモデル識別子を使用する問題",
+      "t_en": "Fix: Agent Teams using incorrect model identifiers for Bedrock / Vertex / Foundry users",
+      "tags": ["バグ修正", "Platform", "Agent"],
+      "detail": "Amazon Bedrock、Google Vertex AI、または Foundry 経由で Claude Code を利用しているユーザーが Agent Teams（マルチエージェント機能）を使用する際に、チームメンバーのエージェントに誤ったモデル識別子が渡されていた問題が修正されました。各プロバイダー固有のモデル ID フォーマットが正しくマッピングされるようになり、サードパーティプロバイダー経由でも Agent Teams が正常に動作するようになりました。",
+      "detail_en": "Fixed an issue where incorrect model identifiers were being passed to team member agents when users of Amazon Bedrock, Google Vertex AI, or Foundry used the Agent Teams (multi-agent) feature. Provider-specific model ID formats are now correctly mapped, so Agent Teams work properly through third-party providers.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-Agent"
+    },
+    {
+      "t": "修正: ストリーミング中に MCP ツールが画像コンテンツを返すとクラッシュする問題",
+      "t_en": "Fix: Crash when an MCP tool returns image content during streaming",
+      "tags": ["バグ修正", "MCP"],
+      "detail": "MCP（Model Context Protocol）ツールがストリーミングレスポンス中に画像コンテンツを返した場合にクラッシュが発生する問題が修正されました。ストリーミング処理において画像データの content type が適切にハンドリングされていなかったことが原因です。画像を返す MCP ツール（スクリーンショット取得ツールなど）をストリーミングモードで安定して使用できるようになりました。",
+      "detail_en": "Fixed a crash that occurred when an MCP (Model Context Protocol) tool returned image content during a streaming response. The root cause was that the image data content type was not properly handled in streaming processing. MCP tools that return images (such as screenshot capture tools) can now be used stably in streaming mode.",
+      "category": "MCP 連携",
+      "category_en": "MCP Integration"
+    },
+    {
+      "t": "修正: /resume のセッションプレビューで生の XML タグが表示される問題",
+      "t_en": "Fix: Raw XML tags displayed in the /resume session preview",
+      "tags": ["バグ修正"],
+      "detail": "/resume コマンドでセッション一覧を表示する際、セッションプレビューに生の XML タグ（内部的なマークアップ）がそのまま表示され、読みにくくなっていた問題が修正されました。XML タグが適切にパースされ、コマンド名など人間が読める形式で表示されるようになりました。セッションの再開先を選択する際の視認性が向上しています。",
+      "detail_en": "Fixed an issue where raw XML tags (internal markup) were displayed as-is in the session preview when the /resume command listed sessions, making them hard to read. XML tags are now properly parsed and displayed in a human-readable format such as command names. Readability when selecting a session to resume has been improved.",
+      "category": "UX",
+      "category_en": "UX"
+    },
+    {
+      "t": "改善: Bedrock / Vertex / Foundry ユーザー向けのモデルエラーメッセージにフォールバック候補を表示",
+      "t_en": "Improve: Model error messages for Bedrock / Vertex / Foundry users now show fallback candidates",
+      "tags": ["改善", "Platform"],
+      "detail": "Amazon Bedrock、Google Vertex AI、Foundry 経由で利用しているユーザーがモデルエラーに遭遇した際のエラーメッセージが改善されました。単にエラーを表示するだけでなく、利用可能なフォールバックモデルの候補を提示するようになりました。これにより、モデルのアクセス権限やリージョン設定に問題がある場合でも、ユーザーが代替手段をすぐに見つけられるようになります。",
+      "detail_en": "Error messages shown when users accessing via Amazon Bedrock, Google Vertex AI, or Foundry encounter a model error have been improved. Instead of just displaying the error, available fallback model candidates are now suggested. This allows users to quickly find alternatives even when there are issues with model access permissions or region settings.",
       "category": "プラットフォーム互換性",
       "category_en": "Platform Compatibility"
     },
@@ -184,6 +220,15 @@
     }
   ],
   "2.1.43": [
+    {
+      "t": "修正: AWS 認証のリフレッシュが無期限にハングする問題に 3 分のタイムアウトを追加",
+      "t_en": "Fix: Added 3-minute timeout for AWS auth refresh that could hang indefinitely",
+      "tags": ["バグ修正", "Platform"],
+      "detail": "AWS (Amazon Bedrock) 経由で Claude Code を使用している場合、認証トークンのリフレッシュ処理が応答を返さずに無期限にハングすることがありました。この問題により、セッションが完全にフリーズし、ユーザーは手動でプロセスを終了する必要がありました。今回の修正で 3 分のタイムアウトが追加され、リフレッシュが失敗した場合でもセッションが回復可能になりました。タイムアウト後は適切なエラーメッセージが表示され、再認証を促すようになります。",
+      "detail_en": "When using Claude Code via AWS (Amazon Bedrock), the authentication token refresh process could hang indefinitely without returning a response. This caused sessions to freeze completely, forcing users to manually kill the process. This fix adds a 3-minute timeout so that sessions can recover even if a refresh fails. After the timeout, an appropriate error message is displayed prompting re-authentication.",
+      "category": "プラットフォーム互換性",
+      "category_en": "Platform Compatibility"
+    },
     {
       "t": "修正: `.claude/agents/` ディレクトリ内のエージェント以外の Markdown ファイルに対する不要な警告",
       "t_en": "Fix: Unnecessary warnings for non-agent Markdown files in the `.claude/agents/` directory",
@@ -418,11 +463,11 @@
       "category_en": "Stability"
     },
     {
-      "t": "改善: API ストリームバッファの解放による長時間セッションのメモリ使用量の改善",
-      "t_en": "Improvement: Reduced memory usage in long sessions by releasing API stream buffers",
+      "t": "改善: API ストリームバッファ・エージェントコンテキスト・スキル状態の解放による長時間セッションのメモリ使用量の改善",
+      "t_en": "Improve: Reduced memory usage in long sessions by releasing API stream buffers, agent context, and skill state",
       "tags": ["Perf", "改善"],
-      "detail": "長時間実行されるセッションで、API ストリームレスポンスのバッファがメモリ上に蓄積し続ける問題が改善されました。ストリーム処理完了後にバッファが適切に解放されるようになり、長時間セッションのメモリフットプリントが削減されました。特にエージェントチームなど多数の API 呼び出しを行うワークフローで効果的です。",
-      "detail_en": "Improved an issue in long-running sessions where API stream response buffers accumulated in memory. Buffers are now properly released after stream processing completes, reducing the memory footprint of long sessions. This is particularly effective for workflows making many API calls, such as agent teams.",
+      "detail": "長時間実行されるセッションで、API ストリームレスポンスのバッファ、エージェントコンテキスト、スキル状態がメモリ上に蓄積し続ける問題が改善されました。使用後にこれらのリソースが適切に解放されるようになり、長時間セッションのメモリフットプリントが削減されました。特にエージェントチームなど多数の API 呼び出しを行うワークフローで効果的です。",
+      "detail_en": "Improved an issue in long-running sessions where API stream response buffers, agent context, and skill state accumulated in memory. These resources are now properly released after use, reducing the memory footprint of long sessions. This is particularly effective for workflows making many API calls, such as agent teams.",
       "category": "パフォーマンス",
       "category_en": "Performance"
     },
@@ -1023,11 +1068,11 @@
       "category_en": "Settings"
     },
     {
-      "t": "変更: Max プランの Sonnet 4.5 (1M コンテキスト) を廃止し Sonnet 4.6 (1M コンテキスト) に移行",
-      "t_en": "Change: Deprecate Sonnet 4.5 (1M context) on Max plan and migrate to Sonnet 4.6 (1M context)",
-      "tags": ["改善"],
-      "detail": "Max プランで提供されていた Sonnet 4.5 の 1M コンテキストオプションが廃止され、フロンティアモデルである Sonnet 4.6 が 1M コンテキストをサポートするようになりました。Sonnet 4.6 はより高性能なモデルであり、長大なコンテキストウィンドウを活用した作業がさらに高品質に行えます。`/model` コマンドでモデルを切り替えてください。",
-      "detail_en": "The 1M context option for Sonnet 4.5 on the Max plan has been deprecated, and the frontier model Sonnet 4.6 now supports 1M context. Sonnet 4.6 is a higher-performance model, enabling even higher-quality work with large context windows. Switch models using the `/model` command.",
+      "t": "非推奨: Max プランの Sonnet 4.5 (1M コンテキスト) を廃止し Sonnet 4.6 (1M コンテキスト) に移行",
+      "t_en": "Deprecate: Sonnet 4.5 (1M context) on Max plan deprecated and migrated to Sonnet 4.6 (1M context)",
+      "tags": ["非推奨"],
+      "detail": "Max プランで提供されていた Sonnet 4.5 の 1M コンテキストオプションが廃止されました。代替として、フロンティアモデルである Sonnet 4.6 が 1M コンテキストをサポートするようになりました。Sonnet 4.5 (1M) を使用中のユーザーは Sonnet 4.6 への移行が必要です。`/model` コマンドでモデルを切り替えてください。",
+      "detail_en": "The 1M context option for Sonnet 4.5 on the Max plan has been deprecated. As a replacement, the frontier model Sonnet 4.6 now supports 1M context. Users currently using Sonnet 4.5 (1M) need to migrate to Sonnet 4.6. Switch models using the `/model` command.",
       "category": "設定",
       "category_en": "Settings"
     },

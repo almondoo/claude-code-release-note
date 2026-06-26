@@ -203,8 +203,8 @@
     "v": "2.1.183",
     "items": [
       {
-        "t": "改善: auto モードの安全性を強化 — 破壊的な git コマンド（`git reset --hard` 等）や `terraform destroy`・`pulumi destroy` を、明示的に依頼されない限りブロックするように",
-        "t_en": "Enhanced auto mode safety with blocks on destructive git commands and terraform/pulumi destroy unless explicitly requested",
+        "t": "改善: auto モードの安全性を強化 — 破壊的な git コマンド（`git reset --hard` 等）・`git commit --amend`（当該セッションでエージェントが作成したコミット以外）・`terraform destroy`・`pulumi destroy`・`cdk destroy` を、明示的に依頼されない限りブロックするように",
+        "t_en": "Enhanced auto mode safety: now blocks destructive git commands (`git reset --hard`, etc.), `git commit --amend` (for commits not made by the agent this session), and `terraform/pulumi/cdk destroy` unless explicitly requested",
         "tags": ["改善", "Security"]
       },
       {
@@ -213,8 +213,8 @@
         "tags": ["新機能"]
       },
       {
-        "t": "追加: web セッションのコミットから claude.ai のセッションリンクを省略する `attribution.sessionUrl` 設定を追加",
-        "t_en": "Introduced `attribution.sessionUrl` setting to omit claude.ai session links from commits in web sessions",
+        "t": "追加: web および Remote Control セッションのコミットと PR から claude.ai のセッションリンクを省略する `attribution.sessionUrl` 設定を追加",
+        "t_en": "Added: `attribution.sessionUrl` setting to omit the claude.ai session link from commits and PRs in web and Remote Control sessions",
         "tags": ["新機能"]
       },
       {
@@ -466,6 +466,116 @@
         "t": "変更: `/review <pr>` が `/code-review medium` と同じレビューエンジンを使用するように変更",
         "t_en": "Changed `/review <pr>` to use the same engine as `/code-review medium`",
         "tags": ["改善"]
+      }
+    ]
+  },
+  {
+    "v": "2.1.187",
+    "items": [
+      {
+        "t": "追加: サンドボックス化されたコマンドが認証情報ファイルおよびシークレット環境変数を読み取れないようにする `sandbox.credentials` 設定を追加",
+        "t_en": "Added `sandbox.credentials` setting to block sandboxed commands from reading credential files and secret environment variables",
+        "tags": ["新機能", "Security"]
+      },
+      {
+        "t": "追加: 組織が設定したモデル制限をモデルピッカー・`--model`・`/model`・`ANTHROPIC_MODEL` に適用し、制限されたモデル選択時に「組織の設定により制限されています」と表示",
+        "t_en": "Added: org-configured model restrictions to the model picker, `--model`, `/model`, and `ANTHROPIC_MODEL`, with a \"restricted by your organization's settings\" message when a restricted model is selected",
+        "tags": ["新機能"]
+      },
+      {
+        "t": "改善: フルスクリーンモードのセレクトメニューでマウスクリックによる選択に対応",
+        "t_en": "Added mouse click support for select menus in fullscreen mode",
+        "tags": ["改善"]
+      },
+      {
+        "t": "修正: 元の実行でモデルのターンが1つも生成されなかった場合に `--resume` が失敗する問題",
+        "t_en": "Fixed `--resume` failing when the original run produced no model turns",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: `--json-schema` の構造化出力で `StructuredOutput` が無制限に再呼び出しできてしまう問題",
+        "t_en": "Fixed `--json-schema` structured output allowing indefinite `StructuredOutput` re-calls",
+        "tags": ["バグ修正", "SDK"]
+      },
+      {
+        "t": "改善: リモート MCP のツール呼び出しが無制限にブロックする代わりに、5分間アイドルで中断するように",
+        "t_en": "Remote MCP tool calls now abort after a 5-minute idle timeout instead of blocking indefinitely",
+        "tags": ["改善", "MCP"]
+      },
+      {
+        "t": "修正: CA をシステムの信頼ストアにインストールした後に Remote セッションの起動が約2.7秒遅くなる問題",
+        "t_en": "Fixed Remote sessions taking ~2.7s longer to start after CA system-trust installation",
+        "tags": ["バグ修正", "Perf"]
+      },
+      {
+        "t": "修正: 拡張キーイベントをバイト単位で送るターミナルで韓国語・CJK テキストが文字化けする問題",
+        "t_en": "Fixed Korean/CJK text rendering as mojibake in terminals with per-byte extended-key events",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: Remote Control 経由の `/update` が起動時の信頼ダイアログでハングする問題",
+        "t_en": "Fixed `/update` over Remote Control hanging with startup trust dialogs",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: バックグラウンドジョブが構造化出力を返さない場合に「working」状態のまま止まる問題",
+        "t_en": "Fixed background jobs stuck in \"working\" state without structured output",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: エージェントビューを操作・移動した後にチャンネル接続が切断される問題",
+        "t_en": "Fixed channel connections dropping after agents view navigation",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: エージェントの停止通知を修正し、メッセージ表示（「finished」「stopped」）を改善",
+        "t_en": "Fixed agent stop notifications and improved messaging (\"finished\"/\"stopped\")",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: 再開・フォークされたサブエージェントの深度トラッキングが正しく行われない問題",
+        "t_en": "Fixed subagent depth tracking for resumed and forked subagents",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: kill されたエージェントによってエージェントのワークツリー登録がリークする問題",
+        "t_en": "Fixed leaked agent worktree registrations from killed agents",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: macOS のフルスクリーン Ghostty で Cmd+クリックによる URL のオープンが機能しない問題",
+        "t_en": "Fixed Cmd+click URL opening in fullscreen Ghostty on macOS",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: `claude --help` に `--bg` / `--background` フラグが表示されない問題",
+        "t_en": "Fixed `claude --help` missing the `--bg`/`--background` flag",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: `/share` のアップロード中に Esc / Ctrl-C / Ctrl-D が効かない問題",
+        "t_en": "Fixed Esc/Ctrl-C/Ctrl-D not working during `/share` uploads",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "改善: `/install-github-app` で GitHub Actions ワークフローのセットアップを任意（オプション）にできるように",
+        "t_en": "`/install-github-app` now makes GitHub Actions workflow setup optional",
+        "tags": ["改善"]
+      },
+      {
+        "t": "改善: `/btw` で矢印キーを使って過去の回答をたどれるように",
+        "t_en": "Improved `/btw` with arrow key navigation through earlier answers",
+        "tags": ["改善"]
+      },
+      {
+        "t": "改善: `/plugin` で未使用のプラグインを一覧表示し、クリーンアップを促すように",
+        "t_en": "Improved `/plugin` to surface unused plugins for cleanup",
+        "tags": ["改善", "Plugin"]
+      },
+      {
+        "t": "修正: 大きなセッションを再開した際に VS Code 拡張機能が応答しなくなる問題",
+        "t_en": "Fixed the VS Code extension becoming unresponsive when resuming large sessions",
+        "tags": ["バグ修正", "IDE"]
       }
     ]
   }

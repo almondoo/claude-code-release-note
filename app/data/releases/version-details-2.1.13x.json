@@ -66,11 +66,11 @@
       "category_en": "Session Management"
     },
     {
-      "t": "修正: プランモード再開時に `--permission-mode` が無視される問題",
-      "t_en": "Fix: `--permission-mode` ignored when resuming plan mode session",
+      "t": "修正: `--permission-mode` が無視される・プランモードが再適用されない問題",
+      "t_en": "Fix: `--permission-mode` ignored and plan mode not re-applied in certain scenarios",
       "tags": ["バグ修正", "Security"],
-      "detail": "plan モードのセッションを `--resume` で再開した際に、`--permission-mode` フラグで指定したパーミッションモードが無視される問題が修正されました。\n\nplan モードの再開では通常の起動フローとは異なる処理が行われており、パーミッションモードの適用が漏れていました。修正後は再開時にも指定したパーミッションモードが正しく適用されます。",
-      "detail_en": "Fixed an issue where the permission mode specified with `--permission-mode` was ignored when resuming a plan mode session with `--resume`.\n\nResuming plan mode follows a different processing flow from normal startup, and permission mode application was missing. After the fix, the specified permission mode is correctly applied even on resume.",
+      "detail": "2つの関連するバグが修正されました。\n\n1つ目は、plan モードのセッションを `-p --continue` / `--resume` で再開した際に、`--permission-mode` フラグで指定したパーミッションモードが無視される問題です。plan モードの再開では通常の起動フローとは異なる処理が行われており、パーミッションモードの適用が漏れていました。\n\n2つ目は、同一セッション内で `ExitPlanMode` を実行した後に、プランモードが再適用されない問題です。`ExitPlanMode` でプランモードを一度解除しても、次のターンでプランモードに戻るべき状態が正しく復元されませんでした。\n\n修正後は再開時にも指定したパーミッションモードが正しく適用され、`ExitPlanMode` 後もプランモードが適切に再適用されます。",
+      "detail_en": "Two related bugs were fixed.\n\nFirst, the permission mode specified with `--permission-mode` was ignored when resuming a plan mode session with `-p --continue` / `--resume`. Resuming plan mode follows a different processing flow from normal startup, and permission mode application was missing.\n\nSecond, plan mode was not being re-applied after `ExitPlanMode` within the same session. Even after temporarily exiting plan mode with `ExitPlanMode`, the state that should return to plan mode on the next turn was not correctly restored.\n\nAfter the fix, the specified permission mode is correctly applied even on resume, and plan mode is properly re-applied after `ExitPlanMode`.",
       "category": "パーミッション",
       "category_en": "Permissions"
     },
@@ -219,11 +219,11 @@
       "category_en": "Performance"
     },
     {
-      "t": "修正: MCP 接続失敗が「failed」として表示されない問題",
-      "t_en": "Fix: MCP connection failure not displayed as \"failed\"",
+      "t": "修正: MCP サーバーが接続に成功しても `tools/list` 取得失敗時に 0 ツールと無音表示される問題",
+      "t_en": "Fix: MCP servers connecting but silently showing 0 tools when tools/list fetch fails",
       "tags": ["バグ修正", "MCP"],
-      "detail": "MCP サーバーへの接続が失敗した際に、ステータスが「failed」として正しく表示されない問題が修正されました。\n\n接続失敗のステータス更新処理に抜けがあり、UI では接続中または不明な状態のまま表示されていました。修正後は接続失敗が明確に「failed」と表示されます。",
-      "detail_en": "Fixed an issue where the status was not correctly displayed as \"failed\" when a connection to an MCP server failed.\n\nThere was a gap in the status update processing for connection failures, causing the UI to continue showing connecting or unknown states. After the fix, connection failures are clearly displayed as \"failed\".",
+      "detail": "MCP サーバーへの接続自体は成功するが、`tools/list` の取得に失敗した場合にエラーが無音で握りつぶされ、0 ツールとして表示されてしまう問題が修正されました。\n\n接続成功後のツール一覧取得フェーズでエラーが発生しても、ユーザーには何も通知されず、まるでそのサーバーがツールを提供していないかのように見えていました。\n\n修正後は、`tools/list` の取得に失敗した際に 1 回リトライを行い、それでも失敗する場合は `/mcp` のステータス表示に「connected · tools fetch failed」と明示されるようになりました。",
+      "detail_en": "Fixed an issue where, even though the connection to an MCP server itself succeeded, errors during the `tools/list` fetch were silently swallowed and the server appeared to provide 0 tools.\n\nWhen an error occurred in the tool list retrieval phase after a successful connection, nothing was reported to the user, making it look as if the server offered no tools.\n\nAfter the fix, when a `tools/list` fetch fails, one retry is attempted, and if it still fails, the `/mcp` status display clearly shows \"connected · tools fetch failed\".",
       "category": "MCP 連携",
       "category_en": "MCP Integration"
     },
@@ -1021,11 +1021,11 @@
       "category_en": "Plugin"
     },
     {
-      "t": "改善: `/plugin` がプラグイン由来のスキルにプラグイン名を表示",
-      "t_en": "Improve: `/plugin` shows plugin name for skills provided by plugins",
+      "t": "改善: `/context` がプラグイン由来のスキルにプラグイン名を表示",
+      "t_en": "Improve: `/context` shows plugin name for skills provided by plugins",
       "tags": ["改善", "Plugin"],
-      "detail": "`/plugin` コマンドのスキル一覧表示において、プラグインが提供するスキルにそのプラグインの名前が表示されるようになりました。\n\n複数のプラグインをインストールしている場合に、どのスキルがどのプラグインから提供されているかが一目で分かるようになります。プラグインの管理や問題の特定が容易になります。",
-      "detail_en": "In the skill list display of the `/plugin` command, the name of the plugin that provides each skill is now shown.\n\nWhen multiple plugins are installed, you can see at a glance which skill is provided by which plugin. This makes plugin management and issue identification easier.",
+      "detail": "`/context` コマンドのスキル一覧表示において、プラグインが提供するスキルにそのプラグインの名前が表示されるようになりました。\n\n複数のプラグインをインストールしている場合に、どのスキルがどのプラグインから提供されているかが一目で分かるようになります。プラグインの管理や問題の特定が容易になります。",
+      "detail_en": "In the skill list display of the `/context` command, the name of the plugin that provides each skill is now shown.\n\nWhen multiple plugins are installed, you can see at a glance which skill is provided by which plugin. This makes plugin management and issue identification easier.",
       "category": "Plugin",
       "category_en": "Plugin"
     },
@@ -1039,20 +1039,20 @@
       "category_en": "MCP Integration"
     },
     {
-      "t": "改善: API リクエストに `x-claude-code-agent-id` ヘッダーを付与",
-      "t_en": "Improve: Add `x-claude-code-agent-id` header to API requests",
-      "tags": ["改善", "SDK"],
-      "detail": "Claude Code から送信される API リクエストに `x-claude-code-agent-id` ヘッダーが追加されるようになりました。\n\nエージェントやサブエージェントの識別情報が API リクエストに含まれることで、サーバーサイドのトレーシングやモニタリングにおいてエージェントごとのリクエストを識別しやすくなります。",
-      "detail_en": "The `x-claude-code-agent-id` header is now added to API requests sent from Claude Code.\n\nBy including agent and sub-agent identification information in API requests, it becomes easier to identify requests per agent in server-side tracing and monitoring.",
+      "t": "改善: サブエージェントの API リクエストにエージェント識別ヘッダーと OTEL 属性を付与",
+      "t_en": "Improve: Add agent identification headers and OTEL attributes to subagent API requests",
+      "tags": ["改善", "SDK", "Agent"],
+      "detail": "サブエージェントが送信する API リクエストに、`x-claude-code-agent-id` および `x-claude-code-parent-agent-id` の 2 つのヘッダーが付与されるようになりました。また、`claude_code.llm_request` OpenTelemetry スパンに `agent_id` および `parent_agent_id` 属性が含まれるようになりました。\n\nこれらの情報を活用することで、サーバーサイドのトレーシングやモニタリングにおいて、どのエージェントが誰の子として送信したリクエストかを正確に追跡できます。複数のサブエージェントが並列実行される場合のデバッグや観測性の向上に役立ちます。",
+      "detail_en": "API requests sent by subagents now carry two headers: `x-claude-code-agent-id` and `x-claude-code-parent-agent-id`. Additionally, `claude_code.llm_request` OpenTelemetry spans now include `agent_id` and `parent_agent_id` attributes.\n\nBy using this information, server-side tracing and monitoring can accurately track which agent sent a request and as whose child. This improves debugging and observability when multiple subagents run in parallel.",
       "category": "API",
       "category_en": "API"
     },
     {
-      "t": "改善: API キー設定時に Remote Control を無効化",
-      "t_en": "Improve: Disable Remote Control when API key is configured",
+      "t": "改善: API キー設定時に Remote Control・`/schedule`・MCP コネクタ・通知設定を無効化",
+      "t_en": "Improve: Disable Remote Control, /schedule, MCP connectors, and notifications when API key is configured",
       "tags": ["改善", "Security"],
-      "detail": "API キーが設定されている環境（直接 API 経由の利用）では、Remote Control 機能が自動的に無効化されるようになりました。\n\nRemote Control は claude.ai のアカウントと紐づく機能であり、API キーのみで動作する環境では意味をなさないだけでなく、意図しない接続を防ぐためにも無効化することが適切です。",
-      "detail_en": "In environments where an API key is configured (direct API usage), the Remote Control feature is now automatically disabled.\n\nRemote Control is a feature tied to claude.ai accounts, and in environments operating with only an API key, it is not only meaningless but also appropriate to disable it to prevent unintended connections.",
+      "detail": "`ANTHROPIC_API_KEY` / `apiKeyHelper` / `ANTHROPIC_AUTH_TOKEN` のいずれかが設定されている環境では、claude.ai ログインが併存していても、Remote Control・`/schedule`・claude.ai MCP コネクタ・通知設定が自動的に無効化されるようになりました。\n\nこれらの機能は claude.ai アカウントと紐づくものですが、API キーが設定されている場合は API キー認証が優先され、claude.ai 連携機能は意図しない接続の原因となりえます。これらの機能を使用したい場合は API キーの設定を解除してください。",
+      "detail_en": "In environments where `ANTHROPIC_API_KEY` / `apiKeyHelper` / `ANTHROPIC_AUTH_TOKEN` is set, Remote Control, `/schedule`, claude.ai MCP connectors, and notification preferences are now automatically disabled, even if a Claude.ai login also exists.\n\nThese features are tied to claude.ai accounts, but when an API key is configured, API key authentication takes precedence, and claude.ai integration features can cause unintended connections. To use these features, unset the API key.",
       "category": "セキュリティ",
       "category_en": "Security"
     },
@@ -1210,11 +1210,11 @@
       "category_en": "UX"
     },
     {
-      "t": "修正: Cursor/VS Code でマウスホイールスクロールが機能しない問題",
-      "t_en": "Fix: Mouse wheel scrolling not working in Cursor/VS Code",
+      "t": "修正: VS Code 1.92–1.104 でマウスホイールスクロールが速すぎる問題",
+      "t_en": "Fix: Mouse wheel scrolling too fast in VS Code 1.92–1.104",
       "tags": ["バグ修正", "IDE"],
-      "detail": "Cursor または VS Code の統合ターミナルで Claude Code を使用している場合に、マウスホイールによるスクロールが機能しない問題が修正されました。\n\nこれらの IDE のターミナルコンポーネントがスクロールイベントを独自に処理しており、Claude Code のスクロールハンドラと競合していました。修正後は IDE の統合ターミナルでもスクロールが正常に動作します。",
-      "detail_en": "Fixed an issue where mouse wheel scrolling was not working when using Claude Code in the integrated terminal of Cursor or VS Code.\n\nThe terminal components of these IDEs were processing scroll events independently, conflicting with Claude Code's scroll handler. After the fix, scrolling works normally in the IDE's integrated terminal.",
+      "detail": "VS Code 1.92 から 1.104 の統合ターミナルで Claude Code を使用している場合に、マウスホイールによるスクロール速度が異常に速くなる問題が修正されました。\n\nこれは xterm.js の上流バグに起因するもので、該当バージョン範囲の VS Code 組み込みの xterm.js がマウスホイールのイベントを過剰に処理していました。修正後はトラックパッドが安定した速度でスクロールし、マウスホイールはノッチあたり約 3 行を維持します。",
+      "detail_en": "Fixed an issue where mouse wheel scrolling speed was abnormally fast when using Claude Code in the integrated terminal of VS Code versions 1.92 through 1.104.\n\nThis was caused by an upstream xterm.js bug where the xterm.js bundled in the affected VS Code version range was processing mouse wheel events excessively. After the fix, the trackpad scrolls at a steady rate and the mouse wheel maintains approximately 3 lines per notch.",
       "category": "IDE",
       "category_en": "IDE"
     },
