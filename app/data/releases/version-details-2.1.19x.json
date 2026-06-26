@@ -191,5 +191,142 @@
       "category": "メモリ",
       "category_en": "Memory"
     }
+  ],
+  "2.1.193": [
+    {
+      "t": "追加: すべての Bash/PowerShell コマンドを auto モードの分類器に通す `autoMode.classifyAllShell` 設定を追加",
+      "t_en": "Added `autoMode.classifyAllShell` setting to route all Bash/PowerShell commands through the auto-mode classifier instead of only arbitrary-code-execution patterns",
+      "tags": ["新機能", "Security"],
+      "detail": "auto モードでは、これまで任意コード実行とみなされるパターン（パイプを使った eval チェーンなど）に一致するシェルコマンドだけが分類器に送られ、安全性が評価されていました。\n\n本バージョンで追加された `autoMode.classifyAllShell` を有効（`true`）にすると、一致パターンに関係なくすべての Bash／PowerShell コマンドが auto モードの分類器を経由するようになります。機密性の高い環境や企業環境で、シェルコマンドの許可制御をより厳格にしたい場合に役立ちます。\n\n詳しくは[auto モードのドキュメント](https://code.claude.com/docs/en/auto-mode-config)を参照してください。",
+      "detail_en": "In auto mode, only shell commands matching arbitrary-code-execution patterns (such as piped eval chains) were previously sent to the classifier for safety evaluation.\n\nThis version adds `autoMode.classifyAllShell`; when set to `true`, every Bash/PowerShell command is routed through the auto-mode classifier regardless of pattern matching. This is useful for tightening shell-command permission control in sensitive or enterprise environments.\n\nSee the [auto mode documentation](https://code.claude.com/docs/en/auto-mode-config) for details.",
+      "category": "パーミッション",
+      "category_en": "Permissions"
+    },
+    {
+      "t": "追加: auto モードの拒否理由をトランスクリプト・拒否トースト・`/permissions` の最近拒否した一覧に表示するように",
+      "t_en": "Added auto-mode denial reasons to the transcript, the denial toast, and `/permissions` recent denials",
+      "tags": ["新機能", "Security"],
+      "detail": "auto モードがコマンドを拒否した際、これまでは拒否されたことは分かっても、なぜ拒否されたのかが分かりにくい場面がありました。\n\n本バージョンでは拒否理由が3か所に表示されるようになりました。セッションのトランスクリプトへの追記、拒否トースト通知、そして `/permissions` の「最近拒否した」タブです。なお `/permissions` の「最近拒否した」タブ自体は以前から存在し、今回はトランスクリプトとトーストへの理由表示が新たに加わりました。\n\n詳しくは[auto モードのドキュメント](https://code.claude.com/docs/en/auto-mode-config#review-denials)を参照してください。",
+      "detail_en": "When auto mode denied a command, it was previously not always clear why, even though the denial itself was visible.\n\nThis version surfaces the denial reason in three places: appended to the session transcript, in the denial toast notification, and in the Recently Denied tab of `/permissions`. The `/permissions` Recently Denied tab already existed; the new additions in this release are the reason display in the transcript and the toast.\n\nSee the [auto mode documentation](https://code.claude.com/docs/en/auto-mode-config#review-denials) for details.",
+      "category": "パーミッション",
+      "category_en": "Permissions"
+    },
+    {
+      "t": "追加: モデルの応答テキストを含む `claude_code.assistant_response` OpenTelemetry ログイベントを追加（既定では秘匿、`OTEL_LOG_ASSISTANT_RESPONSES=1` で出力）",
+      "t_en": "Added `claude_code.assistant_response` OpenTelemetry log event containing the model's response text (redacted unless `OTEL_LOG_ASSISTANT_RESPONSES=1`)",
+      "tags": ["新機能"],
+      "detail": "各モデルターンの後に、応答テキスト全文を載せた新しい OpenTelemetry ログイベント `claude_code.assistant_response` が出力されるようになりました。既存の `claude_code.user_prompt` ログイベントに対応するものです。\n\n内容は既定で秘匿（redacted）されます。`OTEL_LOG_ASSISTANT_RESPONSES` を設定していない場合は `OTEL_LOG_USER_PROMPTS` の値を継承するため、すでにユーザープロンプトをログ出力している環境では、アップグレード後に応答テキストも記録され始める点に注意してください。プロンプトのみのログに留めたい場合は `OTEL_LOG_ASSISTANT_RESPONSES=0` を明示的に設定します。\n\n詳しくは[モニタリングのドキュメント](https://code.claude.com/docs/en/monitoring-usage)を参照してください。",
+      "detail_en": "After each model turn, a new OpenTelemetry log event `claude_code.assistant_response` is emitted carrying the full response text. It parallels the existing `claude_code.user_prompt` log event.\n\nThe content is redacted by default. When `OTEL_LOG_ASSISTANT_RESPONSES` is unset, it inherits the value of `OTEL_LOG_USER_PROMPTS`, so deployments that already log user prompts will start recording response text after upgrading — set `OTEL_LOG_ASSISTANT_RESPONSES=0` explicitly to keep prompts-only logging.\n\nSee the [monitoring documentation](https://code.claude.com/docs/en/monitoring-usage) for details.",
+      "category": "監視",
+      "category_en": "Monitoring"
+    },
+    {
+      "t": "追加: bash モード（`!`）にファイルパスのライブ補完を追加",
+      "t_en": "Added live file path autocomplete to bash mode (`!`)",
+      "tags": ["新機能"],
+      "detail": "`!` プレフィックスで起動する bash モードでは、Tab による補完がこれまで過去に実行した `!` コマンドの履歴ベースで行われていました。\n\n本バージョンでは、作業ディレクトリを基準にしたファイル名・ディレクトリ名のライブなパス補完が Tab で利用できるようになりました。履歴補完とは別に、実際のファイルシステムを参照して補完されます。\n\n詳しくは[インタラクティブモードのドキュメント](https://code.claude.com/docs/en/interactive-mode)を参照してください。",
+      "detail_en": "In bash mode (invoked with the `!` prefix), Tab completion was previously history-based, completing from previously executed `!` commands.\n\nThis version adds live file path completion via Tab, completing file and directory names relative to the working directory by consulting the actual file system, separately from history-based completion.\n\nSee the [interactive mode documentation](https://code.claude.com/docs/en/interactive-mode) for details.",
+      "category": "入力",
+      "category_en": "Input"
+    },
+    {
+      "t": "追加: MCP サーバーが認証を必要とするときに `/mcp` を案内する起動時通知を追加",
+      "t_en": "Added a startup notice when MCP servers need authentication, pointing at `/mcp`",
+      "tags": ["新機能", "MCP"],
+      "detail": "認証が必要な MCP サーバー（例えば headersHelper を設定したサーバー）が構成されている場合、これまでは実際にツール呼び出しが失敗するまで認証が必要なことに気づきにくいことがありました。\n\n本バージョンでは、起動時に認証が必要な MCP サーバーを検出すると、`/mcp` を実行して認証を完了するよう促す通知が表示されるようになりました。認証要件が起動直後に分かるようになります。\n\n詳しくは[MCP のドキュメント](https://code.claude.com/docs/en/mcp)を参照してください。",
+      "detail_en": "When an MCP server requiring authentication (for example, one configured with a headersHelper) is present, it was previously easy to overlook the auth requirement until a tool call actually failed.\n\nThis version shows a startup notice when it detects an MCP server that needs authentication, prompting you to run `/mcp` to complete it, so auth requirements are visible right at startup.\n\nSee the [MCP documentation](https://code.claude.com/docs/en/mcp) for details.",
+      "category": "MCP 連携",
+      "category_en": "MCP Integration"
+    },
+    {
+      "t": "追加: メモリ逼迫時にアイドル状態のバックグラウンドシェルコマンドを自動回収（`CLAUDE_CODE_DISABLE_BG_SHELL_PRESSURE_REAP=1` で無効化）",
+      "t_en": "Added automatic memory-pressure reaping for idle background shell commands (disable with `CLAUDE_CODE_DISABLE_BG_SHELL_PRESSURE_REAP=1`)",
+      "tags": ["新機能", "Perf"],
+      "detail": "システムのメモリが逼迫すると、Claude Code がアイドル状態のバックグラウンドシェルプロセスを自動的に終了させてメモリを解放するようになりました。既定では透過的に動作します。\n\nバックグラウンドシェルを常に生かしておく必要がある場合（長時間動作するプロセスや蓄積した状態を保持しているシェルなど）は、環境変数 `CLAUDE_CODE_DISABLE_BG_SHELL_PRESSURE_REAP=1` を設定することでこの自動回収を無効化できます。",
+      "detail_en": "Under system memory pressure, Claude Code now automatically terminates idle background shell processes to free memory. It operates transparently by default.\n\nIf you need to keep background shells alive (for example, shells holding long-running processes or accumulated state), you can disable this automatic reaping by setting the environment variable `CLAUDE_CODE_DISABLE_BG_SHELL_PRESSURE_REAP=1`.",
+      "category": "メモリ",
+      "category_en": "Memory"
+    },
+    {
+      "t": "修正: `/login` 直後に `/model` などクライアントデータに依存する UI が古い/空の状態を表示する問題",
+      "t_en": "Fixed `/model` and other client-data-gated UI showing stale/empty state immediately after `/login`",
+      "tags": ["バグ修正"],
+      "detail": "`/login` で再認証した直後、`/model` のピッカーなどクライアント側のデータで描画される UI 要素が、手動で更新するまで古い内容や空の状態を表示することがありました。\n\n本修正により、ログイン完了時にクライアントデータが正しく再取得されるようになり、これらの UI が即座に最新の状態で表示されます。",
+      "detail_en": "Immediately after re-authenticating with `/login`, UI elements driven by client-side data — such as the `/model` picker — could show stale or empty content until manually refreshed.\n\nThis fix refreshes client data correctly on login completion, so these UI elements immediately reflect the current state.",
+      "category": "セッション管理",
+      "category_en": "Session Management"
+    },
+    {
+      "t": "修正: 実行中のタスクがすべて新セッションへ引き継がれる場合でも、バックグラウンド化（←←）が「N 個のバックグラウンドタスクが破棄されます」と誤ってキャンセルを促す問題",
+      "t_en": "Fixed backgrounding (←←) spuriously cancelling with \"N background tasks would be abandoned\" when all running tasks carry over to the new session",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "バックグラウンドエージェントの実行中に ←← でセッションをバックグラウンド化しようとすると、実行中のタスクがすべてバックグラウンドセッションへ引き継がれる構成であっても、「N 個のバックグラウンドタスクが破棄されます」という誤った確認ダイアログが表示されていました。\n\n本修正により、引き継がれるタスクと実際に失われるタスクが正しく区別されるようになり、不要な確認で操作が中断されなくなりました。",
+      "detail_en": "When backgrounding a session with ←← while background agents were running, a false-positive confirmation dialog warned that \"N background tasks would be abandoned\" — even when every running task was configured to carry over to the backgrounded session.\n\nThis fix correctly distinguishes tasks that carry over from tasks that would actually be lost, so the operation is no longer interrupted by a spurious prompt.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-agent"
+    },
+    {
+      "t": "修正: 自動アップデートのたびに、ピン留めしたバックグラウンドエージェントが「Continue from where you left off」と再度プロンプトされる問題",
+      "t_en": "Fixed pinned background agents being re-prompted to \"Continue from where you left off\" after every auto-update",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "ピン留めしたバックグラウンドエージェントの実行中に Claude Code が自動アップデートされると、各エージェントに「Continue from where you left off」という不要なプロンプトが送られ、作業を冗長にやり直したり要約し直したりすることがありました。\n\n本修正により、自動アップデート処理がすでに実行中のピン留めエージェントを正しく識別し、継続プロンプトを送らないようになりました。",
+      "detail_en": "When Claude Code auto-updated while pinned background agents were running, each agent received a spurious \"Continue from where you left off\" prompt, causing it to redundantly recap or restart its work.\n\nThis fix makes the auto-update path correctly identify already-running pinned agents and skip the continuation prompt.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-agent"
+    },
+    {
+      "t": "修正: メインターンをバックグラウンド化すると、メインの会話を再実行する幽霊のような「general-purpose (resumed)」サブエージェントが生成される問題",
+      "t_en": "Fixed backgrounding the main turn spawning a phantom \"general-purpose (resumed)\" subagent that re-ran the main conversation",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "メインの会話ターンでバックグラウンド化機能を使うと、「general-purpose (resumed)」というラベルの不要なサブエージェントが生成され、メインの会話を最初から再生してしまうことがありました。\n\n本修正により、メインターンをバックグラウンド化してもこの幽霊サブエージェントが発生しなくなりました。",
+      "detail_en": "Using the backgrounding feature on the main conversation turn could create a spurious subagent labeled \"general-purpose (resumed)\" that replayed the entire main conversation from scratch.\n\nThis fix prevents that phantom subagent from appearing when the main turn is backgrounded.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-agent"
+    },
+    {
+      "t": "修正: サブエージェントを表示しているときにエージェントパネルが兄弟エージェントを隠してしまう問題",
+      "t_en": "Fixed agent panel hiding sibling agents when viewing a subagent",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "エージェントパネルの UI で、あるサブエージェントの詳細ビューに入ると、同じ階層にある兄弟エージェント（他のエージェント）がすべて隠れてしまい、いったん上の階層に戻らないと切り替えられませんでした。\n\n本修正により、サブエージェントを選択している間も兄弟エージェントが表示され続けるようになりました。",
+      "detail_en": "In the agent panel UI, navigating into a subagent's detail view hid all sibling agents at the same hierarchy level, making it impossible to switch between them without first navigating up.\n\nThis fix keeps sibling agents visible while a subagent is selected.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-agent"
+    },
+    {
+      "t": "改善: バックグラウンドエージェントの起動結果が Claude に「応答を終了する」よう指示しなくなり、エージェント実行中も他のタスクを継続できるように",
+      "t_en": "Improved background agents: the launch result no longer instructs Claude to \"end your response\" — it keeps working on other tasks while the agent runs",
+      "tags": ["改善", "Agent"],
+      "detail": "これまではバックグラウンドエージェントを起動すると、モデルに返されるシステムメッセージが現在の応答を終了して待機するよう指示していました。\n\n本改善では起動結果からその指示が取り除かれ、バックグラウンドエージェントが非同期で動作している間、モデルは他のタスクを並行して処理し続けられるようになりました。マルチエージェントのワークフローにおけるスループットが向上します。",
+      "detail_en": "Previously, launching a background agent returned a system message instructing the model to end its current response and wait.\n\nThis improvement removes that instruction from the launch result, so the model can keep processing other tasks in parallel while the background agent runs asynchronously, improving throughput in multi-agent workflows.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-agent"
+    },
+    {
+      "t": "改善: MCP の `headersHelper` 認証が、ツール呼び出しで 401/403 が返ったときにヘルパーを再実行して自動的に再接続するように",
+      "t_en": "Improved MCP `headersHelper` auth: the helper now re-runs and reconnects automatically when a tool call returns 401/403",
+      "tags": ["改善", "MCP"],
+      "detail": "`headersHelper` は、外部スクリプトを実行して認証ヘッダー（OAuth トークンの取得など）を供給する MCP の設定オプションです。これまでは、セッション中にトークンが失効してツール呼び出しが HTTP 401／403 を返すと接続が失敗し、手動での対応が必要でした。\n\n本改善により、Claude Code が 401／403 レスポンスを検知すると `headersHelper` スクリプトを再実行して認証情報を更新し、自動的にサーバーへ再接続するようになりました。\n\n詳しくは[MCP のドキュメント](https://code.claude.com/docs/en/mcp)を参照してください。",
+      "detail_en": "`headersHelper` is an MCP configuration option that runs an external script to supply authentication headers (such as fetching an OAuth token). Previously, if a token expired mid-session and a tool call returned HTTP 401/403, the connection failed and required manual intervention.\n\nWith this improvement, when Claude Code detects a 401/403 response it re-runs the `headersHelper` script to refresh credentials and reconnects to the server automatically.\n\nSee the [MCP documentation](https://code.claude.com/docs/en/mcp) for details.",
+      "category": "MCP 連携",
+      "category_en": "MCP Integration"
+    },
+    {
+      "t": "改善: マーケットプレイスの `renames` マップを自動的に追従し、プラグインのリネームに合わせて設定を新しい名前に更新するように",
+      "t_en": "Improved plugin auto-rename: marketplace `renames` maps are now followed automatically, updating your settings to the new name",
+      "tags": ["改善", "Plugin"],
+      "detail": "プラグインマーケットプレイスの作者は、旧プラグイン名が新しい名前に置き換わったことを宣言する `renames` マップを公開できます。\n\n本改善により、Claude Code がこのマップを読み取り、ローカルのプラグイン設定を自動的に新しい名前へ更新するようになりました。これがないと、リネームされたプラグインは既存のインストールで解決できない壊れた参照になってしまいます。",
+      "detail_en": "Plugin marketplace authors can publish a `renames` map declaring that an old plugin name has been replaced by a new one.\n\nWith this improvement, Claude Code reads these maps and automatically updates local plugin settings to reference the new name. Without it, a renamed plugin would become an unresolvable broken reference in existing installations.",
+      "category": "Plugin",
+      "category_en": "Plugin"
+    },
+    {
+      "t": "改善: 指定したディレクトリがすでに作業ディレクトリになっている場合の `/add-dir` のメッセージを改善",
+      "t_en": "Improved `/add-dir` message when the directory is already a working directory",
+      "tags": ["改善"],
+      "detail": "`/add-dir` にすでに作業ディレクトリ集合に含まれているパスを指定したとき、フィードバックメッセージが分かりやすくなりました。\n\n汎用的で曖昧な応答ではなく、なぜそのディレクトリが再度追加されなかったのかが一目で分かるようになっています。",
+      "detail_en": "When you run `/add-dir` with a path that is already in the active working directory set, the feedback message has been clarified.\n\nInstead of a generic or ambiguous response, it now makes it immediately obvious why the directory was not added again.",
+      "category": "コマンド",
+      "category_en": "Command"
+    }
   ]
 }
