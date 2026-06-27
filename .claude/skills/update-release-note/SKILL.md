@@ -431,9 +431,9 @@ that fits an existing 10-version range, `index.ts` needs no change. (Do **not** 
 - Make the `t` in `version-details-*.json` match the `t` in `releases-*.json` exactly — the
   card reads from `releases-*.json` and the detail modal reads from `version-details-*.json`,
   so a mismatch shows two different summaries for the same entry.
-- Keep each JSON file under 50KB; if a file would exceed it, split into the next
-  10-version-range file (and add its import to `index.ts`) — oversized data files bloat the
-  bundle and are harder to edit safely.
+- There is no per-file size limit. Split data files only at the 10-version-range boundary
+  (e.g. v2.1.90+ → `releases-2.1.9x.json`, adding its import to `index.ts`); never split a
+  file because of its byte size.
 
 ## Common mistakes
 
