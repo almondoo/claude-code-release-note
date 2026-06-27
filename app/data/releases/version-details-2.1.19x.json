@@ -328,5 +328,115 @@
       "category": "コマンド",
       "category_en": "Command"
     }
+  ],
+  "2.1.195": [
+    {
+      "t": "追加: フルスクリーンモードでマウスのクリック/ドラッグ/ホバーを無効化しつつホイールスクロールは維持する `CLAUDE_CODE_DISABLE_MOUSE_CLICKS` を追加",
+      "t_en": "Added `CLAUDE_CODE_DISABLE_MOUSE_CLICKS` to disable mouse click/drag/hover in fullscreen mode while keeping wheel scroll",
+      "tags": ["新機能"],
+      "detail": "Claude Code のフルスクリーン表示はマウスイベントを取り込んでナビゲーションに使うため、環境によってはターミナルネイティブのテキスト選択（選択してコピー）と競合します。既存の `CLAUDE_CODE_DISABLE_MOUSE` はホイールスクロールを含むすべてのマウストラッキングを無効化してしまいます。\n\n本バージョンで追加された `CLAUDE_CODE_DISABLE_MOUSE_CLICKS` は、より細かい制御を可能にします。クリック・ドラッグ・ホバーのイベントだけを無効化してネイティブのテキスト選択を取り戻しつつ、長い出力をたどるためのホイールスクロールは維持します。\n\n詳しくは[環境変数のドキュメント](https://code.claude.com/docs/en/env-vars)を参照してください。",
+      "detail_en": "Claude Code's fullscreen renderer intercepts mouse events for navigation, which can conflict with terminal-native text selection (select-to-copy) in some setups. The existing `CLAUDE_CODE_DISABLE_MOUSE` disables all mouse tracking, including wheel scroll.\n\nThis version adds `CLAUDE_CODE_DISABLE_MOUSE_CLICKS` for finer-grained control: it disables only click, drag, and hover events — restoring native text selection — while keeping wheel scroll for navigating long output.\n\nSee the [environment variables documentation](https://code.claude.com/docs/en/env-vars) for details.",
+      "category": "UX",
+      "category_en": "UX"
+    },
+    {
+      "t": "修正: ハイフンを含む識別子（例: `code-reviewer`, `mcp__brave-search`）の hook マッチャーが誤って部分一致していた問題（完全一致するように）",
+      "t_en": "Fixed hook matchers with hyphenated identifiers (e.g. `code-reviewer`, `mcp__brave-search`) accidentally substring-matching — they now exact-match.",
+      "tags": ["バグ修正"],
+      "detail": "Claude Code の hook マッチャーは、英数字・アンダースコア・スペース・カンマ・パイプだけからなるパターンを完全一致のリストとして扱い、それ以外の文字を含むパターンは JavaScript の正規表現として評価します。ハイフンはこの安全な文字集合に含まれないため、`code-reviewer` のような識別子が正規表現としてコンパイルされ、部分一致で適用されていました。その結果、`code-reviewer` が `code-reviewer-advanced` などにも誤って一致してしまう問題がありました。\n\n本修正により、ハイフンを含む素の識別子は正規表現ではなく完全一致として扱われるようになりました。\n\n詳しくは[hooks のドキュメント](https://code.claude.com/docs/en/hooks)を参照してください。",
+      "detail_en": "Claude Code hook matchers treat a pattern containing only letters, digits, underscores, spaces, commas, and pipes as an exact-match list, and evaluate anything else as a JavaScript regex. Hyphens are not in that safe set, so identifiers like `code-reviewer` were compiled as regex patterns and applied with substring matching — meaning `code-reviewer` could accidentally fire on `code-reviewer-advanced`.\n\nThis fix makes hyphenated plain identifiers exact-match rather than regex-tested.\n\nSee the [hooks documentation](https://code.claude.com/docs/en/hooks) for details.",
+      "category": "設定",
+      "category_en": "Configuration"
+    },
+    {
+      "t": "修正: macOS でデフォルト入力デバイスが変更された後、長時間セッションで音声入力が無音を録音してしまう問題",
+      "t_en": "Fixed voice dictation on macOS capturing silence in long-running sessions after the default input device changes",
+      "tags": ["バグ修正"],
+      "detail": "macOS では音声入力にネイティブのオーディオモジュールが使われます。システムのデフォルト入力デバイスがセッション中に変更されると（ヘッドホンの抜き差しなど）、モジュールが以前のデバイスへの古い参照を保持したまま録音を続け、無音だけを取り込んでしまう問題がありました。\n\n本修正により、デフォルトデバイスの変更が検出されてオーディオキャプチャのコンテキストが再初期化されるようになり、長時間セッション中にデバイスを切り替えても音声入力が機能し続けます。",
+      "detail_en": "On macOS, voice dictation uses a native audio module. When the system's default input device changed mid-session (such as plugging or unplugging headphones), the module held a stale reference to the previous device and kept recording from it, capturing only silence.\n\nThis fix detects default-device changes and re-initializes the audio capture context, so dictation keeps working across device switches in long-running sessions.",
+      "category": "入力",
+      "category_en": "Input"
+    },
+    {
+      "t": "修正: スペースで区切らない言語（日本語・中国語・タイ語）で音声入力の自動送信が発火しない問題",
+      "t_en": "Fixed voice dictation auto-submit never firing for languages written without spaces (Japanese, Chinese, Thai)",
+      "tags": ["バグ修正"],
+      "detail": "タップモードの音声入力は、書き起こしが3語以上になると自動送信されます。この判定は空白によるトークン分割で行われるため、単語の間にスペースを入れない言語（日本語・中国語・タイ語）では内容の長さに関わらず1トークンとして扱われ、3語のしきい値に達せず自動送信が発火しませんでした。\n\n本修正により、スペースで区切らない言語向けに言語を考慮した区切り処理（または代替の長さ判定）が適用され、これらの言語でも自動送信が正しく動作するようになりました。\n\n詳しくは[音声入力のドキュメント](https://code.claude.com/docs/en/voice-dictation)を参照してください。",
+      "detail_en": "In tap mode, voice dictation auto-submits once the transcript reaches at least three words, determined by whitespace tokenization. Languages written without inter-word spaces (Japanese, Chinese, Thai) produce a single token regardless of length, so the three-word threshold was never met and auto-submit never fired for those users.\n\nThis fix applies language-aware segmentation (or an alternative length check) for space-free writing systems, so auto-submit now works for these languages.\n\nSee the [voice dictation documentation](https://code.claude.com/docs/en/voice-dictation) for details.",
+      "category": "国際化",
+      "category_en": "Internationalization"
+    },
+    {
+      "t": "修正: プロジェクトの `.claude/settings.json` だけで有効化された外部プラグインが、一部の読み込み経路で明示的なインストール同意を要求しない問題",
+      "t_en": "Fixed external plugins enabled only by project `.claude/settings.json` not requiring explicit install consent on every loader path",
+      "tags": ["バグ修正", "Security", "Plugin"],
+      "detail": "プラグインはユーザー権限で任意のコードを実行できるため、Claude Code は有効化の前に明示的なユーザー同意を必要とします。しかし、プロジェクトの `.claude/settings.json` の `enabledPlugins` に列挙されたプラグインが、セッション起動時の一部の読み込み経路で同意プロンプトを回避できてしまうバグがありました。\n\n本修正により、どの経路でプラグインが有効化される場合でもインストール同意のチェックが一貫して適用されるようになりました。\n\n詳しくは[プラグインのドキュメント](https://code.claude.com/docs/en/discover-plugins)を参照してください。",
+      "detail_en": "Because plugins can run arbitrary code with user privileges, Claude Code requires explicit user consent before activating them. A bug allowed plugins listed in a project's `.claude/settings.json` `enabledPlugins` field to bypass the consent prompt on certain loader code paths during session startup.\n\nThis fix enforces the install-consent check consistently, regardless of which code path activates the plugin.\n\nSee the [plugin documentation](https://code.claude.com/docs/en/discover-plugins) for details.",
+      "category": "セキュリティ",
+      "category_en": "Security"
+    },
+    {
+      "t": "修正: プラグインの `plugin.json` の `name` がマーケットプレイスのエントリ名と異なる場合に `/plugin` の有効化/無効化が機能しない問題",
+      "t_en": "Fixed `/plugin` Enable/Disable not working when a plugin's `plugin.json` `name` differs from its marketplace entry name",
+      "tags": ["バグ修正", "Plugin"],
+      "detail": "各プラグインは `.claude-plugin/plugin.json` マニフェストに `name` フィールドを持ち、マーケットプレイスのカタログエントリには別の識別子を持ちます。この2つの名前が異なる場合、`/plugin` コマンドの有効化・無効化操作が対象プラグインを見つけられず、有効/無効の状態が変わらないままでした。\n\n本修正により、有効化・無効化の照合がマニフェストの内部 `name` ではなくマーケットプレイスのカタログ名で解決されるようになりました。",
+      "detail_en": "Each plugin has a `name` field in its `.claude-plugin/plugin.json` manifest and a separate identifier in the marketplace catalog entry. When these names differed, the `/plugin` command's Enable and Disable actions failed to find the matching plugin, leaving its enabled state unchanged.\n\nThis fix resolves Enable/Disable lookups by the marketplace catalog name rather than the internal manifest `name` field.",
+      "category": "Plugin",
+      "category_en": "Plugin"
+    },
+    {
+      "t": "修正: 新しいバージョンの Claude Code が書き込んだバックグラウンドジョブが `claude agents` から消えたりデータを失ったりする問題",
+      "t_en": "Fixed background jobs disappearing from `claude agents` or losing data when written by a newer Claude Code version",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "バックグラウンドエージェントのセッションは、再起動後も残るように状態をディスクへ永続化します。状態スキーマが Claude Code のバージョン間で進化するなかで、新しいバージョンが書き込んだセッションファイルには古いバージョンが認識できないフィールドが含まれることがあり、古い読み込み側がそのエントリをスキップしたり一部を失ったりして、ジョブが `claude agents` の一覧から消えてしまう問題がありました。\n\n本修正により前方互換の処理が追加され、古い Claude Code クライアントでも新しいバージョンが生成した状態ファイルを安全に読み取って表示できるようになりました。",
+      "detail_en": "Background agent sessions persist their state to disk so they survive restarts. As the state schema evolves across Claude Code versions, session files written by a newer version could contain fields an older version did not recognize, causing the older reader to skip or partially drop the entry — making jobs disappear from the `claude agents` list.\n\nThis fix adds forward-compatibility handling so older Claude Code clients can safely read and display state files produced by newer versions.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-agent"
+    },
+    {
+      "t": "修正: クラッシュしたバックグラウンドタスクを再度開くと、再起動画面ではなく最大5秒間ブランク画面が表示される問題",
+      "t_en": "Fixed reopening a crashed background task showing a blank screen for up to 5 seconds instead of its restart",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "バックグラウンドエージェントのセッションがクラッシュした後、`claude agents` ビューでそれを再度開くと、再起動プロンプトが描画される前に数秒間ブランク画面が表示されていました。これはセッションの復旧状態が開いた直後に反映されない UI 初期化の競合が原因でした。\n\n本修正により、クラッシュしたセッションを選択するとすぐに再起動 UI が描画されるようになり、ブランク画面の遅延が解消されました。",
+      "detail_en": "When a background agent session crashed and the user reopened it in the `claude agents` view, the UI showed a blank screen for several seconds before rendering the restart prompt. This was a UI initialization race where the session's recovery state was not surfaced immediately on open.\n\nThis fix renders the restart UI immediately when a crashed session is selected, eliminating the blank-screen delay.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-agent"
+    },
+    {
+      "t": "修正: コントロールソケットの起動に失敗するとバックグラウンドエージェントのデーモンが到達不能なまま動作し、再起動がブロックされる問題",
+      "t_en": "Fixed background agent daemons running unreachable when the control socket fails to start, blocking restarts",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "バックグラウンドエージェントのセッションは、CLI が Unix のコントロールソケット越しに通信するデーモンプロセスによって管理されます。起動時にソケットのバインドに失敗すると（古いソケットファイルが残っている、パスの権限の問題など）、デーモンは起動して動作するものの想定したソケットパスでは到達不能となり、`claude agents` ビューからはエージェントが固まって再起動もできないように見えていました。\n\n本修正により、デーモンを「稼働中」とみなす前にコントロールソケットが機能していることを検証し、失敗を表面化してセッションをクリーンに再起動できるようになりました。",
+      "detail_en": "Background agent sessions are managed by a daemon process that the CLI talks to over a Unix control socket. If the socket failed to bind at startup (for example, a stale socket file or a path permission issue), the daemon would still launch and run but be unreachable at the expected socket path, so the `claude agents` view saw the agent as stuck and unable to restart.\n\nThis fix verifies the control socket is functional before the daemon is considered live, and surfaces the failure so the session can be cleanly restarted.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-agent"
+    },
+    {
+      "t": "改善: Linux の音声モードで、SoX はインストールされているが音声キャプチャデバイスが存在しない場合に「マイクなし」と「SoX 未インストール」を区別するように",
+      "t_en": "Improved voice mode on Linux: now distinguishes \"no microphone\" from \"SoX not installed\" when SoX is present but no audio capture device exists",
+      "tags": ["改善"],
+      "detail": "Linux では、ネイティブのオーディオモジュールの読み込みに失敗すると、Claude Code は録音に SoX の `rec` コマンドへフォールバックします。これまでは、SoX がインストールされているのに音声キャプチャデバイスが存在しない場合、エラーが SoX 自体が無い場合と区別できず、どちらも SoX のインストールを促すような不足ツール扱いのメッセージが表示されていました。\n\n本修正により、SoX バイナリの有無とキャプチャデバイスの有無が別々にチェックされるようになり、紛らわしい「SoX をインストール」案内ではなく「マイク／音声キャプチャデバイスがない」というエラーが表示されるようになりました。\n\n詳しくは[音声入力のドキュメント](https://code.claude.com/docs/en/voice-dictation)を参照してください。",
+      "detail_en": "On Linux, when the native audio module fails to load, Claude Code falls back to SoX's `rec` command for recording. Previously, if SoX was installed but no audio capture device was present, the error was indistinguishable from SoX itself being absent — both showed a missing-tool style message prompting users to install SoX.\n\nThis fix checks capture-device availability separately from the SoX binary, so users now see a 'no microphone / audio capture device' error instead of a misleading install-SoX prompt.\n\nSee the [voice dictation documentation](https://code.claude.com/docs/en/voice-dictation) for details.",
+      "category": "入力",
+      "category_en": "Input"
+    },
+    {
+      "t": "改善: `claude agents` の完了済み一覧が利用可能な縦スペースを埋めるように（短いターミナルではヘッダーをコンパクト化して実行中セッションを表示し続ける）",
+      "t_en": "Improved `claude agents` completed list to fill available vertical space; on short terminals the header compacts so live sessions stay visible",
+      "tags": ["改善", "Agent"],
+      "detail": "`claude agents` ビューでは、完了済みセッションの一覧がこれまで固定の高さで、背の高いターミナルでは余白が無駄になり、短いターミナルではヘッダーが固定の縦スペースを消費するために実行中セッションの表示が押し出されていました。\n\n本改善により、完了済み一覧が利用可能なターミナルの高さを動的に埋めるように広がり、ターミナルが一定の高さを下回るとヘッダーがコンパクト表示に切り替わって、実行中（working）や入力待ち（needs-input）のセッションが見えたままになります。",
+      "detail_en": "In the `claude agents` view, the completed-sessions list previously had a fixed height, wasting space on taller terminals and crowding out live sessions on short ones because the header consumed a fixed amount of vertical space.\n\nThis improvement makes the completed list expand dynamically to fill available terminal height, and switches the header to a compact form below a height threshold so working and needs-input sessions stay visible.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-agent"
+    },
+    {
+      "t": "改善: コンテナ起動中にプロビジョニングのチェックリストを表示するよう Remote セッションの起動を改善",
+      "t_en": "Improved Remote session startup with a provisioning checklist while the container starts",
+      "tags": ["改善", "Platform"],
+      "detail": "新しい Claude Code のクラウドセッション（claude.ai/code や `--remote` フラグ経由）を起動する際、コンテナのプロビジョニング処理（リポジトリのクローン、セットアップスクリプト、ネットワーク構成）はこれまで進捗のフィードバックがなく、ブランクや静止した UI のまま待たされていました。\n\n本改善により、コンテナの準備中にプロビジョニングのチェックリストがセッションビューに表示され、各ステップ（クローン、セットアップ、ネットワーク）の状況が完了するごとに分かるようになりました。\n\n詳しくは[Web 版のドキュメント](https://code.claude.com/docs/en/claude-code-on-the-web)を参照してください。",
+      "detail_en": "When launching a new Claude Code cloud session (via claude.ai/code or the `--remote` flag), the container provisioning process — repo clone, setup script, network configuration — previously showed no progress feedback, leaving users waiting with a blank or static UI.\n\nThis improvement adds a provisioning checklist in the session view while the container is being prepared, with each step (clone, setup, network) showing its status as it completes.\n\nSee the [Claude Code on the web documentation](https://code.claude.com/docs/en/claude-code-on-the-web) for details.",
+      "category": "プラットフォーム互換性",
+      "category_en": "Platform Compatibility"
+    }
   ]
 }
