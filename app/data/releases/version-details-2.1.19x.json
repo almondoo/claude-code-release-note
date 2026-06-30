@@ -438,5 +438,250 @@
       "category": "プラットフォーム互換性",
       "category_en": "Platform Compatibility"
     }
+  ],
+  "2.1.196": [
+    {
+      "t": "追加: 組織のデフォルトモデルに対応（管理者が組織コンソールで設定し、ユーザーが未選択のとき `/model` に「Org default」または「Role default」と表示）",
+      "t_en": "Added support for organization default models — admins set it in the org console; it shows as \"Org default\" (or \"Role default\") in `/model` when you haven't picked one yourself",
+      "tags": ["新機能"],
+      "detail": "これまで Claude Code のモデル選択は組織のデフォルトモデル設定とは独立して管理されており、組織として既定のモデルを統一する手段がなかった。\n\n本バージョンでは、管理者が組織コンソールで設定したデフォルトモデルが Claude Code にも反映されるようになった。ユーザーが自分でモデルを選んでいない場合、`/model` に「Org default」（ロール単位の設定がある場合は「Role default」）と表示される。個人での上書きは引き続き可能なまま、組織全体のモデル利用を一貫させられる。",
+      "detail_en": "Previously, Claude Code's model selection was managed independently of an organization's default-model setting, so there was no way to standardize a default model across an org.\n\nThis version applies the default model that admins configure in the org console to Claude Code as well. When you haven't picked a model yourself, `/model` shows \"Org default\" (or \"Role default\" when a role-level setting exists). Individual overrides remain possible, keeping model usage consistent across the organization.",
+      "category": "設定",
+      "category_en": "Configuration"
+    },
+    {
+      "t": "追加: セッション開始時に読みやすいデフォルト名を付与し、識別やメッセージ送信をしやすく",
+      "t_en": "Added readable default names for sessions at start, making them easier to identify and message",
+      "tags": ["新機能"],
+      "detail": "セッションを開始した直後は、識別やメッセージ送信の対象として区別しづらい無名のセッションが並ぶことがあった。\n\n本バージョンでは、セッション開始時に内容が読み取りやすいデフォルト名が自動的に付与されるようになり、`claude agents` などからセッションを識別したりメッセージを送ったりしやすくなった。",
+      "detail_en": "Right after starting a session, sessions could appear without a meaningful name, making them hard to tell apart for identification or messaging.\n\nThis version automatically assigns a readable default name when a session starts, making it easier to identify sessions and send messages to them from places like `claude agents`.",
+      "category": "セッション管理",
+      "category_en": "Session Management"
+    },
+    {
+      "t": "追加: チャット内のファイル添付をクリック可能に（Cmd/Ctrl+クリックで Finder/Explorer に表示）",
+      "t_en": "Added clickable file attachments in chat — Cmd/Ctrl-click reveals the file in Finder/Explorer",
+      "tags": ["新機能"],
+      "detail": "チャット内に表示されるファイル添付は、これまで参照先のファイルを直接開く手段がなかった。\n\n本バージョンでは添付がクリック可能になり、Cmd+クリック（macOS）または Ctrl+クリックで該当ファイルを Finder / Explorer 上に表示できるようになった。会話で参照されたファイルへ素早くたどり着ける。",
+      "detail_en": "File attachments shown in chat previously had no way to directly open the referenced file.\n\nThis version makes attachments clickable: Cmd-click (macOS) or Ctrl-click reveals the file in Finder/Explorer, so you can quickly get to a file referenced in the conversation.",
+      "category": "UX",
+      "category_en": "UX"
+    },
+    {
+      "t": "変更: `claude mcp list`/`get` が、リポジトリにコミットされた `.claude/settings.json` で自己承認された `.mcp.json` サーバーを起動しないように（信頼できないワークスペースでは `⏸ Pending approval` と表示）",
+      "t_en": "Security: `claude mcp list`/`get` no longer spawn `.mcp.json` servers that a repo self-approved via a committed `.claude/settings.json`; untrusted workspaces show `⏸ Pending approval`",
+      "tags": ["改善", "Security", "MCP"],
+      "detail": "リポジトリは `.mcp.json` で MCP サーバーを定義し、コミットされた `.claude/settings.json` でそれ自身を「承認済み」として扱わせることができてしまっていた。この自己承認により、信頼していないリポジトリを開いただけで `claude mcp list` / `get` が MCP サーバープロセスを起動してしまうリスクがあった。\n\n本バージョンでは、`claude mcp list` / `get` がリポジトリの自己承認による `.mcp.json` サーバーを起動しなくなった。信頼できないワークスペースでは該当サーバーが `⏸ Pending approval`（承認待ち）状態で表示され、明示的な承認があるまで起動されない。悪意あるリポジトリによるサプライチェーン的なリスクを低減する。\n\n詳しくは[MCP のセキュリティモデル](https://code.claude.com/docs/en/security#mcp-security)を参照してください。",
+      "detail_en": "A repository could define MCP servers in `.mcp.json` and have a committed `.claude/settings.json` mark them as self-approved. Through this self-approval, simply opening an untrusted repository could cause `claude mcp list`/`get` to spawn MCP server processes.\n\nThis version stops `claude mcp list`/`get` from spawning `.mcp.json` servers that a repo self-approved. In untrusted workspaces, such servers are shown as `⏸ Pending approval` and are not started until explicitly approved, reducing supply-chain-style risk from malicious repositories.\n\nSee the [MCP security model](https://code.claude.com/docs/en/security#mcp-security) for details.",
+      "category": "セキュリティ",
+      "category_en": "Security"
+    },
+    {
+      "t": "修正: バックグラウンドジョブの再開時、トランスクリプト判定の誤りで会話が恒久削除され元のプロンプトが再実行される問題（ファイルは削除せず退避するように）",
+      "t_en": "Fixed waking a background job permanently deleting its conversation and re-running the original prompt when the transcript probe misread a real transcript; the file is now set aside, never deleted",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "バックグラウンドジョブを再開（wake）する際、トランスクリプト（会話記録）の判定処理が実在するトランスクリプトを誤読することがあった。その結果、会話が恒久的に削除され、元のプロンプトが最初から再実行されてしまう恐れがあった。\n\n本修正により、判定が曖昧な場合でもトランスクリプトファイルは削除されず退避（set aside）されるようになり、会話が失われたり意図せず再実行されたりしなくなった。",
+      "detail_en": "When waking a background job, the transcript probe could misread a real transcript. As a result, the conversation could be permanently deleted and the original prompt re-run from scratch.\n\nThis fix ensures the transcript file is set aside rather than deleted even when the probe is ambiguous, so conversations are no longer lost or unintentionally re-run.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-agent"
+    },
+    {
+      "t": "修正: 利用上限に達した瞬間に複数の並行リクエストがあると、レート制限の警告表示がちらついて消え、レート制限のテレメトリが過剰カウントされる問題",
+      "t_en": "Fixed the rate-limit warning flickering off and rate-limit telemetry being over-counted when multiple parallel requests were in flight at the moment a usage limit was hit",
+      "tags": ["バグ修正"],
+      "detail": "利用上限（レート制限）に達した瞬間に複数のリクエストが並行して処理されていると、レート制限の検出が競合状態を引き起こしていた。その結果、レート制限の警告表示がちらついて消えたり、レート制限のテレメトリが実際より過剰にカウントされたりしていた。\n\n本修正により並行リクエストによる二重検出が解消され、警告表示が安定し、テレメトリの計測も正確になった。",
+      "detail_en": "When multiple requests were in flight at the moment a usage limit was hit, rate-limit detection hit a race condition. This made the rate-limit warning flicker off and caused rate-limit telemetry to be over-counted.\n\nThis fix resolves the double-detection from parallel requests, so the warning stays stable and telemetry is counted accurately.",
+      "category": "レンダリング",
+      "category_en": "Rendering"
+    },
+    {
+      "t": "修正: バックグラウンドセッションのターン後に要約行が重複表示される問題（スキーマ拒否された StructuredOutput の試行が再試行と並んで描画されないように）",
+      "t_en": "Fixed duplicate recap lines after a background session's turn: a schema-rejected StructuredOutput attempt no longer renders alongside its retry",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "バックグラウンドセッションのターンが終わった後、構造化出力（StructuredOutput）の試行がスキーマ検証で拒否されると、その拒否された試行と再試行（リトライ）の両方が描画され、要約（recap）行が重複して表示されることがあった。\n\n本修正により、スキーマ拒否された StructuredOutput の試行は再試行と並んで描画されなくなり、要約行の重複が解消された。",
+      "detail_en": "After a background session's turn, if a StructuredOutput attempt was rejected by schema validation, both the rejected attempt and its retry could render, producing duplicate recap lines.\n\nThis fix prevents a schema-rejected StructuredOutput attempt from rendering alongside its retry, eliminating the duplicated recap line.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-agent"
+    },
+    {
+      "t": "修正: PowerShell で `git diff`/`git grep`・`egrep`/`fgrep` や `|` を含む引用符付き検索パターンが終了コード1のときに失敗扱いになる問題（Bash の挙動に合わせる）",
+      "t_en": "Fixed PowerShell `git diff`/`git grep`, `egrep`/`fgrep`, and quoted search patterns containing `|` being reported as failures when they exit 1, matching Bash behavior",
+      "tags": ["バグ修正", "Windows"],
+      "detail": "PowerShell 環境では、`git diff` / `git grep` や `egrep` / `fgrep`、`|` を含む引用符付きの検索パターンなど、一致が無いと終了コード 1 を返すコマンドが「失敗」として扱われていた。これらは Bash では正常な「一致なし」の結果であり、失敗ではない。\n\n本修正により、これらのコマンドが終了コード 1 を返しても失敗として報告されなくなり、Bash と同じ挙動に揃えられた。",
+      "detail_en": "In PowerShell, commands that exit 1 when there is no match — such as `git diff`/`git grep`, `egrep`/`fgrep`, and quoted search patterns containing `|` — were reported as failures. In Bash these are normal \"no match\" results, not failures.\n\nThis fix stops reporting those commands as failures when they exit 1, matching Bash behavior.",
+      "category": "プラットフォーム互換性",
+      "category_en": "Platform Compatibility"
+    },
+    {
+      "t": "修正: `claude agents` サイドパネルの複数の問題（エージェントを開くとキーボードフォーカスが固まる、開くたびにサブエージェントの種別が失われる、実行中なのに誤ったステータスを表示する）",
+      "t_en": "Fixed multiple `claude agents` side panel issues: keyboard focus getting stuck when opening an agent, background jobs losing their subagent types on every open, and sessions showing incorrect status while actively running",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "`claude agents` のサイドパネルには複数の不具合があった。エージェントを開くとキーボードフォーカスが固まって操作できなくなる、開くたびにバックグラウンドジョブのサブエージェント種別（subagent type）が失われる、実行中のセッションが誤ったステータスで表示される、といった問題である。\n\n本修正によりこれらがまとめて解消され、サイドパネルからエージェントを開いても操作不能にならず、種別やステータスが正しく保持・表示されるようになった。",
+      "detail_en": "The `claude agents` side panel had several issues: keyboard focus getting stuck when opening an agent, background jobs losing their subagent types on every open, and sessions showing incorrect status while actively running.\n\nThis fix addresses them together, so opening an agent from the side panel no longer traps focus, and subagent types and statuses are retained and displayed correctly.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-agent"
+    },
+    {
+      "t": "修正: `claude agents --dangerously-skip-permissions` がバイパスの免責表示を出さずに auto モードへ静かにフォールバックし、生成したエージェントにバイパスモードを適用しない問題",
+      "t_en": "Fixed `claude agents --dangerously-skip-permissions` silently falling back to auto mode instead of showing the bypass disclaimer and applying bypass mode to spawned agents",
+      "tags": ["バグ修正", "Agent", "Security"],
+      "detail": "`claude agents --dangerously-skip-permissions` はパーミッションを丸ごとバイパスするオプションだが、本来表示すべきバイパスの免責（disclaimer）を出さずに、静かに通常の auto モードへフォールバックしていた。さらに、生成されたエージェントにバイパスモードが適用されていなかった。\n\n本修正により、フラグ指定時はバイパスの免責が正しく表示され、生成されるエージェントにもバイパスモードが適用されるようになった。",
+      "detail_en": "`claude agents --dangerously-skip-permissions` bypasses permissions entirely, but it silently fell back to regular auto mode without showing the bypass disclaimer, and bypass mode was not applied to spawned agents.\n\nThis fix shows the bypass disclaimer when the flag is set and applies bypass mode to spawned agents.",
+      "category": "パーミッション",
+      "category_en": "Permissions"
+    },
+    {
+      "t": "修正: Remote セッションのターン中クラッシュ復旧（サーバー再起動で中断したセッションが次のワーカーで自動再開するように）",
+      "t_en": "Fixed mid-turn crash recovery for Remote sessions — sessions interrupted by a server restart now auto-resume on the next worker",
+      "tags": ["バグ修正", "Platform"],
+      "detail": "Remote（クラウド）セッションでは、サーバーの再起動などでターンの途中で処理が中断されると、セッションが復旧されないことがあった。\n\n本修正により、サーバー再起動で中断された Remote セッションが、次のワーカー上で自動的に再開されるようになり、ターン中のクラッシュからも復旧できるようになった。",
+      "detail_en": "In Remote (cloud) sessions, a mid-turn interruption — for example a server restart — could leave the session unrecovered.\n\nThis fix makes Remote sessions interrupted by a server restart auto-resume on the next worker, recovering from mid-turn crashes.",
+      "category": "プラットフォーム互換性",
+      "category_en": "Platform Compatibility"
+    },
+    {
+      "t": "修正: `/cd` で移動したセッションが、特殊文字を含む旧パスからの非正常終了後に旧ディレクトリの再開一覧へ再表示される問題",
+      "t_en": "Fixed sessions moved with `/cd` reappearing in the old directory's resume list after a non-graceful exit when the old path contained special characters",
+      "tags": ["バグ修正"],
+      "detail": "`/cd` でセッションの作業ディレクトリを移動した後に非正常終了（クラッシュなど）すると、旧パスに特殊文字が含まれている場合に、そのセッションが旧ディレクトリの再開（resume）一覧へ再表示されてしまうことがあった。\n\n本修正により、特殊文字を含むパスでも移動先が正しく扱われ、移動済みのセッションが旧ディレクトリの再開一覧に再出現しなくなった。",
+      "detail_en": "After moving a session's working directory with `/cd`, a non-graceful exit (such as a crash) could make the session reappear in the old directory's resume list when the old path contained special characters.\n\nThis fix handles paths with special characters correctly, so a moved session no longer reappears in the old directory's resume list.",
+      "category": "セッション管理",
+      "category_en": "Session Management"
+    },
+    {
+      "t": "修正: `claude plugin validate` がソースが「.」のローカルプラグインをスキップし、最初のエラー種別で停止する問題",
+      "t_en": "Fixed `claude plugin validate` skipping local plugins whose source is \".\" and stopping after the first error class",
+      "tags": ["バグ修正", "Plugin"],
+      "detail": "`claude plugin validate` は、ソースが「.」（カレントディレクトリ）であるローカルプラグインを検証対象からスキップしてしまい、また最初のエラー種別（error class）が見つかった時点で検証を打ち切っていた。\n\n本修正により、ソースが「.」のローカルプラグインも検証されるようになり、最初のエラー種別で停止せず最後まで検証を続けるようになった。",
+      "detail_en": "`claude plugin validate` skipped local plugins whose source is \".\" (the current directory) and stopped after the first error class it found.\n\nThis fix validates local plugins with source \".\" as well, and continues validation to the end instead of stopping at the first error class.",
+      "category": "Plugin",
+      "category_en": "Plugin"
+    },
+    {
+      "t": "修正: アイドル状態のプロンプトで Esc Esc が rewind メニューを開かない問題（リグレッション。バックグラウンドエージェントの停止は Ctrl+C または Ctrl+X Ctrl+K を使用）",
+      "t_en": "Fixed Esc Esc at an idle prompt not opening the rewind menu (regression); use Ctrl+C or Ctrl+X Ctrl+K to stop background agents",
+      "tags": ["バグ修正"],
+      "detail": "アイドル状態のプロンプトで Esc を2回押すと rewind（巻き戻し）メニューが開くはずだったが、リグレッションによりメニューが開かなくなっていた。\n\n本修正により Esc Esc で rewind メニューが再び開くようになった。なお、バックグラウンドエージェントを停止したい場合は Ctrl+C または Ctrl+X Ctrl+K を使用する。",
+      "detail_en": "Pressing Esc twice at an idle prompt should open the rewind menu, but a regression stopped it from opening.\n\nThis fix restores Esc Esc opening the rewind menu. To stop background agents, use Ctrl+C or Ctrl+X Ctrl+K.",
+      "category": "入力",
+      "category_en": "Input"
+    },
+    {
+      "t": "修正: スコープ未指定時に MCP OAuth が認可サーバーの `scopes_supported` 全カタログを要求し、GitLab セルフホスト等の企業 IdP で `invalid_scope` エラーになる問題",
+      "t_en": "Fixed MCP OAuth requesting the authorization server's full `scopes_supported` catalog when no scope is specified, causing `invalid_scope` failures on GitLab self-hosted and other enterprise IdPs",
+      "tags": ["バグ修正", "MCP"],
+      "detail": "MCP の OAuth 認証で、クライアントがスコープを指定しなかった場合に、認可サーバーが公開する `scopes_supported`（対応スコープの全カタログ）をそのまま要求していた。GitLab セルフホストをはじめとする企業向け IdP では、この振る舞いが `invalid_scope` エラーを引き起こしていた。\n\n本修正により、スコープ未指定時に全カタログを要求しなくなり、これらの IdP でも OAuth 認証が成功するようになった。",
+      "detail_en": "In MCP OAuth, when the client specified no scope, it requested the authorization server's entire `scopes_supported` catalog. On enterprise IdPs such as self-hosted GitLab, this caused `invalid_scope` failures.\n\nThis fix stops requesting the full catalog when no scope is specified, so OAuth succeeds on those IdPs.",
+      "category": "MCP 連携",
+      "category_en": "MCP Integration"
+    },
+    {
+      "t": "修正: Bedrock で `/context` が全ツールグループのトークン数を0と表示する問題",
+      "t_en": "Fixed `/context` showing 0 tokens for all tool groups on Bedrock",
+      "tags": ["バグ修正", "Platform"],
+      "detail": "Amazon Bedrock 経由で利用している場合、`/context` がすべてのツールグループのトークン数を 0 と表示し、コンテキストの内訳を正しく確認できなかった。\n\n本修正により、Bedrock でも `/context` が各ツールグループの実際のトークン数を表示するようになった。",
+      "detail_en": "When running via Amazon Bedrock, `/context` showed 0 tokens for all tool groups, so the context breakdown could not be inspected correctly.\n\nThis fix makes `/context` display the actual token counts per tool group on Bedrock.",
+      "category": "プラットフォーム互換性",
+      "category_en": "Platform Compatibility"
+    },
+    {
+      "t": "修正: `/deep-research` が検証の失敗を `unverified` ではなく「all claims refuted（全主張が反証された）」と誤って報告する問題",
+      "t_en": "Fixed `/deep-research` misreporting verifier failures as \"all claims refuted\" instead of `unverified`",
+      "tags": ["バグ修正"],
+      "detail": "`/deep-research` では、主張（claim）の検証器（verifier）が失敗したケースを、本来の `unverified`（未検証）ではなく「all claims refuted（すべての主張が反証された）」と誤って報告することがあった。検証できなかっただけの結果が、反証された結果として伝わってしまっていた。\n\n本修正により、検証の失敗は `unverified` として正しく報告されるようになった。",
+      "detail_en": "In `/deep-research`, verifier failures were sometimes reported as \"all claims refuted\" instead of the correct `unverified` state — a result that merely could not be verified was presented as having been refuted.\n\nThis fix reports verifier failures as `unverified` correctly.",
+      "category": "コマンド",
+      "category_en": "Command"
+    },
+    {
+      "t": "修正: git リポジトリに紐づくローカルフォルダーパスとしてマーケットプレイスを追加したときに、プラグイン依存のバージョン固定が反映されない問題",
+      "t_en": "Fixed plugin dependency version pins not being honored when the marketplace was added as a local folder path backed by a git repo",
+      "tags": ["バグ修正", "Plugin"],
+      "detail": "プラグインのマーケットプレイスを、git リポジトリに紐づくローカルフォルダーのパスとして追加した場合に、プラグインの依存関係に指定されたバージョン固定（version pin）が反映されないことがあった。\n\n本修正により、ローカルフォルダー経由で追加したマーケットプレイスでも依存バージョンの固定が正しく尊重されるようになった。",
+      "detail_en": "When a plugin marketplace was added as a local folder path backed by a git repo, plugin dependency version pins could be ignored.\n\nThis fix honors dependency version pins even for marketplaces added via a local folder path.",
+      "category": "Plugin",
+      "category_en": "Plugin"
+    },
+    {
+      "t": "修正: `claude agents` のセッションステータス（完了行が「Done」と「Needs your input」を行き来しない、停滞したエージェントを「Needs attention」と表示、PR に言及する結果にクリック可能なリンクを表示）",
+      "t_en": "Fixed `claude agents` session status: completed rows no longer flip between \"Done\" and \"Needs your input\", stalled agents are now labeled \"Needs attention\", and results that mention a PR show a clickable link",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "`claude agents` のセッションステータス表示にいくつかの問題があった。完了した行が「Done」と「Needs your input」の間で表示を行き来する、停滞したエージェントが分かりにくい、結果に PR への言及があってもリンクにならない、などである。\n\n本修正により、完了行はステータスが安定し、停滞したエージェントは「Needs attention」と表示され、PR に言及する結果にはクリック可能なリンクが付くようになった。",
+      "detail_en": "The `claude agents` session status had several issues: completed rows flipping between \"Done\" and \"Needs your input\", stalled agents being unclear, and results mentioning a PR not becoming links.\n\nThis fix stabilizes completed-row status, labels stalled agents \"Needs attention\", and shows a clickable link when a result mentions a PR.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-agent"
+    },
+    {
+      "t": "修正: 音声モード有効時、非常に速いタイピング中に音声入力がスペースを飲み込み、誤って録音を開始する問題",
+      "t_en": "Fixed voice dictation swallowing spaces and spuriously starting a recording during very fast typing when voice mode is enabled",
+      "tags": ["バグ修正"],
+      "detail": "音声モードを有効にしている状態で非常に速くタイピングすると、音声入力の処理がタイプされたスペースを飲み込んでしまったり、誤って録音を開始したりすることがあった。\n\n本修正により、高速入力中に音声入力がスペースを取りこぼしたり録音を誤起動したりしなくなった。",
+      "detail_en": "With voice mode enabled, typing very fast could cause voice dictation to swallow typed spaces and spuriously start a recording.\n\nThis fix prevents dictation from dropping spaces or mis-triggering a recording during fast typing.",
+      "category": "入力",
+      "category_en": "Input"
+    },
+    {
+      "t": "改善: バックグラウンドセッションの信頼性向上（長時間実行のコマンドやワークフローがセッションプロセスの停止・再起動・更新を越えて存続。Windows ではバックグラウンドシェルを kill せず引き継ぐ）",
+      "t_en": "Improved background session reliability: long-running commands and workflows now survive the session's process being stopped, restarted, or updated — including on Windows, where background shells are handed off instead of being killed",
+      "tags": ["改善", "Agent", "Windows"],
+      "detail": "長時間実行されるコマンドやワークフローは、セッションのプロセスが停止・再起動・更新されると道連れで失われることがあった。\n\n本改善により、これらのバックグラウンド処理はセッションプロセスの停止・再起動・更新を越えて存続するようになった。Windows でも、バックグラウンドシェルを kill するのではなく引き継ぐ（handed off）ことで、同様に継続できるようになった。",
+      "detail_en": "Long-running commands and workflows could be lost when the session's process was stopped, restarted, or updated.\n\nThis improvement lets such background work survive the session process being stopped, restarted, or updated — including on Windows, where background shells are handed off instead of being killed.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-agent"
+    },
+    {
+      "t": "改善: バックグラウンドエージェントで、デーモン再起動により kill されたワーカーを、次にエージェントビューを開いたときに中断地点から自動再開するように",
+      "t_en": "Improved background agents: workers killed by a daemon restart are now automatically resumed from where they left off the next time the agents view opens",
+      "tags": ["改善", "Agent"],
+      "detail": "バックグラウンドエージェントを動かすワーカーは、デーモンが再起動されると kill され、その作業が止まってしまうことがあった。\n\n本改善により、デーモン再起動で kill されたワーカーは、次にエージェントビューを開いたときに中断した地点から自動的に再開されるようになった。",
+      "detail_en": "Workers running background agents could be killed when the daemon restarted, stalling their work.\n\nThis improvement automatically resumes workers killed by a daemon restart from where they left off the next time the agents view opens.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-agent"
+    },
+    {
+      "t": "改善: `/code-review` ワークフローで5つのクリーンアップ検出器を1つに統合し、トークン使用量を約25%削減",
+      "t_en": "Improved `/code-review` workflow: merged five cleanup finders into one, cutting token usage by roughly 25%",
+      "tags": ["改善", "Perf"],
+      "detail": "`/code-review` ワークフローでは、コードのクリーンアップを検出する処理（finder）が5つに分かれて動いており、トークン消費が大きかった。\n\n本改善により、これら5つのクリーンアップ検出器が1つに統合され、ワークフロー全体のトークン使用量が約25%削減された。",
+      "detail_en": "The `/code-review` workflow ran five separate cleanup finders, consuming a lot of tokens.\n\nThis improvement merges those five cleanup finders into one, cutting the workflow's token usage by roughly 25%.",
+      "category": "コマンド",
+      "category_en": "Command"
+    },
+    {
+      "t": "改善: ストリーミング中に無処理のサブツリー走査をスキップし、ターミナル UI のフレームごとの描画コストを削減",
+      "t_en": "Reduced per-frame rendering work in the terminal UI by skipping no-op subtree walks during streaming",
+      "tags": ["改善", "Perf"],
+      "detail": "ストリーミング応答中のターミナル UI 描画では、変化のない（no-op の）サブツリーまで毎フレーム走査しており、無駄な描画コストが発生していた。\n\n本改善により、ストリーミング中は変化のないサブツリーの走査をスキップするようになり、フレームごとの描画コストが削減された。",
+      "detail_en": "While rendering the terminal UI during streaming responses, the renderer walked even unchanged (no-op) subtrees every frame, incurring wasted work.\n\nThis improvement skips no-op subtree walks during streaming, reducing per-frame rendering work.",
+      "category": "パフォーマンス",
+      "category_en": "Performance"
+    },
+    {
+      "t": "変更: ストリーミングのアイドルウォッチドッグを全プロバイダーで既定有効化（応答ストリームが5分間イベントを生成しないと中断して再試行。`CLAUDE_ENABLE_STREAM_WATCHDOG=0` で無効化）",
+      "t_en": "The streaming idle watchdog is now on by default for all providers — it aborts and retries when a response stream produces no events for 5 minutes. Set `CLAUDE_ENABLE_STREAM_WATCHDOG=0` to disable.",
+      "tags": ["改善"],
+      "detail": "応答のストリーミングが途中で停止（ストール）したまま無反応になることがあり、これを検知するアイドルウォッチドッグは一部のプロバイダーでのみ有効だった。\n\n本バージョンでは、このストリーミングのアイドルウォッチドッグがすべてのプロバイダーで既定有効になった。応答ストリームが5分間イベントを生成しないと自動的に中断して再試行する。環境変数 `CLAUDE_ENABLE_STREAM_WATCHDOG=0` を設定すると無効化できる。\n\n詳しくは[環境変数のドキュメント](https://code.claude.com/docs/en/env-vars#variables)を参照してください。",
+      "detail_en": "A response stream could stall mid-way and hang, and the idle watchdog that detects this was only enabled on some providers.\n\nThis version enables the streaming idle watchdog by default for all providers: it aborts and retries when a response stream produces no events for 5 minutes. Set `CLAUDE_ENABLE_STREAM_WATCHDOG=0` to disable it.\n\nSee the [environment variables documentation](https://code.claude.com/docs/en/env-vars#variables) for details.",
+      "category": "ネットワーク",
+      "category_en": "Network"
+    },
+    {
+      "t": "変更: `ANTHROPIC_BASE_URL` が Anthropic 以外のホストを指す場合にリモートコントロールを無効化（`CLAUDE_CODE_USE_BEDROCK`/`_VERTEX`/`_FOUNDRY` での既存挙動に合わせる）",
+      "t_en": "Remote Control is now disabled when `ANTHROPIC_BASE_URL` points at a non-Anthropic host, matching the existing behavior under `CLAUDE_CODE_USE_BEDROCK`/`_VERTEX`/`_FOUNDRY`",
+      "tags": ["改善", "Security"],
+      "detail": "リモートコントロール機能は、`CLAUDE_CODE_USE_BEDROCK` / `CLAUDE_CODE_USE_VERTEX` / `CLAUDE_CODE_USE_FOUNDRY` を使うサードパーティ経由の構成では既に無効化されていた。一方で、`ANTHROPIC_BASE_URL` で Anthropic 以外のホスト（プロキシや LLM ゲートウェイ等）を指している場合には無効化されていなかった。\n\n本バージョンでは、`ANTHROPIC_BASE_URL` が非 Anthropic ホストを指す場合にもリモートコントロールが無効化されるようになり、上記の既存挙動と統一された。意図しない環境でリモートコントロールが有効になることを防ぐ。",
+      "detail_en": "Remote Control was already disabled for third-party setups using `CLAUDE_CODE_USE_BEDROCK`/`_VERTEX`/`_FOUNDRY`, but not when `ANTHROPIC_BASE_URL` pointed at a non-Anthropic host (such as a proxy or LLM gateway).\n\nThis version also disables Remote Control when `ANTHROPIC_BASE_URL` points at a non-Anthropic host, matching the existing behavior and preventing Remote Control from being enabled in unintended environments.",
+      "category": "セキュリティ",
+      "category_en": "Security"
+    },
+    {
+      "t": "変更: フォアグラウンドセッションからエージェントビューを開く操作を2回の `←` から1回に変更（バックグラウンドセッションの挙動に統一）",
+      "t_en": "Changed opening the agents view from a foreground session to require a single `←` press instead of two, matching the behavior in background sessions",
+      "tags": ["改善", "Agent"],
+      "detail": "フォアグラウンドのセッションからエージェントビューを開くには `←`（左矢印）を2回押す必要があり、バックグラウンドセッションでの操作（1回押し）と挙動が食い違っていた。\n\n本バージョンでは、フォアグラウンドセッションからエージェントビューを開く操作が `←` 1回に変更され、バックグラウンドセッションと挙動が統一された。",
+      "detail_en": "Opening the agents view from a foreground session required pressing `←` twice, which was inconsistent with the single press used in background sessions.\n\nThis version changes opening the agents view from a foreground session to a single `←` press, matching the behavior in background sessions.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-agent"
+    }
   ]
 }
