@@ -408,5 +408,170 @@
         "tags": ["新機能"]
       }
     ]
+  },
+  {
+    "v": "2.1.198",
+    "items": [
+      {
+        "t": "追加: Claude in Chrome が一般提供（GA）に",
+        "t_en": "Claude in Chrome is now generally available",
+        "tags": ["新機能"]
+      },
+      {
+        "t": "追加: `claude agents` にバックグラウンドエージェント通知を追加（入力待ちや完了時に `Notification` フックが `agent_needs_input` / `agent_completed` で発火）",
+        "t_en": "Added background agent notifications in `claude agents` — sessions that need input or finish now fire the `Notification` hook (`agent_needs_input` / `agent_completed`)",
+        "tags": ["新機能", "Agent"]
+      },
+      {
+        "t": "追加: チャート・ダッシュボード設計のガイダンスを提供する `/dataviz` スキルを追加（実行可能なカラーパレット検証ツール付き）",
+        "t_en": "Added `/dataviz` skill for chart and dashboard design guidance with a runnable color-palette validator",
+        "tags": ["新機能"]
+      },
+      {
+        "t": "追加: ゲートウェイのアップストリームプロバイダーに Claude Platform on AWS（anthropicAws）を追加（モデル未発見の応答時はフェイルオーバーチェーンを次へ進むように）",
+        "t_en": "Gateway: added Claude Platform on AWS (anthropicAws) as an upstream provider; model-not-found responses now advance the failover chain",
+        "tags": ["新機能", "Platform"]
+      },
+      {
+        "t": "変更: `claude agents` から起動したバックグラウンドエージェントが、ワークツリーでのコード作業完了時に確認のため停止せず、自動でコミット・プッシュしてドラフト PR を作成するように",
+        "t_en": "Background agents launched from `claude agents` now commit, push, and open a draft PR when they finish code work in a worktree, instead of stopping to ask",
+        "tags": ["改善", "Agent"]
+      },
+      {
+        "t": "変更: 組み込みの Explore エージェントが Haiku 固定ではなく、メインセッションのモデルを継承するように（上限は Opus）",
+        "t_en": "The built-in Explore agent now inherits the main session's model (capped at opus) instead of running on haiku",
+        "tags": ["改善", "Agent"]
+      },
+      {
+        "t": "改善: サブエージェントとコンテキスト圧縮がセッションの拡張思考（extended thinking）設定を継承するようになり、委任タスクの出力品質が向上",
+        "t_en": "Subagents and context compaction now inherit the session's extended thinking configuration, improving output quality on delegated tasks",
+        "tags": ["改善", "Agent"]
+      },
+      {
+        "t": "修正: 応答中の一時的なネットワーク断でターンが中断される問題（ECONNRESET 等の一過性エラーはバックオフ付きで自動再試行するように）",
+        "t_en": "Fixed brief network drops mid-response aborting the turn — transient errors like ECONNRESET now retry with backoff instead of failing",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: サンドボックス化されたプロセスが同一ネットワークホストへ繰り返しアクセスした際に、バックグラウンドの分類器リクエストが過剰に発生する問題",
+        "t_en": "Fixed excessive background classifier requests when sandboxed processes repeatedly accessed the same network host",
+        "tags": ["バグ修正", "Perf"]
+      },
+      {
+        "t": "修正: Web・デスクトップ・VS Code のタスクパネルで、バックグラウンドタスクが完了後やセッション再開後も「Running」のまま表示される問題",
+        "t_en": "Fixed background tasks in web, desktop, and VS Code task panels getting stuck on \"Running\" after they finish or after resuming a session",
+        "tags": ["バグ修正", "IDE"]
+      },
+      {
+        "t": "修正: エージェントチームで、API エラーで停止したチームメイトがリードに「failed」を報告し、スタックしたチームメイトへのメッセージ送信で即座に再試行するように",
+        "t_en": "Fixed agent teams: a teammate that dies on an API error now reports \"failed\" to the lead, and messaging a stuck teammate wakes it to retry immediately",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: セッション外でのブランチ切り替えやコミットが `/diff` パネルに反映されない問題",
+        "t_en": "Fixed the `/diff` panel not refreshing when you switch branches or commit outside the session",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: フルスクリーンモードで Markdown テーブルがはみ出し、右罫線が折り返されて表示される問題",
+        "t_en": "Fixed markdown tables overflowing and wrapping their right border when rendered in fullscreen mode",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: Claude Platform on AWS および Mantle のセッションで、STS トークン失効時に「Please run /login」で行き詰まる問題（`awsAuthRefresh` が自動実行されるように）",
+        "t_en": "Fixed Claude Platform on AWS and Mantle sessions dead-ending with \"Please run /login\" when the STS token expires — `awsAuthRefresh` now runs automatically",
+        "tags": ["バグ修正", "Platform"]
+      },
+      {
+        "t": "修正: macOS のバックグラウンドエージェントセッションで、ローカルネットワークのホストに「no route to host」で接続できない問題（Local Network エンタイトルメントを宣言）",
+        "t_en": "Fixed \"no route to host\" for local-network hosts in macOS background agent sessions by declaring Local Network entitlements",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: ワークツリーに入って出た後に `/desktop` が「Cannot determine working directory」で失敗する問題",
+        "t_en": "Fixed `/desktop` failing with \"Cannot determine working directory\" after entering and exiting a worktree",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: macOS でエージェントビューを開いている間、バックグラウンドエージェントが約52秒ごとに「Reconnecting…」を繰り返し表示する問題",
+        "t_en": "Fixed background agents repeatedly showing \"Reconnecting…\" every ~52 seconds on macOS while the agents view was open",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: `claude attach <id>` 内で `←` を押すと、エージェントビューが開かずシェルに抜けてしまう問題",
+        "t_en": "Fixed pressing `←` inside `claude attach <id>` exiting to the shell instead of opening the agent view",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: `claude --bg` を `--print`/`-p` と併用すると接続不能なセッションが黙って作成される問題（競合するフラグは事前に拒否されるように）",
+        "t_en": "Fixed `claude --bg` silently creating an unattachable session when combined with `--print`/`-p`; the conflicting flags are now rejected up front",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: SDK およびデスクトップアプリのセッションで、ワークフロー進捗ビューがフェーズカウンターは正しいまま初期のエージェントをリストから欠落させる問題",
+        "t_en": "Fixed the workflow progress view dropping the earliest agents from the list while the phase counter stayed correct in SDK and desktop-app sessions",
+        "tags": ["バグ修正", "SDK"]
+      },
+      {
+        "t": "修正: 対象ファイルにシンボリックリンク経由のパスで到達した場合に、`.claude/rules/` の条件付きルールが読み込まれない問題",
+        "t_en": "Fixed `.claude/rules/` conditional rules not loading when the target file is reached via a symlinked path",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: macOS の Warp で、フルスクリーンモード時に Cmd+クリックで URL が開かない問題",
+        "t_en": "Fixed Cmd+click not opening URLs in fullscreen mode in Warp on macOS",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: フルスクリーンモードのダブルクリックによる単語選択で、スキームを含む URL 全体が選択されるように",
+        "t_en": "Fixed double-click word selection in fullscreen mode to select the entire URL including the scheme",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: プランモードでセッションを開始した場合に、読み取り専用ツールの呼び出しが自動許可されない問題",
+        "t_en": "Fixed plan mode not auto-allowing read-only tool calls when a session starts in plan mode",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: `/branch` の既定のフォーク名が、最初の実際のプロンプトではなく圧縮（compaction）サマリーから導出される問題",
+        "t_en": "Fixed `/branch` deriving its default fork name from the compaction summary instead of the first real prompt",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "改善: フォーカスモードで、ターン中に起動したサブエージェントがアクティビティサマリーに表示され、完了したバックグラウンド通知が1つのカウントに集約されるように",
+        "t_en": "Improved focus mode: subagents launched in a turn now appear in its activity summary, and completed background notifications fold into a single count",
+        "tags": ["改善", "Agent"]
+      },
+      {
+        "t": "改善: highlight.js 11 へのアップグレードにより、コードブロック・差分・ファイルプレビューのシンタックスハイライト精度が向上",
+        "t_en": "Improved syntax highlighting accuracy in code blocks, diffs, and file previews by upgrading to highlight.js 11",
+        "tags": ["改善"]
+      },
+      {
+        "t": "改善: Mac から SSH 接続している場合、キーボードショートカットのヒントに alt/super ではなく opt/cmd を表示するように",
+        "t_en": "Keyboard shortcut hints now show opt/cmd instead of alt/super when connected from a Mac over SSH",
+        "tags": ["改善"]
+      },
+      {
+        "t": "改善: API リトライの UX を改善（2回目の試行以降はエラー理由を表示し、API 過負荷時はスピナーのヒントをステータスページへのリンクに置き換え）",
+        "t_en": "Improved API retry UX: the error reason is now shown after the second attempt, and a status page link replaces the spinner tip when the API is overloaded",
+        "tags": ["改善"]
+      },
+      {
+        "t": "改善: `claude agents` ビューから `/login` を実行するとサインインダイアログが開くように（従来は利用不可のメッセージを表示）",
+        "t_en": "`/login` now opens the sign-in dialog from the `claude agents` view instead of saying it isn't available",
+        "tags": ["改善", "Agent"]
+      },
+      {
+        "t": "変更: サブエージェントが起動元エージェントからのメッセージを通常のタスク指示として扱うように（エージェントのメッセージがユーザーの承認として扱われないのは従来どおり）",
+        "t_en": "Subagents now treat messages from the agent that launched them as normal task direction; an agent's message is still never treated as the user's approval",
+        "tags": ["改善", "Agent"]
+      },
+      {
+        "t": "削除: `/agents` ウィザードを削除（サブエージェントの作成・管理は Claude への依頼または `.claude/agents/` の直接編集で）",
+        "t_en": "Removed the `/agents` wizard; ask Claude to create or manage subagents, or edit `.claude/agents/` directly",
+        "tags": ["非推奨", "Agent"]
+      }
+    ]
   }
 ]

@@ -694,5 +694,295 @@
       "category": "モデル",
       "category_en": "Model"
     }
+  ],
+  "2.1.198": [
+    {
+      "t": "追加: Claude in Chrome が一般提供（GA）に",
+      "t_en": "Claude in Chrome is now generally available",
+      "tags": ["新機能"],
+      "detail": "Claude in Chrome は、Chrome 拡張機能を通じて Claude Code がブラウザを直接操作できる機能で、ページの操作・フォーム入力・スクリーンショット取得・コンソールログの読み取りなどをコーディングタスクの一部として実行できる。これまではベータとして提供されていた。\n\n本バージョンで Claude in Chrome が一般提供（GA）となった。詳しくは[Chrome 連携のドキュメント](https://code.claude.com/docs/en/chrome)を参照してください。",
+      "detail_en": "Claude in Chrome lets Claude Code drive a Chrome browser directly through a browser extension — navigating pages, filling forms, taking screenshots, and reading console logs as part of a coding task. It had been available in beta.\n\nWith this version, Claude in Chrome is now generally available. See the [Chrome integration documentation](https://code.claude.com/docs/en/chrome) for details.",
+      "category": "MCP 連携",
+      "category_en": "MCP Integration"
+    },
+    {
+      "t": "追加: `claude agents` にバックグラウンドエージェント通知を追加（入力待ちや完了時に `Notification` フックが `agent_needs_input` / `agent_completed` で発火）",
+      "t_en": "Added background agent notifications in `claude agents` — sessions that need input or finish now fire the `Notification` hook (`agent_needs_input` / `agent_completed`)",
+      "tags": ["新機能", "Agent"],
+      "detail": "これまで `claude agents` のバックグラウンドセッションが入力待ちになったり完了したりしても、フックで検知する手段がなく、ビューを開いて確認する必要があった。\n\n本バージョンで、入力が必要になったセッションと完了したセッションが `Notification` フックを発火するようになった（matcher はそれぞれ `agent_needs_input` / `agent_completed`）。デスクトップ通知・サウンド・チャット通知など、バックグラウンドセッション向けのカスタムアラートを既存のフックの仕組みで構成できる。詳しくは[hooks のドキュメント](https://code.claude.com/docs/en/hooks#notification)を参照してください。",
+      "detail_en": "Previously there was no way to detect via hooks when a `claude agents` background session needed input or finished — you had to open the view and check.\n\nWith this version, sessions that need input or finish now fire the `Notification` hook (matchers `agent_needs_input` / `agent_completed`), so you can wire custom alerts — desktop notifications, sounds, chat pings — for background sessions using the existing hooks mechanism. See the [hooks documentation](https://code.claude.com/docs/en/hooks#notification) for details.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-agent"
+    },
+    {
+      "t": "追加: チャート・ダッシュボード設計のガイダンスを提供する `/dataviz` スキルを追加（実行可能なカラーパレット検証ツール付き）",
+      "t_en": "Added `/dataviz` skill for chart and dashboard design guidance with a runnable color-palette validator",
+      "tags": ["新機能"],
+      "detail": "チャートやダッシュボードのデザインは、チャート形式の選択・配色・レイアウトなど判断項目が多く、一貫した品質で作るのが難しかった。\n\n本バージョンで `/dataviz` スキルが追加され、チャートやダッシュボード設計のガイダンス（チャート形式の選び方、配色の指針、マークやインタラクションの仕様）を参照できるようになった。実行可能なカラーパレット検証ツールが付属し、選んだ配色をコントラストなどの観点で機械的にチェックできる。",
+      "detail_en": "Designing charts and dashboards involves many judgment calls — chart form, color choices, layout — making consistent quality hard to achieve.\n\nThis version adds the `/dataviz` skill, providing guidance for chart and dashboard design (choosing chart forms, color guidelines, mark and interaction specs). It ships with a runnable color-palette validator that mechanically checks the chosen palette for properties such as contrast.",
+      "category": "コマンド",
+      "category_en": "Command"
+    },
+    {
+      "t": "追加: ゲートウェイのアップストリームプロバイダーに Claude Platform on AWS（anthropicAws）を追加（モデル未発見の応答時はフェイルオーバーチェーンを次へ進むように）",
+      "t_en": "Gateway: added Claude Platform on AWS (anthropicAws) as an upstream provider; model-not-found responses now advance the failover chain",
+      "tags": ["新機能", "Platform"],
+      "detail": "Claude apps gateway は、Claude Code の推論リクエストを Bedrock などの複数のアップストリームプロバイダーへルーティングし、プロバイダー間のフェイルオーバーを提供するセルフホスト型のゲートウェイ。\n\n本バージョンで、アップストリームプロバイダーとして Claude Platform on AWS（設定名 `anthropicAws`）が追加された。また、あるプロバイダーがモデル未発見（model-not-found）の応答を返した場合、リクエストをその場で失敗させず、フェイルオーバーチェーンの次のプロバイダーへ進むようになった。",
+      "detail_en": "The Claude apps gateway is a self-hosted gateway that routes Claude Code inference requests across multiple upstream providers (such as Bedrock) with failover between them.\n\nThis version adds Claude Platform on AWS (config name `anthropicAws`) as an upstream provider. Additionally, when a provider returns a model-not-found response, the request now advances to the next provider in the failover chain instead of failing outright.",
+      "category": "プラットフォーム互換性",
+      "category_en": "Platform Compatibility"
+    },
+    {
+      "t": "変更: `claude agents` から起動したバックグラウンドエージェントが、ワークツリーでのコード作業完了時に確認のため停止せず、自動でコミット・プッシュしてドラフト PR を作成するように",
+      "t_en": "Background agents launched from `claude agents` now commit, push, and open a draft PR when they finish code work in a worktree, instead of stopping to ask",
+      "tags": ["改善", "Agent"],
+      "detail": "これまで `claude agents` から起動したバックグラウンドエージェントは、ワークツリーでのコード作業を終えると、その後の扱いをユーザーに確認するために停止していた。\n\n本バージョンから、作業完了時に自動で変更をコミットし、ブランチをプッシュしてドラフト PR を作成するようになった。完了したバックグラウンドエージェントの成果をレビュー可能な状態にするまでの手作業が不要になる。詳しくは[エージェントビューのドキュメント](https://code.claude.com/docs/en/agent-view)を参照してください。",
+      "detail_en": "Previously, background agents launched from `claude agents` stopped to ask the user how to proceed after finishing code work in a worktree.\n\nStarting with this version, they automatically commit the changes, push the branch, and open a draft PR when they finish, removing the manual follow-up needed to get a finished background agent's work into a reviewable state. See the [agent view documentation](https://code.claude.com/docs/en/agent-view) for details.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-agent"
+    },
+    {
+      "t": "変更: 組み込みの Explore エージェントが Haiku 固定ではなく、メインセッションのモデルを継承するように（上限は Opus）",
+      "t_en": "The built-in Explore agent now inherits the main session's model (capped at opus) instead of running on haiku",
+      "tags": ["改善", "Agent"],
+      "detail": "組み込みの Explore エージェントは読み取り専用のコード探索に使われるサブエージェントで、これまでメインセッションのモデルに関係なく常に Haiku で動作していた。\n\n本バージョンから、Explore エージェントはメインセッションのモデルを継承するようになった（上限は Opus）。強力なモデルを使っているセッションでは、コード探索の推論品質が向上する。",
+      "detail_en": "The built-in Explore agent is a read-only codebase-search subagent that previously always ran on Haiku regardless of the main session's model.\n\nStarting with this version, the Explore agent inherits the main session's model (capped at Opus), improving search reasoning quality in sessions running a stronger model.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-agent"
+    },
+    {
+      "t": "改善: サブエージェントとコンテキスト圧縮がセッションの拡張思考（extended thinking）設定を継承するようになり、委任タスクの出力品質が向上",
+      "t_en": "Subagents and context compaction now inherit the session's extended thinking configuration, improving output quality on delegated tasks",
+      "tags": ["改善", "Agent"],
+      "detail": "これまでサブエージェントとコンテキスト圧縮（compaction）は、親セッションの拡張思考（extended thinking）設定とは無関係に、それぞれ既定の推論構成で動作していた。\n\n本バージョンから、サブエージェントとコンテキスト圧縮はセッションの拡張思考設定を継承するようになった。委任したタスクや圧縮サマリーでも、メインの会話に設定したのと同じ深さの推論が使われ、出力品質が向上する。詳しくは[Agent SDK のドキュメント](https://code.claude.com/docs/en/agent-sdk/subagents#what-subagents-inherit)を参照してください。",
+      "detail_en": "Previously, subagents and context compaction ran with their own default reasoning configuration, independent of the parent session's extended thinking settings.\n\nStarting with this version, subagents and context compaction inherit the session's extended thinking configuration, so delegated tasks and compaction summaries use the same reasoning depth configured for the main conversation, improving output quality. See the [Agent SDK documentation](https://code.claude.com/docs/en/agent-sdk/subagents#what-subagents-inherit) for details.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-agent"
+    },
+    {
+      "t": "修正: 応答中の一時的なネットワーク断でターンが中断される問題（ECONNRESET 等の一過性エラーはバックオフ付きで自動再試行するように）",
+      "t_en": "Fixed brief network drops mid-response aborting the turn — transient errors like ECONNRESET now retry with backoff instead of failing",
+      "tags": ["バグ修正"],
+      "detail": "応答のストリーミング中に短時間のネットワーク断（ECONNRESET などの一過性エラー）が発生すると、ターン全体が中断され、手動での再実行が必要だった。\n\n本バージョンで、こうした一過性のエラーは失敗にせず、バックオフ付きで自動的に再試行するようになった。不安定なネットワーク環境でもターンが完走しやすくなる。",
+      "detail_en": "A brief network drop mid-response (transient errors such as ECONNRESET) previously aborted the whole turn, requiring a manual retry.\n\nWith this version, such transient errors retry automatically with backoff instead of failing, making turns more likely to complete on flaky networks.",
+      "category": "ネットワーク",
+      "category_en": "Network"
+    },
+    {
+      "t": "修正: サンドボックス化されたプロセスが同一ネットワークホストへ繰り返しアクセスした際に、バックグラウンドの分類器リクエストが過剰に発生する問題",
+      "t_en": "Fixed excessive background classifier requests when sandboxed processes repeatedly accessed the same network host",
+      "tags": ["バグ修正", "Perf"],
+      "detail": "サンドボックス化されたプロセスが同一のネットワークホストへ繰り返しアクセスすると、そのたびにバックグラウンドの安全性分類器（classifier）へのリクエストが冗長に発生し、レイテンシとオーバーヘッドの原因になっていた。\n\n本バージョンで、同一ホストへの繰り返しアクセスに対する過剰な分類器リクエストが修正された。",
+      "detail_en": "When sandboxed processes repeatedly accessed the same network host, redundant background safety-classifier requests fired for each access, adding latency and overhead.\n\nThis version fixes the excessive classifier requests for repeated access to the same host.",
+      "category": "パフォーマンス",
+      "category_en": "Performance"
+    },
+    {
+      "t": "修正: Web・デスクトップ・VS Code のタスクパネルで、バックグラウンドタスクが完了後やセッション再開後も「Running」のまま表示される問題",
+      "t_en": "Fixed background tasks in web, desktop, and VS Code task panels getting stuck on \"Running\" after they finish or after resuming a session",
+      "tags": ["バグ修正", "IDE"],
+      "detail": "Web・デスクトップ・VS Code のタスクパネルで、バックグラウンドタスクが実際には完了しているのに「Running」のまま表示されたり、セッション再開後にステータスが更新されないことがあった。\n\n本バージョンでこの表示上の問題が修正され、タスクの完了が正しくパネルに反映されるようになった。",
+      "detail_en": "Background tasks in the web, desktop, and VS Code task panels could stay displayed as \"Running\" after they had actually finished, or fail to update after resuming a session.\n\nThis version fixes the display issue so task completion is reflected correctly in the panels.",
+      "category": "UX",
+      "category_en": "UX"
+    },
+    {
+      "t": "修正: エージェントチームで、API エラーで停止したチームメイトがリードに「failed」を報告し、スタックしたチームメイトへのメッセージ送信で即座に再試行するように",
+      "t_en": "Fixed agent teams: a teammate that dies on an API error now reports \"failed\" to the lead, and messaging a stuck teammate wakes it to retry immediately",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "エージェントチームで、チームメイトが API エラーで停止してもリードに明確なステータスが伝わらず、また停止（スタック）したチームメイトにメッセージを送っても確実には再開しなかった。\n\n本バージョンで、API エラーで停止したチームメイトはリードに「failed」を報告するようになり、スタックしたチームメイトへのメッセージ送信は即座の再試行を起こすようになった。",
+      "detail_en": "In agent teams, a teammate that died on an API error left the lead without a clear status, and messaging a stuck teammate didn't reliably wake it.\n\nWith this version, a teammate that dies on an API error reports \"failed\" to the lead, and messaging a stuck teammate wakes it to retry immediately.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-agent"
+    },
+    {
+      "t": "修正: セッション外でのブランチ切り替えやコミットが `/diff` パネルに反映されない問題",
+      "t_en": "Fixed the `/diff` panel not refreshing when you switch branches or commit outside the session",
+      "tags": ["バグ修正"],
+      "detail": "`/diff` パネルは、セッションの外（別のターミナルなど）でブランチを切り替えたりコミットしたりしても内容が更新されず、古い差分を表示し続けることがあった。\n\n本バージョンで、セッション外の変更後も `/diff` パネルが正しく更新されるようになった。",
+      "detail_en": "The `/diff` panel could keep showing stale content when you switched branches or committed outside the session (e.g., in another terminal).\n\nWith this version, the `/diff` panel refreshes correctly after such external changes.",
+      "category": "Git 連携",
+      "category_en": "Git Integration"
+    },
+    {
+      "t": "修正: フルスクリーンモードで Markdown テーブルがはみ出し、右罫線が折り返されて表示される問題",
+      "t_en": "Fixed markdown tables overflowing and wrapping their right border when rendered in fullscreen mode",
+      "tags": ["バグ修正"],
+      "detail": "フルスクリーンモードで幅の広い Markdown テーブルを描画すると、テーブルが利用可能な幅からはみ出し、右罫線が次の行に折り返されて表示が崩れることがあった。\n\n本バージョンでこのレンダリングの問題が修正された。",
+      "detail_en": "Rendering wide markdown tables in fullscreen mode could overflow the available width, wrapping the right border onto the next line and breaking the layout.\n\nThis version fixes the rendering issue.",
+      "category": "レンダリング",
+      "category_en": "Rendering"
+    },
+    {
+      "t": "修正: Claude Platform on AWS および Mantle のセッションで、STS トークン失効時に「Please run /login」で行き詰まる問題（`awsAuthRefresh` が自動実行されるように）",
+      "t_en": "Fixed Claude Platform on AWS and Mantle sessions dead-ending with \"Please run /login\" when the STS token expires — `awsAuthRefresh` now runs automatically",
+      "tags": ["バグ修正", "Platform"],
+      "detail": "Claude Platform on AWS や Mantle のセッションでは、基盤となる AWS STS トークンがセッション中に失効すると「Please run /login」というエラーで行き詰まっていた。\n\n本バージョンで、設定済みの `awsAuthRefresh` コマンドが自動実行されて認証情報が更新されるようになり、トークン失効でセッションが止まらなくなった。詳しくは[Claude Platform on AWS のドキュメント](https://code.claude.com/docs/en/claude-platform-on-aws)を参照してください。",
+      "detail_en": "Sessions on Claude Platform on AWS or Mantle dead-ended with a \"Please run /login\" error once the underlying AWS STS token expired mid-session.\n\nWith this version, the configured `awsAuthRefresh` command runs automatically to refresh credentials, so sessions no longer stall on token expiry. See the [Claude Platform on AWS documentation](https://code.claude.com/docs/en/claude-platform-on-aws) for details.",
+      "category": "プラットフォーム互換性",
+      "category_en": "Platform Compatibility"
+    },
+    {
+      "t": "修正: macOS のバックグラウンドエージェントセッションで、ローカルネットワークのホストに「no route to host」で接続できない問題（Local Network エンタイトルメントを宣言）",
+      "t_en": "Fixed \"no route to host\" for local-network hosts in macOS background agent sessions by declaring Local Network entitlements",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "macOS のバックグラウンドエージェントセッションでは、ホストプロセスに macOS の Local Network エンタイトルメントがなかったため、ローカルネットワーク上のホストへの接続が「no route to host」で失敗していた。\n\n本バージョンでエンタイトルメントが宣言され、バックグラウンドエージェントも対話セッションと同様にローカルネットワークのサービスへ到達できるようになった。",
+      "detail_en": "On macOS, background agent sessions failed to reach hosts on the local network (\"no route to host\") because the host process lacked the macOS Local Network entitlement.\n\nThis version declares the entitlement, letting background agents reach local-network services the same way an interactive session can.",
+      "category": "ネットワーク",
+      "category_en": "Network"
+    },
+    {
+      "t": "修正: ワークツリーに入って出た後に `/desktop` が「Cannot determine working directory」で失敗する問題",
+      "t_en": "Fixed `/desktop` failing with \"Cannot determine working directory\" after entering and exiting a worktree",
+      "tags": ["バグ修正"],
+      "detail": "ワークツリーに入ってから出た後に `/desktop` を実行すると、作業ディレクトリの状態管理の不整合により「Cannot determine working directory」というエラーで失敗していた。\n\n本バージョンで状態管理が修正され、ワークツリーを出入りした後でも `/desktop` が正しく動作するようになった。",
+      "detail_en": "Running `/desktop` after entering and exiting a worktree failed with \"Cannot determine working directory\" due to inconsistent working-directory state tracking.\n\nThis version fixes the state tracking so `/desktop` works correctly after worktree transitions.",
+      "category": "コマンド",
+      "category_en": "Command"
+    },
+    {
+      "t": "修正: macOS でエージェントビューを開いている間、バックグラウンドエージェントが約52秒ごとに「Reconnecting…」を繰り返し表示する問題",
+      "t_en": "Fixed background agents repeatedly showing \"Reconnecting…\" every ~52 seconds on macOS while the agents view was open",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "macOS でエージェントビューを開いている間、セッションは正常なのにバックグラウンドエージェントが約52秒ごとに「Reconnecting…」の表示を繰り返すことがあった。\n\n本バージョンでこの誤った再接続ループが解消された。",
+      "detail_en": "On macOS, while the agents view was open, background agents could repeatedly flash \"Reconnecting…\" roughly every 52 seconds even though the session was healthy.\n\nThis version stops the spurious reconnect loop.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-agent"
+    },
+    {
+      "t": "修正: `claude attach <id>` 内で `←` を押すと、エージェントビューが開かずシェルに抜けてしまう問題",
+      "t_en": "Fixed pressing `←` inside `claude attach <id>` exiting to the shell instead of opening the agent view",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "`claude attach <id>` でバックグラウンドセッションにアタッチしている間に `←`（左矢印）を押すと、エージェントビューに戻らずシェルへ抜けてしまっていた。\n\n本バージョンで、`←` で正しくエージェントビューが開くようになった。",
+      "detail_en": "Pressing `←` while attached to a background session via `claude attach <id>` exited to the shell instead of returning to the agent view.\n\nWith this version, `←` correctly opens the agent view.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-agent"
+    },
+    {
+      "t": "修正: `claude --bg` を `--print`/`-p` と併用すると接続不能なセッションが黙って作成される問題（競合するフラグは事前に拒否されるように）",
+      "t_en": "Fixed `claude --bg` silently creating an unattachable session when combined with `--print`/`-p`; the conflicting flags are now rejected up front",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "`claude --bg` を `--print`/`-p` と併用すると、`-p` は非対話で実行して終了するため、後からアタッチできないセッションが黙って作成されていた。\n\n本バージョンから、この競合するフラグの組み合わせは実行前にエラーとして拒否されるようになった。",
+      "detail_en": "Combining `claude --bg` with `--print`/`-p` silently created a session that could never be attached, since `-p` runs non-interactively and exits.\n\nStarting with this version, the conflicting flag combination is rejected up front with an error.",
+      "category": "コマンド",
+      "category_en": "Command"
+    },
+    {
+      "t": "修正: SDK およびデスクトップアプリのセッションで、ワークフロー進捗ビューがフェーズカウンターは正しいまま初期のエージェントをリストから欠落させる問題",
+      "t_en": "Fixed the workflow progress view dropping the earliest agents from the list while the phase counter stayed correct in SDK and desktop-app sessions",
+      "tags": ["バグ修正", "SDK"],
+      "detail": "SDK およびデスクトップアプリのセッションで、複数フェーズのワークフロー進捗ビューが、エージェントが増えるにつれて最初期に起動したエージェントをリストから欠落させることがあった。フェーズカウンターは正しい合計を示し続けるため、表示が食い違っていた。\n\n本バージョンで、表示されるエージェントリストがカウンターと同期するよう修正された。",
+      "detail_en": "In SDK and desktop-app sessions, the workflow progress view could drop the earliest-launched agents from the list as more agents started, while the phase counter kept reporting the correct total — leaving the two out of sync.\n\nThis version keeps the displayed agent list in sync with the counter.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-agent"
+    },
+    {
+      "t": "修正: 対象ファイルにシンボリックリンク経由のパスで到達した場合に、`.claude/rules/` の条件付きルールが読み込まれない問題",
+      "t_en": "Fixed `.claude/rules/` conditional rules not loading when the target file is reached via a symlinked path",
+      "tags": ["バグ修正"],
+      "detail": "`.claude/rules/` の条件付きルール（`paths` frontmatter でスコープされたルール）は、対象ファイルにシンボリックリンク経由のパスでアクセスした場合にパスマッチングが働かず、本来読み込まれるべきルールが黙ってスキップされていた。\n\n本バージョンで、シンボリックリンク経由で到達したファイルでも条件付きルールが正しく読み込まれるようになった。詳しくは[メモリのドキュメント](https://code.claude.com/docs/en/memory#share-rules-across-projects-with-symlinks)を参照してください。",
+      "detail_en": "Conditional rules under `.claude/rules/` (scoped with `paths` frontmatter) were silently skipped when the target file was reached via a symlinked path, because path matching failed to resolve it.\n\nWith this version, files reached through symlinks correctly trigger their conditional rules. See the [memory documentation](https://code.claude.com/docs/en/memory#share-rules-across-projects-with-symlinks) for details.",
+      "category": "メモリ",
+      "category_en": "Memory"
+    },
+    {
+      "t": "修正: macOS の Warp で、フルスクリーンモード時に Cmd+クリックで URL が開かない問題",
+      "t_en": "Fixed Cmd+click not opening URLs in fullscreen mode in Warp on macOS",
+      "tags": ["バグ修正"],
+      "detail": "macOS の Warp ターミナルでは、フルスクリーンモード中に URL を Cmd+クリックしてもブラウザで開かなかった。\n\n本バージョンでこのターミナル互換性の問題が修正された。",
+      "detail_en": "In the Warp terminal on macOS, Cmd+clicking a URL in fullscreen mode did not open it in the browser.\n\nThis version fixes the terminal-compatibility issue.",
+      "category": "プラットフォーム互換性",
+      "category_en": "Platform Compatibility"
+    },
+    {
+      "t": "修正: フルスクリーンモードのダブルクリックによる単語選択で、スキームを含む URL 全体が選択されるように",
+      "t_en": "Fixed double-click word selection in fullscreen mode to select the entire URL including the scheme",
+      "tags": ["バグ修正"],
+      "detail": "フルスクリーンモードで URL をダブルクリックすると単語境界の一部だけが選択され、コピーすると `https://` などのスキームが欠けたりパスが途中で切れたりしていた。\n\n本バージョンから、ダブルクリックでスキームを含む URL 全体が選択されるようになった。",
+      "detail_en": "Double-clicking a URL in fullscreen mode selected only a word-boundary chunk, so copies omitted the scheme (e.g., `https://`) or truncated the path.\n\nWith this version, double-click selects the entire URL including the scheme.",
+      "category": "入力",
+      "category_en": "Input"
+    },
+    {
+      "t": "修正: プランモードでセッションを開始した場合に、読み取り専用ツールの呼び出しが自動許可されない問題",
+      "t_en": "Fixed plan mode not auto-allowing read-only tool calls when a session starts in plan mode",
+      "tags": ["バグ修正"],
+      "detail": "プランモードは読み取り専用ツールを確認なしで自動許可する設計だが、セッションを最初からプランモードで開始した場合（`--permission-mode plan` など）には自動許可が働かず、読み取り系のツール呼び出しでも許可プロンプトが表示されることがあった。\n\n本バージョンで、セッション開始時からプランモードの場合でも読み取り専用ツールが正しく自動許可されるようになった。詳しくは[パーミッションモードのドキュメント](https://code.claude.com/docs/en/permission-modes#analyze-before-you-edit-with-plan-mode)を参照してください。",
+      "detail_en": "Plan mode is designed to auto-allow read-only tools without prompting, but when a session started directly in plan mode (e.g., `--permission-mode plan`), read-only tool calls could still trigger permission prompts.\n\nThis version makes plan mode correctly auto-allow read-only tools from session start. See the [permission modes documentation](https://code.claude.com/docs/en/permission-modes#analyze-before-you-edit-with-plan-mode) for details.",
+      "category": "パーミッション",
+      "category_en": "Permissions"
+    },
+    {
+      "t": "修正: `/branch` の既定のフォーク名が、最初の実際のプロンプトではなく圧縮（compaction）サマリーから導出される問題",
+      "t_en": "Fixed `/branch` deriving its default fork name from the compaction summary instead of the first real prompt",
+      "tags": ["バグ修正"],
+      "detail": "現在のセッションをフォークする `/branch` コマンドは、コンテキスト圧縮（compaction）が行われた後だと、自動生成するフォーク名を圧縮サマリーから導出してしまい、長いセッションでは意味の薄い名前になっていた。\n\n本バージョンから、フォーク名はユーザーの最初の実際のプロンプトから導出されるようになった。",
+      "detail_en": "The `/branch` command, which forks the current session, derived its auto-generated fork name from the compaction summary when one was present, producing less meaningful names in long sessions.\n\nStarting with this version, the fork name is derived from the user's first real prompt.",
+      "category": "会話管理",
+      "category_en": "Conversation Management"
+    },
+    {
+      "t": "改善: フォーカスモードで、ターン中に起動したサブエージェントがアクティビティサマリーに表示され、完了したバックグラウンド通知が1つのカウントに集約されるように",
+      "t_en": "Improved focus mode: subagents launched in a turn now appear in its activity summary, and completed background notifications fold into a single count",
+      "tags": ["改善", "Agent"],
+      "detail": "フォーカスモードはターンの中間的なノイズを畳んで表示するすっきりしたビューだが、これまではターン中に起動したサブエージェントがアクティビティサマリーに現れず、また完了したバックグラウンド通知が個別に積み重なっていた。\n\n本バージョンで、ターン中に起動したサブエージェントがそのターンのアクティビティサマリーに表示されるようになり、完了したバックグラウンド通知は1つのカウントに集約されるようになった。",
+      "detail_en": "Focus mode is a cleaner view that collapses a turn's intermediate noise, but subagents launched during a turn didn't appear in its activity summary, and completed background notifications piled up individually.\n\nWith this version, subagents launched in a turn appear in its activity summary, and completed background notifications fold into a single count.",
+      "category": "UX",
+      "category_en": "UX"
+    },
+    {
+      "t": "改善: highlight.js 11 へのアップグレードにより、コードブロック・差分・ファイルプレビューのシンタックスハイライト精度が向上",
+      "t_en": "Improved syntax highlighting accuracy in code blocks, diffs, and file previews by upgrading to highlight.js 11",
+      "tags": ["改善"],
+      "detail": "コードブロック・差分・ファイルプレビューのシンタックスハイライトには JavaScript 製のハイライトライブラリが使われている。\n\n本バージョンで highlight.js 11 にアップグレードされ、これらの表示面での言語検出とトークンの色付けの精度が向上した。",
+      "detail_en": "Code blocks, diffs, and file previews are highlighted with a JavaScript syntax-highlighting library.\n\nThis version upgrades to highlight.js 11, improving language detection and token-coloring accuracy across those surfaces.",
+      "category": "レンダリング",
+      "category_en": "Rendering"
+    },
+    {
+      "t": "改善: Mac から SSH 接続している場合、キーボードショートカットのヒントに alt/super ではなく opt/cmd を表示するように",
+      "t_en": "Keyboard shortcut hints now show opt/cmd instead of alt/super when connected from a Mac over SSH",
+      "tags": ["改善"],
+      "detail": "Mac から SSH 経由で Claude Code に接続している場合でも、画面上のキーボードショートカットのヒントには Linux 流の alt/super が表示されていた。\n\n本バージョンから、この場合には macOS 流の opt/cmd が表示されるようになった。",
+      "detail_en": "When connected to Claude Code over SSH from a Mac, on-screen keyboard shortcut hints showed Linux-style alt/super labels.\n\nWith this version, hints correctly show opt/cmd in that case.",
+      "category": "UX",
+      "category_en": "UX"
+    },
+    {
+      "t": "改善: API リトライの UX を改善（2回目の試行以降はエラー理由を表示し、API 過負荷時はスピナーのヒントをステータスページへのリンクに置き換え）",
+      "t_en": "Improved API retry UX: the error reason is now shown after the second attempt, and a status page link replaces the spinner tip when the API is overloaded",
+      "tags": ["改善"],
+      "detail": "API リクエストの失敗と再試行の際、これまでは汎用的なスピナーが表示されるだけで、何が起きているのか分かりにくかった。\n\n本バージョンから、2回目の試行以降は具体的なエラー理由が表示されるようになった。また API の過負荷が原因の場合は、スピナーのヒントの代わりに Anthropic のステータスページへのリンクが表示される。",
+      "detail_en": "When API requests failed and retried, only a generic spinner was shown, making it hard to tell what was happening.\n\nStarting with this version, the specific error reason is shown after the second attempt, and when the API is overloaded, a link to Anthropic's status page replaces the spinner tip.",
+      "category": "UX",
+      "category_en": "UX"
+    },
+    {
+      "t": "改善: `claude agents` ビューから `/login` を実行するとサインインダイアログが開くように（従来は利用不可のメッセージを表示）",
+      "t_en": "`/login` now opens the sign-in dialog from the `claude agents` view instead of saying it isn't available",
+      "tags": ["改善", "Agent"],
+      "detail": "これまで `claude agents` のビュー内で `/login` を実行すると「利用できない」と表示され、認証のために通常のセッションへ切り替える必要があった。\n\n本バージョンから、`claude agents` ビューからでも `/login` でサインインダイアログが直接開くようになった。",
+      "detail_en": "Previously, running `/login` inside the `claude agents` view said sign-in wasn't available, forcing a switch to a regular session to authenticate.\n\nWith this version, `/login` opens the sign-in dialog directly from the agents view.",
+      "category": "コマンド",
+      "category_en": "Command"
+    },
+    {
+      "t": "変更: サブエージェントが起動元エージェントからのメッセージを通常のタスク指示として扱うように（エージェントのメッセージがユーザーの承認として扱われないのは従来どおり）",
+      "t_en": "Subagents now treat messages from the agent that launched them as normal task direction; an agent's message is still never treated as the user's approval",
+      "tags": ["改善", "Agent"],
+      "detail": "本バージョンから、サブエージェントが起動元のエージェントから受け取るメッセージは、通常のタスク指示として扱われるようになった。\n\n一方でセキュリティ上の原則は維持されており、エージェントからのメッセージがユーザー本人の承認・同意として扱われることは引き続きない。パーミッション判断において、他のエージェントから中継された承認は信頼されない入力として扱われる。詳しくは[エージェントチームのドキュメント](https://code.claude.com/docs/en/agent-teams#permissions)を参照してください。",
+      "detail_en": "Starting with this version, messages a subagent receives from the agent that launched it are treated as normal task direction.\n\nThe security principle is preserved: an agent's message is still never treated as the user's own approval or consent — for permission decisions, an approval relayed from another agent remains untrusted input. See the [agent teams documentation](https://code.claude.com/docs/en/agent-teams#permissions) for details.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-agent"
+    },
+    {
+      "t": "削除: `/agents` ウィザードを削除（サブエージェントの作成・管理は Claude への依頼または `.claude/agents/` の直接編集で）",
+      "t_en": "Removed the `/agents` wizard; ask Claude to create or manage subagents, or edit `.claude/agents/` directly",
+      "tags": ["非推奨", "Agent"],
+      "detail": "`/agents` コマンドはこれまで、サブエージェントの一覧・作成・編集・削除を行う対話式のウィザードを開いていた。\n\n本バージョンでこのウィザードは削除された。今後サブエージェントを作成・管理するには、Claude に会話で依頼するか、`.claude/agents/` 配下の Markdown ファイルを直接編集する。",
+      "detail_en": "The `/agents` command previously opened an interactive wizard for listing, creating, editing, and deleting subagents.\n\nThis version removes the wizard. To create or manage subagents, ask Claude conversationally or edit the markdown files under `.claude/agents/` directly.",
+      "category": "エージェント設定",
+      "category_en": "Agent Configuration"
+    }
   ]
 }
