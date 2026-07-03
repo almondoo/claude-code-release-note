@@ -573,5 +573,130 @@
         "tags": ["非推奨", "Agent"]
       }
     ]
+  },
+  {
+    "v": "2.1.199",
+    "items": [
+      {
+        "t": "改善: `/skill-a /skill-b do XYZ` のように先頭に複数のスキルを並べた場合、最初の1つだけでなく先頭のスキルすべて（最大5つ）を読み込むように",
+        "t_en": "Stacked slash-skill invocations like `/skill-a /skill-b do XYZ` now load all leading skills (up to 5), not just the first",
+        "tags": ["改善"]
+      },
+      {
+        "t": "修正: SSL 証明書エラー（TLS 検査プロキシ・`NODE_EXTRA_CA_CERTS` 未設定・期限切れ証明書）が、対処方法を表示する前にリトライを浪費する問題（即座に失敗して修正のヒントを表示するように）",
+        "t_en": "Fixed SSL certificate errors (TLS-inspecting proxies, missing `NODE_EXTRA_CA_CERTS`, expired certs) burning retries before showing actionable guidance — they now fail immediately with the fix hint",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: 部分的な出力の後に API がストリーム途中で過負荷エラーやサーバーエラーを返すと、ストリーミング応答が破棄される問題（途中までの出力を保持し、応答が不完全である旨の通知を表示するように）",
+        "t_en": "Fixed streaming responses being discarded when the API emits a mid-stream overloaded/server error after partial output — the partial is now kept with an incomplete-response notice",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: レート制限やサーバーエラーで中断されたサブエージェントが、部分的な作業結果を親に返さずに黙って失敗する問題",
+        "t_en": "Fixed subagents cut off by a rate limit or server error silently failing instead of returning their partial work to the parent",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: サブエージェントが API エラー（利用上限到達など）を成功結果として報告する問題（エラーが親エージェントに報告されるように）",
+        "t_en": "Fixed subagents reporting API errors (e.g. usage limit reached) as successful results — the error is now reported to the parent agent",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: Linux のバックグラウンドエージェントデーモンが、不正終了で破損したワーカーレコードが残ると、自身と実行中の全エージェントを約50秒ごとに強制終了してしまう問題",
+        "t_en": "Fixed the background-agent daemon on Linux killing itself and every running agent every ~50 seconds after an unclean shutdown left a corrupted worker record",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: macOS で SSH 経由のバックグラウンドエージェントのコールドスタートが「Could not switch to audit session」で失敗する問題（2.1.196 のリグレッション）",
+        "t_en": "Fixed background agents failing to cold-start over SSH on macOS with \"Could not switch to audit session\" (regression in 2.1.196)",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: `claude stop` がバックグラウンドエージェントの再起動（respawn）と競合すると黙って取り消される問題（再起動側が停止指示を尊重するように）",
+        "t_en": "Fixed `claude stop` being silently undone when it raced a background-agent respawn — the respawn now honors the stop",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: バックグラウンドジョブが長時間かかるコマンドを実行している間、進捗インジケーターが数分間停止して見える問題",
+        "t_en": "Fixed background job progress indicators stalling for minutes while the job ran long commands",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: メモリ不足のマシンでバックグラウンドセッションが汎用的なエラーだけを表示する問題（メモリ不足を明示し、リソースの解放を提案するように）",
+        "t_en": "Fixed background sessions on memory-starved machines showing a generic error — they now indicate low memory and suggest freeing resources",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: バックグラウンドエージェントの完了時に、エージェントビューでリモートセッションのステータスが Working と Idle の間で一瞬ちらつく問題",
+        "t_en": "Fixed remote sessions briefly flapping between Working and Idle in the agent view when a background agent completes",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: 他のサブエージェントの実行中にアイドル状態のサブエージェントがエージェントパネルから消える問題（余剰のアイドルエージェントは展開可能なサマリー行に集約されるように）",
+        "t_en": "Fixed idle subagents vanishing from the agent panel while other subagents were still working; surplus idle agents now collapse into an expandable summary row",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: サブエージェントの表示中に `/model` や `/fast` を入力すると、リード側のモデルピッカーが黙って開く問題（コマンドがリードに適用される旨の通知を表示するように）",
+        "t_en": "Fixed typing `/model` or `/fast` while viewing a subagent silently opening the lead's model picker — a notice now explains the command applies to the lead",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: `SessionStart`・`Setup`・`SubagentStart` フックが終了コード 2 で終了した際に stderr が黙って隠される問題（エラーがトランスクリプトに表示されるように）",
+        "t_en": "Fixed `SessionStart`, `Setup`, and `SubagentStart` hooks silently hiding stderr when exiting with code 2 — the error is now shown in the transcript",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: `claude --dangerously-skip-permissions daemon <subcommand>` がサブコマンドの実行ではなくチャットプロンプトとして扱われる問題",
+        "t_en": "Fixed `claude --dangerously-skip-permissions daemon <subcommand>` being treated as a chat prompt instead of running the subcommand",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: 再起動されたエージェントが以前のエージェントの名前を再利用した場合に `SendMessage` が黙って誤配送される問題（不一致を検出して呼び出し元に宛先の再指定を求めるように）",
+        "t_en": "Fixed `SendMessage` silently misrouting when a re-spawned agent reuses a previous agent's name — the tool now detects the mismatch and asks the caller to retarget",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: 新しいメッセージがないままセッションを開いたり再開したりするだけで、トランスクリプトファイルが不必要に肥大化する問題",
+        "t_en": "Fixed opening or resuming a session with no new messages needlessly growing the transcript file",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: `←` や `/background` でセッションをバックグラウンド化すると、エージェントビューの行から `/color` の設定が失われる問題",
+        "t_en": "Fixed backgrounding a session with `←` or `/background` dropping its `/color` from the agent view row",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: 起動時のリカバリーダイアログから破損した設定ファイルをリセットすると復元不能に破壊される問題（リセット前にファイルをバックアップするように）",
+        "t_en": "Fixed resetting a corrupted config file from the startup recovery dialog destroying it unrecoverably — it now backs up the file first",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: 異なるビルドや設定ディレクトリからセッションを実行すると、Claude in Chrome が再接続ページを繰り返し開く問題",
+        "t_en": "Fixed Claude in Chrome repeatedly opening the reconnect page when sessions run from different builds or config directories",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: プランモードで状態を変更するブラウザツールの呼び出しに許可プロンプトが表示されない問題（読み取り専用の `browser_batch` 呼び出しは正しく自動許可されるように）",
+        "t_en": "Fixed plan mode not prompting for state-changing browser tool calls; read-only `browser_batch` calls are now correctly auto-allowed",
+        "tags": ["バグ修正", "Security"]
+      },
+      {
+        "t": "改善: 一時的なサーバー側のレート制限エラー（利用上限とは無関係の 429）が、サブスクリプション利用者ではターンを失敗させずにバックオフ付きで自動リトライされるように",
+        "t_en": "Transient server rate-limit errors (429s unrelated to your usage limit) are now retried automatically with backoff for subscribers instead of failing the turn",
+        "tags": ["改善"]
+      },
+      {
+        "t": "変更: `CLAUDE_CODE_RETRY_WATCHDOG` 有効時に、容量起因以外の一時的エラーのデフォルトリトライ回数が 300 に引き上げられ、`CLAUDE_CODE_MAX_RETRIES` の上限 15 も撤廃されるように",
+        "t_en": "`CLAUDE_CODE_RETRY_WATCHDOG` now raises the default retry count for non-capacity transient errors to 300 and lifts the cap of 15 on `CLAUDE_CODE_MAX_RETRIES`",
+        "tags": ["改善"]
+      },
+      {
+        "t": "改善: `claude agents` のセッション行で、プルリクエストのリンクを冗長な「PR」ラベルなしの `#N` 表記で表示するように",
+        "t_en": "`claude agents` session rows now show pull-request links as bare `#N` without the redundant \"PR\" label",
+        "tags": ["改善", "Agent"]
+      }
+    ]
   }
 ]

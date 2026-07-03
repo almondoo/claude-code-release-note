@@ -984,5 +984,223 @@
       "category": "エージェント設定",
       "category_en": "Agent Configuration"
     }
+  ],
+  "2.1.199": [
+    {
+      "t": "改善: `/skill-a /skill-b do XYZ` のように先頭に複数のスキルを並べた場合、最初の1つだけでなく先頭のスキルすべて（最大5つ）を読み込むように",
+      "t_en": "Stacked slash-skill invocations like `/skill-a /skill-b do XYZ` now load all leading skills (up to 5), not just the first",
+      "tags": ["改善"],
+      "detail": "これまで、メッセージの先頭に複数のスラッシュスキル（スラッシュコマンド）を続けて書いても、最初の1つだけが読み込まれ、残りはただのテキストとして扱われていた。\n\n本バージョンから、`/skill-a /skill-b do XYZ` のように先頭に並べたスキルは最大5つまですべて読み込まれるようになり、複数のスキルを1つのメッセージで組み合わせて呼び出せるようになった。",
+      "detail_en": "Previously, when a message began with several slash skills in a row, only the first was loaded and the rest were treated as plain text.\n\nStarting with this version, up to 5 leading skills such as `/skill-a /skill-b do XYZ` are all loaded, letting you compose multiple skills in a single message.",
+      "category": "コマンド",
+      "category_en": "Command"
+    },
+    {
+      "t": "修正: SSL 証明書エラー（TLS 検査プロキシ・`NODE_EXTRA_CA_CERTS` 未設定・期限切れ証明書）が、対処方法を表示する前にリトライを浪費する問題（即座に失敗して修正のヒントを表示するように）",
+      "t_en": "Fixed SSL certificate errors (TLS-inspecting proxies, missing `NODE_EXTRA_CA_CERTS`, expired certs) burning retries before showing actionable guidance — they now fail immediately with the fix hint",
+      "tags": ["バグ修正"],
+      "detail": "企業ネットワークの TLS 検査プロキシ配下、カスタム CA が `NODE_EXTRA_CA_CERTS` に設定されていない環境、証明書の期限切れなどで発生する SSL 証明書エラーはリトライしても解決しないが、これまでは一時的エラーと同様にリトライが繰り返され、リトライ回数を使い切ってからようやく生のエラーが表示されていた。\n\n本バージョンから、これらのエラーは即座に失敗し、`NODE_EXTRA_CA_CERTS` の設定といった対処方法のヒントがすぐに表示されるようになった。カスタム CA 証明書の設定について詳しくは[ネットワーク設定のドキュメント](https://code.claude.com/docs/en/network-config#custom-ca-certificates)を参照してください。",
+      "detail_en": "SSL certificate errors — from TLS-inspecting corporate proxies, a custom CA missing from `NODE_EXTRA_CA_CERTS`, or expired certificates — cannot be resolved by retrying, but they were previously retried like transient errors, burning the whole retry budget before surfacing a raw error.\n\nWith this version, these errors fail immediately with an actionable hint such as configuring `NODE_EXTRA_CA_CERTS`. See the [network configuration documentation](https://code.claude.com/docs/en/network-config#custom-ca-certificates) for custom CA setup.",
+      "category": "ネットワーク",
+      "category_en": "Network"
+    },
+    {
+      "t": "修正: 部分的な出力の後に API がストリーム途中で過負荷エラーやサーバーエラーを返すと、ストリーミング応答が破棄される問題（途中までの出力を保持し、応答が不完全である旨の通知を表示するように）",
+      "t_en": "Fixed streaming responses being discarded when the API emits a mid-stream overloaded/server error after partial output — the partial is now kept with an incomplete-response notice",
+      "tags": ["バグ修正"],
+      "detail": "ストリーミング応答の途中で API が過負荷（overloaded）エラーやサーバーエラーを返すと、それまでに受信していた部分的な出力ごと破棄され、生のエラーだけが表示されていた。\n\n本バージョンから、途中まで受信した内容は保持され、応答が不完全であることを示す通知とともに表示されるようになった。途中まで有用だった出力が失われなくなる。",
+      "detail_en": "When the API emitted a mid-stream overloaded/server error, the partial output already streamed was discarded entirely and only a raw error was shown.\n\nWith this version, the partial content is kept and shown with a notice that the response is incomplete, so partially useful output is no longer lost.",
+      "category": "安定性",
+      "category_en": "Stability"
+    },
+    {
+      "t": "修正: レート制限やサーバーエラーで中断されたサブエージェントが、部分的な作業結果を親に返さずに黙って失敗する問題",
+      "t_en": "Fixed subagents cut off by a rate limit or server error silently failing instead of returning their partial work to the parent",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "サブエージェントのターンがレート制限やサーバーエラーで中断されると、それまでに完了していた作業があっても親エージェントには何も返らず、黙って失敗していた。\n\n本バージョンから、中断されたサブエージェントは部分的な作業結果を親エージェントに返すようになり、途中までの成果が失われなくなった。",
+      "detail_en": "When a subagent's turn was cut off by a rate limit or server error, the parent agent received nothing and the subagent failed silently, losing work already done.\n\nWith this version, the subagent's partial work is returned to the parent instead of being dropped.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-agent"
+    },
+    {
+      "t": "修正: サブエージェントが API エラー（利用上限到達など）を成功結果として報告する問題（エラーが親エージェントに報告されるように）",
+      "t_en": "Fixed subagents reporting API errors (e.g. usage limit reached) as successful results — the error is now reported to the parent agent",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "サブエージェントが利用上限到達などの API エラーに遭遇した場合でも、親エージェントにはあたかも正常に完了したかのように報告され、失敗が隠れてしまっていた。\n\n本バージョンから、エラーそのものが親エージェントに報告されるようになり、親側がリトライ・中断・ユーザーへの報告といった適切な対応を取れるようになった。",
+      "detail_en": "A subagent that hit an API error such as reaching the usage limit was previously reported to the parent as if it had completed successfully, hiding the failure.\n\nThe error itself is now reported to the parent agent, letting it retry, stop, or inform the user instead of treating failed work as done.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-agent"
+    },
+    {
+      "t": "修正: Linux のバックグラウンドエージェントデーモンが、不正終了で破損したワーカーレコードが残ると、自身と実行中の全エージェントを約50秒ごとに強制終了してしまう問題",
+      "t_en": "Fixed the background-agent daemon on Linux killing itself and every running agent every ~50 seconds after an unclean shutdown left a corrupted worker record",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "Linux では、バックグラウンドエージェントを管理するデーモンが不正終了（unclean shutdown）した際に破損したワーカーレコードがディスクに残ることがあり、その状態で再起動するとデーモンが繰り返しクラッシュし、実行中のすべてのバックグラウンドエージェントを約50秒ごとに巻き込んで強制終了していた。\n\n本バージョンでこのデーモンの安定性の問題が修正された。",
+      "detail_en": "On Linux, an unclean shutdown of the background-agent daemon could leave a corrupted worker record on disk; on restart the daemon then repeatedly crashed, taking down every running background agent roughly every 50 seconds.\n\nThis version fixes the daemon-stability issue.",
+      "category": "安定性",
+      "category_en": "Stability"
+    },
+    {
+      "t": "修正: macOS で SSH 経由のバックグラウンドエージェントのコールドスタートが「Could not switch to audit session」で失敗する問題（2.1.196 のリグレッション）",
+      "t_en": "Fixed background agents failing to cold-start over SSH on macOS with \"Could not switch to audit session\" (regression in 2.1.196)",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "v2.1.196 で導入されたリグレッションにより、macOS 上で SSH 経由でバックグラウンドエージェントをコールドスタートすると、OS の低レベルなエラー「Could not switch to audit session」で起動に失敗していた。\n\n本バージョンでこのリグレッションが修正され、SSH 経由でも正常に起動できるようになった。",
+      "detail_en": "A regression introduced in v2.1.196 made background agents fail to cold-start over SSH on macOS with the low-level OS error \"Could not switch to audit session\".\n\nThis version fixes the regression so cold starts over SSH work again.",
+      "category": "プラットフォーム互換性",
+      "category_en": "Platform Compatibility"
+    },
+    {
+      "t": "修正: `claude stop` がバックグラウンドエージェントの再起動（respawn）と競合すると黙って取り消される問題（再起動側が停止指示を尊重するように）",
+      "t_en": "Fixed `claude stop` being silently undone when it raced a background-agent respawn — the respawn now honors the stop",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "バックグラウンドエージェントのデーモンがセッションを再起動（respawn）するタイミングと同時に `claude stop` を実行すると、再起動処理が停止指示を追い越してセッションを復活させてしまい、停止が黙って無効化されることがあった。\n\n本バージョンから、再起動処理は保留中の停止指示を確認して尊重するようになった。",
+      "detail_en": "Running `claude stop` at the same moment the background-agent daemon was respawning the session could let the respawn race past the stop and silently bring the session back up.\n\nThe respawn logic now checks for and honors a pending stop.",
+      "category": "セッション管理",
+      "category_en": "Session Management"
+    },
+    {
+      "t": "修正: バックグラウンドジョブが長時間かかるコマンドを実行している間、進捗インジケーターが数分間停止して見える問題",
+      "t_en": "Fixed background job progress indicators stalling for minutes while the job ran long commands",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "バックグラウンドジョブが長時間かかるコマンドを実行していると、実際には処理が進んでいるにもかかわらず、進捗インジケーターが数分間フリーズしたように見えることがあった。\n\n本バージョンでこの表示の応答性の問題が修正された。",
+      "detail_en": "Progress indicators for background jobs could appear frozen for minutes while a long-running command executed, even though the job was still making progress.\n\nThis version fixes the display-responsiveness issue.",
+      "category": "UX",
+      "category_en": "UX"
+    },
+    {
+      "t": "修正: メモリ不足のマシンでバックグラウンドセッションが汎用的なエラーだけを表示する問題（メモリ不足を明示し、リソースの解放を提案するように）",
+      "t_en": "Fixed background sessions on memory-starved machines showing a generic error — they now indicate low memory and suggest freeing resources",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "ホストマシンのメモリが逼迫しているためにバックグラウンドセッションが失敗した場合、これまでは役に立たない汎用的なエラーメッセージしか表示されなかった。\n\n本バージョンから、メモリ不足の状態を検出してその旨を表示し、リソースを解放するよう提案するようになった。",
+      "detail_en": "When a background session failed because the machine was low on memory, only a generic, unhelpful error was shown.\n\nThe low-memory condition is now detected and reported, with a suggestion to free up resources.",
+      "category": "メモリ",
+      "category_en": "Memory"
+    },
+    {
+      "t": "修正: バックグラウンドエージェントの完了時に、エージェントビューでリモートセッションのステータスが Working と Idle の間で一瞬ちらつく問題",
+      "t_en": "Fixed remote sessions briefly flapping between Working and Idle in the agent view when a background agent completes",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "エージェントビューにおいて、バックグラウンドエージェントが完了する瞬間に、リモートセッションのステータス表示が「Working」と「Idle」の間で短時間ちらつくことがあった。\n\n本バージョンでこの状態遷移の競合による表示の問題が修正された。",
+      "detail_en": "In the agent view, a remote session's status could briefly flicker between \"Working\" and \"Idle\" right as a background agent completed.\n\nThis version fixes the state-transition race behind the flapping.",
+      "category": "UX",
+      "category_en": "UX"
+    },
+    {
+      "t": "修正: 他のサブエージェントの実行中にアイドル状態のサブエージェントがエージェントパネルから消える問題（余剰のアイドルエージェントは展開可能なサマリー行に集約されるように）",
+      "t_en": "Fixed idle subagents vanishing from the agent panel while other subagents were still working; surplus idle agents now collapse into an expandable summary row",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "エージェントパネルでは、他のサブエージェントがまだ動作している間にアイドル状態になったサブエージェントが、アイドル表示になるのではなく一覧から完全に消えてしまうことがあった。\n\n本バージョンから、余剰のアイドルサブエージェントは1つの展開可能なサマリー行に集約され、見えるまま維持されるようになった。",
+      "detail_en": "In the agent panel, subagents that went idle while siblings were still working could disappear from the list entirely instead of being shown as idle.\n\nSurplus idle subagents now collapse into a single expandable summary row and stay visible.",
+      "category": "UX",
+      "category_en": "UX"
+    },
+    {
+      "t": "修正: サブエージェントの表示中に `/model` や `/fast` を入力すると、リード側のモデルピッカーが黙って開く問題（コマンドがリードに適用される旨の通知を表示するように）",
+      "t_en": "Fixed typing `/model` or `/fast` while viewing a subagent silently opening the lead's model picker — a notice now explains the command applies to the lead",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "サブエージェントのトランスクリプトを表示している状態で `/model` や `/fast` を入力すると、何の説明もなくリード（トップレベル）セッションのモデルピッカーが開き、どちらのセッションに適用されるのか分かりにくかった。\n\n本バージョンから、これらのコマンドはリードセッションに適用される旨の通知が表示されるようになった。",
+      "detail_en": "Typing `/model` or `/fast` while viewing a subagent's transcript silently opened the model picker for the lead (top-level) session, with no indication of which session it applied to.\n\nA notice now explains that these commands apply to the lead session.",
+      "category": "コマンド",
+      "category_en": "Command"
+    },
+    {
+      "t": "修正: `SessionStart`・`Setup`・`SubagentStart` フックが終了コード 2 で終了した際に stderr が黙って隠される問題（エラーがトランスクリプトに表示されるように）",
+      "t_en": "Fixed `SessionStart`, `Setup`, and `SubagentStart` hooks silently hiding stderr when exiting with code 2 — the error is now shown in the transcript",
+      "tags": ["バグ修正"],
+      "detail": "`SessionStart`・`Setup`・`SubagentStart` の各フックはブロッキングではないイベントで、終了コード 2 で終了しても処理を止めることはできないが、これまではその際の stderr 出力がどこにも表示されず黙って破棄されていた。\n\n本バージョンから、stderr の内容がトランスクリプトに表示されるようになり、フックの作者やユーザーが何が起きたのかを確認できるようになった。詳しくは[hooks のドキュメント](https://code.claude.com/docs/en/hooks#hook-events)を参照してください。",
+      "detail_en": "The `SessionStart`, `Setup`, and `SubagentStart` hook events are non-blocking — exit code 2 cannot stop them — but their stderr output was previously discarded silently on exit 2.\n\nThe stderr is now shown in the transcript so hook authors and users can see what went wrong. See the [hooks documentation](https://code.claude.com/docs/en/hooks#hook-events) for details.",
+      "category": "設定",
+      "category_en": "Configuration"
+    },
+    {
+      "t": "修正: `claude --dangerously-skip-permissions daemon <subcommand>` がサブコマンドの実行ではなくチャットプロンプトとして扱われる問題",
+      "t_en": "Fixed `claude --dangerously-skip-permissions daemon <subcommand>` being treated as a chat prompt instead of running the subcommand",
+      "tags": ["バグ修正"],
+      "detail": "コマンドラインで `--dangerously-skip-permissions` フラグを `daemon <subcommand>` の前に置くと、CLI の引数パーサーが全体を Claude へ送るチャットプロンプトとして誤解釈し、`daemon` サブコマンドが実行されなかった。\n\n本バージョンでこの引数解析の問題が修正された。",
+      "detail_en": "Placing the `--dangerously-skip-permissions` flag before `daemon <subcommand>` made the CLI argument parser treat the whole invocation as a chat prompt to send to Claude instead of running the `daemon` subcommand.\n\nThis version fixes the argument-parsing issue.",
+      "category": "コマンド",
+      "category_en": "Command"
+    },
+    {
+      "t": "修正: 再起動されたエージェントが以前のエージェントの名前を再利用した場合に `SendMessage` が黙って誤配送される問題（不一致を検出して呼び出し元に宛先の再指定を求めるように）",
+      "t_en": "Fixed `SendMessage` silently misrouting when a re-spawned agent reuses a previous agent's name — the tool now detects the mismatch and asks the caller to retarget",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "エージェントチームでは `SendMessage` がエージェント名でメッセージの宛先を解決するため、終了した以前のエージェントと同じ名前で新しいエージェントが起動されると、メッセージがエラーなく意図しない相手に配送されることがあった。\n\n本バージョンから、この名前の再利用による不一致をツールが検出し、呼び出し元に宛先の再指定を求めるようになった。",
+      "detail_en": "In agent teams, `SendMessage` routes messages by agent name, so when a new agent was spawned reusing the name of a previously-terminated one, messages could be silently delivered to the wrong target without any error.\n\nThe tool now detects the name-reuse mismatch and asks the caller to retarget the message explicitly.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-agent"
+    },
+    {
+      "t": "修正: 新しいメッセージがないままセッションを開いたり再開したりするだけで、トランスクリプトファイルが不必要に肥大化する問題",
+      "t_en": "Fixed opening or resuming a session with no new messages needlessly growing the transcript file",
+      "tags": ["バグ修正"],
+      "detail": "セッションを開く・再開するだけで、新しいメッセージが何もなくてもディスク上のトランスクリプトファイルへの追記が発生し、ファイルが不必要に肥大化していた。\n\n本バージョンでこのストレージ効率の問題が修正された。",
+      "detail_en": "Merely opening or resuming a session — even with no new messages — could append to the on-disk transcript file, growing it unnecessarily.\n\nThis version fixes the storage-efficiency issue.",
+      "category": "セッション管理",
+      "category_en": "Session Management"
+    },
+    {
+      "t": "修正: `←` や `/background` でセッションをバックグラウンド化すると、エージェントビューの行から `/color` の設定が失われる問題",
+      "t_en": "Fixed backgrounding a session with `←` or `/background` dropping its `/color` from the agent view row",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "`/color` でカスタムカラーを設定したセッションを `←` キーや `/background` でバックグラウンドに送ると、色の割り当てが失われ、エージェントビューの行に表示されなくなっていた。\n\n本バージョンから、バックグラウンド化をまたいで色設定が保持されるようになった。",
+      "detail_en": "Sending a session with a custom `/color` to the background via the `←` key or `/background` lost the color assignment, which no longer appeared on its row in the agent view.\n\nThe color setting is now preserved across backgrounding.",
+      "category": "UX",
+      "category_en": "UX"
+    },
+    {
+      "t": "修正: 起動時のリカバリーダイアログから破損した設定ファイルをリセットすると復元不能に破壊される問題（リセット前にファイルをバックアップするように）",
+      "t_en": "Fixed resetting a corrupted config file from the startup recovery dialog destroying it unrecoverably — it now backs up the file first",
+      "tags": ["バグ修正"],
+      "detail": "起動時に破損した設定ファイルが検出されるとリカバリーダイアログでリセットを提案されるが、これまでリセットを選ぶとファイルがそのまま上書きされ、（部分的にはまだ有効かもしれない）以前の内容を復元する手段がなかった。\n\n本バージョンから、リセットの前にファイルのバックアップが作成されるようになった。Claude Code が設定ファイルのタイムスタンプ付きバックアップを保持する仕組みと整合する挙動になっている。詳しくは[設定のドキュメント](https://code.claude.com/docs/en/settings#settings-files)を参照してください。",
+      "detail_en": "When Claude Code detected a corrupted config file at startup and offered a reset via the recovery dialog, choosing reset overwrote the file with no way to recover its previous — possibly partially valid — contents.\n\nThe file is now backed up before the reset, in line with Claude Code's practice of keeping timestamped config backups. See the [settings documentation](https://code.claude.com/docs/en/settings#settings-files) for details.",
+      "category": "設定",
+      "category_en": "Configuration"
+    },
+    {
+      "t": "修正: 異なるビルドや設定ディレクトリからセッションを実行すると、Claude in Chrome が再接続ページを繰り返し開く問題",
+      "t_en": "Fixed Claude in Chrome repeatedly opening the reconnect page when sessions run from different builds or config directories",
+      "tags": ["バグ修正"],
+      "detail": "異なるビルド（バージョン）や異なる設定ディレクトリから Claude Code のセッションを起動していると、Claude in Chrome 拡張機能が安定した接続を確立できず、再接続ページを繰り返し開いてしまうことがあった。\n\n本バージョンでこの接続の問題が修正された。接続が切れた場合の再接続手順については[Chrome 連携のドキュメント](https://code.claude.com/docs/en/chrome#connection-drops-during-long-sessions)を参照してください。",
+      "detail_en": "When Claude Code sessions ran from different builds or different config directories, the Claude in Chrome extension could fail to hold a stable connection and repeatedly pop open its reconnect page.\n\nThis version fixes the connection issue. See the [Chrome integration documentation](https://code.claude.com/docs/en/chrome#connection-drops-during-long-sessions) for the reconnect workflow.",
+      "category": "MCP 連携",
+      "category_en": "MCP Integration"
+    },
+    {
+      "t": "修正: プランモードで状態を変更するブラウザツールの呼び出しに許可プロンプトが表示されない問題（読み取り専用の `browser_batch` 呼び出しは正しく自動許可されるように）",
+      "t_en": "Fixed plan mode not prompting for state-changing browser tool calls; read-only `browser_batch` calls are now correctly auto-allowed",
+      "tags": ["バグ修正", "Security"],
+      "detail": "プランモードは読み取り専用の分析モードであり、許可プロンプトは通常モードと同様に適用される設計だが、バグにより、クリック・ナビゲーション・フォーム入力といった状態を変更するブラウザ操作が、期待される許可プロンプトなしで実行されてしまっていた。\n\n本バージョンで、状態を変更するブラウザツールの呼び出しには正しくプロンプトが表示されるようになり、逆に純粋に読み取り専用の `browser_batch` 呼び出しは不要なプロンプトなしで自動許可されるようになった。詳しくは[パーミッションモードのドキュメント](https://code.claude.com/docs/en/permission-modes#analyze-before-you-edit-with-plan-mode)を参照してください。",
+      "detail_en": "Plan mode is a read-only analysis mode where permission prompts should apply just as in default mode, but a bug let state-changing browser actions — clicks, navigation, form input — run without the expected prompt.\n\nState-changing browser tool calls now prompt correctly, and genuinely read-only `browser_batch` calls are auto-allowed without an unnecessary prompt. See the [permission modes documentation](https://code.claude.com/docs/en/permission-modes#analyze-before-you-edit-with-plan-mode) for details.",
+      "category": "パーミッション",
+      "category_en": "Permissions"
+    },
+    {
+      "t": "改善: 一時的なサーバー側のレート制限エラー（利用上限とは無関係の 429）が、サブスクリプション利用者ではターンを失敗させずにバックオフ付きで自動リトライされるように",
+      "t_en": "Transient server rate-limit errors (429s unrelated to your usage limit) are now retried automatically with backoff for subscribers instead of failing the turn",
+      "tags": ["改善"],
+      "detail": "HTTP 429 エラーには、アカウントの利用上限に達した場合と、利用状況とは無関係にサーバー側で一時的にスロットリングされた場合の2種類がある。これまで後者のケースでも、サブスクリプション利用者のターン全体が失敗してしまうことがあった。\n\n本バージョンから、利用上限とは無関係な一時的な 429 エラーは、他の一時的エラー（500 系・529・タイムアウト）と同様に指数バックオフ付きで自動リトライされるようになった。詳しくは[エラー処理のドキュメント](https://code.claude.com/docs/en/errors)を参照してください。",
+      "detail_en": "An HTTP 429 can mean either that your account usage limit was hit or that the server applied a transient throttle unrelated to your usage; the latter case could previously fail the whole turn for subscribers.\n\nTransient, non-usage-limit 429s are now retried automatically with exponential backoff, matching how other transient errors (500s, 529s, timeouts) are handled. See the [error handling documentation](https://code.claude.com/docs/en/errors) for details.",
+      "category": "安定性",
+      "category_en": "Stability"
+    },
+    {
+      "t": "変更: `CLAUDE_CODE_RETRY_WATCHDOG` 有効時に、容量起因以外の一時的エラーのデフォルトリトライ回数が 300 に引き上げられ、`CLAUDE_CODE_MAX_RETRIES` の上限 15 も撤廃されるように",
+      "t_en": "`CLAUDE_CODE_RETRY_WATCHDOG` now raises the default retry count for non-capacity transient errors to 300 and lifts the cap of 15 on `CLAUDE_CODE_MAX_RETRIES`",
+      "tags": ["改善"],
+      "detail": "これまで `CLAUDE_CODE_MAX_RETRIES` はデフォルト 10・上限 15 に制限されており、`CLAUDE_CODE_RETRY_WATCHDOG` がリトライを無制限に延長するのは容量（capacity）エラーに限られていた。\n\n本バージョンから、watchdog 有効時には容量起因以外の一時的エラーでもデフォルトのリトライ回数が 300 に引き上げられ、`CLAUDE_CODE_MAX_RETRIES` の上限 15 も撤廃された。無人実行や長時間セッションが、より長く多様な障害を乗り切れるようになる。",
+      "detail_en": "Previously `CLAUDE_CODE_MAX_RETRIES` defaulted to 10 with a hard cap of 15, and `CLAUDE_CODE_RETRY_WATCHDOG` extended retries indefinitely only for capacity errors.\n\nWith the watchdog enabled, the default retry count for non-capacity transient errors is now raised to 300, and the cap of 15 on `CLAUDE_CODE_MAX_RETRIES` is lifted — letting unattended or long-running sessions ride out longer outages.",
+      "category": "設定",
+      "category_en": "Configuration"
+    },
+    {
+      "t": "改善: `claude agents` のセッション行で、プルリクエストのリンクを冗長な「PR」ラベルなしの `#N` 表記で表示するように",
+      "t_en": "`claude agents` session rows now show pull-request links as bare `#N` without the redundant \"PR\" label",
+      "tags": ["改善", "Agent"],
+      "detail": "`claude agents` のエージェントビューで、プルリクエストを開いたセッションの行には「PR #N」のように冗長な「PR」ラベル付きでリンクが表示されていた。\n\n本バージョンから、ラベルを省いた `#N` 表記だけで表示されるようになり、行の視覚的なノイズが減った。",
+      "detail_en": "Session rows in `claude agents` that opened a pull request previously showed a redundant \"PR\" text label next to the number, e.g. \"PR #N\".\n\nThe label is now dropped, showing just `#N` and reducing visual clutter in the row.",
+      "category": "UX",
+      "category_en": "UX"
+    }
   ]
 }
