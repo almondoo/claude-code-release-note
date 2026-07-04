@@ -1,0 +1,102 @@
+[
+  {
+    "v": "2.1.200",
+    "items": [
+      {
+        "t": "変更: `AskUserQuestion` ダイアログがデフォルトでは自動継続しないように（アイドルタイムアウトは `/config` からオプトイン）",
+        "t_en": "Changed `AskUserQuestion` dialogs to no longer auto-continue by default; opt into an idle timeout via `/config`",
+        "tags": ["改善"]
+      },
+      {
+        "t": "変更: 「default」パーミッションモードの表示名を CLI・`--help`・VS Code・JetBrains 全体で「Manual」に（`--permission-mode manual` と `\"defaultMode\": \"manual\"` も受け付けるように）",
+        "t_en": "Changed the \"default\" permission mode to \"Manual\" across the CLI, `--help`, VS Code, and JetBrains; `--permission-mode manual` and `\"defaultMode\": \"manual\"` are accepted alongside `default`",
+        "tags": ["改善", "IDE"]
+      },
+      {
+        "t": "修正: `.claude.json` の `disabledMcpServers` や `enabledMcpServers` が配列以外の値になっていると起動時にクラッシュする問題",
+        "t_en": "Fixed a crash at startup when `disabledMcpServers` or `enabledMcpServers` in `.claude.json` is set to a non-array value",
+        "tags": ["バグ修正", "MCP"]
+      },
+      {
+        "t": "修正: スリープ復帰後やストールしたセッションを開き直した際に、バックグラウンドセッションがターンの途中で黙って停止する問題",
+        "t_en": "Fixed background sessions silently stopping mid-turn after sleep/wake or when reopening a stalled session",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: ストール後の再スポーンで、バックグラウンドセッションが Esc でキャンセル済みのターンを再実行してしまう問題",
+        "t_en": "Fixed background sessions re-running a turn cancelled with Esc after a stall respawn",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: クラッシュで残った古い `daemon.lock` の PID を OS が再利用すると、バックグラウンドエージェントが二度と起動しなくなる問題",
+        "t_en": "Fixed background agents never starting again after a crash left a stale `daemon.lock` whose PID the OS reused",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: 再インストールした古いビルドがバックグラウンドエージェントのデーモンを乗っ取れる問題（ビルドの新旧を埋め込みのビルドタイムスタンプで判定するように）",
+        "t_en": "Fixed background-agent daemon handover so a reinstalled older build can no longer take over the daemon; build recency is now judged by the version's embedded build timestamp",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: バックグラウンドエージェントのロスターに関する複数の問題（一時的な破損による孤児クリーンアップの恒久無効化、新バージョンが書いたフィールドの旧バイナリでの欠落、デーモン再起動時のソケット認証トークンの消失）",
+        "t_en": "Fixed background-agent roster issues: transient corruption permanently disabling orphan cleanup, older binaries not preserving fields written by newer versions, and socket auth tokens being stripped during daemon restarts",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: テキスト出力を生成する前にレート制限で打ち切られたサブエージェントが、明確に失敗せず空の結果を返す問題",
+        "t_en": "Fixed subagents cut off by a rate limit before producing any text output returning an empty result instead of failing cleanly",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: バックグラウンドエージェントの出力に含まれる制御バイトが、エージェントビューでターミナルにそのまま到達する問題",
+        "t_en": "Fixed control bytes from background-agent output reaching the terminal in the agent view",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: `claude agents --plugin-dir <dir>` で、フラグを `agents` の後ろに置くとプラグインのエージェントやスキルがエージェントビューに表示されない問題",
+        "t_en": "Fixed `claude agents --plugin-dir <dir>` not showing the plugin's agents and skills in the agent view when the flag is placed after `agents`",
+        "tags": ["バグ修正", "Plugin"]
+      },
+      {
+        "t": "修正: 同一リポジトリの git worktree からプロジェクトスコープのプラグインが正しく読み込まれない問題",
+        "t_en": "Fixed project-scoped plugins not loading correctly from git worktrees of the same repository",
+        "tags": ["バグ修正", "Plugin"]
+      },
+      {
+        "t": "修正: `/mcp` のサーバー一覧がスクリーンリーダーや拡大鏡向けのフォーカス追跡を行わない問題",
+        "t_en": "Fixed `/mcp` server list not tracking focus for screen readers and magnifiers",
+        "tags": ["バグ修正", "MCP"]
+      },
+      {
+        "t": "修正: 録音に音声が入っていない場合に、音声入力が誤解を招く「Voice connection failed」メッセージを表示する問題",
+        "t_en": "Fixed voice dictation showing a misleading \"Voice connection failed\" message when a recording captures no audio",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: tmux 3.4 以降での描画のちらつき（同期ターミナル出力を有効化して解消）",
+        "t_en": "Fixed rendering flicker under tmux 3.4+ by enabling synchronized terminal output",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "改善: スクリーンリーダー向け出力を改善（装飾グリフの非表示化、トランスクリプト記号の短いラベルでの読み上げ、入れ子テーブルの `Header: value.` 形式での読み上げ）",
+        "t_en": "Improved screen-reader output: decorative glyphs are now hidden, transcript symbols read as short labels, and nested tables read as `Header: value.` lines",
+        "tags": ["改善"]
+      },
+      {
+        "t": "改善: システムのメモリ不足でインストールが強制終了された場合に、インストールスクリプトがその原因を説明するように",
+        "t_en": "Improved the install script to explain when installation is killed by the system running out of memory",
+        "tags": ["改善"]
+      }
+    ]
+  },
+  {
+    "v": "2.1.201",
+    "items": [
+      {
+        "t": "変更: Claude Sonnet 5 のセッションで、ハーネスのリマインダーに会話途中の system ロールを使用しないように",
+        "t_en": "Claude Sonnet 5 sessions no longer use the mid-conversation system role for harness reminders",
+        "tags": ["改善"]
+      }
+    ]
+  }
+]
