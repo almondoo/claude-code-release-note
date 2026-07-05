@@ -1,0 +1,168 @@
+{
+  "2.1.200": [
+    {
+      "t": "変更: `AskUserQuestion` ダイアログがデフォルトでは自動継続しないように（アイドルタイムアウトは `/config` からオプトイン）",
+      "t_en": "Changed `AskUserQuestion` dialogs to no longer auto-continue by default; opt into an idle timeout via `/config`",
+      "tags": ["改善"],
+      "detail": "これまで `AskUserQuestion` のダイアログは、一定時間放置すると事前選択された選択肢のまま自動的に会話が継続されることがあり、ユーザーが確認していない選択のまま作業が進んでしまう恐れがあった。\n\n本バージョンからデフォルトが「自動継続しない」に変更され、質問はユーザーが実際に回答するまで待機するようになった。従来の自動継続の挙動が必要な場合は、`/config` の「Question auto-continue timeout」（`askUserQuestionTimeout` 設定。`60s`・`5m`・`10m`・`never` を指定可能）でオプトインできる。詳しくは[設定のドキュメント](https://code.claude.com/docs/en/settings#askuserquestiontimeout)を参照してください。",
+      "detail_en": "Previously an idle `AskUserQuestion` dialog could auto-continue with the pre-selected options, letting work proceed on a decision the user never actually reviewed.\n\nThe default is now to never auto-continue, so a question waits until you answer it. To opt back into the hands-off behavior, use the \"Question auto-continue timeout\" entry in `/config` (the `askUserQuestionTimeout` setting, accepting `60s`, `5m`, `10m`, or `never`). See the [settings documentation](https://code.claude.com/docs/en/settings#askuserquestiontimeout) for details.",
+      "category": "設定",
+      "category_en": "Configuration"
+    },
+    {
+      "t": "変更: 「default」パーミッションモードの表示名を CLI・`--help`・VS Code・JetBrains 全体で「Manual」に（`--permission-mode manual` と `\"defaultMode\": \"manual\"` も受け付けるように）",
+      "t_en": "Changed the \"default\" permission mode to \"Manual\" across the CLI, `--help`, VS Code, and JetBrains; `--permission-mode manual` and `\"defaultMode\": \"manual\"` are accepted alongside `default`",
+      "tags": ["改善", "IDE"],
+      "detail": "これまで「default」と表示されていたパーミッションモードは、実際には各ツールの初回使用時に毎回確認を求めるモードだが、その名前から挙動が伝わりにくかった。\n\n本バージョンから表示名が CLI・`--help`・VS Code・JetBrains 全体で「Manual」に統一された。あわせて `--permission-mode manual` と設定の `\"defaultMode\": \"manual\"` が従来の `default` と並んで受け付けられるようになっており、既存の設定はそのまま動作する。モード自体の挙動は変わらない、表示名とエイリアスの変更となっている。詳しくは[パーミッションのドキュメント](https://code.claude.com/docs/en/permissions#permission-modes)を参照してください。",
+      "detail_en": "The permission mode previously labeled \"default\" actually prompts on first use of each tool, which the generic name failed to convey.\n\nThe label is now \"Manual\" across the CLI, `--help`, VS Code, and JetBrains. `--permission-mode manual` and `\"defaultMode\": \"manual\"` are accepted alongside the existing `default`, so current configs keep working unchanged — this is a labeling and alias change, not a behavioral one. See the [permissions documentation](https://code.claude.com/docs/en/permissions#permission-modes) for details.",
+      "category": "パーミッション",
+      "category_en": "Permissions"
+    },
+    {
+      "t": "修正: `.claude.json` の `disabledMcpServers` や `enabledMcpServers` が配列以外の値になっていると起動時にクラッシュする問題",
+      "t_en": "Fixed a crash at startup when `disabledMcpServers` or `enabledMcpServers` in `.claude.json` is set to a non-array value",
+      "tags": ["バグ修正", "MCP"],
+      "detail": "`disabledMcpServers` と `enabledMcpServers` は、`/mcp` で無効化・再有効化した MCP サーバーを記憶するために Claude Code 自身が `.claude.json` に書き込むプロジェクト単位の内部フィールドで、これが何らかの理由で配列以外の値になっていると起動時にクラッシュしていた。\n\n本バージョンで防御的なパース処理が追加され、値が破損していても起動できるようになった。",
+      "detail_en": "`disabledMcpServers` and `enabledMcpServers` are per-project internal fields Claude Code itself writes into `.claude.json` to remember which MCP servers were disabled or re-enabled via `/mcp`. If either field somehow held a non-array value, Claude Code crashed at startup.\n\nDefensive parsing has been added so a corrupted value no longer prevents launch.",
+      "category": "安定性",
+      "category_en": "Stability"
+    },
+    {
+      "t": "修正: スリープ復帰後やストールしたセッションを開き直した際に、バックグラウンドセッションがターンの途中で黙って停止する問題",
+      "t_en": "Fixed background sessions silently stopping mid-turn after sleep/wake or when reopening a stalled session",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "バックグラウンドセッションが、マシンのスリープからの復帰後や、ストールしたセッションを開き直した際に、何の表示もなくターンの途中で停止してしまうことがあった。\n\n本バージョンでこの問題が修正され、セッションが静かに止まることなく再開・完了するようになった。",
+      "detail_en": "A background session could silently die partway through a turn after the machine woke from sleep, or when reopening a session that had stalled, with no indication anything went wrong.\n\nThis is now fixed: the session resumes or completes instead of quietly stopping.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-agent"
+    },
+    {
+      "t": "修正: ストール後の再スポーンで、バックグラウンドセッションが Esc でキャンセル済みのターンを再実行してしまう問題",
+      "t_en": "Fixed background sessions re-running a turn cancelled with Esc after a stall respawn",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "ストールしたバックグラウンドセッションが自動的に再スポーンされる際、ユーザーが Esc でキャンセル済みのターンがキャンセルされたままにならず、最初から再実行されてしまうことがあった。\n\n本バージョンから再スポーン処理が以前のキャンセルを尊重するようになり、望まない作業が繰り返されることがなくなった。",
+      "detail_en": "When a stalled background session was automatically respawned, a turn the user had already cancelled with Esc could be re-executed from scratch instead of staying cancelled.\n\nThe respawn logic now honors the prior cancellation, so unwanted work is no longer repeated.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-agent"
+    },
+    {
+      "t": "修正: クラッシュで残った古い `daemon.lock` の PID を OS が再利用すると、バックグラウンドエージェントが二度と起動しなくなる問題",
+      "t_en": "Fixed background agents never starting again after a crash left a stale `daemon.lock` whose PID the OS reused",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "バックグラウンドエージェントのデーモンがクラッシュして古い `daemon.lock` ファイルが残り、そこに記録された PID を OS が別プロセスに再利用すると、Claude Code はデーモンがまだ生きていると誤認して新しいデーモンの起動を拒否し、手動でクリーンアップするまでバックグラウンドエージェントが完全に使えなくなっていた。\n\n本バージョンでより堅牢な生存チェックが導入され、PID が再利用されていても古いロックを正しく検出して除去できるようになった。",
+      "detail_en": "If the background-agent daemon crashed and left a stale `daemon.lock`, and the OS later reused that PID for an unrelated process, Claude Code mistakenly treated the daemon as alive and refused to start a new one — permanently breaking background agents until manual cleanup.\n\nA more robust liveness check now correctly detects and clears a stale lock even when its PID has been reused.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-agent"
+    },
+    {
+      "t": "修正: 再インストールした古いビルドがバックグラウンドエージェントのデーモンを乗っ取れる問題（ビルドの新旧を埋め込みのビルドタイムスタンプで判定するように）",
+      "t_en": "Fixed background-agent daemon handover so a reinstalled older build can no longer take over the daemon; build recency is now judged by the version's embedded build timestamp",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "アップデートの際は新しいビルドのデーモンが古いものを引き継ぐべきだが、これまでは再インストールやダウングレードで入れた古いビルドが、新しいビルドからデーモンの制御を奪えてしまっていた。\n\n本バージョンから、ビルドの新旧はバージョン文字列の比較だけに頼らず、バージョンに埋め込まれたビルドタイムスタンプで判定されるようになり、古いバイナリがデーモンを乗っ取る経路が塞がれた。",
+      "detail_en": "During an update, a newer daemon build should supersede an older one — but a reinstalled or downgraded older build could previously hijack daemon control from a newer build.\n\nBuild recency is now judged by the version's embedded build timestamp instead of relying only on version-string comparison, closing the path where a stale binary could take over the daemon.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-agent"
+    },
+    {
+      "t": "修正: バックグラウンドエージェントのロスターに関する複数の問題（一時的な破損による孤児クリーンアップの恒久無効化、新バージョンが書いたフィールドの旧バイナリでの欠落、デーモン再起動時のソケット認証トークンの消失）",
+      "t_en": "Fixed background-agent roster issues: transient corruption permanently disabling orphan cleanup, older binaries not preserving fields written by newer versions, and socket auth tokens being stripped during daemon restarts",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "バックグラウンドセッションの管理リスト（ロスター）に関する3つの堅牢性の問題が修正された。一時的な破損によって孤児セッションの自動クリーンアップが恒久的に無効化される問題、新しいバージョンが書き込んだフィールドを古いバイナリが保持しない問題、そしてデーモンの再起動時にセッションへの再接続に必要なソケット認証トークンが失われて再接続できなくなる問題である。\n\nこれらの修正により、バックグラウンドセッションが到達不能になったり、孤児として溜まり続けたりする可能性が減っている。",
+      "detail_en": "Three robustness fixes to the roster — the tracked list of background sessions: transient corruption could permanently disable automatic cleanup of orphaned sessions; an older daemon binary could drop fields a newer version had written; and the socket auth tokens needed to reconnect to sessions could be stripped across daemon restarts, breaking reconnection.\n\nTogether these reduce the chance of background sessions becoming unreachable or accumulating as orphans.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-agent"
+    },
+    {
+      "t": "修正: テキスト出力を生成する前にレート制限で打ち切られたサブエージェントが、明確に失敗せず空の結果を返す問題",
+      "t_en": "Fixed subagents cut off by a rate limit before producing any text output returning an empty result instead of failing cleanly",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "サブエージェントのターンがテキスト出力を生成する前にレート制限で打ち切られると、これまでは失敗として扱われず、あたかも「報告することが何もないまま成功した」かのように空の結果が呼び出し元へ返っており、失敗が覆い隠されていた。\n\n本バージョンからこのケースは明示的な失敗として報告されるようになり、呼び出し元のエージェントやユーザーがサブエージェントの未完了に気づけるようになった。",
+      "detail_en": "If a subagent's turn was cut off by a rate limit before producing any text, it previously returned an empty result to the caller as if it had succeeded with nothing to report, masking the failure.\n\nThis case now surfaces as an explicit failure, so the calling agent or user knows the subagent didn't actually complete.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-agent"
+    },
+    {
+      "t": "修正: バックグラウンドエージェントの出力に含まれる制御バイトが、エージェントビューでターミナルにそのまま到達する問題",
+      "t_en": "Fixed control bytes from background-agent output reaching the terminal in the agent view",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "バックグラウンドエージェントの出力に含まれる生のターミナル制御バイトが、エージェントビューの描画にそのまま流れ込み、表示の乱れや意図しない文字の混入を引き起こすことがあった。\n\n本バージョンから、エージェントビューでの表示前に制御バイトがフィルタリングされるようになった。",
+      "detail_en": "Raw terminal control bytes from a background agent's output could leak into the rendered agent view, corrupting the display or showing stray characters.\n\nControl bytes are now filtered out before the session is rendered in the agent view.",
+      "category": "レンダリング",
+      "category_en": "Rendering"
+    },
+    {
+      "t": "修正: `claude agents --plugin-dir <dir>` で、フラグを `agents` の後ろに置くとプラグインのエージェントやスキルがエージェントビューに表示されない問題",
+      "t_en": "Fixed `claude agents --plugin-dir <dir>` not showing the plugin's agents and skills in the agent view when the flag is placed after `agents`",
+      "tags": ["バグ修正", "Plugin"],
+      "detail": "`claude agents` は `claude` と同じ設定フラグを受け付け、`--plugin-dir` によるローカルプラグインの読み込みも各セッションへ引き継がれる設計になっている。しかしこれまでは、フラグを `agents` サブコマンドの後ろに書くと、プラグインのエージェントやスキルがエージェントビューに表示されなかった。\n\n本バージョンで引数のパースが修正され、フラグの位置に関わらずプラグインが読み込まれるようになった。詳しくは[エージェントビューのドキュメント](https://code.claude.com/docs/en/agent-view)を参照してください。",
+      "detail_en": "`claude agents` accepts the same configuration flags as `claude`, including `--plugin-dir` for loading a local plugin, passing them through to each dispatched session. Previously, placing the flag after the `agents` subcommand caused the plugin's agents and skills not to appear in the agent view.\n\nArgument parsing is now fixed so flag placement no longer affects whether the plugin loads. See the [agent view documentation](https://code.claude.com/docs/en/agent-view) for details.",
+      "category": "Plugin",
+      "category_en": "Plugin"
+    },
+    {
+      "t": "修正: 同一リポジトリの git worktree からプロジェクトスコープのプラグインが正しく読み込まれない問題",
+      "t_en": "Fixed project-scoped plugins not loading correctly from git worktrees of the same repository",
+      "tags": ["バグ修正", "Plugin"],
+      "detail": "メインのチェックアウトでプロジェクトスコープとしてインストールしたプラグインが、同じリポジトリの git worktree から Claude Code を起動した際に確実には読み込まれず、worktree ごとにプラグインを入れ直す必要があった。\n\n本バージョンから、`--worktree` で作成した worktree でも通常の `git worktree add` で作成したものでも、メインのチェックアウトのプロジェクトスコープのプラグインが自動的に読み込まれるようになった。詳しくは[worktree のドキュメント](https://code.claude.com/docs/en/worktrees#start-claude-in-a-worktree)を参照してください。",
+      "detail_en": "A plugin installed at project scope in the main checkout would not reliably load when Claude Code ran from a git worktree of the same repository, forcing a separate reinstall per worktree.\n\nProject-scoped plugins from the main checkout now load automatically in worktrees of the same repo, whether created with `--worktree` or plain `git worktree add`. See the [worktrees documentation](https://code.claude.com/docs/en/worktrees#start-claude-in-a-worktree) for details.",
+      "category": "Plugin",
+      "category_en": "Plugin"
+    },
+    {
+      "t": "修正: `/mcp` のサーバー一覧がスクリーンリーダーや拡大鏡向けのフォーカス追跡を行わない問題",
+      "t_en": "Fixed `/mcp` server list not tracking focus for screen readers and magnifiers",
+      "tags": ["バグ修正", "MCP"],
+      "detail": "`/mcp` コマンドのサーバー一覧 UI は、キーボードフォーカスの移動を支援技術へ正しく伝えておらず、スクリーンリーダーや拡大鏡の利用者には一覧のどのサーバーが現在選択されているのか分かりにくかった。\n\n本バージョンでフォーカス状態が正しく追跡・公開されるようになり、支援技術からの操作性が改善された。",
+      "detail_en": "The `/mcp` server list UI did not correctly expose keyboard focus changes to assistive technology, making it hard for screen-reader and magnifier users to tell which server entry was currently selected.\n\nFocus state is now properly tracked and exposed for accessibility tooling.",
+      "category": "UX",
+      "category_en": "UX"
+    },
+    {
+      "t": "修正: 録音に音声が入っていない場合に、音声入力が誤解を招く「Voice connection failed」メッセージを表示する問題",
+      "t_en": "Fixed voice dictation showing a misleading \"Voice connection failed\" message when a recording captures no audio",
+      "tags": ["バグ修正"],
+      "detail": "マイクがミュートされていたり設定に問題があったりして録音に音声がまったく入っていない場合でも、これまでは「Voice connection failed」という汎用メッセージが表示され、あたかもネットワーク障害であるかのような誤解を招いていた。\n\n本バージョンから、無音の録音に対しては「No audio detected from microphone」と表示されるようになり、原因が入力デバイス側にあることが分かりやすくなった。詳しくは[音声入力のドキュメント](https://code.claude.com/docs/en/voice-dictation#troubleshooting)を参照してください。",
+      "detail_en": "When a voice recording captured no audio at all — for example due to a muted or misconfigured microphone — Claude Code showed the generic \"Voice connection failed\" message, wrongly suggesting a network issue.\n\nA silent recording now reports \"No audio detected from microphone\" instead, pointing at the input device as the cause. See the [voice dictation documentation](https://code.claude.com/docs/en/voice-dictation#troubleshooting) for details.",
+      "category": "入力",
+      "category_en": "Input"
+    },
+    {
+      "t": "修正: tmux 3.4 以降での描画のちらつき（同期ターミナル出力を有効化して解消）",
+      "t_en": "Fixed rendering flicker under tmux 3.4+ by enabling synchronized terminal output",
+      "tags": ["バグ修正"],
+      "detail": "tmux 3.4 以降では、フレームの更新が完了する前の部分的な再描画が一瞬見えてしまうことで、Claude Code の画面がちらつくことがあった。\n\n本バージョンから tmux の同期出力（synchronized output）のエスケープシーケンスが有効化され、各フレームが tmux 側でバッファされて一括で適用されるようになり、ちらつきが解消された。",
+      "detail_en": "Under tmux 3.4 and later, partial screen redraws could be briefly visible before a frame finished updating, causing visible flicker.\n\nClaude Code now enables tmux's synchronized-output escape sequences so each frame is buffered and applied atomically, eliminating the flicker.",
+      "category": "レンダリング",
+      "category_en": "Rendering"
+    },
+    {
+      "t": "改善: スクリーンリーダー向け出力を改善（装飾グリフの非表示化、トランスクリプト記号の短いラベルでの読み上げ、入れ子テーブルの `Header: value.` 形式での読み上げ）",
+      "t_en": "Improved screen-reader output: decorative glyphs are now hidden, transcript symbols read as short labels, and nested tables read as `Header: value.` lines",
+      "tags": ["改善"],
+      "detail": "スクリーンリーダー向けの出力が複数の面で改善された。純粋に装飾目的のグリフやアイコンは読み上げ対象から除外され、トランスクリプト中の記号は生の文字ではなく短い説明ラベルとして読み上げられ、入れ子になったテーブルは複雑なテーブルナビゲーションの代わりに `Header: value.` 形式のフラットな行として読み上げられるようになった。\n\nこれらの改善により、ターミナル UI がスクリーンリーダーで大幅に使いやすくなっている。",
+      "detail_en": "Several accessibility improvements to screen-reader output: purely decorative glyphs and icons are now hidden instead of being read aloud, transcript symbols are announced as short descriptive labels rather than raw characters, and nested tables read as flat `Header: value.` lines instead of requiring nested-table navigation.\n\nTogether these make the terminal UI substantially more usable with screen readers.",
+      "category": "UX",
+      "category_en": "UX"
+    },
+    {
+      "t": "改善: システムのメモリ不足でインストールが強制終了された場合に、インストールスクリプトがその原因を説明するように",
+      "t_en": "Improved the install script to explain when installation is killed by the system running out of memory",
+      "tags": ["改善"],
+      "detail": "メモリの少ない Linux サーバーなどでは、OS の OOM killer にインストール処理が強制終了されると、シェルの「Killed」という一行だけが表示され、原因がまったく分からなかった。\n\n本バージョンからインストールスクリプトがこのケース（終了コード 137）を検出し、インストールにはおよそ 512MB の空きメモリが必要であることを説明した上で、メモリの解放やスワップ領域の追加を提案するようになった。詳しくは[インストールのトラブルシューティング](https://code.claude.com/docs/en/troubleshoot-install#install-killed-on-low-memory-linux-servers)を参照してください。",
+      "detail_en": "On low-memory Linux servers, the install script previously failed with only the shell's bare \"Killed\" line when the OS out-of-memory killer terminated it, giving no indication of the cause.\n\nThe script now detects this case (exit code 137), explains that installation needs roughly 512MB of free memory, and suggests freeing memory or adding swap space. See the [install troubleshooting documentation](https://code.claude.com/docs/en/troubleshoot-install#install-killed-on-low-memory-linux-servers) for details.",
+      "category": "安定性",
+      "category_en": "Stability"
+    }
+  ],
+  "2.1.201": [
+    {
+      "t": "変更: Claude Sonnet 5 のセッションで、ハーネスのリマインダーに会話途中の system ロールを使用しないように",
+      "t_en": "Claude Sonnet 5 sessions no longer use the mid-conversation system role for harness reminders",
+      "tags": ["改善"],
+      "detail": "Claude Code は、ファイル変更の通知やモード切り替えの指示といったハーネス由来のリマインダー（`<system-reminder>` ブロックなど）を会話の途中に注入して、モデルの挙動を調整している。これまで、これらのリマインダーは会話途中の system ロールのメッセージとして送信されることがあった。\n\n本バージョンから、Claude Sonnet 5 のセッションではこの方式が使われなくなった。公式ドキュメントには記載のない内部的な変更であり、ユーザーから見える挙動の変化は示されていないが、Sonnet 5 に合わせたプロンプト処理の調整とみられる。",
+      "detail_en": "Claude Code injects harness reminders — such as `<system-reminder>` blocks for file-change notices or mode instructions — mid-conversation to steer the model's behavior. These reminders could previously be sent as mid-conversation system-role messages.\n\nAs of this version, Claude Sonnet 5 sessions no longer use that mechanism. This is an internal change not covered by the official docs, with no user-visible behavior change described; it appears to be a prompting adjustment tailored to Sonnet 5.",
+      "category": "API",
+      "category_en": "API"
+    }
+  ]
+}
