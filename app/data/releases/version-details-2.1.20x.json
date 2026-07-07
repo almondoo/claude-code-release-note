@@ -164,5 +164,169 @@
       "category": "API",
       "category_en": "API"
     }
+  ],
+  "2.1.202": [
+    {
+      "t": "追加: 動的ワークフローの規模の目安（small/medium/large のエージェント数）を制御する「Dynamic workflow size」設定を `/config` に追加",
+      "t_en": "Added a \"Dynamic workflow size\" setting in `/config` for controlling how large Claude generally makes dynamic workflows (small/medium/large agent counts) — an advisory guideline, not an enforced cap",
+      "tags": ["新機能", "Agent"],
+      "detail": "動的ワークフローは1回の実行で最大1,000体のエージェントを起動できるが、これまで既定でその規模を抑える手段がなかった。\n\n本バージョンで `/config` に「Dynamic workflow size」設定が追加され、small・medium・large のいずれかを選ぶと、ワークフローが起動するエージェント数の目安（それぞれ5体・15体・50体未満）が Claude に伝えられるようになった。既定は unrestricted で、目安は送られない。\n\nこれは強制的な上限ではなくあくまで指針であり、プロンプトで異なる規模を明示すれば上書きできる。ランタイム側のハードキャップは設定に関わらず適用される。詳しくは[ワークフローのドキュメント](https://code.claude.com/docs/en/workflows#set-a-size-guideline)を参照してください。",
+      "detail_en": "Dynamic workflows can spawn up to 1,000 agents per run, and there was previously no way to bias how large Claude makes them by default.\n\nThe new \"Dynamic workflow size\" setting in `/config` lets you pick small, medium, or large, sending Claude a guideline of fewer than 5, 15, or 50 agents respectively. The default `unrestricted` sends no guideline.\n\nThis is an advisory guideline, not an enforced cap — a prompt asking for a different scale can override it, and the runtime's hard agent caps still apply regardless. See the [workflows documentation](https://code.claude.com/docs/en/workflows#set-a-size-guideline) for details.",
+      "category": "ワークフロー",
+      "category_en": "Workflow"
+    },
+    {
+      "t": "追加: ワークフローが起動したエージェントのテレメトリに `workflow.run_id` と `workflow.name` の OpenTelemetry 属性を追加",
+      "t_en": "Added `workflow.run_id` and `workflow.name` OpenTelemetry attributes to telemetry emitted by workflow-spawned agents, so a workflow run's activity can be reconstructed from OTel data",
+      "tags": ["新機能", "Agent"],
+      "detail": "これまで、動的ワークフローが起動したエージェントのテレメトリには、どのワークフロー実行から生まれたものかを紐付ける手段がなかった。\n\n本バージョンから、ワークフローが起動したエージェント（ネストされたスキル呼び出しを含む）が発行する `claude_code.llm_request` や `claude_code.tool` のスパンおよび標準イベントに、`workflow.run_id`（`wf_` プレフィックス付き）と `workflow.name` の OpenTelemetry 属性が付与されるようになった。1つの run ID で OTel データをフィルタリングすれば、そのワークフロー実行のリクエストやツール結果を再構成できる。\n\nなお、ユーザーが作成したワークフロー名はテレメトリ上では「custom」に秘匿され、`OTEL_LOG_TOOL_DETAILS=1` を設定した場合のみ実名が出力される。詳しくは[モニタリングのドキュメント](https://code.claude.com/docs/en/monitoring-usage)を参照してください。",
+      "detail_en": "Previously, telemetry from agents spawned by a dynamic workflow could not be tied back to the specific workflow run that spawned them.\n\nAs of this version, `claude_code.llm_request` and `claude_code.tool` spans and standard events emitted by workflow-spawned agents (including nested skill invocations) carry `workflow.run_id` (prefixed `wf_`) and `workflow.name` OpenTelemetry attributes. Filtering OTel data by a single run ID reconstructs that run's requests and tool results.\n\nUser-authored workflow names are redacted to \"custom\" in telemetry unless `OTEL_LOG_TOOL_DETAILS=1` is set. See the [monitoring documentation](https://code.claude.com/docs/en/monitoring-usage) for details.",
+      "category": "監視",
+      "category_en": "Monitoring"
+    },
+    {
+      "t": "修正: 履歴ファイルのスキャン中に確定・キャンセルすると、インラインの Ctrl+R 履歴検索がクラッシュする問題",
+      "t_en": "Fixed a crash in the inline Ctrl+R history search when accepting or cancelling while the search was still scanning the history file",
+      "tags": ["バグ修正"],
+      "detail": "インラインの Ctrl+R 履歴検索では、履歴ファイルのスキャンがまだ実行中の状態で検索を確定またはキャンセルすると、実行中のスキャンとユーザー操作が競合して CLI がクラッシュすることがあった。\n\n本バージョンでこの競合状態が修正され、スキャンの完了を待たずに確定・キャンセルしても安全に動作するようになった。",
+      "detail_en": "In the inline Ctrl+R history search, accepting or cancelling while the history-file scan was still running could race with the in-flight scan and crash the CLI.\n\nThis race condition is now fixed, so accepting or cancelling before the scan finishes works safely.",
+      "category": "安定性",
+      "category_en": "Stability"
+    },
+    {
+      "t": "修正: バックグラウンドセッションの `/rename` がジョブの再起動時に元に戻り、新しい名前でセッションを指定できなくなる問題",
+      "t_en": "Fixed `/rename` on background sessions being reverted when the job restarts, which broke addressing the session by its new name",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "バックグラウンドセッションはユーザーごとのスーパーバイザープロセスによって実行されており、スーパーバイザーはセッション本体とは独立して再起動されることがある。これまで、`/rename` で設定したセッション名がこの再起動時の再接続処理で失われて自動生成の名前に黙って戻ってしまい、新しい名前での `--resume` や `/resume` によるセッション指定ができなくなっていた。\n\n本バージョンでこの問題が修正され、ジョブが再起動しても `/rename` で付けた名前が維持されるようになった。",
+      "detail_en": "Background sessions run under a per-user supervisor process that can restart independently of the session itself. A name set with `/rename` was lost during the reconnect after such a restart, silently reverting to the auto-generated name and breaking `--resume` / `/resume` lookups by the new name.\n\nThis is now fixed: the `/rename`-assigned name survives job restarts.",
+      "category": "セッション管理",
+      "category_en": "Session Management"
+    },
+    {
+      "t": "修正: クライアント証明書のインプレースローテーション中に設定が再適用されると、一時的な mTLS ハンドシェイクエラーが発生する問題",
+      "t_en": "Fixed transient mTLS handshake failures when settings were re-applied during an in-place client certificate rotation",
+      "tags": ["バグ修正", "Security"],
+      "detail": "Claude Code は mTLS のクライアント証明書と秘密鍵（`CLAUDE_CODE_CLIENT_CERT` / `CLAUDE_CODE_CLIENT_KEY`）を起動時に読み込み、設定が再適用されるたびに再読み込みする。証明書のローテーションは同じパスにファイルを置き換える方式が想定されているが、置き換えの最中に設定の再適用が走ると、書き込み途中のファイルを読んでしまい、一時的な mTLS ハンドシェイクエラーが発生することがあった。\n\n本バージョンでこの競合が修正され、インプレースでの証明書ローテーション中も安定して接続できるようになった。詳しくは[ネットワーク設定のドキュメント](https://code.claude.com/docs/en/network-config#mtls-authentication)を参照してください。",
+      "detail_en": "Claude Code reads the mTLS client certificate and key (`CLAUDE_CODE_CLIENT_CERT` / `CLAUDE_CODE_CLIENT_KEY`) at startup and re-reads them whenever settings are re-applied. The documented rotation method replaces the files in place at the same paths, but a settings re-apply racing with that replacement could read a half-written file and cause transient mTLS handshake failures.\n\nThis race is now fixed, keeping connections stable during in-place certificate rotation. See the [network configuration documentation](https://code.claude.com/docs/en/network-config#mtls-authentication) for details.",
+      "category": "ネットワーク",
+      "category_en": "Network"
+    },
+    {
+      "t": "修正: Remote Control（モバイル・Web）から対話セッションに送信したコマンドが「Unknown command」エラーで失敗する問題",
+      "t_en": "Fixed commands sent from Remote Control (mobile/web) into an interactive session failing with \"Unknown command\"",
+      "tags": ["バグ修正"],
+      "detail": "Remote Control では、モバイルや Web アプリから対話セッションに対して一部のスラッシュコマンドを送信できる。これまで、本来サポートされているはずのコマンドをモバイル・Web クライアントから送ると、「Unknown command」エラーで失敗することがあった。\n\n本バージョンでこの問題が修正され、Remote Control から送信したコマンドが対話セッションで正しく処理されるようになった。",
+      "detail_en": "Remote Control lets you send a subset of slash commands from the mobile or web app into an interactive session. Commands that should have been supported could incorrectly fail with an \"Unknown command\" error when routed in from a mobile or web client.\n\nThis is now fixed, so commands sent from Remote Control are handled correctly by the interactive session.",
+      "category": "コマンド",
+      "category_en": "Commands"
+    },
+    {
+      "t": "修正: Remote Control のモバイル・Web アプリからキャプションなしで送信した画像やファイルが黙って破棄される問題",
+      "t_en": "Fixed images and files sent from the Remote Control mobile or web app without a caption being silently dropped",
+      "tags": ["バグ修正"],
+      "detail": "Remote Control では、スマートフォンやブラウザから画像やファイルを送信でき、Claude Code はそれをローカルにダウンロードして `@` ファイル参照としてセッションに渡す。これまで、キャプションを付けずに送信した添付ファイルは、セッションに届く前に黙って破棄されることがあった。\n\n本バージョンでこの問題が修正され、キャプションの有無に関わらず添付ファイルが確実にセッションへ届くようになった。詳しくは[Remote Control のドキュメント](https://code.claude.com/docs/en/remote-control)を参照してください。",
+      "detail_en": "Remote Control lets you send images and files from your phone or browser; Claude Code downloads them locally and passes them to the session as an `@` file reference. An attachment sent without a caption could previously be dropped before it reached the session.\n\nThis is now fixed, so attachments arrive reliably with or without a caption. See the [Remote Control documentation](https://code.claude.com/docs/en/remote-control) for details.",
+      "category": "入力",
+      "category_en": "Input"
+    },
+    {
+      "t": "修正: `claude auth login` や `claude mcp login --no-browser` が表示するサインイン URL が、SSH 経由で折り返されるとクリックできないことがある問題（単一のハイパーリンクとして出力するように）",
+      "t_en": "Fixed the sign-in URL printed by `claude auth login` and `claude mcp login --no-browser` not being reliably clickable when it wraps over SSH — it is now emitted as a single hyperlink",
+      "tags": ["バグ修正", "MCP"],
+      "detail": "ローカルにブラウザがない環境（SSH 経由など）では、`claude auth login` や `claude mcp login --no-browser` はサインイン用の認可 URL を表示し、ユーザーが手動で開く必要がある。これまで、この URL がターミナルの幅で複数行に折り返されると、リンクとして確実にクリックできないことがあった。\n\n本バージョンから URL が単一のハイパーリンクとして出力されるようになり、折り返された場合でもクリックでそのまま開けるようになった。",
+      "detail_en": "When no local browser is available (e.g. over SSH), `claude auth login` and `claude mcp login --no-browser` print an authorization URL for the user to open manually. When that URL wrapped across terminal lines, it was not reliably clickable.\n\nThe URL is now emitted as a single hyperlink, so it stays clickable even when word-wrapped.",
+      "category": "認証",
+      "category_en": "Authentication"
+    },
+    {
+      "t": "修正: `claude agents` からチャットを開くと「currently running as a background agent」エラーの後にワーカーがクラッシュと再起動を繰り返すことがある問題",
+      "t_en": "Fixed opening a chat from `claude agents` sometimes failing with \"currently running as a background agent\" followed by a worker crash/respawn loop",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "`claude agents`（エージェントビュー）からチャットを開こうとすると、「currently running as a background agent」というエラーが表示された後、バックグラウンドエージェントのワーカーがクラッシュと再起動を繰り返すループに陥ることがあった。\n\n本バージョンでこの問題が修正され、エージェントビューからセッションを正常に開けるようになった。",
+      "detail_en": "Opening a chat from `claude agents` (the agent view) could incorrectly fail with a \"currently running as a background agent\" error and then send the background-agent worker into a crash/respawn loop.\n\nThis is now fixed, so sessions open normally from the agent view.",
+      "category": "安定性",
+      "category_en": "Stability"
+    },
+    {
+      "t": "修正: 文字列内に Unicode 引用符のエスケープを含むワークフロースクリプトがパース前に破損する問題（パースエラーは問題の行を表示するように）",
+      "t_en": "Fixed workflow scripts with unicode quote escapes in strings being corrupted before parsing; workflow parse errors now show the offending line instead of always blaming TypeScript",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "動的ワークフローのスクリプトは Claude が生成する JavaScript であり、ランタイムが実行前にパースする。これまで、文字列リテラル内に Unicode 引用符のエスケープを含むスクリプトは前処理の段階でソースが破損してしまい、実際の問題箇所ではなく TypeScript を原因とする一般的なエラーとして報告される紛らわしい挙動になっていた。\n\n本バージョンでこの破損が修正され、あわせてワークフローのパースエラーは常に TypeScript のせいにするのではなく、問題のある行そのものを表示するようになった。",
+      "detail_en": "Dynamic workflow scripts are JavaScript that Claude writes and the runtime parses before execution. A preprocessing step corrupted scripts containing unicode quote escapes inside string literals, producing confusing generic TypeScript errors instead of pointing at the actual offending code.\n\nThe corruption is now fixed, and workflow parse errors show the offending line instead of always blaming TypeScript.",
+      "category": "ワークフロー",
+      "category_en": "Workflow"
+    },
+    {
+      "t": "修正: マイクや音声レコーダーの障害時に音声入力が無限にリトライを繰り返す問題（キャプチャ失敗が続くと音声入力を一時停止するように）",
+      "t_en": "Fixed voice dictation retrying in an unbounded loop when the microphone or audio recorder fails — repeated capture failures now pause voice input",
+      "tags": ["バグ修正"],
+      "detail": "音声入力はマイクから音声をキャプチャして文字起こしを行うが、これまではマイクの起動失敗のみが失敗としてカウントされ、起動後に音声を生成できないレコーダーの失敗はカウントされなかったため、マイクや音声レコーダーが正常に動作しない環境ではリトライが無限に繰り返されることがあった。\n\n本バージョンから、キャプチャの失敗（マイクの起動失敗、または起動後に音声が得られないケース）が連続すると音声入力が一時停止され、その旨のメッセージが表示されるようになった。詳しくは[音声入力のトラブルシューティング](https://code.claude.com/docs/en/voice-dictation#troubleshooting)を参照してください。",
+      "detail_en": "Voice dictation captures audio from the microphone for transcription. Previously only microphone start-up failures counted toward pausing, so a recorder that started but produced no audio could retry unboundedly.\n\nNow repeated capture failures — a failed mic start-up or a recorder that starts and then produces no audio — pause voice input with a message saying so. See the [voice dictation troubleshooting documentation](https://code.claude.com/docs/en/voice-dictation#troubleshooting) for details.",
+      "category": "入力",
+      "category_en": "Input"
+    },
+    {
+      "t": "修正: `/remote-control` セッションのパーミッションモードがモバイル・Web アプリで誤って表示される問題",
+      "t_en": "Fixed `/remote-control` sessions showing the wrong permission mode in the mobile and web apps",
+      "tags": ["バグ修正"],
+      "detail": "`/remote-control` で開始したセッションをモバイルや Web アプリから操作する際、実際にローカルセッションで動作しているパーミッションモードとは異なるモードが表示されることがあった。\n\n本バージョンでこの表示の不一致が修正され、モバイル・Web アプリに正しいパーミッションモードが表示されるようになった。",
+      "detail_en": "When controlling a `/remote-control` session from the mobile or web app, the displayed permission mode could differ from the mode the local session was actually running in.\n\nThis display mismatch is now fixed, so the mobile and web apps show the correct permission mode.",
+      "category": "パーミッション",
+      "category_en": "Permissions"
+    },
+    {
+      "t": "修正: git worktree が多数あるリポジトリで、名前指定でのセッション再開や再開ピッカーの表示に数分かかり、大量のメモリを消費する問題",
+      "t_en": "Fixed resuming a session by name, or opening the resume picker, taking minutes and using a large amount of memory in repositories with many git worktrees",
+      "tags": ["バグ修正", "Perf"],
+      "detail": "セッションの再開ピッカーや名前指定での再開は、現在のリポジトリとその git worktree をスキャンして対象のセッションを探す。worktree が多数あるリポジトリではこのスキャンのスケーラビリティが悪く、表示に数分かかったり大量のメモリを消費したりすることがあった。\n\n本バージョンでスキャン処理が改善され、多数の worktree を持つリポジトリでも高速かつ省メモリでセッションを再開できるようになった。",
+      "detail_en": "The resume picker and resume-by-name lookup scan the current repository and its git worktrees to find matching sessions. In repositories with many worktrees this scan scaled poorly, taking minutes and consuming a large amount of memory.\n\nThe scan is now fixed, so sessions resume quickly and with modest memory even in repositories with many worktrees.",
+      "category": "パフォーマンス",
+      "category_en": "Performance"
+    },
+    {
+      "t": "修正: プロキシやネットワークがダウンロード中に接続を切断すると、インストーラーとアップデーターのダウンロードが「aborted」で即座に失敗する問題（一時的な切断はリトライするように）",
+      "t_en": "Fixed installer and updater downloads failing immediately with \"aborted\" when a proxy or network drops the connection mid-download — transient connection drops now retry",
+      "tags": ["バグ修正"],
+      "detail": "インストーラーと自動アップデーターはバイナリをネットワーク経由でダウンロードするが、これまではプロキシやネットワークがダウンロードの途中で接続を切断すると、「aborted」エラーで即座に失敗していた。\n\n本バージョンから一時的な接続の切断は自動的にリトライされるようになり、不安定なネットワークやプロキシ環境でもインストールと更新が完了しやすくなった。",
+      "detail_en": "The installer and auto-updater download binaries over the network. When a proxy or the network dropped the connection mid-download, the download failed immediately with an \"aborted\" error.\n\nTransient connection drops now retry automatically, making installs and updates complete more reliably on flaky networks and behind proxies.",
+      "category": "ネットワーク",
+      "category_en": "Network"
+    },
+    {
+      "t": "修正: 読み込み済みのスキルを再度呼び出すと、その指示の複製がコンテキストに追加される問題",
+      "t_en": "Fixed re-invoking an already-loaded skill appending a duplicate copy of its instructions to context",
+      "tags": ["バグ修正"],
+      "detail": "スキルを呼び出すと、その SKILL.md の内容が1つのメッセージとして会話コンテキストに読み込まれ、セッションの残りの間保持される。これまで、既に読み込み済みのスキルを再度呼び出すと、同じ指示の複製がもう一部コンテキストに追加されてしまい、コンテキストを無駄に消費していた。\n\n本バージョンでこの問題が修正され、読み込み済みのスキルを再呼び出ししても指示が重複しなくなった。",
+      "detail_en": "Invoking a skill loads its rendered SKILL.md content into the conversation as a single message that persists for the rest of the session. Re-invoking a skill that was already loaded appended a second, duplicate copy of its instructions, wasting context.\n\nThis is now fixed: re-invoking an already-loaded skill no longer duplicates its instructions.",
+      "category": "会話管理",
+      "category_en": "Conversation Management"
+    },
+    {
+      "t": "改善: `/workflows` のエージェント一覧レイアウトを改善（タイトル幅の拡大、専用の時間列、モデル名の短縮、行ごとのツール呼び出し数の非表示）",
+      "t_en": "Improved `/workflows` agent list layout: wider titles, a dedicated time column, shorter model names, and no per-row tool-call counts",
+      "tags": ["改善", "Agent"],
+      "detail": "`/workflows` の進捗ビューにあるエージェント一覧のレイアウトが改善された。タイトルの表示幅が広がり、経過時間は専用の列に分離され、モデル名は短縮表示になり、行ごとのツール呼び出し数の表示は廃止された。\n\n一覧の情報密度が整理され、多数のエージェントが動くワークフローでも各エージェントの状態を把握しやすくなっている。",
+      "detail_en": "The agent list in the `/workflows` progress view got a layout refresh: wider titles, elapsed time in its own dedicated column, abbreviated model names, and the per-row tool-call count removed.\n\nThe cleaner information density makes it easier to track each agent's state even in workflows running many agents.",
+      "category": "UX",
+      "category_en": "UX"
+    },
+    {
+      "t": "改善: MCP のエラーメッセージを改善（サーバー設定に `url` があり `type` がない場合、誤解を招く「command: expected string」ではなく `\"type\": \"http\"` の追加を提案）",
+      "t_en": "Improved MCP error messages: clearer error when a server config has `url` but no `type`, suggesting `\"type\": \"http\"` instead of the misleading \"command: expected string\"",
+      "tags": ["改善", "MCP"],
+      "detail": "MCP サーバーの JSON 設定に `url` フィールドがあるのに `type` フィールドがない場合、これまでは stdio サーバーとして誤って解釈され、「command: expected string, received undefined」という紛らわしいエラーが表示されていた。\n\n本バージョンから、実際の問題を直接指摘し、`\"type\": \"http\"`（または `\"sse\"` / `\"ws\"`）をエントリに追加するよう提案する明確なエラーメッセージが表示されるようになった。詳しくは[MCP のドキュメント](https://code.claude.com/docs/en/mcp)を参照してください。",
+      "detail_en": "An MCP server JSON entry with a `url` field but no `type` field was previously misinterpreted as a stdio server, producing the confusing error \"command: expected string, received undefined\".\n\nClaude Code now reports the actual problem directly and suggests adding `\"type\": \"http\"` (or `\"sse\"` / `\"ws\"`) to the entry. See the [MCP documentation](https://code.claude.com/docs/en/mcp) for details.",
+      "category": "MCP 連携",
+      "category_en": "MCP Integration"
+    },
+    {
+      "t": "変更: `/review <pr>` を高速なシングルパスレビューに戻した（より深いレビューはエフォートレベルを指定する `/code-review <level> <pr#>` を使用）",
+      "t_en": "Changed `/review <pr>` back to a fast single-pass review; use `/code-review <level> <pr#>` for the multi-agent review at a chosen effort level",
+      "tags": ["改善"],
+      "detail": "`/review <pr>` が、現在のセッション内で完結する高速なシングルパスの PR レビューに戻された。v2.1.186 で `/review` は `/code-review medium` と同じレビューエンジンを使うよう変更されていたが、本バージョンで元の方式に戻された形となる。\n\nより深いレビューが必要な場合は、エフォートレベルを指定できる `/code-review <level> <pr#>` を使用する。特に `/code-review ultra` は、クラウド上でレビュアーエージェント群による最も深い検証付きレビューを実行する。詳しくは[コードレビューのドキュメント](https://code.claude.com/docs/en/code-review)を参照してください。",
+      "detail_en": "`/review <pr>` is back to a fast, single-pass PR review that runs in your current session. In v2.1.186 `/review` had been changed to use the same review engine as `/code-review medium`; this version reverts it to the original approach.\n\nFor a deeper review, use `/code-review <level> <pr#>` with a chosen effort level — in particular, `/code-review ultra` escalates to a cloud fleet of reviewer agents for the deepest, verified review. See the [code review documentation](https://code.claude.com/docs/en/code-review) for details.",
+      "category": "コマンド",
+      "category_en": "Commands"
+    }
   ]
 }
