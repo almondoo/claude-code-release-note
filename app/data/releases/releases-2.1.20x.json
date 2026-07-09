@@ -193,5 +193,325 @@
         "tags": ["改善"]
       }
     ]
+  },
+  {
+    "v": "2.1.203",
+    "items": [
+      {
+        "t": "追加: ログインの有効期限が近づくと事前に警告が表示されるように",
+        "t_en": "Added a warning when your login is about to expire",
+        "tags": ["新機能", "Agent"]
+      },
+      {
+        "t": "追加: Manual モード中はフッターに灰色の ⏸ バッジが表示されるように",
+        "t_en": "Added a grey ⏸ badge to the footer when in manual permission mode",
+        "tags": ["新機能", "Security"]
+      },
+      {
+        "t": "追加: MCP の `roots/list` にセッションの追加作業ディレクトリが含まれるように",
+        "t_en": "Added the session's additional working directories to MCP `roots/list`",
+        "tags": ["新機能", "MCP"]
+      },
+      {
+        "t": "修正: macOS でバックグラウンドエージェントセッションを開く・切り替える際に低メモリの誤検知で15〜20秒固まる問題",
+        "t_en": "Fixed opening or switching background agent sessions on macOS stalling for 15-20 seconds due to a false low-memory detection",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: デーモンのセッショントークンが失効すると、バックグラウンドセッションが attach・返信・stop を受け付けなくなる問題",
+        "t_en": "Fixed background sessions becoming permanently unresponsive to attach, replies, and stop when the daemon's session token went stale",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: `claude agents` に戻るとサブエージェントが黙って停止し、プロンプトが最初から再実行される問題",
+        "t_en": "Fixed returning to `claude agents` silently stopping running subagents and re-running the prompt from scratch",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: コンテキスト使用量インジケーターが毎ターン全トランスクリプトを再解析し、メモリと CPU 負荷が増大する問題",
+        "t_en": "Fixed a memory and per-turn CPU regression where the context-usage indicator re-analyzed the entire transcript after every turn",
+        "tags": ["バグ修正", "Perf"]
+      },
+      {
+        "t": "修正: バックグラウンドエージェントがデーモンの古い `PATH` を引き継ぎ、Windows でツールが見つからなくなる問題",
+        "t_en": "Fixed background agents inheriting a stale `PATH` from the daemon instead of the dispatching shell, causing missing tools on Windows",
+        "tags": ["バグ修正", "Agent", "Windows"]
+      },
+      {
+        "t": "修正: バックグラウンド・エージェントビューのセッションで `ANTHROPIC_BASE_URL` が引き継がれず、デフォルトエンドポイントへの送信で 401 になる問題",
+        "t_en": "Fixed background and agent-view sessions dropping a shell-exported `ANTHROPIC_BASE_URL`, sending API keys to the default endpoint and failing with 401",
+        "tags": ["バグ修正", "Agent", "Security"]
+      },
+      {
+        "t": "修正: git worktree が多いリポジトリで Bash が「argument list too long」で失敗する問題",
+        "t_en": "Fixed Bash failing with \"argument list too long\" in repos with many git worktrees",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: worktree で隔離されたサブエージェントが親のチェックアウトでシェルコマンドを実行してしまう問題",
+        "t_en": "Fixed worktree-isolated subagents sometimes running shell commands in the parent checkout instead of their own worktree",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: マルチリポジトリ環境でネストされたリポジトリの worktree 作成が拒否され、バックグラウンドセッションが隔離・編集できない問題",
+        "t_en": "Fixed worktree creation rejecting nested repositories in multi-repo workspaces, leaving background sessions unable to isolate and edit",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: 作業ディレクトリが削除・置換されるなどして無効になったバックグラウンドエージェントがクラッシュループする問題",
+        "t_en": "Fixed background agents crash-looping when their working directory was deleted, replaced by a file, or became an invalid path",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: バックグラウンドデーモンの自動アップグレード失敗で、すべてのバックグラウンドセッションが黙って強制終了される問題",
+        "t_en": "Fixed a background daemon auto-upgrade failure silently killing all running background sessions",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: `TaskStop` / `TaskOutput` が別のエージェントから起動されたバックグラウンドエージェントを見つけられない問題",
+        "t_en": "Fixed `TaskStop` and `TaskOutput` failing to find background agents spawned by another agent",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: `claude agents` の入力欄で、対応していないスラッシュコマンドを入力すると入力内容が消える問題",
+        "t_en": "Fixed the `claude agents` composer discarding your typed message when a slash command isn't available there",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: 他のセッションで開いている会話の停止済みセッションを開くと、エージェント一覧がクラッシュする問題",
+        "t_en": "Fixed the agent list crashing when opening a stopped session whose conversation was already open in another session",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: 質問に回答済みのバックグラウンドセッションが、エージェント一覧で「Needs input」のまま表示され続ける問題",
+        "t_en": "Fixed background sessions showing \"Needs input\" in the agent list after the question was already answered",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: バックグラウンドエージェントの起動失敗時に、実際のエラーではなく `exit_with_message` とだけ表示される問題",
+        "t_en": "Fixed background agent startup failures showing only \"exit_with_message\" instead of the actual error",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: デーモン経由でフォークされたバックグラウンドセッションが settings.json の effortLevel 変更を無視する問題",
+        "t_en": "Fixed background sessions ignoring effortLevel changes in settings.json when forked through the daemon",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: アタッチ済みのバックグラウンドセッションが CLAUDE_CODE_DISABLE_MOUSE と CLAUDE_CODE_DISABLE_MOUSE_CLICKS のオプトアウトを無視する問題",
+        "t_en": "Fixed attached background sessions ignoring CLAUDE_CODE_DISABLE_MOUSE and CLAUDE_CODE_DISABLE_MOUSE_CLICKS opt-outs",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: 名前付きエージェントがすべて完了した後も /exit がバックグラウンドエージェント実行中と誤って警告する問題",
+        "t_en": "Fixed /exit incorrectly warning about running background agents after all named agents had completed",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: WorktreeCreate フックが設定されている場合に、非 git ディレクトリから起動したバックグラウンドセッションがファイルを編集できない問題",
+        "t_en": "Fixed background sessions started from a non-git directory unable to edit files when a WorktreeCreate hook was configured",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: claude agents の @ ディレクトリピッカーに登録済みの git worktree が表示されない問題",
+        "t_en": "Fixed the @ directory picker in claude agents not showing registered git worktrees",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: Windows でバックグラウンドタスクの出力が /clear 後に空ファイルへ恒久的に置き換わる問題",
+        "t_en": "Fixed background task output on Windows being permanently replaced by an empty file after /clear",
+        "tags": ["バグ修正", "Windows", "Agent"]
+      },
+      {
+        "t": "修正: 長い transcript 履歴を上にスクロールする際にコンテンツが飛ぶ問題",
+        "t_en": "Fixed content jumping when scrolling up through long transcript history",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: bash モードでシェル履歴のサジェストが表示されている間、入力中にターミナルがちらつき飛ぶ問題",
+        "t_en": "Fixed the terminal flickering and jumping while typing in bash mode when a shell-history suggestion was shown",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: バックグラウンドセッションに再アタッチした際に ^[[I / ^[[O のエスケープコードがそのまま表示される問題",
+        "t_en": "Fixed literal ^[[I / ^[[O escape codes being printed when reattaching to a background session",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: LSP のみを提供するプラグインが診断やナビゲーション要求に応答していても未使用と誤検知される問題",
+        "t_en": "Fixed LSP-only plugins being incorrectly flagged for disuse when their language servers deliver diagnostics or answer navigation requests",
+        "tags": ["バグ修正", "Plugin"]
+      },
+      {
+        "t": "改善: 長い応答のストリーミング中の応答性を改善 — ライブプレビューの更新で画面全体が再描画されなくなった",
+        "t_en": "Improved responsiveness while long responses stream: live-preview updates no longer re-render the whole screen",
+        "tags": ["改善", "Perf"]
+      },
+      {
+        "t": "改善: サブエージェントがタスク全体を別のサブエージェントに再委任してしまう挙動を改善",
+        "t_en": "Improved subagent behavior: agents are now less likely to re-delegate their entire task to another subagent",
+        "tags": ["改善", "Agent"]
+      },
+      {
+        "t": "改善: 大きなバンドル依存関係を遅延読み込みにすることで、バイナリサイズを約7MB、起動時メモリを約7MB削減",
+        "t_en": "Improved startup footprint: reduced binary size by about 7 MB and startup memory by about 7 MB by loading a large bundled dependency lazily instead of inlining it",
+        "tags": ["改善", "Perf"]
+      },
+      {
+        "t": "変更: 左矢印キーでバックグラウンドタスク・diff・ワークフロー詳細ビューを閉じられないよう変更 — 代わりに Esc を使用",
+        "t_en": "Changed left arrow to no longer close the background tasks, diff, and workflow detail views — press Esc instead",
+        "tags": ["改善", "Agent"]
+      },
+      {
+        "t": "変更: claude agents の空表示を常に説明付きの整理済みセクション（Needs input / Working / Completed）で表示するよう変更",
+        "t_en": "Changed the empty claude agents view to always show the organized sections (Needs input / Working / Completed) with descriptions",
+        "tags": ["改善", "Agent"]
+      },
+      {
+        "t": "削除: 起動時に表示されていた「claude command missing or broken」警告を削除 — 今後は /doctor と /status に表示",
+        "t_en": "Removed the startup \"claude command missing or broken\" warnings — they now appear in /doctor and /status instead",
+        "tags": ["改善"]
+      },
+      {
+        "t": "削除: claude agents のフッターから冗長なナビゲーションヒントを削除",
+        "t_en": "Removed a redundant navigation hint from the claude agents footer",
+        "tags": ["改善", "Agent"]
+      },
+      {
+        "t": "追加: VS Code に「すべてのセッションで Remote Control を有効にする」設定トグルを追加",
+        "t_en": "Added a VS Code Settings toggle for \"Enable Remote Control for all sessions\"",
+        "tags": ["新機能", "IDE"]
+      }
+    ]
+  },
+  {
+    "v": "2.1.204",
+    "items": [
+      {
+        "t": "修正: headless セッションで SessionStart hooks 実行中にフックイベントがストリーミングされず、リモートワーカーがフック処理中にアイドル状態として回収される問題",
+        "t_en": "Fixed hook events not streaming during SessionStart hooks in headless sessions, which could cause remote workers to be idle-reaped mid-hook",
+        "tags": ["バグ修正", "Agent"]
+      }
+    ]
+  },
+  {
+    "v": "2.1.205",
+    "items": [
+      {
+        "t": "追加: auto mode にセッショントランスクリプトファイルの改ざんをブロックするルールを追加",
+        "t_en": "Added an auto mode rule that blocks tampering with session transcript files",
+        "tags": ["新機能", "Security"]
+      },
+      {
+        "t": "修正: `--json-schema` がスキーマ不正時に無言で非構造化出力になる問題と、`format` キーワードを使用したスキーマが拒否される問題",
+        "t_en": "Fixed `--json-schema` silently producing unstructured output when the schema was invalid, and schemas using the `format` keyword being rejected",
+        "tags": ["バグ修正", "SDK"]
+      },
+      {
+        "t": "修正: `--max-turns` の上限でターンが終了した際、Claude が作業中に送信されたメッセージが無言で失われる問題",
+        "t_en": "Fixed a message sent while Claude was working being silently lost when the turn ended at the `--max-turns` limit",
+        "tags": ["バグ修正", "SDK"]
+      },
+      {
+        "t": "修正: Windows で worktree 内に NTFS ジャンクションやディレクトリシンボリックリンクが存在する場合、worktree 削除時にその外側のファイルまで削除されてしまう問題",
+        "t_en": "Fixed Windows worktree removal deleting files outside the worktree when an NTFS junction or directory symlink existed inside it",
+        "tags": ["バグ修正", "Windows"]
+      },
+      {
+        "t": "修正: `SendMessage` で再開したバックグラウンドエージェントが、エージェント一覧で「failed」または「completed」のまま表示され続ける問題",
+        "t_en": "Fixed background agents staying shown as \"failed\" or \"completed\" in the agent list after being resumed with `SendMessage`",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: エージェントのターンに読み取り可能なテキストが含まれない場合、バックグラウンドジョブの一覧表示が「needs input」から「working」に誤って戻ってしまう問題",
+        "t_en": "Fixed background jobs flipping from \"needs input\" back to \"working\" in the agent list when the agent's turn contained no readable text",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: バックグラウンドエージェントがアップグレードによる再起動中に `claude attach` がエラーになる問題（復帰を待つように変更）",
+        "t_en": "Fixed `claude attach` erroring when a background agent was mid-upgrade restart instead of waiting for it to come back",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: Bash 呼び出しの出力が30Kのインライン上限を超えた場合に、その Bash 呼び出しで作成された PR がセッションに紐付けられない問題",
+        "t_en": "Fixed session-to-PR linking missing a PR created in a Bash call whose output exceeded the 30K inline limit",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: `claude mcp add-from-claude-desktop` で、サーバー名に非対応の文字が含まれているとインポート処理が停止する問題（不正な名前はエラー報告し、残りのサーバーはインポートするように変更）",
+        "t_en": "Fixed `claude mcp add-from-claude-desktop` getting stuck when a server name contains unsupported characters; invalid names are now reported and remaining servers still import",
+        "tags": ["バグ修正", "MCP"]
+      },
+      {
+        "t": "修正: 初期化に失敗したプラグインの LSP サーバーが、同じファイル拡張子を扱う別プラグインの正常な LSP サーバーの動作を妨げてしまう問題",
+        "t_en": "Fixed a plugin LSP server that fails to initialize preventing a valid LSP server from another plugin handling the same file extension",
+        "tags": ["バグ修正", "Plugin"]
+      },
+      {
+        "t": "修正: Windows でコマンド実行中に Claude の起動元ディレクトリが削除・ロック・アンマウントされるとクラッシュする問題",
+        "t_en": "Fixed a Windows crash when the directory Claude was launched from is deleted, locked, or unmounted while a command is running",
+        "tags": ["バグ修正", "Windows"]
+      },
+      {
+        "t": "修正: ディレクトリスキャンが実行中にファイルウォッチャーが閉じられるとクラッシュする問題",
+        "t_en": "Fixed a crash when a file watcher was closed while a directory scan was still in flight",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: プロジェクトの verify スキルが毎セッション再生成される問題",
+        "t_en": "Fixed project verify skills being rewritten every session",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: ジョブ一覧が画面をわずかに超えるとヘッダーが見切れる問題",
+        "t_en": "Fixed agent view rendering one line too high and clipping its header when the job list slightly overflowed the screen",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: Web・モバイルの Remote Control パネルでバックグラウンドタスクの状態が古いまま表示される問題",
+        "t_en": "Fixed background tasks in the web and mobile Remote Control panels showing stale \"Running\" status",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "改善: auto mode が解決不能な変数への rm -rf 実行前に確認するよう変更",
+        "t_en": "Improved auto mode to ask before running `rm -rf` on a variable it can't resolve from context",
+        "tags": ["改善", "Security"]
+      },
+      {
+        "t": "改善: 自動アップデートのバイナリダウンロードをディスクへストリーミングし、ピークメモリ使用量を約400MB削減",
+        "t_en": "Improved auto-update binary downloads to stream to disk instead of buffering in memory, cutting peak memory usage by roughly 400 MB",
+        "tags": ["改善", "Perf"]
+      },
+      {
+        "t": "改善: バックグラウンドタスクの通知に人による入力が発生していない旨を明示し、捏造された承認への対応を防止",
+        "t_en": "Improved background task notifications to explicitly state that no human input has occurred, preventing fabricated in-transcript approvals from being acted on",
+        "tags": ["改善", "Security", "Agent"]
+      },
+      {
+        "t": "改善: 既存 PR を編集・マージ・コメント・push したセッションも agent view でリンク表示",
+        "t_en": "Improved agent view: sessions that edit, merge, comment on, or push to an existing PR now link it",
+        "tags": ["改善", "Agent"]
+      },
+      {
+        "t": "改善: agent view の行表示を色付き状態ラベルと生成見出しに刷新",
+        "t_en": "Improved agent view: rows now show a colored state word and a generated headline instead of raw tool call text",
+        "tags": ["改善", "Agent"]
+      },
+      {
+        "t": "改善: /doctor をセットアップの問題を診断・修正できるフルチェックに刷新（エイリアス /checkup を追加）",
+        "t_en": "Improved `/doctor` into a full setup checkup that can diagnose and fix issues, with `/checkup` added as its alias",
+        "tags": ["改善"]
+      },
+      {
+        "t": "変更: MCP サーバー名「Claude Browser」を予約語に追加（「Claude Preview」と同様）",
+        "t_en": "Changed to reserve the \"Claude Browser\" MCP server name, alongside \"Claude Preview\"",
+        "tags": ["改善", "MCP"]
+      },
+      {
+        "t": "修正: CLI 2.1.203 以降で Cowork の VM モードのローカルエージェントセッションが起動できない問題",
+        "t_en": "Fixed Cowork VM-mode local-agent sessions failing to start with \"Not logged in · Please run /login\" on CLI 2.1.203+",
+        "tags": ["バグ修正", "Agent"]
+      }
+    ]
   }
 ]

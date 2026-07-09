@@ -328,5 +328,560 @@
       "category": "コマンド",
       "category_en": "Commands"
     }
+  ],
+  "2.1.203": [
+    {
+      "t": "追加: ログインの有効期限が近づくと事前に警告が表示されるように",
+      "t_en": "Added a warning when your login is about to expire",
+      "tags": ["新機能", "Agent"],
+      "detail": "これまで、`/login` で作成したログインの有効期限が近づいても Claude Code から事前に警告されることはなく、実際に認証が切れて処理が止まって初めて気づくことがあった。特にターミナルを閉じたまま動き続けるバックグラウンドセッションや Remote Control セッションでは、対応が遅れるほど作業の中断が長引く問題があった。\n\n本バージョンから、ログインの有効期限が5日以内に迫ると起動時に警告メッセージが表示されるようになった。警告はあくまで通知であり認証は期限が切れるまで通常どおり機能するため、`/login` で余裕を持って更新すれば、無人セッションが認証切れで止まってしまうリスクを減らせる。詳しくは[認証のドキュメント](https://code.claude.com/docs/en/iam#renew-an-expiring-login)を参照してください。",
+      "detail_en": "Previously, Claude Code gave no advance notice when a login created with `/login` was nearing expiration, so users often only noticed once authentication actually failed and work stopped. This was especially disruptive for background sessions and Remote Control sessions that run unattended.\n\nAs of this version, Claude Code shows a startup warning once your login is within five days of expiring. The warning is purely informational and authentication keeps working until the login actually expires, so running `/login` ahead of time lets you avoid interruptions to unattended sessions. See the [authentication documentation](https://code.claude.com/docs/en/iam#renew-an-expiring-login) for details.",
+      "category": "認証",
+      "category_en": "Authentication"
+    },
+    {
+      "t": "追加: Manual モード中はフッターに灰色の ⏸ バッジが表示されるように",
+      "t_en": "Added a grey ⏸ badge to the footer when in manual permission mode",
+      "tags": ["新機能", "Security"],
+      "detail": "これまで、パーミッションモードを Manual（既定の `default` モード）にしていても、ステータスバーには何のバッジも表示されず、現在どのモードで動作しているかを一目で確認できなかった。`acceptEdits` や `dontAsk` など他のモードには専用の表示があるのに対し、Manual モードだけ表示がない非対称な状態だった。\n\n本バージョンから、Manual モード中はフッターに灰色の「⏸ manual mode on」バッジが常に表示されるようになり、`Shift+Tab` でモードを切り替えた際にも現在の状態を見失いにくくなった。詳しくは[パーミッションモードのドキュメント](https://code.claude.com/docs/en/permission-modes#switch-permission-modes)を参照してください。",
+      "detail_en": "Previously, when Claude Code was in Manual permission mode (the default `default` mode), the status bar showed no indicator at all, making it hard to tell at a glance which mode was active — unlike `acceptEdits` or `dontAsk`, which already had their own badges.\n\nAs of this version, a grey `⏸ manual mode on` badge now appears in the footer whenever Manual mode is active, so the current mode stays visible even after cycling modes with `Shift+Tab`. See [Switch permission modes](https://code.claude.com/docs/en/permission-modes#switch-permission-modes) for details.",
+      "category": "パーミッション",
+      "category_en": "Permissions"
+    },
+    {
+      "t": "追加: MCP の `roots/list` にセッションの追加作業ディレクトリが含まれるように",
+      "t_en": "Added the session's additional working directories to MCP `roots/list`",
+      "tags": ["新機能", "MCP"],
+      "detail": "これまで、MCP サーバーが `roots/list` リクエストを送っても、Claude Code はセッションの起動ディレクトリしか返しておらず、`--add-dir` や `/add-dir`、`additionalDirectories` 設定で追加した作業ディレクトリは含まれていなかった。そのため、自身のファイルシステムアクセスを roots で制限する MCP サーバーは、追加ディレクトリ内のファイルにアクセスできないことがあった。\n\n本バージョンから、`roots/list` の応答に起動ディレクトリだけでなく追加の作業ディレクトリもすべて含まれるようになり、ディレクトリの追加・削除に応じて `notifications/roots/list_changed` 通知も送信されるようになった。これにより、MCP サーバー側がセッションの作業範囲の変化を正しく追跡できる。詳しくは[MCP のドキュメント](https://code.claude.com/docs/en/mcp)を参照してください。",
+      "detail_en": "Previously, when an MCP server sent a `roots/list` request, Claude Code returned only the session's launch directory — working directories added with `--add-dir`, `/add-dir`, or the `additionalDirectories` setting were left out. This meant a server that scoped its own filesystem access to the reported roots couldn't reach files in those additional directories.\n\nAs of this version, `roots/list` responses include every additional working directory alongside the launch directory, and Claude Code now sends `notifications/roots/list_changed` whenever that set changes, so MCP servers can keep their view of the session's working scope in sync. See the [MCP documentation](https://code.claude.com/docs/en/mcp) for details.",
+      "category": "MCP 連携",
+      "category_en": "MCP Integration"
+    },
+    {
+      "t": "修正: macOS でバックグラウンドエージェントセッションを開く・切り替える際に低メモリの誤検知で15〜20秒固まる問題",
+      "t_en": "Fixed opening or switching background agent sessions on macOS stalling for 15-20 seconds due to a false low-memory detection",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "macOS でバックグラウンドエージェントセッションを開いたり切り替えたりする際、実際にはメモリが逼迫していないにもかかわらず低メモリ状態と誤検知され、15〜20秒ほど操作が固まってしまう問題があった。これは v2.1.196 で発生したリグレッションである。\n\n本バージョンでこの誤検知が修正され、macOS でもバックグラウンドセッションの切り替えがスムーズに行えるようになった。",
+      "detail_en": "On macOS, opening or switching to a background agent session could stall for 15-20 seconds because Claude Code falsely detected a low-memory condition even when memory wasn't actually constrained. This was a regression introduced in v2.1.196.\n\nThis version fixes the false detection, so switching between background sessions on macOS is responsive again.",
+      "category": "安定性",
+      "category_en": "Stability"
+    },
+    {
+      "t": "修正: デーモンのセッショントークンが失効すると、バックグラウンドセッションが attach・返信・stop を受け付けなくなる問題",
+      "t_en": "Fixed background sessions becoming permanently unresponsive to attach, replies, and stop when the daemon's session token went stale",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "バックグラウンドセッションを管理するデーモン側のセッショントークンが古くなると、そのセッションは attach（接続）や返信、stop（停止）といった操作を一切受け付けなくなり、再起動するまで応答不能な状態が続いてしまう問題があった。\n\n本バージョンから、セッショントークンが失効した場合でも自動的に回復するようになり、手動で復旧作業を行わなくてもバックグラウンドセッションの操作を継続できる。",
+      "detail_en": "When the daemon's session token for a background session went stale, that session would stop responding to attach, replies, and stop commands entirely, remaining unresponsive until restarted.\n\nAs of this version, the session now recovers automatically when its token goes stale, so background sessions keep working without requiring manual intervention.",
+      "category": "安定性",
+      "category_en": "Stability"
+    },
+    {
+      "t": "修正: `claude agents` に戻るとサブエージェントが黙って停止し、プロンプトが最初から再実行される問題",
+      "t_en": "Fixed returning to `claude agents` silently stopping running subagents and re-running the prompt from scratch",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "`claude agents` の一覧画面に戻ると、実行中のサブエージェントが気づかないうちに停止され、それまでの作業内容が失われたままプロンプトが最初から再実行されてしまう問題があった。せっかく進んでいた処理が無駄になってしまうのが問題だった。\n\n本バージョンでこの問題が修正され、`claude agents` に戻ってもサブエージェントの実行中の作業がそのまま引き継がれるようになった。",
+      "detail_en": "Returning to the `claude agents` list would silently stop any running subagents and re-run the prompt from scratch, discarding whatever progress had already been made.\n\nThis version fixes the issue: subagent work now carries over when you return to `claude agents`, instead of being silently restarted.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-agent"
+    },
+    {
+      "t": "修正: コンテキスト使用量インジケーターが毎ターン全トランスクリプトを再解析し、メモリと CPU 負荷が増大する問題",
+      "t_en": "Fixed a memory and per-turn CPU regression where the context-usage indicator re-analyzed the entire transcript after every turn",
+      "tags": ["バグ修正", "Perf"],
+      "detail": "インタラクティブセッションで、コンテキスト使用量インジケーターがターン終了のたびに会話全体のトランスクリプトを解析し直しており、セッションが長くなるほどメモリ使用量とターンごとの CPU 負荷が増大していく回帰が生じていた。\n\n本バージョンでこの再解析処理が修正され、インジケーターは差分のみを処理するようになったため、長時間のセッションでもメモリと CPU の負荷が抑えられるようになった。",
+      "detail_en": "In interactive sessions, the context-usage indicator was re-analyzing the entire conversation transcript after every turn, causing memory usage and per-turn CPU cost to climb as a session grew longer.\n\nThis version fixes the regression: the indicator no longer re-scans the full transcript each turn, keeping memory and CPU overhead in check during long sessions.",
+      "category": "パフォーマンス",
+      "category_en": "Performance"
+    },
+    {
+      "t": "修正: バックグラウンドエージェントがデーモンの古い `PATH` を引き継ぎ、Windows でツールが見つからなくなる問題",
+      "t_en": "Fixed background agents inheriting a stale `PATH` from the daemon instead of the dispatching shell, causing missing tools on Windows",
+      "tags": ["バグ修正", "Agent", "Windows"],
+      "detail": "バックグラウンドエージェントが起動する際、実際にコマンドを発行したシェルの `PATH` ではなく、デーモンプロセスが持つ古い `PATH` を引き継いでしまう問題があった。特に Windows 環境では、シェル固有の `PATH` に追加されたツールがバックグラウンドエージェント側から見つからず、コマンドが失敗する原因になっていた。\n\n本バージョンで、バックグラウンドエージェントは起動元のシェルの `PATH` を正しく引き継ぐようになり、Windows でもツールが見つからずに失敗する問題が解消された。",
+      "detail_en": "When a background agent started, it inherited the daemon's stale `PATH` instead of the `PATH` of the shell that dispatched it. On Windows in particular, this meant tools added to a shell-specific PATH were invisible to the background agent, causing commands to fail with missing tools.\n\nThis version fixes the inheritance so background agents now pick up the dispatching shell's `PATH`, resolving the missing-tool failures on Windows.",
+      "category": "プラットフォーム互換性",
+      "category_en": "Platform Compatibility"
+    },
+    {
+      "t": "修正: バックグラウンド・エージェントビューのセッションで `ANTHROPIC_BASE_URL` が引き継がれず、デフォルトエンドポイントへの送信で 401 になる問題",
+      "t_en": "Fixed background and agent-view sessions dropping a shell-exported `ANTHROPIC_BASE_URL`, sending API keys to the default endpoint and failing with 401",
+      "tags": ["バグ修正", "Agent", "Security"],
+      "detail": "バックグラウンドセッションやエージェントビューから開始したセッションでは、シェルで export した `ANTHROPIC_BASE_URL` 環境変数が引き継がれず、本来のカスタムエンドポイントではなく Anthropic のデフォルトエンドポイントに API キーが送信されてしまう問題があった。その結果、デフォルトエンドポイント側で認証エラーとなり 401 で失敗するケースがあった。\n\n本バージョンでこの環境変数の引き継ぎ漏れが修正され、バックグラウンド・エージェントビューのセッションでもシェルで設定した `ANTHROPIC_BASE_URL` が正しく適用されるようになった。",
+      "detail_en": "Background and agent-view sessions were dropping a shell-exported `ANTHROPIC_BASE_URL` environment variable, so API keys ended up sent to Anthropic's default endpoint instead of the intended custom endpoint, and requests failed with a 401.\n\nThis version fixes the propagation, so background and agent-view sessions now correctly honor a shell-exported `ANTHROPIC_BASE_URL`.",
+      "category": "認証",
+      "category_en": "Authentication"
+    },
+    {
+      "t": "修正: git worktree が多いリポジトリで Bash が「argument list too long」で失敗する問題",
+      "t_en": "Fixed Bash failing with \"argument list too long\" in repos with many git worktrees",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "git worktree を多数作成しているリポジトリでは、Bash ツールがコマンドを組み立てる際に渡す引数が肥大化し、「argument list too long」エラーで実行に失敗することがあった。worktree の数が増えるほど発生しやすくなる問題だった。\n\n本バージョンでこの問題が修正され、worktree が多いリポジトリでも Bash コマンドが引数超過で失敗しないようになった。",
+      "detail_en": "In repositories with many git worktrees, the Bash tool could fail with an \"argument list too long\" error because the argument list it assembled grew too large — the more worktrees a repo had, the more likely this was to trigger.\n\nThis version fixes the issue, so Bash commands no longer fail with an oversized argument list in repos with many worktrees.",
+      "category": "Git 連携",
+      "category_en": "Git integration"
+    },
+    {
+      "t": "修正: worktree で隔離されたサブエージェントが親のチェックアウトでシェルコマンドを実行してしまう問題",
+      "t_en": "Fixed worktree-isolated subagents sometimes running shell commands in the parent checkout instead of their own worktree",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "worktree で隔離されているはずのサブエージェントが、シェルコマンドを自分自身の worktree ではなく親のチェックアウト（元のリポジトリの作業ツリー）で実行してしまうことがあった。これにより、隔離のために worktree を使っている意味が損なわれ、意図しないファイルが親のツリー側で変更されるおそれがあった。\n\n本バージョンでこの問題が修正され、worktree で隔離されたサブエージェントは常に自分の worktree 内でシェルコマンドを実行するようになった。",
+      "detail_en": "Subagents isolated in their own worktree would sometimes run shell commands against the parent checkout instead of their own worktree, undermining the isolation the worktree was meant to provide and risking unintended changes to the parent's working tree.\n\nThis version fixes the issue so worktree-isolated subagents now consistently run shell commands inside their own worktree.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-agent"
+    },
+    {
+      "t": "修正: マルチリポジトリ環境でネストされたリポジトリの worktree 作成が拒否され、バックグラウンドセッションが隔離・編集できない問題",
+      "t_en": "Fixed worktree creation rejecting nested repositories in multi-repo workspaces, leaving background sessions unable to isolate and edit",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "複数のリポジトリを含むワークスペースでは、あるリポジトリが別のリポジトリの中にネストされて配置されているケースがあるが、これまでは worktree の作成処理がそうしたネストされたリポジトリを拒否してしまい、バックグラウンドセッションが該当リポジトリを隔離して編集できない状態になっていた。\n\n本バージョンでこの制限が修正され、ネストされたリポジトリに対しても worktree を作成できるようになり、バックグラウンドセッションが正常にファイルを隔離・編集できるようになった。",
+      "detail_en": "In multi-repo workspaces where one repository is nested inside another, worktree creation previously rejected the nested repository outright, leaving background sessions unable to isolate that repository and make edits.\n\nThis version fixes the restriction, so worktree creation now succeeds for nested repositories too, letting background sessions isolate and edit them normally.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-agent"
+    },
+    {
+      "t": "修正: 作業ディレクトリが削除・置換されるなどして無効になったバックグラウンドエージェントがクラッシュループする問題",
+      "t_en": "Fixed background agents crash-looping when their working directory was deleted, replaced by a file, or became an invalid path",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "バックグラウンドエージェントの作業ディレクトリが削除されたり、同名のファイルに置き換えられたり、何らかの理由で無効なパスになったりすると、エージェントがクラッシュと再起動を延々と繰り返す「クラッシュループ」に陥ってしまう問題があった。\n\n本バージョンでこの挙動が修正され、こうしたケースでは一度だけ失敗してわかりやすいエラーメッセージを表示するようになり、無限にクラッシュを繰り返すことがなくなった。",
+      "detail_en": "If a background agent's working directory was deleted, replaced by a file, or otherwise became an invalid path, the agent would crash-loop indefinitely instead of failing gracefully.\n\nThis version fixes the behavior: the agent now fails once with a clear error message in these cases, instead of repeatedly crashing and restarting.",
+      "category": "安定性",
+      "category_en": "Stability"
+    },
+    {
+      "t": "修正: バックグラウンドデーモンの自動アップグレード失敗で、すべてのバックグラウンドセッションが黙って強制終了される問題",
+      "t_en": "Fixed a background daemon auto-upgrade failure silently killing all running background sessions",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "バックグラウンドセッションを管理するデーモンの自動アップグレードが失敗した場合、その時点で動作していたすべてのバックグラウンドセッションが何の通知もなく強制終了されてしまう問題があった。ユーザーが気づかないうちに実行中のタスクが失われる、影響の大きい問題だった。\n\n本バージョンでこの問題が修正され、デーモンの自動アップグレードが失敗してもバックグラウンドセッションが黙って失われることはなくなった。",
+      "detail_en": "If the background daemon's auto-upgrade process failed, every background session running at the time was silently killed with no notification, causing users to lose in-progress work without warning.\n\nThis version fixes the issue, so a failed daemon auto-upgrade no longer silently terminates running background sessions.",
+      "category": "安定性",
+      "category_en": "Stability"
+    },
+    {
+      "t": "修正: `TaskStop` / `TaskOutput` が別のエージェントから起動されたバックグラウンドエージェントを見つけられない問題",
+      "t_en": "Fixed `TaskStop` and `TaskOutput` failing to find background agents spawned by another agent",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "`TaskStop` や `TaskOutput` を使ってバックグラウンドエージェントを操作しようとした際、そのエージェントが別のエージェントから起動されたものだと見つけられずに失敗してしまうことがあった。しかもエラーメッセージからは現在どんなエージェントが動いているのか分からず、原因の特定が困難だった。\n\n本バージョンでこの検索漏れが修正されるとともに、`TaskStop` / `TaskOutput` が対象を見つけられなかった際のエラーに、現在実行中のエージェントを id と説明つきで一覧表示するようになり、目的のエージェントを指定しやすくなった。",
+      "detail_en": "`TaskStop` and `TaskOutput` could fail to find a background agent when that agent had been spawned by another agent rather than directly, and the resulting error gave no visibility into which agents were actually running.\n\nThis version fixes the lookup, and when either command still can't find the target, the error now lists currently running agents by id and description, making it easier to identify the right one.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-agent"
+    },
+    {
+      "t": "修正: `claude agents` の入力欄で、対応していないスラッシュコマンドを入力すると入力内容が消える問題",
+      "t_en": "Fixed the `claude agents` composer discarding your typed message when a slash command isn't available there",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "`claude agents` の入力欄（dispatch 入力）で、エージェントビューでは実行できない組み込みスラッシュコマンドを入力すると「attach to a session to run it」というヒントが表示されるが、これまではこのヒントが表示されると同時に入力欄がクリアされ、それまで打ち込んでいたメッセージがそのまま失われてしまっていた。\n\n本バージョンでこの問題が修正され、ヒントが表示されても入力済みのテキストはそのまま残るようになったため、手直ししてから送信し直すことができる。",
+      "detail_en": "In the `claude agents` composer (dispatch input), typing a built-in slash command that isn't available in agent view shows an `attach to a session to run it` hint — but until now, showing that hint also cleared the input, losing whatever message you had typed.\n\nThis version fixes the issue: the typed text now stays in the input next to the hint, so you can edit it and resend instead of retyping from scratch.",
+      "category": "UX",
+      "category_en": "UX"
+    },
+    {
+      "t": "修正: 他のセッションで開いている会話の停止済みセッションを開くと、エージェント一覧がクラッシュする問題",
+      "t_en": "Fixed the agent list crashing when opening a stopped session whose conversation was already open in another session",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "停止済みのバックグラウンドセッションを開こうとした際、その会話がすでに別のセッションで開かれていた場合に、エージェント一覧画面がクラッシュしてしまう問題があった。\n\n本バージョンでこの問題が修正され、同じ会話が他のセッションで開かれている状態でも、停止済みセッションを問題なく開けるようになった。",
+      "detail_en": "Opening a stopped session whose conversation was already open in another session could crash the agent list.\n\nThis version fixes the crash, so opening a stopped session no longer fails when the same conversation is already open elsewhere.",
+      "category": "安定性",
+      "category_en": "Stability"
+    },
+    {
+      "t": "修正: 質問に回答済みのバックグラウンドセッションが、エージェント一覧で「Needs input」のまま表示され続ける問題",
+      "t_en": "Fixed background sessions showing \"Needs input\" in the agent list after the question was already answered",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "バックグラウンドセッションに対して質問に回答した後も、エージェント一覧では引き続き「Needs input」ステータスのまま表示され続けてしまい、実際には対応済みなのに未対応であるかのように見えてしまう問題があった。\n\n本バージョンでこの問題が修正され、質問に回答するとエージェント一覧のステータスが正しく更新されるようになり、「Needs input」のまま表示され続けることはなくなった。",
+      "detail_en": "After answering a question posed by a background session, the agent list would continue showing that session as \"Needs input\", making it look like it still needed attention even though it had already been answered.\n\nThis version fixes the status update, so the agent list now reflects that the session no longer needs input once you've answered.",
+      "category": "監視",
+      "category_en": "Monitoring"
+    },
+    {
+      "t": "修正: バックグラウンドエージェントの起動失敗時に、実際のエラーではなく `exit_with_message` とだけ表示される問題",
+      "t_en": "Fixed background agent startup failures showing only \"exit_with_message\" instead of the actual error",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "バックグラウンドエージェントの起動に失敗した場合、エラーの詳細ではなく `exit_with_message` という内部的な文字列だけが表示され、実際に何が原因で失敗したのかをユーザーが把握できない問題があった。\n\n本バージョンでこの問題が修正され、起動失敗時には実際のエラー内容が表示されるようになったため、原因の切り分けがしやすくなった。",
+      "detail_en": "When a background agent failed to start, Claude Code showed only the internal string `exit_with_message` instead of the actual error, leaving users with no way to tell what had actually gone wrong.\n\nThis version fixes the issue: startup failures now show the real error message, making it much easier to diagnose the cause.",
+      "category": "安定性",
+      "category_en": "Stability"
+    },
+    {
+      "t": "修正: デーモン経由でフォークされたバックグラウンドセッションが settings.json の effortLevel 変更を無視する問題",
+      "t_en": "Fixed background sessions ignoring effortLevel changes in settings.json when forked through the daemon",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "これまで、`effortLevel` 設定に基づいてエフォートレベルを決定していたバックグラウンドセッションは、あたかも `--effort` フラグで指定されたかのように扱われており、その後 `settings.json` の `effortLevel` を変更しても反映されなかった。本バージョンでは、デーモンがセッションをフォークするたびに `effortLevel` 設定を読み直すよう修正され、`←` や `/bg` でバックグラウンド化したセッションやその後の再起動にも設定変更が反映されるようになった。\n\nこれにより、[パーミッションモード・モデル・エフォート](https://code.claude.com/docs/en/agent-view#permission-mode-model-and-effort)の設定を都度手動で切り替える必要がなくなり、`settings.json` を編集するだけでバックグラウンドセッション全体の挙動を一括制御できる。",
+      "detail_en": "Previously, a background session that took its effort level from the `effortLevel` setting was treated as if `--effort` had been passed explicitly, so later edits to `effortLevel` in `settings.json` never reached it. As of this version, each process the daemon forks for a session re-reads the `effortLevel` setting, so edits reach sessions backgrounded with `←` or `/bg` and their later restarts.\n\nThis means you no longer need to change [permission mode, model, and effort](https://code.claude.com/docs/en/agent-view#permission-mode-model-and-effort) manually for each session — editing `settings.json` alone now controls background sessions consistently.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-agent"
+    },
+    {
+      "t": "修正: アタッチ済みのバックグラウンドセッションが CLAUDE_CODE_DISABLE_MOUSE と CLAUDE_CODE_DISABLE_MOUSE_CLICKS のオプトアウトを無視する問題",
+      "t_en": "Fixed attached background sessions ignoring CLAUDE_CODE_DISABLE_MOUSE and CLAUDE_CODE_DISABLE_MOUSE_CLICKS opt-outs",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "`CLAUDE_CODE_DISABLE_MOUSE` や `CLAUDE_CODE_DISABLE_MOUSE_CLICKS` の環境変数でマウス操作を無効化していても、`claude agents` からバックグラウンドセッションにアタッチした際にはこれらのオプトアウト設定が無視され、マウスクリックやドラッグを受け付けてしまう問題があった。本バージョンでは、アタッチ時にもこれらの環境変数が正しく反映されるよう修正されている。\n\nこれにより、フルスクリーン表示でマウス操作を無効化しているユーザーが、通常のセッションとバックグラウンドセッションのどちらにアタッチしても一貫した挙動を得られるようになった。",
+      "detail_en": "Even with mouse input disabled via the `CLAUDE_CODE_DISABLE_MOUSE` or `CLAUDE_CODE_DISABLE_MOUSE_CLICKS` environment variables, attaching to a background session from `claude agents` ignored these opt-outs and still accepted mouse clicks and drags. As of this version, attaching to a background session correctly respects both environment variables.\n\nThis gives users who disable mouse handling in fullscreen mode consistent behavior whether they're in a regular session or attached to a background one.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-agent"
+    },
+    {
+      "t": "修正: 名前付きエージェントがすべて完了した後も /exit がバックグラウンドエージェント実行中と誤って警告する問題",
+      "t_en": "Fixed /exit incorrectly warning about running background agents after all named agents had completed",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "これまで、名前付きのバックグラウンドエージェントがすべて完了した後でも `/exit` を実行すると、まだバックグラウンドエージェントが動作中であるかのような警告が誤って表示されることがあった。本バージョンでは、完了済みのエージェントを正しく判定し、実行中のバックグラウンド作業がない場合には警告を表示しないよう修正された。\n\nこれにより、完了した作業に対して不要な確認ダイアログに煩わされることなく、`/exit` でスムーズにセッションを終了できるようになる。",
+      "detail_en": "Previously, running `/exit` after all named background agents had finished could still trigger a warning as if background agents were still running. As of this version, Claude Code correctly recognizes completed agents and no longer shows the warning when there is no background work in progress.\n\nThis lets you exit cleanly with `/exit` without being interrupted by a stale confirmation dialog for work that already finished.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-agent"
+    },
+    {
+      "t": "修正: WorktreeCreate フックが設定されている場合に、非 git ディレクトリから起動したバックグラウンドセッションがファイルを編集できない問題",
+      "t_en": "Fixed background sessions started from a non-git directory unable to edit files when a WorktreeCreate hook was configured",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "git リポジトリではないディレクトリで[`WorktreeCreate` フック](https://code.claude.com/docs/en/hooks#worktreecreate)を設定していた場合、そのフックが分離処理に失敗すると、バックグラウンドセッションはファイル書き込みが永久にブロックされ、一切編集できなくなる問題があった。本バージョンでは、非 git ディレクトリでフックが失敗した場合には分離をスキップして作業ディレクトリを直接編集できるよう修正され、git リポジトリ内でのみ分離完了まで書き込みがブロックされる元の挙動が維持される。\n\nこれにより、独自のバージョン管理システム向けにこのフックを設定しているユーザーが、非 git 環境でもバックグラウンドセッションから問題なくファイルを編集できるようになった。",
+      "detail_en": "When a [`WorktreeCreate` hook](https://code.claude.com/docs/en/hooks#worktreecreate) was configured for a directory that wasn't a git repository, a background session whose hook failed to isolate got permanently blocked from writing any file. As of this version, when the hook fails in a non-git directory, the session skips isolation and edits the working directory in place, while writes inside an actual git repository still stay blocked until isolation succeeds, as before.\n\nThis means users who configure this hook for a non-git version control system can now edit files from background sessions without getting stuck.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-agent"
+    },
+    {
+      "t": "修正: claude agents の @ ディレクトリピッカーに登録済みの git worktree が表示されない問題",
+      "t_en": "Fixed the @ directory picker in claude agents not showing registered git worktrees",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "これまで `claude agents` のディスパッチ入力で `@` を入力してディレクトリを選択する際、Claude が `.claude/worktrees/` 配下に作成した登録済みの git worktree が候補に表示されず、worktree にディスパッチするにはそのディレクトリで `claude --bg` を個別に実行する必要があった。本バージョンでは、[`@` によるディスパッチ先の指定](https://code.claude.com/docs/en/agent-view#dispatch-to-a-specific-directory)がこれらの登録済み worktree をチェックアウト中のブランチ名付きで一覧表示するようになった。\n\nこれにより、親ディレクトリで `claude agents` を開いたまま `@` で worktree を選んで直接ディスパッチできるようになり、worktree ごとに個別にターミナルを開く手間がなくなる。",
+      "detail_en": "Previously, typing `@` in the `claude agents` dispatch input to pick a directory didn't list the registered git worktrees Claude created under `.claude/worktrees/`, so dispatching into one required running `claude --bg` directly from that worktree's directory. As of this version, [dispatching to a specific directory](https://code.claude.com/docs/en/agent-view#dispatch-to-a-specific-directory) with `@` lists these registered worktrees, labeled with their checked-out branch.\n\nThis lets you dispatch straight into a worktree with `@` from the parent directory's agent view, without opening a separate terminal for each one.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-agent"
+    },
+    {
+      "t": "修正: Windows でバックグラウンドタスクの出力が /clear 後に空ファイルへ恒久的に置き換わる問題",
+      "t_en": "Fixed background task output on Windows being permanently replaced by an empty file after /clear",
+      "tags": ["バグ修正", "Windows", "Agent"],
+      "detail": "Windows 環境では、`/clear` を実行するとバックグラウンドタスクの出力ファイルが空のファイルに置き換わり、その後も出力が記録されなくなって二度と復元できない問題があった。本バージョンでは、`/clear` 実行後もバックグラウンドタスクの出力が正しく記録され続けるよう修正されている。\n\nこれにより、Windows でバックグラウンドコマンドを実行しながら `/clear` で会話をリセットしても、タスクの出力履歴を失わずに確認できるようになった。",
+      "detail_en": "On Windows, running `/clear` replaced a background task's output file with an empty one, and output was never recorded again afterward. As of this version, background task output continues to be recorded correctly after `/clear`.\n\nThis means Windows users running background commands can reset their conversation with `/clear` without permanently losing the task's output history.",
+      "category": "プラットフォーム互換性",
+      "category_en": "Platform Compatibility"
+    },
+    {
+      "t": "修正: 長い transcript 履歴を上にスクロールする際にコンテンツが飛ぶ問題",
+      "t_en": "Fixed content jumping when scrolling up through long transcript history",
+      "tags": ["バグ修正"],
+      "detail": "会話が長くなった transcript 履歴を上方向にスクロールすると、表示中のコンテンツが不自然に飛んでしまい、狙った箇所を閲覧しづらい問題があった。本バージョンでは、この飛び現象を修正し、スクロール位置が滑らかに保たれるようになった。\n\nこれにより、過去のやり取りを遡って確認する際の視認性とスクロール体験が改善される。",
+      "detail_en": "Scrolling up through a long transcript history caused the visible content to jump unexpectedly, making it hard to read the section you were looking for. As of this version, this jumping has been fixed and the scroll position stays smooth.\n\nThis improves readability and scroll behavior when reviewing earlier parts of a long conversation.",
+      "category": "レンダリング",
+      "category_en": "Rendering"
+    },
+    {
+      "t": "修正: bash モードでシェル履歴のサジェストが表示されている間、入力中にターミナルがちらつき飛ぶ問題",
+      "t_en": "Fixed the terminal flickering and jumping while typing in bash mode when a shell-history suggestion was shown",
+      "tags": ["バグ修正"],
+      "detail": "bash モードで入力中にシェル履歴からのサジェストが表示されていると、キー入力のたびにターミナル表示がちらついたり位置が飛んだりする問題があった。本バージョンでは、この描画の不安定さを修正し、サジェスト表示中でも入力が滑らかに反映されるようになった。\n\nこれにより、bash モードでコマンド履歴を活用しながらタイピングする際の体験が安定する。",
+      "detail_en": "While typing in bash mode with a shell-history suggestion displayed, the terminal flickered and jumped position with each keystroke. As of this version, this rendering instability is fixed, so input stays smooth even while a suggestion is shown.\n\nThis makes typing in bash mode more stable when relying on shell-history suggestions.",
+      "category": "レンダリング",
+      "category_en": "Rendering"
+    },
+    {
+      "t": "修正: バックグラウンドセッションに再アタッチした際に ^[[I / ^[[O のエスケープコードがそのまま表示される問題",
+      "t_en": "Fixed literal ^[[I / ^[[O escape codes being printed when reattaching to a background session",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "バックグラウンドセッションに再アタッチすると、ターミナルのフォーカスイベントを示すエスケープコード `^[[I` や `^[[O` がそのまま画面に表示されてしまい、出力が読みづらくなる問題があった。本バージョンでは、再アタッチ時にこれらのエスケープコードを正しく解釈・処理し、画面上に文字として残らないよう修正された。\n\nこれにより、`claude agents` からセッションにアタッチした直後の表示がクリーンになり、余計なノイズなく会話を再開できる。",
+      "detail_en": "Reattaching to a background session could print the raw terminal focus-event escape codes `^[[I` and `^[[O` to the screen, cluttering the output. As of this version, these escape codes are correctly interpreted on reattach instead of being printed as literal text.\n\nThis keeps the screen clean right after attaching to a session from `claude agents`, so you can resume the conversation without stray noise.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-agent"
+    },
+    {
+      "t": "修正: LSP のみを提供するプラグインが診断やナビゲーション要求に応答していても未使用と誤検知される問題",
+      "t_en": "Fixed LSP-only plugins being incorrectly flagged for disuse when their language servers deliver diagnostics or answer navigation requests",
+      "tags": ["バグ修正", "Plugin"],
+      "detail": "言語サーバー機能のみを提供する LSP 専用プラグインは、実際には診断情報の配信やコードナビゲーション要求への応答という形で活発に使われていても、通常のツール呼び出しが記録されないために「未使用」と誤って判定されてしまう問題があった。本バージョンでは、LSP による診断配信やナビゲーション応答も利用実績として正しくカウントされるよう修正されている。\n\nこれにより、LSP プラグインの開発者やユーザーが、実際には活用されているプラグインについて不要な未使用警告を受け取らずに済むようになる。",
+      "detail_en": "Plugins that provide only a language server were incorrectly flagged as unused, even when their language servers were actively delivering diagnostics or answering navigation requests, because that activity wasn't recorded as regular tool usage. As of this version, LSP diagnostics delivery and navigation responses are correctly counted as usage.\n\nThis means developers and users of LSP-only plugins no longer see spurious disuse warnings for plugins that are actually being used.",
+      "category": "Plugin",
+      "category_en": "Plugin"
+    },
+    {
+      "t": "改善: 長い応答のストリーミング中の応答性を改善 — ライブプレビューの更新で画面全体が再描画されなくなった",
+      "t_en": "Improved responsiveness while long responses stream: live-preview updates no longer re-render the whole screen",
+      "tags": ["改善", "Perf"],
+      "detail": "これまで、長い応答がストリーミングされている間にライブプレビューが更新されるたびに画面全体が再描画されており、応答が長くなるほど入力や操作への反応が重くなる問題があった。本バージョンでは、ライブプレビューの更新が変更のあった部分のみに限定されるよう改善され、画面全体の再描画が不要になった。\n\nこれにより、長い応答をストリーミング中でもターミナルの応答性が向上し、快適に操作を続けられるようになる。",
+      "detail_en": "Previously, every live-preview update during a long streaming response re-rendered the entire screen, making the terminal feel less responsive the longer the response ran. As of this version, live-preview updates are scoped to only the changed portion, avoiding a full-screen re-render.\n\nThis improves terminal responsiveness while long responses stream, so you can keep interacting smoothly.",
+      "category": "パフォーマンス",
+      "category_en": "Performance"
+    },
+    {
+      "t": "改善: サブエージェントがタスク全体を別のサブエージェントに再委任してしまう挙動を改善",
+      "t_en": "Improved subagent behavior: agents are now less likely to re-delegate their entire task to another subagent",
+      "tags": ["改善", "Agent"],
+      "detail": "これまで、サブエージェントに委任されたタスクが、自ら作業を進めずにタスク全体をさらに別のサブエージェントへそのまま再委任してしまうことがあり、実質的な作業が進まないまま委任が連鎖する挙動が見られた。本バージョンでは、サブエージェントがタスク全体を丸ごと再委任する可能性が低減されるよう調整されている。\n\nこれにより、サブエージェントに任せたタスクがより確実に自分自身で処理されるようになり、マルチエージェント構成での作業効率が向上する。",
+      "detail_en": "Previously, a subagent given a task could simply re-delegate the entire task to another subagent instead of doing the work itself, sometimes producing a chain of delegation with no real progress. As of this version, subagents are less likely to re-delegate their whole task wholesale.\n\nThis makes delegated work more reliably handled by the subagent it was assigned to, improving efficiency in multi-agent setups.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-agent"
+    },
+    {
+      "t": "改善: 大きなバンドル依存関係を遅延読み込みにすることで、バイナリサイズを約7MB、起動時メモリを約7MB削減",
+      "t_en": "Improved startup footprint: reduced binary size by about 7 MB and startup memory by about 7 MB by loading a large bundled dependency lazily instead of inlining it",
+      "tags": ["改善", "Perf"],
+      "detail": "これまで、大きな依存ライブラリが Claude Code のバイナリに常時インライン化されており、実際に使用されるかどうかにかかわらずバイナリサイズと起動時のメモリ使用量を押し上げていた。本バージョンでは、この依存関係を必要になった時点で遅延読み込みする方式に変更し、バイナリサイズを約7MB、起動時メモリを約7MB削減した。\n\nこれにより、インストールサイズが小さくなるとともに、起動時のメモリフットプリントも軽くなり、特にリソースが限られた環境での実行効率が向上する。",
+      "detail_en": "Previously, a large dependency library was always inlined into the Claude Code binary, inflating both binary size and startup memory usage regardless of whether it was actually used. As of this version, that dependency is loaded lazily on demand instead, reducing binary size by about 7 MB and startup memory by about 7 MB.\n\nThis results in a smaller install size and a lighter startup memory footprint, improving efficiency especially in resource-constrained environments.",
+      "category": "パフォーマンス",
+      "category_en": "Performance"
+    },
+    {
+      "t": "変更: 左矢印キーでバックグラウンドタスク・diff・ワークフロー詳細ビューを閉じられないよう変更 — 代わりに Esc を使用",
+      "t_en": "Changed left arrow to no longer close the background tasks, diff, and workflow detail views — press Esc instead",
+      "tags": ["改善", "Agent"],
+      "detail": "これまで左矢印キー（←）は、バックグラウンドタスク一覧・diff 表示・ワークフロー詳細といった各種ビューを閉じる操作にも割り当てられており、他の用途（セッションのアタッチ解除など）と操作が重複して誤操作を招くことがあった。本バージョンでは、これらのビューを閉じる操作から左矢印キーの割り当てを外し、[キーボードショートカット](https://code.claude.com/docs/en/agent-view#keyboard-shortcuts)の `Esc` キーで統一して閉じるよう変更された。\n\nこれにより、左矢印キーの役割がより一貫したものになり、詳細ビューを閉じるつもりが意図しない操作を引き起こすといった混乱が減る。",
+      "detail_en": "Previously, the left arrow key (`←`) was also bound to closing views such as the background tasks list, diff view, and workflow detail view, overlapping with its other uses (like detaching from a session) and causing accidental actions. As of this version, these views close only with the [`Esc` keyboard shortcut](https://code.claude.com/docs/en/agent-view#keyboard-shortcuts), and the left arrow key is no longer bound to that action.\n\nThis makes the left arrow key's role more consistent and reduces confusion from accidentally triggering unintended actions while trying to close a detail view.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-agent"
+    },
+    {
+      "t": "変更: claude agents の空表示を常に説明付きの整理済みセクション（Needs input / Working / Completed）で表示するよう変更",
+      "t_en": "Changed the empty claude agents view to always show the organized sections (Needs input / Working / Completed) with descriptions",
+      "tags": ["改善", "Agent"],
+      "detail": "以前は、`claude agents` を開いてまだセッションを1つもディスパッチしていない状態では、選択したセッションの行にオンボーディング用のヒントが表示されるだけで、`Needs input` / `Working` / `Completed` といった通常のセクション構成は表示されていなかった。本バージョンでは、[セッションが0件のときの表示](https://code.claude.com/docs/en/agent-view#agent-view-opens-with-no-sessions)が変更され、各セクションの見出しと説明文、および入力欄上の一行説明を常に表示するようになった。\n\nこれにより、初めて `claude agents` を開いたユーザーでも、どのような状態区分でセッションが整理されるのかをあらかじめ把握しやすくなる。",
+      "detail_en": "Previously, opening `claude agents` before dispatching any session showed only an onboarding hint on the one existing empty row, rather than the usual `Needs input` / `Working` / `Completed` section layout. As of this version, [the view shown with no sessions](https://code.claude.com/docs/en/agent-view#agent-view-opens-with-no-sessions) always displays the empty section headers with a description under each, plus a one-line explanation above the input.\n\nThis helps first-time users of `claude agents` understand upfront how sessions will be organized once they start dispatching.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-agent"
+    },
+    {
+      "t": "削除: 起動時に表示されていた「claude command missing or broken」警告を削除 — 今後は /doctor と /status に表示",
+      "t_en": "Removed the startup \"claude command missing or broken\" warnings — they now appear in /doctor and /status instead",
+      "tags": ["改善"],
+      "detail": "これまで、`claude` コマンドが見つからない、または破損していると判定された場合、Claude Code の起動のたびに警告メッセージが表示されており、必要な場面以外でも目に入るノイズになっていた。本バージョンでは、この起動時の警告表示を廃止し、代わりに `/doctor` と `/status` を実行したときにのみ同じ内容を確認できるよう変更された。\n\nこれにより、通常の起動フローがすっきりし、コマンドの状態を確認したいときだけ能動的に `/doctor` や `/status` を実行すればよくなる。",
+      "detail_en": "Previously, if the `claude` command was found to be missing or broken, Claude Code showed a warning on every startup, becoming noise even when the information wasn't immediately needed. As of this version, this startup warning is removed, and the same information now appears only when you run `/doctor` or `/status`.\n\nThis keeps the normal startup flow cleaner, letting you check the command's status on demand instead of seeing it unprompted every time.",
+      "category": "UX",
+      "category_en": "UX"
+    },
+    {
+      "t": "削除: claude agents のフッターから冗長なナビゲーションヒントを削除",
+      "t_en": "Removed a redundant navigation hint from the claude agents footer",
+      "tags": ["改善", "Agent"],
+      "detail": "`claude agents` のフッターには、他の操作説明と重複する内容のナビゲーションヒントが表示されており、画面下部のスペースを無駄に占有していた。本バージョンでは、この冗長なヒントをフッターから削除した。\n\nこれにより、フッター表示がすっきりし、本当に必要なキーボードショートカットの案内が見やすくなる。",
+      "detail_en": "The `claude agents` footer showed a navigation hint whose content duplicated other on-screen guidance, taking up space at the bottom of the view unnecessarily. As of this version, this redundant hint has been removed from the footer.\n\nThis cleans up the footer display and makes the keyboard shortcut guidance that actually matters easier to see.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-agent"
+    },
+    {
+      "t": "追加: VS Code に「すべてのセッションで Remote Control を有効にする」設定トグルを追加",
+      "t_en": "Added a VS Code Settings toggle for \"Enable Remote Control for all sessions\"",
+      "tags": ["新機能", "IDE"],
+      "detail": "これまで VS Code 拡張機能で Remote Control をセッションごとに自動接続させたい場合、CLI 側で `/config` を開いて該当の設定を変更する必要があった。本バージョンでは、VS Code 拡張機能のコマンドメニューの Settings セクションに[「Enable Remote Control for all sessions」トグル](https://code.claude.com/docs/en/remote-control#enable-remote-control-for-all-sessions)が直接追加され、拡張機能内から同じ設定を切り替えられるようになった。\n\nこれにより、VS Code のみを使うユーザーでも CLI に切り替えることなく、すべての対話セッションで Remote Control を自動的に有効化するかどうかを設定できる。",
+      "detail_en": "Previously, enabling Remote Control automatically for every session in the VS Code extension required opening `/config` from the CLI to change the underlying setting. As of this version, the VS Code extension's command menu Settings section includes a direct [\"Enable Remote Control for all sessions\" toggle](https://code.claude.com/docs/en/remote-control#enable-remote-control-for-all-sessions), so the same setting can be changed from within the extension.\n\nThis lets VS Code-only users control whether Remote Control auto-connects for every interactive session without ever switching to the CLI.",
+      "category": "IDE",
+      "category_en": "IDE"
+    }
+  ],
+  "2.1.204": [
+    {
+      "t": "修正: headless セッションで SessionStart hooks 実行中にフックイベントがストリーミングされず、リモートワーカーがフック処理中にアイドル状態として回収される問題",
+      "t_en": "Fixed hook events not streaming during SessionStart hooks in headless sessions, which could cause remote workers to be idle-reaped mid-hook",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "従来、headless セッションで SessionStart hooks が実行されている間、フックイベントが正しくストリーミングされず、フック処理に時間がかかるとリモートワーカーがアイドル状態と誤認され、フック実行の途中で回収（reap）されてしまうことがあった。\n\n本バージョンで、headless セッションにおける SessionStart hooks 実行中のイベントストリーミングが修正され、この問題が解消された。これにより、SessionStart hooks を使ってコンテキストの読み込みや環境変数の設定を行う headless・バックグラウンドセッションが、フック処理の途中で意図せず終了することがなくなる。詳しくは[hooks のドキュメント](https://code.claude.com/docs/en/hooks#sessionstart)を参照してください。",
+      "detail_en": "Previously, hook events did not stream correctly while SessionStart hooks were running in headless sessions; if the hook took a while to complete, remote workers could be mistakenly treated as idle and reaped mid-hook.\n\nThis version fixes event streaming during SessionStart hook execution in headless sessions, resolving the issue. Headless and background sessions that rely on SessionStart hooks to load context or set up environment variables are no longer unexpectedly terminated partway through hook execution. See the [hooks documentation](https://code.claude.com/docs/en/hooks#sessionstart) for details.",
+      "category": "安定性",
+      "category_en": "Stability"
+    }
+  ],
+  "2.1.205": [
+    {
+      "t": "追加: auto mode にセッショントランスクリプトファイルの改ざんをブロックするルールを追加",
+      "t_en": "Added an auto mode rule that blocks tampering with session transcript files",
+      "tags": ["新機能", "Security"],
+      "detail": "従来、auto mode の分類器はコマンド実行や外部送信などの操作を審査していたが、セッションの記録そのものであるトランスクリプトファイルへの改ざん（削除・書き換え）は明示的なブロック対象になっていなかった。\n\n本バージョンから、auto mode はセッショントランスクリプトファイルの改ざんを新たにブロック対象のルールとして追加した。これにより、悪意のある指示やプロンプトインジェクションによって操作履歴が隠蔽・改ざんされるリスクが低減し、セッションの記録の完全性が保たれる。auto mode の分類器モデルは各操作をバックグラウンドで審査し、リスクの高い操作を実行前にブロックする仕組みを持つ（詳細は[auto mode のドキュメント](https://code.claude.com/docs/en/permission-modes#what-the-classifier-blocks-by-default)を参照）。",
+      "detail_en": "Previously, auto mode's classifier reviewed actions such as command execution and outbound data transfer, but tampering with (deleting or rewriting) the session transcript files themselves — the record of the session — was not an explicit blocked category.\n\nAs of this version, auto mode adds a new rule that blocks tampering with session transcript files. This reduces the risk that malicious instructions or prompt injection could hide or alter the action history, preserving the integrity of the session record. Auto mode's classifier model reviews each action in the background and blocks high-risk actions before they run (see the [auto mode docs](https://code.claude.com/docs/en/permission-modes#what-the-classifier-blocks-by-default) for details).",
+      "category": "セキュリティ",
+      "category_en": "Security"
+    },
+    {
+      "t": "修正: `--json-schema` がスキーマ不正時に無言で非構造化出力になる問題と、`format` キーワードを使用したスキーマが拒否される問題",
+      "t_en": "Fixed `--json-schema` silently producing unstructured output when the schema was invalid, and schemas using the `format` keyword being rejected",
+      "tags": ["バグ修正", "SDK"],
+      "detail": "従来、`--json-schema` に渡した JSON Schema が不正な場合、Claude Code はエラーを出さずに非構造化のテキスト出力へ無言でフォールバックしていたため、スキーマの誤りに気づきにくかった。加えて `format` キーワード（`date-time` や `email` など）を使用したスキーマは拒否されてしまい、標準的な JSON Schema の記法が使えなかった。\n\n本バージョンでは、スキーマが不正な場合に無言でフォールバックする挙動を修正し、`format` キーワードを含むスキーマも正しく受理されるようになった。これにより `claude -p` での構造化出力生成がより信頼できるようになり、検証エラーの見逃しや記法の制限による不便が解消される。`--json-schema` は `--output-format json` と組み合わせて使用し、レスポンスの `structured_output` フィールドに構造化データを返す機能（詳細は[構造化出力のドキュメント](https://code.claude.com/docs/en/headless#get-structured-output)を参照）。",
+      "detail_en": "Previously, when the JSON Schema passed to `--json-schema` was invalid, Claude Code silently fell back to unstructured text output without raising an error, making it easy to miss schema mistakes. In addition, schemas using the `format` keyword (such as `date-time` or `email`) were rejected outright, blocking standard JSON Schema notation.\n\nThis version fixes the silent fallback behavior for invalid schemas, and schemas using the `format` keyword are now accepted correctly. This makes structured output generation with `claude -p` more reliable, eliminating both missed validation errors and unnecessary restrictions on standard schema notation. `--json-schema` is used together with `--output-format json` to return schema-conformant data in the response's `structured_output` field (see the [structured output docs](https://code.claude.com/docs/en/headless#get-structured-output) for details).",
+      "category": "SDK",
+      "category_en": "SDK"
+    },
+    {
+      "t": "修正: `--max-turns` の上限でターンが終了した際、Claude が作業中に送信されたメッセージが無言で失われる問題",
+      "t_en": "Fixed a message sent while Claude was working being silently lost when the turn ended at the `--max-turns` limit",
+      "tags": ["バグ修正", "SDK"],
+      "detail": "従来、`--max-turns` で指定したターン数の上限に達してセッションが終了する際、Claude がまだ作業中のタイミングでユーザーが送信したメッセージが、通知なく破棄されてしまうことがあった。\n\n本バージョンでは、ターンが上限で終了する場合でも、作業中に送られたメッセージが失われないよう修正された。これにより、ヘッドレスモードや Agent SDK 経由の自動化フローにおいて、ターン上限到達時にユーザーの入力が消えてしまう予期しない挙動がなくなり、メッセージの取りこぼしを防げる。`--max-turns` は `-p` (headless) モードや Agent SDK でエージェントの実行ターン数に上限を設けるためのオプション。",
+      "detail_en": "Previously, when a session ended because it reached the turn limit set by `--max-turns`, a message the user sent while Claude was still working could be silently discarded with no notification.\n\nThis version fixes the issue so that a message sent while Claude is working is no longer lost when the turn ends at the limit. This removes an unexpected loss of user input at the turn-limit boundary in headless-mode and Agent SDK automation flows, preventing dropped messages. `--max-turns` caps the number of agent turns in `-p` (headless) mode and the Agent SDK.",
+      "category": "SDK",
+      "category_en": "SDK"
+    },
+    {
+      "t": "修正: Windows で worktree 内に NTFS ジャンクションやディレクトリシンボリックリンクが存在する場合、worktree 削除時にその外側のファイルまで削除されてしまう問題",
+      "t_en": "Fixed Windows worktree removal deleting files outside the worktree when an NTFS junction or directory symlink existed inside it",
+      "tags": ["バグ修正", "Windows"],
+      "detail": "従来、Windows 環境で git worktree を削除する際、worktree 内に NTFS ジャンクションやディレクトリのシンボリックリンクが含まれていると、削除処理がリンク先を辿ってしまい、worktree の外側にある無関係なファイルまで巻き込んで削除されることがあった。\n\n本バージョンでは、worktree 削除時にジャンクションやシンボリックリンクをリンク先ではなくリンク自体として扱うよう修正され、意図しない範囲のファイル削除が発生しなくなった。これにより、Windows で worktree を使った並行作業を行うユーザーが、意図せず重要なファイルを失うリスクがなくなる。Claude Code は `.claude/worktrees` 配下などに git worktree を作成して並行セッションの作業領域を分離しているが、Windows のファイルシステム特有のリンク機構が削除処理に影響していた。",
+      "detail_en": "Previously, when removing a git worktree on Windows, if the worktree contained an NTFS junction or a directory symlink, the removal process would follow the link target and end up deleting unrelated files outside the worktree as well.\n\nThis version fixes worktree removal to treat junctions and directory symlinks as the link itself rather than following them to their target, so removal no longer deletes files outside the intended scope. This removes the risk of Windows users doing concurrent work with worktrees unintentionally losing important files. Claude Code creates git worktrees (such as under `.claude/worktrees`) to isolate concurrent session workspaces, and Windows' filesystem-specific link mechanisms were affecting the removal process.",
+      "category": "プラットフォーム互換性",
+      "category_en": "Platform Compatibility"
+    },
+    {
+      "t": "修正: `SendMessage` で再開したバックグラウンドエージェントが、エージェント一覧で「failed」または「completed」のまま表示され続ける問題",
+      "t_en": "Fixed background agents staying shown as \"failed\" or \"completed\" in the agent list after being resumed with `SendMessage`",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "従来、一度「failed」または「completed」になったバックグラウンドエージェントを `SendMessage` で再開しても、エージェント一覧上のステータス表示は古いままとなり、実際には稼働を再開していることが視覚的に分かりにくかった。\n\n本バージョンでは、`SendMessage` によるバックグラウンドエージェントの再開時に、一覧上のステータス表示が正しく更新されるよう修正された。これにより、複数のバックグラウンドエージェントを管理する際に、どのエージェントが実際に稼働中かを一覧から正確に把握できるようになる。バックグラウンドエージェントはエージェント一覧（agent view）でステータスが管理されており、`SendMessage` は停止・完了したエージェントに新たな指示を送って再開させる仕組み。",
+      "detail_en": "Previously, when a background agent that had already reached \"failed\" or \"completed\" was resumed with `SendMessage`, the status shown in the agent list stayed stale, making it hard to tell visually that the agent had actually resumed working.\n\nThis version fixes the agent list status display to update correctly when a background agent is resumed via `SendMessage`. This lets users managing multiple background agents accurately tell which agents are actually running from the list. Background agent status is tracked in the agent list (agent view), and `SendMessage` is the mechanism for sending new instructions to a stopped or completed agent to resume it.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-agent"
+    },
+    {
+      "t": "修正: エージェントのターンに読み取り可能なテキストが含まれない場合、バックグラウンドジョブの一覧表示が「needs input」から「working」に誤って戻ってしまう問題",
+      "t_en": "Fixed background jobs flipping from \"needs input\" back to \"working\" in the agent list when the agent's turn contained no readable text",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "従来、バックグラウンドジョブが「needs input」（入力待ち）状態になった後、エージェントのターンにテキストとして読み取れる内容が含まれていない場合、一覧上のステータスが「working」（作業中）へ誤って戻ってしまうことがあった。\n\n本バージョンでは、テキストを含まないターンによってステータス表示が誤って書き換わる問題が修正され、「needs input」状態が正しく維持されるようになった。これにより、ユーザーの入力を必要としているバックグラウンドジョブを一覧から見落とすリスクが減り、対応が必要なエージェントを正確に把握できる。バックグラウンドジョブのステータスはエージェント一覧に表示され、ユーザーの応答が必要な場合には「needs input」として区別されている。",
+      "detail_en": "Previously, once a background job entered the \"needs input\" state, if the agent's subsequent turn contained no readable text, the status shown in the list could incorrectly flip back to \"working.\"\n\nThis version fixes the issue where a text-less turn incorrectly overwrote the status display, so the \"needs input\" state is now correctly preserved. This reduces the risk of overlooking a background job that actually needs user input, letting users accurately identify agents that require attention from the list. Background job status is shown in the agent list, with \"needs input\" distinguishing jobs that are waiting on a user response.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-agent"
+    },
+    {
+      "t": "修正: バックグラウンドエージェントがアップグレードによる再起動中に `claude attach` がエラーになる問題（復帰を待つように変更）",
+      "t_en": "Fixed `claude attach` erroring when a background agent was mid-upgrade restart instead of waiting for it to come back",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "従来、バックグラウンドエージェントがアップグレードに伴う再起動の途中である場合に `claude attach` コマンドを実行するとエラーになってしまい、再起動が完了するまで待つことができなかった。\n\n本バージョンでは、`claude attach` がこの状況を検知すると、エラーを返す代わりにエージェントが復帰するのを待機するよう修正された。これにより、アップグレード直後などのタイミングでバックグラウンドエージェントに再接続しようとした際に、無用なエラーで作業が中断されることがなくなる。`claude attach` はバックグラウンドで稼働中のエージェントセッションに接続し、対話を再開するためのコマンド。",
+      "detail_en": "Previously, running `claude attach` while a background agent was in the middle of an upgrade-triggered restart would error out, with no way to wait for the restart to finish.\n\nThis version fixes `claude attach` to detect this situation and wait for the agent to come back instead of returning an error. This prevents work from being interrupted by a spurious error when reconnecting to a background agent around the time of an upgrade. `claude attach` connects to a running background agent session to resume interacting with it.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-agent"
+    },
+    {
+      "t": "修正: Bash 呼び出しの出力が30Kのインライン上限を超えた場合に、その Bash 呼び出しで作成された PR がセッションに紐付けられない問題",
+      "t_en": "Fixed session-to-PR linking missing a PR created in a Bash call whose output exceeded the 30K inline limit",
+      "tags": ["バグ修正"],
+      "detail": "従来、Claude Code はセッション中に作成された PR を自動的にそのセッションに紐付けて表示する機能を持っていたが、PR 作成コマンドを実行した Bash 呼び出しの出力が30K文字のインライン表示上限を超えていた場合、出力が切り詰められることで PR の情報を検出できず、紐付けが行われないことがあった。\n\n本バージョンでは、Bash 出力が上限を超えて切り詰められた場合でも、作成された PR を正しく検出しセッションに紐付けられるよう修正された。これにより、大きな出力を伴う `gh pr create` などのコマンドを実行した場合でも、セッションから作成した PR を確実に一覧・追跡できるようになる。Bash ツールの出力は既定で30K文字を超えるとインライン表示が切り詰められる仕様になっており、この切り詰めが PR 検出処理に影響していた。",
+      "detail_en": "Previously, Claude Code automatically linked a PR created during a session to that session, but if the output of the Bash call that created the PR exceeded the 30K-character inline display limit, the truncated output prevented the PR information from being detected, so the link was not made.\n\nThis version fixes PR detection so that a created PR is correctly found and linked to the session even when the Bash output was truncated past the limit. This lets users reliably list and track PRs created from a session even when running commands like `gh pr create` that produce large output. Bash tool output is truncated for inline display once it exceeds 30K characters by default, and that truncation was affecting PR detection.",
+      "category": "Git 連携",
+      "category_en": "Git integration"
+    },
+    {
+      "t": "修正: `claude mcp add-from-claude-desktop` で、サーバー名に非対応の文字が含まれているとインポート処理が停止する問題（不正な名前はエラー報告し、残りのサーバーはインポートするように変更）",
+      "t_en": "Fixed `claude mcp add-from-claude-desktop` getting stuck when a server name contains unsupported characters; invalid names are now reported and remaining servers still import",
+      "tags": ["バグ修正", "MCP"],
+      "detail": "従来、`claude mcp add-from-claude-desktop` コマンドで Claude Desktop の設定から MCP サーバーをインポートする際、サーバー名に Claude Code が対応していない文字が含まれていると、インポート処理全体がそこで停止してしまい、他の正常なサーバーもインポートされなかった。\n\n本バージョンでは、非対応文字を含むサーバー名はエラーとして報告されるようになり、それ以外の正常なサーバーはそのままインポートが継続されるよう修正された。これにより、Claude Desktop に多数の MCP サーバーを登録しているユーザーが、一部のサーバー名が原因でインポート作業全体をやり直す必要がなくなる。`claude mcp add-from-claude-desktop` は macOS と WSL で Claude Desktop の設定ファイルを読み取り、選択したサーバーを Claude Code にインポートする機能（詳細は[MCP のドキュメント](https://code.claude.com/docs/en/mcp#import-mcp-servers-from-claude-desktop)を参照）。",
+      "detail_en": "Previously, when importing MCP servers from Claude Desktop's configuration with `claude mcp add-from-claude-desktop`, a server name containing characters Claude Code doesn't support would halt the entire import, so other valid servers also failed to import.\n\nThis version fixes it so a server name with unsupported characters is now reported as an error, while the remaining valid servers continue to be imported. This means users with many MCP servers registered in Claude Desktop no longer need to redo the whole import because of one problematic server name. `claude mcp add-from-claude-desktop` reads the Claude Desktop configuration file on macOS and WSL and imports the servers you select into Claude Code (see the [MCP docs](https://code.claude.com/docs/en/mcp#import-mcp-servers-from-claude-desktop) for details).",
+      "category": "MCP 連携",
+      "category_en": "MCP Integration"
+    },
+    {
+      "t": "修正: 初期化に失敗したプラグインの LSP サーバーが、同じファイル拡張子を扱う別プラグインの正常な LSP サーバーの動作を妨げてしまう問題",
+      "t_en": "Fixed a plugin LSP server that fails to initialize preventing a valid LSP server from another plugin handling the same file extension",
+      "tags": ["バグ修正", "Plugin"],
+      "detail": "従来、あるプラグインが提供する LSP サーバーの初期化に失敗すると、同じファイル拡張子を扱う別のプラグインの正常な LSP サーバーまで機能しなくなり、コード補完や診断などの言語サポートを受けられなくなることがあった。\n\n本バージョンでは、あるプラグインの LSP サーバーが初期化に失敗しても、同じ拡張子を扱う他プラグインの正常な LSP サーバーには影響しないよう修正された。これにより、複数のプラグインが同じ言語・拡張子向けの LSP サーバーを提供している環境でも、一部のプラグインの問題によって言語サポート全体が失われることがなくなる。Claude Code はプラグイン経由で LSP (Language Server Protocol) サーバーを登録でき、ファイル拡張子ごとに対応するサーバーが割り当てられる仕組みになっている。",
+      "detail_en": "Previously, if the LSP server provided by one plugin failed to initialize, a valid LSP server from another plugin handling the same file extension could also stop working, losing language support such as completions and diagnostics.\n\nThis version fixes it so that a failed LSP server initialization from one plugin no longer affects a valid LSP server from another plugin handling the same extension. This means that in environments where multiple plugins provide LSP servers for the same language or extension, a problem in one plugin no longer takes down language support entirely. Claude Code lets plugins register LSP (Language Server Protocol) servers, with servers assigned per file extension.",
+      "category": "Plugin",
+      "category_en": "Plugin"
+    },
+    {
+      "t": "修正: Windows でコマンド実行中に Claude の起動元ディレクトリが削除・ロック・アンマウントされるとクラッシュする問題",
+      "t_en": "Fixed a Windows crash when the directory Claude was launched from is deleted, locked, or unmounted while a command is running",
+      "tags": ["バグ修正", "Windows"],
+      "detail": "従来、Windows で Claude Code をあるディレクトリから起動した後、コマンド実行中にその起動元ディレクトリが削除されたり、ロックされたり、アンマウントされたりすると、Claude Code がクラッシュしてしまうことがあった。\n\n本バージョンでは、起動元ディレクトリにアクセスできなくなった状況を適切に処理できるよう修正され、クラッシュせずに動作を継続できるようになった。これにより、リムーバブルドライブやネットワークドライブ上のディレクトリから Claude Code を起動している場合など、環境の変化によって作業が突然中断されるリスクが減る。Windows 環境ではディレクトリの削除・ロック・アンマウントがファイルシステムレベルで発生し得るため、こうした状態変化への耐性を高める修正が行われた。",
+      "detail_en": "Previously, on Windows, if the directory Claude Code was launched from was deleted, locked, or unmounted while a command was running, Claude Code could crash.\n\nThis version fixes it to properly handle the case where the launch directory becomes inaccessible, so Claude Code keeps running instead of crashing. This reduces the risk of work being abruptly interrupted by environmental changes, such as when Claude Code is launched from a directory on a removable or network drive. On Windows, directory deletion, locking, and unmounting can occur at the filesystem level, so this fix improves resilience to that kind of state change.",
+      "category": "安定性",
+      "category_en": "Stability"
+    },
+    {
+      "t": "修正: ディレクトリスキャンが実行中にファイルウォッチャーが閉じられるとクラッシュする問題",
+      "t_en": "Fixed a crash when a file watcher was closed while a directory scan was still in flight",
+      "tags": ["バグ修正"],
+      "detail": "従来、ディレクトリのスキャン処理が完了する前にファイルウォッチャーが閉じられると、進行中のスキャンが閉じられたウォッチャーを参照しようとしてクラッシュすることがあった。\n\n本バージョンでは、スキャン中にウォッチャーが閉じられた場合でも安全に処理を終了できるよう修正され、クラッシュが発生しなくなった。これにより、大規模なディレクトリでのファイル監視やセッション切り替えなどでウォッチャーのライフサイクルが頻繁に変化する状況でも、Claude Code が安定して動作するようになる。Claude Code はファイルの変更を検知するためにファイルウォッチャーを使用しており、ディレクトリスキャンと並行して動作することがある。",
+      "detail_en": "Previously, if a file watcher was closed before a directory scan finished, the in-flight scan could try to reference the closed watcher and crash.\n\nThis version fixes it so processing terminates safely even when the watcher is closed mid-scan, eliminating the crash. This keeps Claude Code stable in situations where the watcher lifecycle changes frequently, such as file watching over large directories or switching sessions. Claude Code uses a file watcher to detect file changes, and this can run concurrently with a directory scan.",
+      "category": "安定性",
+      "category_en": "Stability"
+    },
+    {
+      "t": "修正: プロジェクトの verify スキルが毎セッション再生成される問題",
+      "t_en": "Fixed project verify skills being rewritten every session",
+      "tags": ["バグ修正"],
+      "detail": "従来、プロジェクトごとの verify スキルはセッションを開始するたびに再生成されており、ビルドやテストなどドキュメント化されたコマンドに変更がない場合でも毎回書き換えられていた。本バージョンでは、documented command に実際の変更があった場合のみ verify スキルを再生成するよう修正した。これにより無駄なファイル書き換えが減り、セッション起動時の処理も軽くなる。",
+      "detail_en": "Previously, the per-project verify skill was regenerated at the start of every session, even when the documented commands it captures — such as build or test — hadn't changed. This version fixes it to rewrite the verify skill only when a documented command actually changes. This reduces unnecessary file rewrites and speeds up session startup.",
+      "category": "ツール改善",
+      "category_en": "Tool Improvement"
+    },
+    {
+      "t": "修正: ジョブ一覧が画面をわずかに超えるとヘッダーが見切れる問題",
+      "t_en": "Fixed agent view rendering one line too high and clipping its header when the job list slightly overflowed the screen",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "agent view でセッションのジョブ一覧が画面の高さをわずかに超えると、全体の描画位置が1行分上にずれ、ヘッダー部分が見切れて表示される問題があった。本バージョンでこの表示崩れを修正し、ジョブ一覧が画面いっぱいに近い状態でもヘッダーが正しく表示されるようになった。多数のバックグラウンドセッションを agent view で確認する際の視認性が改善する。",
+      "detail_en": "In agent view, when the job list slightly overflowed the terminal height, the whole layout rendered one line too high and clipped the header. This version fixes the layout so the header displays correctly even when the job list nearly fills the screen, improving readability when checking many background sessions in agent view.",
+      "category": "レンダリング",
+      "category_en": "Rendering"
+    },
+    {
+      "t": "修正: Web・モバイルの Remote Control パネルでバックグラウンドタスクの状態が古いまま表示される問題",
+      "t_en": "Fixed background tasks in the web and mobile Remote Control panels showing stale \"Running\" status",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "Web 版および モバイルアプリの Remote Control パネルでは、バックグラウンドタスクがすでに完了しているにもかかわらず「Running」のまま古い状態が表示され続けることがあった。原因はタスクの参加メンバー(membership)が変化した際に完全な状態を送っていなかったことにあり、本バージョンではメンバーシップが変化するたびにタスクの完全な状態を送信するよう修正した。これにより、Remote Control 経由でバックグラウンドタスクを確認する際に、実際の進行状況を正しく把握できるようになった。",
+      "detail_en": "In the web and mobile Remote Control panels, background tasks could keep showing a stale \"Running\" status even after they had actually finished. The cause was that full task state wasn't forwarded when a task's membership changed; this version fixes it to forward the complete task state on every membership change. As a result, background task status shown through Remote Control now accurately reflects actual progress.",
+      "category": "セッション管理",
+      "category_en": "Session Management"
+    },
+    {
+      "t": "改善: auto mode が解決不能な変数への rm -rf 実行前に確認するよう変更",
+      "t_en": "Improved auto mode to ask before running `rm -rf` on a variable it can't resolve from context",
+      "tags": ["改善", "Security"],
+      "detail": "auto mode は許可プロンプトを省略して自律的にコマンドを実行するが、`rm -rf` のような破壊的な操作は分類器が内容を判断したうえで自動承認するかどうかを決めている。しかし、削除対象のパスが変数展開されていて会話の文脈から実際の値を解決できない場合でも、これまでは実行されてしまうことがあった。本バージョンから、そうした解決不能な変数を含む `rm -rf` は実行前に必ずユーザーに確認するよう改善され、意図しないファイル削除のリスクを減らせるようになった。",
+      "detail_en": "Auto mode executes commands autonomously without routine permission prompts, relying on a classifier to decide whether destructive operations such as `rm -rf` can proceed automatically. Previously, a `rm -rf` targeting a path built from a variable that couldn't be resolved from the conversation's context could still run without confirmation. As of this version, auto mode now asks before running such an unresolvable `rm -rf`, reducing the risk of unintended file deletion.",
+      "category": "セキュリティ",
+      "category_en": "Security"
+    },
+    {
+      "t": "改善: 自動アップデートのバイナリダウンロードをディスクへストリーミングし、ピークメモリ使用量を約400MB削減",
+      "t_en": "Improved auto-update binary downloads to stream to disk instead of buffering in memory, cutting peak memory usage by roughly 400 MB",
+      "tags": ["改善", "Perf"],
+      "detail": "従来、Claude Code の自動アップデート機能は新しいバイナリ全体をいったんメモリ上に読み込んでからディスクに書き込んでおり、更新処理中のピークメモリ使用量が大きくなっていた。本バージョンから、ダウンロードしたバイナリをメモリにバッファせず直接ディスクへストリーミング書き込みするように変更し、アップデーターのピークメモリ使用量を約400MB削減した。メモリに制約のある環境でも自動アップデートが安定して完了しやすくなる。",
+      "detail_en": "Previously, Claude Code's auto-updater loaded the entire new binary into memory before writing it to disk, causing large peak memory usage during updates. As of this version, downloaded binaries stream directly to disk instead of being buffered in memory, cutting the updater's peak memory usage by roughly 400 MB. This makes auto-updates more likely to complete reliably on memory-constrained machines.",
+      "category": "パフォーマンス",
+      "category_en": "Performance"
+    },
+    {
+      "t": "改善: バックグラウンドタスクの通知に人による入力が発生していない旨を明示し、捏造された承認への対応を防止",
+      "t_en": "Improved background task notifications to explicitly state that no human input has occurred, preventing fabricated in-transcript approvals from being acted on",
+      "tags": ["改善", "Security", "Agent"],
+      "detail": "バックグラウンドタスクの通知メッセージには、その時点までにユーザーが実際に入力・承認を行ったかどうかの情報が含まれておらず、トランスクリプト内に紛れ込んだ偽の承認記述(プロンプトインジェクションなど)を、Claude が本物のユーザー承認と誤認して行動してしまうリスクがあった。本バージョンから、バックグラウンドタスクの通知に「人間による入力は発生していない」ことを明示的に記載するよう改善した。これにより、トランスクリプト中に捏造された承認めいた文言があっても、それを実際のユーザー承認として扱ってしまう誤動作を防げるようになった。",
+      "detail_en": "Background task notifications previously didn't indicate whether the user had actually provided input or approval up to that point, creating a risk that Claude could mistake a fabricated approval embedded in the transcript (such as via prompt injection) for genuine user consent and act on it. As of this version, background task notifications explicitly state that no human input has occurred. This prevents fabricated in-transcript approvals from being mistaken for real user approval and acted upon.",
+      "category": "セキュリティ",
+      "category_en": "Security"
+    },
+    {
+      "t": "改善: 既存 PR を編集・マージ・コメント・push したセッションも agent view でリンク表示",
+      "t_en": "Improved agent view: sessions that edit, merge, comment on, or push to an existing PR now link it",
+      "tags": ["改善", "Agent"],
+      "detail": "これまで agent view (`claude agents`) の行に PR 番号がリンク表示されるのは、そのセッションが新しく pull request を作成した場合に限られていた。本バージョンから、既存の PR を編集したり、マージしたり、コメントを付けたり、push したセッションについても、その PR が行に表示・リンクされるようになった。レビュー対応や修正の追従作業など、新規作成を伴わないセッションでも、対応している PR を agent view から一目で確認できるようになる。",
+      "detail_en": "Previously, agent view (`claude agents`) linked a pull request number in a session's row only when that session had opened a new pull request. As of this version, sessions that edit, merge, comment on, or push to an existing pull request also get that PR linked in their row. This makes it easy to spot which PR a session is working on from agent view, even for sessions handling review feedback or follow-up fixes rather than opening a new PR.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-agent"
+    },
+    {
+      "t": "改善: agent view の行表示を色付き状態ラベルと生成見出しに刷新",
+      "t_en": "Improved agent view: rows now show a colored state word and a generated headline instead of raw tool call text",
+      "tags": ["改善", "Agent"],
+      "detail": "従来、agent view の各行にはツール呼び出しの生のテキストがそのまま表示されており、セッションが何をしているのか一目で把握しづらかった。本バージョンから、各行はセッションの状態を示す色付きの単語(state word)と、分類器(classifier)が生成した見出しで表示されるようになった。あわせて peek パネルも改良され、入力待ち(blocked)のセッションについては、何を確認されているかという具体的な質問内容を含む完全なステータスが表示されるようになった。",
+      "detail_en": "Previously, each row in agent view showed raw tool call text, making it hard to tell what a session was actually doing at a glance. As of this version, rows show a colored state word indicating the session's status along with a headline written by a classifier summarizing its activity. The peek panel was also improved: for blocked sessions, it now opens with full status including the exact question or approval the session is waiting on.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-agent"
+    },
+    {
+      "t": "改善: /doctor をセットアップの問題を診断・修正できるフルチェックに刷新（エイリアス /checkup を追加）",
+      "t_en": "Improved `/doctor` into a full setup checkup that can diagnose and fix issues, with `/checkup` added as its alias",
+      "tags": ["改善"],
+      "detail": "従来の `/doctor` は Claude Code のインストール状態や設定を診断し、結果をステータスアイコンで表示する機能だった。本バージョンから `/doctor` はインストールやセットアップ全般を対象としたフルチェックへと拡張され、検出した問題を `f` キーひとつで Claude に修正させることもできるようになった。あわせて `/checkup` という別名でも同じコマンドを呼び出せるようになり、直感的な名前でセットアップ診断を実行できる。詳細は[コマンド一覧](https://code.claude.com/docs/en/commands)を参照。",
+      "detail_en": "Previously, `/doctor` diagnosed Claude Code's installation and settings and displayed the results with status icons. As of this version, `/doctor` has been expanded into a full setup checkup covering installation and setup issues more broadly, and pressing `f` lets Claude fix any reported issues. The same command can now also be invoked via the alias `/checkup`, giving it a more intuitive name for running a setup diagnosis. See the [commands reference](https://code.claude.com/docs/en/commands) for details.",
+      "category": "コマンド",
+      "category_en": "Commands"
+    },
+    {
+      "t": "変更: MCP サーバー名「Claude Browser」を予約語に追加（「Claude Preview」と同様）",
+      "t_en": "Changed to reserve the \"Claude Browser\" MCP server name, alongside \"Claude Preview\"",
+      "tags": ["改善", "MCP"],
+      "detail": "Claude Desktop では今後ペイン名の変更が予定されており、それに先立って「Claude Browser」という MCP サーバー名が、既存の「Claude Preview」と同様に予約語として扱われるようになった。本バージョンから、ユーザーが設定する MCP サーバーはこれら2つの名前のいずれでも登録できなくなる。内部機能とユーザー定義のサーバー名が衝突するのを防ぎ、今後の Claude Desktop の UI 変更に備えた措置である。",
+      "detail_en": "Claude Desktop plans to rename a pane, and ahead of that change, the MCP server name \"Claude Browser\" is now reserved, joining the already-reserved \"Claude Preview\". As of this version, user-configured MCP servers can no longer register under either name. This prevents naming collisions between internal functionality and user-defined servers ahead of the upcoming Claude Desktop UI rename.",
+      "category": "MCP 連携",
+      "category_en": "MCP Integration"
+    },
+    {
+      "t": "修正: CLI 2.1.203 以降で Cowork の VM モードのローカルエージェントセッションが起動できない問題",
+      "t_en": "Fixed Cowork VM-mode local-agent sessions failing to start with \"Not logged in · Please run /login\" on CLI 2.1.203+",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "Claude Desktop の Cowork(バックグラウンドで自律的にタスクを進める機能)を VM モードで使い、ローカルエージェントとしてセッションを起動しようとすると、CLI バージョン 2.1.203 以降で「Not logged in · Please run /login」というエラーが表示され、実際にはログイン済みであってもセッションを開始できない問題があった。本バージョンでこの問題を修正し、Cowork の VM モードによるローカルエージェントセッションが正しく起動するようになった。",
+      "detail_en": "When using Claude Desktop's Cowork feature (which runs tasks autonomously in the background) in VM mode to start a local-agent session, CLI versions 2.1.203 and later showed a \"Not logged in · Please run /login\" error and failed to start the session even when the user was actually logged in. This version fixes the issue, so Cowork VM-mode local-agent sessions now start correctly.",
+      "category": "安定性",
+      "category_en": "Stability"
+    }
   ]
 }
