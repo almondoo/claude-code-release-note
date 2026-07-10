@@ -883,5 +883,250 @@
       "category": "安定性",
       "category_en": "Stability"
     }
+  ],
+  "2.1.206": [
+    {
+      "t": "追加: /cd にディレクトリパスの候補表示を追加し、/add-dir と同様の挙動に",
+      "t_en": "Added directory path suggestions to `/cd`, matching `/add-dir` behavior",
+      "tags": ["新機能"],
+      "detail": "作業ディレクトリを切り替える /cd と、追加の作業ディレクトリを許可する /add-dir は似た役割を持つコマンドだが、これまでパス入力中の候補表示（オートコンプリート）は /add-dir にしかなかった。\n\n本バージョンから /cd にも同様のディレクトリパス候補表示が追加され、パスを最後まで手入力しなくても候補から選べるようになった。入力ミスが減り、ディレクトリ切り替えがスムーズになる。",
+      "detail_en": "`/cd` switches the session's working directory and `/add-dir` grants access to an extra directory — similar commands, but only `/add-dir` offered directory-path autocomplete while typing.\n\nAs of this version, `/cd` gets the same path-suggestion UI, so both commands behave consistently when typing a path. This reduces typos and speeds up directory switches.",
+      "category": "UX",
+      "category_en": "UX"
+    },
+    {
+      "t": "追加: リポジトリにコミットされた CLAUDE.md からコードベースで推測可能な内容の削減を提案する /doctor チェックを追加",
+      "t_en": "Added a `/doctor` check that proposes trimming checked-in `CLAUDE.md` files by cutting content Claude could derive from the codebase",
+      "tags": ["新機能"],
+      "detail": "CLAUDE.md には、実際にはコードを読めば Claude が推測できるような説明が積み重なっていくことがあり、毎セッションその分のコンテキストを無駄に消費してしまう問題があった。\n\n本バージョンで /doctor に新しいチェックが追加され、リポジトリにコミットされた CLAUDE.md の中からコードベースを見れば分かる冗長な記述を検出し、削減を提案するようになった。手動で棚卸しをしなくても、メモリファイルを簡潔に保ちやすくなる。",
+      "detail_en": "CLAUDE.md files can accumulate guidance that simply restates things Claude could already infer by reading the code, wasting context budget on every session.\n\nThis version adds a new `/doctor` check that flags such redundant content in checked-in CLAUDE.md files and proposes trims, helping teams keep memory files lean without a manual audit.",
+      "category": "コマンド",
+      "category_en": "Commands"
+    },
+    {
+      "t": "改善: /commit-push-pr が origin 以外にもリポジトリの push 用リモート（remote.pushDefault、またはリモートが1つのみの場合はそのリモート）への git push を自動許可するように",
+      "t_en": "`/commit-push-pr` now auto-allows `git push` to the repo's configured push remote (`remote.pushDefault`, or the sole remote when only one is configured) in addition to `origin`",
+      "tags": ["改善"],
+      "detail": "コミット・push・PR作成を一括で行う /commit-push-pr は、これまで git push の自動許可対象を文字通り origin という名前のリモートに限定していた。push 先を remote.pushDefault で別のリモートに設定しているリポジトリや、origin 以外の名前のリモートが1つだけあるリポジトリでは、そのたびに手動の許可プロンプトが必要だった。\n\n本バージョンから、こうした構成でも自動許可の対象になり、一連のワークフローを途中で止めずに実行できるようになった。",
+      "detail_en": "`/commit-push-pr` bundles committing, pushing, and opening a PR into one step, but it previously auto-allowed `git push` only to a remote literally named `origin`. Repos that push to a different remote via `remote.pushDefault`, or that have a single non-origin remote, required a manual permission prompt every time.\n\nAs of this version, those configurations are also auto-allowed, so the whole workflow can run without an extra permission interruption.",
+      "category": "Git 連携",
+      "category_en": "Git Integration"
+    },
+    {
+      "t": "追加: Gateway 経由の /login が Anthropic 運営のパブリックゲートウェイエンドポイントに対応",
+      "t_en": "Gateway: `/login` now supports Anthropic-operated public gateway endpoints",
+      "tags": ["新機能", "Platform"],
+      "detail": "これまでの Gateway 経由のログインは、組織や第三者が自前で構築したゲートウェイに接続する用途が中心だった。\n\n本バージョンから /login が Anthropic 自身が運営するパブリックなゲートウェイエンドポイントにも対応し、独自のゲートウェイ基盤を構築しなくても Gateway 経由のサインインを利用できる組織が広がった。",
+      "detail_en": "Gateway-based sign-in previously centered on gateways an organization or third party had deployed and operated themselves.\n\nAs of this version, `/login` also supports gateway endpoints that Anthropic itself operates and exposes publicly, broadening gateway-based sign-in to organizations that don't want to run their own gateway infrastructure.",
+      "category": "プラットフォーム互換性",
+      "category_en": "Platform Compatibility"
+    },
+    {
+      "t": "改善: プロジェクトの .claude/worktrees/ 以外の Git worktree に入る際、EnterWorktree が確認を求めるように",
+      "t_en": "`EnterWorktree` now asks for confirmation before entering a git worktree outside the project's `.claude/worktrees/` directory",
+      "tags": ["改善", "Agent"],
+      "detail": "EnterWorktree はセッションの作業ディレクトリを既存の Git worktree に切り替えるツールで、サブエージェントについてはプロジェクトの .claude/worktrees/ 配下のみに移動先が制限されている。一方でメインセッションからの利用では、これまで確認なしに任意のパスの worktree へ入ることができた。\n\n本バージョンから、.claude/worktrees/ の外にある worktree へ入ろうとした場合には確認を求めるようになり、意図しない作業ディレクトリの切り替えを防ぎやすくなった。",
+      "detail_en": "`EnterWorktree` switches a session's working directory into an existing git worktree; subagents are already restricted to targets under the project's `.claude/worktrees/`, but the main session could previously enter any worktree path without confirmation.\n\nAs of this version, entering a worktree outside `.claude/worktrees/` now asks for confirmation first, guarding against the session's working directory moving somewhere unexpected.",
+      "category": "ツール改善",
+      "category_en": "Tool Improvement"
+    },
+    {
+      "t": "改善: Claude Code のアップデート後、バックグラウンドエージェントがアタッチ時ではなくバックグラウンドで新バージョンに自動アップグレードされるように",
+      "t_en": "Background agents now upgrade to a new version in the background right after a Claude Code update, instead of paying a slow stale-session upgrade when you attach",
+      "tags": ["改善", "Agent"],
+      "detail": "バックグラウンドセッションはスーパーバイザープロセスによって監視されており、ディスク上のバイナリが自動アップデートで更新されると、実行中のセッションを維持したまま新バージョンへ再起動する仕組みになっている。これまでは、この更新処理がセッションにアタッチしたタイミングまで遅延することがあり、久しぶりにセッションを開いたときに待たされる原因になっていた。\n\n本バージョンから、Claude Code のアップデート直後にバックグラウンドで新バージョンへのアップグレードが行われるようになり、アタッチ時の遅い更新処理を待つ必要がなくなった。詳しくは[Agent view のドキュメント](https://code.claude.com/docs/en/agent-view#the-supervisor-process)を参照してください。",
+      "detail_en": "Background sessions are watched by a supervisor process that restarts them into a new version once the auto-updater replaces the binary on disk, while the session's work keeps running through the restart. Previously, this upgrade could be deferred until you attached to the session, making the first attach after an update slow.\n\nAs of this version, the upgrade happens proactively in the background right after a Claude Code update, so attaching afterward is fast. See the [agent view documentation](https://code.claude.com/docs/en/agent-view#the-supervisor-process) for details.",
+      "category": "セッション管理",
+      "category_en": "Session Management"
+    },
+    {
+      "t": "修正: ログイン期限切れ時に全モデルで「選択したモデルに問題があります」という誤解を招くエラーが表示され、/login の実行を促されなかった問題を修正",
+      "t_en": "Fixed an expired login failing every model with a misleading \"There's an issue with the selected model\" error instead of prompting to run `/login`",
+      "tags": ["バグ修正"],
+      "detail": "claude.ai / Console でのログインが期限切れになると API へのリクエストが失敗するが、これまでは選択しているモデルに問題があるかのような汎用的なエラーとして表示されており、本当の原因（ログイン切れ）が伝わりにくかった。\n\n本バージョンでこの問題を修正し、ログイン期限切れの場合はどのモデルを選んでいても /login の実行を促す分かりやすいメッセージが表示されるようになった。",
+      "detail_en": "When a claude.ai/Console login expires, requests to the API start failing; previously this surfaced as a generic per-model error, obscuring the real cause (an expired login).\n\nThis version fixes the issue so an expired login now produces a clear message directing you to run `/login`, regardless of which model was selected.",
+      "category": "認証",
+      "category_en": "Authentication"
+    },
+    {
+      "t": "修正: claude --resume および --continue で起動直後にキーボード入力が反応しない問題を修正",
+      "t_en": "Fixed `claude --resume` and `--continue` not responding to keyboard input on startup",
+      "tags": ["バグ修正"],
+      "detail": "--resume はセッションを選んで再開するためのインタラクティブなピッカーを表示できるフラグだが、これまで --resume や --continue で起動した直後、キーボード入力がまったく反応しない状態になることがあった。\n\n本バージョンでこの起動直後の入力ハンドリングの不具合を修正し、起動してすぐにセッション選択などの操作ができるようになった。",
+      "detail_en": "`--resume` can show an interactive picker for choosing which session to reload, but right after launching with `--resume` or `--continue`, the terminal previously could stop responding to keyboard input entirely.\n\nThis version fixes the startup input-handling bug, so interacting with the session picker works immediately after launch.",
+      "category": "コマンド",
+      "category_en": "Commands"
+    },
+    {
+      "t": "修正: --mcp-config や .mcp.json で設定した MCP サーバーの request_timeout_ms が無視され、新規セッションで長時間実行される MCP ツール呼び出しがデフォルトの60秒でタイムアウトしていた問題を修正",
+      "t_en": "Fixed MCP servers configured via `--mcp-config` or `.mcp.json` ignoring a per-server `request_timeout_ms`, which caused long-running MCP tool calls to time out at the 60s default in fresh sessions",
+      "tags": ["バグ修正", "MCP"],
+      "detail": "MCP サーバーの設定にはツール呼び出しのタイムアウトを個別に指定する項目があり、時間のかかるツール（大きなクエリなど）が途中で打ち切られないようにできる。しかし --mcp-config や .mcp.json で設定したサーバーでは、新規セッションでこのタイムアウト指定が無視されてしまい、デフォルトの60秒で呼び出しがタイムアウトすることがあった。\n\n本バージョンでこの問題を修正し、設定したタイムアウト値が正しく適用されるようになった。詳しくは[MCP のドキュメント](https://code.claude.com/docs/en/mcp#managing-your-servers)を参照してください。",
+      "detail_en": "MCP server configuration supports a per-server tool-call timeout so slow tools (e.g. long-running queries) aren't killed prematurely. For servers configured via `--mcp-config` or `.mcp.json`, this timeout was being ignored in fresh sessions, so calls fell back to the 60-second default and could time out unexpectedly.\n\nThis version fixes the issue so the configured timeout is now applied correctly. See the [MCP documentation](https://code.claude.com/docs/en/mcp#managing-your-servers) for details.",
+      "category": "MCP 連携",
+      "category_en": "MCP Integration"
+    },
+    {
+      "t": "修正: claude agents や --bg のバックグラウンドワーカーで CLAUDE_CODE_EXTRA_BODY が無視されていた問題を修正。シェルでエクスポートした値がディスパッチ元セッションに引き継がれるように",
+      "t_en": "Fixed `CLAUDE_CODE_EXTRA_BODY` being silently ignored by `claude agents` / `--bg` background workers; the shell-exported override now follows the dispatching session",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "CLAUDE_CODE_EXTRA_BODY は API リクエストボディに追加フィールドを差し込むための環境変数で、Claude Code を起動する前にシェルでエクスポートして使う。これまで claude agents や --bg で起動したバックグラウンドワーカーでは、ディスパッチ元セッションのシェル環境にあるこの値が引き継がれず、静かに無視されてしまっていた。\n\n本バージョンでこの問題を修正し、シェルでエクスポートした値がバックグラウンドワーカーにも正しく引き継がれるようになった。",
+      "detail_en": "`CLAUDE_CODE_EXTRA_BODY` is an environment variable for injecting extra fields into the API request body, exported in the shell before launching Claude Code. Background workers spawned via `claude agents` or `--bg` previously didn't inherit this override from the dispatching session's shell environment, so it was silently dropped.\n\nThis version fixes the issue so the shell-exported value now correctly follows the dispatching session into background workers.",
+      "category": "エージェント設定",
+      "category_en": "Agent Configuration"
+    },
+    {
+      "t": "修正: OAuth 認証の MCP サーバーで、トークンのリフレッシュが1回失敗しただけで手動の再認証が必要になっていた問題を修正",
+      "t_en": "Fixed OAuth MCP servers requiring manual re-authentication after a single failed token refresh",
+      "tags": ["バグ修正", "MCP"],
+      "detail": "OAuth 2.0 で認証するリモート MCP サーバーは、アクセストークンを自動的にリフレッシュする仕組みを持つ。リフレッシュに失敗した場合は /mcp から再認証するよう案内されるが、これまでは一時的なエラーによる1回だけの失敗でもすぐに手動の再認証が必要になってしまい、必要以上にサインインをやり直す手間が発生していた。\n\n本バージョンでこの問題を修正し、1回の失敗だけでは手動の再認証を求めないようになった。詳しくは[MCP のドキュメント](https://code.claude.com/docs/en/mcp#authenticate-with-remote-mcp-servers)を参照してください。",
+      "detail_en": "Remote MCP servers using OAuth 2.0 have their access tokens refreshed automatically; when a refresh fails, Claude Code points you to `/mcp` to re-authenticate. Previously, even a single failed refresh — including from a transient error — could trigger this manual re-auth requirement, forcing unnecessary re-sign-ins.\n\nThis version fixes the issue so a single failed refresh no longer forces manual re-authentication. See the [MCP documentation](https://code.claude.com/docs/en/mcp#authenticate-with-remote-mcp-servers) for details.",
+      "category": "MCP 連携",
+      "category_en": "MCP Integration"
+    },
+    {
+      "t": "修正: --permission-prompt-tool が指す MCP サーバーがまだ接続を完了していないコールドスタート時に「MCP tool not found」でクラッシュしていた問題を修正",
+      "t_en": "Fixed `--permission-prompt-tool` pointing at an MCP server crashing with \"MCP tool not found\" on cold start before the server finishes connecting",
+      "tags": ["バグ修正", "MCP"],
+      "detail": "--permission-prompt-tool は、非対話的なセッションでパーミッションの確認処理を MCP ツールに委任するためのフラグ。指定した MCP サーバーがまだ接続を完了していないコールドスタートのタイミングで最初の確認が発生すると、これまでは「MCP tool not found」というエラーでクラッシュしてしまっていた。\n\n本バージョンでこの問題を修正し、サーバーの接続完了を待ってから確認処理を呼び出すようになった。詳しくは[CLI リファレンス](https://code.claude.com/docs/en/cli-reference#cli-flags)を参照してください。",
+      "detail_en": "`--permission-prompt-tool` lets a non-interactive session delegate permission prompts to an MCP tool. If the target MCP server hadn't finished connecting yet when the first prompt fired (a cold start), Claude Code previously crashed with a \"MCP tool not found\" error.\n\nThis version fixes the issue so it now waits for the server to finish connecting before invoking the prompt tool. See the [CLI reference](https://code.claude.com/docs/en/cli-reference#cli-flags) for details.",
+      "category": "MCP 連携",
+      "category_en": "MCP Integration"
+    },
+    {
+      "t": "修正: /model ピッカーの一部の行で、表示されているモデルとは異なるモデルの価格が表示されていた問題を修正。また、料金を請求しないプロバイダーでは Anthropic 純正の定価を表示しないように変更",
+      "t_en": "Fixed `/model` picker rows printing a price for a different model than the row named, and stopped quoting first-party list prices on providers that don't bill them",
+      "tags": ["バグ修正"],
+      "detail": "/model ピッカーはモデルを選ぶ際の参考として料金を表示するが、表示バグにより一部の行で行名とは別のモデルの価格が表示されてしまうことがあった。また、Bedrock や Vertex など Anthropic の定価で課金しないプロバイダーでも、その定価をそのまま表示してしまっており、実際のコストと乖離した情報になっていた。\n\n本バージョンで両方の表示不具合を修正した。",
+      "detail_en": "The `/model` picker shows pricing to help you choose a model, but a display bug caused some rows to show a price belonging to a different model than the one listed. It was also quoting Anthropic's first-party list prices on providers such as Bedrock or Vertex that don't bill at those prices, misrepresenting actual cost.\n\nThis version fixes both display issues.",
+      "category": "UX",
+      "category_en": "UX"
+    },
+    {
+      "t": "修正: エンタイトルメントやアローリストの制限で基準となる行が除外された際、サーバー提供のモデル行が /model ピッカー内で誤った位置に表示されていた問題を修正",
+      "t_en": "Fixed server-provided model rows being misplaced in the `/model` picker when an entitlement or allowlist restriction drops the row they were positioned against",
+      "tags": ["バグ修正"],
+      "detail": "/model ピッカーでは、サーバー側から提供されるモデル行が特定の行を基準に挿入される。しかし、エンタイトルメントの制限や availableModels のアローリストによってその基準となる行自体が除外された場合、サーバー提供の行が意図しない位置に表示されてしまう不具合があった。\n\n本バージョンでこの並び順のロジックを修正した。",
+      "detail_en": "In the `/model` picker, server-provided model rows are inserted relative to a specific reference row. When an entitlement restriction or an `availableModels` allowlist removed that reference row, the server-provided row ended up misplaced in the list.\n\nThis version fixes the ordering logic.",
+      "category": "UX",
+      "category_en": "UX"
+    },
+    {
+      "t": "修正: ターン処理中にスラッシュコマンドを送信すると、デスクトップセッションが「実行中」のまま止まってしまう問題を修正",
+      "t_en": "Fixed desktop sessions getting stuck showing \"running\" after a slash command was sent mid-turn",
+      "tags": ["バグ修正"],
+      "detail": "Claude Code デスクトップアプリで、ターンが進行中の状態でスラッシュコマンドを送信すると、実際の処理が終わったりストールしたりしても表示上は「実行中」のまま固まってしまうことがあった。\n\n本バージョンでこの状態管理の不具合を修正し、ターン中にスラッシュコマンドを送っても表示ステータスが正しく更新されるようになった。",
+      "detail_en": "In the desktop app, sending a slash command while a turn was already in progress could leave the session's status stuck showing \"running\" even after the underlying work finished or stalled.\n\nThis version fixes the state-tracking bug, so status now updates correctly in this mid-turn slash-command scenario.",
+      "category": "UX",
+      "category_en": "UX"
+    },
+    {
+      "t": "修正: Windows で claude --resume 実行時にエージェントビューの前にセットアッププロンプトが表示されると、キーボード入力が反応しなくなる問題を修正",
+      "t_en": "Fixed keyboard input being ignored in the agents view when a setup prompt appeared before a bare `claude --resume` on Windows",
+      "tags": ["バグ修正", "Windows", "Agent"],
+      "detail": "Windows で何も引数を指定せず claude --resume を実行すると、エージェントビューが表示される前に初回セットアップ用のプロンプトが挟まることがあり、その場合にキーボード入力が一切反応しなくなってセッション選択ができなくなる不具合があった。\n\n本バージョンでこの入力ハンドリングの問題を修正した。",
+      "detail_en": "On Windows, running a bare `claude --resume` could trigger a setup prompt before the agents view rendered, and once that happened keyboard input stopped reaching the interface, leaving the session picker unusable.\n\nThis version fixes the input-handling bug in that sequence.",
+      "category": "UX",
+      "category_en": "UX"
+    },
+    {
+      "t": "修正: claude rm で削除したジョブがデーモンの管理リストに残り、claude agents に再表示されてしまう問題を修正",
+      "t_en": "Fixed `claude rm` leaving the removed job in the daemon roster, causing the row to reappear in `claude agents`",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "claude rm はバックグラウンドセッションを claude agents の一覧から削除するコマンドで、トランスクリプト自体は --resume から引き続き参照できる。しかし削除後もバックグラウンドサービスのデーモン側の管理リストにはジョブが残ったままになっており、次に claude agents を確認したときに削除したはずの行が再表示されてしまう不具合があった。\n\n本バージョンで claude rm がデーモン側の記録も併せて削除するようになり、この問題を修正した。詳しくは[CLI リファレンス](https://code.claude.com/docs/en/cli-reference)を参照してください。",
+      "detail_en": "`claude rm` removes a background session from the list shown by `claude agents`, while its transcript stays available via `--resume`. A bug left the job in the background daemon's own roster even after `rm` removed it from the visible list, so the row could reappear the next time `claude agents` queried the daemon.\n\nThis version fixes `claude rm` to also remove the job from the daemon's own roster. See the [CLI reference](https://code.claude.com/docs/en/cli-reference) for details.",
+      "category": "エージェント設定",
+      "category_en": "Agent Configuration"
+    },
+    {
+      "t": "修正: ログアウト状態で /remote-control を実行すると「Unknown command」と表示されていた問題を修正。サインイン方法を案内するように変更",
+      "t_en": "Fixed `/remote-control` showing \"Unknown command\" when logged out — it now explains how to sign in",
+      "tags": ["バグ修正"],
+      "detail": "/remote-control（エイリアス /rc）は claude.ai からセッションを操作できるようにするコマンドだが、ログアウトした状態で実行すると、あたかもコマンド自体が存在しないかのような「Unknown command」というエラーになってしまい、本当の原因（未ログイン）が伝わらなかった。\n\n本バージョンでこの問題を修正し、ログアウト状態でも /remote-control がその旨を認識してサインイン方法を案内するようになった。詳しくは[Remote Control のドキュメント](https://code.claude.com/docs/en/remote-control)を参照してください。",
+      "detail_en": "`/remote-control` (alias `/rc`) makes a session available for control from claude.ai. Running it while logged out previously produced a generic \"Unknown command\" error, as if the command didn't exist, obscuring the real cause.\n\nThis version fixes the issue so the command now recognizes the logged-out state and explains that you need to sign in first. See the [Remote Control documentation](https://code.claude.com/docs/en/remote-control) for details.",
+      "category": "コマンド",
+      "category_en": "Commands"
+    },
+    {
+      "t": "修正: ワークフロー詳細画面でフェーズやエージェントから左矢印キーで一つ前の階層に戻れない問題を修正",
+      "t_en": "Fixed left arrow not stepping back out of a phase or agent in the workflow detail view",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "動的ワークフローは複数のフェーズに分かれて多数のサブエージェントを実行し、詳細画面から特定のフェーズやエージェントの出力にドリルダウンできる。本来、左矢印キーはエージェントからフェーズへ、フェーズからワークフロー全体の概要へと一つ上の階層に戻る操作のはずだったが、この戻る操作が効かなくなっていた。\n\n本バージョンでこのナビゲーションの不具合を修正した。",
+      "detail_en": "Dynamic workflows run many subagents across phases, and the workflow detail view lets you drill into a specific phase or agent's output. The left arrow key is meant to step back up a level — out of an agent into its phase, or out of a phase into the overview — but this navigation was broken.\n\nThis version fixes the back-navigation behavior.",
+      "category": "UX",
+      "category_en": "UX"
+    },
+    {
+      "t": "修正: /status で壊れたインストールに関する警告が重複して2回表示されていた問題を修正",
+      "t_en": "Fixed `/status` listing the same broken-install warning twice",
+      "tags": ["バグ修正"],
+      "detail": "/status は有効な設定のソースやバージョン、接続状態などを表示するコマンドで、インストールが壊れている場合には警告を出す機能もある。この警告が重複して表示され、同じ内容が2回並んでしまう不具合があった。\n\n本バージョンでこの重複表示を修正した。",
+      "detail_en": "`/status` shows active settings sources, version, and connectivity information, including a warning when the install is broken. A duplication bug caused this warning to print twice.\n\nThis version removes the duplicate.",
+      "category": "コマンド",
+      "category_en": "Commands"
+    },
+    {
+      "t": "修正: LSP プラグインに対して誤った「未使用プラグイン」の案内が表示され、使用状況のテレメトリも不正確になっていた問題を修正",
+      "t_en": "Fixed false \"disused plugin\" tips and skewed disuse telemetry for LSP plugins",
+      "tags": ["バグ修正", "Plugin"],
+      "detail": "Claude Code は使用状況のテレメトリをもとに、使われていないプラグインの無効化を /doctor から提案することがある。LSP プラグイン（言語サーバーによるコード解析機能を提供するプラグイン）は、その呼び出され方が既存の使用状況検知ロジックでは「使用」として認識されておらず、実際には使っているのに誤って「未使用プラグイン」の案内が表示され、テレメトリも不正確になっていた。\n\n本バージョンで LSP プラグイン向けの使用状況トラッキングを修正した。",
+      "detail_en": "Claude Code can suggest disabling plugins it detects as unused, based on usage telemetry, as part of what `/doctor` checks. LSP plugins (which provide code intelligence via language servers) were invoked in a way the disuse-detection logic didn't recognize as \"use,\" causing false disused-plugin tips and inaccurate telemetry even for plugins actually in use.\n\nThis version fixes the usage tracking for LSP plugins.",
+      "category": "プラグイン",
+      "category_en": "Plugin"
+    },
+    {
+      "t": "修正: /doctor の更新確認が、Homebrew でインストールした場合に設定のチャンネルではなく cask のチャンネルと比較するように修正",
+      "t_en": "Fixed `/doctor`'s update check to compare Homebrew installs against their cask's channel instead of the settings channel",
+      "tags": ["バグ修正"],
+      "detail": "Claude Code の Homebrew 版には stable チャンネルを追跡する claude-code と、latest チャンネルを追跡する claude-code@latest の2つの cask があり、どちらを使うかはインストール時に選んだ cask 名で決まり、autoUpdatesChannel 設定では決まらない。しかし /doctor の更新確認は、Homebrew でのインストールでも設定側のチャンネルと比較してしまっており、実際に追跡しているチャンネルと食い違うことがあった。\n\n本バージョンで /doctor が cask 自体のチャンネルと正しく比較するように修正された。詳しくは[インストールガイド](https://code.claude.com/docs/en/setup#configure-release-channel)を参照してください。",
+      "detail_en": "Claude Code's Homebrew distribution offers two casks — `claude-code` (stable channel) and `claude-code@latest` (latest channel) — chosen by which cask you installed, not by the `autoUpdatesChannel` setting. `/doctor`'s update-availability check was comparing a Homebrew install's version against the settings channel instead, which could be wrong.\n\nThis version fixes the check to compare against the cask's actual channel. See the [installation guide](https://code.claude.com/docs/en/setup#configure-release-channel) for details.",
+      "category": "設定",
+      "category_en": "Configuration"
+    },
+    {
+      "t": "修正: フルスクリーンモードの「最新行へジャンプ」ピルが、macOS で Ctrl+End を提案する、再割り当てしたチェイン（chord）ショートカットが反映されない、トランスクリプトの上に折り返して表示される、といった問題を修正",
+      "t_en": "Fixed the fullscreen jump-to-bottom pill suggesting Ctrl+End on macOS, not showing rebound chords, and wrapping over the transcript",
+      "tags": ["バグ修正"],
+      "detail": "フルスクリーンモードで画面を上にスクロールすると、最新行へジャンプするためのショートカットを案内する「ピル」が表示される。しかし macOS でも Windows/Linux 向けの Ctrl+End がそのまま案内される、ユーザーが再割り当てしたチェイン（chord）ショートカットが反映されない、ピルの表示がトランスクリプトの上に折り返して重なってしまう、といった複数の表示不具合があった。\n\n本バージョンでこれらをまとめて修正し、プラットフォームに応じた正しいショートカット表示とレイアウトになった。",
+      "detail_en": "In fullscreen mode, scrolling up shows a \"jump to bottom\" pill hinting at the shortcut to return to the latest output. On macOS it incorrectly suggested the Windows/Linux-style Ctrl+End, it didn't reflect chord shortcuts a user had rebound, and the pill could wrap and overlap the transcript.\n\nThis version fixes all three issues, so the hint now matches the platform and the layout no longer overlaps.",
+      "category": "レンダリング",
+      "category_en": "Rendering"
+    },
+    {
+      "t": "修正: Bedrock で awsCredentialExport ヘルパーを使用時、アウトバウンド通信が制限されたネットワークで起動が数分間ハングする問題を修正",
+      "t_en": "Bedrock: fixed a multi-minute startup hang when using an `awsCredentialExport` helper on networks with restricted egress",
+      "tags": ["バグ修正", "Platform"],
+      "detail": "awsCredentialExport は、デフォルトの AWS 認証情報チェーンを変更できない環境向けに、セッション開始時などにコマンドを実行して AWS 認証情報を直接取得する設定。アウトバウンド通信が制限されたネットワークでこのヘルパーを使うと、起動処理が数分間ハングしてしまうことがあった。\n\n本バージョンでこの問題を修正した。詳しくは[Bedrock のドキュメント](https://code.claude.com/docs/en/amazon-bedrock#advanced-credential-configuration)を参照してください。",
+      "detail_en": "`awsCredentialExport` runs a command at session start (and on each credential reload) to fetch AWS credentials directly, for environments where the default AWS credential chain can't be modified. On networks with restricted egress, this helper could cause Claude Code to hang for several minutes at startup.\n\nThis version fixes the hang. See the [Bedrock documentation](https://code.claude.com/docs/en/amazon-bedrock#advanced-credential-configuration) for details.",
+      "category": "プラットフォーム互換性",
+      "category_en": "Platform Compatibility"
+    },
+    {
+      "t": "改善: claude-opus-4-8 における /code-review の指摘品質を全ての effort レベルで向上",
+      "t_en": "Improved `/code-review` findings quality on claude-opus-4-8 across all effort levels",
+      "tags": ["改善"],
+      "detail": "/code-review はローカルの差分をレビューし、正しさに関するバグやクリーンアップの提案を報告するコマンドで、effort レベルを低くすると少数の確信度の高い指摘のみ、高くすると幅広いカバレッジの指摘が返る。\n\n本バージョンでは claude-opus-4-8 モデルを対象に、全ての effort レベルにわたって指摘の品質を高めるチューニングが行われた。詳しくは[code-review のドキュメント](https://code.claude.com/docs/en/code-review#review-a-diff-locally)を参照してください。",
+      "detail_en": "`/code-review` reviews a local diff and reports correctness bugs and cleanup suggestions; lower effort levels return fewer high-confidence findings while higher levels give broader coverage.\n\nThis version tunes finding quality specifically for the `claude-opus-4-8` model across all of `/code-review`'s effort levels. See the [code-review documentation](https://code.claude.com/docs/en/code-review#review-a-diff-locally) for details.",
+      "category": "コマンド",
+      "category_en": "Commands"
+    },
+    {
+      "t": "改善: エージェントビューのステータス列が64文字で切り詰められず、ターミナルの幅いっぱいに表示されるように変更",
+      "t_en": "Improved agents view: status column now uses full terminal width instead of truncating at 64 characters",
+      "tags": ["改善", "Agent"],
+      "detail": "エージェントビューはバックグラウンドセッション一覧を1行のステータス要約とともに表示するが、この要約テキストはこれまで64文字で強制的に切り詰められており、ワイドなターミナルであっても全文を読むには peek パネルを開く必要があった。\n\n本バージョンから、ステータス列がターミナルの利用可能な幅いっぱいに表示されるようになり、一覧を開いたまま要約をより多く読めるようになった。",
+      "detail_en": "Agent view lists background sessions with a one-line status summary, but that summary text was previously hard-truncated at 64 characters, requiring the peek panel to read the full sentence even on wide terminals.\n\nAs of this version, the status column uses the full available terminal width, showing more of the summary directly in the list.",
+      "category": "UX",
+      "category_en": "UX"
+    },
+    {
+      "t": "変更: エージェントビューで Ctrl+X が完了したセッションを完全に削除するように変更。セッションの二重表示や、削除したバックグラウンドジョブが後で復活する問題も修正",
+      "t_en": "Changed agents view: Ctrl+X now permanently removes a completed session, and sessions no longer render twice; deleted background jobs stay deleted",
+      "tags": ["改善", "Agent"],
+      "detail": "エージェントビューではキーボード操作でバックグラウンドセッションを管理できる。本バージョンから、完了したセッションに対する Ctrl+X が完全な削除操作として扱われるようになった。あわせて、セッションが一覧に二重表示されてしまう不具合と、削除したはずのバックグラウンドジョブが後で一覧に復活してしまう不具合も修正されている。\n\n詳しくは[Agent view のドキュメント](https://code.claude.com/docs/en/agent-view#organize-the-list)を参照してください。",
+      "detail_en": "Agent view lets you manage background sessions from the keyboard. As of this version, Ctrl+X on a completed session is treated as a permanent removal. This release also fixes a bug where a session could render twice in the list, and ensures a deleted background job no longer reappears later.\n\nSee the [agent view documentation](https://code.claude.com/docs/en/agent-view#organize-the-list) for details.",
+      "category": "UX",
+      "category_en": "UX"
+    }
   ]
 }

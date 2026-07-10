@@ -513,5 +513,145 @@
         "tags": ["バグ修正", "Agent"]
       }
     ]
+  },
+  {
+    "v": "2.1.206",
+    "items": [
+      {
+        "t": "追加: /cd にディレクトリパスの候補表示を追加し、/add-dir と同様の挙動に",
+        "t_en": "Added directory path suggestions to `/cd`, matching `/add-dir` behavior",
+        "tags": ["新機能"]
+      },
+      {
+        "t": "追加: リポジトリにコミットされた CLAUDE.md からコードベースで推測可能な内容の削減を提案する /doctor チェックを追加",
+        "t_en": "Added a `/doctor` check that proposes trimming checked-in `CLAUDE.md` files by cutting content Claude could derive from the codebase",
+        "tags": ["新機能"]
+      },
+      {
+        "t": "改善: /commit-push-pr が origin 以外にもリポジトリの push 用リモート（remote.pushDefault、またはリモートが1つのみの場合はそのリモート）への git push を自動許可するように",
+        "t_en": "`/commit-push-pr` now auto-allows `git push` to the repo's configured push remote (`remote.pushDefault`, or the sole remote when only one is configured) in addition to `origin`",
+        "tags": ["改善"]
+      },
+      {
+        "t": "追加: Gateway 経由の /login が Anthropic 運営のパブリックゲートウェイエンドポイントに対応",
+        "t_en": "Gateway: `/login` now supports Anthropic-operated public gateway endpoints",
+        "tags": ["新機能", "Platform"]
+      },
+      {
+        "t": "改善: プロジェクトの .claude/worktrees/ 以外の Git worktree に入る際、EnterWorktree が確認を求めるように",
+        "t_en": "`EnterWorktree` now asks for confirmation before entering a git worktree outside the project's `.claude/worktrees/` directory",
+        "tags": ["改善", "Agent"]
+      },
+      {
+        "t": "改善: Claude Code のアップデート後、バックグラウンドエージェントがアタッチ時ではなくバックグラウンドで新バージョンに自動アップグレードされるように",
+        "t_en": "Background agents now upgrade to a new version in the background right after a Claude Code update, instead of paying a slow stale-session upgrade when you attach",
+        "tags": ["改善", "Agent"]
+      },
+      {
+        "t": "修正: ログイン期限切れ時に全モデルで「選択したモデルに問題があります」という誤解を招くエラーが表示され、/login の実行を促されなかった問題を修正",
+        "t_en": "Fixed an expired login failing every model with a misleading \"There's an issue with the selected model\" error instead of prompting to run `/login`",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: claude --resume および --continue で起動直後にキーボード入力が反応しない問題を修正",
+        "t_en": "Fixed `claude --resume` and `--continue` not responding to keyboard input on startup",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: --mcp-config や .mcp.json で設定した MCP サーバーの request_timeout_ms が無視され、新規セッションで長時間実行される MCP ツール呼び出しがデフォルトの60秒でタイムアウトしていた問題を修正",
+        "t_en": "Fixed MCP servers configured via `--mcp-config` or `.mcp.json` ignoring a per-server `request_timeout_ms`, which caused long-running MCP tool calls to time out at the 60s default in fresh sessions",
+        "tags": ["バグ修正", "MCP"]
+      },
+      {
+        "t": "修正: claude agents や --bg のバックグラウンドワーカーで CLAUDE_CODE_EXTRA_BODY が無視されていた問題を修正。シェルでエクスポートした値がディスパッチ元セッションに引き継がれるように",
+        "t_en": "Fixed `CLAUDE_CODE_EXTRA_BODY` being silently ignored by `claude agents` / `--bg` background workers; the shell-exported override now follows the dispatching session",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: OAuth 認証の MCP サーバーで、トークンのリフレッシュが1回失敗しただけで手動の再認証が必要になっていた問題を修正",
+        "t_en": "Fixed OAuth MCP servers requiring manual re-authentication after a single failed token refresh",
+        "tags": ["バグ修正", "MCP"]
+      },
+      {
+        "t": "修正: --permission-prompt-tool が指す MCP サーバーがまだ接続を完了していないコールドスタート時に「MCP tool not found」でクラッシュしていた問題を修正",
+        "t_en": "Fixed `--permission-prompt-tool` pointing at an MCP server crashing with \"MCP tool not found\" on cold start before the server finishes connecting",
+        "tags": ["バグ修正", "MCP"]
+      },
+      {
+        "t": "修正: /model ピッカーの一部の行で、表示されているモデルとは異なるモデルの価格が表示されていた問題を修正。また、料金を請求しないプロバイダーでは Anthropic 純正の定価を表示しないように変更",
+        "t_en": "Fixed `/model` picker rows printing a price for a different model than the row named, and stopped quoting first-party list prices on providers that don't bill them",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: エンタイトルメントやアローリストの制限で基準となる行が除外された際、サーバー提供のモデル行が /model ピッカー内で誤った位置に表示されていた問題を修正",
+        "t_en": "Fixed server-provided model rows being misplaced in the `/model` picker when an entitlement or allowlist restriction drops the row they were positioned against",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: ターン処理中にスラッシュコマンドを送信すると、デスクトップセッションが「実行中」のまま止まってしまう問題を修正",
+        "t_en": "Fixed desktop sessions getting stuck showing \"running\" after a slash command was sent mid-turn",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: Windows で claude --resume 実行時にエージェントビューの前にセットアッププロンプトが表示されると、キーボード入力が反応しなくなる問題を修正",
+        "t_en": "Fixed keyboard input being ignored in the agents view when a setup prompt appeared before a bare `claude --resume` on Windows",
+        "tags": ["バグ修正", "Windows", "Agent"]
+      },
+      {
+        "t": "修正: claude rm で削除したジョブがデーモンの管理リストに残り、claude agents に再表示されてしまう問題を修正",
+        "t_en": "Fixed `claude rm` leaving the removed job in the daemon roster, causing the row to reappear in `claude agents`",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: ログアウト状態で /remote-control を実行すると「Unknown command」と表示されていた問題を修正。サインイン方法を案内するように変更",
+        "t_en": "Fixed `/remote-control` showing \"Unknown command\" when logged out — it now explains how to sign in",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: ワークフロー詳細画面でフェーズやエージェントから左矢印キーで一つ前の階層に戻れない問題を修正",
+        "t_en": "Fixed left arrow not stepping back out of a phase or agent in the workflow detail view",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: /status で壊れたインストールに関する警告が重複して2回表示されていた問題を修正",
+        "t_en": "Fixed `/status` listing the same broken-install warning twice",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: LSP プラグインに対して誤った「未使用プラグイン」の案内が表示され、使用状況のテレメトリも不正確になっていた問題を修正",
+        "t_en": "Fixed false \"disused plugin\" tips and skewed disuse telemetry for LSP plugins",
+        "tags": ["バグ修正", "Plugin"]
+      },
+      {
+        "t": "修正: /doctor の更新確認が、Homebrew でインストールした場合に設定のチャンネルではなく cask のチャンネルと比較するように修正",
+        "t_en": "Fixed `/doctor`'s update check to compare Homebrew installs against their cask's channel instead of the settings channel",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: フルスクリーンモードの「最新行へジャンプ」ピルが、macOS で Ctrl+End を提案する、再割り当てしたチェイン（chord）ショートカットが反映されない、トランスクリプトの上に折り返して表示される、といった問題を修正",
+        "t_en": "Fixed the fullscreen jump-to-bottom pill suggesting Ctrl+End on macOS, not showing rebound chords, and wrapping over the transcript",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: Bedrock で awsCredentialExport ヘルパーを使用時、アウトバウンド通信が制限されたネットワークで起動が数分間ハングする問題を修正",
+        "t_en": "Bedrock: fixed a multi-minute startup hang when using an `awsCredentialExport` helper on networks with restricted egress",
+        "tags": ["バグ修正", "Platform"]
+      },
+      {
+        "t": "改善: claude-opus-4-8 における /code-review の指摘品質を全ての effort レベルで向上",
+        "t_en": "Improved `/code-review` findings quality on claude-opus-4-8 across all effort levels",
+        "tags": ["改善"]
+      },
+      {
+        "t": "改善: エージェントビューのステータス列が64文字で切り詰められず、ターミナルの幅いっぱいに表示されるように変更",
+        "t_en": "Improved agents view: status column now uses full terminal width instead of truncating at 64 characters",
+        "tags": ["改善", "Agent"]
+      },
+      {
+        "t": "変更: エージェントビューで Ctrl+X が完了したセッションを完全に削除するように変更。セッションの二重表示や、削除したバックグラウンドジョブが後で復活する問題も修正",
+        "t_en": "Changed agents view: Ctrl+X now permanently removes a completed session, and sessions no longer render twice; deleted background jobs stay deleted",
+        "tags": ["改善", "Agent"]
+      }
+    ]
   }
 ]
