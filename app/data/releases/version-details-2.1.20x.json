@@ -1128,5 +1128,223 @@
       "category": "UX",
       "category_en": "UX"
     }
+  ],
+  "2.1.207": [
+    {
+      "t": "改善: Bedrock・Vertex AI・Foundry でも `CLAUDE_CODE_ENABLE_AUTO_MODE` のオプトインなしで auto mode を利用可能に（`disableAutoMode` 設定で無効化可能）",
+      "t_en": "Auto mode is now available without `CLAUDE_CODE_ENABLE_AUTO_MODE` opt-in on Bedrock, Vertex AI, and Foundry; disable via `disableAutoMode` in settings",
+      "tags": ["改善", "Platform"],
+      "detail": "これまで auto mode（判定に基づき定型的な確認を省略するパーミッションモード）は、Anthropic の直接 API では既定で利用できる一方、Bedrock・Google Cloud Vertex AI・Microsoft Foundry の各プラットフォームでは `CLAUDE_CODE_ENABLE_AUTO_MODE` 環境変数を明示的に設定しない限り利用できなかった。\n\n本バージョンからこのオプトイン要件が撤廃され、これらのプラットフォームでも直接 API と同様に auto mode がデフォルトで利用可能になった。組織として auto mode を無効化したい場合は、引き続き管理設定の `disableAutoMode` で無効化できる。",
+      "detail_en": "Previously, auto mode — the classifier-gated permission mode that skips routine confirmation prompts — was available by default through Anthropic's direct API, but required explicitly setting the `CLAUDE_CODE_ENABLE_AUTO_MODE` environment variable on Amazon Bedrock, Google Cloud Vertex AI, and Microsoft Foundry.\n\nThis version removes that opt-in requirement, so auto mode is now available by default on these platforms as well, matching the direct API. Organizations that want to keep it disabled can still do so via the `disableAutoMode` setting.",
+      "category": "プラットフォーム互換性",
+      "category_en": "Platform Compatibility"
+    },
+    {
+      "t": "修正: 非常に長いリスト・テーブル・段落・コードブロックを含む応答のストリーミング中にターミナルがフリーズしキー入力が遅延する問題",
+      "t_en": "Fixed the terminal freezing and keystrokes lagging while streaming responses containing very long lists, tables, paragraphs, or code blocks",
+      "tags": ["バグ修正", "Perf"],
+      "detail": "非常に長いリスト・テーブル・段落・コードブロックを含む応答をストリーミング表示する際、ターミナルの描画処理が重くなり、フリーズやキー入力の遅延が発生することがあった。\n\n本バージョンでこの描画パフォーマンスの問題が修正され、大きなコンテンツブロックを含む応答をストリーミング中でも操作性が損なわれなくなった。",
+      "detail_en": "Streaming a response that contained a very long list, table, paragraph, or code block could overload the terminal's rendering, causing the UI to freeze and keystrokes to lag noticeably.\n\nThis rendering-performance issue is now fixed, so streaming large content blocks no longer degrades responsiveness.",
+      "category": "レンダリング",
+      "category_en": "Rendering"
+    },
+    {
+      "t": "修正: `claude -p` や SDK など非対話実行でのリモート管理設定が、セキュリティ同意ダイアログを一度も表示しないまま同意済みとして永続的に記録される問題",
+      "t_en": "Fixed remote managed settings from a non-interactive run (`claude -p`, the SDK) being permanently recorded as consented without ever showing the security consent dialog",
+      "tags": ["バグ修正", "Security", "SDK"],
+      "detail": "シェルコマンドやカスタム環境変数、フック、管理者配布の CLAUDE.md など、セキュリティ上のリスクを伴いうる管理設定は、通常ユーザーへの同意ダイアログを経てから適用される。しかし `claude -p` や Agent SDK のような非対話実行では、この確認は意図的にスキップされ設定がそのまま適用される仕様だった。\n\nこれまでは、この非対話実行時のスキップが「ユーザーが同意済み」として永続的に記録されてしまい、後で対話セッションを開いた際に本来表示されるべき同意ダイアログが表示されなくなる問題があった。本バージョンでこの問題が修正され、非対話実行でのスキップが対話セッションの同意状態を汚染しなくなった。詳しくは[管理設定のドキュメント](https://code.claude.com/docs/en/server-managed-settings#security-approval-dialogs)を参照してください。",
+      "detail_en": "Managed settings that carry security risk — shell commands, custom environment variables, hooks, admin-distributed CLAUDE.md — normally require a user-facing consent dialog before being applied. Non-interactive runs such as `claude -p` and the Agent SDK intentionally skip that dialog and simply apply the settings.\n\nPreviously, this non-interactive skip was permanently recorded as if the user had consented, which could suppress the dialog in a later interactive session where the user should have been asked. This is now fixed so a non-interactive skip no longer taints future interactive consent state. See the [managed settings documentation](https://code.claude.com/docs/en/server-managed-settings#security-approval-dialogs) for details.",
+      "category": "セキュリティ",
+      "category_en": "Security"
+    },
+    {
+      "t": "修正: システムが生成した通常の会話更新に対して、誤ったプロンプトインジェクション警告が表示される問題",
+      "t_en": "Fixed spurious prompt-injection warnings triggered by benign system-generated conversation updates",
+      "tags": ["バグ修正", "Security"],
+      "detail": "Claude Code はプロンプトインジェクション（悪意ある指示の混入）を検知するため会話内容を分析しているが、システムが自動生成する通常の会話更新までもがインジェクションの兆候として誤検知され、不要な警告が表示されることがあった。\n\n本バージョンで検知ロジックが調整され、こうした良性のシステム生成メッセージが誤って警告されなくなった。",
+      "detail_en": "Claude Code analyzes conversation content to detect prompt injection, but ordinary, benign system-generated conversation updates were sometimes misclassified as injection attempts, producing unnecessary warnings.\n\nThe detection logic has been tuned so these benign system-generated messages no longer trigger false warnings.",
+      "category": "セキュリティ",
+      "category_en": "Security"
+    },
+    {
+      "t": "修正: `~/.local/bin/claude` にあるカスタムのランチャースクリプトやシンボリックリンクが、リリースのたびに自動アップデーターに上書きされる問題（`/doctor` が外部管理のランチャーを検出・報告するように）",
+      "t_en": "Fixed the auto-updater overwriting a custom launcher script or symlink at `~/.local/bin/claude` on every release; `/doctor` now reports an externally managed launcher",
+      "tags": ["バグ修正"],
+      "detail": "バージョン固定やテレメトリなどの目的で `~/.local/bin/claude` のバイナリを独自のラッパースクリプトやシンボリックリンクに置き換えて運用しているユーザーがいるが、バックグラウンドの自動アップデーターがリリースのたびにこのファイルを無条件に上書きし、カスタマイズが黙って失われていた。\n\n本バージョンからアップデーターが外部管理のランチャーを検出して上書きを避けるようになり、`/doctor` もその状態を報告するようになった。これにより、通常の方法でアップデートが反映されない理由をユーザーが把握できるようになった。",
+      "detail_en": "Some users replace the binary at `~/.local/bin/claude` with a custom wrapper script or symlink, for example to pin a version or add telemetry, but the background auto-updater was unconditionally overwriting that file on every release, silently discarding the customization.\n\nThe updater now detects an externally managed launcher and leaves it alone, and `/doctor` reports this state — so users understand why auto-updates aren't taking effect the usual way.",
+      "category": "安定性",
+      "category_en": "Stability"
+    },
+    {
+      "t": "修正: `cd` を含む複合コマンドで、出力リダイレクト先が `/dev/null` だけの場合でもパーミッション確認を求められる問題",
+      "t_en": "Fixed compound commands with `cd` prompting for permission when the only output redirect was to `/dev/null`",
+      "tags": ["バグ修正"],
+      "detail": "作業ディレクトリ配下への `cd` は読み取り専用の操作として扱われ、通常は複合コマンド内でも自動承認される。しかし `cd` と別のコマンドを組み合わせた複合コマンドでは、移動先ディレクトリのフックが実行される可能性があることへの用心から確認を求める場合があり、出力を `/dev/null` に捨てるだけのリダイレクトが付いている場合にもこの確認が不要に要求されていた。\n\n本バージョンでこの過剰な確認が修正され、`/dev/null` への出力リダイレクトのみを伴う安全な複合コマンドでは、余計なパーミッション確認が発生しなくなった。詳しくは[パーミッションのドキュメント](https://code.claude.com/docs/en/permissions#read-only-commands)を参照してください。",
+      "detail_en": "A `cd` into an in-scope working directory is treated as read-only and normally auto-approved inside a compound command. But combining `cd` with another command could trigger a permission prompt out of caution — since running a command in a new directory can trigger that directory's hooks — and this caution was unnecessarily triggered even when the only redirect present was discarding output to `/dev/null`.\n\nThis overly cautious prompt is now fixed, so a compound command whose only redirect is to `/dev/null` no longer forces an unnecessary permission check. See the [permissions documentation](https://code.claude.com/docs/en/permissions#read-only-commands) for details.",
+      "category": "パーミッション",
+      "category_en": "Permissions"
+    },
+    {
+      "t": "修正: 応答のストリーミングが完了した際に、トランスクリプトが回答の先頭より上にジャンプしてしまう問題",
+      "t_en": "Fixed the transcript jumping above the start of the answer when a response finishes streaming",
+      "tags": ["バグ修正"],
+      "detail": "応答のストリーミングが完了した直後に、ターミナルのトランスクリプト表示が回答の先頭より上の位置へジャンプしてしまい、読んでいた箇所を見失うことがあった。\n\n本バージョンでこのスクロール位置の問題が修正され、ストリーミング完了時も読んでいた位置が保たれるようになった。",
+      "detail_en": "Right as a response finished streaming, the terminal transcript view could jump to a position above where the answer began, disrupting the reading flow.\n\nThis scroll-position bug is now fixed, so the view no longer jumps away from where you were reading when streaming completes.",
+      "category": "レンダリング",
+      "category_en": "Rendering"
+    },
+    {
+      "t": "修正: `worktree.sparsePaths` を使った最後の worktree を削除した後も、`extensions.worktreeConfig` がリポジトリの `.git/config` に残り続け、`tea` など go-git ベースのツールが壊れる問題",
+      "t_en": "Fixed `extensions.worktreeConfig` being left in the repo's `.git/config` (breaking go-git tools like `tea`) after the last `worktree.sparsePaths` worktree was removed",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "Claude Code がスパースチェックアウトパス（`worktree.sparsePaths`）を指定した worktree を作成すると、worktree 単位の設定を有効にするため git は `extensions.worktreeConfig = true` をリポジトリの `.git/config` に設定する。これまでは、該当する worktree をすべて削除した後もこのフラグが除去されず残り続け、`tea` のような go-git ベースのツールがこの拡張設定に対応しておらず動作しなくなることがあった。\n\n本バージョンで、不要になった時点でこのフラグが正しく除去されるようになった。",
+      "detail_en": "When Claude Code creates a worktree with sparse checkout paths (`worktree.sparsePaths`), git sets `extensions.worktreeConfig = true` in the repository's `.git/config` to enable per-worktree configuration. Previously, this flag wasn't cleaned up after all such worktrees were removed, leaving the repo permanently marked as using worktree-config extensions — which tools built on go-git, like `tea`, don't fully support and would then fail on.\n\nThe flag is now correctly removed once it's no longer needed.",
+      "category": "Git 連携",
+      "category_en": "Git Integration"
+    },
+    {
+      "t": "修正: rules の glob・スキルパス・`.ignore`・`.worktreeinclude` 内の不正な角括弧パターンが、ファイル読み取り・ファイル候補表示・worktree 作成を壊してしまう問題",
+      "t_en": "Fixed malformed bracket patterns in rules globs, skill paths, `.ignore`, and `.worktreeinclude` breaking file reads, file suggestions, and worktree creation",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "`.claude/rules/` のパス限定ルール、スキル探索パス、無視パターン用のファイル、`.worktreeinclude`（gitignore 除外ファイルを新しい worktree にコピーする対象を指定）は、いずれも角括弧の文字クラス（例: `[abc]`）を含む gitignore 形式の glob パターンを利用する。これまでは、このいずれかに不正な角括弧パターンが含まれると、そのパターンだけがマッチしないのではなく、パーサー自体が壊れて無関係なファイル読み取り・ファイルパスの候補表示・worktree の作成までもが失敗していた。\n\n本バージョンでパターン解析の堅牢性が向上し、不正な角括弧パターンがあっても他の機能に影響しなくなった。",
+      "detail_en": "Several features use gitignore-style glob patterns with bracket character classes (e.g. `[abc]`): path-scoped rules in `.claude/rules/`, skill discovery paths, ignore-pattern files, and `.worktreeinclude` (which specifies gitignored files to copy into a new worktree). Previously, a malformed bracket pattern in any of these could break the underlying matcher entirely — not just fail to match that one pattern — causing unrelated file reads, file-path suggestions, or worktree creation to fail.\n\nPattern parsing is now more resilient, so a malformed bracket pattern no longer affects unrelated functionality.",
+      "category": "安定性",
+      "category_en": "Stability"
+    },
+    {
+      "t": "修正: エージェントチームで、不正な形式のチームメイトメールボックスメッセージが原因で、メールボックスファイルを手動削除するまで1秒おきにエラーが繰り返されるクラッシュループが発生する問題",
+      "t_en": "Fixed a crash loop in agent teams where a malformed teammate mailbox message caused repeated errors every second until the mailbox file was manually deleted",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "エージェントチームはエージェント間のメッセージングにファイルベースのメールボックス機構を使用している。これまでは、チームメイトのメールボックスファイルに不正な形式のメッセージが書き込まれると、読み取り処理がエラーで即座にリトライを繰り返す高速なクラッシュループに陥り、ユーザーがメールボックスファイルを手動で削除するまで止まらなかった。\n\n本バージョンでメールボックスメッセージの解析が不正な形式に対して寛容になり、壊れたメッセージ1件でセッション全体が詰まることがなくなった。",
+      "detail_en": "Agent teams use a file-based mailbox system for messaging between agents. Previously, a malformed message written to a teammate's mailbox file could cause the reading process to error out and immediately retry, entering a tight crash loop — roughly once per second — that only stopped once the user manually deleted the mailbox file.\n\nMailbox message parsing is now tolerant of malformed entries, so a single bad message no longer wedges the whole session.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-agent"
+    },
+    {
+      "t": "修正: プラン承認によって自動命名されたバックグラウンドセッションで、その名前がエージェントビューの行に表示されない問題",
+      "t_en": "Fixed background sessions auto-named by accepting a plan not showing that name on their agent-view row",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "plan mode でプランを承認すると、まだ名前が設定されていないセッションはそのプラン内容から自動的に命名される。エージェントビューの各行にはセッション名が表示される仕様だが、これまではプラン承認によって付けられた名前がエージェントビューの行表示に反映されず、名前が空のまま、あるいは古いラベルのまま表示されることがあった。\n\n本バージョンでこの表示の同期漏れが修正され、プラン承認による自動命名も他の命名経路と同様にエージェントビューへ正しく反映されるようになった。",
+      "detail_en": "Accepting a plan automatically names a session from the plan content, unless a name was already set, and agent view is supposed to display each session's name on its row. Previously, a name assigned this way — via plan acceptance rather than the initial prompt — failed to propagate to the agent-view row, so the session could appear unnamed or under a stale label.\n\nThis display gap is now fixed, so a plan-derived name shows up in agent view just like any other session name.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-agent"
+    },
+    {
+      "t": "修正: git worktree に入ったバックグラウンドセッションを、エージェント一覧からコールドリオープンすると空の状態で再開される問題",
+      "t_en": "Fixed background sessions that entered a git worktree resuming blank after a cold reopen from the agent list",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "セッションが worktree に入る、または抜けると、そのトランスクリプトは対応する worktree のプロジェクトストレージに移動され、`/desktop` や `--resume` から見つけられるようになる。しかしこれまでは、バックグラウンドセッションに限り、プロセスが完全に終了した後にエージェント一覧から「コールドリオープン」すると、移動済みのトランスクリプトから復元されず、空の会話として表示されることがあった。\n\n本バージョンでこの復元処理が修正され、worktree に入ったバックグラウンドセッションもコールドリオープン後に以前のトランスクリプトを正しく復元できるようになった。",
+      "detail_en": "Entering or exiting a worktree relocates a session's transcript to that worktree's project storage so `/desktop` and `--resume` can find it there. Previously, for background sessions specifically, resuming after a \"cold\" reopen — attaching from the agent list after the process had fully exited, not just gone idle — could show a blank conversation instead of restoring the prior transcript from that relocated storage.\n\nThis restoration logic is now fixed, so a background session that entered a worktree correctly resumes its prior transcript after a cold reopen.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-agent"
+    },
+    {
+      "t": "修正: ネットワーク切断や認証情報の更新から接続が復旧した際に、Remote Control のタスクステータス更新が失われる問題",
+      "t_en": "Fixed Remote Control task status updates being lost when the connection recovered from a network interruption or credential refresh",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "Remote Control はローカルの Claude Code セッションを claude.ai/code やモバイルアプリとストリーミング接続で同期しており、ネットワーク切断やスリープからの復帰後は自動的に再接続する設計になっている。しかしこれまでは、再接続の前後で発生したタスク・ステータスの更新が、再接続後に配信されず失われてしまうことがあり、リモート側の表示が古いままになっていた。\n\n本バージョンでこの問題が修正され、再接続後もステータス更新が正しく配信されるようになった。詳しくは[Remote Control のドキュメント](https://code.claude.com/docs/en/remote-control)を参照してください。",
+      "detail_en": "Remote Control keeps a local Claude Code session in sync with claude.ai/code or the mobile app over a streaming connection, and reconnects automatically after a network drop or sleep. Previously, task/status updates occurring around a reconnection — whether from a network blip or a credential refresh — could be dropped instead of delivered once the connection came back, leaving the remote UI showing stale status.\n\nThis is now fixed, so status updates are correctly delivered after reconnecting. See the [Remote Control documentation](https://code.claude.com/docs/en/remote-control) for details.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-agent"
+    },
+    {
+      "t": "修正: デスクトップアプリがホストする Remote Control セッションで、バックグラウンドエージェントやワークフローの進捗がモバイル・Web に表示されない問題",
+      "t_en": "Fixed Remote Control sessions hosted by the desktop app not showing background agent and workflow progress on mobile and web",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "Claude Code のデスクトップアプリは Remote Control セッションをホストでき、claude.ai/code やモバイルアプリから閲覧・操作できる。しかしこれまでは、デスクトップアプリがホストするセッション内で動くバックグラウンドエージェントやマルチステップのワークフローの進捗が、実際には正常に進行していても、接続先のモバイル・Web クライアントには表示されなかった。\n\n本バージョンでこの表示漏れが修正され、デスクトップアプリのホストセッションでもバックグラウンドエージェントやワークフローの進捗がモバイル・Web で正しく表示されるようになった。",
+      "detail_en": "The Claude Code desktop app can host Remote Control sessions viewed and steered from claude.ai/code or the mobile app. Previously, progress from background agents and multi-step workflows running in a desktop-hosted session failed to appear on connected mobile/web clients, even though the work itself was proceeding normally.\n\nThis visibility gap is now fixed, so background agent and workflow progress from a desktop-hosted session now shows up correctly on mobile and web.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-agent"
+    },
+    {
+      "t": "修正: Deep research 実行で Fetch フェーズの全エージェントが「unknown」と表示される問題（チップに取得元のホスト名が表示されるように）",
+      "t_en": "Fixed Deep research runs labeling every Fetch-phase agent \"unknown\" — chips now show the source hostname",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "Deep research のような複数エージェントによる調査実行では、情報源を取得するフェーズ（Fetch フェーズ）の各サブエージェントが UI 上の「チップ」として表示される。これまではラベル付けの不具合により、すべてのチップが取得元を示さず一律に「unknown」と表示され、どのソースを調べているのか進捗を追いにくかった。\n\n本バージョンでこの問題が修正され、各チップに実際の取得元ホスト名が表示されるようになった。",
+      "detail_en": "During the fetch phase of a deep-research-style multi-agent run, each sub-agent fetching a source is shown as a UI chip. A labeling bug previously caused every chip to display the generic label \"unknown\" instead of identifying which source it was fetching, making it hard to track research progress.\n\nThis is now fixed: chips show the actual source hostname instead.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-agent"
+    },
+    {
+      "t": "修正: Bedrock で IAM Identity Center への AWS SSO 認証情報の再取得が、API リクエストのたびに繰り返し発生する問題",
+      "t_en": "Fixed Bedrock repeatedly requesting fresh AWS SSO credentials from IAM Identity Center on every API request",
+      "tags": ["バグ修正", "Platform"],
+      "detail": "Claude Code は Bedrock 利用時、`awsAuthRefresh` や `awsCredentialExport` の設定によって AWS 認証情報を自動更新できるが、これは本来、認証情報が実際に失効・無効な場合にのみ実行される想定になっている。しかしこれまでは、有効な認証情報をキャッシュして再利用せず、API リクエストのたびに IAM Identity Center へ新しい SSO 認証情報を再要求してしまう不具合があり、レイテンシの増加や不要な負荷、場合によってはブラウザ経由の SSO プロンプトの繰り返し表示につながっていた。\n\n本バージョンでこの問題が修正され、認証情報が本当に必要な場合にのみ再取得されるようになった。詳しくは[Amazon Bedrock のドキュメント](https://code.claude.com/docs/en/amazon-bedrock#advanced-credential-configuration)を参照してください。",
+      "detail_en": "Claude Code supports automatic AWS credential refresh on Bedrock via the `awsAuthRefresh`/`awsCredentialExport` settings, intended to run only when credentials are actually expired or invalid. A bug caused Claude Code to re-request fresh SSO credentials from IAM Identity Center on every single API request instead of caching and reusing valid ones, adding latency and unnecessary load, and in some cases triggering repeated browser-based SSO prompts.\n\nThis is now fixed, so credentials are only refetched when actually necessary. See the [Amazon Bedrock documentation](https://code.claude.com/docs/en/amazon-bedrock#advanced-credential-configuration) for details.",
+      "category": "プラットフォーム互換性",
+      "category_en": "Platform Compatibility"
+    },
+    {
+      "t": "改善: エージェントビューで同じテキストを再度ペーストすると、折りたたまれた `[Pasted text #N]` のプレースホルダーが展開されるように（二重追加されなくなった）",
+      "t_en": "Improved agent view: pasting the same text again now expands the collapsed `[Pasted text #N]` placeholder instead of adding a second one",
+      "tags": ["改善", "Agent"],
+      "detail": "大きなペーストされたテキストはプロンプト入力欄で `[Pasted text #N]` というプレースホルダーに折りたたまれるが、これまでは同じ内容を再度ペーストすると、同一内容と認識されずに2つ目のプレースホルダーが追加されてしまっていた。\n\n本バージョンから、同じテキストの再ペーストは既存のプレースホルダーを展開・再利用するようになり、入力欄が余計なプレースホルダーで散らかることがなくなった。",
+      "detail_en": "Large pasted text collapses into a `[Pasted text #N]` placeholder in the prompt box. Previously, pasting the identical content again wasn't recognized as the same content and created a redundant second placeholder.\n\nA repeat paste of the same text now simply expands or reuses the existing placeholder, keeping the input free of clutter.",
+      "category": "UX",
+      "category_en": "UX"
+    },
+    {
+      "t": "改善: ブロックされたセッションのピーク表示が、質問内容を先頭に表示し、同じタイムスタンプの二重表示ではなく「waiting 3m」のような経過時間表示になるように",
+      "t_en": "Improved agent view: blocked session peeks now lead with the question and show a worded staleness clock (`waiting 3m`) instead of the same timestamp twice",
+      "tags": ["改善", "Agent"],
+      "detail": "入力待ちでブロックされているバックグラウンドセッションをのぞき見る「ピーク」表示は、これまで有用な情報を先頭に表示せず、同じタイムスタンプが二重に表示されていた。\n\n本バージョンからピーク表示はセッションが実際に待機している質問内容を先頭に表示し、「waiting 3m」のような分かりやすい経過時間表示に変更された。これにより、エージェント一覧を見渡してどのセッションに対応が必要かを素早く判断しやすくなった。",
+      "detail_en": "When peeking at a background session blocked waiting for input, the preview previously led with less useful information and showed the same timestamp twice.\n\nThe preview now leads with the actual question the session is blocked on and shows a human-readable staleness indicator like \"waiting 3m\", making it faster to scan the agent list and decide which sessions need attention.",
+      "category": "UX",
+      "category_en": "UX"
+    },
+    {
+      "t": "変更: Bedrock・Vertex・Claude Platform on AWS のデフォルトモデルを Claude Opus 4.8 に変更",
+      "t_en": "Changed Bedrock, Vertex, and Claude Platform on AWS to default to Claude Opus 4.8",
+      "tags": ["改善", "Platform"],
+      "detail": "モデル固定用の環境変数を設定していない場合、Claude Code は `opus` エイリアスや未固定のプライマリモデルを各プラットフォームの組み込みデフォルトへ解決する。\n\n本バージョンから、Bedrock・Google Cloud Vertex AI・Claude Platform on AWS の3つのプラットフォームすべてで、この組み込みデフォルトが従来の Opus バージョンから Claude Opus 4.8 に更新された。ロールアウトのタイミングを自分で管理したい組織は、`ANTHROPIC_DEFAULT_OPUS_MODEL` を明示的に固定することで対応できる。詳しくは[Amazon Bedrock のドキュメント](https://code.claude.com/docs/en/amazon-bedrock#4-pin-model-versions)を参照してください。",
+      "detail_en": "When no model-pinning environment variable is set, Claude Code resolves the `opus` alias and the unpinned primary model to each provider's built-in default.\n\nThis version updates that built-in default from an earlier Opus version to Claude Opus 4.8 across all three AWS-adjacent provider integrations — Bedrock, Google Cloud Vertex AI, and Claude Platform on AWS. Organizations that want to control rollout timing can pin `ANTHROPIC_DEFAULT_OPUS_MODEL` explicitly. See the [Amazon Bedrock documentation](https://code.claude.com/docs/en/amazon-bedrock#4-pin-model-versions) for details.",
+      "category": "プラットフォーム互換性",
+      "category_en": "Platform Compatibility"
+    },
+    {
+      "t": "変更: auto mode がリポジトリに含まれうる `.claude/settings.local.json` から `autoMode` を読み込まなくなり、`~/.claude/settings.json` を使用するように",
+      "t_en": "Changed auto mode to no longer read `autoMode` from `.claude/settings.local.json` (repo-resident); use `~/.claude/settings.json` instead",
+      "tags": ["改善", "Security"],
+      "detail": "auto mode の挙動を制御する `autoMode` 設定ブロック（分類器が信頼するインフラのルールなど）は、これまでプロジェクトスコープの `.claude/settings.local.json` からも読み込むことができた。このファイルは通常 gitignore 対象だが、共有・チェックインされたリポジトリ内に存在しうるため、リポジトリ側が自身に auto mode の挙動を付与できてしまう余地があった。\n\n本バージョンから `autoMode` はリポジトリに存在しうる `.claude/settings.local.json` から読み込まれなくなり、代わりにユーザー自身の `~/.claude/settings.json` からのみ読み込まれるようになった。",
+      "detail_en": "The `autoMode` settings block, which controls auto mode's classifier behavior (such as trusted-infrastructure rules), could previously be read from the project-scoped `.claude/settings.local.json`. Although normally gitignored, that file can still live inside a shared or checked-in repository, leaving room for a repository to grant itself auto-mode behavior.\n\nThis version stops reading `autoMode` from the repo-resident `.claude/settings.local.json` and reads it only from the user's own `~/.claude/settings.json` instead.",
+      "category": "設定",
+      "category_en": "Configuration"
+    },
+    {
+      "t": "修正: Windows で AWS 認証情報の解決がスタック（`credential_process` のハング等）した際に無期限にハングする問題（60秒のストールガードが正しく発火するように）",
+      "t_en": "Fixed an indefinite hang on Windows when AWS credential resolution stalls (e.g. a stuck `credential_process`): the 60-second stall guard now fires instead of waiting forever.",
+      "tags": ["バグ修正", "Windows", "Platform"],
+      "detail": "Windows では、設定されている AWS 認証情報の解決経路がスタックすること（例えば AWS 設定内の `credential_process` エントリがハングして応答も返さない場合）があり、これまでは起動時に無期限にハングし、プロセスを強制終了する以外に回復手段がなかった。\n\n本バージョンで、既存の60秒のストール検知ガードが Windows でも正しく発火するようになり、ハングしたまま待ち続ける代わりにエラーで即座に失敗するようになった。",
+      "detail_en": "On Windows, if the configured AWS credential resolution path stalled — for example, a `credential_process` entry in the AWS config that hangs rather than returning or erroring — Claude Code could hang indefinitely at startup, with no way to recover short of killing the process.\n\nAn existing 60-second stall-detection guard now correctly fires on Windows in this scenario, so the session fails fast with an error instead of hanging forever.",
+      "category": "安定性",
+      "category_en": "Stability"
+    },
+    {
+      "t": "修正: プラグインの hooks・monitors・MCP headersHelper のシェル形式コマンドで `${user_config.*}` を使えないように（シェルインジェクション対策）。hooks は exec 形式（`args` 配列）または `$CLAUDE_PLUGIN_OPTION_<KEY>` を使用し、monitors・headersHelper はスクリプト内（設定ファイルやサーバーの `env` ブロック）で値を読み込むこと",
+      "t_en": "Plugin hooks/monitors/MCP headersHelper: `${user_config.*}` in shell-form commands is now rejected (shell-injection fix). Hooks: use exec form (`args` array) or `$CLAUDE_PLUGIN_OPTION_<KEY>`; monitors and headersHelper: read the value inside the script (config file or the server's `env` block).",
+      "tags": ["バグ修正", "Security", "Plugin", "MCP"],
+      "detail": "プラグインの `userConfig` の値は `${user_config.KEY}` という形式で hooks コマンド・MCP の `headersHelper` コマンド・monitors コマンドに埋め込むことができ、`CLAUDE_PLUGIN_OPTION_<KEY>` という環境変数としても公開されている。しかし hook・monitor・headersHelper のコマンドがシェル形式（シェルが解釈する単純なコマンド文字列）で実行される場合、信頼できない、あるいは攻撃者に影響されうる `user_config` の値をそのまま文字列に埋め込むと、シェルインジェクションを許してしまう恐れがあった。\n\n本バージョンから、シェル形式のコマンドでは `${user_config.*}` の置換が拒否されるようになった。hooks では、シェルを介さない exec 形式（`args` 配列）を使うか `$CLAUDE_PLUGIN_OPTION_<KEY>` 環境変数を参照する必要がある。monitors と headersHelper では、値をスクリプト内（設定ファイルやサーバーの `env` ブロック）で読み込む必要がある。詳しくは[hooks のドキュメント](https://code.claude.com/docs/en/hooks#exec-form-and-shell-form)を参照してください。",
+      "detail_en": "Plugin `userConfig` values can be substituted as `${user_config.KEY}` into hook commands, MCP `headersHelper` commands, and monitor commands, and are also exported as `CLAUDE_PLUGIN_OPTION_<KEY>` environment variables. When a hook, monitor, or headersHelper command runs in shell form — a plain command string interpreted by a shell — substituting an untrusted or attacker-influenced `user_config` value directly into that string could allow shell injection.\n\nThis version rejects `${user_config.*}` substitution in shell-form commands. Hooks must use the exec form (an `args` array, with no shell interpretation) or read `$CLAUDE_PLUGIN_OPTION_<KEY>` instead; monitors and headersHelper must read the value inside the script itself (from a config file or the server's `env` block). See the [hooks documentation](https://code.claude.com/docs/en/hooks#exec-form-and-shell-form) for details.",
+      "category": "セキュリティ",
+      "category_en": "Security"
+    },
+    {
+      "t": "修正: プラグインのオプション値（`pluginConfigs`）がプロジェクトレベルの `.claude/settings.json` からは読み込まれなくなり、ユーザー設定・`--settings`・管理設定のみが有効に",
+      "t_en": "Plugin option values (`pluginConfigs`) are no longer read from project-level `.claude/settings.json`; only user, `--settings`, and managed settings are honored",
+      "tags": ["バグ修正", "Security", "Plugin"],
+      "detail": "機密性のないプラグインの `userConfig` オプション値は、設定ファイルの `pluginConfigs[<plugin-id>].options` に保存される。プロジェクトレベルの `.claude/settings.json` は共有リポジトリにチェックインされうるため、このスコープからもプラグインのオプション値を読み込んでいると、個々のユーザーが気づかないうちにリポジトリ側からプラグインへ設定値を注入されてしまう恐れがあった。\n\n本バージョンから、この読み込みはユーザー設定・明示的な `--settings` ファイル・管理設定という、ユーザー本人または組織が直接管理するスコープに限定され、リポジトリ経由での設定注入の経路が塞がれた。詳しくは[プラグインのドキュメント](https://code.claude.com/docs/en/plugins-reference#user-configuration)を参照してください。",
+      "detail_en": "Non-sensitive plugin `userConfig` option values are stored under `pluginConfigs[<plugin-id>].options` in a settings file. Because project-level `.claude/settings.json` can be checked into a shared repository, honoring plugin option values from that scope meant a repository could silently inject configuration values for a plugin without the individual user's awareness.\n\nThis version restricts where those values are read from to user settings, an explicit `--settings` file, and managed settings — scopes the individual user or their organization controls directly — closing that repo-injection path. See the [plugins documentation](https://code.claude.com/docs/en/plugins-reference#user-configuration) for details.",
+      "category": "セキュリティ",
+      "category_en": "Security"
+    },
+    {
+      "t": "修正: `/usage-credits` の金額入力で、貼り付けたタイムスタンプなど不正な値が数字だけに黙って切り詰められる問題（不正な金額はエラーで拒否、1,000ドルを超える金額は入力による確認を必須に）",
+      "t_en": "Fixed `/usage-credits` amount inputs silently stripping malformed values (e.g. a pasted timestamp) to digits; malformed amounts are now rejected with an error, and amounts over $1,000 require a typed confirmation",
+      "tags": ["バグ修正"],
+      "detail": "`/usage-credits` コマンドは、Pro・Max ユーザーが利用クレジットの月間支出上限を設定するためのものである。これまでは、誤ってタイムスタンプなどをペーストしてしまった場合でも、その不正な値が黙って数字だけに切り詰められ、意図しない金額が上限として設定されてしまうことがあった。\n\n本バージョンから、不正な形式の入力は明確なエラーで拒否されるようになり、また1,000ドルを超える金額を設定する際にはタイプによる確認ステップが追加され、誤入力を事前に防げるようになった。詳しくは[コストに関するドキュメント](https://code.claude.com/docs/en/costs#managing-costs-for-teams)を参照してください。",
+      "detail_en": "The `/usage-credits` command lets Pro and Max users set a monthly spend limit on usage credits. Previously, pasting a malformed value into the amount field — such as an accidentally pasted timestamp — was silently stripped down to just its digits and used as the limit, which could set a confusingly wrong spend limit with no warning.\n\nMalformed input is now rejected with an explicit error, and setting an amount over $1,000 now requires a typed confirmation step to catch likely mistakes before they take effect. See the [costs documentation](https://code.claude.com/docs/en/costs#managing-costs-for-teams) for details.",
+      "category": "コマンド",
+      "category_en": "Commands"
+    }
   ]
 }
