@@ -1,0 +1,172 @@
+[
+  {
+    "v": "2.1.210",
+    "items": [
+      {
+        "t": "追加: 折りたたまれたツール概要行にリアルタイムの経過時間カウンターを追加し、長時間実行中のツール呼び出しがフリーズして見えないように",
+        "t_en": "Added a live elapsed-time counter to the collapsed tool summary line so long-running tool calls visibly tick instead of looking stuck",
+        "tags": ["新機能"]
+      },
+      {
+        "t": "追加: `Write(path)`・`NotebookEdit(path)`・`Glob(path)` というパーミッションルールに対する起動時警告を追加（代わりに `Edit(path)` または `Read(path)` を使うよう案内）",
+        "t_en": "Added a startup warning for `Write(path)`, `NotebookEdit(path)`, and `Glob(path)` permission rules — use `Edit(path)` or `Read(path)` instead",
+        "tags": ["新機能", "Security"]
+      },
+      {
+        "t": "修正: `isolation: 'worktree'` のサブエージェントが、自身の隔離された worktree ではなくメインのリポジトリチェックアウトに対して git を変更するコマンドを実行できてしまう問題",
+        "t_en": "Fixed `isolation: 'worktree'` subagents being able to run git-mutating commands against the main repo checkout instead of their own isolated worktree",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: webhook のペイロードや中継された PR コメントなど、人間が入力していないテキストでも `ultracode` キーワードのオプトインが発火してしまう問題",
+        "t_en": "Fixed the `ultracode` keyword opt-in firing on non-human-originated input such as webhook payloads and relayed PR comments",
+        "tags": ["バグ修正", "Security"]
+      },
+      {
+        "t": "修正: UI コンポーネントがスタイル付きテキスト要素の外側にコンテンツを返した場合、描画済みのテキスト断片がクラッシュテレメトリに混入してしまう問題",
+        "t_en": "Fixed a rendered text fragment leaking into crash telemetry when a UI component returned content outside a styled text element",
+        "tags": ["バグ修正", "Security"]
+      },
+      {
+        "t": "修正: Claude Code から開いた外部エディタに貼り付けマーカーが混入し、貼り付けたテキストの前後に不要な È/É 文字として表示されてしまう問題",
+        "t_en": "Fixed paste markers leaking into external editors opened from Claude Code, which could appear as stray È/É characters around pasted text",
+        "tags": ["バグ修正", "IDE"]
+      },
+      {
+        "t": "修正: `claude attach` がセッションの状態遷移中に「job not found」や「agent is still starting」で失敗することがある問題（デーモンが安定するまで attach が待機し、attach 中のターミナルリサイズは完了後に適用されるように）",
+        "t_en": "Fixed `claude attach` sometimes failing with \"job not found\" or \"agent is still starting\" errors during session transitions — attach now waits for the daemon to settle, and terminal resizes during a slow attach are applied once it completes",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: ツールの結果レンダラーが UI 要素の代わりに数値の bigint やプレーンテキストを返すとセッションがクラッシュする問題",
+        "t_en": "Fixed a session crash when a tool's result renderer returned a numeric bigint value or plain text instead of a UI element",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: フックのコールバックがタイムアウトした際、モデルにユーザーによる拒否として誤って報告され、無人実行のセッションが停止して待機し続けてしまう問題",
+        "t_en": "Fixed a hook callback timeout being misreported to the model as a user rejection, which made unattended sessions stop and wait",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: `cd` を含むコマンドがバックグラウンドに移動された後も、Claude がその `cd` が反映されたと誤認してしまう問題（ツール結果で作業ディレクトリが変わっていないことを明示するように）",
+        "t_en": "Fixed Claude assuming a `cd` took effect after its command was moved to the background; the tool result now states the working directory is unchanged",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: セッション中に MCP サーバーが再同期されると、プラグイン提供の MCP サーバーが停止されてしまう問題",
+        "t_en": "Fixed plugin-provided MCP servers being torn down when MCP servers are re-synced mid-session",
+        "tags": ["バグ修正", "Plugin", "MCP"]
+      },
+      {
+        "t": "修正: 編集なしでプランを承認しただけなのに「(edited by user)」というラベルが付き、プランファイルが古いスナップショットで上書きされてしまう問題",
+        "t_en": "Fixed plan approvals without edits being labeled \"(edited by user)\" and overwriting the plan file with a stale snapshot",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: auto mode のオプトインが不要になった Bedrock・Vertex・Foundry で、`/doctor` が auto mode をデフォルトにする提案をスキップしてしまう問題",
+        "t_en": "Fixed `/doctor` skipping its auto-mode-default proposal on Bedrock, Vertex, and Foundry, where auto mode no longer needs an opt-in",
+        "tags": ["バグ修正", "Platform"]
+      },
+      {
+        "t": "修正: Grep のコンテンツモードで、結果の末尾を超えてページネーションすると「No matches found」と表示されてしまう問題",
+        "t_en": "Fixed Grep content mode claiming \"No matches found\" when paginating past the end of results",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: スキルやコマンド内で対応する引数がない `$1`/`$2` の位置指定プレースホルダーが黙って取り除かれてしまう問題（そのまま保持されるように）",
+        "t_en": "Fixed unmatched `$1`/`$2` positional placeholders in skills and commands being silently stripped; they are now preserved verbatim",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: プラグインキャッシュへの書き込みが失敗すると一時ファイルが残ってしまう問題、および Windows・ネットワークファイルシステムでロック済みファイルへのリネームが失敗する問題",
+        "t_en": "Fixed plugin cache writes leaving temp files behind on failure and failing on locked-file renames on Windows and network filesystems",
+        "tags": ["バグ修正", "Windows", "Plugin"]
+      },
+      {
+        "t": "修正: クライアントがバックグラウンドサービスへの接続をリセットすると、バックグラウンドワーカーがクラッシュループに陥る問題",
+        "t_en": "Fixed background workers crash-looping when a client resets its connection to the background service",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: `claude agents --effort ultracode` の指定が起動先のセッションに反映されず、値が黙って失われてしまう問題",
+        "t_en": "Fixed `claude agents --effort ultracode` not reaching dispatched sessions; the value was silently dropped",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: ← キーで agents view を開いた後、セッションに戻るとタスクトラッカーが失われてしまう問題",
+        "t_en": "Fixed pressing ← to open the agents view dropping the task tracker when returning to the session",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: セッションが削除された後も、agents ダッシュボードが未送信の返信下書きに貼り付けられていた画像を保持し続けてしまう問題",
+        "t_en": "Fixed the agents dashboard retaining pasted images from abandoned reply drafts after their session was deleted",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: バックグラウンドセッションが強制終了されると `git worktree lock` が恒久的に残ってしまう問題（定期実行されるクリーンアップ処理が、所有プロセスが存在しないロックを解放するように）",
+        "t_en": "Fixed killed background sessions leaving a permanent `git worktree lock` behind; the periodic sweep now releases locks whose owning process is gone",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: `initialize` control リクエストで登録された SDK MCP サーバーが、次のターンまで接続開始を待ってしまう問題",
+        "t_en": "Fixed SDK MCP servers registered via an `initialize` control request waiting until the next turn to start connecting",
+        "tags": ["バグ修正", "SDK", "MCP"]
+      },
+      {
+        "t": "修正: `CLAUDE_CODE_DISABLE_ALTERNATE_SCREEN=1` を設定している場合、セッションから agents view に戻ると重なり合った残像フレームが残ってしまう問題",
+        "t_en": "Fixed returning to the agents view from a session leaving overlapping ghost frames with `CLAUDE_CODE_DISABLE_ALTERNATE_SCREEN=1`",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: 後から出現した `.claude/*` 配下のシンボリックリンクが、サンドボックスの書き込み拒否リストに反映されない問題",
+        "t_en": "Fixed late-appearing `.claude/*` symlinks not being reconciled into the sandbox deny-write list",
+        "tags": ["バグ修正", "Security"]
+      },
+      {
+        "t": "改善: サブエージェントが読み取ったコンテンツ経由の間接的なプロンプトインジェクションに対する Agent ツールの防御を強化",
+        "t_en": "Hardened the Agent tool against indirect prompt injection via content a subagent read",
+        "tags": ["改善", "Security", "Agent"]
+      },
+      {
+        "t": "改善: Bash/PowerShell コマンドがタイムアウトして自動的にバックグラウンド化された際のツールメッセージを改善し、モデルがハングと明示的なバックグラウンド化指示を区別できるように",
+        "t_en": "Improved the Bash/PowerShell tool message when a command hits its timeout and is auto-backgrounded, so the model can distinguish a hang from an explicit background request",
+        "tags": ["改善", "Windows"]
+      },
+      {
+        "t": "改善: auto mode のパーミッション分類器が、外部セッションでは既定で Sonnet 5 を使用するように（セッションの最初のリクエストで検証し、以降そのセッションでは固定）",
+        "t_en": "Improved auto mode: the permission classifier now defaults to Sonnet 5 for external sessions, validated on the session's first request and pinned for the session",
+        "tags": ["改善"]
+      },
+      {
+        "t": "改善: 同梱の dataviz スキルのチャート色検証を改善し、知覚的な OKLab 色差と再調整した色覚特性のしきい値を使用するように",
+        "t_en": "Improved the bundled dataviz skill's chart color validation with perceptual OKLab color difference and recalibrated color-blindness thresholds",
+        "tags": ["改善"]
+      },
+      {
+        "t": "改善: 書き込みの結果 `MEMORY.md` インデックスが読み込み上限を超える場合、黙って切り詰められる代わりに明示的なエラーを返すように",
+        "t_en": "Memory writes that leave a MEMORY.md index over its read limit now produce an explicit error instead of silent truncation",
+        "tags": ["改善"]
+      },
+      {
+        "t": "改善: スクリーンリーダーモードで、Shift+Tab によるパーミッションモード切り替え時にモード変更が音声で読み上げられるように",
+        "t_en": "Screen reader mode now announces permission mode changes aloud when cycling modes with Shift+Tab",
+        "tags": ["改善"]
+      },
+      {
+        "t": "改善: agents フッターのヒントに、入力待ちのバックグラウンドエージェント数を表示し、件数が変化した際に一時的に色を強調するように",
+        "t_en": "The agents footer hint now shows how many background agents are waiting on your input, with a brief color emphasis when the count changes",
+        "tags": ["改善", "Agent"]
+      },
+      {
+        "t": "改善: agent view で、← を押した元のセッションが、マウスのホバーや矢印キーで選択が移動しても、視覚的にマークされたまま残るように",
+        "t_en": "Agent view: the session you pressed ← from stays visibly marked even after mouse hover or arrow keys move the selection",
+        "tags": ["改善", "Agent"]
+      },
+      {
+        "t": "変更: Fable アドバイザーの呼び出しでエラーが発生するサーバー側の問題が修正されるまでの間、アドバイザーピッカーで Fable を一時的に利用不可として表示",
+        "t_en": "Fable temporarily shows as unavailable in the advisor picker while a server-side issue causing Fable advisor failures is fixed",
+        "tags": ["改善"]
+      }
+    ]
+  }
+]
