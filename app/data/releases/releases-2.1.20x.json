@@ -778,5 +778,245 @@
         "tags": ["バグ修正"]
       }
     ]
+  },
+  {
+    "v": "2.1.208",
+    "items": [
+      {
+        "t": "追加: スクリーンリーダー利用者向けのオプトイン式プレーンテキスト表示モードを追加（`claude --ax-screen-reader` の実行、`CLAUDE_AX_SCREEN_READER=1` の設定、または settings への `\"axScreenReader\": true` の追加で有効化）",
+        "t_en": "Added screen reader mode: opt-in plain-text rendering for screen reader users. Run `claude --ax-screen-reader`, set CLAUDE_AX_SCREEN_READER=1, or add \"axScreenReader\": true to settings.",
+        "tags": ["新機能"]
+      },
+      {
+        "t": "追加: 2文字の INSERT モードキー入力シーケンス（`jj` など）を Escape にマップできる `vimInsertModeRemaps` 設定を追加",
+        "t_en": "Added `vimInsertModeRemaps` setting: map two-key insert-mode sequences like `jj` to Escape in vim mode",
+        "tags": ["新機能"]
+      },
+      {
+        "t": "追加: `CLAUDE_CODE_PROCESS_WRAPPER` を追加し、agent view とバックグラウンドサービスによる Claude Code の自己起動をすべて指定のラッパー実行ファイル経由にできるように",
+        "t_en": "Added `CLAUDE_CODE_PROCESS_WRAPPER`: agent view and the background service now honor a corporate launcher by running every Claude Code self-spawn through a required wrapper executable",
+        "tags": ["新機能", "Security"]
+      },
+      {
+        "t": "追加: フルスクリーンモードで複数選択メニューと「Other」入力行にマウスクリック操作が対応",
+        "t_en": "Added mouse-click support for multi-select menus and \"Other\" input rows in fullscreen mode",
+        "tags": ["新機能"]
+      },
+      {
+        "t": "修正: fast mode 非対応モデルから対応モデルへ戻した際、fast mode が OFF のままになる問題（設定で有効な場合、自動的に復元されるように）",
+        "t_en": "Fixed fast mode staying off after switching back to a model that supports it — it now restores automatically when enabled in settings",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: バックグラウンドエージェントへの返信送信が失敗すると入力内容が失われる問題（保存され、セッション再起動時に配信されるように）",
+        "t_en": "Fixed replies typed to a background agent being lost when delivery fails — the text is now saved and delivered when the session restarts",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: 実行中の `claude agents` プロセスが起動時に参照していたバイナリがアップデートで置き換わった後、バックグラウンドセッションへの attach が「Couldn't start the background daemon」で恒久的に失敗する問題",
+        "t_en": "Fixed background-session attach failing permanently (\"Couldn't start the background daemon\") after an update replaced the binary a running `claude agents` process was launched from",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: CLI の自動アップデート後、コンテキストウィンドウ（および自動 compact インジケーター）が一時的に 200k にリセットされ、大きなコンテキストのセッションを再開した際に「100% 使用済み」と誤表示される問題",
+        "t_en": "Fixed the context window (and auto-compact indicator) briefly resetting to 200k after the CLI auto-updates, causing a false \"100% context used\" when resuming long-context sessions",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: リクエスト送信中に API またはプロキシサーバーが HTTP/2 の GOAWAY フレームで接続を切断すると、supervised・バックグラウンドセッションがクラッシュする問題",
+        "t_en": "Fixed supervised and background sessions crashing when a server closed an HTTP/2 connection with a GOAWAY while requests were in flight",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: `claude -p` から大きな応答を pipe すると、stream-json / JSON 出力が途中で切れたり `result` メッセージが欠落したりする問題",
+        "t_en": "Fixed truncated stream-json/JSON output and missing result message when piping large responses from `claude -p`",
+        "tags": ["バグ修正", "SDK"]
+      },
+      {
+        "t": "修正: `CLAUDE_CODE_MAX_OUTPUT_TOKENS` などの数値系環境変数で、指数表記の値（`1e6` など）が仮数部だけを使って黙って `1` として解釈されてしまう問題",
+        "t_en": "Fixed `CLAUDE_CODE_MAX_OUTPUT_TOKENS` and similar env vars silently using the mantissa of scientific-notation values (`1e6` became `1`)",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: 非常に大きな markdown テーブルで描画が停止したり、メモリを過剰に消費したりする問題（200行を超えるテーブルは先頭200行のみ表示し「… N more rows」と通知するように）",
+        "t_en": "Fixed very large markdown tables stalling rendering or using excessive memory; tables over 200 rows show the first 200 with a \"… N more rows\" notice",
+        "tags": ["バグ修正", "Perf"]
+      },
+      {
+        "t": "修正: 読み取り後にファイルが変更されていても、置換対象のテキストが一意に一致していれば Edit ツールが失敗する問題",
+        "t_en": "Fixed the Edit tool failing on files modified after reading when the target text still matches uniquely",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: 組み込みファイルツールの複数の不具合をまとめて修正（Read が空ファイルを「shorter than offset」と誤報告、Grep が不正な正規表現で黙って「No files found」を返す、Grep のカウントモードがページネーション時に件数を過小報告、Glob がパターン・パス・作業ディレクトリに null バイトを含むと不明瞭なエラーでクラッシュ）",
+        "t_en": "Fixed Read reporting empty files as \"shorter than offset\", Grep silently returning \"No files found\" for invalid regex patterns, Grep count mode under-reporting totals when paginated, and Glob crashing with an unclear error when the pattern, path, or working directory contained a null byte",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: `apiKeyHelper` スクリプトの失敗が、約10回の黙った再試行の末に一般的な 401 エラーに隠されてしまう問題（3回以内の試行でスクリプト自体のエラーが表示されるように）",
+        "t_en": "Fixed `apiKeyHelper` script failures being hidden behind a generic 401 after ~10 silent retries; the script's own error is now shown within 3 attempts",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: Bedrock のストリーミングリクエストで、ゲートウェイが応答を変換していると誤解を招く「Truncated event message received」エラーになる問題（実際の content-type を明示し、プロキシ設定を疑うよう案内するように）",
+        "t_en": "Fixed Bedrock streaming requests failing with a misleading \"Truncated event message received\" when a gateway transforms the response — the error now names the content-type and points at the proxy",
+        "tags": ["バグ修正", "Platform"]
+      },
+      {
+        "t": "修正: ブラウザが開けない環境で `/upgrade` を実行すると、アップグレード用 URL の代わりにログインフローが表示される問題",
+        "t_en": "Fixed `/upgrade` showing a login flow instead of the upgrade URL when the browser fails to open",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: Windows 形式の改行を使う SDK ホストから、空行や空白のみの CRLF 行を含む stream-json 入力を受け取るとセッションが強制終了する問題",
+        "t_en": "Fixed stream-json input killing the session on blank CRLF or whitespace-only lines from Windows-style SDK hosts",
+        "tags": ["バグ修正", "SDK", "Windows"]
+      },
+      {
+        "t": "修正: ヘッドレスの stream-json セッションで `control_request` の `set_model` に文字列以外のペイロードが渡されると、セッションが恒久的にハングする問題（CLI がエラー応答を返すように）",
+        "t_en": "Fixed headless stream-json sessions hanging permanently when a `control_request` carried a non-string `set_model` payload; the CLI now answers with an error response",
+        "tags": ["バグ修正", "SDK"]
+      },
+      {
+        "t": "修正: セッション再開時に「No completion record was found」の通知が繰り返し表示される問題（孤立したバックグラウンドタスクは1件のサマリーにまとめて表示するように）",
+        "t_en": "Fixed repeated \"No completion record was found\" notices on session resume — orphaned background tasks now collapse into a single summary",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: ターミナルでホストされたセッションに Remote Control クライアントが接続しても、タスクが開始・停止するまでバックグラウンドエージェントやワークフローの進捗が見えない問題",
+        "t_en": "Fixed Remote Control clients attaching to a terminal-hosted session not seeing background agents and workflow progress until a task started or stopped",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: サブエージェントの `tools` リストが1件も解決できない場合、Agent ツールがツールなしで起動してしまう問題（未解決のツール名を明示したエラーを返すように）",
+        "t_en": "Fixed the Agent tool launching with no tools when a subagent's `tools` list resolves to nothing — it now returns a clear error naming the unrecognized entries",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: `/usage` がより新しいデータがあるのに古いキャッシュの棒グラフを表示する問題、および `/mcp` が設定変更後もプレースホルダーサーバーの分類を更新しない問題",
+        "t_en": "Fixed `/usage` showing stale cached bars over fresher data, and `/mcp` not reclassifying placeholder servers after config edits",
+        "tags": ["バグ修正", "MCP"]
+      },
+      {
+        "t": "修正: バックグラウンドタスクが実行中のアイドルセッションで、SDK ホスト（Claude Desktop など）の「Change directory」が「A turn is in progress」で失敗する問題",
+        "t_en": "Fixed \"Change directory\" in SDK hosts (e.g. Claude Desktop) failing with \"A turn is in progress\" on idle sessions that have a running background task",
+        "tags": ["バグ修正", "SDK"]
+      },
+      {
+        "t": "修正: ワークフローの保存ダイアログが、ユーザースコープでの保存先として `CLAUDE_CONFIG_DIR` の実際の場所ではなく `~/.claude/workflows/` を表示してしまう問題",
+        "t_en": "Fixed the workflow save dialog showing `~/.claude/workflows/` instead of the `CLAUDE_CONFIG_DIR` location for user-scope saves",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: `/release-notes` で閲覧したリリースノートがモデルのコンテキストに追加されてしまう問題（「Show all」を選ぶと、それ以降のすべてのリクエストに CHANGELOG 全体が注入されていた）",
+        "t_en": "Fixed `/release-notes` adding the viewed notes to the model's context — \"Show all\" previously injected the entire changelog into every subsequent request",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: agent view でピーク返信を送信した後も、貼り付けた画像が画面の生存期間中ずっと保持され続けるメモリリークの問題",
+        "t_en": "Fixed a memory leak in the agent view where pasted images were retained for the screen's lifetime after sending peek replies",
+        "tags": ["バグ修正", "Perf"]
+      },
+      {
+        "t": "修正: プラグインのリフレッシュがクライアントの接続前に実行されると、SDK セッションで `initialize` リクエストによって定義されたエージェントが失われる問題",
+        "t_en": "Fixed SDK sessions losing agents defined via the initialize request when a plugin refresh ran before the client attached",
+        "tags": ["バグ修正", "SDK"]
+      },
+      {
+        "t": "修正: 長時間セッションにおける複数のメモリリークをまとめて修正（stdio 形式の MCP サーバーの stderr がサーバーごとに最大64MB蓄積、LSP ドキュメントが無期限に開いたまま解放されない問題を LRU キャッシュ・上限50件で解消、バックグラウンド化後も非同期フックの出力が保持され続ける問題、ヘッドレス・SDK セッションで大きなツール結果ペイロードによりメモリが無制限に増加する問題）",
+        "t_en": "Fixed several memory leaks in long sessions: MCP stdio server stderr accumulating up to 64 MB per server, LSP documents staying open indefinitely (now LRU with 50-doc cap), async hook output retained after backgrounding, and unbounded growth in headless/SDK sessions from large tool-result payloads",
+        "tags": ["バグ修正", "Perf", "MCP", "SDK"]
+      },
+      {
+        "t": "修正: 極端に長い1行を含むファイルを offset/limit 指定で読み取るとメモリが急増する問題（行全体を読み込む代わりに明確なエラーを返すように）",
+        "t_en": "Fixed a memory blowup when reading files with extremely long single lines using offset/limit — the read now returns a clean error instead of loading the whole line",
+        "tags": ["バグ修正", "Perf"]
+      },
+      {
+        "t": "修正: パーミッションの deny/ask ルールが多いセッションで、ターンごとに数秒の遅延が発生する問題（ルールマッチャーを1回だけコンパイルしてキャッシュするように）",
+        "t_en": "Fixed multi-second per-turn slowdowns in sessions with many permission deny/ask rules — rule matchers are now compiled once and cached",
+        "tags": ["バグ修正", "Perf"]
+      },
+      {
+        "t": "改善: エージェントのタスクリスト更新中の入力応答性を改善（タスク更新で画面全体が再描画されなくなった）",
+        "t_en": "Improved input responsiveness while agent task lists update — task updates no longer re-render the entire UI",
+        "tags": ["改善", "Perf"]
+      },
+      {
+        "t": "改善: MCP ツール数の多い print/SDK セッションで、ツールプールの組み立てをキャッシュしツール呼び出しごとの CPU オーバーヘッドを削減（ツール数が多い場合、ツール呼び出しのラウンドが最大7倍高速化）",
+        "t_en": "Reduced per-tool-call CPU overhead in print/SDK sessions with many MCP tools by caching tool-pool assembly (up to 7x faster tool rounds at high tool counts)",
+        "tags": ["改善", "Perf", "SDK", "MCP"]
+      },
+      {
+        "t": "改善: ファイル編集用の読み取りキャッシュを、最大1,000ファイルを丸ごと固定保持する方式から16MB上限に変更し、メモリ使用量を削減",
+        "t_en": "Reduced memory usage by bounding the file edit read cache to 16 MB instead of pinning up to 1,000 full files",
+        "tags": ["改善", "Perf"]
+      },
+      {
+        "t": "改善: 置き換え済みのファイル履歴バックアップを整理し、セッショントランスクリプトのサイズを削減（編集の多いセッションで最大79倍）、checkpoint のディスク使用量にも上限を設定",
+        "t_en": "Reduced session transcript size (up to 79x in edit-heavy sessions) and bounded checkpoint disk usage by pruning superseded file-history backups",
+        "tags": ["改善", "Perf"]
+      },
+      {
+        "t": "改善: 大きな会話から生成されたバックグラウンドエージェントやフォークを含むセッションを再開する際のメモリ使用量を削減",
+        "t_en": "Reduced memory usage when resuming sessions with background agents or forks spawned from large conversations",
+        "tags": ["改善", "Perf"]
+      },
+      {
+        "t": "改善: 完了したバックグラウンドエージェントが、完了した瞬間に消えるのではなく、クリーンアップされるまで `/tasks` に表示され続けるように",
+        "t_en": "Completed background agents now stay listed in `/tasks` until cleanup instead of vanishing the moment they finish",
+        "tags": ["改善", "Agent"]
+      },
+      {
+        "t": "改善: 停止していたバックグラウンドエージェントへの attach 時、空白の「Session is starting」画面の代わりに、セッションのウォームアップ中もトランスクリプトを即座に表示するように",
+        "t_en": "Attaching to a stopped background agent now shows its transcript immediately while the session warms up, instead of a blank \"Session is starting\" screen",
+        "tags": ["改善", "Agent"]
+      },
+      {
+        "t": "修正: バックグラウンドセッションで、古いバージョンのデーモンが、新しいバージョンから起動されたワーカーを黙って古いバイナリに再起動してしまう問題",
+        "t_en": "Background sessions: an older daemon no longer silently restarts workers spawned by a newer version onto the older binary",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: agent view の Ctrl+X が、ブランチ名変更後の worktree を確実に削除し、push 前のコミットを絶対に破棄せず、worktree を保持した場合はセッション行も保持し、再利用される worktree 名がベースブランチに正しくリセットされるように",
+        "t_en": "Agent view: Ctrl+X now deletes renamed-branch worktrees, never destroys unpushed commits, keeps the session row when a worktree is kept, and reused worktree names reset to the current base",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: `$(…)`・バッククォート・`<(…)` によるコマンド置換/プロセス置換を含むコマンド内の破壊的な削除（`rm -rf ~` 等）が、通常形式と同様に `--dangerously-skip-permissions` と auto mode でも確認プロンプトを出すように",
+        "t_en": "Catastrophic removals (e.g. `rm -rf ~`) in commands containing `$(…)`/backticks/`<(…)` now prompt in `--dangerously-skip-permissions` and auto mode, matching the plain form",
+        "tags": ["バグ修正", "Security"]
+      },
+      {
+        "t": "変更: `/install-github-app` と `/mcp` の設定メニューがバックグラウンドセッションでは開かなくなった",
+        "t_en": "`/install-github-app` and the `/mcp` settings menu no longer open in background sessions",
+        "tags": ["改善", "Agent", "MCP"]
+      },
+      {
+        "t": "修正: URL が空欄で設定された MCP サーバーが、設定エラーではなく `/mcp` で「not configured」と表示されるように",
+        "t_en": "MCP servers configured with an empty URL now show as \"not configured\" in `/mcp` instead of a config error",
+        "tags": ["バグ修正", "MCP"]
+      },
+      {
+        "t": "改善: 利用状況エンドポイントがレート制限中の場合、`/usage` がエラー画面の代わりに「as of」の注記付きで最後に取得済みの利用状況バーを表示するように",
+        "t_en": "`/usage` now shows your last-known usage bars with an \"as of\" note when the usage endpoint is rate-limited, instead of an error screen",
+        "tags": ["改善"]
+      },
+      {
+        "t": "修正: `sso_region` が Bedrock のリージョンと異なる AWS SSO プロファイルで、Bedrock 認証が「Session token not found or invalid」で失敗する問題（2.1.207 のリグレッション）",
+        "t_en": "Fixed Bedrock auth failing with \"Session token not found or invalid\" for AWS SSO profiles whose sso_region differs from the Bedrock region (2.1.207 regression)",
+        "tags": ["バグ修正", "Platform"]
+      }
+    ]
+  },
+  {
+    "v": "2.1.209",
+    "items": [
+      {
+        "t": "修正: `claude agents` のバックグラウンドセッションで `/model` などのダイアログがブロックされる問題（過剰に広いガードを撤回）",
+        "t_en": "Fixed /model and other dialogs being blocked in `claude agents` background sessions (reverts an overly broad guard)",
+        "tags": ["バグ修正", "Agent"]
+      }
+    ]
   }
 ]

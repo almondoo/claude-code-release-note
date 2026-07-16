@@ -1346,5 +1346,423 @@
       "category": "コマンド",
       "category_en": "Commands"
     }
+  ],
+  "2.1.208": [
+    {
+      "t": "追加: スクリーンリーダー利用者向けのオプトイン式プレーンテキスト表示モードを追加（`claude --ax-screen-reader` の実行、`CLAUDE_AX_SCREEN_READER=1` の設定、または settings への `\"axScreenReader\": true` の追加で有効化）",
+      "t_en": "Added screen reader mode: opt-in plain-text rendering for screen reader users. Run `claude --ax-screen-reader`, set CLAUDE_AX_SCREEN_READER=1, or add \"axScreenReader\": true to settings.",
+      "tags": ["新機能"],
+      "detail": "これまで Claude Code の既定のターミナル描画は、装飾的な罫線・アニメーション・全画面再描画を多用しており、スクリーンリーダーでは内容を正しく読み上げにくかった。\n\nスクリーンリーダーモードを有効にすると、旧来のレンダラーに切り替わり、罫線やアニメーションを排したフラットなプレーンテキスト出力になる。CLI フラグ・環境変数・設定ファイルのいずれからでも有効化でき、視覚障害・弱視の開発者が支援技術と組み合わせて Claude Code を使いやすくなる。詳しくは[アクセシビリティのドキュメント](https://code.claude.com/docs/en/settings#available-settings)を参照してください。",
+      "detail_en": "Claude Code's default terminal rendering relied heavily on decorative borders, animations, and full-screen redraws, which screen readers struggled to narrate correctly.\n\nEnabling screen reader mode switches to the classic renderer and produces flat, plain-text output with no borders or animations. It can be turned on via a CLI flag, an environment variable, or a settings file entry, making Claude Code more usable with assistive technology for blind and low-vision developers. See the [settings docs](https://code.claude.com/docs/en/settings#available-settings) for details.",
+      "category": "アクセシビリティ",
+      "category_en": "Accessibility"
+    },
+    {
+      "t": "追加: 2文字の INSERT モードキー入力シーケンス（`jj` など）を Escape にマップできる `vimInsertModeRemaps` 設定を追加",
+      "t_en": "Added `vimInsertModeRemaps` setting: map two-key insert-mode sequences like `jj` to Escape in vim mode",
+      "tags": ["新機能"],
+      "detail": "vim モードではこれまで INSERT モードを抜けるキーは標準の Escape キーのみで、`jj` や `jk` のような2文字連続入力で抜けたい vim ユーザーの慣れた操作方法には対応していなかった。\n\n新設定 `vimInsertModeRemaps` により、1秒以内に入力された2文字シーケンスを Escape 相当として扱い、NORMAL モードに戻れるようになった。入力した文字自体はテキストに残らない。プロジェクト単位の設定ファイルからは適用されず、ユーザー設定または管理設定でのみ有効になるため、チェックアウトしたリポジトリがキー入力を乗っ取ることはできない。詳しくは[インタラクティブモードのドキュメント](https://code.claude.com/docs/en/interactive-mode#remap-insert-mode-key-sequences)を参照してください。",
+      "detail_en": "Previously, vim mode only supported the standard Escape key to exit INSERT mode, unlike the muscle-memory two-key mappings (e.g. `jj`, `jk`) many vim users rely on.\n\nThe new `vimInsertModeRemaps` setting lets you configure a two-character sequence typed within a one-second window to return to NORMAL mode, without either character being left in the input. It is only honored from user or managed settings files, not project-level settings, so a checked-out repository cannot hijack keystrokes. See the [interactive mode docs](https://code.claude.com/docs/en/interactive-mode#remap-insert-mode-key-sequences) for details.",
+      "category": "設定",
+      "category_en": "Configuration"
+    },
+    {
+      "t": "追加: `CLAUDE_CODE_PROCESS_WRAPPER` を追加し、agent view とバックグラウンドサービスによる Claude Code の自己起動をすべて指定のラッパー実行ファイル経由にできるように",
+      "t_en": "Added `CLAUDE_CODE_PROCESS_WRAPPER`: agent view and the background service now honor a corporate launcher by running every Claude Code self-spawn through a required wrapper executable",
+      "tags": ["新機能", "Security"],
+      "detail": "一部の組織では、サンドボックス化・ネットワーク制御・認証情報の注入などを行うため、ワークステーション上のすべてのプロセスを必須のランチャー経由で起動することを求めるが、Claude Code がバックグラウンドサービスや agent view セッション、アップデート後の再起動などで自己生成するプロセスは、バイナリのパスから直接起動されるため、PATH ベースの `claude` ラッパーを経由せず、この要件をすり抜けてしまっていた。\n\n新しい `CLAUDE_CODE_PROCESS_WRAPPER` 設定により、これらの自己起動プロセスすべてを、管理者が指定したランチャースクリプト（末尾で `exec \"$@\"` を実行する必要がある）経由でルーティングできるようになった。この設定はユーザー設定または管理設定からのみ有効化でき（プロジェクト設定不可）、ランチャーの起動に失敗した場合は、ラップされないまま起動するのではなく、プロセス起動自体を中止する。詳しくは[企業向けランチャーのドキュメント](https://code.claude.com/docs/en/corporate-launcher)を参照してください。",
+      "detail_en": "Some organizations require every process on a workstation to start through a mandatory launcher that applies sandboxing, network controls, or credential injection — but Claude Code's self-spawned processes (the background service, agent view sessions, and update relaunches) started directly from the binary path, bypassing a PATH-based `claude` wrapper and this requirement.\n\nThe new `CLAUDE_CODE_PROCESS_WRAPPER` setting routes all of these self-spawns through an administrator-specified launcher script that must end with `exec \"$@\"`. It can only be set via user or managed settings (not project settings), and Claude Code refuses to start the process at all — rather than running it unwrapped — if the launcher fails. See the [corporate launcher docs](https://code.claude.com/docs/en/corporate-launcher) for details.",
+      "category": "セキュリティ",
+      "category_en": "Security"
+    },
+    {
+      "t": "追加: フルスクリーンモードで複数選択メニューと「Other」入力行にマウスクリック操作が対応",
+      "t_en": "Added mouse-click support for multi-select menus and \"Other\" input rows in fullscreen mode",
+      "tags": ["新機能"],
+      "detail": "フルスクリーン描画モードでは、タグピッカーなどの複数選択メニューや、複数選択の質問に含まれる自由入力の「Other」行が、これまでキーボード操作のみに対応していた。\n\n本バージョンではマウス操作にも対応し、選択肢のクリックでトグル、送信ボタンのクリックで選択を確定、「Other」行のクリックでテキスト入力欄にフォーカスできるようになった。詳しくは[フルスクリーンモードのドキュメント](https://code.claude.com/docs/en/fullscreen#use-the-mouse)を参照してください。",
+      "detail_en": "In fullscreen rendering mode, multi-select menus (such as tag pickers) and the free-text \"Other\" row in multiple-choice questions previously required keyboard navigation only.\n\nThis release adds mouse support: clicking an option toggles it, clicking the submit button confirms the selection, and clicking an \"Other\" row focuses its text input. See the [fullscreen mode docs](https://code.claude.com/docs/en/fullscreen#use-the-mouse) for details.",
+      "category": "入力",
+      "category_en": "Input"
+    },
+    {
+      "t": "修正: fast mode 非対応モデルから対応モデルへ戻した際、fast mode が OFF のままになる問題（設定で有効な場合、自動的に復元されるように）",
+      "t_en": "Fixed fast mode staying off after switching back to a model that supports it — it now restores automatically when enabled in settings",
+      "tags": ["バグ修正"],
+      "detail": "fast mode は、対応していないモデルに切り替えると自動的にオフになるが、これまでは対応モデルに戻しても再度オンにはならず、ユーザーが手動で `/fast` を実行し直す必要があった。\n\n本バージョンでは、対応モデルに戻した際、ユーザーの保存済み設定でオンになっていれば自動的に fast mode が復元されるようになった（セッションごとのオプトインが設定されている場合は、引き続き `/fast` の手動実行が必要）。",
+      "detail_en": "Fast mode automatically turns off when switching to a model that doesn't support it, but previously it stayed off even after switching back to a supported model, requiring the user to manually re-run `/fast`.\n\nNow, switching back to a supported model automatically re-enables fast mode if the user's saved preference is on (unless per-session opt-in is configured, in which case `/fast` must still be run manually).",
+      "category": "設定",
+      "category_en": "Configuration"
+    },
+    {
+      "t": "修正: バックグラウンドエージェントへの返信送信が失敗すると入力内容が失われる問題（保存され、セッション再起動時に配信されるように）",
+      "t_en": "Fixed replies typed to a background agent being lost when delivery fails — the text is now saved and delivered when the session restarts",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "agent view のピークパネルからバックグラウンドセッションに返信する際、バックグラウンドサービスに到達できない、または送信自体が失敗した場合、これまで入力済みの返信テキストは復元手段なく破棄されていた。\n\n本バージョンでは、返信テキストがローカルに保存され、セッションのプロセスが再起動した際に次のプロンプトとして自動的に配信されるようになった（`!` によるシェルコマンドとしての返信はコマンドとして実行する必要があるため、この復元対象からは除外される）。詳しくは[agent view のドキュメント](https://code.claude.com/docs/en/agent-view#peek-and-reply)を参照してください。",
+      "detail_en": "When replying to a background session from the agent view peek panel, if the background service was unreachable or the send itself failed, the typed reply was previously discarded with no way to recover it.\n\nThe reply is now saved locally and automatically delivered as the session's next prompt once its process restarts (replies sent as a `!` shell command are excluded, since they must run as commands rather than plain prompts). See the [agent view docs](https://code.claude.com/docs/en/agent-view#peek-and-reply) for details.",
+      "category": "エージェント設定",
+      "category_en": "Agent Configuration"
+    },
+    {
+      "t": "修正: 実行中の `claude agents` プロセスが起動時に参照していたバイナリがアップデートで置き換わった後、バックグラウンドセッションへの attach が「Couldn't start the background daemon」で恒久的に失敗する問題",
+      "t_en": "Fixed background-session attach failing permanently (\"Couldn't start the background daemon\") after an update replaced the binary a running `claude agents` process was launched from",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "自動アップデートによって、バックグラウンドサービスのプロセスが起動時に参照していた Claude Code バイナリが置き換え・削除されると、そのプロセスはスーパーバイザーを再起動できなくなり、ユーザーが手動で Claude Code を再起動するまでバックグラウンドセッションへの attach が恒久的に壊れていた。\n\n修正後は、起動時のバイナリではなく、インストール済みの `claude` ランチャーやディスク上の最新バージョンなど、別のインストール済みコピーからスーパーバイザーを起動できるようになり、失敗しなくなった。",
+      "detail_en": "When an auto-update replaced or removed the Claude Code binary that a running background-service process had originally been launched from, that process could no longer restart the supervisor, permanently breaking background session attachment until the user manually restarted Claude Code.\n\nThe process can now start the supervisor from another installed copy instead — the installed `claude` launcher or the newest version found on disk — rather than failing outright.",
+      "category": "安定性",
+      "category_en": "Stability"
+    },
+    {
+      "t": "修正: CLI の自動アップデート後、コンテキストウィンドウ（および自動 compact インジケーター）が一時的に 200k にリセットされ、大きなコンテキストのセッションを再開した際に「100% 使用済み」と誤表示される問題",
+      "t_en": "Fixed the context window (and auto-compact indicator) briefly resetting to 200k after the CLI auto-updates, causing a false \"100% context used\" when resuming long-context sessions",
+      "tags": ["バグ修正"],
+      "detail": "CLI が自動アップデートされた直後、コンテキストウィンドウのサイズと自動 compact インジケーターが一時的に既定値の 200k にリセットされてしまい、より大きなコンテキストウィンドウ（1M など）を使っていたセッションを再開すると、実際にはまだ余裕があるにもかかわらず「コンテキスト使用率 100%」という誤った警告が表示されていた。\n\n本バージョンでこの表示不整合を修正し、アップデート直後でも実際のコンテキストウィンドウサイズが正しく反映されるようになった。",
+      "detail_en": "Right after the CLI auto-updated, the context-window size and auto-compact indicator briefly reset to the default 200k, which could show a misleading \"100% context used\" warning when resuming a session that had been using a larger context window (e.g. 1M), even though real headroom remained.\n\nThis release fixes the display inconsistency so the actual context-window size is reflected correctly right after an update.",
+      "category": "レンダリング",
+      "category_en": "Rendering"
+    },
+    {
+      "t": "修正: リクエスト送信中に API またはプロキシサーバーが HTTP/2 の GOAWAY フレームで接続を切断すると、supervised・バックグラウンドセッションがクラッシュする問題",
+      "t_en": "Fixed supervised and background sessions crashing when a server closed an HTTP/2 connection with a GOAWAY while requests were in flight",
+      "tags": ["バグ修正"],
+      "detail": "API やプロキシサーバーがリクエスト送信中に HTTP/2 の GOAWAY フレームで接続を切断すると、クライアント側が接続の切断を正しく処理して再試行する代わりに、supervised セッションやバックグラウンドセッションがクラッシュしてしまうことがあった。\n\n本バージョンではこの接続切断を適切にハンドリングし、クラッシュせずに処理を継続できるようになった。",
+      "detail_en": "If the API or a proxy server closed an HTTP/2 connection with a GOAWAY frame while a request was still in flight, supervised and background sessions could crash instead of gracefully handling the disconnect and retrying.\n\nThis release handles the disconnect properly so sessions no longer crash in this case.",
+      "category": "安定性",
+      "category_en": "Stability"
+    },
+    {
+      "t": "修正: `claude -p` から大きな応答を pipe すると、stream-json / JSON 出力が途中で切れたり `result` メッセージが欠落したりする問題",
+      "t_en": "Fixed truncated stream-json/JSON output and missing result message when piping large responses from `claude -p`",
+      "tags": ["バグ修正", "SDK"],
+      "detail": "`--output-format stream-json` で大きな応答をストリーミングし、その出力を別プロセスに pipe すると、応答が大きい場合に最終行（最終的な応答テキスト・コスト・セッションメタデータを含む `result` メッセージ）が途中で切れる、または完全に欠落することがあった。これにより、応答完了後の `result` イベントをパースすることに依存するスクリプトが壊れていた。\n\n本バージョンでこの出力の欠落を修正し、大きな応答でも `result` メッセージが確実に出力されるようになった。詳しくは[ヘッドレスモードのドキュメント](https://code.claude.com/docs/en/headless#stream-responses)を参照してください。",
+      "detail_en": "When streaming a large response with `--output-format stream-json` and piping it to another process, the final line of output (the `result` message containing the final response text, cost, and session metadata) could be truncated or omitted entirely for large responses, breaking scripts that parse the `result` event after completion.\n\nThis release fixes the missing output so the `result` message is reliably emitted even for large responses. See the [headless mode docs](https://code.claude.com/docs/en/headless#stream-responses) for details.",
+      "category": "SDK",
+      "category_en": "SDK"
+    },
+    {
+      "t": "修正: `CLAUDE_CODE_MAX_OUTPUT_TOKENS` などの数値系環境変数で、指数表記の値（`1e6` など）が仮数部だけを使って黙って `1` として解釈されてしまう問題",
+      "t_en": "Fixed `CLAUDE_CODE_MAX_OUTPUT_TOKENS` and similar env vars silently using the mantissa of scientific-notation values (`1e6` became `1`)",
+      "tags": ["バグ修正"],
+      "detail": "`CLAUDE_CODE_MAX_OUTPUT_TOKENS` のような数値を受け取る環境変数は、`1e6` のような指数表記の値を渡すと、エラーにしたり 1,000,000 として解釈したりする代わりに、指数部を無視して仮数部の桁（`1`）だけを黙って採用してしまうパース処理になっていた。\n\n本バージョンでこのパース処理のバグを修正した。",
+      "detail_en": "Numeric environment variables such as `CLAUDE_CODE_MAX_OUTPUT_TOKENS` parsed scientific-notation input (e.g. `1e6`) by silently truncating it down to just the mantissa digit before the exponent (`1`), instead of rejecting the value or parsing it as 1,000,000.\n\nThis release fixes the underlying parsing bug.",
+      "category": "設定",
+      "category_en": "Configuration"
+    },
+    {
+      "t": "修正: 非常に大きな markdown テーブルで描画が停止したり、メモリを過剰に消費したりする問題（200行を超えるテーブルは先頭200行のみ表示し「… N more rows」と通知するように）",
+      "t_en": "Fixed very large markdown tables stalling rendering or using excessive memory; tables over 200 rows show the first 200 with a \"… N more rows\" notice",
+      "tags": ["バグ修正", "Perf"],
+      "detail": "これまで Claude Code は応答に含まれる markdown テーブルの全行を描画しており、数千行に及ぶような非常に大きなテーブルでは、特にそれを含むセッションを再開した際に、描画が停止したり過剰なメモリを消費したりすることがあった。\n\n本バージョンでは画面表示を先頭200行に制限し、それを超える場合は「… N more rows not shown」という通知を表示するようにした。会話履歴には全体が保持されており、`/copy` では省略なく全行がコピーされる。詳しくは[トラブルシューティングのドキュメント](https://code.claude.com/docs/en/troubleshooting#large-tables-are-cut-off-in-the-terminal)を参照してください。",
+      "detail_en": "Claude Code previously rendered every row of a markdown table in a response, so a very large table (thousands of rows) could stall rendering or consume excessive memory, especially when resuming a session that contained one.\n\nThis release caps on-screen display at the first 200 rows with a \"… N more rows not shown\" notice; the full table is still kept in the conversation history and copied in full by `/copy`. See the [troubleshooting docs](https://code.claude.com/docs/en/troubleshooting#large-tables-are-cut-off-in-the-terminal) for details.",
+      "category": "レンダリング",
+      "category_en": "Rendering"
+    },
+    {
+      "t": "修正: 読み取り後にファイルが変更されていても、置換対象のテキストが一意に一致していれば Edit ツールが失敗する問題",
+      "t_en": "Fixed the Edit tool failing on files modified after reading when the target text still matches uniquely",
+      "tags": ["バグ修正"],
+      "detail": "Edit ツールには、Claude が読み取った後にファイルが外部プロセスなどで変更されていないかを確認する仕組みがあるが、これまでは置換対象のテキストが現在のファイル内容でも一意に一致しているにもかかわらず、変更検知だけを理由に編集自体を拒否してしまうことがあった。\n\n本バージョンでこの過剰な拒否を修正し、対象テキストが一意に一致する限り編集が適用されるようになった。",
+      "detail_en": "The Edit tool checks whether a file was modified after Claude read it (e.g. by an external process or formatter), but it previously refused to apply an edit purely because of that staleness check, even when the target text still matched uniquely in the current file content.\n\nThis release fixes the overly strict rejection so the edit is applied whenever the target text still matches uniquely.",
+      "category": "ツール改善",
+      "category_en": "Tool Improvement"
+    },
+    {
+      "t": "修正: 組み込みファイルツールの複数の不具合をまとめて修正（Read が空ファイルを「shorter than offset」と誤報告、Grep が不正な正規表現で黙って「No files found」を返す、Grep のカウントモードがページネーション時に件数を過小報告、Glob がパターン・パス・作業ディレクトリに null バイトを含むと不明瞭なエラーでクラッシュ）",
+      "t_en": "Fixed Read reporting empty files as \"shorter than offset\", Grep silently returning \"No files found\" for invalid regex patterns, Grep count mode under-reporting totals when paginated, and Glob crashing with an unclear error when the pattern, path, or working directory contained a null byte",
+      "tags": ["バグ修正"],
+      "detail": "Read・Grep・Glob といった組み込みのファイル操作ツールに、それぞれ個別のエッジケースの不具合があった。Read は空ファイルを誤ったエラーメッセージで報告し、Grep は不正な正規表現によるエラーを一般的な「マッチなし」の結果に隠してしまい、Grep のカウントモードはページネーション時に集計を誤り、Glob は null バイトを含む入力で不明瞭なエラーとともにクラッシュしていた。\n\n本バージョンではこれら4件を個別に修正し、それぞれ適切なエラーメッセージや正しい件数を返すようにした。",
+      "detail_en": "The built-in file tools Read, Grep, and Glob each had separate edge-case bugs: Read gave a misleading error for empty files, Grep hid invalid-regex errors behind a generic \"no matches\" result, Grep's count mode miscounted when results were paginated, and Glob crashed opaquely on null-byte input.\n\nThis release fixes all four issues individually so each tool now reports a clear error or an accurate count.",
+      "category": "ツール改善",
+      "category_en": "Tool Improvement"
+    },
+    {
+      "t": "修正: `apiKeyHelper` スクリプトの失敗が、約10回の黙った再試行の末に一般的な 401 エラーに隠されてしまう問題（3回以内の試行でスクリプト自体のエラーが表示されるように）",
+      "t_en": "Fixed `apiKeyHelper` script failures being hidden behind a generic 401 after ~10 silent retries; the script's own error is now shown within 3 attempts",
+      "tags": ["バグ修正"],
+      "detail": "カスタムの `apiKeyHelper` 認証情報スクリプトが失敗（エラー終了・タイムアウト・出力なしなど）した場合、これまでは約10回黙って再試行した後に、実際の原因を隠したまま一般的な HTTP 401 エラーを表示していた。\n\n本バージョンでは最大3回の試行後に「Your apiKeyHelper script is failing」という具体的なエラーを表示するようになり、根本原因をはるかに早く把握できるようになった。詳しくは[認証のドキュメント](https://code.claude.com/docs/en/authentication#credential-management)を参照してください。",
+      "detail_en": "When a custom `apiKeyHelper` credential script failed (exited with an error, timed out, or printed nothing), Claude Code previously retried silently roughly ten times before surfacing a generic HTTP 401 error that hid the actual cause.\n\nNow, after up to three attempts, Claude Code surfaces the specific \"Your apiKeyHelper script is failing\" error, making the root cause visible much faster. See the [authentication docs](https://code.claude.com/docs/en/authentication#credential-management) for details.",
+      "category": "認証",
+      "category_en": "Authentication"
+    },
+    {
+      "t": "修正: Bedrock のストリーミングリクエストで、ゲートウェイが応答を変換していると誤解を招く「Truncated event message received」エラーになる問題（実際の content-type を明示し、プロキシ設定を疑うよう案内するように）",
+      "t_en": "Fixed Bedrock streaming requests failing with a misleading \"Truncated event message received\" when a gateway transforms the response — the error now names the content-type and points at the proxy",
+      "tags": ["バグ修正", "Platform"],
+      "detail": "Amazon Bedrock はバイナリのイベントストリーム形式（`application/vnd.amazon.eventstream`）で応答をストリーミングするが、Claude Code と Bedrock の間に位置するゲートウェイやプロキシ（応答を server-sent events として再送信する API Gateway/Lambda 連携など）が content-type を書き換えてしまうことがあった。これまでは応答全体をバッファリングした後になって初めて、一般的な「Truncated event message received」エラーとして表面化していた。\n\n本バージョンでは content-type の不一致を即座に検知し、実際に受信した content-type と、プロキシ設定を確認するよう案内するエラーメッセージを表示するようになった。詳しくは[Amazon Bedrock のドキュメント](https://code.claude.com/docs/en/amazon-bedrock#streaming-errors-behind-a-gateway-or-proxy)を参照してください。",
+      "detail_en": "Amazon Bedrock streams responses in a binary event-stream format (`application/vnd.amazon.eventstream`), but a gateway or proxy between Claude Code and Bedrock (such as an API Gateway/Lambda integration that re-emits the stream as server-sent events) could rewrite the content-type. This previously surfaced only after the whole response was buffered, as a generic \"Truncated event message received\" error.\n\nClaude Code now detects the content-type mismatch immediately and reports the actual content-type received, along with guidance pointing at the misconfigured proxy. See the [Amazon Bedrock docs](https://code.claude.com/docs/en/amazon-bedrock#streaming-errors-behind-a-gateway-or-proxy) for details.",
+      "category": "プラットフォーム互換性",
+      "category_en": "Platform Compatibility"
+    },
+    {
+      "t": "修正: ブラウザが開けない環境で `/upgrade` を実行すると、アップグレード用 URL の代わりにログインフローが表示される問題",
+      "t_en": "Fixed `/upgrade` showing a login flow instead of the upgrade URL when the browser fails to open",
+      "tags": ["バグ修正"],
+      "detail": "`/upgrade` コマンドはプラン変更ページをブラウザで開くが、SSH 経由の利用時などブラウザの起動自体に失敗する場合には代替手段が必要だった。これまではそのケースで、意図しないログインフローが表示されてしまっていた。\n\n本バージョンでは、ブラウザが開けない場合の挙動を整理し、URL を表示しないサインインプロンプトを表示する一貫した挙動に修正した。詳しくは[コマンド一覧のドキュメント](https://code.claude.com/docs/en/commands#all-commands)を参照してください。",
+      "detail_en": "The `/upgrade` command opens the plan-upgrade page in the browser; when the browser fails to launch (e.g. over SSH), it needs a fallback, and previously showed an unintended login flow in that case.\n\nThis release cleans up the behavior for a failed browser launch, consistently showing a sign-in prompt. See the [commands docs](https://code.claude.com/docs/en/commands#all-commands) for details.",
+      "category": "コマンド",
+      "category_en": "Commands"
+    },
+    {
+      "t": "修正: Windows 形式の改行を使う SDK ホストから、空行や空白のみの CRLF 行を含む stream-json 入力を受け取るとセッションが強制終了する問題",
+      "t_en": "Fixed stream-json input killing the session on blank CRLF or whitespace-only lines from Windows-style SDK hosts",
+      "tags": ["バグ修正", "SDK", "Windows"],
+      "detail": "Windows 上の SDK ホストが CRLF 改行の stream-json 入力を送信する場合、空行や空白のみの行が含まれていると、それを空メッセージとして無視する代わりに、受信側の Claude Code セッションがクラッシュしてしまうことがあった。\n\n本バージョンでこのパース処理を修正し、クロスプラットフォームの SDK 連携でもクラッシュしなくなった。",
+      "detail_en": "When an SDK host on Windows sent stream-json input with CRLF line endings, a blank or whitespace-only line could previously crash the receiving Claude Code session instead of being ignored as an empty message.\n\nThis release fixes the parser so cross-platform SDK integrations no longer crash on this input.",
+      "category": "SDK",
+      "category_en": "SDK"
+    },
+    {
+      "t": "修正: ヘッドレスの stream-json セッションで `control_request` の `set_model` に文字列以外のペイロードが渡されると、セッションが恒久的にハングする問題（CLI がエラー応答を返すように）",
+      "t_en": "Fixed headless stream-json sessions hanging permanently when a `control_request` carried a non-string `set_model` payload; the CLI now answers with an error response",
+      "tags": ["バグ修正", "SDK"],
+      "detail": "ヘッドレス・SDK の stream-json モードでは、モデル変更を指示する `control_request`（`set_model`）に不正な形式（文字列以外）のペイロードが渡されると、応答がないままセッションが無期限にハングしてしまっていた。\n\n本バージョンでは、CLI がペイロードを検証し、ハングする代わりに明示的なエラーを返すようになった。これにより SDK クライアント側でも異常を検知・処理できる。",
+      "detail_en": "In headless/SDK stream-json mode, a `control_request` instructing the CLI to change the model (`set_model`) that carried a malformed, non-string payload previously caused the session to hang indefinitely with no response.\n\nThe CLI now validates the payload and responds with an explicit error instead of hanging, which SDK clients can detect and handle.",
+      "category": "SDK",
+      "category_en": "SDK"
+    },
+    {
+      "t": "修正: セッション再開時に「No completion record was found」の通知が繰り返し表示される問題（孤立したバックグラウンドタスクは1件のサマリーにまとめて表示するように）",
+      "t_en": "Fixed repeated \"No completion record was found\" notices on session resume — orphaned background tasks now collapse into a single summary",
+      "tags": ["バグ修正"],
+      "detail": "クラッシュや再起動などで完了記録が失われた複数の孤立したバックグラウンドタスクを含むセッションを再開すると、これまでは1件ごとに「No completion record was found」という通知が繰り返し表示され、トランスクリプトが埋め尽くされていた。\n\n本バージョンではこれらの通知を1件のサマリー通知にまとめて表示するようになった。",
+      "detail_en": "When resuming a session with multiple orphaned background tasks (tasks whose completion records were lost, e.g. after a crash or restart), Claude Code previously displayed a repeated \"No completion record was found\" notice for each one, filling up the transcript.\n\nThese are now collapsed into a single summary notice instead.",
+      "category": "エージェント設定",
+      "category_en": "Agent Configuration"
+    },
+    {
+      "t": "修正: ターミナルでホストされたセッションに Remote Control クライアントが接続しても、タスクが開始・停止するまでバックグラウンドエージェントやワークフローの進捗が見えない問題",
+      "t_en": "Fixed Remote Control clients attaching to a terminal-hosted session not seeing background agents and workflow progress until a task started or stopped",
+      "tags": ["バグ修正"],
+      "detail": "デスクトップアプリではなくインタラクティブなターミナルでホストされている Remote Control セッションに端末を接続した場合、これまでは既にバックグラウンドで実行中のサブエージェントやワークフローが、いずれかが開始または停止するまで表示されず、接続直後のリモート端末からは進行中の作業が見えなかった。\n\n本バージョンでは、端末を接続した時点で、既に実行中のサブエージェントやワークフローを即座に表示するようになった。詳しくは[Remote Control のドキュメント](https://code.claude.com/docs/en/remote-control#connect-from-another-device)を参照してください。",
+      "detail_en": "Before this fix, when a device connected to a Remote Control session hosted in an interactive terminal (as opposed to the Desktop app), it did not show subagents or workflows that were already running in the background until one of them started or stopped, leaving the newly connected remote device blind to in-progress work.\n\nNow, connecting a device immediately shows any subagents and workflows the session already has running. See the [Remote Control docs](https://code.claude.com/docs/en/remote-control#connect-from-another-device) for details.",
+      "category": "セッション管理",
+      "category_en": "Session Management"
+    },
+    {
+      "t": "修正: サブエージェントの `tools` リストが1件も解決できない場合、Agent ツールがツールなしで起動してしまう問題（未解決のツール名を明示したエラーを返すように）",
+      "t_en": "Fixed the Agent tool launching with no tools when a subagent's `tools` list resolves to nothing — it now returns a clear error naming the unrecognized entries",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "サブエージェントの `tools` リストの全項目がスペルミスや、サブエージェントから利用できないツール名だった場合、これまで Claude Code はエラーにせずツール数0のままサブエージェントを起動しており、結果が曖昧・空になる原因になっていた。\n\n本バージョンでは、この場合サブエージェントの起動自体を拒否し、Agent ツールが未解決のツール名を具体的に列挙したエラーを返すようになったため、設定ミスがすぐに分かるようになった。詳しくは[サブエージェントのドキュメント](https://code.claude.com/docs/en/sub-agents#available-tools)を参照してください。",
+      "detail_en": "If every entry in a subagent's `tools` list was misspelled or named a tool unavailable to subagents, Claude Code previously launched the subagent anyway with zero tools, producing a confusing or empty result.\n\nNow Claude Code refuses to launch the subagent in that case, and the Agent tool returns a clear error naming the specific unresolved tool entries, making misconfiguration immediately visible. See the [sub-agents docs](https://code.claude.com/docs/en/sub-agents#available-tools) for details.",
+      "category": "エージェント設定",
+      "category_en": "Agent Configuration"
+    },
+    {
+      "t": "修正: `/usage` がより新しいデータがあるのに古いキャッシュの棒グラフを表示する問題、および `/mcp` が設定変更後もプレースホルダーサーバーの分類を更新しない問題",
+      "t_en": "Fixed `/usage` showing stale cached bars over fresher data, and `/mcp` not reclassifying placeholder servers after config edits",
+      "tags": ["バグ修正", "MCP"],
+      "detail": "`/usage` は、よりフレッシュなデータがローカルに既に存在する場合でも古いキャッシュされた利用状況のスナップショットを表示してしまうことがあり、また `/mcp` は URL が空欄などのプレースホルダー MCP サーバーの設定を編集しても、その分類（未設定・エラーなど）が更新されず古いステータスを表示し続けることがあった。\n\n本バージョンではこれら2つの表示の陳腐化をそれぞれ修正した。",
+      "detail_en": "`/usage` could show an old cached usage snapshot even when fresher data was already available locally, and `/mcp` failed to reclassify a placeholder MCP server (e.g. one with a blank URL) after its configuration was edited, continuing to show outdated status.\n\nThis release fixes both instances of stale display separately.",
+      "category": "MCP 連携",
+      "category_en": "MCP Integration"
+    },
+    {
+      "t": "修正: バックグラウンドタスクが実行中のアイドルセッションで、SDK ホスト（Claude Desktop など）の「Change directory」が「A turn is in progress」で失敗する問題",
+      "t_en": "Fixed \"Change directory\" in SDK hosts (e.g. Claude Desktop) failing with \"A turn is in progress\" on idle sessions that have a running background task",
+      "tags": ["バグ修正", "SDK"],
+      "detail": "Claude Desktop のような SDK ホストクライアントは、アイドル状態のセッションに対して作業ディレクトリ変更操作を提供しているが、そのセッションでバックグラウンドタスク（バックグラウンド Bash コマンドやサブエージェントなど）が実行中だと、フォアグラウンドのターン自体はアイドルであるにもかかわらず、誤解を招く「A turn is in progress」エラーでディレクトリ変更が失敗していた。\n\n本バージョンでこの SDK・ホスト間の状態判定を修正し、バックグラウンドタスクの有無に影響されず正しく動作するようになった。",
+      "detail_en": "An SDK-hosted client such as Claude Desktop offers a \"change working directory\" action on idle sessions; if the session had a background task still running (e.g. a background Bash command or subagent), the directory change previously failed with a misleading \"A turn is in progress\" error even though the foreground turn was idle.\n\nThis release fixes the SDK/host state check so it no longer misfires based on background task activity.",
+      "category": "SDK",
+      "category_en": "SDK"
+    },
+    {
+      "t": "修正: ワークフローの保存ダイアログが、ユーザースコープでの保存先として `CLAUDE_CONFIG_DIR` の実際の場所ではなく `~/.claude/workflows/` を表示してしまう問題",
+      "t_en": "Fixed the workflow save dialog showing `~/.claude/workflows/` instead of the `CLAUDE_CONFIG_DIR` location for user-scope saves",
+      "tags": ["バグ修正"],
+      "detail": "ダイナミックワークフローを個人（ユーザー）スコープで保存する際、保存ダイアログはこれまで常に文字通り `~/.claude/workflows/` というパスを表示していた。`CLAUDE_CONFIG_DIR` をカスタム設定している場合でも、ファイル自体は正しく設定済みディレクトリ配下に保存されていたが、表示されるパスだけが誤っていた。\n\n本バージョンでは、ダイアログが実際に解決されたユーザースコープの保存先パスを表示するようになった。詳しくは[ワークフローのドキュメント](https://code.claude.com/docs/en/workflows#save-the-workflow-for-reuse)を参照してください。",
+      "detail_en": "When saving a dynamic workflow to the personal (user) scope, the save dialog previously always displayed the literal path `~/.claude/workflows/`, even when the user had configured a custom `CLAUDE_CONFIG_DIR` — the file was still correctly saved under the configured directory, but the displayed path was wrong.\n\nNow the dialog shows the actual resolved path for the personal-scope location. See the [workflows docs](https://code.claude.com/docs/en/workflows#save-the-workflow-for-reuse) for details.",
+      "category": "ワークフロー",
+      "category_en": "Workflow"
+    },
+    {
+      "t": "修正: `/release-notes` で閲覧したリリースノートがモデルのコンテキストに追加されてしまう問題（「Show all」を選ぶと、それ以降のすべてのリクエストに CHANGELOG 全体が注入されていた）",
+      "t_en": "Fixed `/release-notes` adding the viewed notes to the model's context — \"Show all\" previously injected the entire changelog into every subsequent request",
+      "tags": ["バグ修正"],
+      "detail": "これまで `/release-notes` で閲覧した内容はそのまま会話コンテキストに注入されており、特に「Show all」を選択すると CHANGELOG 全体がコンテキストに注入され、それ以降のすべてのターンでコンテキストとコストが不必要に膨張していた。\n\n本バージョンでは、リリースノートはユーザー向けにトランスクリプトへ表示されるだけとなり、Claude が実際に処理する会話コンテキストには含まれなくなった。",
+      "detail_en": "Previously, viewing release notes with `/release-notes` injected the viewed content directly into the conversation context Claude sees, and choosing \"Show all\" injected the entire changelog — needlessly bloating context and cost on every subsequent turn.\n\nNow the notes display in the transcript for the user without entering the conversation context Claude actually processes.",
+      "category": "コマンド",
+      "category_en": "Commands"
+    },
+    {
+      "t": "修正: agent view でピーク返信を送信した後も、貼り付けた画像が画面の生存期間中ずっと保持され続けるメモリリークの問題",
+      "t_en": "Fixed a memory leak in the agent view where pasted images were retained for the screen's lifetime after sending peek replies",
+      "tags": ["バグ修正", "Perf"],
+      "detail": "agent view のピークパネルから画像を貼り付けてバックグラウンドセッションに返信を送信すると、送信後に画像データが解放されず、agent view 画面が表示されている間ずっとメモリ上に保持され続けてしまい、繰り返し使用するとメモリ使用量が増加していく問題があった。\n\n本バージョンでこのメモリリークを修正し、返信送信後は画像データが適切に解放されるようになった。",
+      "detail_en": "When sending a peek-panel reply containing a pasted image to a background session in agent view, the image data was previously retained in memory for the lifetime of the agent view screen rather than being released after the reply was sent, causing memory to grow with repeated use.\n\nThis release fixes the memory leak so image data is released properly after a reply is sent.",
+      "category": "パフォーマンス",
+      "category_en": "Performance"
+    },
+    {
+      "t": "修正: プラグインのリフレッシュがクライアントの接続前に実行されると、SDK セッションで `initialize` リクエストによって定義されたエージェントが失われる問題",
+      "t_en": "Fixed SDK sessions losing agents defined via the initialize request when a plugin refresh ran before the client attached",
+      "tags": ["バグ修正", "SDK"],
+      "detail": "SDK クライアントは `initialize` control リクエストを通じてカスタムサブエージェントを定義できるが、クライアントが接続する前にたまたまプラグインのリフレッシュが実行されてしまうと、その `initialize` で定義されたエージェントがセッションから黙って失われてしまうことがあった。\n\n本バージョンでこの初期化処理の順序に起因する競合状態を修正した。",
+      "detail_en": "SDK clients can define custom subagents via the `initialize` control request; if a plugin refresh happened to run before the client attached, those `initialize`-defined agents could be silently dropped from the session.\n\nThis release fixes the initialization-ordering race condition.",
+      "category": "SDK",
+      "category_en": "SDK"
+    },
+    {
+      "t": "修正: 長時間セッションにおける複数のメモリリークをまとめて修正（stdio 形式の MCP サーバーの stderr がサーバーごとに最大64MB蓄積、LSP ドキュメントが無期限に開いたまま解放されない問題を LRU キャッシュ・上限50件で解消、バックグラウンド化後も非同期フックの出力が保持され続ける問題、ヘッドレス・SDK セッションで大きなツール結果ペイロードによりメモリが無制限に増加する問題）",
+      "t_en": "Fixed several memory leaks in long sessions: MCP stdio server stderr accumulating up to 64 MB per server, LSP documents staying open indefinitely (now LRU with 50-doc cap), async hook output retained after backgrounding, and unbounded growth in headless/SDK sessions from large tool-result payloads",
+      "tags": ["バグ修正", "Perf", "MCP", "SDK"],
+      "detail": "長時間稼働するセッションでは、stdio 形式の MCP サーバーの標準エラー出力がサーバーごとに最大64MBまで無制限にバッファリングされる、LSP ドキュメントが一度開くと解放されない、セッションがバックグラウンド化された後も非同期フックの出力が保持され続ける、ヘッドレス・SDK セッションで大きなツール結果ペイロードによりメモリが無制限に増加するなど、複数の要因によるメモリリークが存在していた。\n\n本バージョンではそれぞれの原因に上限を設けて修正した。特に LSP ドキュメントは LRU キャッシュ方式で最大50件までに制限されるようになった。",
+      "detail_en": "Long-running sessions had several separate memory-leak causes: unbounded buffering of stdio MCP servers' stderr output (up to 64 MB per server), LSP documents that were never evicted from memory, async hook output retained after a session was backgrounded, and unbounded growth from large tool-result payloads in headless/SDK sessions.\n\nThis release bounds each cause individually; LSP documents in particular now use an LRU cache capped at 50 open documents.",
+      "category": "パフォーマンス",
+      "category_en": "Performance"
+    },
+    {
+      "t": "修正: 極端に長い1行を含むファイルを offset/limit 指定で読み取るとメモリが急増する問題（行全体を読み込む代わりに明確なエラーを返すように）",
+      "t_en": "Fixed a memory blowup when reading files with extremely long single lines using offset/limit — the read now returns a clean error instead of loading the whole line",
+      "tags": ["バグ修正", "Perf"],
+      "detail": "Read ツールの offset/limit パラメータを使ってファイルを読み取る際、対象ファイルが（minify 済みファイルなど）極端に長い1行を含んでいると、指定した limit にかかわらず行全体を読み込まなければならず、メモリが急増することがあった。\n\n本バージョンではこのケースを検知し、行全体をメモリに読み込もうとする代わりに明確なエラーを返すようになった。",
+      "detail_en": "Reading a file with the Read tool's offset/limit parameters could previously trigger a memory blowup if the file contained an extremely long single line (e.g. a minified file), because the whole line had to be loaded regardless of the requested limit.\n\nThe Read tool now detects this case and returns a clean error instead of attempting to load the entire oversized line into memory.",
+      "category": "パフォーマンス",
+      "category_en": "Performance"
+    },
+    {
+      "t": "修正: パーミッションの deny/ask ルールが多いセッションで、ターンごとに数秒の遅延が発生する問題（ルールマッチャーを1回だけコンパイルしてキャッシュするように）",
+      "t_en": "Fixed multi-second per-turn slowdowns in sessions with many permission deny/ask rules — rule matchers are now compiled once and cached",
+      "tags": ["バグ修正", "Perf"],
+      "detail": "パーミッションの deny/ask ルールを大量に設定しているセッションでは、これまで毎ターンすべてのルールを再パース・再マッチングしており、これがターンごとに数秒単位の遅延の原因になっていた。\n\n本バージョンではルールマッチャーを1回だけコンパイルしてキャッシュするようになり、以降のターンでの再パースコストがなくなった。",
+      "detail_en": "In sessions with a large number of permission deny/ask rules configured, Claude Code previously re-parsed and re-matched every rule on each turn, causing multi-second per-turn slowdowns.\n\nRule matchers are now compiled once and cached, eliminating the repeated parsing cost on subsequent turns.",
+      "category": "パフォーマンス",
+      "category_en": "Performance"
+    },
+    {
+      "t": "改善: エージェントのタスクリスト更新中の入力応答性を改善（タスク更新で画面全体が再描画されなくなった）",
+      "t_en": "Improved input responsiveness while agent task lists update — task updates no longer re-render the entire UI",
+      "tags": ["改善", "Perf"],
+      "detail": "これまで Claude のタスクチェックリスト（Ctrl+T で表示）が更新されるたびに、ターミナル UI 全体が再描画されており、複数ステップの作業が活発に進んでいる間はプロンプトの入力がもたつくことがあった。\n\n本バージョンではタスクリストの更新を UI 全体の再描画から切り離し、入力応答性が改善された。",
+      "detail_en": "Previously, updates to Claude's to-do task checklist (shown via Ctrl+T) triggered a full re-render of the terminal UI, which could make prompt input feel sluggish during active multi-step work.\n\nTask list updates are now isolated so they no longer force a full UI re-render, improving input responsiveness.",
+      "category": "レンダリング",
+      "category_en": "Rendering"
+    },
+    {
+      "t": "改善: MCP ツール数の多い print/SDK セッションで、ツールプールの組み立てをキャッシュしツール呼び出しごとの CPU オーバーヘッドを削減（ツール数が多い場合、ツール呼び出しのラウンドが最大7倍高速化）",
+      "t_en": "Reduced per-tool-call CPU overhead in print/SDK sessions with many MCP tools by caching tool-pool assembly (up to 7x faster tool rounds at high tool counts)",
+      "tags": ["改善", "Perf", "SDK", "MCP"],
+      "detail": "多数の MCP サーバー・ツールに接続している print（`-p`）・SDK セッションでは、これまでツール呼び出しのラウンドごとにツールプール全体（スキーマ・パーミッションなど）を再構築しており、ツール数が多いほど CPU オーバーヘッドが大きくなっていた。\n\n本バージョンではこの組み立て処理をキャッシュするようになり、ツール数の多いセッションではツール呼び出しラウンドが最大7倍高速化された。",
+      "detail_en": "In print (`-p`) and SDK sessions connected to many MCP servers/tools, Claude Code previously reassembled the full tool pool (schemas, permissions, etc.) on every tool-call round, adding significant CPU overhead at high tool counts.\n\nThis assembly is now cached, yielding up to a 7x speedup in tool-call rounds for tool-heavy sessions.",
+      "category": "パフォーマンス",
+      "category_en": "Performance"
+    },
+    {
+      "t": "改善: ファイル編集用の読み取りキャッシュを、最大1,000ファイルを丸ごと固定保持する方式から16MB上限に変更し、メモリ使用量を削減",
+      "t_en": "Reduced memory usage by bounding the file edit read cache to 16 MB instead of pinning up to 1,000 full files",
+      "tags": ["改善", "Perf"],
+      "detail": "Edit ツールは、セッション外での変更を検知するため、これまで最大1,000ファイル分をファイル数ベースで丸ごとメモリにキャッシュしており、大規模なセッションではメモリ消費の要因になっていた。\n\n本バージョンではこのキャッシュをファイル数ではなく合計16MBという容量ベースの上限に変更し、最悪ケースのメモリ使用量を削減した。",
+      "detail_en": "Claude Code's Edit tool previously cached up to 1,000 full files in memory (bounded by file count) to detect out-of-band modifications, which could consume significant memory in large sessions.\n\nThis cache is now bounded to 16 MB total instead of a file count, reducing worst-case memory usage.",
+      "category": "パフォーマンス",
+      "category_en": "Performance"
+    },
+    {
+      "t": "改善: 置き換え済みのファイル履歴バックアップを整理し、セッショントランスクリプトのサイズを削減（編集の多いセッションで最大79倍）、checkpoint のディスク使用量にも上限を設定",
+      "t_en": "Reduced session transcript size (up to 79x in edit-heavy sessions) and bounded checkpoint disk usage by pruning superseded file-history backups",
+      "tags": ["改善", "Perf"],
+      "detail": "編集回数の多いセッションでは、トランスクリプトや checkpoint 履歴にファイルの中間バージョンごとの完全なバックアップが蓄積されており、編集の多いセッションではトランスクリプトとディスク使用量が非常に大きくなっていた。\n\n本バージョンでは既に置き換え済みのファイル履歴バックアップを整理するようになり、編集の多いセッションではトランスクリプトサイズが最大79倍削減され、checkpoint のディスク使用量にも上限が設定された。",
+      "detail_en": "Sessions with many file edits previously accumulated a full backup of each intermediate file version in the transcript and checkpoint history, causing transcript and disk usage to grow very large in edit-heavy sessions.\n\nSuperseded file-history backups are now pruned, cutting transcript size by up to 79x in such sessions and bounding checkpoint disk usage.",
+      "category": "パフォーマンス",
+      "category_en": "Performance"
+    },
+    {
+      "t": "改善: 大きな会話から生成されたバックグラウンドエージェントやフォークを含むセッションを再開する際のメモリ使用量を削減",
+      "t_en": "Reduced memory usage when resuming sessions with background agents or forks spawned from large conversations",
+      "tags": ["改善", "Perf"],
+      "detail": "既に大きくなった会話からバックグラウンドサブエージェントやフォークを生成していたセッションを再開すると、会話履歴の共有部分が重複して保持されるなどして、必要以上にメモリを消費していた。\n\n本バージョンでは再開時のメモリ使用量を削減した。",
+      "detail_en": "Resuming a session that had spawned background subagents or forks from an already-large conversation previously used more memory than necessary, likely from redundant retention of shared conversation history.\n\nThis release reduces that memory usage on resume.",
+      "category": "パフォーマンス",
+      "category_en": "Performance"
+    },
+    {
+      "t": "改善: 完了したバックグラウンドエージェントが、完了した瞬間に消えるのではなく、クリーンアップされるまで `/tasks` に表示され続けるように",
+      "t_en": "Completed background agents now stay listed in `/tasks` until cleanup instead of vanishing the moment they finish",
+      "tags": ["改善", "Agent"],
+      "detail": "これまで、完了したバックグラウンドサブエージェントは完了した瞬間に `/tasks` の一覧から消えてしまい、詳細ビューも閉じてしまうため、完了直後のサブエージェントの結果を確認しづらかった。\n\n本バージョンでは、完了したサブエージェントは完了済みとしてマークされ、実行中の作業より下にソートされた状態で、セッションのタスクリストがクリーンアップされるまで一覧に残るようになった。詳細ビューも開いたままになる（失敗または手動停止したサブエージェントは、これまでどおり即座に一覧から消える）。詳しくは[サブエージェントのドキュメント](https://code.claude.com/docs/en/sub-agents#run-subagents-in-foreground-or-background)を参照してください。",
+      "detail_en": "Previously, a background subagent that completed disappeared from the `/tasks` list the instant it finished, along with its detail view closing, making it hard to review a just-finished subagent's result.\n\nNow a completed background subagent stays listed, marked done and sorted below running work, until the session's task list is cleaned up; its detail view also stays open. Subagents that fail or are manually stopped still leave the list immediately. See the [sub-agents docs](https://code.claude.com/docs/en/sub-agents#run-subagents-in-foreground-or-background) for details.",
+      "category": "エージェント設定",
+      "category_en": "Agent Configuration"
+    },
+    {
+      "t": "改善: 停止していたバックグラウンドエージェントへの attach 時、空白の「Session is starting」画面の代わりに、セッションのウォームアップ中もトランスクリプトを即座に表示するように",
+      "t_en": "Attaching to a stopped background agent now shows its transcript immediately while the session warms up, instead of a blank \"Session is starting\" screen",
+      "tags": ["改善", "Agent"],
+      "detail": "リソース節約のため（約1時間の非アクティブ後などに）プロセスが停止されていたバックグラウンドセッションに attach すると、これまではプロセスが再起動するまで空白の「Session is starting」画面しか表示されなかった。\n\n本バージョンでは、直近のトランスクリプトを即座に表示し、プロセスの準備が整い次第ライブセッションに切り替わるようになったため、ユーザーが空白画面を見つめ続ける必要がなくなった。詳しくは[agent view のドキュメント](https://code.claude.com/docs/en/agent-view#a-session-is-slow-to-respond-after-attaching)を参照してください。",
+      "detail_en": "When attaching to a background session whose process had been stopped to free resources (after roughly an hour of inactivity), Claude Code previously showed only a blank \"Session is starting\" screen while the process restarted.\n\nIt now shows the last screenful of the session's transcript immediately, with the live session replacing it once the process is ready, so the user isn't staring at a blank screen. See the [agent view docs](https://code.claude.com/docs/en/agent-view#a-session-is-slow-to-respond-after-attaching) for details.",
+      "category": "エージェント設定",
+      "category_en": "Agent Configuration"
+    },
+    {
+      "t": "修正: バックグラウンドセッションで、古いバージョンのデーモンが、新しいバージョンから起動されたワーカーを黙って古いバイナリに再起動してしまう問題",
+      "t_en": "Background sessions: an older daemon no longer silently restarts workers spawned by a newer version onto the older binary",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "バックグラウンドサービスのスーパーバイザーが、あるセッションのプロセスを起動したバージョンよりも古い Claude Code バージョンで稼働している場合、これまではそのセッションのアイドルワーカープロセスをスーパーバイザー自身の古いバイナリで再起動してしまい、黙ってバージョンがダウングレードされることがあった。\n\n本バージョンではスーパーバイザーがそのようなプロセスに手を出さないようになり、より新しいスーパーバイザーが引き継ぐまで、セッションは起動時のバージョンのまま動作し続ける。",
+      "detail_en": "If a background-service supervisor was running an older Claude Code version than the one that had started a given session's process, it previously could restart that session's idle worker process onto its own older binary, silently downgrading it.\n\nThe supervisor now leaves such a process alone, so a session keeps running the newer version it was started with until a newer supervisor takes over.",
+      "category": "安定性",
+      "category_en": "Stability"
+    },
+    {
+      "t": "修正: agent view の Ctrl+X が、ブランチ名変更後の worktree を確実に削除し、push 前のコミットを絶対に破棄せず、worktree を保持した場合はセッション行も保持し、再利用される worktree 名がベースブランチに正しくリセットされるように",
+      "t_en": "Agent view: Ctrl+X now deletes renamed-branch worktrees, never destroys unpushed commits, keeps the session row when a worktree is kept, and reused worktree names reset to the current base",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "agent view で Ctrl+X によりバックグラウンドセッションの worktree を削除する操作には、いくつかのエッジケースの不具合があった。ブランチ名が変更された worktree を削除できないことがあり、また push されていないコミットを含む worktree が誤って破棄されてしまうリスクもあった。\n\n本バージョンでは、Ctrl+X が常にブランチ名変更後の worktree を確実に削除するようになり、push 前のコミットを含む worktree は絶対に破棄されず（worktree とそのセッション行が理由とともに保持される）、再利用される worktree 名は古い状態を引き継がず現在のベースブランチにリセットされるようになった。詳しくは[agent view のドキュメント](https://code.claude.com/docs/en/agent-view#how-file-edits-are-isolated)を参照してください。",
+      "detail_en": "Deleting a background session's worktree with Ctrl+X in agent view had a few edge-case bugs: it could fail to remove a worktree whose branch had been renamed, and there was risk of destroying a worktree containing unpushed commits.\n\nCtrl+X now always removes renamed-branch worktrees, never destroys a worktree containing unpushed commits (keeping the worktree and its session row together with the reason shown instead), and resets a reused worktree name to the current base branch instead of carrying over stale state. See the [agent view docs](https://code.claude.com/docs/en/agent-view#how-file-edits-are-isolated) for details.",
+      "category": "エージェント設定",
+      "category_en": "Agent Configuration"
+    },
+    {
+      "t": "修正: `$(…)`・バッククォート・`<(…)` によるコマンド置換/プロセス置換を含むコマンド内の破壊的な削除（`rm -rf ~` 等）が、通常形式と同様に `--dangerously-skip-permissions` と auto mode でも確認プロンプトを出すように",
+      "t_en": "Catastrophic removals (e.g. `rm -rf ~`) in commands containing `$(…)`/backticks/`<(…)` now prompt in `--dangerously-skip-permissions` and auto mode, matching the plain form",
+      "tags": ["バグ修正", "Security"],
+      "detail": "bypassPermissions モード（`--dangerously-skip-permissions`）と auto mode には、これらのモードが通常パーミッション確認をスキップする中でも、`rm -rf ~` のようなファイルシステムルートやホームディレクトリの破壊的な削除だけは必ず確認を求める「サーキットブレーカー」が以前から存在していた。しかし、この保護はコマンドの通常の記述形式にしか適用されておらず、`echo \"$(rm -rf ~)\"` のようにコマンド置換（`$(...)`、バッククォート）やプロセス置換（`<(...)`）を経由した削除はこのチェックをすり抜け、自動承認や分類器による承認に直行してしまっていた。\n\n本バージョンでは、置換形式のコマンドでも同じ確認プロンプトが発火するようになり、この抜け穴が塞がれた。詳しくは[パーミッションモードのドキュメント](https://code.claude.com/docs/en/permission-modes#eliminate-prompts-with-auto-mode)を参照してください。",
+      "detail_en": "Both bypassPermissions mode (`--dangerously-skip-permissions`) and auto mode have long had a \"circuit breaker\" that always prompts before a catastrophic filesystem-root or home-directory removal like `rm -rf ~`, even though these modes otherwise skip permission prompts. This protection previously only caught the plain command form; a removal reached via command substitution (`$(...)`, backticks) or process substitution (`<(...)`) — e.g. `echo \"$(rm -rf ~)\"` — bypassed the check and went straight to auto-approval or classifier approval.\n\nThe same prompt now fires for substitution forms too, closing this gap. See the [permission modes docs](https://code.claude.com/docs/en/permission-modes#eliminate-prompts-with-auto-mode) for details.",
+      "category": "セキュリティ",
+      "category_en": "Security"
+    },
+    {
+      "t": "変更: `/install-github-app` と `/mcp` の設定メニューがバックグラウンドセッションでは開かなくなった",
+      "t_en": "`/install-github-app` and the `/mcp` settings menu no longer open in background sessions",
+      "tags": ["改善", "Agent", "MCP"],
+      "detail": "バックグラウンドセッション（agent view から attach・返信するセッション）は、通常のフォアグラウンドのターミナルセッションと同じインタラクティブなセットアップ環境を持っていない。\n\n本バージョンから、`/install-github-app` と `/mcp` の設定一覧（認証操作を含む）はバックグラウンドセッションでは拒否され、通常の `claude` セッションで実行するよう案内するメッセージが表示されるようになった。ただし `/mcp reconnect`・`/mcp enable`・`/mcp disable` のような非対話的な `/mcp` サブコマンドは引き続きバックグラウンドセッションでも利用できる。詳しくは[agent view のドキュメント](https://code.claude.com/docs/en/agent-view#attach-to-a-session)を参照してください。",
+      "detail_en": "Background sessions (attached to or replied to via agent view) don't have the same interactive setup context as a regular foreground terminal session.\n\nAs of this release, `/install-github-app` and the `/mcp` settings list (including its authentication actions) are refused in a background session, with a message directing the user to a regular `claude` session instead. Non-interactive `/mcp` subcommands like `/mcp reconnect`, `/mcp enable`, and `/mcp disable` still work in background sessions. See the [agent view docs](https://code.claude.com/docs/en/agent-view#attach-to-a-session) for details.",
+      "category": "エージェント設定",
+      "category_en": "Agent Configuration"
+    },
+    {
+      "t": "修正: URL が空欄で設定された MCP サーバーが、設定エラーではなく `/mcp` で「not configured」と表示されるように",
+      "t_en": "MCP servers configured with an empty URL now show as \"not configured\" in `/mcp` instead of a config error",
+      "tags": ["バグ修正", "MCP"],
+      "detail": "`url` フィールドが空のリモート MCP サーバーの設定（プラグインが後でユーザーに設定させる想定のプレースホルダーとして提供することが多い）は、これまで「reconnect」を促す設定エラーとして表示されており、意図的に未設定であるプレースホルダーとしては誤解を招く表示だった。\n\n本バージョンでは、このようなサーバーは `/mcp`・`claude mcp list`・`/plugin` マネージャーで「not configured」と表示されるようになり、URL が設定されるまで Claude Code は接続を試みなくなった。詳しくは[MCP のドキュメント](https://code.claude.com/docs/en/mcp#managing-your-servers)を参照してください。",
+      "detail_en": "A remote MCP server entry with an empty `url` field — commonly a placeholder a plugin ships for a connector the user configures later — previously showed up as a configuration error with a prompt to reconnect, which was misleading for an intentionally-unconfigured placeholder.\n\nSuch a server now shows as \"not configured\" in `/mcp`, `claude mcp list`, and the `/plugin` manager, and Claude Code doesn't attempt to connect to it until a URL is set. See the [MCP docs](https://code.claude.com/docs/en/mcp#managing-your-servers) for details.",
+      "category": "MCP 連携",
+      "category_en": "MCP Integration"
+    },
+    {
+      "t": "改善: 利用状況エンドポイントがレート制限中の場合、`/usage` がエラー画面の代わりに「as of」の注記付きで最後に取得済みの利用状況バーを表示するように",
+      "t_en": "`/usage` now shows your last-known usage bars with an \"as of\" note when the usage endpoint is rate-limited, instead of an error screen",
+      "tags": ["改善"],
+      "detail": "プラン利用上限を取得するリクエストが、利用状況エンドポイント自体のレート制限によって失敗すると、これまでは以前に一度データを取得済みのセッションであっても、常にデータなしのエラー画面が表示されていた。\n\n本バージョンでは、直近60分以内にそのマシンで読み込まれた最後の利用状況バーがあれば、「Showing last-known usage」という注記と再試行ショートカット（`r`）付きで表示されるようになった（直近のスナップショットが存在しない場合のみ、これまでどおりバーなしでレート制限を報告する）。詳しくは[コストのドキュメント](https://code.claude.com/docs/en/costs#using-the-usage-command)を参照してください。",
+      "detail_en": "When the request for plan usage limits failed because the usage endpoint itself was rate-limited, `/usage` previously always showed an error screen with no data, even in a session that had already loaded usage data earlier.\n\nIt now shows the last usage bars loaded on that machine within the past 60 minutes, with a \"Showing last-known usage\" note and a retry shortcut (`r`); only when no recent snapshot exists does it still report the rate limit with no bars. See the [costs docs](https://code.claude.com/docs/en/costs#using-the-usage-command) for details.",
+      "category": "コマンド",
+      "category_en": "Commands"
+    },
+    {
+      "t": "修正: `sso_region` が Bedrock のリージョンと異なる AWS SSO プロファイルで、Bedrock 認証が「Session token not found or invalid」で失敗する問題（2.1.207 のリグレッション）",
+      "t_en": "Fixed Bedrock auth failing with \"Session token not found or invalid\" for AWS SSO profiles whose sso_region differs from the Bedrock region (2.1.207 regression)",
+      "tags": ["バグ修正", "Platform"],
+      "detail": "v2.1.207 で Bedrock のリージョン解決処理に不具合が入り、AWS SSO プロファイル自身の `sso_region` を Bedrock のリージョンで上書きしてしまっていたため、IAM Identity Center のインスタンスが Bedrock のエンドポイントとは異なるリージョンにあるプロファイルでは、「Session token not found or invalid」という認証エラーが発生していた。\n\n本バージョンでこのリグレッションを修正し、Bedrock のリージョンとは独立して、プロファイルの `sso_region` が指す IAM Identity Center リージョンから正しくロールクレデンシャルを取得するようになった。詳しくは[Amazon Bedrock のドキュメント](https://code.claude.com/docs/en/amazon-bedrock#2-configure-aws-credentials)を参照してください。",
+      "detail_en": "In v2.1.207, Claude Code's Bedrock region resolution incorrectly overrode the AWS SSO profile's own `sso_region` with the Bedrock region, so a profile whose IAM Identity Center instance lived in a different region than the Bedrock endpoint failed authentication with \"Session token not found or invalid\".\n\nThis release fixes the regression: Claude Code now correctly requests role credentials from the IAM Identity Center region named by the profile's `sso_region`, independent of the Bedrock region. See the [Amazon Bedrock docs](https://code.claude.com/docs/en/amazon-bedrock#2-configure-aws-credentials) for details.",
+      "category": "プラットフォーム互換性",
+      "category_en": "Platform Compatibility"
+    }
+  ],
+  "2.1.209": [
+    {
+      "t": "修正: `claude agents` のバックグラウンドセッションで `/model` などのダイアログがブロックされる問題（過剰に広いガードを撤回）",
+      "t_en": "Fixed /model and other dialogs being blocked in `claude agents` background sessions (reverts an overly broad guard)",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "v2.1.208 で、`/install-github-app` と `/mcp` の設定メニューをバックグラウンドセッションで意図的に無効化するガードが追加されたが、この対象範囲が広すぎたため、同じ v2.1.208 で `/model` ピッカーなど他の通常のダイアログまでブロックしてしまっていた。\n\n本バージョンでは過剰な部分のガードを撤回し、`claude agents` のバックグラウンドセッションにアタッチした状態でも `/model` などのダイアログを通常どおり使えるようにした。一方で `/install-github-app` と `/mcp` の設定・認証操作については、意図した制限のまま維持されている。詳しくは[agent view のドキュメント](https://code.claude.com/docs/en/agent-view#attach-to-a-session)を参照してください。",
+      "detail_en": "In v2.1.208, Claude Code added a guard that intentionally blocks `/install-github-app` and the `/mcp` settings menu in background sessions, but the guard was too broad and also blocked the `/model` picker and other normal dialogs in that same release.\n\nThis release reverts the overly broad part of the guard, restoring `/model` and other dialogs while attached to a `claude agents` background session, while keeping the intended restriction on `/install-github-app` and `/mcp` settings/authentication actions. See the [agent view docs](https://code.claude.com/docs/en/agent-view#attach-to-a-session) for details.",
+      "category": "エージェント設定",
+      "category_en": "Agent Configuration"
+    }
   ]
 }
