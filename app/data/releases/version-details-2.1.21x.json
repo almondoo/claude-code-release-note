@@ -297,5 +297,340 @@
       "category": "設定",
       "category_en": "Configuration"
     }
+  ],
+  "2.1.211": [
+    {
+      "t": "追加: サブエージェントのテキストと思考過程を stream-json 出力に含める `--forward-subagent-text` フラグと `CLAUDE_CODE_FORWARD_SUBAGENT_TEXT` 環境変数を追加",
+      "t_en": "Added `--forward-subagent-text` flag and `CLAUDE_CODE_FORWARD_SUBAGENT_TEXT` environment variable to include subagent text and thinking in stream-json output",
+      "tags": ["新機能", "SDK"],
+      "detail": "`--output-format stream-json` を使う `claude -p` 実行では、これまでサブエージェントの最終的な要約だけが親のストリームに現れ、サブエージェント自身が出力する途中経過のテキストや思考過程は表示されなかった。\n\n本バージョンで追加された `--forward-subagent-text` フラグ（または `CLAUDE_CODE_FORWARD_SUBAGENT_TEXT` 環境変数）を有効にすると、サブエージェントの生のテキストと思考過程もストリーミングイベントとして転送されるようになる。SDK を使ったカスタム UI などで、サブエージェントが何をしているかをリアルタイムに可視化したい場合に利用できる。",
+      "detail_en": "When running `claude -p` with `--output-format stream-json`, only a subagent's final summary previously reached the parent stream — the subagent's own intermediate text and thinking blocks were not surfaced.\n\nEnabling the new `--forward-subagent-text` flag (or the `CLAUDE_CODE_FORWARD_SUBAGENT_TEXT` environment variable) now forwards that raw subagent text and thinking as streaming events as well. This is useful for SDK integrations or custom UIs that want to visualize what a subagent is doing in real time.",
+      "category": "SDK",
+      "category_en": "SDK"
+    },
+    {
+      "t": "修正: チャットチャンネルに中継されるパーミッションプレビューが双方向オーバーライド文字・ゼロ幅文字・紛らわしい引用符文字を無害化しておらず、ツール入力によって承認メッセージの見た目を偽装できてしまう問題",
+      "t_en": "Fixed permission previews relayed to chat channels not neutralizing bidirectional-override, zero-width, and look-alike quote characters, so tool inputs cannot visually alter the approval message",
+      "tags": ["バグ修正", "Security"],
+      "detail": "Telegram や Discord などの双方向チャンネル連携では、パーミッション確認ダイアログの内容をリモート端末に中継し、ツール名や引数の一部（`input_preview`）を表示して承認を求めることができる。この `input_preview` は Claude が生成したツール入力からそのまま組み立てられるため、これまでは攻撃者が制御できるファイルパスやコマンドの中に双方向オーバーライド文字・ゼロ幅文字・紛らわしい引用符文字を仕込むことで、リモートの承認者に見せる承認メッセージの見た目を偽装できてしまう可能性があった。\n\n本バージョンでは、プレビューを送信する前にこれらの文字を無害化するようになり、実行されようとしている内容と実際に表示されるテキストが一致するようになった。",
+      "detail_en": "Two-way chat channel integrations (Telegram, Discord, and similar) can relay a permission-approval prompt to a remote device, showing the tool name and a preview of its arguments (`input_preview`) so the request can be approved remotely. Because that preview was built directly from Claude's raw tool input, an attacker-controlled file path or command could previously embed bidirectional-override, zero-width, or look-alike quote characters to visually disguise what the approval message actually says.\n\nThis version neutralizes those characters before the preview is sent, so the text shown to a remote approver now matches what will actually run.",
+      "category": "セキュリティ",
+      "category_en": "Security"
+    },
+    {
+      "t": "修正: 非サンドボックスの Bash に対して auto mode が PreToolUse フックの `ask` 判定を上書きしてしまう問題（フックの `ask` は常に確認プロンプトを強制するように変更）",
+      "t_en": "Fixed auto mode overriding a PreToolUse hook's `ask` decision for unsandboxed Bash — a hook `ask` now floors the decision at a prompt",
+      "tags": ["バグ修正", "Security"],
+      "detail": "PreToolUse フックは `permissionDecision: \"ask\"` を返すことで、通常のパーミッション判定に関わらず確認ダイアログを強制できる。しかし auto mode（バックグラウンドの安全性分類器によって呼び出しを自動承認する仕組み）では、非サンドボックスの Bash コマンドに対してこの `ask` 判定が無視され、本来ユーザーに確認してほしかった呼び出しが auto mode によって黙って承認されてしまうことがあった。\n\n本バージョンの修正により、フックが返す `ask` は常に判定の下限として扱われるようになり、auto mode が有効な場合でも必ず確認プロンプトが表示されるようになった。詳しくは[hooks のドキュメント](https://code.claude.com/docs/en/hooks#pretooluse-decision-control)を参照してください。",
+      "detail_en": "A PreToolUse hook can return `permissionDecision: \"ask\"` to force a confirmation dialog regardless of what the normal permission flow would otherwise decide. In auto mode, which auto-approves calls that pass a background safety classifier, this floor was not being respected for unsandboxed Bash commands, letting auto mode silently approve a call the hook wanted the user to confirm.\n\nThis fix makes a hook's `ask` decision always act as a floor, so the user is prompted regardless of auto mode. See the [hooks documentation](https://code.claude.com/docs/en/hooks#pretooluse-decision-control) for details.",
+      "category": "パーミッション",
+      "category_en": "Permissions"
+    },
+    {
+      "t": "修正: 認証情報ストアを共有する複数の Claude Code セッションが、スリープからの復帰後に一斉にログアウトしてしまう問題",
+      "t_en": "Fixed parallel Claude Code sessions all logging out simultaneously after wake-from-sleep when many sessions share one credential store",
+      "tags": ["バグ修正"],
+      "detail": "1台のマシンで複数の Claude Code セッションを同時に開いている場合、それらは同じ認証情報ストアを共有している。スリープからの復帰時にこのストアへアクセスするタイミングに競合があり、本来は1つのセッションだけがトークンを更新すればよいはずが、すべてのセッションが同時にログアウト状態になってしまうことがあった。\n\n本バージョンでは、スリープ復帰時の認証情報チェックの扱いを見直し、並行する複数のセッションが互いを巻き込んでログアウトさせてしまわないように修正した。",
+      "detail_en": "When several Claude Code sessions are open on the same machine, they share a single on-disk credential store. A race in how sessions revalidated or refreshed credentials on wake from sleep could cause every session to be logged out at once, even though only one session actually needed a refresh.\n\nThis version fixes the wake-time credential check so parallel sessions no longer knock each other out.",
+      "category": "セッション管理",
+      "category_en": "Session Management"
+    },
+    {
+      "t": "修正: アイドル状態の Web セッションが復帰した際にプラグイン提供の MCP サーバーが再接続されず、次のメッセージが送られるまで MCP 呼び出しが失敗し続ける問題",
+      "t_en": "Fixed plugin MCP servers not reconnecting after an idle web session woke, leaving MCP calls failing until the next message",
+      "tags": ["バグ修正", "MCP"],
+      "detail": "Claude Code on the web ではセッションがアイドル状態になった後に復帰することがあるが、プラグインが提供する MCP サーバーはこの復帰処理の中で再接続されていなかった。そのため復帰直後に MCP ツールを呼び出すと、次のメッセージが送信されて改めて接続が確立されるまで、その呼び出しは失敗し続けていた。\n\n本バージョンでは、Web セッションの復帰処理の一部としてプラグイン提供の MCP サーバーも再接続されるようになり、復帰直後の最初の呼び出しから正常に動作するようになった。",
+      "detail_en": "Claude Code on the web can idle and later wake, but plugin-provided MCP servers were not being reconnected as part of that wake sequence. Any MCP tool call made right after waking would therefore fail until a subsequent message triggered a fresh connection.\n\nThis version reconnects plugin-provided MCP servers as part of the wake process itself, so the first tool call after waking now succeeds.",
+      "category": "MCP 連携",
+      "category_en": "MCP Integration"
+    },
+    {
+      "t": "修正: モデルを明示的に設定していても、Vertex・Bedrock 上の Claude Code が起動時にデフォルトの Opus モデルへの接続を試みて誤ったフォールバック通知を表示してしまう問題",
+      "t_en": "Fixed Claude Code on Vertex and Bedrock attempting the default Opus model at startup and printing a spurious fallback notice when a model is explicitly configured",
+      "tags": ["バグ修正", "Platform"],
+      "detail": "Amazon Bedrock や Google Cloud の Vertex AI では、Claude Code は起動時にデフォルトモデルの利用可否を確認し、アカウントで利用できない場合はより低位のモデルにフォールバックして通知を表示する。この処理が、モデルを環境変数などで明示的に固定している場合でも実行されてしまい、不要にデフォルトの Opus モデルへ接続を試みたうえで紛らわしいフォールバック通知が表示されていた。\n\n本バージョンでは、モデルが明示的に設定されている場合はこの起動時チェック自体をスキップするように修正した。詳しくは[Bedrock のドキュメント](https://code.claude.com/docs/en/amazon-bedrock#startup-model-checks)を参照してください。",
+      "detail_en": "On Amazon Bedrock and Google Cloud's Vertex AI, Claude Code checks model availability at startup and falls back to a lower-tier model with a notice if the default isn't accessible in your account. That check was running even when a model had been explicitly pinned via configuration, needlessly attempting the default Opus model and printing a confusing fallback notice.\n\nThis version skips the startup default-model check entirely when a model is explicitly configured. See the [Bedrock documentation](https://code.claude.com/docs/en/amazon-bedrock#startup-model-checks) for details.",
+      "category": "プラットフォーム互換性",
+      "category_en": "Platform Compatibility"
+    },
+    {
+      "t": "修正: モデルを明示的に指定して起動したサブエージェントが、再開時やフォローアップメッセージ送信時に親セッションの使用モデルに戻ってしまう問題",
+      "t_en": "Fixed subagents spawned with an explicit model override reverting to the parent's model when resumed or sent a follow-up message",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "サブエージェントは呼び出し単位でモデルを指定でき、たとえば安価なタスクを Haiku に固定するといった使い方ができる。しかし、そのサブエージェントを再開したり `SendMessage` でフォローアップメッセージを送ったりすると、この指定が失われ、親の会話が使用しているモデルに戻ってしまうことがあった。\n\n本バージョンでは、再開やフォローアップメッセージの際にも指定したモデルが正しく維持されるように修正した。詳しくは[サブエージェントのドキュメント](https://code.claude.com/docs/en/sub-agents#choose-a-model)を参照してください。",
+      "detail_en": "A subagent's model can be pinned per-invocation — for example, to force a cheap task onto Haiku. Resuming that subagent later, or sending it a follow-up message via `SendMessage`, could drop that override and fall back to whatever model the parent conversation was using.\n\nThis version preserves the explicit model override across resumes and follow-up messages. See the [sub-agents documentation](https://code.claude.com/docs/en/sub-agents#choose-a-model) for details.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-Agent"
+    },
+    {
+      "t": "修正: 設定ソースからプロジェクト設定を除外していても、ネストされた `.claude/rules/*.md` ファイルが読み込まれてしまう問題",
+      "t_en": "Fixed nested `.claude/rules/*.md` files loading even when setting sources exclude project settings",
+      "tags": ["バグ修正"],
+      "detail": "`--setting-sources` フラグを使うと、たとえばリポジトリにチェックインされた設定を読み込まずにセッションを実行するなど、`project`（または `local`）の設定レイヤーを除外できる。しかし、ネストされた `.claude/rules/*.md` ファイルはこの除外設定に関わらず読み込まれ続けており、プロジェクト固有の指示が意図せずコンテキストに混入してしまうことがあった。\n\n本バージョンでは、`.claude/rules/*.md` ファイルも他のプロジェクトスコープの設定と同様に `--setting-sources` の除外指定に従うように修正した。",
+      "detail_en": "The `--setting-sources` flag can exclude the `project` (or `local`) settings layer for a session — for example, to run Claude Code without a repo's checked-in configuration. Nested `.claude/rules/*.md` files were still being loaded regardless of that exclusion, leaking project-scoped instructions into a session that had asked not to load them.\n\nThis version makes `.claude/rules/*.md` files respect the same `--setting-sources` exclusion as other project-scoped settings.",
+      "category": "設定",
+      "category_en": "Configuration"
+    },
+    {
+      "t": "修正: ファイルアップロードの検証を調整（DOS デバイスサフィックス `.prn` や末尾がドットのファイル名を許可する一方、複数のハードリンクを持つファイルは拒否するように変更）",
+      "t_en": "Fixed file upload validation: filenames ending in a DOS device suffix (`.prn`) or trailing dot are now accepted, and files with multiple hard links are refused",
+      "tags": ["バグ修正", "Security"],
+      "detail": "ファイルアップロード時の検証は、`.prn` のような Windows の予約デバイス名や末尾がドットで終わるファイル名を過剰に拒否していたが、これらは現代のファイルシステムでは有効な名前である。一方で、複数のハードリンクを持つファイルについてはチェックが不十分で、検証後に別の場所から中身がすり替えられるリスクがあった。\n\n本バージョンでは、ファイル名に関する不要な制限を緩和しつつ、複数のハードリンクを持つファイルは拒否するように検証ロジックを見直した。",
+      "detail_en": "File-upload validation was over-rejecting legitimate filenames ending in a reserved DOS device suffix like `.prn` or a trailing dot, both of which are valid on modern filesystems even though they're historically reserved on Windows. At the same time, validation wasn't checking for files with multiple hard links, which could let a file's contents be swapped out from under Claude Code after validation.\n\nThis version relaxes the unnecessary filename restriction while tightening the hard-link check.",
+      "category": "セキュリティ",
+      "category_en": "Security"
+    },
+    {
+      "t": "修正: リモートセッションおよび CLI セッションから Claude in Chrome へのファイルアップロードができない問題",
+      "t_en": "Fixed file uploads to Claude in Chrome from remote and CLI sessions",
+      "tags": ["バグ修正"],
+      "detail": "Claude in Chrome へのファイルアップロードは、ローカルの対話セッションから操作する場合は問題なかったが、Remote Control セッションや CLI からアタッチしたセッションから行うと失敗していた。ブラウザとの連携処理がローカルの直接接続を前提としていたことが原因とみられる。\n\n本バージョンでは、どの経路から Chrome を操作している場合でもファイルアップロードが正しく動作するように修正した。",
+      "detail_en": "Uploading a file to Claude in Chrome worked fine from a local interactive session, but failed specifically when driven from a Remote Control session or a CLI-attached session, likely because the upload path assumed a directly-attached local browser context.\n\nThis version makes file uploads work correctly regardless of which surface initiated the Chrome interaction.",
+      "category": "MCP 連携",
+      "category_en": "MCP Integration"
+    },
+    {
+      "t": "修正: 入力欄の編集結果が「?」1文字だけになった際に、その文字が黙って消えてショートカットパネルが開いてしまう問題",
+      "t_en": "Fixed edits that leave the input as \"?\" being silently swallowed and toggling the shortcuts panel",
+      "tags": ["バグ修正"],
+      "detail": "ターミナルの入力欄を編集して結果が「?」1文字だけになった場合、これがショートカット一覧を開くキーバインドと誤認識され、入力した「?」自体は黙って消え、代わりにショートカットパネルが開いてしまっていた。\n\n本バージョンでは、入力テキストとしての「?」とショートカットのキーバインドとしての「?」を区別できるように修正した。",
+      "detail_en": "In the terminal input box, editing text down to a lone \"?\" character was being misinterpreted as the keyboard shortcut for opening the shortcuts panel instead of being treated as typed input, so the \"?\" itself silently vanished and the shortcuts panel popped open unexpectedly.\n\nThis version distinguishes a literal \"?\" typed as input text from the \"?\" shortcut binding.",
+      "category": "UX",
+      "category_en": "UX"
+    },
+    {
+      "t": "修正: Claude in Chrome 拡張機能が有効なのに Chrome が起動していない場合に、起動時にハングしてしまう問題",
+      "t_en": "Fixed a startup hang when the Claude in Chrome extension is enabled but Chrome is not running",
+      "tags": ["バグ修正"],
+      "detail": "設定で Claude in Chrome 連携が有効になっているものの、Chrome ブラウザ自体が起動していない場合、Claude Code の起動処理が拡張機能への接続を待ち続けて完了しなくなることがあった。\n\n本バージョンでは、この状況を検知してタイムアウトなどで適切に処理を継続できるように修正し、起動時にハングしなくなった。",
+      "detail_en": "When the Claude in Chrome integration is enabled in settings but the Chrome browser itself isn't running, Claude Code's startup sequence could hang waiting for a connection to the extension that would never arrive.\n\nThis version detects this case and proceeds without blocking indefinitely, so startup no longer hangs.",
+      "category": "MCP 連携",
+      "category_en": "MCP Integration"
+    },
+    {
+      "t": "修正: Settings タブ・Stats・diff 表示などの非同期コンテンツが表示されるまでに約300ミリ秒の遅延が生じていた問題",
+      "t_en": "Fixed a 300ms delay revealing async content (Settings tabs, Stats, diff views, and other loading states)",
+      "tags": ["バグ修正"],
+      "detail": "Settings のタブや Stats 画面、diff 表示など、データを非同期に読み込んで表示する複数の画面で、実際にはデータが準備できていても表示されるまでに約300ミリ秒の遅延があり、動作が重く感じられる原因になっていた。\n\n本バージョンでは、この不要な遅延を取り除き、データが準備でき次第すぐに表示されるように修正した。",
+      "detail_en": "Several UI surfaces that load data asynchronously — Settings tabs, the Stats view, diff views, and other loading states — had a roughly 300ms delay before their content appeared, even when the underlying data was already ready, making the UI feel sluggish.\n\nThis version removes that unnecessary delay so these views render as soon as their content is ready.",
+      "category": "レンダリング",
+      "category_en": "Rendering"
+    },
+    {
+      "t": "修正: agents view で停止直後のバックグラウンドセッションを再度開くと、同じセッション ID のまま空の会話が新規開始されてしまう問題",
+      "t_en": "Fixed reopening a just-stopped background session from the agents view starting a blank conversation under the same session id",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "agents view でバックグラウンドセッションが停止した直後にそのセッションを再度開くと、既存の会話を再開するのではなく、同じセッション ID のまま空の新しい会話が始まってしまうことがあった。これにより、それまでの会話履歴が見かけ上失われてしまう問題があった。\n\n本バージョンでは、停止直後のセッションを再度開いた際にも既存のトランスクリプトが正しく再開されるように修正した。",
+      "detail_en": "In agent view, reopening a background session immediately after it stopped could start a brand-new, empty conversation while reusing the same session id, instead of resuming the existing transcript — making the prior conversation history appear to have been lost.\n\nThis version ensures reopening a just-stopped session correctly resumes its existing transcript.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-Agent"
+    },
+    {
+      "t": "修正: `/loop` を一度使用したセッションが `/resume` の一覧に表示されなくなってしまう問題",
+      "t_en": "Fixed `/loop` hiding the session from `/resume` after a single use",
+      "tags": ["バグ修正"],
+      "detail": "`/loop` はプロンプトを一定間隔で繰り返し実行する機能だが、一度でも実行したセッションはその後 `/resume` の一覧から消えてしまい、後からそのセッションを見つけて再接続することが難しくなっていた。\n\n本バージョンでは、`/loop` を使ったセッションも他のセッションと同様に `/resume` の一覧に表示され続けるように修正した。",
+      "detail_en": "`/loop` repeats a prompt on a recurring interval within a session. After running once, a session running the loop stopped showing up in the `/resume` picker, making it hard to find and reconnect to it later.\n\nThis version keeps loop sessions visible to `/resume` like any other session.",
+      "category": "ツール改善",
+      "category_en": "Tool Improvements"
+    },
+    {
+      "t": "修正: `/terminal-setup` またはオンボーディングのターミナル設定を実行すると、スクリーンリーダー利用者向けの可聴ターミナルベルが失われてしまう問題",
+      "t_en": "Fixed screen reader users losing the audible terminal bell after `/terminal-setup` or onboarding terminal setup",
+      "tags": ["バグ修正"],
+      "detail": "スクリーンリーダーを利用するユーザーは、通知の合図としてターミナルの可聴ベルを頼りにしている。しかし `/terminal-setup` の実行、あるいはオンボーディング時のターミナル設定によって、このベルの設定が意図せず無効化されてしまい、重要なアクセシビリティ上の合図が失われていた。\n\n本バージョンでは、ターミナル設定の実行後もベルの設定が維持されるように修正した。",
+      "detail_en": "Screen reader users rely on the terminal bell as an audible cue for notifications. Running `/terminal-setup`, or going through the onboarding terminal-setup flow, was disabling that bell as a side effect, removing an important accessibility signal.\n\nThis version preserves the bell setting through terminal setup.",
+      "category": "アクセシビリティ",
+      "category_en": "Accessibility"
+    },
+    {
+      "t": "修正: LLM ゲートウェイ認証（`ANTHROPIC_AUTH_TOKEN` + `ANTHROPIC_BASE_URL`）を使うバックグラウンドジョブが、デーモンによる再起動後に「Not logged in」と表示されてしまう問題",
+      "t_en": "Fixed background jobs on LLM gateway auth (`ANTHROPIC_AUTH_TOKEN` + `ANTHROPIC_BASE_URL`) coming back \"Not logged in\" after the daemon respawns them",
+      "tags": ["バグ修正"],
+      "detail": "シェルで `ANTHROPIC_BASE_URL` と `ANTHROPIC_AUTH_TOKEN` を設定してゲートウェイ経由の認証でバックグラウンドセッションを起動した場合、その設定は起動中のワーカープロセスにのみ適用され、ディスクには保存されない。そのためスーパーバイザーデーモンがアイドル状態のセッションを停止し、後で再起動すると、再起動後のプロセスは通常の（ゲートウェイ経由ではない）保存済み認証情報しか参照できず、「Not logged in」と表示されてしまっていた。\n\n本バージョンでは、再起動後のプロセスでもゲートウェイ認証を正しく再解決できるように修正した。詳しくは[agents view のドキュメント](https://code.claude.com/docs/en/agent-view#the-supervisor-process)を参照してください。",
+      "detail_en": "When a background session is dispatched from a shell with a gateway endpoint (`ANTHROPIC_BASE_URL`) and token (`ANTHROPIC_AUTH_TOKEN`) exported, that setting applies only to the live worker process and is never written to disk. When the supervisor daemon stops an idle session and later respawns it, the restarted process previously fell back to your ordinary stored credentials, coming back as \"Not logged in\".\n\nThis version makes the respawned process correctly re-resolve the gateway auth instead of losing it. See the [agent view documentation](https://code.claude.com/docs/en/agent-view#the-supervisor-process) for details.",
+      "category": "エージェント設定",
+      "category_en": "Agent Configuration"
+    },
+    {
+      "t": "修正: `claude agents` のジョブについて、git がその worktree を認識できなくなると削除できなくなり、行が理由の説明なく再表示され続けてしまう問題（削除できない理由が表示されるように改善）",
+      "t_en": "Fixed `claude agents` jobs becoming permanently undeletable when git no longer recognizes their worktree — the row now shows why the delete was refused instead of silently reappearing",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "agents view は各バックグラウンドセッションを専用の git worktree で管理しており、セッションを削除するとその worktree も一緒に削除される（未コミット・未 push の変更がある場合を除く）。この worktree を git 自体が認識できなくなった場合（手動で削除された場合など）、削除処理が理由を示さずに失敗し、削除したはずの行が説明もなく再表示され続けてしまっていた。\n\n本バージョンでは、削除が拒否された実際の理由を行に表示するように修正し、原因を確認して対処できるようになった。詳しくは[agents view のドキュメント](https://code.claude.com/docs/en/agent-view#organize-the-list)を参照してください。",
+      "detail_en": "Agent view moves each background session into its own git worktree, and deleting a session normally removes that worktree too unless it has uncommitted or unpushed work. If git stopped recognizing the worktree entirely, the delete could fail silently and the row would just reappear with no explanation, leaving it permanently stuck.\n\nThis version surfaces the actual reason the delete was refused instead of leaving the user guessing. See the [agent view documentation](https://code.claude.com/docs/en/agent-view#organize-the-list) for details.",
+      "category": "エージェント設定",
+      "category_en": "Agent Configuration"
+    },
+    {
+      "t": "修正: `/clear` 実行後もステータスラインのコストカウンターがリセットされない問題（`/clear` 後はコスト表示が $0 から開始するように修正）",
+      "t_en": "Fixed `/clear` not resetting the session cost counter — the statusline's cost now starts at $0 after `/clear`",
+      "tags": ["バグ修正"],
+      "detail": "`/clear` はセッションの会話をリセットするコマンドだが、ステータスラインに表示されるセッションの累計コストはリセットされず、`/clear` 前からの金額が引き続き加算表示されてしまっていた。\n\n本バージョンでは、`/clear` の実行に合わせてコストカウンターもリセットされるようになり、`/clear` 後は表示が $0 から開始するように修正した。",
+      "detail_en": "`/clear` resets a session's conversation, but the statusline's cumulative session cost was not being reset along with it, continuing to accumulate from before the clear.\n\nThis version resets the cost counter as part of `/clear`, so the displayed cost now starts at $0 afterward.",
+      "category": "UX",
+      "category_en": "UX"
+    },
+    {
+      "t": "修正: Windows で Claude in Chrome のセットアップページがブラウザで開けない問題",
+      "t_en": "Fixed Claude in Chrome setup pages failing to open in the browser on Windows",
+      "tags": ["バグ修正", "Windows"],
+      "detail": "Claude in Chrome 連携のセットアップ手順では、ブラウザでセットアップページや接続用ページを開く必要があるが、Windows 環境ではこのページが開けない問題があった。URL を起動する処理の Windows 固有の差異が原因とみられる。\n\n本バージョンでは、Windows でもセットアップページが正しく開くように修正した。",
+      "detail_en": "Setting up the Claude in Chrome integration involves opening a setup or connection page in the browser; on Windows this was failing to open at all, likely due to a platform-specific difference in how Claude Code launches URLs.\n\nThis version makes the setup pages open correctly on Windows.",
+      "category": "MCP 連携",
+      "category_en": "MCP Integration"
+    },
+    {
+      "t": "修正: Windows のヘッドレスな print モードセッションで、標準入力が読み取り不能な場合にクラッシュしたり無言で終了してしまう問題",
+      "t_en": "Fixed headless print-mode sessions on Windows crashing or silently exiting when stdin is unreadable",
+      "tags": ["バグ修正", "Windows"],
+      "detail": "`claude -p`（ヘッドレスな print モード）は動作の一部として標準入力を読み取るが、Windows 環境で標準入力が読み取り不能な状態にある場合（スクリプトや CI などから起動され標準入力が接続されていない場合など）、セッションがクラッシュしたり、診断情報を残さないまま無言で終了してしまうことがあった。\n\n本バージョンでは、Windows で標準入力が読み取り不能な場合にも正常に処理を継続できるように修正した。",
+      "detail_en": "`claude -p` (headless print mode) reads stdin as part of its normal operation. On Windows, if stdin was in an unreadable state — for example, no stdin attached in certain scripted or CI launch contexts — sessions could crash or exit silently with no diagnostic.\n\nThis version handles unreadable stdin gracefully on Windows instead of crashing.",
+      "category": "安定性",
+      "category_en": "Stability"
+    },
+    {
+      "t": "修正: agents view のバックグラウンドセッションタイトルが、プロンプトにリンクが含まれる場合に命名モデルの拒否メッセージをそのまま表示してしまう問題",
+      "t_en": "Fixed background session titles in the agents view showing the naming model's refusal text when the prompt contains a link",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "agents view は各バックグラウンドセッションの短いタイトルを小型モデルで自動生成しているが、元のプロンプトにリンクが含まれる場合、この小型モデルが（URL への警戒などから）要約自体を拒否することがあり、その結果セッションの行には拒否メッセージの文言がそのままタイトルとして表示されてしまっていた。\n\n本バージョンでは、命名モデルが拒否した場合を検知して、拒否メッセージをタイトルとして使わないように修正した。",
+      "detail_en": "Agent view auto-generates a short title for each background session using a small model. When the originating prompt contained a link, that model could sometimes refuse to summarize it, and the row would then display the literal refusal text as if it were the session's title.\n\nThis version detects a refusal and falls back away from using it as the session title.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-Agent"
+    },
+    {
+      "t": "修正: ユーザーが停止したバックグラウンドエージェントが自動的に再起動してしまう問題、および再起動したエージェントが古いセッションの古いプロンプトを再実行してしまう問題",
+      "t_en": "Fixed background agents killed by the user auto-respawning, and revived agents re-running stale prompts from old sessions",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "ユーザーが自分でバックグラウンドエージェントを停止した場合、そのまま停止状態が維持されるべきだが、スーパーバイザーがこれを自動的に再起動してしまうことがあった。さらに、この再起動によって復活したエージェントが、現在の作業とは無関係な古いセッションの古いプロンプトを再実行してしまうこともあった。\n\n本バージョンでは、ユーザーによる明示的な停止が確実に維持されるように修正し、復活したエージェントも正しく現在の作業から再開するように修正した。",
+      "detail_en": "Stopping a background agent yourself should keep it stopped, but the supervisor was auto-respawning some user-killed agents anyway. When an agent was revived this way, it could also re-run a stale prompt left over from an earlier, unrelated session.\n\nThis version makes user-initiated stops stick and ensures a revived agent resumes its own correct, current work rather than replaying old prompts.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-Agent"
+    },
+    {
+      "t": "修正: スケジュールを持たない routine の次回実行時刻が「西暦1年」と表示されてしまう問題",
+      "t_en": "Fixed routines with no schedule reporting a next run time in the year 1",
+      "tags": ["バグ修正"],
+      "detail": "routine は API トリガーや GitHub イベントトリガーのみを設定し、定期実行のスケジュールを持たない構成にすることもできる。その場合、UI の「次回実行」表示がゼロ値のタイムスタンプを計算してしまい、「西暦1年」という意味のない日付が表示されていた。\n\n本バージョンでは、スケジュールを持たない routine では「次回実行」が適切な空の状態で表示されるように修正した。",
+      "detail_en": "A routine can be configured with only API or GitHub-event triggers and no recurring schedule at all. In that case, the UI's \"next run\" display was computing a default/zero timestamp and rendering it as a nonsensical date in the year 1.\n\nThis version shows an appropriate empty state for schedule-less routines.",
+      "category": "設定",
+      "category_en": "Configuration"
+    },
+    {
+      "t": "改善: Windows での同期スキル・プラグインのディレクトリ命名を堅牢化するとともに、`/clear` 後も CCR の Web 取得・検索プロキシが動作し続けるように修正",
+      "t_en": "Hardened synced skill/plugin directory naming on Windows and kept CCR web fetch/search proxies working after `/clear`",
+      "tags": ["バグ修正", "Windows"],
+      "detail": "Windows 環境では、同期されるスキルやプラグインのディレクトリ名が Windows のファイルシステムの命名規則と衝突したり無効になったりすることがあった。また、Claude Code Remote（CCR）のセッションでは、`/clear` を実行すると Web 取得・検索ツールのプロキシが動作しなくなることがあった。\n\n本バージョンでは、Windows でのディレクトリ命名処理を堅牢化するとともに、`/clear` 後も CCR の Web 取得・検索プロキシが正しく動作し続けるように修正した。",
+      "detail_en": "On Windows, directory names for synced skills/plugins could collide with or be invalid under Windows filesystem naming rules. Separately, in Claude Code Remote (CCR) sessions, the web fetch/search tool proxies could stop working after running `/clear`.\n\nThis version hardens the Windows directory naming and keeps CCR's web fetch/search proxies working correctly after `/clear`.",
+      "category": "プラグイン",
+      "category_en": "Plugin"
+    },
+    {
+      "t": "改善: ターミナルのレイアウトと描画パフォーマンスを改善",
+      "t_en": "Improved terminal layout and rendering performance",
+      "tags": ["改善", "Perf"],
+      "detail": "ターミナル UI のレイアウト計算と再描画処理にパフォーマンス改善を加え、更新のたびに発生していた無駄な処理を削減した。\n\nこれにより、特に出力量が多いセッションでの描画がより滑らかになる。",
+      "detail_en": "This version improves how the CLI lays out and redraws the terminal UI, reducing unnecessary work on each update.\n\nRendering feels smoother, especially in sessions with heavy output.",
+      "category": "パフォーマンス",
+      "category_en": "Performance"
+    },
+    {
+      "t": "改善: バックグラウンドエージェントの結果報告を改善（実行中のエージェントについては架空の結果を作り出さず、実際の完了を待ってから状況を報告するように）",
+      "t_en": "Improved background agent result reporting — Claude now reports the status of still-running agents and waits for the real completion instead of fabricating results",
+      "tags": ["改善", "Agent"],
+      "detail": "バックグラウンドエージェントの進捗を尋ねられた際、Claude はこれまでまだ完了していないエージェントについて、それらしいが実際には架空の結果を答えてしまうことがあった。\n\n本バージョンでは、Claude がエージェントの実際の実行中ステータスを確認して正確に報告し、本当の完了を待ってから結果を要約するように改善した。詳しくは[agents view のドキュメント](https://code.claude.com/docs/en/agent-view#row-summaries)を参照してください。",
+      "detail_en": "When asked about a background agent's progress, Claude could previously describe a plausible-sounding but fabricated outcome for an agent that was still running, instead of accurately reporting that it hadn't finished yet.\n\nThis version makes Claude check and report actual in-progress status, waiting for genuine completion before summarizing results. See the [agent view documentation](https://code.claude.com/docs/en/agent-view#row-summaries) for details.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-Agent"
+    },
+    {
+      "t": "改善: メモリインデックスの上限超過警告が、実際に読み込まれるコンテンツのみを対象に計測するように改善（frontmatter や HTML コメントを除外）",
+      "t_en": "Improved the memory index over-limit warning to measure only loaded content, excluding frontmatter and HTML comments",
+      "tags": ["改善"],
+      "detail": "自動メモリの `MEMORY.md` には読み込み上限（先頭200行または25KB）が設定されているが、上限超過時の警告はファイルの生のサイズを基準に計算しており、実際にはコンテキストへ読み込まれない YAML frontmatter や HTML コメントも含めて判定してしまっていた。\n\n本バージョンでは、実際に読み込まれるコンテンツのみを対象に計測するように改善し、警告が不必要に表示されたり超過量が実態より大きく表示されたりすることがなくなった。詳しくは[メモリのドキュメント](https://code.claude.com/docs/en/memory#how-it-works)を参照してください。",
+      "detail_en": "Auto memory's `MEMORY.md` has a load limit (the first 200 lines or 25KB), but the warning shown when that limit is exceeded was measuring the raw file size, including YAML frontmatter and HTML comments that are stripped out and never actually loaded into context.\n\nThis version measures only the content that's actually loaded, so the warning no longer fires or overstates the overage based on bytes that were never going to consume context. See the [memory documentation](https://code.claude.com/docs/en/memory#how-it-works) for details.",
+      "category": "会話管理",
+      "category_en": "Conversation Management"
+    },
+    {
+      "t": "改善: タイムアウト・トークン予算・リトライ回数などの整数値を取る環境変数が、`1e6` や `64_000` のような指数表記・桁区切り表記を受け付けるように",
+      "t_en": "Updated integer environment variables (timeouts, token budgets, retry counts) to accept scientific notation and digit-separator spellings like `1e6` and `64_000`",
+      "tags": ["改善"],
+      "detail": "タイムアウトやトークン予算、リトライ回数など整数値を取る各種環境変数は、これまで `1200000` のような桁区切りのない数字列でしか指定できなかった。\n\n本バージョンでは、`1.2e6` や `1_200_000` のような指数表記・桁区切り表記でも値を指定できるようになり、大きな数値を手入力する際に読み書きしやすくなった。",
+      "detail_en": "Many integer environment variables — for timeouts, token budgets, and retry counts — previously had to be written as plain digit strings like `1200000`.\n\nThis version lets those same values be written in more readable forms, such as `1.2e6` or `1_200_000`, making large values easier to set correctly by hand.",
+      "category": "設定",
+      "category_en": "Configuration"
+    },
+    {
+      "t": "改善: 製品内のドキュメントリンクを現行のドキュメントサイトへ更新",
+      "t_en": "Updated documentation links to the current docs sites",
+      "tags": ["改善"],
+      "detail": "エラーメッセージやヘルプ表示など、製品内に埋め込まれたドキュメントへのリンクの一部が古いドキュメントの場所を指していた。\n\n本バージョンでは、これらのリンクを現行のドキュメントサイトを指すように更新し、CLI からリンクをたどった際に正しいページへ遷移できるようにした。",
+      "detail_en": "Some in-product references to documentation — in error messages, help text, and CLI output — pointed at stale or superseded documentation locations.\n\nThis version updates those links to point at the current docs sites, so following a link from the CLI now lands on the right page.",
+      "category": "設定",
+      "category_en": "Configuration"
+    },
+    {
+      "t": "変更: 「常に許可」のパーミッションルールがリポジトリのルートに保存されるように変更（git worktree で許可した内容がセッションや worktree をまたいで永続化）",
+      "t_en": "Changed \"always allow\" permission rules to save at the repository root, so approvals granted in a git worktree persist across sessions and worktrees",
+      "tags": ["改善", "Security"],
+      "detail": "ツール呼び出しを「常に許可（Yes, don't ask again）」で承認すると、その内容は `.claude/settings.local.json` に書き込まれる。しかし git worktree（同じリポジトリの別のチェックアウト）内で作業している場合、この書き込みは worktree 自身の `.claude/` ディレクトリに対して行われていたため、worktree を削除すると承認内容も失われ、他の worktree にも引き継がれていなかった。\n\n本バージョンでは、このルールをメインリポジトリのルートに保存するように変更し、承認内容がセッションや worktree をまたいで永続化されるようになった。詳しくは[パーミッションのドキュメント](https://code.claude.com/docs/en/permissions#project-allow-rules-and-workspace-trust)を参照してください。",
+      "detail_en": "Approving a tool call with \"Yes, don't ask again\" writes an allow rule to `.claude/settings.local.json`. When working inside a git worktree, that file was previously written inside the worktree's own `.claude/` directory, so the approval was lost once the worktree was removed and didn't carry over to other worktrees of the same repo.\n\nThis version saves these rules at the main repository root instead, so an approval now persists across worktrees and future sessions. See the [permissions documentation](https://code.claude.com/docs/en/permissions#project-allow-rules-and-workspace-trust) for details.",
+      "category": "パーミッション",
+      "category_en": "Permissions"
+    },
+    {
+      "t": "変更: `/usage-credits` が組織管理者へのリクエスト送信前に確認を求めるように変更",
+      "t_en": "Changed `/usage-credits` to ask for confirmation before sending a request to organization admins",
+      "tags": ["改善"],
+      "detail": "Team・Enterprise プランで請求権限を持たないメンバーが `/usage-credits` を実行すると、使用クレジットの有効化や利用上限の引き上げを組織管理者に依頼するリクエストが送信される。これまではこのリクエストが即座に送信されていた。\n\n本バージョンでは、送信前に確認を求めるように変更し、誤操作による意図しない管理者への通知を防げるようになった。",
+      "detail_en": "On Team and Enterprise plans, a member without billing access who runs `/usage-credits` has Claude Code send a request asking their org admin to turn on usage credits or raise the spend limit. That request was previously sent immediately.\n\nThis version asks the member to confirm before actually sending it, avoiding accidental admin-notification spam from a stray command.",
+      "category": "設定",
+      "category_en": "Configuration"
+    },
+    {
+      "t": "変更: Vim モードの `s`・`S`（文字・行の置換）コマンドが、本家 vim と同様に NORMAL モードで動作するように変更",
+      "t_en": "Changed Vim mode `s` and `S` (substitute char/line) to work in NORMAL mode, matching vim behavior",
+      "tags": ["改善"],
+      "detail": "Claude Code の Vim エディタモードは vim のモーダル編集の一部を再現しているが、文字を置換する `s` と行を置換する `S` は NORMAL モードで正しく実装されておらず、期待どおりに動作していなかった。\n\n本バージョンでは、本家の vim と同様に、対象のテキストを削除して INSERT モードへ移行する挙動を実装した。",
+      "detail_en": "Claude Code's Vim editor mode emulates a subset of vim's modal editing. The `s` (substitute character) and `S` (substitute line) commands weren't previously wired up correctly in NORMAL mode.\n\nThis version implements standard vim semantics for both commands, matching real vim behavior.",
+      "category": "入力",
+      "category_en": "Input"
+    },
+    {
+      "t": "改善: VS Code の Remote Control バナーの説明文を、機能内容が伝わるように更新",
+      "t_en": "[VSCode] Updated the Remote Control banner to describe what it does",
+      "tags": ["改善", "IDE"],
+      "detail": "VS Code 拡張機能では、Remote Control が有効な際にバナーが表示されるが、これまでは接続状況を示すだけで、Remote Control 自体が何をする機能なのかが分かりにくかった。\n\n本バージョンでは、バナーの文言を更新し、機能に不慣れなユーザーでも何が起きているか理解できるように改善した。詳しくは[Remote Control のドキュメント](https://code.claude.com/docs/en/remote-control)を参照してください。",
+      "detail_en": "The VS Code extension shows a banner when Remote Control is active, connecting a local session to a mobile/web client. The banner's copy previously just showed connection status without explaining what the feature does.\n\nThis version updates the banner's wording so users unfamiliar with the feature understand what enabling it means. See the [Remote Control documentation](https://code.claude.com/docs/en/remote-control) for details.",
+      "category": "IDE",
+      "category_en": "IDE"
+    },
+    {
+      "t": "改善: Claude in Chrome のファイルアップロードにおけるパス検証を強化",
+      "t_en": "Claude in Chrome: hardened file-upload path validation",
+      "tags": ["改善", "Security"],
+      "detail": "Claude in Chrome がファイルアップロード操作（ローカルファイルを Web フォームに添付するなど）を行う際に指定されるパスについて、より厳格な検証が必要とされていた。悪意のあるページやツール入力によって、意図しない範囲のファイルを読み取られたり公開されたりすることを防ぐための多層防御が目的である。\n\n本バージョンでは、このパス検証ロジックを強化した。",
+      "detail_en": "When Claude in Chrome performs a file-upload action, such as attaching a local file to a web form, the path supplied needed stricter validation to prevent a maliciously crafted page or tool input from causing a file outside the intended scope to be read or exposed.\n\nThis version hardens that path-validation logic as a defense-in-depth measure.",
+      "category": "MCP 連携",
+      "category_en": "MCP Integration"
+    },
+    {
+      "t": "修正: Claude in Chrome のスクリーンショットアクションで `save_to_disk` を指定しても画像が保存されずパスも返されなかった問題を修正（実際にディスクへ書き込み、パスを返すように）",
+      "t_en": "Claude in Chrome: `save_to_disk` on screenshot actions now writes the image to disk and returns the path; previously it did nothing",
+      "tags": ["バグ修正"],
+      "detail": "ブラウザツールのスクリーンショットアクションには、撮影した画像をファイルとして保存し、そのパスを返すことを意図した `save_to_disk` という入力フラグがある。しかし、このフラグは実際には何の効果もなく、指定してもしなくてもスクリーンショットの挙動は同じで、ファイルも保存されていなかった。\n\n本バージョンでは、`save_to_disk` を指定すると実際に画像がディスクへ書き込まれ、そのパスが返されるように修正した。詳しくは[Chrome 連携のドキュメント](https://code.claude.com/docs/en/chrome#capabilities)を参照してください。",
+      "detail_en": "The Chrome browser tool's screenshot action accepts a `save_to_disk` input flag intended to persist the captured image to a file and return its path. That flag was previously a no-op — the screenshot behaved identically whether it was set or not, and no file was written.\n\nThis version makes `save_to_disk` actually write the image and return the resulting path. See the [Chrome integration documentation](https://code.claude.com/docs/en/chrome#capabilities) for details.",
+      "category": "MCP 連携",
+      "category_en": "MCP Integration"
+    },
+    {
+      "t": "修正: Bedrock・Vertex・Mantle・Foundry で発生していたプロンプトキャッシュの不具合を修正（システムコンテキスト末尾のブロックが、リクエストのたびに新規入力トークンとして課金されていた問題）",
+      "t_en": "Fixed a prompt-caching regression on Bedrock, Vertex, Mantle, and Foundry that billed the trailing system context block as fresh input tokens on every request.",
+      "tags": ["バグ修正", "Platform", "Perf"],
+      "detail": "Claude Code はプロンプトキャッシュを利用して、リクエストのたびに変化しない部分のコンテキストを再処理・再課金しないようにしている。しかし Amazon Bedrock・Vertex AI・Bedrock の Mantle エンドポイント・Microsoft Foundry といったサードパーティ推論基盤上でリグレッションが発生し、システムコンテキスト末尾のブロックがキャッシュされる範囲から外れてしまい、リクエストのたびに新規の入力トークンとして課金されてしまっていた。\n\n本バージョンでは、キャッシュ境界の配置を修正し、このブロックも他のシステムコンテキストと同様にキャッシュされるようになった。詳しくは[プロンプトキャッシュのドキュメント](https://code.claude.com/docs/en/prompt-caching)を参照してください。",
+      "detail_en": "Claude Code relies on prompt caching to avoid reprocessing and re-billing the unchanged parts of a request's context on every turn. A regression on third-party inference platforms — Amazon Bedrock, Vertex AI, Bedrock's Mantle endpoint, and Microsoft Foundry — caused the trailing block of system context to fall outside the cached prefix, so it was billed as newly-processed input tokens on every single request instead of being served from cache.\n\nThis version restores correct cache-boundary placement so that block is cached like the rest of the system context. See the [prompt caching documentation](https://code.claude.com/docs/en/prompt-caching) for details.",
+      "category": "プラットフォーム互換性",
+      "category_en": "Platform Compatibility"
+    }
   ]
 }

@@ -168,5 +168,195 @@
         "tags": ["改善"]
       }
     ]
+  },
+  {
+    "v": "2.1.211",
+    "items": [
+      {
+        "t": "追加: サブエージェントのテキストと思考過程を stream-json 出力に含める `--forward-subagent-text` フラグと `CLAUDE_CODE_FORWARD_SUBAGENT_TEXT` 環境変数を追加",
+        "t_en": "Added `--forward-subagent-text` flag and `CLAUDE_CODE_FORWARD_SUBAGENT_TEXT` environment variable to include subagent text and thinking in stream-json output",
+        "tags": ["新機能", "SDK"]
+      },
+      {
+        "t": "修正: チャットチャンネルに中継されるパーミッションプレビューが双方向オーバーライド文字・ゼロ幅文字・紛らわしい引用符文字を無害化しておらず、ツール入力によって承認メッセージの見た目を偽装できてしまう問題",
+        "t_en": "Fixed permission previews relayed to chat channels not neutralizing bidirectional-override, zero-width, and look-alike quote characters, so tool inputs cannot visually alter the approval message",
+        "tags": ["バグ修正", "Security"]
+      },
+      {
+        "t": "修正: 非サンドボックスの Bash に対して auto mode が PreToolUse フックの `ask` 判定を上書きしてしまう問題（フックの `ask` は常に確認プロンプトを強制するように変更）",
+        "t_en": "Fixed auto mode overriding a PreToolUse hook's `ask` decision for unsandboxed Bash — a hook `ask` now floors the decision at a prompt",
+        "tags": ["バグ修正", "Security"]
+      },
+      {
+        "t": "修正: 認証情報ストアを共有する複数の Claude Code セッションが、スリープからの復帰後に一斉にログアウトしてしまう問題",
+        "t_en": "Fixed parallel Claude Code sessions all logging out simultaneously after wake-from-sleep when many sessions share one credential store",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: アイドル状態の Web セッションが復帰した際にプラグイン提供の MCP サーバーが再接続されず、次のメッセージが送られるまで MCP 呼び出しが失敗し続ける問題",
+        "t_en": "Fixed plugin MCP servers not reconnecting after an idle web session woke, leaving MCP calls failing until the next message",
+        "tags": ["バグ修正", "MCP"]
+      },
+      {
+        "t": "修正: モデルを明示的に設定していても、Vertex・Bedrock 上の Claude Code が起動時にデフォルトの Opus モデルへの接続を試みて誤ったフォールバック通知を表示してしまう問題",
+        "t_en": "Fixed Claude Code on Vertex and Bedrock attempting the default Opus model at startup and printing a spurious fallback notice when a model is explicitly configured",
+        "tags": ["バグ修正", "Platform"]
+      },
+      {
+        "t": "修正: モデルを明示的に指定して起動したサブエージェントが、再開時やフォローアップメッセージ送信時に親セッションの使用モデルに戻ってしまう問題",
+        "t_en": "Fixed subagents spawned with an explicit model override reverting to the parent's model when resumed or sent a follow-up message",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: 設定ソースからプロジェクト設定を除外していても、ネストされた `.claude/rules/*.md` ファイルが読み込まれてしまう問題",
+        "t_en": "Fixed nested `.claude/rules/*.md` files loading even when setting sources exclude project settings",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: ファイルアップロードの検証を調整（DOS デバイスサフィックス `.prn` や末尾がドットのファイル名を許可する一方、複数のハードリンクを持つファイルは拒否するように変更）",
+        "t_en": "Fixed file upload validation: filenames ending in a DOS device suffix (`.prn`) or trailing dot are now accepted, and files with multiple hard links are refused",
+        "tags": ["バグ修正", "Security"]
+      },
+      {
+        "t": "修正: リモートセッションおよび CLI セッションから Claude in Chrome へのファイルアップロードができない問題",
+        "t_en": "Fixed file uploads to Claude in Chrome from remote and CLI sessions",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: 入力欄の編集結果が「?」1文字だけになった際に、その文字が黙って消えてショートカットパネルが開いてしまう問題",
+        "t_en": "Fixed edits that leave the input as \"?\" being silently swallowed and toggling the shortcuts panel",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: Claude in Chrome 拡張機能が有効なのに Chrome が起動していない場合に、起動時にハングしてしまう問題",
+        "t_en": "Fixed a startup hang when the Claude in Chrome extension is enabled but Chrome is not running",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: Settings タブ・Stats・diff 表示などの非同期コンテンツが表示されるまでに約300ミリ秒の遅延が生じていた問題",
+        "t_en": "Fixed a 300ms delay revealing async content (Settings tabs, Stats, diff views, and other loading states)",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: agents view で停止直後のバックグラウンドセッションを再度開くと、同じセッション ID のまま空の会話が新規開始されてしまう問題",
+        "t_en": "Fixed reopening a just-stopped background session from the agents view starting a blank conversation under the same session id",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: `/loop` を一度使用したセッションが `/resume` の一覧に表示されなくなってしまう問題",
+        "t_en": "Fixed `/loop` hiding the session from `/resume` after a single use",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: `/terminal-setup` またはオンボーディングのターミナル設定を実行すると、スクリーンリーダー利用者向けの可聴ターミナルベルが失われてしまう問題",
+        "t_en": "Fixed screen reader users losing the audible terminal bell after `/terminal-setup` or onboarding terminal setup",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: LLM ゲートウェイ認証（`ANTHROPIC_AUTH_TOKEN` + `ANTHROPIC_BASE_URL`）を使うバックグラウンドジョブが、デーモンによる再起動後に「Not logged in」と表示されてしまう問題",
+        "t_en": "Fixed background jobs on LLM gateway auth (`ANTHROPIC_AUTH_TOKEN` + `ANTHROPIC_BASE_URL`) coming back \"Not logged in\" after the daemon respawns them",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: `claude agents` のジョブについて、git がその worktree を認識できなくなると削除できなくなり、行が理由の説明なく再表示され続けてしまう問題（削除できない理由が表示されるように改善）",
+        "t_en": "Fixed `claude agents` jobs becoming permanently undeletable when git no longer recognizes their worktree — the row now shows why the delete was refused instead of silently reappearing",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: `/clear` 実行後もステータスラインのコストカウンターがリセットされない問題（`/clear` 後はコスト表示が $0 から開始するように修正）",
+        "t_en": "Fixed `/clear` not resetting the session cost counter — the statusline's cost now starts at $0 after `/clear`",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: Windows で Claude in Chrome のセットアップページがブラウザで開けない問題",
+        "t_en": "Fixed Claude in Chrome setup pages failing to open in the browser on Windows",
+        "tags": ["バグ修正", "Windows"]
+      },
+      {
+        "t": "修正: Windows のヘッドレスな print モードセッションで、標準入力が読み取り不能な場合にクラッシュしたり無言で終了してしまう問題",
+        "t_en": "Fixed headless print-mode sessions on Windows crashing or silently exiting when stdin is unreadable",
+        "tags": ["バグ修正", "Windows"]
+      },
+      {
+        "t": "修正: agents view のバックグラウンドセッションタイトルが、プロンプトにリンクが含まれる場合に命名モデルの拒否メッセージをそのまま表示してしまう問題",
+        "t_en": "Fixed background session titles in the agents view showing the naming model's refusal text when the prompt contains a link",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: ユーザーが停止したバックグラウンドエージェントが自動的に再起動してしまう問題、および再起動したエージェントが古いセッションの古いプロンプトを再実行してしまう問題",
+        "t_en": "Fixed background agents killed by the user auto-respawning, and revived agents re-running stale prompts from old sessions",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: スケジュールを持たない routine の次回実行時刻が「西暦1年」と表示されてしまう問題",
+        "t_en": "Fixed routines with no schedule reporting a next run time in the year 1",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "改善: Windows での同期スキル・プラグインのディレクトリ命名を堅牢化するとともに、`/clear` 後も CCR の Web 取得・検索プロキシが動作し続けるように修正",
+        "t_en": "Hardened synced skill/plugin directory naming on Windows and kept CCR web fetch/search proxies working after `/clear`",
+        "tags": ["バグ修正", "Windows"]
+      },
+      {
+        "t": "改善: ターミナルのレイアウトと描画パフォーマンスを改善",
+        "t_en": "Improved terminal layout and rendering performance",
+        "tags": ["改善", "Perf"]
+      },
+      {
+        "t": "改善: バックグラウンドエージェントの結果報告を改善（実行中のエージェントについては架空の結果を作り出さず、実際の完了を待ってから状況を報告するように）",
+        "t_en": "Improved background agent result reporting — Claude now reports the status of still-running agents and waits for the real completion instead of fabricating results",
+        "tags": ["改善", "Agent"]
+      },
+      {
+        "t": "改善: メモリインデックスの上限超過警告が、実際に読み込まれるコンテンツのみを対象に計測するように改善（frontmatter や HTML コメントを除外）",
+        "t_en": "Improved the memory index over-limit warning to measure only loaded content, excluding frontmatter and HTML comments",
+        "tags": ["改善"]
+      },
+      {
+        "t": "改善: タイムアウト・トークン予算・リトライ回数などの整数値を取る環境変数が、`1e6` や `64_000` のような指数表記・桁区切り表記を受け付けるように",
+        "t_en": "Updated integer environment variables (timeouts, token budgets, retry counts) to accept scientific notation and digit-separator spellings like `1e6` and `64_000`",
+        "tags": ["改善"]
+      },
+      {
+        "t": "改善: 製品内のドキュメントリンクを現行のドキュメントサイトへ更新",
+        "t_en": "Updated documentation links to the current docs sites",
+        "tags": ["改善"]
+      },
+      {
+        "t": "変更: 「常に許可」のパーミッションルールがリポジトリのルートに保存されるように変更（git worktree で許可した内容がセッションや worktree をまたいで永続化）",
+        "t_en": "Changed \"always allow\" permission rules to save at the repository root, so approvals granted in a git worktree persist across sessions and worktrees",
+        "tags": ["改善", "Security"]
+      },
+      {
+        "t": "変更: `/usage-credits` が組織管理者へのリクエスト送信前に確認を求めるように変更",
+        "t_en": "Changed `/usage-credits` to ask for confirmation before sending a request to organization admins",
+        "tags": ["改善"]
+      },
+      {
+        "t": "変更: Vim モードの `s`・`S`（文字・行の置換）コマンドが、本家 vim と同様に NORMAL モードで動作するように変更",
+        "t_en": "Changed Vim mode `s` and `S` (substitute char/line) to work in NORMAL mode, matching vim behavior",
+        "tags": ["改善"]
+      },
+      {
+        "t": "改善: VS Code の Remote Control バナーの説明文を、機能内容が伝わるように更新",
+        "t_en": "[VSCode] Updated the Remote Control banner to describe what it does",
+        "tags": ["改善", "IDE"]
+      },
+      {
+        "t": "改善: Claude in Chrome のファイルアップロードにおけるパス検証を強化",
+        "t_en": "Claude in Chrome: hardened file-upload path validation",
+        "tags": ["改善", "Security"]
+      },
+      {
+        "t": "修正: Claude in Chrome のスクリーンショットアクションで `save_to_disk` を指定しても画像が保存されずパスも返されなかった問題を修正（実際にディスクへ書き込み、パスを返すように）",
+        "t_en": "Claude in Chrome: `save_to_disk` on screenshot actions now writes the image to disk and returns the path; previously it did nothing",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: Bedrock・Vertex・Mantle・Foundry で発生していたプロンプトキャッシュの不具合を修正（システムコンテキスト末尾のブロックが、リクエストのたびに新規入力トークンとして課金されていた問題）",
+        "t_en": "Fixed a prompt-caching regression on Bedrock, Vertex, Mantle, and Foundry that billed the trailing system context block as fresh input tokens on every request.",
+        "tags": ["バグ修正", "Platform", "Perf"]
+      }
+    ]
   }
 ]
