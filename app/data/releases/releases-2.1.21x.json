@@ -358,5 +358,250 @@
         "tags": ["バグ修正", "Platform", "Perf"]
       }
     ]
+  },
+  {
+    "v": "2.1.212",
+    "items": [
+      {
+        "t": "変更: /fork が独立したバックグラウンドセッションへ会話をコピーする方式に変更、セッション内委任は新設の /subtask コマンドに分離",
+        "t_en": "`/fork` now copies conversations into new background sessions while keeping work active; `/subtask` replaces the in-session subagent",
+        "tags": ["改善", "新機能", "Agent"]
+      },
+      {
+        "t": "追加: 確認プロンプト付きで自動モード設定を初期化する claude auto-mode reset コマンドを追加（--yes で確認省略可）",
+        "t_en": "Added `claude auto-mode reset` with confirmation prompt (pass `--yes` to skip)",
+        "tags": ["新機能"]
+      },
+      {
+        "t": "追加: セッションあたりの WebSearch 呼び出し数に上限（デフォルト200件）を追加、CLAUDE_CODE_MAX_WEB_SEARCHES_PER_SESSION で調整可能",
+        "t_en": "Added session-wide WebSearch limit (default 200, tunable via `CLAUDE_CODE_MAX_WEB_SEARCHES_PER_SESSION`)",
+        "tags": ["新機能"]
+      },
+      {
+        "t": "追加: セッションあたりのサブエージェント起動数に上限（デフォルト200件）を追加、CLAUDE_CODE_MAX_SUBAGENTS_PER_SESSION で調整可能",
+        "t_en": "Added per-session subagent spawn cap (default 200, override with `CLAUDE_CODE_MAX_SUBAGENTS_PER_SESSION`)",
+        "tags": ["新機能", "Agent"]
+      },
+      {
+        "t": "追加: 2分を超える MCP ツール呼び出しを自動的にバックグラウンド化、CLAUDE_CODE_MCP_AUTO_BACKGROUND_MS で設定可能",
+        "t_en": "MCP tool calls exceeding 2 minutes move to background automatically; configure with `CLAUDE_CODE_MCP_AUTO_BACKGROUND_MS`",
+        "tags": ["新機能", "MCP"]
+      },
+      {
+        "t": "追加: /resume で削除済みセッションを含む過去セッションの選択画面を表示し、バックグラウンドセッションとして再開可能に",
+        "t_en": "`/resume` now opens a picker of past sessions, including deleted ones, resumable as background sessions",
+        "tags": ["新機能"]
+      },
+      {
+        "t": "修正: プランモードでファイルを変更する Bash コマンドが権限確認なしに自動実行されていた不具合を修正",
+        "t_en": "Fixed plan mode auto-running file-modifying Bash commands without permission prompts",
+        "tags": ["バグ修正", "Security"]
+      },
+      {
+        "t": "修正: .claude/worktrees にコミットされたシンボリックリンクを辿ってしまい、リポジトリ外にファイルを書き込める不具合を修正",
+        "t_en": "Fixed worktree creation following repository-committed symlinks at `.claude/worktrees`",
+        "tags": ["バグ修正", "Security"]
+      },
+      {
+        "t": "修正: フックが continue:false で処理を停止させても、ツール呼び出し失敗時にはその停止指示が無視されていた不具合を修正",
+        "t_en": "Fixed `continue:false` hook halts being dropped on tool failures",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: print/SDK モードで Bash ツール実行中に SIGTERM を受け取るとプロセスツリーが孤児化する不具合を修正",
+        "t_en": "Fixed SIGTERM during Bash tools orphaning process trees in print/SDK mode",
+        "tags": ["バグ修正", "SDK"]
+      },
+      {
+        "t": "修正: グループポリシーで PowerShell 5.1 がブロックされている Windows 環境で /background・claude --bg が失敗する不具合を修正",
+        "t_en": "Fixed `/background` and `claude --bg` failing on Windows with Group Policy blocking PowerShell 5.1",
+        "tags": ["バグ修正", "Windows"]
+      },
+      {
+        "t": "修正: オートコンプリートのポップアップ表示中にファイルパスを含むシェルモード（!）コマンドが実行できない不具合を修正",
+        "t_en": "Fixed shell mode (`!`) not executing commands with file paths while autocomplete popup was open",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: 自動モードの拒否通知で長い理由文が切り詰められた際に文字化けが表示される不具合を修正",
+        "t_en": "Fixed auto-mode denial notifications rendering broken characters on truncated long reasons",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: エージェントビューのディスパッチ入力欄で Ctrl+J による改行挿入ができない不具合を修正",
+        "t_en": "Fixed Ctrl+J not inserting newlines in agent view dispatch input",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: /ultrareview が #123 や PR 123 のような PR 参照表記を受け付けない不具合を修正",
+        "t_en": "Fixed `/ultrareview` rejecting PR references like `#123` and `PR 123`",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: /ultrareview <branch> でリモートにのみ存在するブランチを指定した際に origin から fetch されない不具合を修正",
+        "t_en": "Fixed `/ultrareview <branch>` not fetching from origin when branch exists remotely",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: /clear の後に /ultrareview を実行すると課金確認が省略されてしまう不具合を修正",
+        "t_en": "Fixed `/ultrareview` skipping billing confirmation after `/clear`",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: Claude Desktop で /ultrareview が「not a git repository」エラーを表示する際の案内文を修正",
+        "t_en": "Fixed `/ultrareview` \"not a git repository\" error on Claude Desktop",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: mTLS 証明書や OAuth スコープの設定があるとホスト型セッションが起動に失敗する不具合を修正",
+        "t_en": "Fixed hosted sessions failing at startup with mTLS certs or OAuth scope settings",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: offset 指定で読み込み済みのファイルを編集しようとすると「File has not been read yet」という誤ったエラーが出る不具合を修正",
+        "t_en": "Fixed spurious \"File has not been read yet\" error when editing previously offset-read files",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: セッション再開後に ExitWorktree が「no active EnterWorktree session」エラーで失敗する不具合を修正",
+        "t_en": "Fixed `ExitWorktree` failing with \"no active EnterWorktree session\" after resuming",
+        "tags": ["バグ修正", "SDK"]
+      },
+      {
+        "t": "修正: 実行途中のワークフローに Remote Control から参加すると、エージェントのグリッド表示が空のままになる不具合を修正",
+        "t_en": "Fixed workflow agent grid staying empty for Remote Control mid-run joins",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: ストリーミングモードでコントロールリクエストがハンドラーの処理完了前に完了扱いになる不具合を修正",
+        "t_en": "Fixed streaming-mode control requests marked complete before handler finished",
+        "tags": ["バグ修正", "SDK"]
+      },
+      {
+        "t": "修正: 状態の書き込みに失敗すると /fork で作成したバックグラウンドセッションの親セッション保護が失われる不具合を修正",
+        "t_en": "Fixed background sessions from `/fork` losing live-parent protection after state write failures",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: 停止済みのバックグラウンドセッションを再度開こうとすると何も表示されずに失敗する不具合を修正",
+        "t_en": "Fixed reopening stopped background sessions failing silently",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: エージェントチームで停止中のチームメイトがアイドル通知を重複送信する不具合を修正",
+        "t_en": "Fixed agent teams: stopping teammate sending duplicate idle notifications",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: プラン承認ダイアログのフッターでエディタのパスが長い場合に表示が分裂する不具合を修正",
+        "t_en": "Fixed plan-approval dialog footer splitting long editor paths",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: フルスクリーンモードで幅と高さを同時にリサイズすると起動時のウェルカムバナーが古いパネル幅のままになる不具合を修正",
+        "t_en": "Fixed welcome banner keeping old panel widths after combined resize",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: 幅の狭いレイアウトで差分プレビューの行番号が表示されなくなる不具合を修正",
+        "t_en": "Fixed diff previews losing line numbers in narrow layouts",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: @メンション・プラグインのアンインストール・終了コード143の誤った「Command timed out」表示に関する3つの不具合をまとめて修正",
+        "t_en": "Fixed @-mentions, plugin uninstalls, and false \"Command timed out\" on exit 143",
+        "tags": ["バグ修正", "Plugin"]
+      },
+      {
+        "t": "修正: OpenTelemetry の HTTP エクスポートが chunked エンコーディング未対応のため Azure Monitor に拒否される不具合を修正",
+        "t_en": "Fixed OpenTelemetry HTTP exports rejected by Azure Monitor without chunked encoding",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: TRACEPARENT を設定している場合に OTLP のイベントログレコードから trace_id・span_id が欠落する不具合を修正",
+        "t_en": "Fixed OTLP records missing `trace_id`/`span_id` with `TRACEPARENT` set",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: 画像を多数含む会話が実際にはサイズ内であっても「Request too large」エラーになる不具合を修正",
+        "t_en": "Fixed conversations with many images failing with \"Request too large\"",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: バックエンドの過負荷時に WebSearch・WebFetch が「API Error」という文字列を検索結果やページ内容として返してしまう不具合を修正",
+        "t_en": "Fixed web search/fetch returning \"API Error\" when overloaded",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "改善: WebSearch・WebFetch が529エラー時に再試行し、レート制限時にバックオフするようになり信頼性が向上",
+        "t_en": "Improved web search/fetch reliability with 529 error retries and rate-limit backoff",
+        "tags": ["改善"]
+      },
+      {
+        "t": "改善: LLM ゲートウェイやカスタム base URL 経由の通信でもプロンプトキャッシュが正しく効くように改善",
+        "t_en": "Improved prompt caching behind LLM gateways and custom base URLs",
+        "tags": ["改善", "Platform"]
+      },
+      {
+        "t": "改善: バックグラウンドセッションへのアタッチ時、起動処理中でも整形済みトランスクリプトを即座に表示するよう改善",
+        "t_en": "Improved background agent attach with formatted transcript during session boot",
+        "tags": ["改善"]
+      },
+      {
+        "t": "改善: エージェント間メッセージングでのトークン消費量を削減",
+        "t_en": "Reduced token usage in inter-agent messaging",
+        "tags": ["改善", "Perf", "Agent"]
+      },
+      {
+        "t": "変更: タイトル未設定のセッションをフォークした際、コピーされたバックグラウンドセッションの名前がプロンプトに基づいて自動命名されるように変更",
+        "t_en": "Changed `/fork` naming copied sessions after prompts when untitled",
+        "tags": ["改善", "Agent"]
+      },
+      {
+        "t": "変更: 質問なしで /btw を実行すると、直近のやり取りに関するサイドクエスチョンパネルが再度開くように変更",
+        "t_en": "Changed bare `/btw` to reopen side-question panel on recent exchanges",
+        "tags": ["改善"]
+      },
+      {
+        "t": "変更: バックグラウンドエージェントの完了時、フッターの ← ヒントが「N done」を点滅表示するように変更",
+        "t_en": "Changed `←` footer hint to pulse `N done` when background agent finishes",
+        "tags": ["改善"]
+      },
+      {
+        "t": "非推奨: Task（Agent）ツールの mode パラメータを非推奨化、サブエージェントは親セッションのモードを継承するように変更",
+        "t_en": "Deprecated Task tool's `mode` parameter; subagents inherit parent session mode",
+        "tags": ["非推奨", "Agent"]
+      },
+      {
+        "t": "変更: Enterprise の forceLoginMethod による強制範囲を拡大し、VS Code 拡張・SDK・setup-token 等のログイン経路もカバーするように変更",
+        "t_en": "Changed Enterprise `forceLoginMethod` enforcement scope",
+        "tags": ["改善", "Security"]
+      },
+      {
+        "t": "変更: セッショントランスクリプトに各アシスタントメッセージの reasoning effort（推論の強さ）レベルを記録するように変更",
+        "t_en": "Changed session transcripts to record reasoning effort level",
+        "tags": ["改善"]
+      },
+      {
+        "t": "変更: ヘッドレス・SDK セッションで set_model コントロールリクエストがターンの途中から即座に反映されるように変更",
+        "t_en": "Changed headless/SDK sessions applying `set_model` mid-turn",
+        "tags": ["改善", "SDK"]
+      },
+      {
+        "t": "変更: サンドボックスのネットワーク承認・MCP ツールの入力要求・設定変更プロンプト待ちのセッションが、エージェントビューで「Needs input」と表示されるように変更",
+        "t_en": "Changed agent view status: sandbox/MCP-input/settings prompts show \"Needs input\"",
+        "tags": ["改善", "MCP"]
+      },
+      {
+        "t": "変更: 認証状況パネルのタイトルを「Cloud authentication」から「Authentication」に変更",
+        "t_en": "Updated auth status panel title to \"Authentication\"",
+        "tags": ["改善"]
+      },
+      {
+        "t": "修正: 以前のリリースノートにあった tmux の synchronized output 対応バージョンに関する記載を修正（3.6系までは非対応）",
+        "t_en": "Corrected tmux synchronized output note for 3.6 series",
+        "tags": ["バグ修正"]
+      }
+    ]
   }
 ]
