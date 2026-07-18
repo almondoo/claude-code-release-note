@@ -632,5 +632,439 @@
       "category": "プラットフォーム互換性",
       "category_en": "Platform Compatibility"
     }
+  ],
+  "2.1.212": [
+    {
+      "t": "変更: /fork が独立したバックグラウンドセッションへ会話をコピーする方式に変更、セッション内委任は新設の /subtask コマンドに分離",
+      "t_en": "`/fork` now copies conversations into new background sessions while keeping work active; `/subtask` replaces the in-session subagent",
+      "tags": ["改善", "新機能", "Agent"],
+      "detail": "これまで /fork はセッション内でフォークされたサブエージェントを起動し、会話全体を引き継いだ上で結果を元の会話に返す仕組みだった。\n\n本バージョンから /fork は会話をコピーした独立した新しいバックグラウンドセッションを作成するように変更され、claude agents に個別の行として表示されるようになった。従来の軽量なセッション内委任は新設の /subtask コマンドで利用でき、「セッションを完全に分岐する」操作と「同一会話内でサブタスクに委任する」操作が明確に分離された。",
+      "detail_en": "Previously, `/fork` spawned an in-session forked subagent that inherited the full conversation and returned its result to that conversation.\n\nAs of this version, `/fork` instead copies the conversation into a brand-new, independent background session with its own row in `claude agents`. The lighter-weight in-session delegation it used to provide is now reached via the new `/subtask` command, giving a clear split between spinning off a fully separate session and delegating a subtask within the current conversation.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-Agent"
+    },
+    {
+      "t": "追加: 確認プロンプト付きで自動モード設定を初期化する claude auto-mode reset コマンドを追加（--yes で確認省略可）",
+      "t_en": "Added `claude auto-mode reset` with confirmation prompt (pass `--yes` to skip)",
+      "tags": ["新機能"],
+      "detail": "自動モードの分類ルール（環境・許可・ソフト拒否・ハード拒否）をカスタマイズしていても、それを元に戻す手段がこれまでなかった。\n\n本バージョンで claude auto-mode reset コマンドが追加され、自動モードの分類設定を Anthropic 提供のデフォルトに戻せるようになった。カスタム設定を意図せず失わないよう確認プロンプトが表示されるが、--yes フラグを付けるとスクリプトなどから確認をスキップできる。既存の claude auto-mode defaults・config・critique サブコマンドに追加される形となる。",
+      "detail_en": "There was previously no way to restore auto-mode classifier customizations (environment, allow, soft_deny, hard_deny rules) back to their defaults.\n\nThis version adds the `claude auto-mode reset` subcommand, which restores the auto-mode classifier configuration to Anthropic's built-in defaults. Because this can silently remove intentional customizations, it shows a confirmation prompt by default; passing `--yes` skips the prompt for scripted use. It joins the existing `claude auto-mode defaults`, `config`, and `critique` subcommands.",
+      "category": "自動モード",
+      "category_en": "Auto Mode"
+    },
+    {
+      "t": "追加: セッションあたりの WebSearch 呼び出し数に上限（デフォルト200件）を追加、CLAUDE_CODE_MAX_WEB_SEARCHES_PER_SESSION で調整可能",
+      "t_en": "Added session-wide WebSearch limit (default 200, tunable via `CLAUDE_CODE_MAX_WEB_SEARCHES_PER_SESSION`)",
+      "tags": ["新機能"],
+      "detail": "WebSearch ツールをセッションが際限なく繰り返し呼び出してしまうケースへの歯止めがこれまでなかった。\n\n本バージョンから、セッションあたりの WebSearch 呼び出し数がデフォルトで200件に制限されるようになった。上限は環境変数 CLAUDE_CODE_MAX_WEB_SEARCHES_PER_SESSION で引き上げ・引き下げでき、ユーザーや組織が暴走的な検索の挙動を制御できるようになった。",
+      "detail_en": "There was previously no guard against a session looping indefinitely on WebSearch calls.\n\nAs of this version, WebSearch tool invocations are capped at 200 per session by default. The cap can be raised or lowered with the new `CLAUDE_CODE_MAX_WEB_SEARCHES_PER_SESSION` environment variable, giving users and organizations control over runaway search behavior.",
+      "category": "設定",
+      "category_en": "Configuration"
+    },
+    {
+      "t": "追加: セッションあたりのサブエージェント起動数に上限（デフォルト200件）を追加、CLAUDE_CODE_MAX_SUBAGENTS_PER_SESSION で調整可能",
+      "t_en": "Added per-session subagent spawn cap (default 200, override with `CLAUDE_CODE_MAX_SUBAGENTS_PER_SESSION`)",
+      "tags": ["新機能", "Agent"],
+      "detail": "サブエージェントを繰り返し起動し続ける暴走的な委任ループを防ぐ仕組みがこれまでなかった。\n\n本バージョンから、セッションあたりのサブエージェント起動数がデフォルトで200件に制限されるようになった。上限は環境変数 CLAUDE_CODE_MAX_SUBAGENTS_PER_SESSION で上書きでき、/clear を実行するとカウンターがリセットされ新たな上限で利用できる。",
+      "detail_en": "There was previously no protection against runaway delegation loops that kept spawning subagents.\n\nAs of this version, the number of subagents a session can spawn is capped at 200 by default. `CLAUDE_CODE_MAX_SUBAGENTS_PER_SESSION` overrides the default, and running `/clear` resets the counter for a fresh budget.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-Agent"
+    },
+    {
+      "t": "追加: 2分を超える MCP ツール呼び出しを自動的にバックグラウンド化、CLAUDE_CODE_MCP_AUTO_BACKGROUND_MS で設定可能",
+      "t_en": "MCP tool calls exceeding 2 minutes move to background automatically; configure with `CLAUDE_CODE_MCP_AUTO_BACKGROUND_MS`",
+      "tags": ["新機能", "MCP"],
+      "detail": "外部の MCP ツール呼び出しが長時間かかる場合、これまではセッションの進行がその間止まってしまっていた。\n\n本バージョンから、2分を超えて実行が続く MCP ツール呼び出しは自動的にバックグラウンドへ移行し、Claude はその間も作業を継続できるようになった。これは低速な Bash コマンドで既に提供されている自動バックグラウンド化と同様の挙動で、しきい値は環境変数 CLAUDE_CODE_MCP_AUTO_BACKGROUND_MS で変更（または無効化）できる。",
+      "detail_en": "A slow external MCP tool call could previously stall a session's progress.\n\nAs of this version, an MCP tool call that runs past 2 minutes is automatically moved to the background so Claude keeps working while it completes, mirroring the existing auto-backgrounding behavior for slow Bash commands. The threshold (or disabling this entirely) is configurable via `CLAUDE_CODE_MCP_AUTO_BACKGROUND_MS`.",
+      "category": "MCP 連携",
+      "category_en": "MCP Integration"
+    },
+    {
+      "t": "追加: /resume で削除済みセッションを含む過去セッションの選択画面を表示し、バックグラウンドセッションとして再開可能に",
+      "t_en": "`/resume` now opens a picker of past sessions, including deleted ones, resumable as background sessions",
+      "tags": ["新機能"],
+      "detail": "エージェントビュー上で /resume を実行しても、削除済みのセッションを復元する手段がこれまでなかった。\n\n本バージョンから、エージェントビュー内で /resume を入力すると過去セッションの対話的な選択画面が開くようになり、以前にエージェントビューの一覧から削除したセッションも含めて選択できる。選択したセッションはバックグラウンドセッションとして再開され、削除後でも会話の記録を取り戻せるようになった。詳しくは[コマンド一覧](https://code.claude.com/docs/en/commands#all-commands)を参照してください。",
+      "detail_en": "There was previously no way to recover a session's transcript after removing it from the agent view list.\n\nAs of this version, typing `/resume` while inside agent view opens an interactive picker of past sessions — including ones previously deleted from the list — and resuming a selection reopens it as a background session. See the [command reference](https://code.claude.com/docs/en/commands#all-commands) for details.",
+      "category": "セッション管理",
+      "category_en": "Session Management"
+    },
+    {
+      "t": "修正: プランモードでファイルを変更する Bash コマンドが権限確認なしに自動実行されていた不具合を修正",
+      "t_en": "Fixed plan mode auto-running file-modifying Bash commands without permission prompts",
+      "tags": ["バグ修正", "Security"],
+      "detail": "プランモードは提案されたプランが承認されるまで読み取り専用であるはずだが、touch や rm のようなファイルを変更する Bash コマンドが権限確認プロンプトを経ずに自動実行されてしまう不具合があった。SDK 利用時には canUseTool コールバックも同様にバイパスされていた。\n\n本バージョンでこの不具合が修正され、ファイルを変更する Bash コマンドについても本来の権限チェックが機能するようになった。詳しくは[プランモードのドキュメント](https://code.claude.com/docs/en/permission-modes#analyze-before-you-edit-with-plan-mode)を参照してください。",
+      "detail_en": "Plan mode is meant to be read-only until a proposed plan is approved, but a bug let file-modifying Bash commands like `touch` or `rm` run automatically, bypassing both the normal permission prompt and, in SDK usage, the `canUseTool` callback.\n\nThis version fixes the bug, restoring proper permission gating for file-modifying Bash commands. See the [plan mode docs](https://code.claude.com/docs/en/permission-modes#analyze-before-you-edit-with-plan-mode) for details.",
+      "category": "パーミッション",
+      "category_en": "Permissions"
+    },
+    {
+      "t": "修正: .claude/worktrees にコミットされたシンボリックリンクを辿ってしまい、リポジトリ外にファイルを書き込める不具合を修正",
+      "t_en": "Fixed worktree creation following repository-committed symlinks at `.claude/worktrees`",
+      "tags": ["バグ修正", "Security"],
+      "detail": ".claude/worktrees は Claude Code 自身が作成する git worktree の置き場所として、.claude/ 配下の書き込み保護から意図的に除外されている。しかし、このパスにリポジトリがコミットしたシンボリックリンクが置かれていた場合、worktree 作成時にそのリンクを辿ってしまい、リポジトリの外側にファイルを書き込めてしまう不具合があった。\n\n本バージョンでこの不具合が修正され、リンク先の実際のパスを検証してから worktree を作成するようになった。詳しくは[保護対象パスのドキュメント](https://code.claude.com/docs/en/permission-modes#protected-paths)を参照してください。",
+      "detail_en": "`.claude/worktrees` is intentionally excluded from the general write-protection on `.claude/`, since it's where Claude Code's own git worktrees live. However, if a repository committed a symlink at that path pointing elsewhere, worktree creation would follow it and could write files outside the actual repository.\n\nThis version fixes the bug so the real target path is validated instead of blindly followed. See the [protected paths docs](https://code.claude.com/docs/en/permission-modes#protected-paths) for details.",
+      "category": "セキュリティ",
+      "category_en": "Security"
+    },
+    {
+      "t": "修正: フックが continue:false で処理を停止させても、ツール呼び出し失敗時にはその停止指示が無視されていた不具合を修正",
+      "t_en": "Fixed `continue:false` hook halts being dropped on tool failures",
+      "tags": ["バグ修正"],
+      "detail": "フックは continue: false を返すことで以降の処理を停止できるが、紐づくツール呼び出しが失敗した場合や処理が中断された場合には、この停止指示が無視されてターンがそのまま続行されてしまう不具合があった。またフック基盤自体のエラーがユーザーによる拒否として誤表示されることもあった。\n\n本バージョンで両方の不具合が修正され、停止指示が確実に反映されるとともに、基盤エラーは正しくエラーとして報告されるようになった。",
+      "detail_en": "A hook can return `continue: false` to halt further execution, but a bug dropped that halt signal when the associated tool call failed or completed mid-stream, letting the turn continue instead of stopping. Hook infrastructure errors were also misreported as user rejections.\n\nThis version fixes both issues: halts are now honored reliably, and infrastructure errors are reported accurately.",
+      "category": "Hooks",
+      "category_en": "Hooks"
+    },
+    {
+      "t": "修正: print/SDK モードで Bash ツール実行中に SIGTERM を受け取るとプロセスツリーが孤児化する不具合を修正",
+      "t_en": "Fixed SIGTERM during Bash tools orphaning process trees in print/SDK mode",
+      "tags": ["バグ修正", "SDK"],
+      "detail": "対話モードではない print/SDK モードにおいて、Bash ツールの実行中に SIGTERM を受け取ると、コマンドの子プロセスツリーが終了されずに孤児化して残ってしまう不具合があった。\n\n本バージョンでこの不具合が修正され、ターンを正しく中断してプロセスツリー全体を終了し、SIGTERM の標準的な終了コードである143でプロセスを終了するようになった。",
+      "detail_en": "In non-interactive (print/SDK) mode, a SIGTERM delivered while a Bash tool was running could leave the command's child process tree orphaned instead of terminated.\n\nThis version fixes the bug: the CLI now properly aborts the turn, kills the whole process tree, and exits with code 143, the standard SIGTERM exit code.",
+      "category": "SDK",
+      "category_en": "SDK"
+    },
+    {
+      "t": "修正: グループポリシーで PowerShell 5.1 がブロックされている Windows 環境で /background・claude --bg が失敗する不具合を修正",
+      "t_en": "Fixed `/background` and `claude --bg` failing on Windows with Group Policy blocking PowerShell 5.1",
+      "tags": ["バグ修正", "Windows"],
+      "detail": "グループポリシーによってレガシーな PowerShell 5.1（powershell.exe）の実行がブロックされている Windows 環境では、バックグラウンドデーモンがその起動を試みるため、/background や claude --bg が「EUNKNOWN: unknown error, uv_spawn」というエラーで失敗していた。\n\n本バージョンでこの不具合が修正され、デーモンは利用可能であれば PowerShell 7（pwsh.exe）を優先的に使用するようになり、ブロックされたレガシーシェルを避けられるようになった。",
+      "detail_en": "On Windows machines where Group Policy blocks legacy PowerShell 5.1 (`powershell.exe`), `/background` and `claude --bg` failed with an \"EUNKNOWN: unknown error, uv_spawn\" error because the background daemon tried to launch it.\n\nThis version fixes the bug: the daemon now prefers PowerShell 7 (`pwsh.exe`) when available, avoiding the blocked legacy shell.",
+      "category": "プラットフォーム互換性",
+      "category_en": "Platform Compatibility"
+    },
+    {
+      "t": "修正: オートコンプリートのポップアップ表示中にファイルパスを含むシェルモード（!）コマンドが実行できない不具合を修正",
+      "t_en": "Fixed shell mode (`!`) not executing commands with file paths while autocomplete popup was open",
+      "tags": ["バグ修正"],
+      "detail": "シェルモード（! プレフィックス）はスラッシュを含むトークンに対してファイルパスのライブオートコンプリートを提供するが、そのドロップダウンが表示されたままの状態でファイルパスを含むコマンドを実行しようとすると、送信できない不具合があった。\n\n本バージョンでこの不具合が修正され、ドロップダウンの表示状態にかかわらずコマンドを実行できるようになった。詳しくは[インタラクティブモードのドキュメント](https://code.claude.com/docs/en/interactive-mode#shell-mode-with-prefix)を参照してください。",
+      "detail_en": "Shell mode (the `!` prefix) supports live file-path autocomplete for tokens containing a slash, but a bug prevented a command from executing if it contained a file path while the autocomplete dropdown was still open.\n\nThis version fixes the bug so submitting works regardless of dropdown state. See the [interactive mode docs](https://code.claude.com/docs/en/interactive-mode#shell-mode-with-prefix) for details.",
+      "category": "入力",
+      "category_en": "Input"
+    },
+    {
+      "t": "修正: 自動モードの拒否通知で長い理由文が切り詰められた際に文字化けが表示される不具合を修正",
+      "t_en": "Fixed auto-mode denial notifications rendering broken characters on truncated long reasons",
+      "tags": ["バグ修正"],
+      "detail": "自動モードがアクションをブロックして拒否通知を表示する際、拒否理由が長いとテキストが絵文字やマルチバイト文字の途中で切り詰められてしまい、通知に文字化けが表示されることがあった。\n\n本バージョンでこの不具合が修正され、文字境界を考慮して安全に切り詰められるようになった。",
+      "detail_en": "When auto mode blocks an action and shows a denial notification, a long denial reason could be truncated mid-emoji or mid-multibyte-character, producing garbled text in the notification.\n\nThis version fixes the bug so truncation now happens at safe character boundaries.",
+      "category": "自動モード",
+      "category_en": "Auto Mode"
+    },
+    {
+      "t": "修正: エージェントビューのディスパッチ入力欄で Ctrl+J による改行挿入ができない不具合を修正",
+      "t_en": "Fixed Ctrl+J not inserting newlines in agent view dispatch input",
+      "tags": ["バグ修正"],
+      "detail": "Ctrl+J はメインのプロンプト入力欄で改行を挿入する共通ショートカットとしてドキュメント化されているが、エージェントビューから新規セッションを開始する際のディスパッチ入力欄では機能していなかった。\n\n本バージョンでこの不具合が修正され、ディスパッチ入力欄でも Ctrl+J が機能するようになったほか、? ヘルプオーバーレイにもこのショートカットが表示され発見しやすくなった。詳しくは[インタラクティブモードのドキュメント](https://code.claude.com/docs/en/interactive-mode#multiline-input)を参照してください。",
+      "detail_en": "Ctrl+J is documented as a universal newline shortcut for the main prompt input, but it didn't work in the dispatch input box used to start new sessions from agent view.\n\nThis version fixes the bug so it works there too, and surfaces the shortcut in the `?` help overlay for discoverability. See the [interactive mode docs](https://code.claude.com/docs/en/interactive-mode#multiline-input) for details.",
+      "category": "エージェントビュー",
+      "category_en": "Agent View"
+    },
+    {
+      "t": "修正: /ultrareview が #123 や PR 123 のような PR 参照表記を受け付けない不具合を修正",
+      "t_en": "Fixed `/ultrareview` rejecting PR references like `#123` and `PR 123`",
+      "tags": ["バグ修正"],
+      "detail": "/ultrareview（現 /code-review ultra）コマンドの PR 番号の解析が厳格すぎて、#123 や PR 123、あるいは貼り付けた PR の URL といった一般的な参照形式が拒否されてしまっていた。\n\n本バージョンでこの不具合が修正され、より広い形式の参照を受け付けるようになった。またエラーメッセージも、実際に入力されたコマンド名を示すよう改善された。詳しくは[/ultrareview のドキュメント](https://code.claude.com/docs/en/ultrareview#run-ultrareview-from-the-cli)を参照してください。",
+      "detail_en": "The `/ultrareview` (now `/code-review ultra`) command's PR-number parsing was overly strict and rejected common reference formats like `#123`, `PR 123`, or a pasted PR URL.\n\nThis version fixes the bug: it now accepts broader formats, and error hints name the command actually typed. See the [`/ultrareview` docs](https://code.claude.com/docs/en/ultrareview#run-ultrareview-from-the-cli) for details.",
+      "category": "コマンド",
+      "category_en": "Commands"
+    },
+    {
+      "t": "修正: /ultrareview <branch> でリモートにのみ存在するブランチを指定した際に origin から fetch されない不具合を修正",
+      "t_en": "Fixed `/ultrareview <branch>` not fetching from origin when branch exists remotely",
+      "tags": ["バグ修正"],
+      "detail": "ローカルに存在せずリモートにのみ存在するブランチ名を指定して ultrareview を実行すると、まずそのブランチを fetch すべきところが行われず失敗していた。\n\n本バージョンでこの不具合が修正され、自動的に origin から fetch されるようになったほか、ブランチ名を誤入力した際には最も近い名前を提案するようになった。詳しくは[/ultrareview のドキュメント](https://code.claude.com/docs/en/ultrareview#run-ultrareview-from-the-cli)を参照してください。",
+      "detail_en": "Running ultrareview against a branch name that only existed on the remote (not fetched locally) failed instead of fetching it first.\n\nThis version fixes the bug: it now fetches from origin automatically, and also suggests the closest branch name on a typo. See the [`/ultrareview` docs](https://code.claude.com/docs/en/ultrareview#run-ultrareview-from-the-cli) for details.",
+      "category": "コマンド",
+      "category_en": "Commands"
+    },
+    {
+      "t": "修正: /clear の後に /ultrareview を実行すると課金確認が省略されてしまう不具合を修正",
+      "t_en": "Fixed `/ultrareview` skipping billing confirmation after `/clear`",
+      "tags": ["バグ修正"],
+      "detail": "ultrareview は通常、有料のレビューを開始する前に確認ダイアログを表示するが、/clear で新しい会話を開始した直後にはこの確認が省略され、確認ステップを経ずにレビューが開始（課金）されてしまう不具合があった。\n\n本バージョンでこの不具合が修正され、/clear の後でも確認ダイアログが正しく表示されるようになった。詳しくは[/ultrareview のドキュメント](https://code.claude.com/docs/en/ultrareview#run-ultrareview-from-the-cli)を参照してください。",
+      "detail_en": "Ultrareview normally shows a billing/terms confirmation dialog before launching a paid review, but a bug caused this confirmation to be skipped in a new conversation started with `/clear`, letting a review launch (and bill) without the expected confirmation step.\n\nThis version fixes the bug so the confirmation dialog now appears correctly after `/clear`. See the [`/ultrareview` docs](https://code.claude.com/docs/en/ultrareview#run-ultrareview-from-the-cli) for details.",
+      "category": "コマンド",
+      "category_en": "Commands"
+    },
+    {
+      "t": "修正: Claude Desktop で /ultrareview が「not a git repository」エラーを表示する際の案内文を修正",
+      "t_en": "Fixed `/ultrareview` \"not a git repository\" error on Claude Desktop",
+      "tags": ["バグ修正"],
+      "detail": "ultrareview はレビュー対象の差分を判断するために git リポジトリを必要とするが、リポジトリが見つからない場合のエラーメッセージが、Claude Desktop には当てはまらないターミナルコマンドを案内してしまっていた。\n\n本バージョンでこの不具合が修正され、Claude Desktop 上ではプロジェクトのリポジトリフォルダを探すよう案内するメッセージに変更された。詳しくは[/ultrareview のドキュメント](https://code.claude.com/docs/en/ultrareview#run-ultrareview-from-the-cli)を参照してください。",
+      "detail_en": "Ultrareview requires a git repository to determine the diff to review. On Claude Desktop, the error message for a missing repo suggested terminal commands that don't apply in that environment.\n\nThis version fixes the bug: it now suggests locating the project's repository folder instead. See the [`/ultrareview` docs](https://code.claude.com/docs/en/ultrareview#run-ultrareview-from-the-cli) for details.",
+      "category": "コマンド",
+      "category_en": "Commands"
+    },
+    {
+      "t": "修正: mTLS 証明書や OAuth スコープの設定があるとホスト型セッションが起動に失敗する不具合を修正",
+      "t_en": "Fixed hosted sessions failing at startup with mTLS certs or OAuth scope settings",
+      "tags": ["バグ修正"],
+      "detail": "ホスト管理型のセッションでは、リポジトリの設定に mTLS 証明書や追加の CA バンドル、OAuth スコープといったマネージド環境には適用されないトランスポート層の設定が含まれていると、起動に失敗してしまう不具合があった。\n\n本バージョンでこの不具合が修正され、これらの設定は警告付きで無視され、起動自体は失敗しないようになった。",
+      "detail_en": "Hosted (host-managed) sessions could fail to start when the repository's settings configured transport-layer options like mTLS certificates, extra CA bundles, or OAuth scopes — settings that don't apply in a managed/hosted environment.\n\nThis version fixes the bug: Claude Code now ignores these with a warning instead of hard-failing startup.",
+      "category": "セッション管理",
+      "category_en": "Session Management"
+    },
+    {
+      "t": "修正: offset 指定で読み込み済みのファイルを編集しようとすると「File has not been read yet」という誤ったエラーが出る不具合を修正",
+      "t_en": "Fixed spurious \"File has not been read yet\" error when editing previously offset-read files",
+      "tags": ["バグ修正"],
+      "detail": "Edit ツールは、現在の会話内で対象ファイルが事前に読み込まれていることを要求するが、offset/limit 付きの部分読み込み（PARTIAL 表示にはならない通常の読み込み）を行っていた場合、セッションを再開した後にこのチェックが誤って失敗し、実際には読み込み済みであるにもかかわらずエラーが表示される不具合があった。\n\n本バージョンでこの不具合が修正され、該当のケースで正しく読み込み済みと判定されるようになった。詳しくは[ツールリファレンス](https://code.claude.com/docs/en/tools-reference#edit-tool-behavior)を参照してください。",
+      "detail_en": "The Edit tool requires a file to have been read in the current conversation before editing. A bug caused this check to incorrectly fail for files that had been read with an `offset`/`limit` (a partial, non-truncated read) before the session was resumed, producing a spurious error even though the file had genuinely been read.\n\nThis version fixes the bug so this case is now correctly recognized as read. See the [tools reference](https://code.claude.com/docs/en/tools-reference#edit-tool-behavior) for details.",
+      "category": "ツール改善",
+      "category_en": "Tool Improvements"
+    },
+    {
+      "t": "修正: セッション再開後に ExitWorktree が「no active EnterWorktree session」エラーで失敗する不具合を修正",
+      "t_en": "Fixed `ExitWorktree` failing with \"no active EnterWorktree session\" after resuming",
+      "tags": ["バグ修正", "SDK"],
+      "detail": "ExitWorktree ツールは worktree セッションを終了して元のディレクトリに戻すが、print/SDK モードで --continue や --resume によりセッションを再開した際に worktree セッションの状態が正しく復元されず、「no active EnterWorktree session」エラーで失敗する不具合があった。\n\n本バージョンでこの不具合が修正され、セッション再開後も worktree の状態が正しく復元されるようになった。",
+      "detail_en": "The `ExitWorktree` tool exits a worktree session and returns to the original directory, but a bug caused it to fail with a \"no active EnterWorktree session\" error after resuming a session with `--continue`/`--resume` in print/SDK mode, because the worktree session state wasn't restored correctly.\n\nThis version fixes the bug so the worktree state is now restored correctly after resume.",
+      "category": "ツール改善",
+      "category_en": "Tool Improvements"
+    },
+    {
+      "t": "修正: 実行途中のワークフローに Remote Control から参加すると、エージェントのグリッド表示が空のままになる不具合を修正",
+      "t_en": "Fixed workflow agent grid staying empty for Remote Control mid-run joins",
+      "tags": ["バグ修正"],
+      "detail": "動的ワークフローは、オーケストレーションしているサブエージェントのグリッドを表示するが、Remote Control のクライアントが実行途中のセッションに参加した場合、そのグリッドが実行中のエージェントで埋まらず空のままになる不具合があった。\n\n本バージョンでこの不具合が修正され、途中参加時にも現在実行中のエージェントが正しく表示されるようになった。",
+      "detail_en": "Dynamic workflows show a grid of the subagents they orchestrate, but a bug caused this grid to stay empty when a Remote Control client joined a session that was already mid-run, instead of populating with the currently running agents.\n\nThis version fixes the bug so mid-run joins now correctly populate the grid.",
+      "category": "UX",
+      "category_en": "UX"
+    },
+    {
+      "t": "修正: ストリーミングモードでコントロールリクエストがハンドラーの処理完了前に完了扱いになる不具合を修正",
+      "t_en": "Fixed streaming-mode control requests marked complete before handler finished",
+      "tags": ["バグ修正", "SDK"],
+      "detail": "ストリーミングモードでは、モデル切り替えや権限判断などに使われるコントロールリクエストが、そのハンドラーの処理が実際に完了する前に完了扱いとしてマークされてしまうことがあり、その直後にセッションが再起動した場合にリクエストが失われる可能性があった。\n\n本バージョンでこの不具合が修正され、ハンドラーの処理が本当に完了した時点でのみ完了と報告されるようになった。",
+      "detail_en": "In streaming mode, control requests (used for things like model switches or permission decisions) could be marked complete before their handler had actually finished processing, which could lose the request if the session restarted at that moment.\n\nThis version fixes the bug so completion is only reported once the handler truly finishes.",
+      "category": "SDK",
+      "category_en": "SDK"
+    },
+    {
+      "t": "修正: 状態の書き込みに失敗すると /fork で作成したバックグラウンドセッションの親セッション保護が失われる不具合を修正",
+      "t_en": "Fixed background sessions from `/fork` losing live-parent protection after state write failures",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "/fork で作成したバックグラウンドセッションには、生きている親セッションと紐づいた保護フラグが設定されるが、タイミングによって状態の書き込みが失敗すると、この保護が失われてしまう不具合があった。保護を失うと、フォークされたバックグラウンドセッションが誤ってクリーンアップの対象になるなど、意図しない扱いを受ける可能性があった。\n\n本バージョンでこの不具合が修正され、状態の書き込みに失敗した場合でも親セッションとの保護関係が正しく維持されるようになった。",
+      "detail_en": "Background sessions created via `/fork` carry a protection flag tied to their live parent session, but a bug caused this protection to be lost if a state write failed at the wrong moment, which could leave the forked background session vulnerable to being cleaned up or mishandled incorrectly.\n\nThis version fixes the bug so the protection relationship with the parent session is now correctly maintained even when a state write fails.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-Agent"
+    },
+    {
+      "t": "修正: 停止済みのバックグラウンドセッションを再度開こうとすると何も表示されずに失敗する不具合を修正",
+      "t_en": "Fixed reopening stopped background sessions failing silently",
+      "tags": ["バグ修正"],
+      "detail": "以前に停止したバックグラウンドセッションを再度開こうとすると、何のフィードバックもないまま失敗してしまう不具合があった。\n\n本バージョンでこの不具合が修正され、再度開くと実際にセッションが再開されるようになったほか、再開できない場合にはその理由が表示され、強制的に再起動する手段も提供されるようになった。詳しくは[エージェントビューのドキュメント](https://code.claude.com/docs/en/agent-view#keyboard-shortcuts)を参照してください。",
+      "detail_en": "Attempting to reopen a background session that had been stopped previously could fail without any feedback.\n\nThis version fixes the bug: reopening now actually resumes the session, or, if it can't, shows why and offers a way to force a restart. See the [agent view docs](https://code.claude.com/docs/en/agent-view#keyboard-shortcuts) for details.",
+      "category": "セッション管理",
+      "category_en": "Session Management"
+    },
+    {
+      "t": "修正: エージェントチームで停止中のチームメイトがアイドル通知を重複送信する不具合を修正",
+      "t_en": "Fixed agent teams: stopping teammate sending duplicate idle notifications",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "エージェントチーム機能において、停止処理中のチームメイトが、同一セッション内でチームの初期化が再実行された場合にリーダーへ重複したアイドル通知を送ってしまい、冗長で紛らわしい通知が発生する不具合があった。\n\n本バージョンでこの不具合が修正され、重複通知が送信されないようになった。",
+      "detail_en": "In agent teams, a teammate that was stopping could send the leader duplicate idle notifications if team initialization re-ran within the same session, creating redundant and confusing notification noise.\n\nThis version fixes the bug so duplicate notifications are no longer sent.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-Agent"
+    },
+    {
+      "t": "修正: プラン承認ダイアログのフッターでエディタのパスが長い場合に表示が分裂する不具合を修正",
+      "t_en": "Fixed plan-approval dialog footer splitting long editor paths",
+      "tags": ["バグ修正"],
+      "detail": "プラン承認ダイアログのフッターには「ctrl+g to edit in <editor>」のようなヒントが表示されるが、エディタのファイルパスが長い場合にこのテキストが視覚的に分裂し、フッター表示が崩れてしまう不具合があった。\n\n本バージョンでこの不具合が修正され、長いパスでも正しく表示されるようになった。詳しくは[プランモードのドキュメント](https://code.claude.com/docs/en/permission-modes#review-and-approve-a-plan)を参照してください。",
+      "detail_en": "The plan-approval dialog's footer shows a hint like \"ctrl+g to edit in `<editor>`\", but a bug caused this text to visually split apart when the editor's file path was long, producing a garbled footer.\n\nThis version fixes the bug so long paths are now handled gracefully. See the [plan mode docs](https://code.claude.com/docs/en/permission-modes#review-and-approve-a-plan) for details.",
+      "category": "レンダリング",
+      "category_en": "Rendering"
+    },
+    {
+      "t": "修正: フルスクリーンモードで幅と高さを同時にリサイズすると起動時のウェルカムバナーが古いパネル幅のままになる不具合を修正",
+      "t_en": "Fixed welcome banner keeping old panel widths after combined resize",
+      "tags": ["バグ修正"],
+      "detail": "フルスクリーンモードでターミナルウィンドウの幅と高さを同時にリサイズすると、起動時に表示されるウェルカムバナーが新しいサイズに合わせてレイアウトを再計算せず、古いパネル幅のまま残ってしまう不具合があった。\n\n本バージョンでこの不具合が修正され、幅と高さを同時にリサイズした場合でも正しくレイアウトが再計算されるようになった。",
+      "detail_en": "The startup welcome banner could retain stale panel widths after the terminal window was resized in both width and height simultaneously while in fullscreen mode, instead of recalculating layout for the new dimensions.\n\nThis version fixes the bug so layout is now recalculated correctly for combined resizes.",
+      "category": "レンダリング",
+      "category_en": "Rendering"
+    },
+    {
+      "t": "修正: 幅の狭いレイアウトで差分プレビューの行番号が表示されなくなる不具合を修正",
+      "t_en": "Fixed diff previews losing line numbers in narrow layouts",
+      "tags": ["バグ修正"],
+      "detail": "権限確認プロンプトや /diff などで表示される差分プレビューは、ターミナルの幅が狭いレイアウトで表示されると行番号や +/- の記号が失われてしまい、差分が読みにくくなる不具合があった。\n\n本バージョンでこの不具合が修正され、狭いレイアウトでも行番号が正しく表示されるようになった。",
+      "detail_en": "Diff previews (e.g., in permission prompts or `/diff`) could drop their line numbers and +/- markers when rendered in a narrow terminal layout, making the diff harder to read.\n\nThis version fixes the bug so line numbers are now preserved in narrow layouts.",
+      "category": "レンダリング",
+      "category_en": "Rendering"
+    },
+    {
+      "t": "修正: @メンション・プラグインのアンインストール・終了コード143の誤った「Command timed out」表示に関する3つの不具合をまとめて修正",
+      "t_en": "Fixed @-mentions, plugin uninstalls, and false \"Command timed out\" on exit 143",
+      "tags": ["バグ修正", "Plugin"],
+      "detail": "部分的にしか読み込まれていないファイルに対して @メンションを使うと何も添付されない不具合、プラグインをアンインストールする際に誤ったマーケットプレイスが対象になってしまう不具合、そして SIGTERM の正規の終了コードである143で正常終了したコマンドが、実際にはタイムアウトしていないにもかかわらず「Command timed out」と誤って報告される不具合の3件が確認されていた。\n\n本バージョンでこれら3件がまとめて修正された。",
+      "detail_en": "Three separate bugs were identified: @-mentions could attach nothing after a partial file read; uninstalling a plugin could target the wrong marketplace; and a command that legitimately exited with code 143 (the SIGTERM exit code) was incorrectly reported as \"Command timed out\" even when no timeout had occurred.\n\nThis version fixes all three issues together.",
+      "category": "ツール改善",
+      "category_en": "Tool Improvements"
+    },
+    {
+      "t": "修正: OpenTelemetry の HTTP エクスポートが chunked エンコーディング未対応のため Azure Monitor に拒否される不具合を修正",
+      "t_en": "Fixed OpenTelemetry HTTP exports rejected by Azure Monitor without chunked encoding",
+      "tags": ["バグ修正"],
+      "detail": "Claude Code の OTLP HTTP エクスポーターは chunked transfer encoding を使用していなかったため、これを必須とする Azure Monitor などのエンドポイントがエクスポートを 411 や 400 エラーで拒否してしまう不具合があった。\n\n本バージョンでこの不具合が修正され、こうしたエンドポイントとの互換性が確保されるようになった。",
+      "detail_en": "Claude Code's OTLP HTTP exporter didn't use chunked transfer encoding, which caused Azure Monitor and similar endpoints that require it to reject the export with 411 or 400 errors.\n\nThis version fixes the bug, making exports compatible with these endpoints.",
+      "category": "ネットワーク",
+      "category_en": "Network"
+    },
+    {
+      "t": "修正: TRACEPARENT を設定している場合に OTLP のイベントログレコードから trace_id・span_id が欠落する不具合を修正",
+      "t_en": "Fixed OTLP records missing `trace_id`/`span_id` with `TRACEPARENT` set",
+      "tags": ["バグ修正"],
+      "detail": "SDK やヘッドレスモードで外部から TRACEPARENT を設定していると、OTLP のイベントログレコードに trace_id・span_id が含まれない状態で出力されてしまい、周囲のトレースとの紐付けができなくなる不具合があった。\n\n本バージョンでこの不具合が修正され、該当のケースでもこれらのフィールドが正しく付与されるようになった。詳しくは[利用状況モニタリングのドキュメント](https://code.claude.com/docs/en/monitoring-usage#traces-beta)を参照してください。",
+      "detail_en": "When `TRACEPARENT` was set externally in SDK/headless mode, OTLP event log records could be emitted without `trace_id`/`span_id`, breaking correlation with the surrounding trace.\n\nThis version fixes the bug so these fields are now populated correctly in that scenario. See the [monitoring usage docs](https://code.claude.com/docs/en/monitoring-usage#traces-beta) for details.",
+      "category": "ネットワーク",
+      "category_en": "Network"
+    },
+    {
+      "t": "修正: 画像を多数含む会話が実際にはサイズ内であっても「Request too large」エラーになる不具合を修正",
+      "t_en": "Fixed conversations with many images failing with \"Request too large\"",
+      "tags": ["バグ修正"],
+      "detail": "画像を多く含む会話では、実際のリクエストサイズが上限内に収まっている場合でも「Request too large」エラーが誤って発生してしまう不具合があった。\n\n本バージョンでサイズ計算の不具合が修正されたほか、本当にリクエストが大きすぎる場合のエラーメッセージも、実際の原因が分かりやすいよう改善された。",
+      "detail_en": "Conversations containing many images could incorrectly trigger a \"Request too large\" error even when the actual request was within limits.\n\nThis version fixes the size calculation bug and also improves the error message to explain the real cause when a request genuinely is too large.",
+      "category": "安定性",
+      "category_en": "Stability"
+    },
+    {
+      "t": "修正: バックエンドの過負荷時に WebSearch・WebFetch が「API Error」という文字列を検索結果やページ内容として返してしまう不具合を修正",
+      "t_en": "Fixed web search/fetch returning \"API Error\" when overloaded",
+      "tags": ["バグ修正"],
+      "detail": "Anthropic の web search・web fetch のバックエンドが過負荷状態になると、「API Error」という生のエラーテキストがあたかも検索結果やページ内容であるかのように返されてしまい、Claude がエラーを実データと誤認してしまう不具合があった。\n\n本バージョンでこの不具合が修正され、過負荷エラーはコンテンツではなく正しくエラーとして扱われるようになった。",
+      "detail_en": "When Anthropic's web search or web fetch backend was overloaded, the raw \"API Error\" text could be returned as if it were search results or page content, confusing Claude into treating an error as real data.\n\nThis version fixes the bug so overload errors are now surfaced as errors rather than content.",
+      "category": "安定性",
+      "category_en": "Stability"
+    },
+    {
+      "t": "改善: WebSearch・WebFetch が529エラー時に再試行し、レート制限時にバックオフするようになり信頼性が向上",
+      "t_en": "Improved web search/fetch reliability with 529 error retries and rate-limit backoff",
+      "tags": ["改善"],
+      "detail": "前項の過負荷エラー処理の修正に続き、WebSearch・WebFetch はバックエンドが過負荷状態を示す529エラーを返した際に再試行するようになった。\n\nレート制限に達した場合には、上限付きの再試行戦略でバックオフするようになり、バックエンド側の負荷が高い時間帯でもユーザーに表示される失敗が減少する。",
+      "detail_en": "Building on the overload-handling fix above, web search and web fetch now retry on 529 (overloaded) errors.\n\nWhen rate limits are hit, they now back off with a bounded retry strategy, reducing user-visible failures during backend load spikes.",
+      "category": "安定性",
+      "category_en": "Stability"
+    },
+    {
+      "t": "改善: LLM ゲートウェイやカスタム base URL 経由の通信でもプロンプトキャッシュが正しく効くように改善",
+      "t_en": "Improved prompt caching behind LLM gateways and custom base URLs",
+      "tags": ["改善", "Platform"],
+      "detail": "Claude Code は会話の途中でファイル変更通知などのシステムコンテキストを追加するが、v2.1.211 では Bedrock・Google Cloud の Agent Platform・Microsoft Foundry においてこれが正しくキャッシュされずキャッシュなしの入力として毎回課金される不具合が修正されていた。\n\n本バージョンではこの修正の対象が、LLM ゲートウェイ経由のトラフィックやカスタムの ANTHROPIC_BASE_URL 設定にも拡張され、ゲートウェイ利用者のトークンコストが削減されるようになった。詳しくは[プロンプトキャッシュのドキュメント](https://code.claude.com/docs/en/prompt-caching#where-the-cache-lives)を参照してください。",
+      "detail_en": "Claude Code appends system context mid-conversation (e.g., file-change notices); as of v2.1.211 this was fixed to be cached correctly on Bedrock, Google Cloud's Agent Platform, and Microsoft Foundry rather than billed as uncached input every request.\n\nThis version extends that same fix to traffic routed through LLM gateways and custom `ANTHROPIC_BASE_URL` configurations, reducing token costs for gateway users. See the [prompt caching docs](https://code.claude.com/docs/en/prompt-caching#where-the-cache-lives) for details.",
+      "category": "パフォーマンス",
+      "category_en": "Performance"
+    },
+    {
+      "t": "改善: バックグラウンドセッションへのアタッチ時、起動処理中でも整形済みトランスクリプトを即座に表示するよう改善",
+      "t_en": "Improved background agent attach with formatted transcript during session boot",
+      "tags": ["改善"],
+      "detail": "これまでバックグラウンドセッションにコールドアタッチすると、セッションが起動するまでの間は空白の待機画面が表示されていた。\n\n本バージョンから、アタッチすると起動中であっても整形済みのトランスクリプトが即座に表示されるようになり、空白画面ではなくすぐに視覚的なフィードバックが得られるようになった。",
+      "detail_en": "Cold-attaching to a background session used to show a blank wait while the session booted.\n\nAs of this version, attaching instantly shows the formatted transcript while the session is still starting up, giving immediate visual feedback instead of an empty screen.",
+      "category": "UX",
+      "category_en": "UX"
+    },
+    {
+      "t": "改善: エージェント間メッセージングでのトークン消費量を削減",
+      "t_en": "Reduced token usage in inter-agent messaging",
+      "tags": ["改善", "Perf", "Agent"],
+      "detail": "サブエージェントの再開やエージェントチームでの通信に使われる SendMessage ツールは、これまでメッセージ本文が再生履歴とツール結果の両方に重複して含まれてしまい、トークン消費量を増加させていた。\n\n本バージョンでこの重複が解消され、マルチエージェントのワークフローにおけるオーバーヘッドが削減された。",
+      "detail_en": "The `SendMessage` tool, used for resuming subagents and agent-team communication, previously duplicated message bodies into replayed history and tool results, inflating token usage.\n\nThis version fixes that duplication so message bodies aren't duplicated, reducing overhead for multi-agent workflows.",
+      "category": "パフォーマンス",
+      "category_en": "Performance"
+    },
+    {
+      "t": "変更: タイトル未設定のセッションをフォークした際、コピーされたバックグラウンドセッションの名前がプロンプトに基づいて自動命名されるように変更",
+      "t_en": "Changed `/fork` naming copied sessions after prompts when untitled",
+      "tags": ["改善", "Agent"],
+      "detail": "フォーク元のセッションにタイトルが設定されていない場合、これまでは /fork で作成されたコピーのセッション名が汎用的なプレースホルダーのままになっていた。\n\n本バージョンから、そのようなセッションはユーザーの指示・プロンプトに基づいて命名されるようになり、エージェントビューの一覧ですぐにどのセッションか識別できるようになった。",
+      "detail_en": "When a forked session has no existing title, the copied background session created by `/fork` used to show a generic placeholder name.\n\nAs of this version, it is instead named after the user's directive/prompt, so its row in agent view is immediately recognizable.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-Agent"
+    },
+    {
+      "t": "変更: 質問なしで /btw を実行すると、直近のやり取りに関するサイドクエスチョンパネルが再度開くように変更",
+      "t_en": "Changed bare `/btw` to reopen side-question panel on recent exchanges",
+      "tags": ["改善"],
+      "detail": "これまで /btw は質問を伴わずに実行すると新しい質問の入力を求められるだけで、過去のやり取りを見返す手段がなかった。\n\n本バージョンから、質問を指定せずに /btw を実行すると直近のやり取りに関するサイドクエスチョンのオーバーレイが再び開くようになり、セッション内で過去に /btw に尋ねた内容を閲覧できるようになった。詳しくは[インタラクティブモードのドキュメント](https://code.claude.com/docs/en/interactive-mode#side-questions-with-%2Fbtw)を参照してください。",
+      "detail_en": "Previously, running `/btw` with no question just prompted for a new one, with no way to browse earlier exchanges.\n\nAs of this version, typing `/btw` with no question reopens the side-question overlay showing the most recent exchange, letting users browse earlier `/btw` answers from the session. See the [interactive mode docs](https://code.claude.com/docs/en/interactive-mode#side-questions-with-%2Fbtw) for details.",
+      "category": "UX",
+      "category_en": "UX"
+    },
+    {
+      "t": "変更: バックグラウンドエージェントの完了時、フッターの ← ヒントが「N done」を点滅表示するように変更",
+      "t_en": "Changed `←` footer hint to pulse `N done` when background agent finishes",
+      "tags": ["改善"],
+      "detail": "フッターに表示される ← ヒントは、入力待ちのバックグラウンドエージェントの件数を表示する（例: ← 2 agents）が、これまでバックグラウンドエージェントが完了してもユーザーの入力を必要としない場合は、何も知らせずに ← for agents 表示へ静かに戻るだけだった。\n\n本バージョンから、エージェントが完了すると一時的に「N done」という表示が点滅するようになり、完了をより分かりやすく伝えられるようになった。詳しくは[エージェントビューのドキュメント](https://code.claude.com/docs/en/agent-view#quick-start)を参照してください。",
+      "detail_en": "The prompt footer's `←` hint shows a count of background agents awaiting input, e.g. `← 2 agents`. Previously, when a background agent finished and nothing needed the user's input, the hint silently reverted to `← for agents` with no signal.\n\nAs of this version, the hint now pulses `N done` momentarily when an agent finishes, making completions easier to notice. See the [agent view docs](https://code.claude.com/docs/en/agent-view#quick-start) for details.",
+      "category": "UX",
+      "category_en": "UX"
+    },
+    {
+      "t": "非推奨: Task（Agent）ツールの mode パラメータを非推奨化、サブエージェントは親セッションのモードを継承するように変更",
+      "t_en": "Deprecated Task tool's `mode` parameter; subagents inherit parent session mode",
+      "tags": ["非推奨", "Agent"],
+      "detail": "Agent（旧 Task）ツールはこれまで呼び出しごとにサブエージェントの権限モードを設定する mode パラメータを受け付けていた。\n\n本バージョンからこのパラメータは非推奨（無視）となり、サブエージェントはデフォルトで親セッションの権限モードを継承するようになった。これにより、サブエージェントの権限がどのように決まるかの考え方がシンプルになった。詳しくは[サブエージェントのドキュメント](https://code.claude.com/docs/en/sub-agents#permission-modes)を参照してください。",
+      "detail_en": "The Agent (formerly Task) tool previously accepted a per-invocation `mode` parameter to set a subagent's permission mode.\n\nAs of this version, that parameter is deprecated and ignored; subagents inherit the parent session's permission mode by default instead, simplifying the mental model around how a subagent's permissions are determined. See the [sub-agents docs](https://code.claude.com/docs/en/sub-agents#permission-modes) for details.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-Agent"
+    },
+    {
+      "t": "変更: Enterprise の forceLoginMethod による強制範囲を拡大し、VS Code 拡張・SDK・setup-token 等のログイン経路もカバーするように変更",
+      "t_en": "Changed Enterprise `forceLoginMethod` enforcement scope",
+      "tags": ["改善", "Security"],
+      "detail": "マネージド設定の forceLoginMethod・forceLoginOrgUUID は、開発者がログインできる組織を制限する機能だが、これまでターミナルの CLI ログインフローにしか適用されていなかった。\n\n本バージョンから、この強制範囲が VS Code 拡張・Agent SDK・claude setup-token・install-github-app のログインにも拡大され、これらの経路から組織制限を回避できてしまう抜け道が塞がれた。詳しくは[認証のドキュメント](https://code.claude.com/docs/en/authentication#restrict-login-to-your-organization)を参照してください。",
+      "detail_en": "`forceLoginMethod`/`forceLoginOrgUUID` in managed settings restrict which organization developers can log into, but enforcement previously only covered the terminal CLI login flow.\n\nAs of this version, enforcement is broadened to also cover the VS Code extension, the Agent SDK, `claude setup-token`, and `install-github-app` logins, closing gaps where those other login paths could bypass the organizational restriction. See the [authentication docs](https://code.claude.com/docs/en/authentication#restrict-login-to-your-organization) for details.",
+      "category": "セキュリティ",
+      "category_en": "Security"
+    },
+    {
+      "t": "変更: セッショントランスクリプトに各アシスタントメッセージの reasoning effort（推論の強さ）レベルを記録するように変更",
+      "t_en": "Changed session transcripts to record reasoning effort level",
+      "tags": ["改善"],
+      "detail": "セッションのトランスクリプトファイル（.jsonl）には、これまでメッセージ生成時に適用されていた reasoning effort レベルが記録されていなかった。\n\n本バージョンから、各アシスタントメッセージにその時点で有効だった reasoning effort レベルが記録されるようになり、デバッグや分析、リプレイ用ツールなどで活用できるメタデータが増えた。",
+      "detail_en": "Session transcript files (`.jsonl`) previously did not capture the reasoning effort level in effect when each message was generated.\n\nAs of this version, transcripts record the reasoning effort level in effect on each assistant message, adding useful metadata for debugging, analytics, or replay tooling that wasn't previously captured.",
+      "category": "セッション管理",
+      "category_en": "Session Management"
+    },
+    {
+      "t": "変更: ヘッドレス・SDK セッションで set_model コントロールリクエストがターンの途中から即座に反映されるように変更",
+      "t_en": "Changed headless/SDK sessions applying `set_model` mid-turn",
+      "tags": ["改善", "SDK"],
+      "detail": "これまでヘッドレス・SDK セッションに送信される set_model コントロールリクエストは、次のターンになるまで反映されなかった。\n\n本バージョンから、同一ターン内の次回のモデル呼び出しから新しく指定されたモデルが使われるようになり、SDK 呼び出し元からのモデル切り替えがより即座に反映されるようになった。詳しくは[モデル設定のドキュメント](https://code.claude.com/docs/en/model-config#setting-your-model)を参照してください。",
+      "detail_en": "Previously, a `set_model` control request sent to a headless/SDK session had to wait until the next turn to take effect.\n\nAs of this version, it applies mid-turn: the next model round-trip within the same turn already uses the newly requested model, making model switches from SDK callers more responsive. See the [model configuration docs](https://code.claude.com/docs/en/model-config#setting-your-model) for details.",
+      "category": "SDK",
+      "category_en": "SDK"
+    },
+    {
+      "t": "変更: サンドボックスのネットワーク承認・MCP ツールの入力要求・設定変更プロンプト待ちのセッションが、エージェントビューで「Needs input」と表示されるように変更",
+      "t_en": "Changed agent view status: sandbox/MCP-input/settings prompts show \"Needs input\"",
+      "tags": ["改善", "MCP"],
+      "detail": "エージェントビュー（および claude agents --json）は各セッションの状態をアイコンとラベルで分類するが、サンドボックスのネットワークアクセス承認待ち・MCP ツールの入力エリシテーション待ち・マネージド設定のプロンプト待ちのセッションは、実際にはユーザーの入力を待ってブロックされているにもかかわらず、これまで「Working」と誤って表示されていた。\n\n本バージョンから、これら3種類のプロンプトについても正しく「Needs input」と表示されるようになった。詳しくは[エージェントビューのドキュメント](https://code.claude.com/docs/en/agent-view#read-session-state)を参照してください。",
+      "detail_en": "Agent view (and `claude agents --json`) classifies each session's state with an icon/label. Previously, sessions waiting on a sandbox network approval, an MCP tool's input elicitation, or a managed-settings prompt incorrectly showed as \"Working\" even though they were actually blocked waiting on the user.\n\nAs of this version, these three prompt types now correctly show \"Needs input\" instead. See the [agent view docs](https://code.claude.com/docs/en/agent-view#read-session-state) for details.",
+      "category": "UX",
+      "category_en": "UX"
+    },
+    {
+      "t": "変更: 認証状況パネルのタイトルを「Cloud authentication」から「Authentication」に変更",
+      "t_en": "Updated auth status panel title to \"Authentication\"",
+      "tags": ["改善"],
+      "detail": "ステータス・認証関連の UI でこれまで「Cloud authentication」と表示されていたパネルタイトルは、機能に変更を伴わない表記上の簡潔化として変更された。\n\n本バージョンから、このパネルは「Authentication」というタイトルで表示されるようになった。",
+      "detail_en": "A cosmetic rename: the panel previously titled \"Cloud authentication\" in the status/auth UI is now titled \"Authentication\", a small copy clarification that doesn't change functionality.\n\nAs of this version, the panel displays under the new \"Authentication\" title.",
+      "category": "UX",
+      "category_en": "UX"
+    },
+    {
+      "t": "修正: 以前のリリースノートにあった tmux の synchronized output 対応バージョンに関する記載を修正（3.6系までは非対応）",
+      "t_en": "Corrected tmux synchronized output note for 3.6 series",
+      "tags": ["バグ修正"],
+      "detail": "v2.1.200 のリリースノートでは tmux の synchronized output 対応について、実際とは異なるバージョンのしきい値が記載されていた。\n\n本バージョンの記載でこれが修正され、tmux は 3.6 系までは synchronized output に対応しておらず、Claude Code はそれ以降の対応バージョンを自動検出した場合にのみ synchronized output を自動的に有効化する、という点が明確化された。詳しくは[フルスクリーンモードのドキュメント](https://code.claude.com/docs/en/fullscreen#use-with-tmux)を参照してください。",
+      "detail_en": "An earlier release note (from v2.1.200) stated an incorrect version threshold for tmux's synchronized-output support.\n\nThis note corrects it: tmux versions through the 3.6 series actually lack synchronized-output support, and Claude Code auto-detects newer tmux versions that do support it and enables synchronized output automatically only for them. See the [fullscreen mode docs](https://code.claude.com/docs/en/fullscreen#use-with-tmux) for details.",
+      "category": "ドキュメント",
+      "category_en": "Documentation"
+    }
   ]
 }
