@@ -603,5 +603,245 @@
         "tags": ["バグ修正"]
       }
     ]
+  },
+  {
+    "v": "2.1.214",
+    "items": [
+      {
+        "t": "修正: 単一セグメントの dir/** 許可ルール（Edit(src/**) 等）が <cwd>/dir だけでなく、ツリー内のあらゆる場所の dir/ への書き込みを自動承認してしまう不具合を修正",
+        "t_en": "Fixed single-segment `dir/**` allow rules like `Edit(src/**)` auto-approving writes to nested `dir/` directories anywhere in the tree instead of only `<cwd>/dir`",
+        "tags": ["バグ修正", "Security"]
+      },
+      {
+        "t": "修正: Windows PowerShell 5.1 セッションで実行されるコマンドにパーミッションチェックのバイパスが存在する不具合を修正",
+        "t_en": "Fixed a permission-check bypass affecting commands run in Windows PowerShell 5.1 sessions",
+        "tags": ["バグ修正", "Security", "Windows"]
+      },
+      {
+        "t": "修正: bash とパーミッション解析器で解釈が異なるファイルディスクリプタのリダイレクト構文について、Bash のパーミッションチェックが安全側（fail closed）に倒れるよう修正",
+        "t_en": "Fixed Bash permission checks to fail closed on file-descriptor redirect forms that bash parses differently than the permission analyzer",
+        "tags": ["バグ修正", "Security"]
+      },
+      {
+        "t": "修正: 極端に長い Bash コマンドに対するパーミッションチェックの誤判定を修正、10,000文字を超えるコマンドは常に確認を求めるように変更",
+        "t_en": "Fixed Bash permission checks misjudging very long commands — commands over 10,000 characters now always prompt instead of running automatically",
+        "tags": ["バグ修正", "Security"]
+      },
+      {
+        "t": "修正: zsh の [[ ]] 比較式内にある変数の添字表記や修飾子を無害なテキストとして扱っていた Bash パーミッションチェックの不具合を修正、該当コマンドは確認を求めるように変更",
+        "t_en": "Fixed Bash permission checks treating zsh variable subscripts and modifiers in `[[ ]]` comparisons as inert text — these commands now prompt for approval",
+        "tags": ["バグ修正", "Security"]
+      },
+      {
+        "t": "修正: 安全でないオプション・コマンド置換・バックスラッシュパスを実行し得る一部の help・man コマンドを Bash パーミッションチェックが自動承認してしまう不具合を修正",
+        "t_en": "Fixed Bash permission checks to no longer auto-approve certain `help` and `man` commands that could run unsafe options, command substitutions, or backslash paths",
+        "tags": ["バグ修正", "Security"]
+      },
+      {
+        "t": "修正: リモートセッションでローカルの確認ダイアログの表示前に処理が進んでしまうことがあるパーミッションプロンプトの不具合を修正",
+        "t_en": "Fixed permission prompts on remote sessions that could proceed before the local confirmation dialog",
+        "tags": ["バグ修正", "Security"]
+      },
+      {
+        "t": "追加: 悪質な虐待的ユーザーやジェイルブレイク試行に対してセッションを終了できる EndConversation ツールを追加（claude.ai では2025年から提供済み）",
+        "t_en": "Added the EndConversation tool: Claude can end sessions with highly abusive users or jailbreak attempts, as on claude.ai since 2025 — see https://www.anthropic.com/research/end-subset-conversations",
+        "tags": ["新機能", "Security"]
+      },
+      {
+        "t": "追加: 進捗表示のなかった長時間実行のツール呼び出しに対して、定期的な進捗ハートビートを追加",
+        "t_en": "Added a periodic progress heartbeat for long-running tool calls that previously went silent",
+        "tags": ["新機能"]
+      },
+      {
+        "t": "追加: メモリファイルの frontmatter に ISO 形式の modified タイムスタンプを追加",
+        "t_en": "Added an ISO `modified` timestamp to memory file frontmatter",
+        "tags": ["新機能"]
+      },
+      {
+        "t": "追加: メッセージ単位の相関関係とツールの出所を追跡できるよう、OpenTelemetry のログイベントに message.uuid・client_request_id・tool_source 属性を追加",
+        "t_en": "Added `message.uuid`, `client_request_id`, and `tool_source` attributes to OpenTelemetry log events for message-level correlation and tool provenance",
+        "tags": ["新機能"]
+      },
+      {
+        "t": "追加: OpenTelemetry のコンテンツ属性に対する60KBの切り詰め上限を設定できる CLAUDE_CODE_OTEL_CONTENT_MAX_LENGTH を追加",
+        "t_en": "Added `CLAUDE_CODE_OTEL_CONTENT_MAX_LENGTH` to configure the 60 KB truncation limit on OpenTelemetry content attributes",
+        "tags": ["新機能"]
+      },
+      {
+        "t": "追加: サブエージェントの推論強度（reasoning effort）を subagentStatusLine のペイロードに追加、カスタムのエージェント行でモデルと推論強度を表示可能に",
+        "t_en": "Added reasoning effort to the `subagentStatusLine` payload, so custom agent rows can render model and effort",
+        "tags": ["新機能", "Agent"]
+      },
+      {
+        "t": "追加: デーモンリダイレクトフラグ（--url・--connection・--identity、および Podman のリモートモード）を伴う docker コマンド（Podman の docker シムを含む）に対して確認プロンプトを追加",
+        "t_en": "Added permission prompts for `docker` commands (including the Podman `docker` shim) carrying daemon-redirect flags (`--url`, `--connection`, `--identity`, and Podman's remote mode) that previously ran without one",
+        "tags": ["新機能", "Security"]
+      },
+      {
+        "t": "修正: GrowthBook の機能フラグが null と評価された際のクラッシュ、および不正な形式のフラグペイロードによってキャッシュ済みの機能フラグが消去されてしまう不具合を修正",
+        "t_en": "Fixed a crash when a GrowthBook feature evaluates to null, and a bug where a malformed flag payload could wipe the cached feature flags",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: pkill -f のパターンが CLI 自身のプロセスに誤って一致し、Bash ツールが Claude セッションを終了させてしまう不具合を修正（Linux）",
+        "t_en": "Fixed Bash tool killing the Claude session when a `pkill -f` pattern accidentally matched the CLI's own process (Linux)",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: --settings がデバイスファイルや数GB規模のファイルを指す場合にメモリ使用量が際限なく増加する不具合を修正、2MiBを超える設定ファイルは起動時に明確なエラーで失敗するように変更",
+        "t_en": "Fixed unbounded memory growth when `--settings` points at a device file or multi-GB file; oversized (>2 MiB) settings files now fail at startup with a clear error",
+        "tags": ["バグ修正", "Perf"]
+      },
+      {
+        "t": "修正: Windows で企業プロキシ経由の場合にストリーミングのターンが「Socket is closed」エラーで失敗する不具合を修正",
+        "t_en": "Fixed streaming turns failing with \"Socket is closed\" behind corporate proxies on Windows",
+        "tags": ["バグ修正", "Windows"]
+      },
+      {
+        "t": "修正: 読み込みの遅い SDK・パイプライン利用者に対して終了時に stream-json 出力が切り詰められる不具合を修正、終了時のドレイン処理が固定2秒ではなくキュー内バイト数に応じてスケールするように変更",
+        "t_en": "Fixed stream-json output truncation at exit for slow-reading SDK/pipeline consumers; the exit drain now scales with queued bytes instead of a flat 2s cap",
+        "tags": ["バグ修正", "SDK"]
+      },
+      {
+        "t": "修正: スケジュールされたタスクが自身に設定されたプロンプトを信頼できない入力として拒否してしまう不具合を修正、発火したプロンプトはセッションに割り当てられたタスクとして配信されるように変更",
+        "t_en": "Fixed scheduled tasks refusing their own configured prompt as untrusted input — the fired prompt is now delivered as the session's assigned task",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: 子プロセスが標準入力を待機している場合に PowerShell ツールのコマンドがタイムアウトまでハングする不具合を修正（Windows）",
+        "t_en": "Fixed PowerShell tool commands hanging until timeout when a child process waited on standard input (Windows)",
+        "tags": ["バグ修正", "Windows"]
+      },
+      {
+        "t": "修正: PowerShell ツール上の Python スクリプトが標準入力から非UTF-8データを読み込む際に UnicodeDecodeError でクラッシュする不具合を修正（Windows）",
+        "t_en": "Fixed Python scripts under the PowerShell tool crashing with UnicodeDecodeError when reading non-UTF-8 data from standard input (Windows)",
+        "tags": ["バグ修正", "Windows"]
+      },
+      {
+        "t": "修正: PowerShell ツール経由で実行した Python スクリプトが非ASCII出力で UnicodeEncodeError によりクラッシュする不具合、および PowerShell 7 のエラーメッセージに生の ANSI エスケープシーケンスが含まれる不具合を修正（Windows）",
+        "t_en": "Fixed Python scripts run via the PowerShell tool crashing with UnicodeEncodeError on non-ASCII output, and PowerShell 7 error messages containing raw ANSI escape sequences (Windows)",
+        "tags": ["バグ修正", "Windows"]
+      },
+      {
+        "t": "修正: where.exe・fc.exe・diff.exe が正当な否定的結果を返した際に、PowerShell ツールがそれをエラーとして報告してしまう不具合を修正（Windows）",
+        "t_en": "Fixed the PowerShell tool reporting `where.exe`, `fc.exe`, and `diff.exe` as errors when they return a valid negative answer (Windows)",
+        "tags": ["バグ修正", "Windows"]
+      },
+      {
+        "t": "修正: Windows PowerShell 5.1 の PowerShell ツール上で > や >> がUTF-16LE形式のファイルを書き出し、他のツールがUTF-8として読み込めない不具合を修正",
+        "t_en": "Fixed `>` and `>>` under the PowerShell tool on Windows PowerShell 5.1 writing UTF-16LE files that other tools couldn't read as UTF-8",
+        "tags": ["バグ修正", "Windows"]
+      },
+      {
+        "t": "修正: 置き換えられたバックグラウンドデーモンがシャットダウン時に後継デーモンの制御ソケットまで削除してしまい、次に接続したクライアントが正常な後継デーモンを終了させてしまう不具合を修正",
+        "t_en": "Fixed a displaced background daemon deleting its successor's control socket on shutdown, which made the next client kill the healthy replacement daemon",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: ← または /background でバックグラウンド化しアイドル状態のまま放置したセッションが、バックグラウンドデーモンとワーカープロセスを無期限に生かし続けてしまう不具合を修正",
+        "t_en": "Fixed background sessions parked with `←` or `/background` and left idle keeping the background daemon and a worker process alive indefinitely",
+        "tags": ["バグ修正", "Perf"]
+      },
+      {
+        "t": "修正: バックグラウンドサービスがアイドル状態になった後、完了済みのバックグラウンドセッションを claude rm やエージェントビューから削除できなくなる不具合を修正",
+        "t_en": "Fixed completed background sessions being impossible to remove via `claude rm` or the agent view once the background service had gone idle",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: git リポジトリでないフォルダから起動したバックグラウンドセッションを、エージェントビューから削除できない不具合を修正",
+        "t_en": "Fixed background sessions dispatched from a non-git folder being impossible to delete from the agents view",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: セッションストア内に読み取り不能なフォルダが存在する場合、停止済みのバックグラウンドセッションを再度開いても保存済みの会話を復元できない不具合を修正",
+        "t_en": "Fixed reopening a stopped background session failing to restore its saved conversation when an unreadable folder exists in the session store",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: Remote Control を明示的に有効化していないセッションに対しても「session ready」のプッシュ通知が発火してしまう不具合を修正",
+        "t_en": "Fixed the Remote Control \"session ready\" push notification firing for sessions where Remote Control was not explicitly enabled",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: エージェントビューのセッションで /install-github-app と /mcp の設定メニューがブロックされてしまう不具合を修正、ターミナル未接続のバックグラウンドセッションでのみ拒否されるように変更",
+        "t_en": "Fixed `/install-github-app` and the `/mcp` settings menu being blocked in agent-view sessions — they're now refused only in background sessions with no terminal attached",
+        "tags": ["バグ修正", "MCP"]
+      },
+      {
+        "t": "修正: --settings CLI フラグ経由で有効化したプラグインが読み込まれない不具合を修正（v2.1.181からのリグレッション）",
+        "t_en": "Fixed plugins enabled via the `--settings` CLI flag not loading (regression since v2.1.181)",
+        "tags": ["バグ修正", "Plugin"]
+      },
+      {
+        "t": "修正: OAuth トークンのローテーション後、長時間実行中のセッションで機能フラグが古いまま更新されなくなる不具合を修正",
+        "t_en": "Fixed feature flags going stale in long-running sessions after the OAuth token rotates",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: マージベースが存在しないリポジトリで /ultrareview の実行が拒否される不具合を修正、追跡対象の全ファイルをレビューする選択肢を提示するように変更",
+        "t_en": "Fixed `/ultrareview` refusing to run in repos with no merge base — it now offers to review all tracked files",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: シェル設定ファイルのパスがディレクトリだった場合に claude update・claude doctor が無言でハングし、/status の System diagnostics セクションが空白になる不具合を修正",
+        "t_en": "Fixed `claude update` and `claude doctor` hanging silently, and the `/status` System diagnostics section going blank, when a shell-config path is a directory",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: メモリファイルの保存時に frontmatter の値が行内の # で無言のまま切り詰められる不具合を修正",
+        "t_en": "Fixed memory frontmatter values being silently truncated at an inline `#` when memory files are saved",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: 累積的な message_delta フレームを複数回送出するストリームで、セッションのコストとトークンのテレメトリが二重計上される不具合を修正",
+        "t_en": "Fixed session cost and token telemetry double-counting on streams that emit multiple cumulative `message_delta` frames",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: アドバイザーが思考中に「check your network」という誤った警告が表示される不具合を修正",
+        "t_en": "Fixed a spurious \"check your network\" warning that appeared while the advisor was thinking",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: フックの標準出力 JSON がスキーマ検証に失敗した場合、終了コード2のフックがドキュメント通りにブロックしない不具合を修正",
+        "t_en": "Fixed hooks with exit code 2 not blocking as documented when the hook's stdout JSON fails schema validation",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: ターンの非同期コンテキスト外で発行された OTel ログイベントに、インタラクションスパンのトレースコンテキストが欠落する不具合を修正",
+        "t_en": "Fixed OTel log events emitted outside the turn's async context missing the interaction span's trace context",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: MCP のプロンプト・リソースの更新時に一時的なエラーが発生すると、サーバーのスラッシュコマンドとリソースが消去されてしまう不具合を修正",
+        "t_en": "Fixed MCP transient errors during prompts/resources refresh clearing the server's slash commands and resources",
+        "tags": ["バグ修正", "MCP"]
+      },
+      {
+        "t": "改善: ホームディレクトリでの claude rc のワークスペース信頼エラーに、信頼設定がそこでは保存されないこと、プロジェクトディレクトリからの実行を提案する文言を追加して改善",
+        "t_en": "Improved the `claude rc` workspace-trust error in the home directory to say trust there is never saved and to suggest running from a project directory",
+        "tags": ["改善"]
+      },
+      {
+        "t": "変更: 単一セグメントの dir/** フック if: 条件が <cwd>/dir のみに一致するように変更（任意の深さで一致させるには **/dir/** と記述）。deny・ask のパーミッションルールは従来通り任意の深さで一致",
+        "t_en": "Changed single-segment `dir/**` hook `if:` conditions to match only `<cwd>/dir`; write `**/dir/**` for any-depth matching. `deny`/`ask` permission rules keep their any-depth match.",
+        "tags": ["改善", "Security"]
+      },
+      {
+        "t": "変更: -m・--magic-file または -f・--files-from を使用する file コマンドが、読み取り専用として自動許可されず、パーミッションを要求するように変更",
+        "t_en": "Changed `file` commands using `-m`/`--magic-file` or `-f`/`--files-from` to require permission instead of being auto-allowed as read-only",
+        "tags": ["改善", "Security"]
+      },
+      {
+        "t": "変更: 古い接続でエラーが発生した後は keep-alive の接続プーリングを無効化し、再試行時に新しいソケットを開くように変更",
+        "t_en": "Changed keep-alive connection pooling to disable after a stale-connection error, so retries open a fresh socket",
+        "tags": ["改善", "Perf"]
+      },
+      {
+        "t": "変更: セッションがフォークとして開始した場合、SessionStart フックが source を \"resume\" ではなく \"fork\" として報告するように変更",
+        "t_en": "Changed SessionStart hooks to report source `\"fork\"` when a session begins as a fork instead of `\"resume\"`",
+        "tags": ["改善"]
+      }
+    ]
   }
 ]
