@@ -1066,5 +1066,441 @@
       "category": "ドキュメント",
       "category_en": "Documentation"
     }
+  ],
+  "2.1.214": [
+    {
+      "t": "修正: 単一セグメントの dir/** 許可ルール（Edit(src/**) 等）が <cwd>/dir だけでなく、ツリー内のあらゆる場所の dir/ への書き込みを自動承認してしまう不具合を修正",
+      "t_en": "Fixed single-segment `dir/**` allow rules like `Edit(src/**)` auto-approving writes to nested `dir/` directories anywhere in the tree instead of only `<cwd>/dir`",
+      "tags": ["バグ修正", "Security"],
+      "detail": "これまで Edit(src/**) のような単一セグメントの dir/** 許可ルールは、gitignore 的な「任意の深さ」で一致する仕様のため、カレントディレクトリ直下の src/ だけでなく、ツリー内のどこにある src/ ディレクトリへの書き込みも自動承認してしまっていた。特定プロジェクトの src/ だけに許可を絞ったつもりでも、サブプロジェクトや依存パッケージ内のネストした src/ まで対象に含まれてしまう恐れがあった。\n\n本バージョンから単一セグメントの dir/** パターンは <cwd>/dir にのみ厳密に一致するように変更された。任意の深さで一致させたい場合は **/dir/** と明示的に記述する必要がある。詳しくは[パーミッションのドキュメント](https://code.claude.com/docs/en/permissions#read-and-edit)を参照してください。",
+      "detail_en": "Previously, a single-segment glob rule such as `Edit(src/**)` was matched with gitignore-style \"any depth\" semantics, so it silently auto-approved edits to any `src/` directory found anywhere under the working tree, not just the one directly under the current directory. A rule intended to scope access to one project's `src/` folder could also end up covering nested `src/` directories inside subprojects or dependencies.\n\nAs of this version, single-segment `dir/**` patterns are anchored strictly to `<cwd>/dir`; any-depth matching now requires writing `**/dir/**` explicitly. See the [permissions documentation](https://code.claude.com/docs/en/permissions#read-and-edit) for details.",
+      "category": "パーミッション",
+      "category_en": "Permissions"
+    },
+    {
+      "t": "修正: Windows PowerShell 5.1 セッションで実行されるコマンドにパーミッションチェックのバイパスが存在する不具合を修正",
+      "t_en": "Fixed a permission-check bypass affecting commands run in Windows PowerShell 5.1 sessions",
+      "tags": ["バグ修正", "Security", "Windows"],
+      "detail": "パーミッション解析器は PowerShell のコマンド構文を解析して確認プロンプトの要否を判断しているが、PowerShell 7 とは異なる PowerShell 5.1 特有の解析上の隙があり、一部のコマンドがチェックをすり抜けて確認なしに実行されてしまう可能性があった。\n\n本バージョンでこの隙が解消され、PowerShell 5.1 上のコマンドも他のシェルと同等の厳密さで評価されるようになり、古い Windows PowerShell 環境でもパーミッションシステムの保証が維持されるようになった。",
+      "detail_en": "Claude Code's permission analyzer parses PowerShell command syntax to decide whether a command needs approval, but a parsing gap specific to PowerShell 5.1 (as opposed to PowerShell 7) let certain commands slip past the check and execute without a prompt.\n\nThe fix closes that gap so PowerShell 5.1 commands are evaluated with the same rigor as other shells, preserving the permission system's guarantees on older Windows PowerShell.",
+      "category": "プラットフォーム互換性",
+      "category_en": "Platform Compatibility"
+    },
+    {
+      "t": "修正: bash とパーミッション解析器で解釈が異なるファイルディスクリプタのリダイレクト構文について、Bash のパーミッションチェックが安全側（fail closed）に倒れるよう修正",
+      "t_en": "Fixed Bash permission checks to fail closed on file-descriptor redirect forms that bash parses differently than the permission analyzer",
+      "tags": ["バグ修正", "Security"],
+      "detail": "bash はカスタムのファイルディスクリプタ番号や複製など特殊なリダイレクト構文をサポートしているが、これを bash 自身のパーサーと Claude Code のパーミッション解析器が異なる形で解釈してしまうケースがあり、この差異を悪用すれば deny・ask ルールをすり抜けられる可能性があった。\n\n本バージョンからは、解析器が確信を持って判断できないリダイレクト構文は常に確認プロンプトを表示するように変更され、Claude Code 全体で採用されている「安全側に倒す（fail closed）」方針と整合するようになった。詳しくは[セキュリティドキュメント](https://code.claude.com/docs/en/security#additional-safeguards)を参照してください。",
+      "detail_en": "Bash supports file-descriptor redirect syntax (custom fd numbers, duplications, etc.) that bash's own parser can interpret differently from Claude Code's permission analyzer, creating a mismatch a crafted command could exploit to bypass a deny/ask rule.\n\nThe fix makes the checker fail closed on these forms: any redirect syntax it can't confidently analyze now always prompts rather than silently proceeding, consistent with Claude Code's general fail-closed permission philosophy. See the [security documentation](https://code.claude.com/docs/en/security#additional-safeguards) for details.",
+      "category": "パーミッション",
+      "category_en": "Permissions"
+    },
+    {
+      "t": "修正: 極端に長い Bash コマンドに対するパーミッションチェックの誤判定を修正、10,000文字を超えるコマンドは常に確認を求めるように変更",
+      "t_en": "Fixed Bash permission checks misjudging very long commands — commands over 10,000 characters now always prompt instead of running automatically",
+      "tags": ["バグ修正", "Security"],
+      "detail": "極端に長い Bash コマンド文字列は、パーミッション解析器の内部的な制限を超えてしまい、許可ルールに一致するかどうかを誤って判断してしまうことがあった。\n\n本バージョンから、10,000文字を超えるコマンドは解析不能とみなされ、信頼性の低い自動承認に頼るのではなく常に確認プロンプトを表示するように変更された。",
+      "detail_en": "Extremely long Bash command strings could exceed internal limits in the permission analyzer, causing it to misjudge whether a command matched an allow rule.\n\nClaude Code now treats any command over 10,000 characters as unanalyzable and always prompts for approval instead of risking an unreliable auto-approval on pathological input.",
+      "category": "パーミッション",
+      "category_en": "Permissions"
+    },
+    {
+      "t": "修正: zsh の [[ ]] 比較式内にある変数の添字表記や修飾子を無害なテキストとして扱っていた Bash パーミッションチェックの不具合を修正、該当コマンドは確認を求めるように変更",
+      "t_en": "Fixed Bash permission checks treating zsh variable subscripts and modifiers in `[[ ]]` comparisons as inert text — these commands now prompt for approval",
+      "tags": ["バグ修正", "Security"],
+      "detail": "zsh は [[ ]] のテスト式内で配列の添字表記やパラメータ展開の修飾子といった特殊な構文をサポートしているが、パーミッション解析器はこれまでこれらを実行可能なコードとしてではなく無害な単なる文字列として扱っていた。そのため、これを悪用した比較式によって本来検出すべきコマンドが隠されてしまう恐れがあった。\n\n本バージョンから解析器はこれらの zsh 特有の構文を認識し、安全とみなして黙って通過させるのではなく確認プロンプトを表示するように変更された。",
+      "detail_en": "zsh supports special syntax inside `[[ ]]` test expressions, such as array subscripts and parameter expansion modifiers, that the permission analyzer previously treated as inert literal text rather than executable code, so a crafted comparison could hide a command it should have flagged.\n\nThe analyzer now recognizes these zsh-specific constructs and prompts for approval instead of silently classifying them as safe.",
+      "category": "パーミッション",
+      "category_en": "Permissions"
+    },
+    {
+      "t": "修正: 安全でないオプション・コマンド置換・バックスラッシュパスを実行し得る一部の help・man コマンドを Bash パーミッションチェックが自動承認してしまう不具合を修正",
+      "t_en": "Fixed Bash permission checks to no longer auto-approve certain `help` and `man` commands that could run unsafe options, command substitutions, or backslash paths",
+      "tags": ["バグ修正", "Security"],
+      "detail": "Claude Code はあらかじめ定義された読み取り専用コマンドの集合を自動承認しているが、一部の help・man コマンドの呼び出しは、実際には引数にヘルプ表示以上の副作用をもたらし得る安全でないオプション・コマンド置換・バックスラッシュエスケープされたパスを含んでいても、一律に信頼されてしまっていた。\n\n本バージョンからチェッカーはこれらの引数を検査し、help・man コマンドがヘルプテキストの表示以上の動作をし得る場合には確認プロンプトを表示するように変更された。",
+      "detail_en": "Claude Code auto-approves a built-in set of read-only commands, and certain help/man invocations were being blanket-trusted even when their arguments could carry unsafe options, command substitutions, or backslash-escaped paths capable of side effects beyond displaying documentation.\n\nThe checker now inspects these arguments and prompts when a help/man command could do more than show help text.",
+      "category": "パーミッション",
+      "category_en": "Permissions"
+    },
+    {
+      "t": "修正: リモートセッションでローカルの確認ダイアログの表示前に処理が進んでしまうことがあるパーミッションプロンプトの不具合を修正",
+      "t_en": "Fixed permission prompts on remote sessions that could proceed before the local confirmation dialog",
+      "tags": ["バグ修正", "Security"],
+      "detail": "Remote Control セッションでは、ツール呼び出しのパーミッション判断が、ユーザーが実際にローカルの確認ダイアログを表示され回答するよりも前に反映されてしまうことがあり、「読み取り専用でない操作は必ずローカルでの明示的な承認を必要とする」という保証が損なわれる恐れがあった。\n\n本バージョンで、リモート発の操作は、ローカルダイアログが完全に解決されるまで進行しないように修正された。",
+      "detail_en": "In a Remote Control session, a tool-call's permission decision could sometimes take effect before the local confirmation dialog had actually been shown to and answered by the user, undermining the guarantee that every non-read-only action requires explicit local approval.\n\nThe fix ensures the local dialog is fully resolved before a remote-originated tool call is allowed to proceed.",
+      "category": "セキュリティ",
+      "category_en": "Security"
+    },
+    {
+      "t": "追加: 悪質な虐待的ユーザーやジェイルブレイク試行に対してセッションを終了できる EndConversation ツールを追加（claude.ai では2025年から提供済み）",
+      "t_en": "Added the EndConversation tool: Claude can end sessions with highly abusive users or jailbreak attempts, as on claude.ai since 2025 — see https://www.anthropic.com/research/end-subset-conversations",
+      "tags": ["新機能", "Security"],
+      "detail": "claude.ai では2025年から、極めて悪質な虐待的ユーザーやジェイルブレイク試行に対して会話を終了させる仕組みが提供されてきた。Claude Code にも同様の EndConversation ツールが導入され、Claude がそのようなセッションを継続するのではなく、明示的に終了させることが可能になった。\n\nこれはユーザーが設定できる機能ではなく、安全性のための仕組みである。背景にある考え方については[Anthropic の研究記事](https://www.anthropic.com/research/end-subset-conversations)で説明されている。",
+      "detail_en": "Modeled on the end-conversation capability already used on claude.ai since 2025, Claude Code now has an EndConversation tool it can invoke to terminate a session outright when a user is highly abusive or attempting a jailbreak, rather than continuing to engage.\n\nThis is a safety mechanism rather than a user-configurable feature; Anthropic's [research post](https://www.anthropic.com/research/end-subset-conversations) on ending a narrow subset of conversations explains the underlying rationale.",
+      "category": "セキュリティ",
+      "category_en": "Security"
+    },
+    {
+      "t": "追加: 進捗表示のなかった長時間実行のツール呼び出しに対して、定期的な進捗ハートビートを追加",
+      "t_en": "Added a periodic progress heartbeat for long-running tool calls that previously went silent",
+      "tags": ["新機能"],
+      "detail": "大規模なビルドや長時間実行のコマンドなど一部のツール呼び出しは、長い間まったく出力がないまま実行され続けることがあり、Claude Code がフリーズしているように見えてしまうことがあった。\n\n本バージョンから、こうした無音の期間中に定期的なハートビートが送出されるようになり、ツール呼び出しが継続して進行していることをユーザーが継続的に確認できるようになった。",
+      "detail_en": "Some tool calls, such as large builds or long-running commands, could run for extended periods with no visible output, making Claude Code look frozen.\n\nIt now periodically emits a heartbeat during these silent stretches so users get ongoing confirmation the tool call is still progressing.",
+      "category": "UX",
+      "category_en": "UX"
+    },
+    {
+      "t": "追加: メモリファイルの frontmatter に ISO 形式の modified タイムスタンプを追加",
+      "t_en": "Added an ISO `modified` timestamp to memory file frontmatter",
+      "tags": ["新機能"],
+      "detail": "メモリファイルは YAML の frontmatter を持つことができるが、これまでファイルがいつ更新されたかを示す情報は記録されていなかった。\n\n本バージョンから、メモリファイルが書き込まれるたびに ISO 形式の modified タイムスタンプが frontmatter に記録されるようになり、Claude やユーザーがそのメモリの内容がどれだけ新しいかを把握できるようになった。",
+      "detail_en": "Memory files can carry YAML frontmatter, and Claude Code now stamps each memory file with an ISO-formatted `modified` timestamp whenever it's written.\n\nThis gives Claude and users a way to see how fresh a given memory note is.",
+      "category": "メモリ",
+      "category_en": "Memory"
+    },
+    {
+      "t": "追加: メッセージ単位の相関関係とツールの出所を追跡できるよう、OpenTelemetry のログイベントに message.uuid・client_request_id・tool_source 属性を追加",
+      "t_en": "Added `message.uuid`, `client_request_id`, and `tool_source` attributes to OpenTelemetry log events for message-level correlation and tool provenance",
+      "tags": ["新機能"],
+      "detail": "OpenTelemetry のログイベントに新しい属性が追加された。message.uuid は特定のメッセージにイベントを紐付け、client_request_id は特定の API リクエストを識別し、tool_source はツール呼び出しの出所（組み込み・MCP・プラグインなど）を記録する。\n\nこれらは、監視や SIEM 連携で使われている既存のイベント相関属性の集合を拡張するものであり、メッセージ単位での相関やツールの出所追跡が容易になる。詳しくは[監視のドキュメント](https://code.claude.com/docs/en/monitoring-usage#api-request-event)を参照してください。",
+      "detail_en": "OpenTelemetry log events gained new attributes to make correlation easier: `message.uuid` ties events to a specific message, `client_request_id` identifies the specific API request, and `tool_source` records where a tool call originated (e.g. built-in vs. MCP vs. plugin).\n\nThis extends the existing set of OTel event-correlation attributes used for monitoring and SIEM integration. See the [monitoring documentation](https://code.claude.com/docs/en/monitoring-usage#api-request-event) for details.",
+      "category": "監視",
+      "category_en": "Monitoring"
+    },
+    {
+      "t": "追加: OpenTelemetry のコンテンツ属性に対する60KBの切り詰め上限を設定できる CLAUDE_CODE_OTEL_CONTENT_MAX_LENGTH を追加",
+      "t_en": "Added `CLAUDE_CODE_OTEL_CONTENT_MAX_LENGTH` to configure the 60 KB truncation limit on OpenTelemetry content attributes",
+      "tags": ["新機能"],
+      "detail": "ツールの入出力や API のリクエスト・レスポンス本文、アシスタントの応答といった OpenTelemetry のコンテンツを含む属性は、これまで60KBという固定の上限で切り詰められていた。\n\n本バージョンで追加された環境変数により、組織は自組織の可観測性バックエンドのペイロード制約に合わせて、この上限を引き上げたり引き下げたりできるようになった。詳しくは[監視のドキュメント](https://code.claude.com/docs/en/monitoring-usage)を参照してください。",
+      "detail_en": "OpenTelemetry content-bearing attributes (tool input/output, API request/response bodies, assistant responses) were previously truncated at a hardcoded 60 KB limit.\n\nThe new environment variable lets organizations raise or lower that limit to match their observability backend's payload constraints. See the [monitoring documentation](https://code.claude.com/docs/en/monitoring-usage) for details.",
+      "category": "監視",
+      "category_en": "Monitoring"
+    },
+    {
+      "t": "追加: サブエージェントの推論強度（reasoning effort）を subagentStatusLine のペイロードに追加、カスタムのエージェント行でモデルと推論強度を表示可能に",
+      "t_en": "Added reasoning effort to the `subagentStatusLine` payload, so custom agent rows can render model and effort",
+      "tags": ["新機能", "Agent"],
+      "detail": "subagentStatusLine 設定を使うと、エージェントパネルに表示される各サブエージェントの行をカスタムのステータス行として描画できるが、そのペイロードにはこれまで model や contextWindowSize、tokenCount といったタスクごとのフィールドは含まれていたものの、推論強度は含まれていなかった。\n\n本バージョンからサブエージェントの推論強度（reasoning effort）レベルもペイロードに含まれるようになり、カスタムのステータス行スクリプトが別途問い合わせることなく、モデルと合わせて推論強度を表示できるようになった。詳しくは[ステータスラインのドキュメント](https://code.claude.com/docs/en/statusline#subagent-status-lines)を参照してください。",
+      "detail_en": "The `subagentStatusLine` setting lets teams render a custom status row for each subagent shown in the agent panel; its payload already included fields like `model`, `contextWindowSize`, and `tokenCount` per task.\n\nClaude Code now also includes the subagent's reasoning effort level, so a custom status line script can show effort alongside the model without querying it separately. See the [statusline documentation](https://code.claude.com/docs/en/statusline#subagent-status-lines) for details.",
+      "category": "エージェント設定",
+      "category_en": "Agent Configuration"
+    },
+    {
+      "t": "追加: デーモンリダイレクトフラグ（--url・--connection・--identity、および Podman のリモートモード）を伴う docker コマンド（Podman の docker シムを含む）に対して確認プロンプトを追加",
+      "t_en": "Added permission prompts for `docker` commands (including the Podman `docker` shim) carrying daemon-redirect flags (`--url`, `--connection`, `--identity`, and Podman's remote mode) that previously ran without one",
+      "tags": ["新機能", "Security"],
+      "detail": "--url・--connection・--identity といったデーモンリダイレクトフラグを渡す docker コマンド（および Podman の docker 互換シム）や、Podman のリモートモードを使うコマンドは、Claude Code が通常想定しているローカルデーモンとは異なる Docker・Podman デーモン、場合によってはリモートホストを操作対象にすることになり、通常のローカル操作とは言えない。\n\n本バージョンから、これらのデーモンリダイレクトフラグが検出された場合には自動承認扱いにせず、確認プロンプトを表示するように変更された。",
+      "detail_en": "Docker commands (and the Podman `docker` compatibility shim) that pass daemon-redirect flags like `--url`, `--connection`, or `--identity`, or use Podman's remote mode, target a different Docker/Podman daemon than the local one Claude Code normally expects — potentially a remote host — which is not a routine local operation.\n\nClaude Code now prompts for approval whenever it detects one of these daemon-redirect flags instead of treating the command as auto-approved.",
+      "category": "パーミッション",
+      "category_en": "Permissions"
+    },
+    {
+      "t": "修正: GrowthBook の機能フラグが null と評価された際のクラッシュ、および不正な形式のフラグペイロードによってキャッシュ済みの機能フラグが消去されてしまう不具合を修正",
+      "t_en": "Fixed a crash when a GrowthBook feature evaluates to null, and a bug where a malformed flag payload could wipe the cached feature flags",
+      "tags": ["バグ修正"],
+      "detail": "Claude Code は段階的な機能ロールアウトの管理に GrowthBook を利用している。機能フラグが null と評価されるとクライアントがクラッシュしてしまう問題があり、また別途、サーバーから届く不正な形式のフラグペイロードによって、該当する1件のフラグだけでなくローカルにキャッシュされている機能フラグ全体が消去されてしまう問題もあった。\n\nいずれもユーザー側の設定を必要としない内部的な信頼性向上のための修正である。",
+      "detail_en": "Claude Code uses GrowthBook to manage staged feature-flag rollouts. A feature evaluating to null could crash the client, and separately a malformed flag payload from the server could wipe the entire locally cached set of feature flags instead of failing gracefully for just that one flag.\n\nBoth are internal reliability fixes with no user-facing configuration.",
+      "category": "安定性",
+      "category_en": "Stability"
+    },
+    {
+      "t": "修正: pkill -f のパターンが CLI 自身のプロセスに誤って一致し、Bash ツールが Claude セッションを終了させてしまう不具合を修正（Linux）",
+      "t_en": "Fixed Bash tool killing the Claude session when a `pkill -f` pattern accidentally matched the CLI's own process (Linux)",
+      "tags": ["バグ修正"],
+      "detail": "Linux では、pkill -f <パターン> はプロセスのコマンドライン全体に対してマッチングを行うため、Claude Code 自身の起動コマンド文字列も対象に含まれてしまう。そのため、Bash ツール経由で実行された pkill -f コマンドが、意図したプロセスだけでなく Claude Code 自身のプロセスにも誤って一致し、セッション全体が終了してしまうことがあった。\n\n本バージョンで、こうした自己言及的なパターン一致によって Claude Code 自身のプロセスが巻き込まれることのないように修正された。",
+      "detail_en": "On Linux, `pkill -f <pattern>` matches against a process's full command line, which can include Claude Code's own invocation string. A `pkill -f` command run through the Bash tool could therefore accidentally match and kill Claude Code's own process, ending the whole session instead of only the intended target.\n\nThe fix prevents Claude Code's own process from being caught by such a self-inflicted pattern match.",
+      "category": "ツール改善",
+      "category_en": "Tool Improvements"
+    },
+    {
+      "t": "修正: --settings がデバイスファイルや数GB規模のファイルを指す場合にメモリ使用量が際限なく増加する不具合を修正、2MiBを超える設定ファイルは起動時に明確なエラーで失敗するように変更",
+      "t_en": "Fixed unbounded memory growth when `--settings` points at a device file or multi-GB file; oversized (>2 MiB) settings files now fail at startup with a clear error",
+      "tags": ["バグ修正", "Perf"],
+      "detail": "--settings に /dev/zero のようなデバイスファイルや、予期しない数GB規模のファイルを指定すると、Claude Code はそのファイル全体をメモリに読み込もうとしてしまい、メモリ使用量が際限なく増加したりハングしたりすることがあった。\n\n本バージョンから、2MiBを超える設定ファイルはそもそも読み込まれることなく、起動時に明確なエラーとして拒否されるように変更された。",
+      "detail_en": "Pointing `--settings` at a device file (like `/dev/zero`) or an unexpectedly multi-gigabyte file previously caused Claude Code to try reading the entire thing into memory, leading to unbounded memory growth or a hang.\n\nSettings files over 2 MiB are now rejected outright at startup with a clear error instead of being read.",
+      "category": "設定",
+      "category_en": "Settings"
+    },
+    {
+      "t": "修正: Windows で企業プロキシ経由の場合にストリーミングのターンが「Socket is closed」エラーで失敗する不具合を修正",
+      "t_en": "Fixed streaming turns failing with \"Socket is closed\" behind corporate proxies on Windows",
+      "tags": ["バグ修正", "Windows"],
+      "detail": "Windows 上で企業プロキシ経由の通信を行っている場合、ストリーミング形式の API ターンが途中で「Socket is closed」という汎用的なエラーとともに失敗し、長い応答が中断されてしまうことがあった。\n\n本バージョンで根本的な接続処理の問題が修正され、このようなプロキシ経由でもストリーミングが確実に完了するようになった。",
+      "detail_en": "Streaming API turns behind corporate proxies on Windows could fail mid-stream with a generic \"Socket is closed\" error, disrupting long responses.\n\nThe fix addresses the underlying connection-handling issue so streaming completes reliably through such proxies.",
+      "category": "ネットワーク",
+      "category_en": "Network"
+    },
+    {
+      "t": "修正: 読み込みの遅い SDK・パイプライン利用者に対して終了時に stream-json 出力が切り詰められる不具合を修正、終了時のドレイン処理が固定2秒ではなくキュー内バイト数に応じてスケールするように変更",
+      "t_en": "Fixed stream-json output truncation at exit for slow-reading SDK/pipeline consumers; the exit drain now scales with queued bytes instead of a flat 2s cap",
+      "tags": ["バグ修正", "SDK"],
+      "detail": "Claude Code は終了時に、SDK のパイプラインなどの利用者に向けてまだキューに残っている stream-json 出力を標準出力へドレイン（排出）する。この処理はこれまで固定2秒という上限で行われていたため、下流の読み込みが遅い利用者では、まだフラッシュしきれていない出力の末尾を取りこぼしてしまうことがあった。\n\n本バージョンから、終了時のドレイン処理は固定タイムアウトではなくキューに残っているバイト数に応じてスケールするようになり、読み込みの遅い利用者にも出力全体が確実に届くようになった。",
+      "detail_en": "When Claude Code exits, it drains any still-queued stream-json output to stdout for consumers like SDK pipelines. That drain previously used a flat 2-second cap, so a slow-reading downstream consumer could miss the tail of output that hadn't fully flushed yet.\n\nThe exit drain now scales with the amount of queued bytes instead of a fixed timeout, ensuring the full output reaches slow consumers.",
+      "category": "SDK",
+      "category_en": "SDK"
+    },
+    {
+      "t": "修正: スケジュールされたタスクが自身に設定されたプロンプトを信頼できない入力として拒否してしまう不具合を修正、発火したプロンプトはセッションに割り当てられたタスクとして配信されるように変更",
+      "t_en": "Fixed scheduled tasks refusing their own configured prompt as untrusted input — the fired prompt is now delivered as the session's assigned task",
+      "tags": ["バグ修正"],
+      "detail": "/loop や cron ツール、自然言語によるリマインダーなどで作成されたスケジュールされたタスクが発火した際、そのタスク自身に設定されたプロンプトが、外部から届いたテキストと同様に信頼できない入力として扱われてしまうことがあった。これにより、明示的に実行を依頼されたタスクであるにもかかわらず、本来不要な警戒的な振る舞いをしてしまう恐れがあった。\n\n本バージョンから、発火したプロンプトはセッションに割り当てられたタスクとして配信されるようになり、直接入力されたプロンプトと同じ信頼レベルで扱われるようになった。詳しくは[スケジュールされたタスクのドキュメント](https://code.claude.com/docs/en/scheduled-tasks)を参照してください。",
+      "detail_en": "When a scheduled task (created with `/loop`, the cron tools, or a natural-language reminder) fired, its own configured prompt was previously treated as untrusted input, similar to text arriving from an external source, which could trigger extra caution Claude shouldn't apply to a task it was explicitly asked to run.\n\nThe fired prompt is now delivered as the session's assigned task, so Claude treats it with the same trust as a prompt typed directly. See the [scheduled tasks documentation](https://code.claude.com/docs/en/scheduled-tasks) for details.",
+      "category": "タスク管理",
+      "category_en": "Task Management"
+    },
+    {
+      "t": "修正: 子プロセスが標準入力を待機している場合に PowerShell ツールのコマンドがタイムアウトまでハングする不具合を修正（Windows）",
+      "t_en": "Fixed PowerShell tool commands hanging until timeout when a child process waited on standard input (Windows)",
+      "tags": ["バグ修正", "Windows"],
+      "detail": "PowerShell ツールのコマンドが標準入力を待機する子プロセスを起動した場合、Claude Code にはそれ以上入力が来ないことを伝える手段がなく、コマンドが正常に完了・失敗するのではなくタイムアウトの上限まで丸ごとハングしてしまうことがあった。\n\n本バージョンでこのハングが解消された。",
+      "detail_en": "When a PowerShell tool command spawned a child process that waited on standard input, Claude Code previously had no way to signal that no input was coming, so the command hung until the full timeout elapsed instead of completing or failing promptly.\n\nThe fix resolves this hang.",
+      "category": "プラットフォーム互換性",
+      "category_en": "Platform Compatibility"
+    },
+    {
+      "t": "修正: PowerShell ツール上の Python スクリプトが標準入力から非UTF-8データを読み込む際に UnicodeDecodeError でクラッシュする不具合を修正（Windows）",
+      "t_en": "Fixed Python scripts under the PowerShell tool crashing with UnicodeDecodeError when reading non-UTF-8 data from standard input (Windows)",
+      "tags": ["バグ修正", "Windows"],
+      "detail": "PowerShell ツール経由で実行される Python スクリプトが標準入力から非UTF-8のデータを読み込むと、PowerShell ツールの標準入力処理が UTF-8 を前提としていたために UnicodeDecodeError でクラッシュしてしまうことがあった。\n\n本バージョンから標準入力の処理が非UTF-8のバイトデータにも対応するようになり、こうしたスクリプトがクラッシュしなくなった。",
+      "detail_en": "Python scripts invoked through the PowerShell tool that read non-UTF-8 data from standard input previously crashed with a UnicodeDecodeError, because the PowerShell tool's stdin handling assumed UTF-8.\n\nStdin handling is now tolerant of non-UTF-8 byte data so such scripts no longer crash.",
+      "category": "プラットフォーム互換性",
+      "category_en": "Platform Compatibility"
+    },
+    {
+      "t": "修正: PowerShell ツール経由で実行した Python スクリプトが非ASCII出力で UnicodeEncodeError によりクラッシュする不具合、および PowerShell 7 のエラーメッセージに生の ANSI エスケープシーケンスが含まれる不具合を修正（Windows）",
+      "t_en": "Fixed Python scripts run via the PowerShell tool crashing with UnicodeEncodeError on non-ASCII output, and PowerShell 7 error messages containing raw ANSI escape sequences (Windows)",
+      "tags": ["バグ修正", "Windows"],
+      "detail": "PowerShell ツール経由で実行された Python スクリプトが非ASCIIの文字を出力すると UnicodeEncodeError でクラッシュしてしまうことがあった。また別途、Claude に渡される PowerShell 7 のエラーメッセージに、生の ANSI エスケープシーケンスがそのまま含まれてしまうことがあった。\n\n本バージョンで両方が修正され、非ASCII出力でスクリプトがクラッシュしなくなり、PowerShell 7 のエラーもプレーンなテキストとして表示されるようになった。",
+      "detail_en": "Python scripts run via the PowerShell tool that printed non-ASCII output could crash with a UnicodeEncodeError, and separately, PowerShell 7 error messages surfaced to Claude sometimes contained raw ANSI escape sequences instead of clean text.\n\nBoth are fixed so non-ASCII output no longer crashes scripts and PowerShell 7 errors render as plain text.",
+      "category": "プラットフォーム互換性",
+      "category_en": "Platform Compatibility"
+    },
+    {
+      "t": "修正: where.exe・fc.exe・diff.exe が正当な否定的結果を返した際に、PowerShell ツールがそれをエラーとして報告してしまう不具合を修正（Windows）",
+      "t_en": "Fixed the PowerShell tool reporting `where.exe`, `fc.exe`, and `diff.exe` as errors when they return a valid negative answer (Windows)",
+      "tags": ["バグ修正", "Windows"],
+      "detail": "where.exe・fc.exe・diff.exe といったユーティリティは、「見つからない」「ファイルが異なる」といった正当な否定的結果を示すために非ゼロの終了コードを返すことがあるが、これは失敗ではない。にもかかわらず、PowerShell ツールはこれらをエラーとして Claude に報告してしまっていた。\n\n本バージョンで、こうした想定内の非ゼロ終了コードを、エラーではなく通常の結果として正しく認識するように修正された。",
+      "detail_en": "Utilities like `where.exe`, `fc.exe`, and `diff.exe` return a non-zero exit code to indicate a valid negative result (e.g. \"not found\" or \"files differ\") rather than a failure, but the PowerShell tool was reporting these as errors to Claude.\n\nThe fix recognizes these expected non-zero exit codes as normal results instead of errors.",
+      "category": "プラットフォーム互換性",
+      "category_en": "Platform Compatibility"
+    },
+    {
+      "t": "修正: Windows PowerShell 5.1 の PowerShell ツール上で > や >> がUTF-16LE形式のファイルを書き出し、他のツールがUTF-8として読み込めない不具合を修正",
+      "t_en": "Fixed `>` and `>>` under the PowerShell tool on Windows PowerShell 5.1 writing UTF-16LE files that other tools couldn't read as UTF-8",
+      "tags": ["バグ修正", "Windows"],
+      "detail": "Windows PowerShell 5.1 では（PowerShell 7 とは異なり）> や >> のリダイレクト演算子がデフォルトで UTF-16LE エンコーディングのファイルを書き出す。多くの他ツールは UTF-8 を前提としているため、PowerShell ツール経由でリダイレクトを使うと出力内容が文字化けしてしまうことがあった。\n\n本バージョンから、PowerShell 5.1 上でもこれらのリダイレクトが UTF-8 で出力されるように修正された。",
+      "detail_en": "On Windows PowerShell 5.1 (unlike PowerShell 7), the `>` and `>>` redirect operators write files encoded as UTF-16LE by default, which many other tools can't read expecting UTF-8, producing garbled content when Claude used redirects through the PowerShell tool.\n\nThe fix makes these redirects produce UTF-8 output on PowerShell 5.1 as well.",
+      "category": "プラットフォーム互換性",
+      "category_en": "Platform Compatibility"
+    },
+    {
+      "t": "修正: 置き換えられたバックグラウンドデーモンがシャットダウン時に後継デーモンの制御ソケットまで削除してしまい、次に接続したクライアントが正常な後継デーモンを終了させてしまう不具合を修正",
+      "t_en": "Fixed a displaced background daemon deleting its successor's control socket on shutdown, which made the next client kill the healthy replacement daemon",
+      "tags": ["バグ修正"],
+      "detail": "バックグラウンドデーモンプロセスが（再起動やクラッシュ後などに）新しいプロセスによって置き換えられた場合でも、旧デーモンは自身のシャットダウン処理の中で制御ソケットファイルを削除してしまうことがあり、その際に後継デーモンが新しく作成したばかりのソケットまで巻き込んで削除してしまっていた。その結果、次に接続したクライアントは正常な後継デーモンではなく、誤ってそれを終了させてしまっていた。\n\n本バージョンでソケットのクリーンアップ処理の範囲が見直され、シャットダウン中のデーモンは自分自身のソケットのみを削除するように修正された。",
+      "detail_en": "When a background daemon process was displaced by a newer one (e.g. after a restart or crash), the old daemon could still delete the control socket file during its own shutdown sequence, including the successor's freshly created socket. The next client that connected then inadvertently killed the healthy replacement daemon instead of using it.\n\nThe fix scopes socket cleanup so a shutting-down daemon only removes its own socket.",
+      "category": "エージェントビュー",
+      "category_en": "Agent View"
+    },
+    {
+      "t": "修正: ← または /background でバックグラウンド化しアイドル状態のまま放置したセッションが、バックグラウンドデーモンとワーカープロセスを無期限に生かし続けてしまう不具合を修正",
+      "t_en": "Fixed background sessions parked with `←` or `/background` and left idle keeping the background daemon and a worker process alive indefinitely",
+      "tags": ["バグ修正", "Perf"],
+      "detail": "← や /background でセッションをバックグラウンド化した場合、約1時間アイドル状態が続くとリソースを解放する設計になっているはずだが、不具合によりバックグラウンドデーモンとワーカープロセスの両方が無期限に動作し続けてしまうことがあった。\n\n[エージェントビューのドキュメント](https://code.claude.com/docs/en/agent-view#how-background-sessions-are-hosted)にあるとおり、本来はスーパーバイザーが約1時間の非アクティブ状態のあとセッションのプロセスを停止する設計になっており（ピン留めされたセッションは対象外）、本バージョンでアイドル状態のセッションがこの意図通りに動作するように修正された。",
+      "detail_en": "Backgrounding a session with `←` or `/background` is supposed to free resources after the session sits idle for about an hour, but a bug kept both the background daemon and a worker process running indefinitely instead.\n\n[Agent view documentation](https://code.claude.com/docs/en/agent-view#how-background-sessions-are-hosted) describes the intended design — the supervisor stops a session's process after roughly an hour of inactivity, with pinned sessions exempt — and this fix makes idle sessions actually honor that.",
+      "category": "エージェントビュー",
+      "category_en": "Agent View"
+    },
+    {
+      "t": "修正: バックグラウンドサービスがアイドル状態になった後、完了済みのバックグラウンドセッションを claude rm やエージェントビューから削除できなくなる不具合を修正",
+      "t_en": "Fixed completed background sessions being impossible to remove via `claude rm` or the agent view once the background service had gone idle",
+      "tags": ["バグ修正"],
+      "detail": "セッションを管理しているバックグラウンドサービス自体がアイドル状態になった後は、claude rm やエージェントビューの削除操作を行っても完了済みのセッションを削除できず、セッション一覧に古いエントリが残り続けてしまうことがあった。\n\n本バージョンで、バックグラウンドサービスがそのセッションを積極的に監視していない状態になった後でも、完了済みセッションを削除できるように修正された。詳しくは[エージェントビューのドキュメント](https://code.claude.com/docs/en/agent-view#manage-sessions-from-the-shell)を参照してください。",
+      "detail_en": "Once the background service supervising a session had itself gone idle, `claude rm` and the agent-view removal action could fail to delete a completed session, leaving stale entries in the session list.\n\nThe fix ensures completed sessions can still be removed after the background service is no longer actively supervising them. See the [agent view documentation](https://code.claude.com/docs/en/agent-view#manage-sessions-from-the-shell) for details.",
+      "category": "エージェントビュー",
+      "category_en": "Agent View"
+    },
+    {
+      "t": "修正: git リポジトリでないフォルダから起動したバックグラウンドセッションを、エージェントビューから削除できない不具合を修正",
+      "t_en": "Fixed background sessions dispatched from a non-git folder being impossible to delete from the agents view",
+      "tags": ["バグ修正"],
+      "detail": "git リポジトリではないディレクトリから起動されたバックグラウンドセッションは、これまでエージェントビューから削除できないことがあった。これは、削除処理が git 管理下の worktree のクリーンアップを前提としてしまっていたことが原因とみられる。\n\n本バージョンで、git リポジトリの外から開始されたセッションでも正しく削除できるように修正された。",
+      "detail_en": "Background sessions dispatched from a directory that isn't a git repository previously couldn't be deleted from the agents view, likely because deletion logic assumed a git-backed worktree needed cleanup.\n\nThe fix makes deletion work correctly for sessions started outside a git repo too.",
+      "category": "エージェントビュー",
+      "category_en": "Agent View"
+    },
+    {
+      "t": "修正: セッションストア内に読み取り不能なフォルダが存在する場合、停止済みのバックグラウンドセッションを再度開いても保存済みの会話を復元できない不具合を修正",
+      "t_en": "Fixed reopening a stopped background session failing to restore its saved conversation when an unreadable folder exists in the session store",
+      "tags": ["バグ修正"],
+      "detail": "停止済みのバックグラウンドセッションを再度開くと保存済みの会話が復元されるはずだが、ローカルのセッションストア内のどこかに読み取り不能なフォルダが存在すると、該当のエントリだけをスキップするのではなく、復元処理全体が失敗してしまうことがあった。\n\n本バージョンで、ストア内に読み取り不能なフォルダが存在してもセッションの復元処理が影響を受けないように修正された。",
+      "detail_en": "Reopening a stopped background session is supposed to restore its saved conversation, but if an unreadable folder existed anywhere in the local session store, the restore could fail entirely instead of skipping just the problematic entry.\n\nThe fix makes session restoration resilient to an unreadable folder in the store.",
+      "category": "エージェントビュー",
+      "category_en": "Agent View"
+    },
+    {
+      "t": "修正: Remote Control を明示的に有効化していないセッションに対しても「session ready」のプッシュ通知が発火してしまう不具合を修正",
+      "t_en": "Fixed the Remote Control \"session ready\" push notification firing for sessions where Remote Control was not explicitly enabled",
+      "tags": ["バグ修正"],
+      "detail": "Remote Control に紐づく「session ready」のプッシュ通知が、ユーザーが実際に Remote Control を有効化していないセッションに対しても発火してしまうことがあり、機能をオプトインしていないユーザーを驚かせる恐れがあった。\n\n本バージョンで、この通知は実際に Remote Control が有効化されているセッションに限定されるように修正された。",
+      "detail_en": "The \"session ready\" push notification tied to Remote Control was firing even for sessions where the user hadn't explicitly turned Remote Control on, which could surprise users who never opted in.\n\nThe fix restricts this notification to sessions where Remote Control was actually enabled.",
+      "category": "通知",
+      "category_en": "Notifications"
+    },
+    {
+      "t": "修正: エージェントビューのセッションで /install-github-app と /mcp の設定メニューがブロックされてしまう不具合を修正、ターミナル未接続のバックグラウンドセッションでのみ拒否されるように変更",
+      "t_en": "Fixed `/install-github-app` and the `/mcp` settings menu being blocked in agent-view sessions — they're now refused only in background sessions with no terminal attached",
+      "tags": ["バグ修正", "MCP"],
+      "detail": "/install-github-app と /mcp の設定メニューは、実際にはターミナルが接続されていて対話的にプロンプトへ回答できる場合であっても、エージェントビューのセッションであれば一律に拒否されてしまっていた。\n\n本バージョンから、この制限はターミナル未接続のバックグラウンドセッションに限定されるように修正された。[エージェントビューのドキュメント](https://code.claude.com/docs/en/agent-view#settings-plugins-and-mcp-servers)にあるとおり、これらのコマンドはアタッチ中でもピークパネルからの返信中でも拒否され通常の claude セッションでの実行を案内される一方、/mcp reconnect・/mcp enable・/mcp disable は引き続き利用できる。",
+      "detail_en": "`/install-github-app` and the `/mcp` settings menu were previously refused in any agent-view session, even when a terminal was actually attached and the user could interactively answer prompts.\n\nThe fix narrows the restriction to background sessions with no terminal attached, matching [documented behavior](https://code.claude.com/docs/en/agent-view#settings-plugins-and-mcp-servers): these commands are refused whether attached or replying from the peek panel, directing users to a regular `claude` session, while `/mcp reconnect`, `/mcp enable`, and `/mcp disable` keep working.",
+      "category": "エージェントビュー",
+      "category_en": "Agent View"
+    },
+    {
+      "t": "修正: --settings CLI フラグ経由で有効化したプラグインが読み込まれない不具合を修正（v2.1.181からのリグレッション）",
+      "t_en": "Fixed plugins enabled via the `--settings` CLI flag not loading (regression since v2.1.181)",
+      "tags": ["バグ修正", "Plugin"],
+      "detail": "--settings CLI フラグを使って特定のプラグインを有効化しても、v2.1.181 で生じたリグレッションにより読み込まれなくなり、この方法で指定したプラグイン設定が黙って無視されてしまっていた。\n\n本バージョンで、--settings 経由で有効化したプラグインが正しく読み込まれるように修正された。",
+      "detail_en": "Plugins that a user enabled specifically via the `--settings` CLI flag stopped loading in a regression introduced in v2.1.181, so any plugin configuration supplied that way was silently ignored.\n\nThis release restores correct loading of plugins enabled through `--settings`.",
+      "category": "プラグイン",
+      "category_en": "Plugin"
+    },
+    {
+      "t": "修正: OAuth トークンのローテーション後、長時間実行中のセッションで機能フラグが古いまま更新されなくなる不具合を修正",
+      "t_en": "Fixed feature flags going stale in long-running sessions after the OAuth token rotates",
+      "tags": ["バグ修正"],
+      "detail": "長時間実行されているセッションで認証に使う OAuth トークンがローテーションされると、キャッシュされている機能フラグの値が古いまま更新されなくなり、そのセッションが終了するまでずっと古いフラグに基づく挙動のまま動き続けてしまうことがあった。\n\n本バージョンで、トークンのローテーションをまたいでも機能フラグが正しく更新され続けるように修正された。",
+      "detail_en": "In long-running sessions, when the OAuth token used for authentication rotated, Claude Code's cached feature-flag values could go stale and stop refreshing, leaving the session running with outdated flag-gated behavior for the rest of its lifetime.\n\nThe fix ensures feature flags continue refreshing correctly across a token rotation.",
+      "category": "認証",
+      "category_en": "Authentication"
+    },
+    {
+      "t": "修正: マージベースが存在しないリポジトリで /ultrareview の実行が拒否される不具合を修正、追跡対象の全ファイルをレビューする選択肢を提示するように変更",
+      "t_en": "Fixed `/ultrareview` refusing to run in repos with no merge base — it now offers to review all tracked files",
+      "tags": ["バグ修正"],
+      "detail": "/ultrareview（/code-review ultra のエイリアス）は通常、現在のブランチとデフォルトブランチとの差分をレビューするが、両者の間にマージベースが存在しないリポジトリ（履歴が無関係な場合など）では、これまで実行自体が拒否されてしまっていた。\n\n本バージョンから、そのような場合には失敗するのではなく、追跡対象の全ファイルをレビューする代替手段を提示するように変更された。",
+      "detail_en": "`/ultrareview` (aliasing `/code-review ultra`) normally reviews the diff between the current branch and the default branch, but in a repository with no merge base between them (e.g. unrelated histories), it previously refused to run entirely.\n\nIt now offers to fall back to reviewing all tracked files instead of failing outright.",
+      "category": "コマンド",
+      "category_en": "Commands"
+    },
+    {
+      "t": "修正: シェル設定ファイルのパスがディレクトリだった場合に claude update・claude doctor が無言でハングし、/status の System diagnostics セクションが空白になる不具合を修正",
+      "t_en": "Fixed `claude update` and `claude doctor` hanging silently, and the `/status` System diagnostics section going blank, when a shell-config path is a directory",
+      "tags": ["バグ修正"],
+      "detail": "Claude Code が確認するシェル設定ファイルのパス（本来はファイルであることを想定しているドットファイルなど）が、実際にはディレクトリだった場合、claude update と claude doctor はエラーを出す代わりに無言でハングしてしまい、/status コマンドの System diagnostics セクションも空白のまま表示されてしまうことがあった。\n\n本バージョンで、シェル設定パスがディレクトリだった場合でもハングせず適切に処理されるように修正された。",
+      "detail_en": "If a shell-config path Claude Code inspects (e.g. a dotfile it expects to be a file) turned out to be a directory instead, `claude update` and `claude doctor` would hang silently rather than erroring out, and the `/status` command's System diagnostics section would render blank.\n\nThe fix handles a directory at a shell-config path gracefully instead of hanging.",
+      "category": "CLI",
+      "category_en": "CLI"
+    },
+    {
+      "t": "修正: メモリファイルの保存時に frontmatter の値が行内の # で無言のまま切り詰められる不具合を修正",
+      "t_en": "Fixed memory frontmatter values being silently truncated at an inline `#` when memory files are saved",
+      "tags": ["バグ修正"],
+      "detail": "YAML の frontmatter を持つメモリファイルを保存する際、クォートされていない文字列中の # は YAML 上コメントの開始とみなされ得るため、# を含む値が警告なしにその位置で切り詰められ、保存された値が黙って壊れてしまうことがあった。\n\n本バージョンで、メモリファイルの保存時に # を含む frontmatter の値も正しく保持されるように修正された。",
+      "detail_en": "When memory files with YAML frontmatter were saved, a value containing an inline `#` character (which YAML can treat as a comment starter outside quoted strings) could be silently truncated at that character, corrupting the stored value without warning.\n\nThe fix preserves frontmatter values containing `#` correctly when memory files are saved.",
+      "category": "メモリ",
+      "category_en": "Memory"
+    },
+    {
+      "t": "修正: 累積的な message_delta フレームを複数回送出するストリームで、セッションのコストとトークンのテレメトリが二重計上される不具合を修正",
+      "t_en": "Fixed session cost and token telemetry double-counting on streams that emit multiple cumulative `message_delta` frames",
+      "tags": ["バグ修正"],
+      "detail": "一部の API ストリームは、1つの応答に対して最終的な累積フレームを1回だけ送るのではなく、累積的な message_delta フレームを複数回送出することがある。Claude Code のテレメトリはこれまで各フレームの値をそのまま合算していたため、該当するターンのコストとトークン使用量が二重に計上されてしまっていた。\n\n本バージョンで、各応答について最後の message_delta フレームのみをカウントするように修正された。",
+      "detail_en": "Some API streams emit multiple cumulative `message_delta` frames for a single response rather than one final frame, and Claude Code's telemetry was summing each frame's values instead of taking only the final cumulative one, double-counting cost and token usage for affected turns.\n\nThe fix counts only the final `message_delta` frame per response.",
+      "category": "監視",
+      "category_en": "Monitoring"
+    },
+    {
+      "t": "修正: アドバイザーが思考中に「check your network」という誤った警告が表示される不具合を修正",
+      "t_en": "Fixed a spurious \"check your network\" warning that appeared while the advisor was thinking",
+      "tags": ["バグ修正"],
+      "detail": "アドバイザー機能がまだ処理中（思考中）である間に、実際には接続上の問題がないにもかかわらず「check your network」という警告が表示されてしまうことがあった。\n\n本バージョンでこの期間中は警告が抑制されるようになり、実際に接続の問題が発生した場合にのみ表示されるように修正された。",
+      "detail_en": "A \"check your network\" warning could appear spuriously while an advisor feature was still processing (\"thinking\"), rather than only when there was an actual connectivity problem.\n\nThe fix suppresses the warning during that period so it only fires on genuine network issues.",
+      "category": "UX",
+      "category_en": "UX"
+    },
+    {
+      "t": "修正: フックの標準出力 JSON がスキーマ検証に失敗した場合、終了コード2のフックがドキュメント通りにブロックしない不具合を修正",
+      "t_en": "Fixed hooks with exit code 2 not blocking as documented when the hook's stdout JSON fails schema validation",
+      "tags": ["バグ修正"],
+      "detail": "終了コード2で終了するフックは、何を出力していようとも動作をブロックするハードなポリシー判断としてドキュメント化されているが、フックが同時にスキーマ検証に失敗する標準出力 JSON を出力していた場合には、このブロック動作が正しく機能せず、そのまま処理が進んでしまう不具合があった。\n\n[フックのドキュメント](https://code.claude.com/docs/en/hooks#exit-code-2-behavior-per-event)にあるとおり、終了コード2によるブロックは標準出力を完全に無視し、標準エラー出力のみを Claude へのエラーメッセージとして使う仕様であり、本バージョンで、JSON が不正な形式であってもこの保証が確実に守られるように修正された。",
+      "detail_en": "A hook that exits with code 2 is documented to block the action as a hard policy decision regardless of what it prints, but a bug meant that if the hook also wrote stdout JSON that failed schema validation, the blocking behavior didn't take effect — the action proceeded anyway.\n\nCurrent [hook documentation](https://code.claude.com/docs/en/hooks#exit-code-2-behavior-per-event) describes exit-code-2 blocking as ignoring stdout entirely, using only stderr as the error message fed back to Claude; this fix makes that guarantee hold even when the JSON is malformed.",
+      "category": "フック",
+      "category_en": "Hooks"
+    },
+    {
+      "t": "修正: ターンの非同期コンテキスト外で発行された OTel ログイベントに、インタラクションスパンのトレースコンテキストが欠落する不具合を修正",
+      "t_en": "Fixed OTel log events emitted outside the turn's async context missing the interaction span's trace context",
+      "tags": ["バグ修正"],
+      "detail": "Claude Code が通常のターンごとの非同期コンテキストの外側から発行する OpenTelemetry のログイベントには、これまでインタラクションスパンに紐付ける trace_id・span_id が欠けていたため、トレーシングバックエンド上でこれらのイベントの相関関係を追跡できなくなっていた。\n\nTRACEPARENT によるイベントレコードへのトレースコンテキストの付与は v2.1.212 以降の機能として[監視のドキュメント](https://code.claude.com/docs/en/monitoring-usage)で説明されているが、本バージョンでは、この非同期コンテキスト外での付与漏れというギャップが修正され、そのようなイベントにも正しくトレースコンテキストが付与されるようになった。",
+      "detail_en": "OpenTelemetry log events that Claude Code emits from outside the normal per-turn async context previously lacked the trace_id/span_id linking them to the interaction span, breaking trace correlation for those events in tracing backends.\n\nTrace context attachment via `TRACEPARENT` is documented as a v2.1.212+ capability in the [monitoring documentation](https://code.claude.com/docs/en/monitoring-usage); this fix closes a gap in when that context actually gets attached, ensuring such events still carry the interaction span's trace context.",
+      "category": "監視",
+      "category_en": "Monitoring"
+    },
+    {
+      "t": "修正: MCP のプロンプト・リソースの更新時に一時的なエラーが発生すると、サーバーのスラッシュコマンドとリソースが消去されてしまう不具合を修正",
+      "t_en": "Fixed MCP transient errors during prompts/resources refresh clearing the server's slash commands and resources",
+      "tags": ["バグ修正", "MCP"],
+      "detail": "Claude Code は MCP サーバーのプロンプトとリソースを定期的に再取得するが、その更新処理中に一時的なエラー（一瞬の接続不良など）が発生すると、これまでそのサーバーの既知のスラッシュコマンドとリソースがまるごと消去されてしまい、サーバーが再接続するまでセッションから見えなくなってしまうことがあった。\n\n本バージョンから、更新処理が一時的に失敗した場合でも既存のコマンドやリソースを消去せずそのまま保持するように修正された。詳しくは[MCP のドキュメント](https://code.claude.com/docs/en/mcp)を参照してください。",
+      "detail_en": "When Claude Code periodically refreshes an MCP server's prompts and resources, a transient error during that refresh (e.g. a momentary connection hiccup) previously cleared out the server's already-known slash commands and resources entirely, making them disappear from the session until the server reconnected.\n\nThe fix keeps existing commands/resources in place when a refresh fails transiently instead of wiping them. See the [MCP documentation](https://code.claude.com/docs/en/mcp) for details.",
+      "category": "MCP 連携",
+      "category_en": "MCP Integration"
+    },
+    {
+      "t": "改善: ホームディレクトリでの claude rc のワークスペース信頼エラーに、信頼設定がそこでは保存されないこと、プロジェクトディレクトリからの実行を提案する文言を追加して改善",
+      "t_en": "Improved the `claude rc` workspace-trust error in the home directory to say trust there is never saved and to suggest running from a project directory",
+      "tags": ["改善"],
+      "detail": "ホームディレクトリで Remote Control（claude rc・claude remote-control）を実行すると、通常のセッションと同様のワークスペース信頼の制約に当たり、そこでの信頼の承認はディスクに保存されず毎回の起動時に再確認が必要になる。しかし claude rc のエラーメッセージにはこの理由や対処法が説明されていなかった。\n\n本バージョンから、このメッセージにホームディレクトリでは信頼設定が保存されないことと、プロジェクトディレクトリから実行することを提案する文言が明示的に加えられ、一般的なケースで既に提供されていた案内と整合するようになった。詳しくは[セキュリティドキュメント](https://code.claude.com/docs/en/security#additional-safeguards)を参照してください。",
+      "detail_en": "Running Remote Control (`claude rc`/`claude remote-control`) from the home directory hits the same workspace-trust limitation as regular sessions — trust acceptance there is never written to disk and must be re-confirmed every launch — but the error message shown for `claude rc` didn't explain this or suggest a fix.\n\nThe message now explicitly says trust is never saved in the home directory and suggests running from a project directory, matching the guidance already given for the general case. See the [security documentation](https://code.claude.com/docs/en/security#additional-safeguards) for details.",
+      "category": "セキュリティ",
+      "category_en": "Security"
+    },
+    {
+      "t": "変更: 単一セグメントの dir/** フック if: 条件が <cwd>/dir のみに一致するように変更（任意の深さで一致させるには **/dir/** と記述）。deny・ask のパーミッションルールは従来通り任意の深さで一致",
+      "t_en": "Changed single-segment `dir/**` hook `if:` conditions to match only `<cwd>/dir`; write `**/dir/**` for any-depth matching. `deny`/`ask` permission rules keep their any-depth match.",
+      "tags": ["改善", "Security"],
+      "detail": "フックの if: 条件はパーミッションルールと同じ glob 構文を再利用しているが、Bash(dir/**) のような単一セグメントのパターン（Edit・Read でも同様）は、パーミッションシステムの他の許可ルールにおける単一セグメント glob の挙動と一貫させる形で、<cwd>/dir にのみ一致するように変更された。\n\n任意の深さのディレクトリに一致させたい場合、フックの作成者は明示的に **/dir/** と記述する必要がある。deny・ask のパーミッションルールについては、このようなパターンでの既存の任意の深さでの一致が引き続き維持される。詳しくは[フックのドキュメント](https://code.claude.com/docs/en/hooks#common-fields)を参照してください。",
+      "detail_en": "Hook `if:` conditions reuse permission-rule glob syntax, and a single-segment pattern like `Bash(dir/**)` (or an Edit/Read equivalent) is now scoped to only match `<cwd>/dir`, consistent with how the same single-segment glob behaves for allow rules elsewhere in the permission system.\n\nTo match a directory at any depth, hook authors must now write `**/dir/**` explicitly; deny and ask permission rules are unaffected and keep their existing any-depth matching for such patterns. See the [hooks documentation](https://code.claude.com/docs/en/hooks#common-fields) for details.",
+      "category": "フック",
+      "category_en": "Hooks"
+    },
+    {
+      "t": "変更: -m・--magic-file または -f・--files-from を使用する file コマンドが、読み取り専用として自動許可されず、パーミッションを要求するように変更",
+      "t_en": "Changed `file` commands using `-m`/`--magic-file` or `-f`/`--files-from` to require permission instead of being auto-allowed as read-only",
+      "tags": ["改善", "Security"],
+      "detail": "Unix の file コマンドはこれまで読み取り専用コマンドとして自動的に許可されていたが、-m・--magic-file や -f・--files-from フラグを使うと外部から供給された任意のマジックデータベースやファイル一覧を読み込ませることができ、パーミッションの観点では単純に無害な読み取りとは言えない。\n\n本バージョンから、これらのいずれかのフラグを使う file コマンドの呼び出しには、自動承認ではなく明示的なパーミッションが必要になるように変更された。詳しくは[パーミッションのドキュメント](https://code.claude.com/docs/en/permissions#read-only-commands)を参照してください。",
+      "detail_en": "The Unix `file` command was previously auto-allowed as a read-only command, but its `-m`/`--magic-file` and `-f`/`--files-from` flags let it read an arbitrary externally-supplied magic database or file list, which isn't a purely inert, side-effect-free read from a permission standpoint.\n\nClaude Code now requires explicit permission for `file` invocations using either flag instead of auto-approving them. See the [permissions documentation](https://code.claude.com/docs/en/permissions#read-only-commands) for details.",
+      "category": "パーミッション",
+      "category_en": "Permissions"
+    },
+    {
+      "t": "変更: 古い接続でエラーが発生した後は keep-alive の接続プーリングを無効化し、再試行時に新しいソケットを開くように変更",
+      "t_en": "Changed keep-alive connection pooling to disable after a stale-connection error, so retries open a fresh socket",
+      "tags": ["改善", "Perf"],
+      "detail": "Claude Code の HTTP クライアントは、古い接続に起因するエラーが発生した後もプールされた keep-alive の接続を再利用し続けてしまい、同じ壊れた接続に対して繰り返し失敗することがあった。\n\n本バージョンから、そのようなエラーの後は keep-alive の再利用を無効化し、再試行時には新しいソケットを開くように変更された。",
+      "detail_en": "Claude Code's HTTP client previously kept reusing pooled keep-alive connections even after one produced a stale-connection error, which could cause repeated failures on the same broken connection.\n\nPooling now disables keep-alive reuse after such an error, so a retry opens a fresh socket instead of reusing the bad one.",
+      "category": "ネットワーク",
+      "category_en": "Network"
+    },
+    {
+      "t": "変更: セッションがフォークとして開始した場合、SessionStart フックが source を \"resume\" ではなく \"fork\" として報告するように変更",
+      "t_en": "Changed SessionStart hooks to report source `\"fork\"` when a session begins as a fork instead of `\"resume\"`",
+      "tags": ["改善"],
+      "detail": "これまで SessionStart フックは、セッションがフォークとして開始した場合（会話全体を新しいバックグラウンドセッションへコピーする /fork など）でも、source を \"resume\" として報告しており、通常の再開とフォークが区別できていなかった。\n\n本バージョンから、フォークの場合は独立した \"fork\" という値が報告されるようになり、フックスクリプト側で両者を区別できるようになった。詳しくは[フックのドキュメント](https://code.claude.com/docs/en/hooks#sessionstart-input)を参照してください。",
+      "detail_en": "SessionStart hooks previously reported `source: \"resume\"` when a session began as a fork (e.g. via `/fork`, which copies a whole session into a new background session), conflating forks with ordinary resumes even though a fork behaves differently.\n\nClaude Code now reports a distinct `\"fork\"` source value so hook scripts can tell the two apart. See the [hooks documentation](https://code.claude.com/docs/en/hooks#sessionstart-input) for details.",
+      "category": "フック",
+      "category_en": "Hooks"
+    }
+  ],
+  "2.1.215": [
+    {
+      "t": "変更: Claude が `/verify` と `/code-review` スキルを自動実行しなくなり、使用時は `/verify` または `/code-review` で明示的に呼び出すよう変更",
+      "t_en": "Claude no longer runs the `/verify` and `/code-review` skills on its own; invoke them with `/verify` or `/code-review` when you want them",
+      "tags": ["改善"],
+      "detail": "これまで Claude は、コード変更を行った後に `/verify`（アプリを実際に起動して変更が期待どおり動作するか確認するスキル）や `/code-review`（現在の diff をレビューするスキル）を自身の判断で自動的に実行することがあった。しかしこれらは実行に時間やコストがかかる場合があり、ユーザーが意図しないタイミングで動くのは望ましくなかった。\n\n本バージョンから、Claude はこれら2つのバンドル済みスキルを自動実行しなくなり、必要なときにユーザーが明示的に `/verify` または `/code-review` と入力して呼び出す必要がある。詳しくは[スキルのドキュメント](https://code.claude.com/docs/en/skills#bundled-skills)を参照してください。",
+      "detail_en": "Claude previously could decide on its own to run the bundled `/verify` skill (which launches your app to confirm a code change actually works) or `/code-review` skill (which reviews the current diff) after making changes. Since these can be time-consuming or costly and might fire at unexpected moments, letting Claude trigger them automatically wasn't always desirable.\n\nAs of this version, Claude no longer runs these two bundled skills on its own — invoke them explicitly by typing `/verify` or `/code-review` when you want them. See the [skills documentation](https://code.claude.com/docs/en/skills#bundled-skills) for details.",
+      "category": "スキル",
+      "category_en": "Skills"
+    }
   ]
 }
