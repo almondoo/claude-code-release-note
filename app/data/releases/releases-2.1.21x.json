@@ -853,5 +853,210 @@
         "tags": ["改善"]
       }
     ]
+  },
+  {
+    "v": "2.1.216",
+    "items": [
+      {
+        "t": "追加: ファイルシステム隔離だけをスキップしつつネットワークの出口制御は維持できる `sandbox.filesystem.disabled` 設定を追加",
+        "t_en": "Added `sandbox.filesystem.disabled` setting to skip filesystem isolation while keeping network egress control",
+        "tags": ["新機能", "Security"]
+      },
+      {
+        "t": "修正: 長時間セッションでメッセージ正規化のコストがターン数に対して二乗で増大し、数秒単位の停止やセッション再開の遅延を引き起こす問題",
+        "t_en": "Fixed a slowdown in long sessions where message normalization cost grew quadratically with the number of turns, causing multi-second stalls and slow resumes",
+        "tags": ["バグ修正", "Perf"]
+      },
+      {
+        "t": "修正: セッション途中で OAuth トークンが期限切れ・ローテーションされた後、auto mode の分類器が「HTTP 401」エラーによりコマンドを拒否してしまう問題",
+        "t_en": "Fixed auto mode denying commands with \"HTTP 401\" classifier errors after the OAuth token expired or rotated mid-session",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: `AskUserQuestion` で、回答が「待って」「先に説明して」という内容だった場合でも Claude に処理続行を指示してしまう問題（自由記述の回答には中立的な文言を使うように変更）",
+        "t_en": "Fixed AskUserQuestion telling Claude to continue even when your answer asked it to wait or explain first — free-text answers now get neutral wording",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: セッションが数分間アイドル状態になった後、Claude Code on the web が同じ質問を再度尋ねてしまい、その間のユーザーの回答が失われてしまう問題",
+        "t_en": "Fixed Claude Code on the web re-asking the same question and dropping your answer after the session sat idle for a few minutes",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: ファイル変更フック実行後に @メンションが何も添付しない問題、vim モードの `c` 系オペレーターとペーストのドットリピートが効かない問題、セッション再開時に statusline が二重実行される問題、resume ピッカーが失敗時にハングする問題をまとめて修正",
+        "t_en": "Fixed @-mentions silently attaching nothing after file-modifying hooks, vim dot-repeat of `c`-operators and paste, statusline running twice on resume, and resume-picker hangs on failure",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: バックグラウンドエージェントのセッションを再開すると、そのエージェント固有のプロンプトやツール制限が失われ、デフォルトのエージェントに戻ってしまう問題",
+        "t_en": "Fixed resumed background agent sessions reverting to the default agent: the agent's prompt and tool restrictions are now restored",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: worktree で隔離されたサブエージェントが `git -C`・`--git-dir`・`GIT_DIR`/`GIT_WORK_TREE` を使って git の操作を共有のメインチェックアウトへリダイレクトできてしまう問題",
+        "t_en": "Fixed worktree-isolated subagents redirecting git into the shared checkout via `git -C`, `--git-dir`, or `GIT_DIR`/`GIT_WORK_TREE`",
+        "tags": ["バグ修正", "Security", "Agent"]
+      },
+      {
+        "t": "修正: 作業ディレクトリが選択中のプロジェクトと一致しない場合に、worktree セッションが別プロジェクトの残存 worktree に入ってしまう問題",
+        "t_en": "Fixed worktree sessions landing in another project's leftover worktree when the working directory did not match the selected project",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: worktree の配下に git リポジトリが存在しないバックグラウンドセッションを削除できない問題",
+        "t_en": "Fixed background sessions whose worktree has no git repository being undeletable",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: 古い形式のデーモンロックファイルが残っていると、`claude daemon stop --any` が無関係なプロセスを終了させてしまう可能性がある問題",
+        "t_en": "Fixed `claude daemon stop --any` potentially terminating an unrelated process via a stale legacy daemon lockfile",
+        "tags": ["バグ修正", "Security"]
+      },
+      {
+        "t": "修正: バックグラウンドタスクが動いている長時間セッションで、アイドル状態のプロンプトで Esc を2回押しても rewind ピッカーが開かない問題",
+        "t_en": "Fixed Esc-Esc at an idle prompt not opening the rewind picker in long-running sessions with background tasks",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: `&&` で連結されたコマンドリストや否定（`!`）の内部にリダイレクトを含む複合ステートメントで、Bash のパーミッションチェックが正しく機能しない問題",
+        "t_en": "Fixed Bash command permission checking for compound statements with redirects inside `&&` lists or negations",
+        "tags": ["バグ修正", "Security"]
+      },
+      {
+        "t": "修正: agent list で Ctrl+X を2回押してもセッションが削除されない問題、およびバックグラウンドワーカーが停止済みのセッションを削除すると再表示されてしまう問題",
+        "t_en": "Fixed pressing Ctrl+X twice in the agent list failing to delete a session, and deleted sessions reappearing when their background worker had died",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: バックグラウンドのサブエージェントが起動処理中に優先度の高いメッセージを受け取るとキャンセルされてしまう問題",
+        "t_en": "Fixed background subagents getting cancelled when a high-priority message arrives during their startup window",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: `/memory`・`/plan`・`/keybindings` や Ctrl+G から GUI エディタを開いている間、ターミナルにマウス・フォーカス関連の表示崩れが残る問題（`/memory` はエディタが閉じるのを待たなくなるように変更）",
+        "t_en": "Fixed mouse and focus garbage in the terminal while a GUI editor from `/memory`, `/plan`, `/keybindings`, or Ctrl+G is open; `/memory` no longer waits for the editor to close",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: セッションの OAuth トークンに必要なスコープが欠けている場合、Claude in Chrome の再接続時に 403 エラーのループに陥ってしまう問題",
+        "t_en": "Fixed Claude-in-Chrome 403-looping on reconnect when the session's OAuth token lacks a required scope",
+        "tags": ["バグ修正", "IDE"]
+      },
+      {
+        "t": "修正: ワークフローの保存やスケジュールタスクの書き込みが `.claude` に置かれたシンボリックリンクを辿ってしまい、プロジェクト外への書き込みにつながる可能性がある問題",
+        "t_en": "Fixed workflow saves and scheduled-task writes following a symlink at `.claude`, which could redirect writes outside the project",
+        "tags": ["バグ修正", "Security"]
+      },
+      {
+        "t": "修正: MCP の再認証で新しいサインインが成功する前に既存の有効な認証情報を失効させてしまう問題、およびバックグラウンドセッションでの再接続時の認証要求メッセージが実行できないコマンドを案内してしまう問題",
+        "t_en": "Fixed MCP re-authenticate revoking working credentials before the new sign-in succeeds, and the reconnect needs-auth message in background sessions pointing at an unusable command",
+        "tags": ["バグ修正", "MCP"]
+      },
+      {
+        "t": "修正: Windows で読み取り専用コマンドがネットワークパスへ確認プロンプトなしにアクセスできてしまう問題",
+        "t_en": "Fixed read-only commands on Windows accessing network paths without a permission prompt",
+        "tags": ["バグ修正", "Windows", "Security"]
+      },
+      {
+        "t": "修正: Bash コマンドの非 ASCII 文字の解析が実際のシェルの単語境界と一致していなかった問題",
+        "t_en": "Fixed Bash command parsing of non-ASCII characters to match real shell word boundaries",
+        "tags": ["バグ修正", "Security"]
+      },
+      {
+        "t": "修正: 目に見えない Unicode 文字を含むコマンドに対する PowerShell ツールのパーミッション検証が正しく機能しない問題",
+        "t_en": "Fixed PowerShell tool permission validation of commands containing invisible Unicode characters",
+        "tags": ["バグ修正", "Windows", "Security"]
+      },
+      {
+        "t": "修正: フルスクリーンモードでダイアログがパネルの右端を超えて伸びてしまう問題",
+        "t_en": "Fixed dialogs in fullscreen mode stretching past the right-hand edge of their panel",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: フルスクリーンモードで `/config` の設定リストがキーボードヒントのフッターを表示しきれず切れてしまう問題",
+        "t_en": "Fixed the `/config` settings list in fullscreen mode clipping its keyboard-hint footer",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: 104 列未満の幅のターミナルで、transcript モード（Ctrl+O）のフッターヒントが折り返されてしまう問題",
+        "t_en": "Fixed the transcript-mode (Ctrl+O) footer hint wrapping on terminals narrower than 104 columns",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: `OTEL_METRICS_EXPORTER=prometheus` で有効化される Prometheus メトリクスエンドポイントが不正な `# UNIT` 行を出力してしまう問題",
+        "t_en": "Fixed the Prometheus metrics endpoint (`OTEL_METRICS_EXPORTER=prometheus`) emitting invalid `# UNIT` lines",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: セッション中にスキルやコマンドを変更しても、再起動するまでスラッシュメニューに反映されない問題",
+        "t_en": "Fixed skills and commands changed during a session not appearing in the slash menu until restart",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: frontmatter に `name` フィールドを持つプラグインのスキルが、スラッシュコマンドの自動補完でプラグインのプレフィックスを失ってしまう問題",
+        "t_en": "Fixed plugin skills with a `name` frontmatter field losing their plugin prefix in slash-command autocomplete",
+        "tags": ["バグ修正", "Plugin"]
+      },
+      {
+        "t": "修正: パーミッション拒否に関するテレメトリの誤集計を修正（確認プロンプトの表示自体に失敗した場合をユーザーによる拒否として計上しないように、またユーザーの割り込みは拒否ではなく中断として報告されるように変更）",
+        "t_en": "Fixed telemetry misreporting permission denials: failed permission-prompt requests no longer count as user rejections, and user interrupts are now reported as user aborts instead of rejections",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "改善: `/fork` の確認メッセージを1行にまとめ、新しいセッション名・`claude attach` 用の ID・チェックアウトを共有している場合の注記を表示するように変更",
+        "t_en": "Improved the `/fork` confirmation to one line with the new session's name, `claude attach` id, and a note when the copy shares your checkout",
+        "tags": ["改善", "Agent"]
+      },
+      {
+        "t": "改善: PowerShell ツールにおける `git`・`gh` コマンドの引数検証を強化",
+        "t_en": "Improved validation of `git` and `gh` command arguments in the PowerShell tool",
+        "tags": ["改善", "Windows", "Security"]
+      },
+      {
+        "t": "改善: `/ultrareview` の差分サイズ超過エラーに、設定されている上限・実際に計測された差分サイズ・サイズに大きく寄与しているファイルを表示するように改善",
+        "t_en": "Improved the `/ultrareview` diff-too-large error to show configured limits, measured diff size, and largest contributing files",
+        "tags": ["改善"]
+      },
+      {
+        "t": "改善: `/code-review ultra` の差分が空の場合のメッセージで、比較対象にした正確なベース参照名を明示し、明示的なベース指定を提案するように改善",
+        "t_en": "Improved `/code-review ultra` empty-diff message to name the exact base ref and suggest passing an explicit base",
+        "tags": ["改善"]
+      },
+      {
+        "t": "改善: 利用上限の変更リクエストがサーバー側で拒否された場合に、その理由を表示するように改善",
+        "t_en": "Improved the spend limit adjustment prompt to show the server's reason when a spend limit change is rejected",
+        "tags": ["改善"]
+      },
+      {
+        "t": "改善: 会話がコンテキストウィンドウを超過した場合に `/context` が明示的な警告を表示するように、また `/compact` が失敗した場合はエラーとして表示されるように変更",
+        "t_en": "`/context` now shows an explicit warning when the conversation exceeds the context window, and a failed `/compact` displays as an error",
+        "tags": ["改善"]
+      },
+      {
+        "t": "改善: `/rewind` が、追跡対象パスにあるシンボリックリンクやハードリンク経由でのファイル復元・削除を行わないように変更（スキップしたパス数も報告するように）",
+        "t_en": "`/rewind` no longer restores or deletes files through symlinks or hard links at tracked paths and reports how many paths it skipped",
+        "tags": ["改善", "Security"]
+      },
+      {
+        "t": "改善: バックグラウンドセッションで、クライアントが接続されていない場合に `/mcp` と `/install-github-app` が agent view に「needs input」のリクエストを表示するように変更",
+        "t_en": "Background sessions: `/mcp` and `/install-github-app` now park a \"needs input\" request in the agent view when no client is attached",
+        "tags": ["改善", "MCP", "Agent"]
+      },
+      {
+        "t": "改善: 同梱の dataviz スキルを更新し、デフォルトのチャート配色順を変更するとともに、4系列チャートに直接ラベルを提案していた誤ったガイダンスを修正",
+        "t_en": "Updated the bundled dataviz skill: reordered the default chart palette and fixed guidance that suggested direct labels for four-series charts",
+        "tags": ["改善"]
+      },
+      {
+        "t": "修正: VS Code 拡張機能で、アラビア語・ヘブライ語・ペルシャ語などの右から左に書く言語のテキストが、英語やコードと混在すると誤った順序で表示されてしまう問題",
+        "t_en": "[VSCode] Fixed right-to-left text (Arabic, Hebrew, Persian) rendering in the wrong order when mixed with English or code",
+        "tags": ["バグ修正", "IDE"]
+      },
+      {
+        "t": "修正: クラウドセッションのコンテナがターンの途中で再起動すると、処理中だったメッセージが失われてしまう問題（中断されたターンは再開時に再実行され、セッションが応答不能のままにならないように変更）",
+        "t_en": "Fixed cloud sessions dropping the in-flight message when the session's container restarts mid-turn — the interrupted turn now re-runs on resume instead of leaving the session unresponsive",
+        "tags": ["バグ修正"]
+      }
+    ]
   }
 ]
