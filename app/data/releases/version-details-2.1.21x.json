@@ -1864,5 +1864,187 @@
       "category": "安定性",
       "category_en": "Stability"
     }
+  ],
+  "2.1.217": [
+    {
+      "t": "追加: プロンプト入力欄で絵文字ショートコードの自動補完に対応（`:heart:` で ❤️ を挿入、`:hea` で候補表示。`emojiCompletionEnabled` 設定で無効化可能）",
+      "t_en": "Added emoji shortcode autocomplete in the prompt input: type `:heart:` to insert ❤️, or `:hea` for suggestions — disable with the `emojiCompletionEnabled` setting",
+      "tags": ["新機能"],
+      "detail": "これまでプロンプト入力欄には絵文字を名前で挿入する手段がなく、外部から絵文字をコピー＆ペーストする必要があった。\n\n本バージョンでは Slack や GitHub のような `:heart:` 形式のショートコード自動補完に対応し、コロンで始まる名前を入力すると絵文字が挿入されたり候補が表示されたりするようになった（例: `:hea` で候補一覧を表示）。不要な場合は `emojiCompletionEnabled` 設定で無効化できる。",
+      "detail_en": "Previously, the prompt input had no way to insert emoji by name — users had to paste them in from elsewhere.\n\nThis release adds Slack/GitHub-style `:heart:` shortcode autocomplete: typing a colon-prefixed name inserts the matching emoji or shows suggestions (e.g. `:hea` lists candidates). It can be turned off via the new `emojiCompletionEnabled` setting.",
+      "category": "入力",
+      "category_en": "Input"
+    },
+    {
+      "t": "追加: ディスク容量不足などで transcript の書き込みが失敗した場合や、継承された環境変数によりセッション保存が無効になっている場合に、黙って失われる代わりに警告を表示するように",
+      "t_en": "Added warnings when transcript writes are failing (e.g. disk full) or when session saving is off due to an inherited environment variable, instead of losing transcripts silently",
+      "tags": ["新機能"],
+      "detail": "これまで、ディスク容量不足などの理由でセッション transcript の書き込みが失敗したり、親プロセスから継承された環境変数によってセッション保存自体が無効になっていたりしても、ユーザーには何も知らされず、会話履歴が黙って失われることがあった。\n\n本バージョンでは、これらのケースで明示的な警告が表示されるようになり、後になって `--resume` で履歴が見つからず困惑するといった事態を防げるようになった。",
+      "detail_en": "Previously, if a session transcript failed to write — for example due to a full disk — or if session saving was disabled entirely because an environment variable was inherited from a parent process, users had no indication their conversation history wasn't being saved.\n\nThis release surfaces an explicit warning in these cases, so users aren't caught off guard later by a missing `--resume` history.",
+      "category": "セッション管理",
+      "category_en": "Session Management"
+    },
+    {
+      "t": "修正: MCP ツールの出力が切り詰められた後も、切り詰め前の完全な結果がセッション終了までメモリに保持され続けるメモリリークを修正",
+      "t_en": "Fixed a memory leak where truncated MCP tool outputs kept the full untruncated result in memory for the rest of the session",
+      "tags": ["バグ修正", "MCP", "Perf"],
+      "detail": "MCP ツールの出力が設定上限を超えると、会話には切り詰められた内容だけが渡される仕組みになっているが、これまでは切り詰め前の完全な結果がその後もセッション終了までメモリ上に保持され続けてしまい、MCP ツールを多用するセッションでメモリ使用量が増大する原因になっていた。\n\n本バージョンでは、切り詰め後に不要になった完全な結果をメモリから解放するようになり、このメモリリークが修正された。",
+      "detail_en": "MCP tool outputs larger than the configured limit are truncated for the conversation, but the full, untruncated payload was previously kept in memory for the rest of the session even after truncation, growing memory usage in sessions that make heavy use of MCP tools.\n\nThis release releases the untruncated result from memory once truncation happens, fixing the leak.",
+      "category": "パフォーマンス",
+      "category_en": "Performance"
+    },
+    {
+      "t": "修正: Windows で自動更新が失敗すると `claude.exe` が消失してしまうことがある問題を修正。更新失敗時は保持していた実行ファイルを自動的に復元するように",
+      "t_en": "Fixed Windows auto-update failures that could leave `claude.exe` missing; failed updates now restore the preserved executable automatically",
+      "tags": ["バグ修正", "Windows"],
+      "detail": "Windows では自動更新が途中で失敗すると、古い実行ファイルが既に置き換えられたり削除されたりした後だったため、`claude.exe` そのものが存在しない状態になってしまうことがあった。\n\n本バージョンでは、更新処理中に元の実行ファイルを保持しておき、更新が失敗した場合は自動的にそれを復元するようになったため、更新の失敗がインストールを壊すことがなくなった。",
+      "detail_en": "On Windows, an interrupted or failed auto-update could leave the machine without a working `claude.exe`, because the previous executable had already been replaced or removed before the new one finished installing.\n\nThis release preserves the previous executable during the update and automatically restores it if the update fails, so a failed update no longer breaks the install.",
+      "category": "プラットフォーム互換性",
+      "category_en": "Platform Compatibility"
+    },
+    {
+      "t": "修正: バックグラウンドセッションの隔離処理がシンボリックリンクされた作業ディレクトリを正規化しておらず、セッションが作業フォルダの外に出られてしまう問題を修正",
+      "t_en": "Fixed background session isolation not canonicalizing symlinked working directories, which could let sessions escape their workspace folder",
+      "tags": ["バグ修正", "Security"],
+      "detail": "Claude Code はバックグラウンドセッションが起動時のディレクトリとそのサブフォルダ以外に書き込めないよう境界チェックを行っているが、この起動ディレクトリがシンボリックリンクだった場合、これまでは境界チェックがシンボリックリンクを実体パスへ解決せずに比較していたため、セッションが意図した作業フォルダの外に書き込める可能性があった。\n\n本バージョンでは、境界チェックの前にパスを正規化するようになり、作業ディレクトリがシンボリックリンクであっても隔離の保証が保たれるようになった。詳しくは[セキュリティドキュメント](https://code.claude.com/docs/en/security#built-in-protections)を参照してください。",
+      "detail_en": "Claude Code enforces a working-directory boundary so a background session can only write inside the folder it started in and its subfolders. When that starting directory was a symlink, the boundary check previously compared paths without resolving the symlink to its real target, which could let a session write outside the intended workspace.\n\nThis release canonicalizes paths before the boundary check, so the isolation guarantee holds even when the working directory is a symlink. See the [security documentation](https://code.claude.com/docs/en/security#built-in-protections) for details.",
+      "category": "セキュリティ",
+      "category_en": "Security"
+    },
+    {
+      "t": "修正: Bedrock 上の Claude Opus 4.8 で auto-compact が発火しない問題と、コンテキスト上限を超えた後に `/compact` が失敗する問題を修正",
+      "t_en": "Fixed auto-compact never triggering for Claude Opus 4.8 on Bedrock and `/compact` failing once over the limit",
+      "tags": ["バグ修正", "Platform"],
+      "detail": "Auto-compact は会話がモデルのコンテキスト上限に近づくと自動的に要約を行う機能だが、Bedrock 上で動作する Claude Opus 4.8 ではこの判定が正しく発火せず、コンテキスト上限を超えたままセッションが進んでしまうことがあった。さらにその状態で手動で `/compact` を実行しても、失敗してしまい復旧できなかった。\n\n本バージョンでは、Bedrock 上の Claude Opus 4.8 でも auto-compact が正しく発火するようになり、上限超過後の `/compact` の失敗も修正された。",
+      "detail_en": "Auto-compact is meant to summarize the conversation as it nears the model's context limit, but on Bedrock this check wasn't firing for Claude Opus 4.8, letting sessions run past the context limit with no auto-compact. Manually running `/compact` afterward then failed instead of recovering the session.\n\nThis release fixes auto-compact triggering for Claude Opus 4.8 on Bedrock, and fixes `/compact` failing once the limit had already been exceeded.",
+      "category": "セッション管理",
+      "category_en": "Session Management"
+    },
+    {
+      "t": "修正: Claude Desktop のセッションで企業向けの mTLS・TLS 検証・OAuth スコープ・プロキシ設定が無視されていた問題を修正",
+      "t_en": "Fixed corporate mTLS, TLS-verify, OAuth scope, and proxy settings being ignored in Claude Desktop sessions",
+      "tags": ["バグ修正", "Security"],
+      "detail": "Claude Code は企業ネットワーク向けに mTLS クライアント証明書・TLS 検証・OAuth スコープ・プロキシ設定といった項目を settings の `env` ブロック経由でサポートしているが、これまで Claude Desktop アプリ内のセッションではこれらの設定が反映されず、企業のネットワークポリシーが黙って適用されないことがあった。\n\n本バージョンでは、Claude Desktop のセッションも CLI と同じくこれらの設定を尊重するようになった。詳しくは[コーポレートプロキシのドキュメント](https://code.claude.com/docs/en/corporate-proxy#mtls-authentication)を参照してください。",
+      "detail_en": "Claude Code supports enterprise network settings such as mTLS client certificates, TLS verification, OAuth scopes, and proxy configuration via the settings `env` block, but these were not being honored in sessions running inside the Claude Desktop app, so corporate network policy could silently fail to apply there.\n\nThis release makes Claude Desktop sessions respect the same settings as the CLI. See the [corporate proxy documentation](https://code.claude.com/docs/en/corporate-proxy#mtls-authentication) for details.",
+      "category": "ネットワーク",
+      "category_en": "Network"
+    },
+    {
+      "t": "修正: スクリーンリーダーモードの起動時アナウンスが最初のプロンプト描画で途切れてしまう問題と、経過時間・トークン数の更新のために thinking ステータス行が数秒おきに再描画されてしまう問題を修正",
+      "t_en": "Fixed screen reader mode's startup announcement being cut off by the first prompt render, and the thinking status row re-rendering every few seconds to update elapsed time and token counts",
+      "tags": ["バグ修正"],
+      "detail": "スクリーンリーダーモードは起動時にどのように有効化されたかを示す確認メッセージを表示するが、これまで直後に最初のプロンプトが描画されることでこのメッセージが途切れてしまい、スクリーンリーダーに正しく読み上げられないことがあった。また、thinking 中のステータス行が経過時間とトークン数を更新するために数秒おきに再描画されており、スクリーンリーダー利用者にとって不要なノイズになっていた。\n\n本バージョンでは、起動時アナウンスが途切れなくなり、thinking ステータス行の頻繁な再描画も抑制された。詳しくは[アクセシビリティのドキュメント](https://code.claude.com/docs/en/accessibility#turn-on-screen-reader-mode)を参照してください。",
+      "detail_en": "Screen reader mode prints a startup confirmation line naming how it was enabled, but that line could previously get cut off when the first prompt rendered right after it, so screen readers might not announce it. Separately, the \"thinking\" status row was re-rendering every few seconds just to tick elapsed time and token counts, producing disruptive noise for screen reader users.\n\nThis release stops the startup announcement from being cut off and reduces the unnecessary re-rendering of the thinking status row. See the [accessibility documentation](https://code.claude.com/docs/en/accessibility#turn-on-screen-reader-mode) for details.",
+      "category": "アクセシビリティ",
+      "category_en": "Accessibility"
+    },
+    {
+      "t": "修正: `OTEL_EXPORTER_OTLP_ENDPOINT` を指定した管理者設定がすべてのシグナルに適用されない問題を修正。より狭いスコープのシグナル別エンドポイント上書きによって、テレメトリが管理者設定のエンドポイントから逸れてしまうことがなくなった",
+      "t_en": "Fixed managed settings that set `OTEL_EXPORTER_OTLP_ENDPOINT` not governing all signals — lower-scope signal-specific overrides no longer redirect telemetry away from the managed endpoint",
+      "tags": ["バグ修正"],
+      "detail": "管理者は `OTEL_EXPORTER_OTLP_ENDPOINT` を管理者設定で固定することで、テレメトリを常に組織のコレクターへ送信できるが、これまでより狭いスコープで設定されたシグナル別のエンドポイント（`OTEL_EXPORTER_OTLP_METRICS_ENDPOINT` など）が存在すると、そのシグナルだけが管理者設定のエンドポイントから外れて送信されてしまい、意図した集約先から漏れることがあった。\n\n本バージョンでは、管理者が明示的にシグナル別のエンドポイントも管理していない限り、管理者設定の `OTEL_EXPORTER_OTLP_ENDPOINT` がすべてのシグナルを統括するようになった。詳しくは[利用状況モニタリングのドキュメント](https://code.claude.com/docs/en/monitoring-usage#administrator-configuration)を参照してください。",
+      "detail_en": "Administrators can pin `OTEL_EXPORTER_OTLP_ENDPOINT` in managed settings so telemetry always reaches the organization's collector, but a lower-scoped, signal-specific override (such as `OTEL_EXPORTER_OTLP_METRICS_ENDPOINT`) could still redirect that one signal's traffic elsewhere, undermining the managed endpoint.\n\nThis release makes the managed `OTEL_EXPORTER_OTLP_ENDPOINT` govern all signals unless the administrator has also explicitly managed the per-signal override. See the [usage monitoring documentation](https://code.claude.com/docs/en/monitoring-usage#administrator-configuration) for details.",
+      "category": "テレメトリ",
+      "category_en": "Telemetry"
+    },
+    {
+      "t": "修正: transcript 内に不正な添付ファイルのエントリがある場合に `--resume`・`--continue`・`/resume` が TypeError で失敗する問題を修正",
+      "t_en": "Fixed `--resume`/`--continue` and `/resume` failing with a TypeError when a transcript has a malformed attachment entry",
+      "tags": ["バグ修正"],
+      "detail": "セッションを再開する際は保存済みの transcript を読み込むが、そこにファイルや画像などの不正な形式の添付ファイルエントリが含まれていると、これまで `--resume`・`--continue`・`/resume` のピッカーが TypeError でクラッシュしてしまい、そのセッションの履歴に事実上アクセスできなくなっていた。\n\n本バージョンでは、不正な添付ファイルエントリを適切に処理し、クラッシュせずに再開できるようになった。",
+      "detail_en": "Resuming a session reads its saved transcript, including any recorded file/image attachments. A transcript containing a malformed attachment entry — for example from an older format or a partial write — previously crashed `--resume`, `--continue`, and the `/resume` picker with a TypeError, effectively locking users out of that session's history.\n\nThis release handles malformed attachment entries gracefully so the session can resume without crashing.",
+      "category": "セッション管理",
+      "category_en": "Session Management"
+    },
+    {
+      "t": "修正: Remote Control で、プロンプトやダイアログの表示後に接続した閲覧者にはそれらが表示されない問題を修正",
+      "t_en": "Fixed Remote Control sessions not showing a pending permission prompt or dialog to viewers that connected after it appeared",
+      "tags": ["バグ修正"],
+      "detail": "Remote Control 経由でスマートフォンや Web からセッションに接続すると、パーミッションプロンプトなどのダイアログをリアルタイムに閲覧・操作できるが、これまでダイアログが表示された後に新しくセッションへ接続したデバイスには、その保留中のプロンプトが表示されないことがあり、既に接続していたデバイスでしか対応できなかった。\n\n本バージョンでは、セッションの途中から接続したデバイスにも、既に表示されている保留中のプロンプトやダイアログが正しく表示されるようになった。詳しくは[Remote Control のドキュメント](https://code.claude.com/docs/en/remote-control#connect-from-another-device)を参照してください。",
+      "detail_en": "Connecting to a session from a phone or the web via Remote Control lets you view and act on dialogs like permission prompts in real time. Previously, a device that connected after such a prompt had already appeared didn't see it — only devices already connected when the prompt appeared could act on it.\n\nThis release ensures a device joining mid-session correctly sees any prompt or dialog that's already pending. See the [Remote Control documentation](https://code.claude.com/docs/en/remote-control#connect-from-another-device) for details.",
+      "category": "Remote Control",
+      "category_en": "Remote Control"
+    },
+    {
+      "t": "修正: セッションをバックグラウンドに送った後（`/background` や ←）や、高負荷なマシンでセッションが終了した際に、バックグラウンドシェルを停止できなくなることがある問題を修正（Windows で特に顕著）",
+      "t_en": "Fixed background shells sometimes becoming impossible to stop after a session is sent to the background (`/background` or `←`) or when the session exits on a heavily loaded machine, most visible on Windows",
+      "tags": ["バグ修正", "Windows"],
+      "detail": "バックグラウンドで実行中の Bash コマンドは、セッションがバックグラウンドに移動された後（`/background` や ← キー）やセッションのプロセスが終了した後も、引き続き停止操作ができる想定になっている。しかし、特に高負荷なマシン上や Windows 環境では、この引き継ぎ処理がうまくいかず、バックグラウンドシェルへの停止シグナルが届かなくなり、プロセスが実質的に孤立してしまうことがあった。\n\n本バージョンでは、セッションのバックグラウンド化やプロセス終了後もバックグラウンドシェルを確実に停止できるようになった。",
+      "detail_en": "Background Bash commands are meant to stay controllable — visible and stoppable — after a session is sent to the background (`/background` or `←`) or its process exits. Under load, especially on Windows, this handoff could leave a background shell unable to receive a stop signal, effectively orphaning the process.\n\nThis release restores reliable control over background shells after backgrounding or session exit.",
+      "category": "セッション管理",
+      "category_en": "Session Management"
+    },
+    {
+      "t": "修正: `CLAUDE.md` や `SKILL.md` の paths frontmatter に波括弧展開のグループを多数含む値を指定すると、起動時に OOM で強制終了したりスタールしたりする問題を修正。波括弧展開の処理に上限を設けた",
+      "t_en": "Fixed a `CLAUDE.md` or `SKILL.md` paths frontmatter value with many brace groups OOM-killing or stalling the CLI at startup — brace expansion is now budget-bounded",
+      "tags": ["バグ修正"],
+      "detail": "`CLAUDE.md` や `SKILL.md` の `paths` frontmatter は glob パターンをサポートしており、`*.{js,ts,jsx,tsx}` のような波括弧展開で複数の拡張子を一度に指定できる。しかし、波括弧のグループを多数含む、あるいはネストしたパターンを指定すると、その組み合わせ数が爆発的に増加し、起動時に CLI がメモリ不足で強制終了されたりハングしたりすることがあった。\n\n本バージョンでは、波括弧展開の処理に上限を設け、極端なパターンが指定された場合でも安全に失敗するようになった。詳しくは[メモリのドキュメント](https://code.claude.com/docs/en/memory#path-specific-rules)を参照してください。",
+      "detail_en": "The `paths` frontmatter field on rules files and `SKILL.md` supports glob patterns, including brace expansion like `*.{js,ts,jsx,tsx}` to match multiple extensions in one pattern. A pattern with many nested or combined brace groups could expand combinatorially, exhausting memory or hanging the CLI at startup.\n\nThis release bounds brace expansion with a budget, so pathological patterns now fail safely instead of OOM-killing the process. See the [memory documentation](https://code.claude.com/docs/en/memory#path-specific-rules) for details.",
+      "category": "設定",
+      "category_en": "Configuration"
+    },
+    {
+      "t": "修正: 起動中のバックグラウンドセッションにアタッチした際、transcript プレビューが入力欄に密着して表示される問題を修正。ライブレイアウトと同じ1行分の余白を確保するようになり、セッションが引き継がれた際に transcript がずれて表示されなくなった",
+      "t_en": "Fixed the transcript preview sitting flush against the input area when attaching to a starting background session; it now leaves the same one-line gap as the live layout, so the transcript no longer shifts when the session takes over",
+      "tags": ["バグ修正"],
+      "detail": "起動中のバックグラウンドセッションにアタッチすると、Claude Code は起動処理が完了するまでの間、入力欄の上に transcript のプレビューを表示する。しかし、このプレビューは実際のライブレイアウトが使う1行分の余白を確保しておらず、入力欄に密着して表示されていたため、セッションの起動が完了しライブレイアウトに切り替わった瞬間に transcript 全体が1行分下にずれて見えてしまっていた。\n\n本バージョンでは、プレビューの時点からライブレイアウトと同じ余白を確保するようになり、切り替え時の見た目のずれがなくなった。",
+      "detail_en": "Attaching to a background session that's still starting up shows a preview of its transcript above the input box while it boots. That preview didn't reserve the one-line gap the live (fully attached) layout uses, so the whole transcript visibly shifted down by a line once the session finished starting and the live layout took over.\n\nThis release reserves the same gap in the preview from the start, so there's no layout shift when the session takes over.",
+      "category": "レンダリング",
+      "category_en": "Rendering"
+    },
+    {
+      "t": "改善: フッターの PR バッジリンクを、ターミナルのハイパーリンク対応が検出できない場合（ssh・tmux 経由など）でもクリック可能にした。`FORCE_HYPERLINK=0` で無効化可能",
+      "t_en": "Improved footer PR badge links to be clickable hyperlinks even when terminal support can't be detected (e.g. over ssh/tmux); set `FORCE_HYPERLINK=0` to opt out",
+      "tags": ["改善"],
+      "detail": "agent view はセッションが PR を作成すると `#1234` のようなバッジを行に表示し、ハイパーリンク対応ターミナルではこれをクリックできるが、これまでハイパーリンク対応の自動検出が ssh や tmux 経由の接続では正しく機能せず、実際にはハイパーリンクに対応しているターミナルでもバッジがただのテキストとして表示されてしまうことがあった。\n\n本バージョンでは、この判定が曖昧な場合でも既定でクリック可能なリンクとして表示するようになった。従来通り `FORCE_HYPERLINK=0` を設定すれば無効化できる。詳しくは[agent view のドキュメント](https://code.claude.com/docs/en/agent-view#pull-request-status)を参照してください。",
+      "detail_en": "Agent view shows a `#1234`-style badge on a session's row once it opens a pull request, clickable in terminals that support hyperlinks. Hyperlink support detection was previously unreliable over ssh or inside tmux, so the badge could stay plain text there even in a terminal that actually supports hyperlinks.\n\nThis release makes the link clickable by default in that ambiguous case; set `FORCE_HYPERLINK=0` as before to opt out. See the [agent view documentation](https://code.claude.com/docs/en/agent-view#pull-request-status) for details.",
+      "category": "UX",
+      "category_en": "UX"
+    },
+    {
+      "t": "変更: ログイン期限切れ警告の表示タイミングを、期限の5日前から3日前に変更",
+      "t_en": "Changed the login-expiry warning to appear 3 days before expiry instead of 5",
+      "tags": ["改善"],
+      "detail": "Claude Code はログイン認証情報の期限が近づくと起動時に警告を表示するが、これまでこの警告は期限の5日前から表示されていた。\n\n本バージョンでは、この警告の表示タイミングが期限の3日前に短縮された。",
+      "detail_en": "Claude Code shows a startup warning as a login credential nears expiry; this warning previously appeared five days before expiry.\n\nThis release shortens the warning window to three days before expiry.",
+      "category": "認証",
+      "category_en": "Authentication"
+    },
+    {
+      "t": "変更: frontend-design プラグインの提案表示回数を生涯3回までに制限（以前は無制限に繰り返し表示されていた）",
+      "t_en": "Capped the frontend-design plugin suggestion tip at 3 lifetime impressions instead of repeating indefinitely",
+      "tags": ["改善", "Plugin"],
+      "detail": "Claude Code は関連性が高い場面で frontend-design プラグインを紹介するヒントを表示することがあるが、これまでこのヒントはユーザーが既に見て理解した後も無制限に繰り返し表示されることがあり、煩わしく感じられることがあった。\n\n本バージョンでは、このヒントの表示回数がユーザーごとに生涯3回までに制限された。",
+      "detail_en": "Claude Code occasionally shows a tip suggesting the frontend-design plugin when relevant. This tip could previously keep reappearing indefinitely even after a user had already seen it, which became noisy.\n\nThis release caps the tip at 3 lifetime impressions per user.",
+      "category": "Plugin",
+      "category_en": "Plugin"
+    },
+    {
+      "t": "追加: 同時実行できるサブエージェント数の上限を追加（デフォルト20件、`CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS` で変更可能）。1つのメッセージから無制限にバックグラウンドエージェントがファンアウトすることを防止",
+      "t_en": "Added a cap on concurrently-running subagents (default 20, override with `CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS`) so one message can't fan out unbounded background agents",
+      "tags": ["新機能", "Agent"],
+      "detail": "これまでサブエージェントの同時実行数には上限がなく、1つのメッセージから広範なファンアウトを行うタスクを実行すると、非常に多数のバックグラウンドサブエージェントが一斉に起動してしまい、リソースを圧迫することがあった。\n\n本バージョンでは、同時実行できるサブエージェント数にデフォルト20件の上限が設けられ、`CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS` 環境変数で調整できるようになった。",
+      "detail_en": "Without a concurrency limit, a single message that spawns many background subagents — for example a broad fan-out task — could previously launch an unbounded number of them at once, straining resources.\n\nThis release adds a cap, 20 by default, on how many subagents can run concurrently, configurable via the new `CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS` environment variable.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-agent"
+    },
+    {
+      "t": "変更: サブエージェントがデフォルトではネストしたサブエージェントを起動しないように変更。`CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH` でネストの深さを調整可能",
+      "t_en": "Changed subagents to no longer spawn nested subagents by default; set `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH` to allow deeper nesting",
+      "tags": ["改善", "Agent"],
+      "detail": "サブエージェントは v2.1.172 以降、さらに自身のサブエージェントを起動できるようになっており、たとえばレビュー担当のサブエージェントが所見ごとに検証用サブエージェントを起動するといった使い方に有用だった。しかし、これまでこのネストがデフォルトで許可されていたため、意図しない多段のファンアウトが起きる可能性があった。\n\n本バージョンでは、サブエージェントはデフォルトではネストしたサブエージェントを起動しなくなった。より深いネストが必要な場合は `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH` 環境変数で許可できる。",
+      "detail_en": "Subagents have been able to spawn their own nested subagents since v2.1.172, useful for cases like a reviewer subagent dispatching a verifier per finding. This nesting was previously allowed by default, which could lead to unintended multi-level fan-out.\n\nThis release changes the default so subagents no longer spawn nested subagents; set the new `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH` environment variable to allow deeper nesting when needed.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-agent"
+    },
+    {
+      "t": "修正: `--max-budget-usd` がバックグラウンドサブエージェントを停止できていなかった問題を修正。上限到達後は新規起動を拒否し、実行中のバックグラウンドエージェントも停止するように",
+      "t_en": "Fixed `--max-budget-usd` not stopping background subagents: once the cap is reached, new spawns are denied and running background agents are halted",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "print モード専用の `--max-budget-usd` フラグは、API 利用料金が指定したドル額の上限に達すると処理を停止させる機能だが、これまでこの上限がバックグラウンドで実行中のサブエージェントには反映されず、上限を超えてもバックグラウンドサブエージェントが動作・課金を続けてしまうことがあった。\n\n本バージョンでは、上限に達すると新規のサブエージェント起動が拒否され、既に実行中のバックグラウンドエージェントも停止するようになった。詳しくは[CLI リファレンス](https://code.claude.com/docs/en/cli-usage#cli-flags)を参照してください。",
+      "detail_en": "`--max-budget-usd` (print mode only) is meant to cap total API spend and stop work once the configured dollar limit is reached, but this cap previously didn't propagate to background subagents, which could keep running and spending past the configured budget.\n\nThis release denies new subagent spawns and halts already-running background agents once the cap is reached. See the [CLI reference](https://code.claude.com/docs/en/cli-usage#cli-flags) for details.",
+      "category": "コスト管理",
+      "category_en": "Cost Management"
+    }
   ]
 }

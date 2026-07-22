@@ -1058,5 +1058,110 @@
         "tags": ["バグ修正"]
       }
     ]
+  },
+  {
+    "v": "2.1.217",
+    "items": [
+      {
+        "t": "追加: プロンプト入力欄で絵文字ショートコードの自動補完に対応（`:heart:` で ❤️ を挿入、`:hea` で候補表示。`emojiCompletionEnabled` 設定で無効化可能）",
+        "t_en": "Added emoji shortcode autocomplete in the prompt input: type `:heart:` to insert ❤️, or `:hea` for suggestions — disable with the `emojiCompletionEnabled` setting",
+        "tags": ["新機能"]
+      },
+      {
+        "t": "追加: ディスク容量不足などで transcript の書き込みが失敗した場合や、継承された環境変数によりセッション保存が無効になっている場合に、黙って失われる代わりに警告を表示するように",
+        "t_en": "Added warnings when transcript writes are failing (e.g. disk full) or when session saving is off due to an inherited environment variable, instead of losing transcripts silently",
+        "tags": ["新機能"]
+      },
+      {
+        "t": "修正: MCP ツールの出力が切り詰められた後も、切り詰め前の完全な結果がセッション終了までメモリに保持され続けるメモリリークを修正",
+        "t_en": "Fixed a memory leak where truncated MCP tool outputs kept the full untruncated result in memory for the rest of the session",
+        "tags": ["バグ修正", "MCP", "Perf"]
+      },
+      {
+        "t": "修正: Windows で自動更新が失敗すると `claude.exe` が消失してしまうことがある問題を修正。更新失敗時は保持していた実行ファイルを自動的に復元するように",
+        "t_en": "Fixed Windows auto-update failures that could leave `claude.exe` missing; failed updates now restore the preserved executable automatically",
+        "tags": ["バグ修正", "Windows"]
+      },
+      {
+        "t": "修正: バックグラウンドセッションの隔離処理がシンボリックリンクされた作業ディレクトリを正規化しておらず、セッションが作業フォルダの外に出られてしまう問題を修正",
+        "t_en": "Fixed background session isolation not canonicalizing symlinked working directories, which could let sessions escape their workspace folder",
+        "tags": ["バグ修正", "Security"]
+      },
+      {
+        "t": "修正: Bedrock 上の Claude Opus 4.8 で auto-compact が発火しない問題と、コンテキスト上限を超えた後に `/compact` が失敗する問題を修正",
+        "t_en": "Fixed auto-compact never triggering for Claude Opus 4.8 on Bedrock and `/compact` failing once over the limit",
+        "tags": ["バグ修正", "Platform"]
+      },
+      {
+        "t": "修正: Claude Desktop のセッションで企業向けの mTLS・TLS 検証・OAuth スコープ・プロキシ設定が無視されていた問題を修正",
+        "t_en": "Fixed corporate mTLS, TLS-verify, OAuth scope, and proxy settings being ignored in Claude Desktop sessions",
+        "tags": ["バグ修正", "Security"]
+      },
+      {
+        "t": "修正: スクリーンリーダーモードの起動時アナウンスが最初のプロンプト描画で途切れてしまう問題と、経過時間・トークン数の更新のために thinking ステータス行が数秒おきに再描画されてしまう問題を修正",
+        "t_en": "Fixed screen reader mode's startup announcement being cut off by the first prompt render, and the thinking status row re-rendering every few seconds to update elapsed time and token counts",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: `OTEL_EXPORTER_OTLP_ENDPOINT` を指定した管理者設定がすべてのシグナルに適用されない問題を修正。より狭いスコープのシグナル別エンドポイント上書きによって、テレメトリが管理者設定のエンドポイントから逸れてしまうことがなくなった",
+        "t_en": "Fixed managed settings that set `OTEL_EXPORTER_OTLP_ENDPOINT` not governing all signals — lower-scope signal-specific overrides no longer redirect telemetry away from the managed endpoint",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: transcript 内に不正な添付ファイルのエントリがある場合に `--resume`・`--continue`・`/resume` が TypeError で失敗する問題を修正",
+        "t_en": "Fixed `--resume`/`--continue` and `/resume` failing with a TypeError when a transcript has a malformed attachment entry",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: Remote Control で、プロンプトやダイアログの表示後に接続した閲覧者にはそれらが表示されない問題を修正",
+        "t_en": "Fixed Remote Control sessions not showing a pending permission prompt or dialog to viewers that connected after it appeared",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: セッションをバックグラウンドに送った後（`/background` や ←）や、高負荷なマシンでセッションが終了した際に、バックグラウンドシェルを停止できなくなることがある問題を修正（Windows で特に顕著）",
+        "t_en": "Fixed background shells sometimes becoming impossible to stop after a session is sent to the background (`/background` or `←`) or when the session exits on a heavily loaded machine, most visible on Windows",
+        "tags": ["バグ修正", "Windows"]
+      },
+      {
+        "t": "修正: `CLAUDE.md` や `SKILL.md` の paths frontmatter に波括弧展開のグループを多数含む値を指定すると、起動時に OOM で強制終了したりスタールしたりする問題を修正。波括弧展開の処理に上限を設けた",
+        "t_en": "Fixed a `CLAUDE.md` or `SKILL.md` paths frontmatter value with many brace groups OOM-killing or stalling the CLI at startup — brace expansion is now budget-bounded",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: 起動中のバックグラウンドセッションにアタッチした際、transcript プレビューが入力欄に密着して表示される問題を修正。ライブレイアウトと同じ1行分の余白を確保するようになり、セッションが引き継がれた際に transcript がずれて表示されなくなった",
+        "t_en": "Fixed the transcript preview sitting flush against the input area when attaching to a starting background session; it now leaves the same one-line gap as the live layout, so the transcript no longer shifts when the session takes over",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "改善: フッターの PR バッジリンクを、ターミナルのハイパーリンク対応が検出できない場合（ssh・tmux 経由など）でもクリック可能にした。`FORCE_HYPERLINK=0` で無効化可能",
+        "t_en": "Improved footer PR badge links to be clickable hyperlinks even when terminal support can't be detected (e.g. over ssh/tmux); set `FORCE_HYPERLINK=0` to opt out",
+        "tags": ["改善"]
+      },
+      {
+        "t": "変更: ログイン期限切れ警告の表示タイミングを、期限の5日前から3日前に変更",
+        "t_en": "Changed the login-expiry warning to appear 3 days before expiry instead of 5",
+        "tags": ["改善"]
+      },
+      {
+        "t": "変更: frontend-design プラグインの提案表示回数を生涯3回までに制限（以前は無制限に繰り返し表示されていた）",
+        "t_en": "Capped the frontend-design plugin suggestion tip at 3 lifetime impressions instead of repeating indefinitely",
+        "tags": ["改善", "Plugin"]
+      },
+      {
+        "t": "追加: 同時実行できるサブエージェント数の上限を追加（デフォルト20件、`CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS` で変更可能）。1つのメッセージから無制限にバックグラウンドエージェントがファンアウトすることを防止",
+        "t_en": "Added a cap on concurrently-running subagents (default 20, override with `CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS`) so one message can't fan out unbounded background agents",
+        "tags": ["新機能", "Agent"]
+      },
+      {
+        "t": "変更: サブエージェントがデフォルトではネストしたサブエージェントを起動しないように変更。`CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH` でネストの深さを調整可能",
+        "t_en": "Changed subagents to no longer spawn nested subagents by default; set `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH` to allow deeper nesting",
+        "tags": ["改善", "Agent"]
+      },
+      {
+        "t": "修正: `--max-budget-usd` がバックグラウンドサブエージェントを停止できていなかった問題を修正。上限到達後は新規起動を拒否し、実行中のバックグラウンドエージェントも停止するように",
+        "t_en": "Fixed `--max-budget-usd` not stopping background subagents: once the cap is reached, new spawns are denied and running background agents are halted",
+        "tags": ["バグ修正", "Agent"]
+      }
+    ]
   }
 ]
