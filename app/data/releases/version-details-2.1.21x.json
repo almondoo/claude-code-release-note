@@ -2046,5 +2046,340 @@
       "category": "コスト管理",
       "category_en": "Cost Management"
     }
+  ],
+  "2.1.218": [
+    {
+      "t": "変更: /code-review をバックグラウンドサブエージェントとして実行するように変更。レビュー作業が会話を埋め尽くさなくなり、スタックされたスラッシュコマンドがレビュー対象として維持されるように",
+      "t_en": "Changed `/code-review` to run as a background subagent, so review work no longer fills your conversation and keeps stacked slash commands as its review target",
+      "tags": ["改善", "Agent"],
+      "detail": "これまで /code-review をローカルで実行すると、レビュー処理が会話に同期的に組み込まれ、レビュー結果の出力が会話のコンテキストを占有していた。\n\n本バージョンでは /code-review がバックグラウンドサブエージェントとして起動するように変更され、レビューが会話とは別に実行されるため会話が煩雑にならなくなった。また、複数のスラッシュコマンドが重ねて実行された場合も、それらによって生成された差分がレビュー対象として正しく引き継がれるようになった。詳しくは[code-review のドキュメント](https://code.claude.com/docs/en/code-review#review-a-diff-locally)を参照してください。",
+      "detail_en": "Previously, running `/code-review` locally executed synchronously inline in the conversation, and the review output filled up the conversation's context.\n\nThis version changes `/code-review` to launch as a background subagent, so the review runs separately from the conversation and no longer clutters it. It also correctly carries over the diff produced by stacked slash commands as its review target. See the [code-review documentation](https://code.claude.com/docs/en/code-review#review-a-diff-locally) for details.",
+      "category": "コマンド",
+      "category_en": "Commands"
+    },
+    {
+      "t": "追加: --ax-screen-reader モードで、単語・行削除時（Option+Delete、Ctrl+W、Cmd+Backspace、Ctrl+U、Ctrl+K）に削除されたテキストをスクリーンリーダーで読み上げるように",
+      "t_en": "Added screen-reader announcements of deleted text for word and line deletions (`Option+Delete`, `Ctrl+W`, `Cmd+Backspace`, `Ctrl+U`, `Ctrl+K`) in `--ax-screen-reader` mode",
+      "tags": ["新機能"],
+      "detail": "これまでスクリーンリーダーモードでは、単語や行を削除しても削除された内容が読み上げられず、何が消えたのかを音声で確認する手段がなかった。\n\n本バージョンでは、Option+Delete・Ctrl+W・Cmd+Backspace（単語削除）や Ctrl+U・Ctrl+K（行削除）を使った際に、削除されたテキストがスクリーンリーダーでアナウンスされるようになった。詳しくは[アクセシビリティのドキュメント](https://code.claude.com/docs/en/accessibility#what-your-screen-reader-hears)を参照してください。",
+      "detail_en": "Previously, in screen reader mode, deleting a word or line gave no spoken feedback about what was removed.\n\nThis version announces the deleted text through the screen reader when using Option+Delete, Ctrl+W, or Cmd+Backspace (word deletion) and Ctrl+U or Ctrl+K (line deletion). See the [accessibility documentation](https://code.claude.com/docs/en/accessibility#what-your-screen-reader-hears) for details.",
+      "category": "アクセシビリティ",
+      "category_en": "Accessibility"
+    },
+    {
+      "t": "修正: `\\u` で始まるセグメントを含む Windows パス（例: `C:\\Users\\unicorn`）がツール入力内で文字化けして CJK 文字に変換され、該当ファイルにアクセスできなくなる問題を修正",
+      "t_en": "Fixed Windows paths with `\\u`-prefixed segments (like `C:\\Users\\unicorn`) being corrupted into CJK characters in tool inputs, which made those files inaccessible",
+      "tags": ["バグ修正", "Windows"],
+      "detail": "`\\u` の後に文字が続く Windows パスのセグメント（`\\Users\\` など）が、JavaScript 形式の `\\uXXXX` Unicode エスケープシーケンスとして誤って解釈され、ツール入力に渡す際に無関係な CJK 文字へと文字化けしていた。これにより該当するファイルにアクセスできなくなっていた。\n\n本バージョンでは、このようなパスのセグメントをエスケープシーケンスとして扱わないように修正され、Windows パスがツールに正しくそのまま渡されるようになった。",
+      "detail_en": "Windows path segments starting with `\\u` followed by characters (like `\\Users\\`) were being misinterpreted as JavaScript-style `\\uXXXX` Unicode escape sequences and corrupted into unrelated CJK characters when passed to tool inputs, making the affected files inaccessible.\n\nThis version stops treating such path segments as escape sequences, so Windows paths now pass through to tools intact.",
+      "category": "プラットフォーム互換性",
+      "category_en": "Platform Compatibility"
+    },
+    {
+      "t": "修正: 左矢印キーで会話が取り消せないまま破棄されてしまう問題を修正。編集直後の左矢印キー押下では確認を求めるようになり、エージェントビューでの Esc はバックグラウンドに送った会話へ戻るように",
+      "t_en": "Fixed the left arrow key discarding the conversation with no undo: presses right after editing now ask to confirm, and Esc in the agent view returns to the conversation it backgrounded",
+      "tags": ["バグ修正"],
+      "detail": "編集直後に左矢印キーを押すと、確認なしに会話全体が破棄されてしまい、元に戻す手段がなかった。\n\n本バージョンでは、編集直後の左矢印キー押下時に確認を求めるようになり、誤操作による会話の消失を防止する。また、エージェントビューで Esc を押した際には、バックグラウンドに送った会話へ正しく戻るようになった。",
+      "detail_en": "Pressing the left arrow key right after editing input could discard the entire conversation with no way to undo it.\n\nThis version now asks for confirmation when the left arrow is pressed right after editing, preventing accidental loss of the conversation. Pressing Esc in the agent view now correctly returns you to the conversation that was sent to the background.",
+      "category": "UX",
+      "category_en": "UX"
+    },
+    {
+      "t": "追加: MCP サーバーへの接続に失敗した際、claude mcp list と /mcp に HTTP ステータスとエラー内容を表示するように。また MCP 設定値の前後に隠れた空白がある場合に警告を表示するように",
+      "t_en": "Added HTTP status and error text to `claude mcp list` and `/mcp` when a server fails to connect, and a warning for MCP config values with hidden leading or trailing whitespace",
+      "tags": ["新機能", "MCP"],
+      "detail": "これまで MCP サーバーへの接続に失敗した場合、claude mcp list や /mcp パネルではその原因についてほとんど情報が得られなかった。\n\n本バージョンでは、接続失敗時に HTTP ステータスコードとエラー内容が表示されるようになり、原因の切り分けがしやすくなった。また、ヘッダーや URL などの設定値の前後に目に見えない空白が含まれている場合、それが原因で接続が静かに失敗することを防ぐため警告が表示されるようになった。詳しくは[MCP のドキュメント](https://code.claude.com/docs/en/mcp)を参照してください。",
+      "detail_en": "Previously, when an MCP server failed to connect, `claude mcp list` and the `/mcp` panel gave little information about the cause.\n\nThis version shows the HTTP status code and error text when a connection fails, making it easier to diagnose. It also warns when a configured value (such as a header or URL) has invisible leading or trailing whitespace that could silently cause a connection to fail. See the [MCP documentation](https://code.claude.com/docs/en/mcp) for details.",
+      "category": "MCP 連携",
+      "category_en": "MCP Integration"
+    },
+    {
+      "t": "修正: 貼り付けた改行を Ctrl+J として送信するターミナルで、複数行の貼り付けが改行の代わりに j が挿入されて1行に潰れてしまう問題を修正",
+      "t_en": "Fixed multi-line paste collapsing into one line with `j` in place of newlines in terminals that encode pasted newlines as Ctrl+J",
+      "tags": ["バグ修正"],
+      "detail": "一部のターミナルは貼り付けたテキスト内の改行を Ctrl+J（0x0A）としてエンコードするが、Claude Code はこれをリテラルな「j」のキー入力と誤認識しており、複数行の貼り付けが改行位置に「j」が挿入された1行のテキストに潰れてしまっていた。\n\n本バージョンでは、この状況における Ctrl+J を改行として正しく認識するようになり、複数行の貼り付けが正しく保持されるようになった。",
+      "detail_en": "Some terminals encode newlines in pasted text as Ctrl+J (0x0A); Claude Code was misinterpreting these as literal 'j' keypresses, collapsing multi-line pastes into a single line with stray 'j' characters where line breaks should be.\n\nThis version correctly recognizes Ctrl+J as a newline in this situation, so multi-line pastes are now preserved correctly.",
+      "category": "入力",
+      "category_en": "Input"
+    },
+    {
+      "t": "修正: メッセージピッカーから compact した後、/context が古い（compact 前の）トークン使用量を表示してしまう問題を修正",
+      "t_en": "Fixed `/context` reporting stale pre-compact token usage after compacting from the message picker",
+      "tags": ["バグ修正"],
+      "detail": "メッセージピッカーから compact 処理を実行した場合、通常の /compact フローとは異なり、/context の表示が compact 前のトークン使用量のまま更新されないことがあった。\n\n本バージョンでは、このパスで compact した場合もトークン使用量が正しく更新され、/context が compact 後の状態を反映するようになった。",
+      "detail_en": "When compaction was triggered from the message picker rather than the normal `/compact` flow, `/context` could keep showing the pre-compact token usage instead of the updated figures.\n\nThis version correctly refreshes token accounting after compacting through this path, so `/context` now reflects the post-compaction state.",
+      "category": "セッション管理",
+      "category_en": "Session Management"
+    },
+    {
+      "t": "修正: /ultrareview に「review my auth changes」のような説明的な引数を渡すと失敗していた問題を修正。現在のブランチに対するレビューを実行し、渡したテキストは所見に対する注記として反映されるように",
+      "t_en": "Fixed `/ultrareview` failing on descriptive arguments like \"review my auth changes\" — they now run a review of your current branch with the text applied as a note to the findings",
+      "tags": ["バグ修正"],
+      "detail": "ブランチ名や PR 番号・URL ではなく「review my auth changes」のような説明的なフレーズを /ultrareview に渡すと、レビュー対象として解決できずにコマンドが失敗していた。\n\n本バージョンでは、このような自由記述の引数は注記として扱われるようになり、通常どおりデフォルトブランチに対する現在のブランチのレビューを実行したうえで、渡されたテキストが所見に付随するガイダンスとして反映されるようになった。詳しくは[ultrareview のドキュメント](https://code.claude.com/docs/en/ultrareview#run-ultrareview-from-the-cli)を参照してください。",
+      "detail_en": "Passing a descriptive phrase like \"review my auth changes\" instead of a branch name, PR number, or PR URL to `/ultrareview` previously failed because the command couldn't resolve the text as a review target.\n\nThis version treats such free-text arguments as a note: it runs the usual review of the current branch against the default branch, and applies the passed text as guidance attached to the findings. See the [ultrareview documentation](https://code.claude.com/docs/en/ultrareview#run-ultrareview-from-the-cli) for details.",
+      "category": "コマンド",
+      "category_en": "Commands"
+    },
+    {
+      "t": "修正: 非対話型セッションで /code-review ultra が黙ってローカルレビューを実行してしまう問題を修正。クラウドレビューが起動するように",
+      "t_en": "Fixed `/code-review ultra` silently running a local review in non-interactive sessions — it now launches the cloud review",
+      "tags": ["バグ修正"],
+      "detail": "非対話型セッション（claude -p など）で /code-review ultra を実行すると、本来起動されるはずのクラウドベースの ultrareview の代わりに、ローカルでのセッション内レビューへ黙ってフォールバックしており、ユーザーはその切り替わりに気づけなかった。\n\n本バージョンでは、非対話型セッションでも /code-review ultra が正しくクラウド版の ultrareview を起動するようになった。詳しくは[ultrareview のドキュメント](https://code.claude.com/docs/en/ultrareview#run-ultrareview-non-interactively)を参照してください。",
+      "detail_en": "Running `/code-review ultra` in a non-interactive session (e.g. `claude -p`) was silently falling back to a local, in-session review instead of launching the intended cloud-based ultrareview, without telling the user about the substitution.\n\nThis version correctly launches the cloud ultrareview in non-interactive sessions when available. See the [ultrareview documentation](https://code.claude.com/docs/en/ultrareview#run-ultrareview-non-interactively) for details.",
+      "category": "コマンド",
+      "category_en": "Commands"
+    },
+    {
+      "t": "修正: ゲートウェイの支出計測が、Bedrock のアプリケーション推論プロファイル ARN や設定でマッピングされたその他のアップストリームモデル ID を、設定されたモデルの料金で正しく計算するように修正",
+      "t_en": "Fixed gateway spend metering to price Bedrock application-inference-profile ARNs and other config-mapped upstream model IDs at the configured model's rates",
+      "tags": ["バグ修正", "Platform"],
+      "detail": "モデル ID のマッピング（Amazon Bedrock のアプリケーション推論プロファイル ARN など）を介してリクエストがルーティングされる際、ゲートウェイベースの支出計測がこれら設定でマッピングされたアップストリームモデル ID を正しい料金で計算できておらず、コスト計測が不正確になっていた。\n\n本バージョンでは、マッピング先のモデルを正しく解決し、設定されたモデルの料金を適用するように修正された。",
+      "detail_en": "When requests were routed through model-ID mappings such as Amazon Bedrock application-inference-profile ARNs, gateway-based spend metering wasn't pricing these config-mapped upstream model IDs correctly, leading to inaccurate cost metering.\n\nThis version correctly resolves the mapped model and applies its configured pricing.",
+      "category": "プラットフォーム互換性",
+      "category_en": "Platform Compatibility"
+    },
+    {
+      "t": "修正: IDE での選択範囲が長い場合に絵文字の途中で切り詰められて文字化けする問題と、ツール実行エラーが黙って握りつぶされることがある問題を修正",
+      "t_en": "Fixed mojibake when a long IDE selection was truncated mid-emoji, and a case where a tool executor error could be silently dropped",
+      "tags": ["バグ修正", "IDE"],
+      "detail": "IDE から送信された選択範囲のテキストが長く切り詰めが必要な場合、切り詰め位置が絵文字などのマルチバイト文字の途中に来ることがあり、文字化けが発生していた。また別件として、内部のツール実行エラーが表面化されずに黙って握りつぶされるケースが存在していた。\n\n本バージョンでは、切り詰め処理が文字境界を考慮するようになったほか、ツール実行エラーが確実に報告されるようになった。",
+      "detail_en": "When an IDE selection sent to Claude Code was long enough to require truncation, the cut could land in the middle of a multi-byte emoji character, producing mojibake. Separately, an internal tool executor error case existed where the error could be silently swallowed instead of surfaced.\n\nThis version fixes both: truncation now respects character boundaries, and tool executor errors are reliably reported.",
+      "category": "IDE",
+      "category_en": "IDE"
+    },
+    {
+      "t": "修正: エンジンの終了処理における競合状態により、開始直後に破棄される「幻のターン」が発生することがある問題を修正。またクローズ後に送信された入力が一貫して拒否されるように修正",
+      "t_en": "Fixed an engine teardown race that could start and abandon a phantom turn, and made input pushed after close consistently rejected",
+      "tags": ["バグ修正"],
+      "detail": "セッション（エンジン）の終了処理中に競合状態が発生すると、新しい会話ターンが開始された直後に破棄されてしまう「幻のターン」が発生し、状態の不整合を招くことがあった。また、既に閉じられたセッションに送信された入力が、一貫して拒否されないことがあった。\n\n本バージョンでは、終了処理時に幻のターンが開始されないように修正され、クローズ後の入力は確実に拒否されるようになった。",
+      "detail_en": "A race condition during session (engine) teardown could cause a new conversational turn to start and then be immediately abandoned (a \"phantom turn\"), leaving inconsistent state. Additionally, input sent to an already-closed session wasn't consistently rejected.\n\nThis version fixes both: teardown no longer starts phantom turns, and input sent after close is now reliably rejected.",
+      "category": "セッション管理",
+      "category_en": "Session Management"
+    },
+    {
+      "t": "修正: ツール呼び出しの中断後に「[Request interrupted by user]」という誤ったメッセージが表示される問題と、応答の途中でツールが中断した際に対応する結果を持たない tool_use ブロックが transcript に残ってしまう問題を修正",
+      "t_en": "Fixed spurious \"[Request interrupted by user]\" messages after interrupted tool calls, and an unpaired `tool_use` block left in the transcript when a tool aborted mid-response",
+      "tags": ["バグ修正"],
+      "detail": "特定のツール呼び出しの中断後、実際にはユーザーが中断していない場合でも「[Request interrupted by user]」というメッセージが付加されてしまうことがあった。また、応答の途中でツールが中断すると、対応する tool_result を持たない tool_use ブロックが transcript に残ってしまい、以降の API 呼び出しを破損させる可能性があった。\n\n本バージョンでは、両方の問題が修正され、transcript の整合性が保たれるようになった。",
+      "detail_en": "After certain tool call interruptions, Claude Code was appending a \"[Request interrupted by user]\" message even when the user hadn't actually interrupted anything. A tool that aborted partway through a response could also leave an unpaired `tool_use` block (with no matching `tool_result`) in the transcript, which could corrupt later API calls.\n\nThis version fixes both issues, keeping transcripts consistent.",
+      "category": "セッション管理",
+      "category_en": "Session Management"
+    },
+    {
+      "t": "修正: --ax-screen-reader モードで、入力欄の末尾にスペースを入力すると VoiceOver が「new line」と読み上げてしまい、実際に入力したスペースが読み上げられない問題を修正",
+      "t_en": "Fixed VoiceOver reading \"new line\" instead of echoing the typed space at the end of the input in `--ax-screen-reader` mode",
+      "tags": ["バグ修正"],
+      "detail": "スクリーンリーダーモードで入力欄の末尾にスペースを入力すると、VoiceOver は実際に入力された文字（スペース）ではなく「new line」とアナウンスしており、誤った音声フィードバックを与えていた。\n\n本バージョンでは、入力エコーのロジックが修正され、末尾に入力したスペースが正しくスペースとして読み上げられるようになった。",
+      "detail_en": "When a user typed a trailing space at the end of the input line in screen reader mode, VoiceOver announced \"new line\" instead of echoing the space that was actually typed, giving misleading feedback.\n\nThis version fixes the input echo logic so a typed trailing space is now correctly announced as a space.",
+      "category": "アクセシビリティ",
+      "category_en": "Accessibility"
+    },
+    {
+      "t": "修正: プラグインおよび設定パネルで、矢印キーによる操作時にターミナルのカーソルがフォーカス行へ移動せず、スクリーンリーダーや画面拡大鏡が追従できない問題を修正",
+      "t_en": "Fixed plugin and settings panels not moving the terminal cursor to the focused row, so screen readers and magnifiers can follow arrow-key navigation",
+      "tags": ["バグ修正"],
+      "detail": "/plugin や /config などのパネルでは、矢印キーによるナビゲーション時に実際のターミナルカーソルがハイライト行へ移動していなかったため、カーソル位置を頼りに動作するスクリーンリーダーや画面拡大鏡がキーボード操作に追従できなかった。\n\n本バージョンでは、これらのパネルでもターミナルカーソルがハイライト行に追従するようになり、入力欄のキャレットと同様の挙動になった。詳しくは[アクセシビリティのドキュメント](https://code.claude.com/docs/en/accessibility#accessibility-settings-beyond-screen-reader-mode)を参照してください。",
+      "detail_en": "In panels like `/plugin` and `/config`, navigating with arrow keys previously didn't move the actual terminal cursor to the highlighted row, so screen readers and magnifiers that track cursor position couldn't follow keyboard navigation.\n\nThis version makes the terminal cursor follow the highlighted row in these panels too, matching the existing behavior of the input caret. See the [accessibility documentation](https://code.claude.com/docs/en/accessibility#accessibility-settings-beyond-screen-reader-mode) for details.",
+      "category": "アクセシビリティ",
+      "category_en": "Accessibility"
+    },
+    {
+      "t": "修正: 深くネストされた監視対象のディレクトリツリーが削除・移動された場合や、深くネストされた UI ツリーを描画する場合に「maximum call stack exceeded」でクラッシュする問題を修正",
+      "t_en": "Fixed crashes (maximum call stack exceeded) when a deeply nested watched directory tree was deleted or moved, and when rendering deeply nested UI trees",
+      "tags": ["バグ修正"],
+      "detail": "非常に深くネストされた監視対象ディレクトリツリーが削除・移動された際、再帰処理によって呼び出しスタックの上限を超えクラッシュすることがあった。同様に、深くネストされた UI コンポーネントツリーの描画でも同じ種類のスタックオーバーフローが発生していた。\n\n本バージョンでは、両方の処理経路が無制限な再帰の深さを避けるように修正され（反復処理への変更など）、これらのクラッシュが解消された。",
+      "detail_en": "Recursively processing a very deeply nested watched directory tree that was deleted or moved could exceed the call stack, and rendering deeply nested UI component trees could hit the same class of stack-overflow crash.\n\nThis version changes both code paths (e.g. to iterative processing) to avoid unbounded recursion depth, eliminating these crashes.",
+      "category": "安定性",
+      "category_en": "Stability"
+    },
+    {
+      "t": "修正: PR を作成またはリンクした直後にセッションが終了すると、PR イベントが失われることがある問題を修正",
+      "t_en": "Fixed pull request events occasionally being lost when a session exited immediately after creating or linking a PR",
+      "tags": ["バグ修正"],
+      "detail": "セッションが PR の作成またはリンク直後に終了した場合、そのイベントがフラッシュされる前にセッションが終了してしまい、PR 追跡などの後続処理に通知されるはずのイベントが失われることがあった。\n\n本バージョンでは、このようなケースでもセッションが終了する前にイベントが確実に送信されるようになった。",
+      "detail_en": "If a session exited right after creating or linking a pull request, the event notifying downstream systems (such as PR tracking) about it could occasionally be lost because the session terminated before the event was flushed.\n\nThis version ensures the event is reliably sent before the session can exit in this scenario.",
+      "category": "Git 連携",
+      "category_en": "Git Integration"
+    },
+    {
+      "t": "修正: /setup-bedrock ウィザードで、パーティション分割された AWS リージョンやプロキシ経由のみのネットワークにおける assume-role プロファイルの検証が失敗する問題を修正",
+      "t_en": "Fixed the Bedrock setup wizard failing profile verification for assume-role profiles in partitioned AWS regions and on proxy-only networks",
+      "tags": ["バグ修正", "Platform"],
+      "detail": "/setup-bedrock ウィザードのモデルアクセス検証ステップは、ロール引き受け（assume-role）を使う AWS プロファイルが GovCloud や中国リージョンなどのパーティション分割されたリージョンで使われる場合や、アウトバウンドプロキシ経由でのみアクセス可能なネットワーク上で使われる場合に失敗していた。\n\n本バージョンでは、これらの構成でも検証ロジックが正しく動作するようになり、セットアップを完了できるようになった。",
+      "detail_en": "The `/setup-bedrock` wizard's model-access verification step was failing for AWS profiles that use role assumption (assume-role) when running in partitioned AWS regions (such as GovCloud or China regions) or on networks that only allow access via an outbound proxy.\n\nThis version fixes the verification logic to correctly handle these configurations so setup can complete.",
+      "category": "プラットフォーム互換性",
+      "category_en": "Platform Compatibility"
+    },
+    {
+      "t": "修正: システムクロックの調整後にターン所要時間が負の値や誤った値になることがある問題を修正。ターンの計測に単調クロックを使用するように変更",
+      "t_en": "Fixed rare negative or incorrect turn duration measurements after a system clock adjustment by timing turns with a monotonic clock",
+      "tags": ["バグ修正"],
+      "detail": "これまでターンの所要時間はシステム（ウォールクロック）時計を使って計測されていたが、OS が時刻同期やスリープ復帰などでシステム時刻を前後に調整すると、まれに負の値や意味を成さない所要時間が計測されることがあった。\n\n本バージョンでは、常に前方にしか進まない単調クロックでターンを計測するようになり、この種の計測誤りが解消された。",
+      "detail_en": "Turn duration was previously measured using the wall-clock (system) clock, which can jump backward or forward when the OS adjusts system time (e.g. NTP sync, sleep/wake), occasionally producing negative or nonsensical turn durations.\n\nThis version times turns with a monotonic clock, which only moves forward, eliminating this class of measurement error.",
+      "category": "安定性",
+      "category_en": "Stability"
+    },
+    {
+      "t": "修正: 起動時に表示される「N 件の MCP サーバーが認証を必要としています」という通知が、claude.ai 側で未接続の claude.ai コネクタまで数に含めて過大に表示していた問題を修正",
+      "t_en": "Fixed the \"N MCP servers need authentication\" startup notice over-counting claude.ai connectors that aren't connected in claude.ai",
+      "tags": ["バグ修正", "MCP"],
+      "detail": "起動時に表示される、サインインが必要な MCP サーバーの件数を知らせる通知は、claude.ai 側の設定で接続されていない claude.ai コネクタも件数に含めてしまっていた。これらは claude.ai 側からしか接続できないため、Claude Code 上で対応することはできなかった。\n\n本バージョンでは、この通知が Claude Code 上で実際にサインインできるサーバーのみを対象に件数を計算するようになり、正確な件数が表示されるようになった。詳しくは[MCP のドキュメント](https://code.claude.com/docs/en/mcp)を参照してください。",
+      "detail_en": "The startup notice reporting how many configured MCP servers need sign-in was counting claude.ai connectors that weren't connected in claude.ai settings, even though those can only be connected from claude.ai itself, not from Claude Code.\n\nThis version counts only servers you can actually sign in to from within Claude Code, giving an accurate count. See the [MCP documentation](https://code.claude.com/docs/en/mcp) for details.",
+      "category": "MCP 連携",
+      "category_en": "MCP Integration"
+    },
+    {
+      "t": "修正: 履歴の書き込みが競合または失敗した際に、プロンプト履歴のエントリが失われたり重複したりする問題を修正",
+      "t_en": "Fixed prompt history entries being dropped or duplicated when history writes raced or failed",
+      "tags": ["バグ修正"],
+      "detail": "プロンプト履歴ファイルへの書き込みが同時に発生したり失敗したりすると、履歴エントリが失われたり二重に書き込まれたりすることがあり、上矢印キーによる履歴呼び出しが乱れる原因になっていた。\n\n本バージョンでは、履歴の書き込み処理が競合や失敗の影響を受けないように修正され、エントリの欠落や重複が発生しなくなった。",
+      "detail_en": "Concurrent or failed writes to the prompt history file could cause history entries to be lost or written twice, corrupting up-arrow history recall.\n\nThis version handles history writes so races and failures no longer cause dropped or duplicated entries.",
+      "category": "入力",
+      "category_en": "Input"
+    },
+    {
+      "t": "修正: 大きな thinking 予算でコンテキスト超過エラーが発生した後、同一の失敗確定リクエストを再送し続けるリトライループを修正。また Ctrl+B によるバックグラウンド化も、他の経路と同じバックグラウンドシェルの上限が適用されるように修正",
+      "t_en": "Fixed a retry loop that re-sent identical doomed requests after a context-overflow error with a large thinking budget; `Ctrl+B` backgrounding now applies the same background-shell caps as other paths",
+      "tags": ["バグ修正"],
+      "detail": "大きな extended thinking 予算を使用中にコンテキスト超過エラーでリクエストが失敗すると、Claude Code は同一のリクエストを再送するリトライループに陥ることがあった。このリクエストは同じ理由で必ず再度失敗するため、時間とトークンが無駄になっていた。\n\n本バージョンでは、このような失敗が確定しているリトライを回避するように修正された。あわせて、Ctrl+B でシェルコマンドをバックグラウンド化する際にも、他のバックグラウンド化経路ですでに適用されていた出力サイズ・レートなどの上限が同様に適用されるようになり、挙動の不整合が解消された。",
+      "detail_en": "When a request failed due to context overflow while using a large extended-thinking budget, Claude Code could enter a retry loop that resent the identical request, which was guaranteed to fail again the same way, wasting time and tokens.\n\nThis version avoids such doomed retries. It also makes backgrounding a shell command with Ctrl+B apply the same output-size/rate caps that other backgrounding paths already enforced, closing an inconsistency.",
+      "category": "安定性",
+      "category_en": "Stability"
+    },
+    {
+      "t": "修正: 信頼されていないフォルダ内のサブエージェント frontmatter に定義された hooks が実行されてしまう問題を修正。hooks の実行にはエージェントファイル自身が置かれたフォルダでワークスペース信頼が承認済みであることが必要に",
+      "t_en": "Fixed agent frontmatter hooks running from untrusted folders: hooks now require the agent file's own folder to have accepted workspace trust",
+      "tags": ["バグ修正", "Security", "Agent"],
+      "detail": "サブエージェントの Markdown frontmatter 内に直接定義された hooks は、hooks がシェルコマンドを実行するにもかかわらず、そのエージェントファイルが置かれたフォルダがワークスペース信頼ダイアログを通過していなくても実行されてしまうことがあり、セキュリティ上のギャップとなっていた。\n\n本バージョンでは、エージェントファイル自身のフォルダでワークスペース信頼が承認されている場合にのみ、これらの hooks が実行されるようになった。これはプロジェクトレベルのパーミッションルールやスキルの allowed-tools が信頼を必要とする挙動と一貫している。詳しくは[hooks のドキュメント](https://code.claude.com/docs/en/hooks)を参照してください。",
+      "detail_en": "Hooks defined directly in a subagent's markdown frontmatter could previously run even when the folder containing that agent file hadn't gone through the workspace trust dialog, which was a security gap since hooks run shell commands.\n\nThis version only runs such hooks once the agent file's own folder has accepted workspace trust, consistent with how project-level permission rules and skill `allowed-tools` are gated. See the [hooks documentation](https://code.claude.com/docs/en/hooks) for details.",
+      "category": "セキュリティ",
+      "category_en": "Security"
+    },
+    {
+      "t": "修正: ヘッドレスセッションおよび SDK セッションで、compact 後にフォークセッションの系譜（lineage）情報が失われる問題を修正",
+      "t_en": "Fixed fork-session lineage being lost after compaction in headless and SDK sessions",
+      "tags": ["バグ修正", "SDK"],
+      "detail": "セッションが compact（履歴の要約）された後にフォークされると、SDK・ヘッドレスセッションのフォーク処理がその系譜（元のセッションとの関係）を正しく追跡できなくなり、セッションの追跡や再開ロジックが破綻することがあった。\n\n本バージョンでは、compact をまたいでもフォーク処理が系譜情報を正しく保持するように修正された。詳しくは[Agent SDK のセッションドキュメント](https://code.claude.com/docs/en/agent-sdk/sessions#fork-to-explore-alternatives)を参照してください。",
+      "detail_en": "When a session was compacted (its history summarized) and then forked, the SDK/headless fork mechanism could lose track of the session's lineage (its relationship to the original session) across that compaction boundary, breaking session tracking and resumption logic.\n\nThis version correctly preserves lineage information through compaction. See the [Agent SDK sessions documentation](https://code.claude.com/docs/en/agent-sdk/sessions#fork-to-explore-alternatives) for details.",
+      "category": "SDK",
+      "category_en": "SDK"
+    },
+    {
+      "t": "修正: セッションの履歴に不正な delta 添付ファイルのエントリが含まれている場合、再開したセッションのすべてのターンが失敗したり、再開自体がクラッシュしたりする問題を修正",
+      "t_en": "Fixed a resumed session failing every turn, or crashing on resume, when its history held a malformed delta attachment",
+      "tags": ["バグ修正"],
+      "detail": "セッションの保存済み transcript に不正な「delta」添付ファイル（履歴に保存されたストリーミング途中のコンテンツ更新）が含まれていると、そのセッションを再開した際に即座にクラッシュするか、以降のすべてのターンが失敗し、セッションが実質的に使用不能になっていた。\n\n本バージョンでは、不正な delta 添付ファイルがあっても再開処理が正常に扱えるようになり、クラッシュや失敗が発生しなくなった。",
+      "detail_en": "If a session's saved transcript contained a malformed \"delta\" attachment (a partial/streamed content update stored in the history), resuming that session could crash immediately or fail on every subsequent turn, effectively bricking the session.\n\nThis version handles malformed delta attachments gracefully on resume instead of crashing or failing.",
+      "category": "セッション管理",
+      "category_en": "Session Management"
+    },
+    {
+      "t": "改善: /ultrareview のエラーメッセージを改善し、不正な引数を渡した際に Claude がそのまま再試行するのではなく引数を修正できるように",
+      "t_en": "Improved `/ultrareview` error feedback so Claude can correct an invalid argument instead of retrying it unchanged",
+      "tags": ["改善"],
+      "detail": "これまで /ultrareview に不正な引数を渡した場合のエラーフィードバックは十分に実用的ではなく、Claude が問題を特定できずに同じ不正な引数のまま再試行してしまうことがあった。\n\n本バージョンでは、エラーメッセージがより明確になり、Claude が何が誤っていたかを把握して再試行時に引数を修正できるようになった。詳しくは[ultrareview のドキュメント](https://code.claude.com/docs/en/ultrareview#run-ultrareview-from-the-cli)を参照してください。",
+      "detail_en": "Previously, when `/ultrareview` was given an invalid argument, the error feedback wasn't actionable enough for Claude to fix the argument on its own, so it would sometimes retry with the exact same invalid input.\n\nThis version makes the error messages clearer, so Claude can identify what was wrong and correct the argument on retry. See the [ultrareview documentation](https://code.claude.com/docs/en/ultrareview#run-ultrareview-from-the-cli) for details.",
+      "category": "コマンド",
+      "category_en": "Commands"
+    },
+    {
+      "t": "改善: auto モードにおいて、危険な rm・バックグラウンド実行の &・不審な Windows パスに対するチェックが、パーミッションダイアログを開かずに auto モードの分類器で判定されるように変更",
+      "t_en": "Improved auto mode: the dangerous-rm, background-`&`, and suspicious-Windows-path checks no longer open permission dialogs; the auto-mode classifier adjudicates them instead",
+      "tags": ["改善"],
+      "detail": "auto モードにおける一部の安全チェック（危険な rm コマンド、& でバックグラウンド化されたコマンド、不審な Windows パスの検出）は、これまで分類器を経由せず直接パーミッションダイアログを開いており、auto モードが目指すプロンプト削減の体験を妨げていた。\n\n本バージョンでは、これらのチェックが auto モードの分類器を経由して判定されるようになり、常にダイアログで止まるのではなく文脈に応じて判断されるようになった。",
+      "detail_en": "Certain safety checks in auto mode (detecting dangerous `rm` commands, commands backgrounded with `&`, and suspicious Windows paths) previously bypassed the classifier and opened a permission dialog directly, interrupting the low-prompt experience auto mode aims for.\n\nThis version routes these checks through the auto-mode classifier itself, which judges them in context instead of always stopping for a dialog.",
+      "category": "パーミッション",
+      "category_en": "Permissions"
+    },
+    {
+      "t": "改善: IDE との連携におけるサンドボックスのコマンド制限を改善",
+      "t_en": "Improved sandbox command restrictions for IDE interactions",
+      "tags": ["改善", "IDE"],
+      "detail": "IDE 連携によって Claude の代わりに実行されるコマンドについて、サンドボックスのコマンド制限が見直された。\n\n本バージョンでは、これらの IDE 関連コマンドに対するサンドボックスの制限ルールが改善され、より適切に制限・除外が判定されるようになった。",
+      "detail_en": "Sandbox command restrictions related to IDE-driven interactions (commands the IDE integration triggers on Claude's behalf) were refined.\n\nThis version improves how these IDE-related commands are judged for sandbox restriction or exclusion.",
+      "category": "サンドボックス",
+      "category_en": "Sandbox"
+    },
+    {
+      "t": "改善: ワークスペース信頼ダイアログに、承認対象となるリポジトリルートの名称を表示するように改善",
+      "t_en": "Improved trust dialogs to name the repository root the grant covers",
+      "tags": ["改善"],
+      "detail": "新しいディレクトリで初回起動した際に表示されるワークスペース信頼ダイアログは、これまで信頼の承認がどのディレクトリに適用されるのかが明確でなかった。\n\n本バージョンでは、ダイアログに承認対象となるリポジトリルートが明示されるようになり、ユーザーは自分が何を承認しているのかをより正確に把握できるようになった。",
+      "detail_en": "The workspace trust dialog shown on first run in a new directory previously didn't clearly state which directory the trust grant would apply to.\n\nThis version has the dialog explicitly name the repository root the trust decision covers, making it clearer exactly what scope is being approved.",
+      "category": "セキュリティ",
+      "category_en": "Security"
+    },
+    {
+      "t": "変更: /deep-research を手動で呼び出したときのみ開始するように変更。Claude が自律的に起動することはなくなった",
+      "t_en": "Changed `/deep-research` to start only when invoked manually; Claude no longer launches it on its own",
+      "tags": ["改善"],
+      "detail": "これまで Claude は会話の中で自律的に判断して /deep-research ワークフローを起動することがあった。\n\n本バージョンでは、ユーザーが /deep-research <質問> を明示的に呼び出した場合にのみ開始するように変更され、このファンアウト型の Web リサーチワークフローがいつ実行されるかをユーザーがコントロールできるようになった。詳しくは[コマンドのドキュメント](https://code.claude.com/docs/en/commands)を参照してください。",
+      "detail_en": "Claude could previously decide on its own to launch the `/deep-research` workflow during a conversation.\n\nThis version changes `/deep-research` to start only when the user explicitly invokes it with `/deep-research <question>`, giving users control over when this fan-out web research workflow runs. See the [commands documentation](https://code.claude.com/docs/en/commands) for details.",
+      "category": "コマンド",
+      "category_en": "Commands"
+    },
+    {
+      "t": "変更: auto モードを有効にした plan モードで、静的解析でリードオンリーと証明できない Bash コマンドについてもプロンプトを表示しないように変更。auto モードの分類器が判定するように",
+      "t_en": "Changed plan mode with auto to no longer prompt for Bash commands the static analyzer can't prove read-only; the auto-mode classifier judges them instead",
+      "tags": ["改善"],
+      "detail": "auto モードを有効にした plan モードでは、静的解析でリードオンリーだと証明できない Bash コマンドについて、これまで常にパーミッションプロンプトが表示されており、plan モードが目指す「プロンプトなしで探索できる」体験を妨げていた。\n\n本バージョンでは、このようなコマンドも auto モードの分類器による判定に委ねられるようになり、plan モード中の中断が減った。ファイルの変更自体はいずれの場合もブロックされたままとなる。",
+      "detail_en": "In plan mode with auto mode active, Bash commands that a static analyzer couldn't prove were read-only previously always triggered a permission prompt, interrupting the no-prompt exploration experience plan mode aims for.\n\nThis version hands such commands to the auto-mode classifier to judge instead, reducing interruptions during planning; file edits themselves remain blocked either way.",
+      "category": "パーミッション",
+      "category_en": "Permissions"
+    },
+    {
+      "t": "追加: /config model=<x> や Remote Control 経由でのモデル切り替えの結果として fast mode が変化した際に、その旨を通知するように",
+      "t_en": "Added an announcement when fast mode changes as a result of switching models via `/config model=<x>` or Remote Control",
+      "tags": ["新機能"],
+      "detail": "fast mode はモデルの切り替えに伴って自動的にオン・オフが切り替わることがあるが（例: Opus 系モデルから切り替えるとオフになり、戻すと再度オンになる）、これまで /config model=<x> や Remote Control 経由でのモデル切り替えの場合、この状態変化が通知されていなかった。\n\n本バージョンでは、これらの経路でモデルを切り替えた場合にも「Fast mode ON」などの確認表示と ↯ アイコンの更新が行われるようになり、fast mode の状態変化にユーザーが気づけるようになった。詳しくは[fast mode のドキュメント](https://code.claude.com/docs/en/fast-mode#toggle-fast-mode)を参照してください。",
+      "detail_en": "Fast mode can turn on or off automatically as a side effect of switching models (e.g. switching away from an Opus model turns it off, switching back can turn it on again), but this state change wasn't previously announced when triggered via `/config model=<x>` or a model switch made through Remote Control.\n\nThis version shows the \"Fast mode ON\"/off confirmation and updates the ↯ icon in these cases too, so users notice when their fast mode state changes. See the [fast mode documentation](https://code.claude.com/docs/en/fast-mode#toggle-fast-mode) for details.",
+      "category": "UX",
+      "category_en": "UX"
+    },
+    {
+      "t": "変更: サーバー管理設定のうち、影響の小さい機能・コストに関するトグルは設定承認プロンプトを表示しないように変更",
+      "t_en": "Changed server-managed settings so benign feature and cost toggles no longer trigger the settings-approval prompt",
+      "tags": ["改善", "Security"],
+      "detail": "サーバー管理（および管理エンドポイント管理）の設定のうち、シェルコマンドやカスタム環境変数、hooks、管理された CLAUDE.md のようにセキュリティ上リスクのある項目は、適用前に明示的なユーザー承認ダイアログを必要とする。これまでは影響の小さい機能・コストに関するトグルの一部も、このダイアログの対象になっていた。\n\n本バージョンでは、これらの影響の小さいトグルが承認対象から除外され、セキュリティ上重要な設定変更のみがプロンプトの対象となるようになり、無害な管理者側の変更による不要な中断が減った。詳しくは[サーバー管理設定のドキュメント](https://code.claude.com/docs/en/server-managed-settings#security-approval-dialogs)を参照してください。",
+      "detail_en": "Server-managed (and endpoint-managed) settings that pose security risk — such as shell command settings, custom env vars, hooks, or managed CLAUDE.md content — require an explicit user approval dialog before being applied. Some low-risk feature and cost toggles were previously also subject to this dialog.\n\nThis version exempts those low-risk toggles, so only genuinely security-relevant settings changes prompt for approval, reducing unnecessary interruptions from benign admin-side changes. See the [server-managed settings documentation](https://code.claude.com/docs/en/server-managed-settings#security-approval-dialogs) for details.",
+      "category": "セキュリティ",
+      "category_en": "Security"
+    },
+    {
+      "t": "変更: エージェント Markdown ファイルで、プラグインの名前空間用に予約されているコロン（:）を含むエージェント名を拒否するように変更",
+      "t_en": "Changed agent markdown files to reject agent names containing `:`, which is reserved for plugin namespacing",
+      "tags": ["改善", "Plugin", "Agent"],
+      "detail": "コロン文字は、Claude Code がプラグインのコンポーネントを名前空間化するために使用している（例: plugin-dev プラグインが公開するエージェントは plugin-dev:agent-creator のように表される）。これまでエージェント Markdown ファイルの name フィールドにコロンを含めることができてしまい、プラグインの名前空間表記と衝突・混同する可能性があった。\n\n本バージョンでは、エージェントファイルの name フィールドにコロンを含めることが拒否されるようになり、この文字がプラグインの名前空間専用として予約されるようになった。詳しくは[サブエージェントのドキュメント](https://code.claude.com/docs/en/sub-agents)を参照してください。",
+      "detail_en": "The colon character is used by Claude Code to namespace plugin components (e.g. a plugin named `plugin-dev` exposing an agent as `plugin-dev:agent-creator`). Previously, an agent markdown file's `name` field could contain a colon, which could collide with or be confused for plugin namespacing syntax.\n\nThis version rejects a `:` in an agent file's `name` field, keeping the character reserved exclusively for plugin namespacing. See the [subagents documentation](https://code.claude.com/docs/en/sub-agents) for details.",
+      "category": "エージェント設定",
+      "category_en": "Agent Configuration"
+    },
+    {
+      "t": "変更: context: fork を指定したスキルがデフォルトでバックグラウンド実行されるように変更。スキルごとに background: false を指定することでオプトアウト可能",
+      "t_en": "Changed skills with `context: fork` to run in the background by default; opt out per skill with `background: false`",
+      "tags": ["改善", "Agent"],
+      "detail": "context: fork を指定したスキル（フォークされた独立サブエージェントコンテキストで実行されるスキル）は、これまで同期的に実行され、完了するまでメインの会話をブロックしていた。\n\n本バージョンでは、/code-review の変更と同様に、これらのスキルもデフォルトでバックグラウンド実行されるようになり、メインセッションがブロックされなくなった。スキル作者は、特定のスキルを frontmatter で background: false と指定することで、従来どおりフォアグラウンド（ブロッキング）実行に戻すことができる。",
+      "detail_en": "Skills using `context: fork` (which run in an isolated forked subagent context) previously ran synchronously, blocking the main conversation until they finished.\n\nSimilar to the `/code-review` change, this version makes these skills run in the background by default so the main session isn't blocked. Skill authors can opt a specific skill back into foreground (blocking) execution by setting `background: false` in its frontmatter.",
+      "category": "エージェント設定",
+      "category_en": "Agent Configuration"
+    },
+    {
+      "t": "追加: スキルおよびプラグインの frontmatter における真偽値フィールドで、true/false に加えて yes/no・on/off・1/0（大文字小文字を区別しない）を受け付けるように",
+      "t_en": "Added `yes`/`no`/`on`/`off`/`1`/`0` (case-insensitive) as accepted values for skill and plugin frontmatter booleans, alongside `true`/`false`",
+      "tags": ["新機能", "Plugin"],
+      "detail": "スキルやプラグインの frontmatter にある真偽値フィールド（disable-model-invocation や user-invocable など）は、これまで YAML のリテラルな true/false のみを受け付けていた。\n\n本バージョンでは、これらのフィールドで一般的な真偽値の別表記である yes/no・on/off・1/0 も大文字小文字を区別せず受け付けるようになり、frontmatter を手書きする際の柔軟性が向上した。",
+      "detail_en": "Boolean-valued frontmatter fields in skills and plugins (such as `disable-model-invocation` or `user-invocable`) previously only accepted the literal YAML booleans `true`/`false`.\n\nThis version also accepts the common alternate spellings `yes`/`no`, `on`/`off`, and `1`/`0`, case-insensitively, making frontmatter more forgiving to author by hand.",
+      "category": "プラグイン",
+      "category_en": "Plugin"
+    },
+    {
+      "t": "修正: Remote Control セッションで、ワーカーが置き換わった後も古いセッションがハートビートを送り続けてしまう問題を修正。これにより、長時間起動している desktop・IDE のプロセスが拒否されるリクエストを数秒おきに永遠にリトライし続けることがあった",
+      "t_en": "Fixed remote sessions continuing to send heartbeats after their worker was replaced, which left long-lived desktop and IDE processes retrying a rejected request every few seconds forever",
+      "tags": ["バグ修正", "IDE"],
+      "detail": "Remote Control セッションの背後にあるワーカープロセスが（再接続や再起動などで）置き換わると、古いセッションがサーバーに拒否されるハートビートリクエストを送り続けてしまうことがあり、長時間起動している desktop や IDE 側のプロセスが、失敗確定のリクエストを数秒おきに際限なく再試行し続け、リソースの浪費やログの肥大化を招いていた。\n\n本バージョンでは、セッションのワーカーが置き換わった際にハートビートが正しく停止するように修正された。",
+      "detail_en": "When a Remote Control session's backing worker process was replaced (e.g. during a reconnect or restart), the old session could keep sending heartbeat requests that the server now rejected, causing long-lived desktop and IDE-hosted processes to retry a doomed request every few seconds indefinitely, wasting resources and cluttering logs.\n\nThis version stops heartbeats correctly when a session's worker is replaced.",
+      "category": "Remote Control",
+      "category_en": "Remote Control"
+    }
   ]
 }
