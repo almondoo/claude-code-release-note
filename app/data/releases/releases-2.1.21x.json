@@ -1163,5 +1163,195 @@
         "tags": ["バグ修正", "Agent"]
       }
     ]
+  },
+  {
+    "v": "2.1.218",
+    "items": [
+      {
+        "t": "変更: /code-review をバックグラウンドサブエージェントとして実行するように変更。レビュー作業が会話を埋め尽くさなくなり、スタックされたスラッシュコマンドがレビュー対象として維持されるように",
+        "t_en": "Changed `/code-review` to run as a background subagent, so review work no longer fills your conversation and keeps stacked slash commands as its review target",
+        "tags": ["改善", "Agent"]
+      },
+      {
+        "t": "追加: --ax-screen-reader モードで、単語・行削除時（Option+Delete、Ctrl+W、Cmd+Backspace、Ctrl+U、Ctrl+K）に削除されたテキストをスクリーンリーダーで読み上げるように",
+        "t_en": "Added screen-reader announcements of deleted text for word and line deletions (`Option+Delete`, `Ctrl+W`, `Cmd+Backspace`, `Ctrl+U`, `Ctrl+K`) in `--ax-screen-reader` mode",
+        "tags": ["新機能"]
+      },
+      {
+        "t": "修正: `\\u` で始まるセグメントを含む Windows パス（例: `C:\\Users\\unicorn`）がツール入力内で文字化けして CJK 文字に変換され、該当ファイルにアクセスできなくなる問題を修正",
+        "t_en": "Fixed Windows paths with `\\u`-prefixed segments (like `C:\\Users\\unicorn`) being corrupted into CJK characters in tool inputs, which made those files inaccessible",
+        "tags": ["バグ修正", "Windows"]
+      },
+      {
+        "t": "修正: 左矢印キーで会話が取り消せないまま破棄されてしまう問題を修正。編集直後の左矢印キー押下では確認を求めるようになり、エージェントビューでの Esc はバックグラウンドに送った会話へ戻るように",
+        "t_en": "Fixed the left arrow key discarding the conversation with no undo: presses right after editing now ask to confirm, and Esc in the agent view returns to the conversation it backgrounded",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "追加: MCP サーバーへの接続に失敗した際、claude mcp list と /mcp に HTTP ステータスとエラー内容を表示するように。また MCP 設定値の前後に隠れた空白がある場合に警告を表示するように",
+        "t_en": "Added HTTP status and error text to `claude mcp list` and `/mcp` when a server fails to connect, and a warning for MCP config values with hidden leading or trailing whitespace",
+        "tags": ["新機能", "MCP"]
+      },
+      {
+        "t": "修正: 貼り付けた改行を Ctrl+J として送信するターミナルで、複数行の貼り付けが改行の代わりに j が挿入されて1行に潰れてしまう問題を修正",
+        "t_en": "Fixed multi-line paste collapsing into one line with `j` in place of newlines in terminals that encode pasted newlines as Ctrl+J",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: メッセージピッカーから compact した後、/context が古い（compact 前の）トークン使用量を表示してしまう問題を修正",
+        "t_en": "Fixed `/context` reporting stale pre-compact token usage after compacting from the message picker",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: /ultrareview に「review my auth changes」のような説明的な引数を渡すと失敗していた問題を修正。現在のブランチに対するレビューを実行し、渡したテキストは所見に対する注記として反映されるように",
+        "t_en": "Fixed `/ultrareview` failing on descriptive arguments like \"review my auth changes\" — they now run a review of your current branch with the text applied as a note to the findings",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: 非対話型セッションで /code-review ultra が黙ってローカルレビューを実行してしまう問題を修正。クラウドレビューが起動するように",
+        "t_en": "Fixed `/code-review ultra` silently running a local review in non-interactive sessions — it now launches the cloud review",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: ゲートウェイの支出計測が、Bedrock のアプリケーション推論プロファイル ARN や設定でマッピングされたその他のアップストリームモデル ID を、設定されたモデルの料金で正しく計算するように修正",
+        "t_en": "Fixed gateway spend metering to price Bedrock application-inference-profile ARNs and other config-mapped upstream model IDs at the configured model's rates",
+        "tags": ["バグ修正", "Platform"]
+      },
+      {
+        "t": "修正: IDE での選択範囲が長い場合に絵文字の途中で切り詰められて文字化けする問題と、ツール実行エラーが黙って握りつぶされることがある問題を修正",
+        "t_en": "Fixed mojibake when a long IDE selection was truncated mid-emoji, and a case where a tool executor error could be silently dropped",
+        "tags": ["バグ修正", "IDE"]
+      },
+      {
+        "t": "修正: エンジンの終了処理における競合状態により、開始直後に破棄される「幻のターン」が発生することがある問題を修正。またクローズ後に送信された入力が一貫して拒否されるように修正",
+        "t_en": "Fixed an engine teardown race that could start and abandon a phantom turn, and made input pushed after close consistently rejected",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: ツール呼び出しの中断後に「[Request interrupted by user]」という誤ったメッセージが表示される問題と、応答の途中でツールが中断した際に対応する結果を持たない tool_use ブロックが transcript に残ってしまう問題を修正",
+        "t_en": "Fixed spurious \"[Request interrupted by user]\" messages after interrupted tool calls, and an unpaired `tool_use` block left in the transcript when a tool aborted mid-response",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: --ax-screen-reader モードで、入力欄の末尾にスペースを入力すると VoiceOver が「new line」と読み上げてしまい、実際に入力したスペースが読み上げられない問題を修正",
+        "t_en": "Fixed VoiceOver reading \"new line\" instead of echoing the typed space at the end of the input in `--ax-screen-reader` mode",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: プラグインおよび設定パネルで、矢印キーによる操作時にターミナルのカーソルがフォーカス行へ移動せず、スクリーンリーダーや画面拡大鏡が追従できない問題を修正",
+        "t_en": "Fixed plugin and settings panels not moving the terminal cursor to the focused row, so screen readers and magnifiers can follow arrow-key navigation",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: 深くネストされた監視対象のディレクトリツリーが削除・移動された場合や、深くネストされた UI ツリーを描画する場合に「maximum call stack exceeded」でクラッシュする問題を修正",
+        "t_en": "Fixed crashes (maximum call stack exceeded) when a deeply nested watched directory tree was deleted or moved, and when rendering deeply nested UI trees",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: PR を作成またはリンクした直後にセッションが終了すると、PR イベントが失われることがある問題を修正",
+        "t_en": "Fixed pull request events occasionally being lost when a session exited immediately after creating or linking a PR",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: /setup-bedrock ウィザードで、パーティション分割された AWS リージョンやプロキシ経由のみのネットワークにおける assume-role プロファイルの検証が失敗する問題を修正",
+        "t_en": "Fixed the Bedrock setup wizard failing profile verification for assume-role profiles in partitioned AWS regions and on proxy-only networks",
+        "tags": ["バグ修正", "Platform"]
+      },
+      {
+        "t": "修正: システムクロックの調整後にターン所要時間が負の値や誤った値になることがある問題を修正。ターンの計測に単調クロックを使用するように変更",
+        "t_en": "Fixed rare negative or incorrect turn duration measurements after a system clock adjustment by timing turns with a monotonic clock",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: 起動時に表示される「N 件の MCP サーバーが認証を必要としています」という通知が、claude.ai 側で未接続の claude.ai コネクタまで数に含めて過大に表示していた問題を修正",
+        "t_en": "Fixed the \"N MCP servers need authentication\" startup notice over-counting claude.ai connectors that aren't connected in claude.ai",
+        "tags": ["バグ修正", "MCP"]
+      },
+      {
+        "t": "修正: 履歴の書き込みが競合または失敗した際に、プロンプト履歴のエントリが失われたり重複したりする問題を修正",
+        "t_en": "Fixed prompt history entries being dropped or duplicated when history writes raced or failed",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: 大きな thinking 予算でコンテキスト超過エラーが発生した後、同一の失敗確定リクエストを再送し続けるリトライループを修正。また Ctrl+B によるバックグラウンド化も、他の経路と同じバックグラウンドシェルの上限が適用されるように修正",
+        "t_en": "Fixed a retry loop that re-sent identical doomed requests after a context-overflow error with a large thinking budget; `Ctrl+B` backgrounding now applies the same background-shell caps as other paths",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: 信頼されていないフォルダ内のサブエージェント frontmatter に定義された hooks が実行されてしまう問題を修正。hooks の実行にはエージェントファイル自身が置かれたフォルダでワークスペース信頼が承認済みであることが必要に",
+        "t_en": "Fixed agent frontmatter hooks running from untrusted folders: hooks now require the agent file's own folder to have accepted workspace trust",
+        "tags": ["バグ修正", "Security", "Agent"]
+      },
+      {
+        "t": "修正: ヘッドレスセッションおよび SDK セッションで、compact 後にフォークセッションの系譜（lineage）情報が失われる問題を修正",
+        "t_en": "Fixed fork-session lineage being lost after compaction in headless and SDK sessions",
+        "tags": ["バグ修正", "SDK"]
+      },
+      {
+        "t": "修正: セッションの履歴に不正な delta 添付ファイルのエントリが含まれている場合、再開したセッションのすべてのターンが失敗したり、再開自体がクラッシュしたりする問題を修正",
+        "t_en": "Fixed a resumed session failing every turn, or crashing on resume, when its history held a malformed delta attachment",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "改善: /ultrareview のエラーメッセージを改善し、不正な引数を渡した際に Claude がそのまま再試行するのではなく引数を修正できるように",
+        "t_en": "Improved `/ultrareview` error feedback so Claude can correct an invalid argument instead of retrying it unchanged",
+        "tags": ["改善"]
+      },
+      {
+        "t": "改善: auto モードにおいて、危険な rm・バックグラウンド実行の &・不審な Windows パスに対するチェックが、パーミッションダイアログを開かずに auto モードの分類器で判定されるように変更",
+        "t_en": "Improved auto mode: the dangerous-rm, background-`&`, and suspicious-Windows-path checks no longer open permission dialogs; the auto-mode classifier adjudicates them instead",
+        "tags": ["改善"]
+      },
+      {
+        "t": "改善: IDE との連携におけるサンドボックスのコマンド制限を改善",
+        "t_en": "Improved sandbox command restrictions for IDE interactions",
+        "tags": ["改善", "IDE"]
+      },
+      {
+        "t": "改善: ワークスペース信頼ダイアログに、承認対象となるリポジトリルートの名称を表示するように改善",
+        "t_en": "Improved trust dialogs to name the repository root the grant covers",
+        "tags": ["改善"]
+      },
+      {
+        "t": "変更: /deep-research を手動で呼び出したときのみ開始するように変更。Claude が自律的に起動することはなくなった",
+        "t_en": "Changed `/deep-research` to start only when invoked manually; Claude no longer launches it on its own",
+        "tags": ["改善"]
+      },
+      {
+        "t": "変更: auto モードを有効にした plan モードで、静的解析でリードオンリーと証明できない Bash コマンドについてもプロンプトを表示しないように変更。auto モードの分類器が判定するように",
+        "t_en": "Changed plan mode with auto to no longer prompt for Bash commands the static analyzer can't prove read-only; the auto-mode classifier judges them instead",
+        "tags": ["改善"]
+      },
+      {
+        "t": "追加: /config model=<x> や Remote Control 経由でのモデル切り替えの結果として fast mode が変化した際に、その旨を通知するように",
+        "t_en": "Added an announcement when fast mode changes as a result of switching models via `/config model=<x>` or Remote Control",
+        "tags": ["新機能"]
+      },
+      {
+        "t": "変更: サーバー管理設定のうち、影響の小さい機能・コストに関するトグルは設定承認プロンプトを表示しないように変更",
+        "t_en": "Changed server-managed settings so benign feature and cost toggles no longer trigger the settings-approval prompt",
+        "tags": ["改善", "Security"]
+      },
+      {
+        "t": "変更: エージェント Markdown ファイルで、プラグインの名前空間用に予約されているコロン（:）を含むエージェント名を拒否するように変更",
+        "t_en": "Changed agent markdown files to reject agent names containing `:`, which is reserved for plugin namespacing",
+        "tags": ["改善", "Plugin", "Agent"]
+      },
+      {
+        "t": "変更: context: fork を指定したスキルがデフォルトでバックグラウンド実行されるように変更。スキルごとに background: false を指定することでオプトアウト可能",
+        "t_en": "Changed skills with `context: fork` to run in the background by default; opt out per skill with `background: false`",
+        "tags": ["改善", "Agent"]
+      },
+      {
+        "t": "追加: スキルおよびプラグインの frontmatter における真偽値フィールドで、true/false に加えて yes/no・on/off・1/0（大文字小文字を区別しない）を受け付けるように",
+        "t_en": "Added `yes`/`no`/`on`/`off`/`1`/`0` (case-insensitive) as accepted values for skill and plugin frontmatter booleans, alongside `true`/`false`",
+        "tags": ["新機能", "Plugin"]
+      },
+      {
+        "t": "修正: Remote Control セッションで、ワーカーが置き換わった後も古いセッションがハートビートを送り続けてしまう問題を修正。これにより、長時間起動している desktop・IDE のプロセスが拒否されるリクエストを数秒おきに永遠にリトライし続けることがあった",
+        "t_en": "Fixed remote sessions continuing to send heartbeats after their worker was replaced, which left long-lived desktop and IDE processes retrying a rejected request every few seconds forever",
+        "tags": ["バグ修正", "IDE"]
+      }
+    ]
   }
 ]
