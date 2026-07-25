@@ -1353,5 +1353,145 @@
         "tags": ["バグ修正", "IDE"]
       }
     ]
+  },
+  {
+    "v": "2.1.219",
+    "items": [
+      {
+        "t": "追加: Claude Opus 5(`claude-opus-5`)を追加、新しいデフォルトの Opus モデルに(1M コンテキスト、fast mode は $10/$50 per Mtok)",
+        "t_en": "Added Claude Opus 5 (`claude-opus-5`), now the default Opus model — 1M context, fast mode at $10/$50 per Mtok",
+        "tags": ["新機能"]
+      },
+      {
+        "t": "追加: サンドボックス化されたコマンドで許可リスト外のホストを確認なしで拒否する `sandbox.network.strictAllowlist` 設定を追加",
+        "t_en": "Added `sandbox.network.strictAllowlist` setting to deny non-allowlisted hosts for sandboxed commands without prompting",
+        "tags": ["新機能", "Security"]
+      },
+      {
+        "t": "追加: `/add-dir` や SDK の `register_repo_root` コントロールリクエストでセッション中に新しい作業ディレクトリが登録された際に発火する `DirectoryAdded` フックを追加",
+        "t_en": "Added `DirectoryAdded` hook that fires after `/add-dir` or the SDK `register_repo_root` control request registers a new working directory mid-session",
+        "tags": ["新機能", "SDK"]
+      },
+      {
+        "t": "追加: ヘッドレスモードの stream-json init イベントに `mcp_server_errors` を追加し、設定検証でスキップされた `--mcp-config` のエントリを一覧表示(ターミナル実行時は起動時に警告を表示)",
+        "t_en": "Added `mcp_server_errors` to the headless stream-json init event, listing `--mcp-config` entries skipped by config validation; terminal runs print a startup warning",
+        "tags": ["新機能", "MCP", "SDK"]
+      },
+      {
+        "t": "追加: `workflowSizeGuideline` 設定キーを追加し、Dynamic workflow size の目安値をどの設定ファイルからでも設定できるように(設定済みの間は `/config` の該当行は非表示に)",
+        "t_en": "Added the `workflowSizeGuideline` settings key so the advisory Dynamic workflow size guideline can be set from any settings file; the `/config` row is hidden while one does",
+        "tags": ["新機能", "Agent"]
+      },
+      {
+        "t": "追加: stream-json でのネストしたサブエージェントの転送に対応、`--forward-subagent-text` 指定時は depth-2 以降で生成されたサブエージェントも、生成元の Agent `tool_use` ID をキーとして出力されるように",
+        "t_en": "Added nested subagent forwarding in stream-json: subagents spawned at depth-2+ now appear when `--forward-subagent-text` is set, keyed by their spawning Agent `tool_use` id",
+        "tags": ["新機能", "SDK", "Agent"]
+      },
+      {
+        "t": "修正: ターン処理中に API エラーでストリームが途中終了すると、`claude -p` のテキスト出力からすでに生成済みだった回答が失われてしまう問題",
+        "t_en": "Fixed `claude -p` text output dropping the answer already produced when a turn dies on a mid-stream API error",
+        "tags": ["バグ修正", "SDK"]
+      },
+      {
+        "t": "追加: `claude mcp list` や `/mcp` でサーバー接続に失敗した際に HTTP ステータスとエラーメッセージを表示するように改善、また MCP 設定値に見えない前後の空白が含まれる場合の警告を追加",
+        "t_en": "Added HTTP status and error text to `claude mcp list` and `/mcp` when a server fails to connect, and a warning for MCP config values with hidden leading or trailing whitespace",
+        "tags": ["新機能", "MCP"]
+      },
+      {
+        "t": "修正: セルフホストランナーの再起動中に承認したパーミッションが、セッション再開時に失われて反映されない問題",
+        "t_en": "Fixed a permission you approved while a self-hosted runner was restarting being dropped when the session resumed, so the approved action now runs",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: Fable が利用可能なプランでも、キャッシュが古いままだと `/model` ピッカーの Fable の行に「Requires usage credits」と誤表示されてしまう問題",
+        "t_en": "Fixed the Fable model row showing \"Requires usage credits\" for plans that include it, when a stale cache had baked the label in",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: セルフホストランナーの起動中に SIGTERM を受信すると、リースが失効するまでアクティブな状態の行が残り続けてしまう問題(正しく登録解除されるように修正)",
+        "t_en": "Fixed a SIGTERM arriving while a self-hosted runner was starting up leaving a stale active row until the lease expired; it now deregisters cleanly",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "追加: セルフホストランナーの起動・セッション失敗に構造化された失敗カテゴリを追加し、フックのエラー・ランナーのクラッシュ・設定エラーを区別できるように",
+        "t_en": "Added structured failure categories to self-hosted runner spawn and session failures, so hook errors, runner crashes and config errors can be told apart",
+        "tags": ["新機能"]
+      },
+      {
+        "t": "修正: `/model` ピッカーで 1M コンテキストにアップグレードされた Opus の統合行が「Opus (1M context)」ではなく単に「Opus」と表示されてしまう問題",
+        "t_en": "Fixed the `/model` picker showing the merged Opus row as plain \"Opus\" instead of \"Opus (1M context)\"",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: GNU screen 内での copy-on-select が、選択範囲をコピーする代わりにターミナルへ base64 文字列を出力してしまう問題",
+        "t_en": "Fixed copy-on-select inside GNU screen printing base64 into the terminal instead of copying the selection",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: モデル切り替え・再接続・組織チェック失敗の後、Remote Control のクライアントに古い fast mode の状態が表示されたままになってしまう問題",
+        "t_en": "Fixed Remote Control clients keeping a stale fast-mode status after a model switch, reconnect, or failed org check",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: Windows で `CLAUDE_CODE_GIT_BASH_PATH` が bash/sh バイナリを指していない場合に、終了してしまったり誤ってそのまま bash として使われてしまう問題(無効な場合は警告を出して無視するように修正)",
+        "t_en": "Fixed `CLAUDE_CODE_GIT_BASH_PATH` on Windows exiting or being used as bash when the path isn't a bash/sh binary; it's now ignored with a warning",
+        "tags": ["バグ修正", "Windows"]
+      },
+      {
+        "t": "修正: Vim モードで空のプロンプトから ← を押しても、NORMAL モードからは agent view に戻れず INSERT モードでしか戻れない問題",
+        "t_en": "Fixed Vim mode: pressing ← on an empty prompt now returns to the agent view from NORMAL mode, not just INSERT",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: スクリーンリーダーモードで、キー入力のたびに入力欄全体が再描画され、入力した1文字だけでなく行全体が読み上げられてしまう問題",
+        "t_en": "Fixed screen-reader mode rewriting the entire input line on every keystroke instead of echoing only the typed character",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "改善: 「Remote Control is only available via api.anthropic.com」エラーに、原因となった具体的な設定名を表示するように改善",
+        "t_en": "Improved the \"Remote Control is only available via api.anthropic.com\" error to name the specific setting that caused it",
+        "tags": ["改善"]
+      },
+      {
+        "t": "改善: `claude --teleport` が、セッションのリポジトリと一致しない場合に現在のチェックアウトがどのリポジトリを指しているかを表示するように改善",
+        "t_en": "Improved `claude --teleport` to show which repo your current checkout points at when it doesn't match the session's repo",
+        "tags": ["改善"]
+      },
+      {
+        "t": "変更: dynamic workflows のデフォルトを medium の目安値(エージェント数15未満を目標)に変更、`/config` の Dynamic workflow size で他のサイズや無制限を選択可能",
+        "t_en": "Changed dynamic workflows to default to a medium size guideline (aim for fewer than 15 agents); pick another size or unrestricted with Dynamic workflow size in `/config`",
+        "tags": ["改善", "Agent"]
+      },
+      {
+        "t": "変更: managed MCP の許可リスト・拒否リストにおける `${VAR}` の展開元を、設定ファイルの env ではなく起動時の環境変数と managed-settings の env から解決するように変更",
+        "t_en": "Changed managed MCP allowlist/denylist `${VAR}` entries to resolve from the startup environment and managed-settings env instead of settings-file env",
+        "tags": ["改善", "MCP", "Security"]
+      },
+      {
+        "t": "改善: `/model` ピッカーのハイライト表示を最新モデルの名前のみに変更し、一覧の一部ではなく新しいリリースそのものが強調されるように改善",
+        "t_en": "Changed the `/model` picker to highlight only the newest model's name, so the highlight marks the new release rather than an arbitrary subset of the list",
+        "tags": ["改善"]
+      },
+      {
+        "t": "追加: 実行中のワークフローのステータス行に現在のデフォルトの workflow size を表示し、変更方法として `/config` への案内を追加",
+        "t_en": "Added the current default workflow size to the running-workflow status line, with a pointer to `/config` for changing it",
+        "tags": ["新機能", "Agent"]
+      },
+      {
+        "t": "非推奨: fast mode から Opus 4.7 のサポートを削除、`/fast` は Opus 5 と Opus 4.8 のみに適用されるように",
+        "t_en": "Removed Opus 4.7 from fast mode; `/fast` now applies to Opus 5 and Opus 4.8",
+        "tags": ["非推奨"]
+      },
+      {
+        "t": "改善: 同梱の claude-api スキルのデフォルトモデルを Claude Opus 5 に更新し、Opus 4.8 からの移行手順を追加",
+        "t_en": "Updated the claude-api skill to default to Claude Opus 5, with a migration path from Opus 4.8",
+        "tags": ["改善"]
+      },
+      {
+        "t": "改善: サブエージェントがネストしたサブエージェントを起動できる既定の深さを 1 から 3 に変更、`CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH=1` を設定すればネストを無効化可能",
+        "t_en": "Subagents can now spawn nested subagents up to depth 3 by default (was 1); set CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH=1 to disable nesting",
+        "tags": ["改善", "Agent"]
+      }
+    ]
   }
 ]

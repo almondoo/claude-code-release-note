@@ -2381,5 +2381,250 @@
       "category": "Remote Control",
       "category_en": "Remote Control"
     }
+  ],
+  "2.1.219": [
+    {
+      "t": "追加: Claude Opus 5(`claude-opus-5`)を追加、新しいデフォルトの Opus モデルに(1M コンテキスト、fast mode は $10/$50 per Mtok)",
+      "t_en": "Added Claude Opus 5 (`claude-opus-5`), now the default Opus model — 1M context, fast mode at $10/$50 per Mtok",
+      "tags": ["新機能"],
+      "detail": "Claude Opus 5(モデル ID: `claude-opus-5`)が追加され、これまでの Opus モデルに代わって新しいデフォルトの Opus モデルとなった。\n\n対象プランでは自動的に 1M トークンのコンテキストウィンドウにアップグレードされ、fast mode を有効にした場合の料金は入力 $10・出力 $50 per Mtok に設定されている。詳しくは[fast mode のドキュメント](https://code.claude.com/docs/en/fast-mode#understand-the-cost-tradeoff)を参照してください。",
+      "detail_en": "Claude Opus 5 (model ID `claude-opus-5`) has been added and is now the default Opus model, replacing the previous default.\n\nOn qualifying plans it is automatically upgraded to a 1M-token context window, and fast mode pricing is set at $10/$50 per Mtok (input/output). See the [fast mode documentation](https://code.claude.com/docs/en/fast-mode#understand-the-cost-tradeoff) for details.",
+      "category": "モデル",
+      "category_en": "Model"
+    },
+    {
+      "t": "追加: サンドボックス化されたコマンドで許可リスト外のホストを確認なしで拒否する `sandbox.network.strictAllowlist` 設定を追加",
+      "t_en": "Added `sandbox.network.strictAllowlist` setting to deny non-allowlisted hosts for sandboxed commands without prompting",
+      "tags": ["新機能", "Security"],
+      "detail": "これまで、サンドボックス化された Bash コマンドが許可リストにないネットワークホストへアクセスしようとすると、確認プロンプトが表示されて承認を求められていた。\n\n本バージョンで追加された `sandbox.network.strictAllowlist` 設定を有効にすると、許可リストにないホストへのアクセスは確認なしで自動的に拒否されるようになり、セキュリティ重視の構成でネットワーク境界をより厳格に運用できる。",
+      "detail_en": "Previously, when a sandboxed Bash command tried to reach a network host not on the allowlist, Claude Code would show a confirmation prompt asking for approval.\n\nThe new `sandbox.network.strictAllowlist` setting added in this release lets security-conscious configurations deny access to non-allowlisted hosts automatically, without prompting, enforcing a stricter network boundary for sandboxed commands.",
+      "category": "サンドボックス",
+      "category_en": "Sandbox"
+    },
+    {
+      "t": "追加: `/add-dir` や SDK の `register_repo_root` コントロールリクエストでセッション中に新しい作業ディレクトリが登録された際に発火する `DirectoryAdded` フックを追加",
+      "t_en": "Added `DirectoryAdded` hook that fires after `/add-dir` or the SDK `register_repo_root` control request registers a new working directory mid-session",
+      "tags": ["新機能", "SDK"],
+      "detail": "これまで、`/add-dir` コマンドや SDK の `register_repo_root` コントロールリクエストでセッション中に作業ディレクトリを追加しても、それをフックで検知する手段がなかった。\n\n本バージョンで追加された `DirectoryAdded` フックにより、新しい作業ディレクトリがセッションのスコープに登録されたタイミングでフックを発火できるようになり、設定の再読み込みや監査、アクセス制限などの連携が可能になった。",
+      "detail_en": "Previously there was no hook to detect when a working directory was added to a session mid-run via the `/add-dir` command or the SDK's `register_repo_root` control request.\n\nThe new `DirectoryAdded` hook added in this release fires when a new working directory is registered into a session's scope, enabling integrations such as reloading configuration, auditing, or restricting access.",
+      "category": "フック",
+      "category_en": "Hooks"
+    },
+    {
+      "t": "追加: ヘッドレスモードの stream-json init イベントに `mcp_server_errors` を追加し、設定検証でスキップされた `--mcp-config` のエントリを一覧表示(ターミナル実行時は起動時に警告を表示)",
+      "t_en": "Added `mcp_server_errors` to the headless stream-json init event, listing `--mcp-config` entries skipped by config validation; terminal runs print a startup warning",
+      "tags": ["新機能", "MCP", "SDK"],
+      "detail": "これまで `--mcp-config` で指定した MCP サーバーの設定が検証エラーでスキップされても、それを検知する手段が乏しかった。\n\n本バージョンでヘッドレスモードの stream-json init イベントに `mcp_server_errors` フィールドが追加され、スキップされた設定エントリを一覧できるようになった。ターミナルでの実行時には起動時に警告が表示されるため、スクリプトからの利用でも対話的な利用でも設定ミスに気付きやすくなった。",
+      "detail_en": "Previously, when an MCP server configuration passed via `--mcp-config` was skipped due to a validation error, there was little way to detect it.\n\nThis release adds an `mcp_server_errors` field to the headless mode's stream-json init event, listing the skipped config entries, and terminal runs now print a startup warning — making misconfigurations easier to notice whether Claude Code is driven by a script or used interactively.",
+      "category": "MCP 連携",
+      "category_en": "MCP Integration"
+    },
+    {
+      "t": "追加: `workflowSizeGuideline` 設定キーを追加し、Dynamic workflow size の目安値をどの設定ファイルからでも設定できるように(設定済みの間は `/config` の該当行は非表示に)",
+      "t_en": "Added the `workflowSizeGuideline` settings key so the advisory Dynamic workflow size guideline can be set from any settings file; the `/config` row is hidden while one does",
+      "tags": ["新機能", "Agent"],
+      "detail": "これまで `workflowSizeGuideline`(Dynamic workflow size の目安値)はグローバル設定からのみ変更する運用だった。\n\n本バージョンでは `workflowSizeGuideline` 設定キーがどの設定ファイルからでも指定できるようになり、値が設定されている間は `/config` 画面の対応する行が非表示になる。組織やユーザーが事前に既定値を配布・固定しやすくなった。",
+      "detail_en": "Previously, `workflowSizeGuideline` (the advisory Dynamic workflow size target) was primarily managed through global configuration.\n\nIn this release the `workflowSizeGuideline` settings key can be set from any settings file, and the corresponding `/config` row is hidden while a value is set — making it easier for organizations or users to pre-configure and pin a default.",
+      "category": "ワークフロー",
+      "category_en": "Workflow"
+    },
+    {
+      "t": "追加: stream-json でのネストしたサブエージェントの転送に対応、`--forward-subagent-text` 指定時は depth-2 以降で生成されたサブエージェントも、生成元の Agent `tool_use` ID をキーとして出力されるように",
+      "t_en": "Added nested subagent forwarding in stream-json: subagents spawned at depth-2+ now appear when `--forward-subagent-text` is set, keyed by their spawning Agent `tool_use` id",
+      "tags": ["新機能", "SDK", "Agent"],
+      "detail": "`--forward-subagent-text` フラグは v2.1.211 で追加され、トップレベルのサブエージェントのテキストと思考過程を stream-json 出力に含められるようになっていたが、depth-2 以降のネストしたサブエージェントは対象外だった。\n\n本バージョンでネストしたサブエージェントの転送に対応し、`--forward-subagent-text` を指定していれば、depth-2 以降で生成されたサブエージェントの出力も生成元の Agent `tool_use` ID をキーとしてストリームに含まれるようになった。詳しくは[ヘッドレスモードのドキュメント](https://code.claude.com/docs/en/headless#stream-responses)を参照してください。",
+      "detail_en": "The `--forward-subagent-text` flag, added in v2.1.211, included top-level subagents' text and thinking in stream-json output, but nested subagents spawned at depth-2 or deeper were not covered.\n\nThis release adds nested subagent forwarding: with `--forward-subagent-text` set, output from subagents spawned at depth-2+ now appears in the stream as well, keyed by the `tool_use` id of the Agent call that spawned them. See the [headless mode documentation](https://code.claude.com/docs/en/headless#stream-responses) for details.",
+      "category": "SDK",
+      "category_en": "SDK"
+    },
+    {
+      "t": "修正: ターン処理中に API エラーでストリームが途中終了すると、`claude -p` のテキスト出力からすでに生成済みだった回答が失われてしまう問題",
+      "t_en": "Fixed `claude -p` text output dropping the answer already produced when a turn dies on a mid-stream API error",
+      "tags": ["バグ修正", "SDK"],
+      "detail": "これまで、非対話的な `claude -p` モードでターンの途中に API エラーが発生してストリームが中断すると、それまでに生成されていた回答テキストが失われ、呼び出し元に返らないことがあった。\n\n本バージョンでこの不具合を修正し、ストリームが途中終了しても既に生成された回答が保持されて返されるようになった。CI やスクリプトから `claude -p` を利用する際の信頼性が向上する。",
+      "detail_en": "Previously, in non-interactive `claude -p` mode, if an API error interrupted a turn mid-stream, the answer text already generated for that turn could be lost and not returned to the caller.\n\nThis release fixes the issue so that already-produced output survives a dropped stream, improving reliability for scripted and CI usage of `claude -p`.",
+      "category": "SDK",
+      "category_en": "SDK"
+    },
+    {
+      "t": "追加: `claude mcp list` や `/mcp` でサーバー接続に失敗した際に HTTP ステータスとエラーメッセージを表示するように改善、また MCP 設定値に見えない前後の空白が含まれる場合の警告を追加",
+      "t_en": "Added HTTP status and error text to `claude mcp list` and `/mcp` when a server fails to connect, and a warning for MCP config values with hidden leading or trailing whitespace",
+      "tags": ["新機能", "MCP"],
+      "detail": "これまで `claude mcp list` や `/mcp` では、MCP サーバーへの接続に失敗しても「failed」という汎用的なステータスしか表示されず、原因の切り分けが難しかった。\n\n本バージョンでは接続失敗時に HTTP ステータスコードとエラーメッセージが表示されるようになり、原因調査がしやすくなった。あわせて、URL やトークンなどの MCP 設定値に前後の見えない空白が含まれている場合に警告が表示されるようになり、コピー&ペーストによるありがちな設定ミスに気付きやすくなった。",
+      "detail_en": "Previously, `claude mcp list` and `/mcp` only showed a generic \"failed\" status when a server connection failed, making it hard to diagnose the cause.\n\nThis release adds the HTTP status code and error text when a connection fails, making troubleshooting easier, and adds a warning when an MCP config value (such as a URL or token) has hidden leading or trailing whitespace — a common copy-paste mistake that silently breaks connections.",
+      "category": "MCP 連携",
+      "category_en": "MCP Integration"
+    },
+    {
+      "t": "修正: セルフホストランナーの再起動中に承認したパーミッションが、セッション再開時に失われて反映されない問題",
+      "t_en": "Fixed a permission you approved while a self-hosted runner was restarting being dropped when the session resumed, so the approved action now runs",
+      "tags": ["バグ修正"],
+      "detail": "セルフホストランナーが再起動している最中にユーザーがパーミッションを承認しても、セッションが再開された際にその承認が失われ、承認したはずのアクションが実行されない不具合があった。\n\n本バージョンでこの問題を修正し、再起動中に承認したパーミッションがセッション再開後も正しく反映され、承認済みのアクションが実行されるようになった。",
+      "detail_en": "If a user approved a permission while a self-hosted runner was restarting, that approval could be dropped when the session resumed, so the approved action failed to run.\n\nThis release fixes the issue: a permission approved during a runner restart now carries through to the resumed session, and the approved action runs.",
+      "category": "自己ホストランナー",
+      "category_en": "Self-Hosted Runner"
+    },
+    {
+      "t": "修正: Fable が利用可能なプランでも、キャッシュが古いままだと `/model` ピッカーの Fable の行に「Requires usage credits」と誤表示されてしまう問題",
+      "t_en": "Fixed the Fable model row showing \"Requires usage credits\" for plans that include it, when a stale cache had baked the label in",
+      "tags": ["バグ修正"],
+      "detail": "Fable がプランに含まれ利用可能な場合でも、エンタイトルメント情報の古いキャッシュが残っていると、`/model` ピッカーの Fable の行に誤って「Requires usage credits」というラベルが表示されてしまう不具合があった。\n\n本バージョンでこの表示不具合を修正し、キャッシュが古い場合でも正しいラベルが表示されるようになった。",
+      "detail_en": "Even on plans where Fable was included and usable, a stale cached entitlement label could cause the `/model` picker's Fable row to incorrectly show \"Requires usage credits\".\n\nThis release fixes the display bug so the correct label is shown even with a stale cache.",
+      "category": "モデル",
+      "category_en": "Model"
+    },
+    {
+      "t": "修正: セルフホストランナーの起動中に SIGTERM を受信すると、リースが失効するまでアクティブな状態の行が残り続けてしまう問題(正しく登録解除されるように修正)",
+      "t_en": "Fixed a SIGTERM arriving while a self-hosted runner was starting up leaving a stale active row until the lease expired; it now deregisters cleanly",
+      "tags": ["バグ修正"],
+      "detail": "セルフホストランナーの起動処理中に SIGTERM を受信すると、そのランナーの登録がクリーンに解除されず、リースが失効するまで「アクティブ」な状態の行が残り続けてしまう不具合があった。\n\n本バージョンでこの問題を修正し、起動中に SIGTERM を受信した場合でも登録が正しく解除されるようになった。",
+      "detail_en": "If a self-hosted runner received SIGTERM while it was still starting up, its registration wasn't cleanly removed, leaving a stale \"active\" row until the lease expired.\n\nThis release fixes the issue so a runner that receives SIGTERM during startup deregisters cleanly.",
+      "category": "自己ホストランナー",
+      "category_en": "Self-Hosted Runner"
+    },
+    {
+      "t": "追加: セルフホストランナーの起動・セッション失敗に構造化された失敗カテゴリを追加し、フックのエラー・ランナーのクラッシュ・設定エラーを区別できるように",
+      "t_en": "Added structured failure categories to self-hosted runner spawn and session failures, so hook errors, runner crashes and config errors can be told apart",
+      "tags": ["新機能"],
+      "detail": "これまでセルフホストランナーの起動やセッションが失敗しても、原因がフックのエラーなのか、ランナー自体のクラッシュなのか、設定の誤りなのかを機械的に区別する手段がなかった。\n\n本バージョンで失敗理由に構造化されたカテゴリが追加され、監視・アラート側でこれらの失敗種別を区別できるようになった。",
+      "detail_en": "Previously, when a self-hosted runner spawn or session failed, there was no machine-readable way to tell whether the cause was a user hook error, a runner crash, or a configuration error.\n\nThis release adds structured failure categories so monitoring and alerting can distinguish these failure types.",
+      "category": "自己ホストランナー",
+      "category_en": "Self-Hosted Runner"
+    },
+    {
+      "t": "修正: `/model` ピッカーで 1M コンテキストにアップグレードされた Opus の統合行が「Opus (1M context)」ではなく単に「Opus」と表示されてしまう問題",
+      "t_en": "Fixed the `/model` picker showing the merged Opus row as plain \"Opus\" instead of \"Opus (1M context)\"",
+      "tags": ["バグ修正"],
+      "detail": "対象プランで Opus が自動的に 1M トークンのコンテキストウィンドウにアップグレードされていても、`/model` ピッカーの統合された Opus の行には単に「Opus」とだけ表示され、拡張コンテキストが有効であることが分かりにくかった。\n\n本バージョンでこの表示不具合を修正し、該当する行が「Opus (1M context)」と正しく表示されるようになった。",
+      "detail_en": "Even when Opus was automatically upgraded to a 1M-token context window on qualifying plans, the merged Opus row in the `/model` picker showed only \"Opus\", making it unclear that extended context was active.\n\nThis release fixes the label so the row correctly shows \"Opus (1M context)\".",
+      "category": "モデル",
+      "category_en": "Model"
+    },
+    {
+      "t": "修正: GNU screen 内での copy-on-select が、選択範囲をコピーする代わりにターミナルへ base64 文字列を出力してしまう問題",
+      "t_en": "Fixed copy-on-select inside GNU screen printing base64 into the terminal instead of copying the selection",
+      "tags": ["バグ修正"],
+      "detail": "Claude Code はターミナルでの範囲選択コピーに OSC 52 エスケープシーケンスを利用しているが、GNU screen 内ではこれが正しく機能せず、選択したテキストをコピーする代わりに base64 エンコードされた文字列がそのままターミナルに出力されてしまう不具合があった。\n\n本バージョンでこの問題を修正し、GNU screen 内でも copy-on-select が選択範囲を正しくコピーするようになった。",
+      "detail_en": "Claude Code uses OSC 52 escape sequences for terminal copy-on-select, but inside GNU screen this could misfire and print raw base64-encoded clipboard data into the terminal instead of silently copying the selected text.\n\nThis release fixes the issue so copy-on-select works correctly inside GNU screen.",
+      "category": "ターミナル",
+      "category_en": "Terminal"
+    },
+    {
+      "t": "修正: モデル切り替え・再接続・組織チェック失敗の後、Remote Control のクライアントに古い fast mode の状態が表示されたままになってしまう問題",
+      "t_en": "Fixed Remote Control clients keeping a stale fast-mode status after a model switch, reconnect, or failed org check",
+      "tags": ["バグ修正"],
+      "detail": "Remote Control 経由で接続しているクライアント(スマートフォンやブラウザなど)では、ローカルセッション側でモデルを切り替えたり、再接続したり、組織の利用資格チェックが失敗したりした後も、fast mode の表示状態が更新されず古いままになってしまうことがあった。\n\n本バージョンでこの問題を修正し、これらの操作の後も Remote Control クライアント側の fast mode 表示が正しく最新の状態に更新されるようになった。",
+      "detail_en": "Clients connected via Remote Control (phone or browser) could keep showing a stale fast-mode indicator after the local session switched models, reconnected after a network drop, or hit a failed organization eligibility check.\n\nThis release fixes the issue so the fast-mode status on Remote Control clients correctly reflects the current state after these events.",
+      "category": "Remote Control",
+      "category_en": "Remote Control"
+    },
+    {
+      "t": "修正: Windows で `CLAUDE_CODE_GIT_BASH_PATH` が bash/sh バイナリを指していない場合に、終了してしまったり誤ってそのまま bash として使われてしまう問題(無効な場合は警告を出して無視するように修正)",
+      "t_en": "Fixed `CLAUDE_CODE_GIT_BASH_PATH` on Windows exiting or being used as bash when the path isn't a bash/sh binary; it's now ignored with a warning",
+      "tags": ["バグ修正", "Windows"],
+      "detail": "`CLAUDE_CODE_GIT_BASH_PATH` は、PATH に含まれていない Git Bash の実行ファイルを Windows で指定するための環境変数だが、指定したパスが実際には bash/sh バイナリでない場合に、Claude Code が終了してしまったり、そのまま bash として誤って使用してしまう不具合があった。\n\n本バージョンでこの問題を修正し、指定されたパスが有効な bash/sh バイナリでない場合は警告を表示したうえで無視し、通常のシェル検出にフォールバックするようになった。詳しくは[環境変数のドキュメント](https://code.claude.com/docs/en/env-vars#variables)を参照してください。",
+      "detail_en": "`CLAUDE_CODE_GIT_BASH_PATH` lets Windows users point Claude Code at a Git Bash executable that isn't on PATH, but if the configured path didn't actually point to a bash/sh binary, Claude Code could exit or incorrectly try to use it as the shell.\n\nThis release fixes the issue: an invalid path is now ignored with a warning, falling back to normal shell detection instead. See the [environment variables documentation](https://code.claude.com/docs/en/env-vars#variables) for details.",
+      "category": "プラットフォーム互換性",
+      "category_en": "Platform Compatibility"
+    },
+    {
+      "t": "修正: Vim モードで空のプロンプトから ← を押しても、NORMAL モードからは agent view に戻れず INSERT モードでしか戻れない問題",
+      "t_en": "Fixed Vim mode: pressing ← on an empty prompt now returns to the agent view from NORMAL mode, not just INSERT",
+      "tags": ["バグ修正"],
+      "detail": "空のプロンプトで ← キーを押すと agent view に戻れる操作は、Vim モードでは INSERT モードのときにしか機能せず、NORMAL モードでは同じ操作ができなかった。\n\n本バージョンでこの問題を修正し、Vim モードの NORMAL モードでも空のプロンプトから ← キーで agent view に戻れるようになった。",
+      "detail_en": "Pressing ← on an empty prompt to return to the agent view only worked from INSERT mode in Vim mode; the same shortcut did not work from NORMAL mode.\n\nThis release fixes the issue so ← on an empty prompt returns to the agent view from Vim mode's NORMAL mode as well.",
+      "category": "入力",
+      "category_en": "Input"
+    },
+    {
+      "t": "修正: スクリーンリーダーモードで、キー入力のたびに入力欄全体が再描画され、入力した1文字だけでなく行全体が読み上げられてしまう問題",
+      "t_en": "Fixed screen-reader mode rewriting the entire input line on every keystroke instead of echoing only the typed character",
+      "tags": ["バグ修正"],
+      "detail": "スクリーンリーダーモードはスクリーンリーダーが追従しやすいよう平易なテキストを出力する設計だが、キー入力のたびに入力欄全体が再描画されてしまい、新しく入力した1文字だけでなく行全体がスクリーンリーダーによって読み上げ直されてしまう不具合があった。\n\n本バージョンでこの問題を修正し、キー入力時には新しく入力された文字のみがエコーされるようになった。",
+      "detail_en": "Screen-reader mode prints plain text so a screen reader can follow along, but it could redraw the entire input line on every keystroke, causing the screen reader to re-announce the whole line instead of just the newly typed character.\n\nThis release fixes the issue so only the newly typed character is echoed on each keystroke.",
+      "category": "アクセシビリティ",
+      "category_en": "Accessibility"
+    },
+    {
+      "t": "改善: 「Remote Control is only available via api.anthropic.com」エラーに、原因となった具体的な設定名を表示するように改善",
+      "t_en": "Improved the \"Remote Control is only available via api.anthropic.com\" error to name the specific setting that caused it",
+      "tags": ["改善"],
+      "detail": "このエラーは、Remote Control が claude.ai のバックエンドに直接到達できない場合(多くは `ANTHROPIC_BASE_URL` がゲートウェイやプロキシを指している場合)に表示されるが、これまでは原因となっている設定が何かをエラーメッセージから読み取れなかった。\n\n本バージョンでエラーメッセージが改善され、原因となった具体的な設定名(`ANTHROPIC_BASE_URL` など)が表示されるようになり、ユーザー自身で問題を切り分けやすくなった。詳しくは[Remote Control のドキュメント](https://code.claude.com/docs/en/remote-control#remote-control-is-only-available-when-using-claude-via-api-anthropic-com)を参照してください。",
+      "detail_en": "This error appears when Remote Control can't reach claude.ai's backend directly, most often because `ANTHROPIC_BASE_URL` points at a gateway or proxy, but previously the error message didn't say which setting was responsible.\n\nThis release improves the error to name the specific setting that caused it (such as `ANTHROPIC_BASE_URL`), making it easier for users to self-diagnose. See the [Remote Control documentation](https://code.claude.com/docs/en/remote-control#remote-control-is-only-available-when-using-claude-via-api-anthropic-com) for details.",
+      "category": "Remote Control",
+      "category_en": "Remote Control"
+    },
+    {
+      "t": "改善: `claude --teleport` が、セッションのリポジトリと一致しない場合に現在のチェックアウトがどのリポジトリを指しているかを表示するように改善",
+      "t_en": "Improved `claude --teleport` to show which repo your current checkout points at when it doesn't match the session's repo",
+      "tags": ["改善"],
+      "detail": "`claude --teleport` はセッションと同じリポジトリのチェックアウトから実行する必要があるが、これまではリポジトリが一致しない場合のエラーから、手元のチェックアウトが実際にどのリポジトリを指しているのかが分かりにくかった。\n\n本バージョンでこの点が改善され、リポジトリが一致しない場合に現在のチェックアウトが指しているリポジトリが表示されるようになり、フォークや無関係なリポジトリから実行してしまった場合などの原因を把握しやすくなった。詳しくは[Claude Code on the web のドキュメント](https://code.claude.com/docs/en/claude-code-on-the-web#teleport-requirements)を参照してください。",
+      "detail_en": "`claude --teleport` requires running from a checkout of the same repository as the session, but previously, when the repositories didn't match, the error didn't make clear which repository the local checkout actually pointed at.\n\nThis release improves the error to show which repository the current checkout points at when it doesn't match the session's repo, making it easier to spot causes like running from a fork or an unrelated repository. See the [Claude Code on the web documentation](https://code.claude.com/docs/en/claude-code-on-the-web#teleport-requirements) for details.",
+      "category": "セッション管理",
+      "category_en": "Session Management"
+    },
+    {
+      "t": "変更: dynamic workflows のデフォルトを medium の目安値(エージェント数15未満を目標)に変更、`/config` の Dynamic workflow size で他のサイズや無制限を選択可能",
+      "t_en": "Changed dynamic workflows to default to a medium size guideline (aim for fewer than 15 agents); pick another size or unrestricted with Dynamic workflow size in `/config`",
+      "tags": ["改善", "Agent"],
+      "detail": "これまで dynamic workflows のエージェント数に既定の目安値は設定されておらず、無制限がデフォルトの挙動だった。\n\n本バージョンからデフォルトが medium の目安値(エージェント数15未満を目標)に変更された。`/config` の Dynamic workflow size から small・large・無制限など他のサイズに変更することも引き続き可能。",
+      "detail_en": "Previously, dynamic workflows had no default agent-count guideline, and unrestricted was the default behavior.\n\nAs of this release, the default has changed to a medium guideline (aiming for fewer than 15 agents). Other sizes, including small, large, or unrestricted, can still be selected via Dynamic workflow size in `/config`.",
+      "category": "ワークフロー",
+      "category_en": "Workflow"
+    },
+    {
+      "t": "変更: managed MCP の許可リスト・拒否リストにおける `${VAR}` の展開元を、設定ファイルの env ではなく起動時の環境変数と managed-settings の env から解決するように変更",
+      "t_en": "Changed managed MCP allowlist/denylist `${VAR}` entries to resolve from the startup environment and managed-settings env instead of settings-file env",
+      "tags": ["改善", "MCP", "Security"],
+      "detail": "managed MCP の `allowedMcpServers`/`deniedMcpServers` は `serverCommand`・`serverUrl` のパターン内で `${VAR}` による環境変数展開に対応しているが、これまでは通常の設定ファイルの `env` ブロックの値も展開対象に含まれており、ユーザー自身が設定した値が管理者のポリシーの解決結果に影響を与えてしまう可能性があった。\n\n本バージョンでこの展開元が、起動時の環境変数と managed-settings の env に限定されるように変更され、ユーザー側の設定ファイルの `env` が管理者のポリシー適用に影響しないようになった。詳しくは[managed MCP のドキュメント](https://code.claude.com/docs/en/managed-mcp#match-servers-by-url-command-or-name)を参照してください。",
+      "detail_en": "Managed MCP's `allowedMcpServers`/`deniedMcpServers` support `${VAR}` expansion within `serverCommand`/`serverUrl` patterns, but previously this could also read values from a regular settings file's `env` block, meaning a user's own settings could influence the resolution of an administrator's policy.\n\nThis release changes the resolution source to the startup environment and managed-settings env only, so a user's settings-file `env` no longer affects how the administrator's policy is enforced. See the [managed MCP documentation](https://code.claude.com/docs/en/managed-mcp#match-servers-by-url-command-or-name) for details.",
+      "category": "MCP 連携",
+      "category_en": "MCP Integration"
+    },
+    {
+      "t": "改善: `/model` ピッカーのハイライト表示を最新モデルの名前のみに変更し、一覧の一部ではなく新しいリリースそのものが強調されるように改善",
+      "t_en": "Changed the `/model` picker to highlight only the newest model's name, so the highlight marks the new release rather than an arbitrary subset of the list",
+      "tags": ["改善"],
+      "detail": "`/model` ピッカーは新しくリリースされたモデルを視覚的に強調表示するが、これまではその強調表示のロジックが一覧中の任意の複数行を対象にしてしまうことがあり、どのモデルが実際に新しいのか分かりにくかった。\n\n本バージョンでハイライトの対象が最新モデルの名前のみに限定されるように改善され、新しいリリースを正確に強調できるようになった。",
+      "detail_en": "The `/model` picker visually highlights recently released models, but the highlight logic could previously mark an arbitrary subset of rows, making it unclear which model was actually new.\n\nThis release scopes the highlight to only the newest model's name, so it accurately marks the new release.",
+      "category": "モデル",
+      "category_en": "Model"
+    },
+    {
+      "t": "追加: 実行中のワークフローのステータス行に現在のデフォルトの workflow size を表示し、変更方法として `/config` への案内を追加",
+      "t_en": "Added the current default workflow size to the running-workflow status line, with a pointer to `/config` for changing it",
+      "tags": ["新機能", "Agent"],
+      "detail": "これまでワークフロー実行中のステータス行では、既定のエージェント数の目安値(workflow size)を確認する手段がなく、`/config` を別途開く必要があった。\n\n本バージョンでワークフロー実行中のステータス行に現在のデフォルトの workflow size が表示されるようになり、変更したい場合は `/config` から行える旨の案内も併記されるようになった。",
+      "detail_en": "Previously, while a workflow was running, its status line had no way to show the current default agent-count guideline (workflow size); checking it required opening `/config` separately.\n\nThis release adds the current default workflow size directly to the running-workflow status line, along with a pointer that it can be changed via `/config`.",
+      "category": "ワークフロー",
+      "category_en": "Workflow"
+    },
+    {
+      "t": "非推奨: fast mode から Opus 4.7 のサポートを削除、`/fast` は Opus 5 と Opus 4.8 のみに適用されるように",
+      "t_en": "Removed Opus 4.7 from fast mode; `/fast` now applies to Opus 5 and Opus 4.8",
+      "tags": ["非推奨"],
+      "detail": "fast mode は以前は Opus 4.7 を含む複数の Opus モデルに対応していた。Opus 4.7 の fast mode は 2026年6月25日に非推奨となり、本バージョン(2026年7月24日リリース)で正式に削除された。\n\n以降、Opus 4.7 に対する fast mode のリクエストは API 側で拒否されるようになり、`/fast` は Opus 5 と Opus 4.8 にのみ適用される。Opus 4.7 で高速化を利用していたユーザーは、モデルを切り替える必要がある。詳しくは[fast mode のドキュメント](https://code.claude.com/docs/en/fast-mode#toggle-fast-mode)を参照してください。",
+      "detail_en": "Fast mode previously supported several Opus models, including Opus 4.7. Fast mode for Opus 4.7 was deprecated on June 25, 2026, and is formally removed as of this release (July 24, 2026).\n\nFrom now on, fast-mode requests for Opus 4.7 are rejected by the API, and `/fast` applies only to Opus 5 and Opus 4.8. Users who relied on fast mode with Opus 4.7 need to switch models to keep the speedup. See the [fast mode documentation](https://code.claude.com/docs/en/fast-mode#toggle-fast-mode) for details.",
+      "category": "モデル",
+      "category_en": "Model"
+    },
+    {
+      "t": "改善: 同梱の claude-api スキルのデフォルトモデルを Claude Opus 5 に更新し、Opus 4.8 からの移行手順を追加",
+      "t_en": "Updated the claude-api skill to default to Claude Opus 5, with a migration path from Opus 4.8",
+      "tags": ["改善"],
+      "detail": "同梱されている claude-api スキル(Claude API の利用方法を案内するスキル)は、これまで Opus 4.8 を基準に案内を行っていた。\n\n本バージョンで Claude Opus 5 の提供開始にあわせてデフォルトのモデルが Opus 5 に更新され、Opus 4.8 を利用しているコードから移行するための手順も追加された。",
+      "detail_en": "The bundled claude-api skill, which guides usage of the Claude API, previously used Opus 4.8 as its reference model.\n\nWith the release of Claude Opus 5, this release updates the skill's default recommendation to Opus 5 and adds migration guidance for code still referencing Opus 4.8.",
+      "category": "スキル",
+      "category_en": "Skills"
+    },
+    {
+      "t": "改善: サブエージェントがネストしたサブエージェントを起動できる既定の深さを 1 から 3 に変更、`CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH=1` を設定すればネストを無効化可能",
+      "t_en": "Subagents can now spawn nested subagents up to depth 3 by default (was 1); set CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH=1 to disable nesting",
+      "tags": ["改善", "Agent"],
+      "detail": "`CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH` はメイン会話の下に存在できるサブエージェントの階層数を制御する環境変数で、これまでの既定値ではサブエージェントがさらにサブエージェントを起動することはできなかった。\n\n本バージョンで既定の深さが 1 から 3 に変更され、標準でネストしたサブエージェントの起動が可能になった。従来どおりネストを無効化したい場合は `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH=1` を設定する。",
+      "detail_en": "`CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH` is an environment variable controlling how many subagent layers can exist below the main conversation; at the previous default, subagents could not spawn subagents of their own.\n\nThis release changes the default depth from 1 to 3, so nested subagent spawning is enabled out of the box. To restore the old no-nesting behavior, set `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH=1`.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-Agent"
+    }
   ]
 }
