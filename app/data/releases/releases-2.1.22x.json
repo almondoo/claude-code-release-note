@@ -1,0 +1,202 @@
+[
+  {
+    "v": "2.1.221",
+    "items": [
+      {
+        "t": "追加: VS Code に Focus view を追加。ツールの実行状況を折りたたんで各ターン単位で展開可能なサマリーとして表示し、実行中のツールをリアルタイムに示すインジケーターを追加。`Ctrl+Alt+F` または「Claude Code: Toggle Focus view」コマンドで切り替え可能",
+        "t_en": "[VSCode] Added Focus view: a chat-menu toggle that hides tool activity behind an expandable per-turn summary with a live running-tool indicator, toggled with `Ctrl+Alt+F` or the \"Claude Code: Toggle Focus view\" command",
+        "tags": ["新機能", "IDE"]
+      },
+      {
+        "t": "追加: 認証情報ファイル向けサンドボックス設定に Linux・WSL 用の `mode: \"mask\"` を追加。サンドボックス化されたコマンドはセンチネル値のコピー（ファイル全体、または `extract` 正規表現で捕捉した範囲のみ）を読み取り、外部への送信時にサンドボックスプロキシが実際の値へ置き換える。macOS ではファイルマスキングは引き続き `deny` にフォールバック",
+        "t_en": "Added `mode: \"mask\"` for sandbox credential files on Linux and WSL — sandboxed commands read a sentinel copy (the whole file, or just the spans captured by an `extract` regex) while the sandbox proxy substitutes the real value on egress; on macOS file masking falls back to `deny`",
+        "tags": ["新機能", "Security"]
+      },
+      {
+        "t": "追加: `claude plugin validate` に、マーケットプレースやプラグインの名前がマネージドマーケットプレース同期で拒否される場合の警告を追加",
+        "t_en": "Added warnings to `claude plugin validate` when a marketplace or plugin name would be rejected by Claude Desktop's managed marketplace sync",
+        "tags": ["新機能", "Plugin"]
+      },
+      {
+        "t": "追加: `claude-api` スキルに、古いモデル向けに書かれたパターンがないかプロンプトやツール説明を監査する `prompt-audit` サブコマンドを追加",
+        "t_en": "Added a `prompt-audit` subcommand to the `claude-api` skill for auditing prompts and tool descriptions for patterns written for older models",
+        "tags": ["新機能"]
+      },
+      {
+        "t": "修正: zsh の `[[ ]]` 正規表現条件式内に隠されたコマンドを実行できてしまう Bash ツールのパーミッションチェックバイパスを修正。該当するコマンドは今後パーミッションの確認を求めるように",
+        "t_en": "Fixed a Bash tool permission-check bypass where zsh could execute hidden commands in `[[ ]]` regex conditionals; affected commands now prompt for permission",
+        "tags": ["バグ修正", "Security"]
+      },
+      {
+        "t": "修正: Windows で、引用符を含むパスを PowerShell のパーミッションチェックが正しく扱えず、承認が必要なコマンドを見逃してしまう問題を修正。該当するパスは今後承認を求めるように",
+        "t_en": "Fixed PowerShell permission checks mishandling paths containing quote characters on Windows; such paths now prompt for approval",
+        "tags": ["バグ修正", "Windows"]
+      },
+      {
+        "t": "修正: セッション開始時に thinking がオフになっていると、以降ずっと thinking トグルの切り替えが反映されない問題と、MCP サーバーを接続中に無効化しても設定が黙って元に戻ってしまう問題を修正",
+        "t_en": "Fixed the thinking toggle having no effect for the rest of a session that started with thinking off; disabling an MCP server mid-connect no longer silently reverts",
+        "tags": ["バグ修正", "MCP"]
+      },
+      {
+        "t": "修正: 非対話モード（`-p`）で `--mcp-config` から指定した MCP サーバーが最初のターンより前に接続を完了しておらず、モデルがツール呼び出しをそのままテキストとして出力してしまう問題を修正",
+        "t_en": "Fixed MCP servers from `--mcp-config` not being connected before the first turn in print mode (`-p`), which made the model emit tool calls as literal text",
+        "tags": ["バグ修正", "MCP"]
+      },
+      {
+        "t": "修正: プロンプトを Esc で一旦引き戻してから再送信すると、@ で言及していたファイルが黙って失われてしまう問題を修正",
+        "t_en": "Fixed @-mentioned files being silently dropped when pressing Esc to retract a prompt and resubmitting it",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: `constructor` のような組み込みオブジェクトのプロパティ名を持つ SDK 定義の MCP ツールで、API リクエスト準備時にクラッシュしてしまう問題を修正",
+        "t_en": "Fixed a crash when preparing API requests for SDK MCP tools named after built-in object properties such as `constructor`",
+        "tags": ["バグ修正", "SDK", "MCP"]
+      },
+      {
+        "t": "修正: thinking を無効にした状態でエフォートレベルが `xhigh`/`max` の場合に、WebSearch が 400 エラーで失敗する問題を修正",
+        "t_en": "Fixed WebSearch failing with a 400 error at effort `xhigh`/`max` when thinking is disabled",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: サンドボックスプロキシ経由の大容量アップロードが TLS エラーで失敗する問題を修正",
+        "t_en": "Fixed sandboxed large uploads failing with TLS errors through the sandbox proxy",
+        "tags": ["バグ修正", "Security"]
+      },
+      {
+        "t": "修正: Team・Enterprise プランで利用上限に達した際のメッセージが、実際には個人の利用上限であるにもかかわらず、組織の月次上限のせいであるかのように誤って表示される問題を修正",
+        "t_en": "Fixed Team and Enterprise spend-limit message incorrectly blaming the org's monthly limit instead of your individual spend limit",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: Windows マシンで環境変数 `HOME` が誤って設定されていると、デスクトップ管理セッションで AWS SSO の名前付きプロファイルを使った Bedrock 認証が失敗する問題を修正",
+        "t_en": "Fixed Bedrock authentication with AWS SSO named profiles failing in desktop-managed sessions on Windows machines that set a stray `HOME` environment variable",
+        "tags": ["バグ修正", "Windows", "Platform"]
+      },
+      {
+        "t": "修正: `CLAUDE_CODE_RESUME_INTERRUPTED_TURN=0` を設定しても中断ターンの自動再開が無効化されない問題を修正。falsy な値が正しく尊重されるように",
+        "t_en": "Fixed `CLAUDE_CODE_RESUME_INTERRUPTED_TURN=0` not disabling interrupted-turn auto-resume; falsy values are now honored",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: スリープからの復帰時に、複数の Claude Code プロセスが同じ MCP コネクタや WIF OAuth トークンを同時にリフレッシュしてしまい、再認証が必要になる稀な競合状態を修正",
+        "t_en": "Fixed a rare wake-from-sleep race where two Claude Code processes could both refresh the same MCP connector or WIF OAuth token at once, forcing re-authentication",
+        "tags": ["バグ修正", "MCP"]
+      },
+      {
+        "t": "修正: Claude Code Desktop や claude.ai からセッションをリネームしても CLI 側のセッション名が更新されない問題を修正。どの画面からリネームした場合でもセッション名がサニタイズされるように",
+        "t_en": "Fixed renaming a session from Claude Code Desktop or claude.ai not updating the CLI's session name; session names from every rename surface are now sanitized",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: `/help` や `/feedback` のようなターミナル専用の組み込みコマンドと同名のプラグイン・組織配信スキルが、非対話セッションで呼び出せない問題を修正",
+        "t_en": "Fixed plugin- and org-delivered skills named after terminal-only built-ins (e.g. `/help`, `/feedback`) being un-invocable in non-interactive sessions",
+        "tags": ["バグ修正", "Plugin"]
+      },
+      {
+        "t": "修正: プラグインをリロードした後も「Plugins changed」通知が消えずに残り続けてしまう問題を修正",
+        "t_en": "Fixed the \"Plugins changed\" notification lingering after plugins were reloaded instead of clearing",
+        "tags": ["バグ修正", "Plugin"]
+      },
+      {
+        "t": "修正: Vim モードで、ダイアログの表示・履歴検索・トランスクリプト表示を行うとヤンクレジスタが黙って空になってしまう問題を修正。これらの操作をまたいでもヤンクした内容が保持されるように",
+        "t_en": "Fixed Vim mode: the yank register now survives dialogs, history search, and the transcript view instead of being silently emptied",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: Vim モードでプロンプトが空になるまで undo すると、確認なしにそのままエージェントビューへ戻ってしまう問題を修正。空になった時点で「もう一度 ← を押す」確認が正しく働くように",
+        "t_en": "Fixed Vim mode: undoing back to an empty prompt now arms the \"press ← again\" confirm before returning to the agent view",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "改善: Google Vertex AI 上でのツールサーチを Claude 4.5 世代以降のモデルで再度有効化",
+        "t_en": "Improved tool search on Google Vertex AI: re-enabled for Claude 4.5-generation and newer models",
+        "tags": ["改善", "Platform"]
+      },
+      {
+        "t": "改善: 自動モードのパーミッションチェックを改善。並列のツール呼び出しに対するチェックがキャッシュを効率的に再利用するようになり、チェックが保留中にモードを切り替えた場合も、古い結果が適用されず確実に確認が求められるように",
+        "t_en": "Improved auto mode: permission checks for parallel tool calls are now cache-efficient, and switching modes while a check is pending reliably prompts instead of applying the stale result",
+        "tags": ["改善"]
+      },
+      {
+        "t": "改善: 会話のキャッシュ済みプレフィックスを判定間で再利用することで、自動モードのパーミッションチェックにかかるプロンプトキャッシュのコストを削減",
+        "t_en": "Reduced prompt-cache costs for auto-mode permission checks by reusing the cached conversation prefix across decisions",
+        "tags": ["改善", "Perf"]
+      },
+      {
+        "t": "改善: Stats パネルのトークン合計にキャッシュトークンを含めるように改善し、input・output・cache read・cache write の内訳を表示",
+        "t_en": "Improved Stats panel to count cache tokens in its token totals, with a breakdown by input, output, cache read, and cache write",
+        "tags": ["改善"]
+      },
+      {
+        "t": "改善: リポジトリがベースと共有履歴を持たない場合の `/ultrareview` のエラーメッセージを改善。ブランチが一つもないチェックアウトは事前にブランチ作成を促して拒否し、既にフル取得済みのクローンに対して `git fetch --unshallow` を提案しないように",
+        "t_en": "Improved `/ultrareview` error messages when a repo shares no history with its base: a checkout with no branches is now refused up front with advice to create one, and refusal hints no longer suggest `git fetch --unshallow` on clones that are already complete",
+        "tags": ["改善"]
+      },
+      {
+        "t": "改善: Windows の起動処理を改善。プロセス作成時刻の取得を PowerShell の起動ではなくネイティブな kernel32 呼び出しで行うようにし、`powershell.exe` の起動を監視するエンドポイントセキュリティ製品による確認プロンプトが表示されないように",
+        "t_en": "Improved Windows startup: process creation times are now read via a native kernel32 call instead of spawning PowerShell, so endpoint security tools that gate `powershell.exe` no longer prompt",
+        "tags": ["改善", "Windows", "Perf"]
+      },
+      {
+        "t": "変更: バックグラウンドセッションが作業内容を保持するためコミット・プッシュを行い、必要な場合のみドラフト PR を作成し、CLAUDE.md の Git に関する指示に従い、最後に作業の格納場所を必ず報告するように変更",
+        "t_en": "Changed background sessions to commit and push to preserve work, open a draft PR only when the task calls for one, follow your CLAUDE.md git instructions, and always end by reporting where the work lives",
+        "tags": ["改善", "Agent"]
+      },
+      {
+        "t": "変更: `/plugin install` が、プラグインが見つからないと報告する前に、古くなったマーケットプレースのカタログを自動的に更新して再試行するように変更",
+        "t_en": "Changed `/plugin install` to refresh a stale marketplace catalog and retry before reporting a plugin not found",
+        "tags": ["改善", "Plugin"]
+      },
+      {
+        "t": "変更: `/plugin` からインストールしたプラグインが、常に `/reload-plugins` を必要としていたのに代わり、安全な場合は即座に有効化されるように変更",
+        "t_en": "Changed plugins installed from `/plugin` to activate immediately when safe, instead of always requiring `/reload-plugins`",
+        "tags": ["改善", "Plugin"]
+      },
+      {
+        "t": "変更: プラグインマニフェストの `skills` パスとして `\".\"` を受け付けるように変更。ルート直下に `SKILL.md` を置いた場合のバリデーションエラーでも、プラグインルートの利用を提案するように",
+        "t_en": "Changed plugins to accept `\".\"` as a `skills` path, and the root-level `SKILL.md` validation error now suggests using the plugin root",
+        "tags": ["改善", "Plugin"]
+      },
+      {
+        "t": "変更: `/status` に、セッションの種類（`interactive` か、バックグラウンドジョブの `attached`／`unattended`）を表示するように変更",
+        "t_en": "Changed `/status` to show the session kind: `interactive`, or a background job that is `attached` or `unattended`",
+        "tags": ["改善", "Agent"]
+      },
+      {
+        "t": "変更: 絵文字オートコンプリートが `:thumbsup:`・`:thumbsdown:`・`:love:` のような一般的な別名ショートコードも受け付けるように変更",
+        "t_en": "Changed emoji autocomplete to accept common alternate shortcodes like `:thumbsup:`, `:thumbsdown:`, and `:love:`",
+        "tags": ["改善"]
+      },
+      {
+        "t": "変更: `/fork` でフォークしたセッションが、元のセッションのチェックアウトで作業するのではなく、独自の新しいワークツリーを作成するように変更",
+        "t_en": "Changed sessions forked with `/fork` to create a new worktree of their own instead of working in the original session's checkout",
+        "tags": ["改善", "Agent"]
+      },
+      {
+        "t": "変更: Claude in Chrome が、自身で開いたブラウザタブが不要になった時点で閉じるように変更",
+        "t_en": "Changed Claude in Chrome to close the browser tabs it opens once it no longer needs them",
+        "tags": ["改善"]
+      },
+      {
+        "t": "変更: セッション途中で利用クレジットが尽きた場合、fast mode が黙って失敗するのではなくストリーム上で状況を報告するように変更",
+        "t_en": "Changed fast mode to report on the stream when usage credits run out mid-session, instead of failing silently",
+        "tags": ["改善"]
+      },
+      {
+        "t": "変更: Monitor ツールで、出力を一切出さずに終了した監視について、「stream ended」ではなくその旨を明示的に報告するように変更",
+        "t_en": "Changed Monitor: a watch that exits without producing any output now says so instead of reporting \"stream ended\"",
+        "tags": ["改善"]
+      },
+      {
+        "t": "変更: Gateway 経由のリクエストで `model` フィールドに文字列以外の値が指定された場合、そのまま転送するのではなく 400 エラーで拒否するように変更",
+        "t_en": "Changed the Gateway `model` field validation: non-string values are rejected with a 400 instead of being forwarded",
+        "tags": ["改善"]
+      },
+      {
+        "t": "削除: 承認プロンプトに繰り返し表示されていた「auto-mode の分類器呼び出しが保留中にパーミッションモードが変更されました」という通知を削除",
+        "t_en": "Removed the repeated \"Permission mode changed while the auto-mode classifier call was queued\" notice from approval prompts",
+        "tags": ["改善"]
+      }
+    ]
+  }
+]
