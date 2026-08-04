@@ -1,0 +1,355 @@
+{
+  "2.1.221": [
+    {
+      "t": "追加: VS Code に Focus view を追加。ツールの実行状況を折りたたんで各ターン単位で展開可能なサマリーとして表示し、実行中のツールをリアルタイムに示すインジケーターを追加。`Ctrl+Alt+F` または「Claude Code: Toggle Focus view」コマンドで切り替え可能",
+      "t_en": "[VSCode] Added Focus view: a chat-menu toggle that hides tool activity behind an expandable per-turn summary with a live running-tool indicator, toggled with `Ctrl+Alt+F` or the \"Claude Code: Toggle Focus view\" command",
+      "tags": ["新機能", "IDE"],
+      "detail": "従来 VS Code 拡張機能ではツールの実行状況がすべてチャット欄にそのまま表示されるため、長いエージェントターンでは会話が煩雑になりやすかった。\n\n本バージョンで追加された Focus view を有効にすると、ツールの実行状況が各ターンごとに折りたたまれた展開可能なサマリーに集約され、実行中のツールをリアルタイムに示すインジケーターだけが表示されるようになる。チャットメニューのトグル、`Ctrl+Alt+F`、または「Claude Code: Toggle Focus view」コマンドから切り替えられ、ノイズを抑えつつ必要に応じて詳細を確認できる。",
+      "detail_en": "Previously, the VS Code extension showed every tool call inline in the chat panel, which could make long agent turns feel cluttered.\n\nFocus view, added in this version, collapses tool activity into an expandable per-turn summary with a live indicator of the tool currently running. It can be toggled from the chat menu, with `Ctrl+Alt+F`, or via the \"Claude Code: Toggle Focus view\" command, reducing noise while still letting you inspect details when needed.",
+      "category": "IDE",
+      "category_en": "IDE"
+    },
+    {
+      "t": "追加: 認証情報ファイル向けサンドボックス設定に Linux・WSL 用の `mode: \"mask\"` を追加。サンドボックス化されたコマンドはセンチネル値のコピー（ファイル全体、または `extract` 正規表現で捕捉した範囲のみ）を読み取り、外部への送信時にサンドボックスプロキシが実際の値へ置き換える。macOS ではファイルマスキングは引き続き `deny` にフォールバック",
+      "t_en": "Added `mode: \"mask\"` for sandbox credential files on Linux and WSL — sandboxed commands read a sentinel copy (the whole file, or just the spans captured by an `extract` regex) while the sandbox proxy substitutes the real value on egress; on macOS file masking falls back to `deny`",
+      "tags": ["新機能", "Security"],
+      "detail": "従来、サンドボックスの認証情報ファイル設定では `mode: \"deny\"` のみがサポートされており、認証情報ファイルへのアクセスを完全にブロックする方法しかなかったため、そのファイルを必要とするツールが動作しなくなることがあった。\n\n本バージョンで Linux・WSL 向けに `mode: \"mask\"` が追加され、サンドボックス化されたコマンドは実際の値の代わりにセンチネル（ダミー）値のコピーを読み取れるようになった。`extract` 正規表現で捕捉した範囲のみをマスクすることも可能で、外部への送信（egress）時にはサンドボックスプロキシが実際の値に置き換える。これにより、サンドボックス内のプロセスが本物の秘密情報を直接見ることなく認証を行えるようになった。なお、macOS ではファイルマスキングは引き続き `deny` にフォールバックする。",
+      "detail_en": "Previously, the sandbox credential file setting only supported `mode: \"deny\"`, which blocked sandboxed commands from reading a credential file entirely — breaking any tool that needed it.\n\nThis version adds `mode: \"mask\"` for Linux and WSL: sandboxed commands read a sentinel copy of the file instead of the real value (either the whole file or only the spans captured by an `extract` regex), and the sandbox proxy substitutes the real value on egress. This lets tools authenticate without the sandboxed process ever seeing the real secret. On macOS, file masking still falls back to `deny`.",
+      "category": "サンドボックス",
+      "category_en": "Sandbox"
+    },
+    {
+      "t": "追加: `claude plugin validate` に、マーケットプレースやプラグインの名前がマネージドマーケットプレース同期で拒否される場合の警告を追加",
+      "t_en": "Added warnings to `claude plugin validate` when a marketplace or plugin name would be rejected by Claude Desktop's managed marketplace sync",
+      "tags": ["新機能", "Plugin"],
+      "detail": "これまで `claude plugin validate` は、マニフェストの未知フィールドなどは警告していたが、プラグイン名やマーケットプレース名がマネージドマーケットプレース同期時に拒否されるケース（kebab-case でない名前など）は事前に検知できなかった。\n\n本バージョンにより、`claude plugin validate .` をローカルで実行するだけで、マネージドマーケットプレース同期で拒否される可能性のある名前を事前に警告できるようになり、公開後に拒否されて気づくという事態を避けられる。詳しくは[プラグインマーケットプレースのドキュメント](https://code.claude.com/docs/en/plugin-marketplaces#marketplace-validation-errors)を参照してください。",
+      "detail_en": "`claude plugin validate` already warned about unrecognized manifest fields, but it couldn't previously detect cases where a plugin or marketplace name would be rejected by managed marketplace sync (e.g. names that aren't kebab-case).\n\nThis version adds that warning, so running `claude plugin validate .` locally can catch naming problems before they're discovered as a rejection after publishing. See the [plugin marketplaces documentation](https://code.claude.com/docs/en/plugin-marketplaces#marketplace-validation-errors) for details.",
+      "category": "プラグイン管理",
+      "category_en": "Plugin Management"
+    },
+    {
+      "t": "追加: `claude-api` スキルに、古いモデル向けに書かれたパターンがないかプロンプトやツール説明を監査する `prompt-audit` サブコマンドを追加",
+      "t_en": "Added a `prompt-audit` subcommand to the `claude-api` skill for auditing prompts and tool descriptions for patterns written for older models",
+      "tags": ["新機能"],
+      "detail": "`claude-api` スキルはこれまでも Claude API のリファレンスや、新しいモデルへの移行を支援する `migrate` サブコマンドを提供していた。\n\n本バージョンで追加された `prompt-audit` サブコマンドは、プロンプトやツール説明の中に古いモデルの挙動を前提にした記述がないかを監査する。コードの移行と合わせてプロンプトエンジニアリングも最新化できるようになった。",
+      "detail_en": "The bundled `claude-api` skill already provided Claude API reference material and a `migrate` subcommand for upgrading to newer models.\n\nThis version adds a `prompt-audit` subcommand that audits prompts and tool descriptions for patterns written for older models' behavior, letting you modernize your prompt engineering alongside your code migration.",
+      "category": "スキル",
+      "category_en": "Skills"
+    },
+    {
+      "t": "修正: zsh の `[[ ]]` 正規表現条件式内に隠されたコマンドを実行できてしまう Bash ツールのパーミッションチェックバイパスを修正。該当するコマンドは今後パーミッションの確認を求めるように",
+      "t_en": "Fixed a Bash tool permission-check bypass where zsh could execute hidden commands in `[[ ]]` regex conditionals; affected commands now prompt for permission",
+      "tags": ["バグ修正", "Security"],
+      "detail": "zsh の `[[ ]]` 条件式は `=~` による正規表現マッチをサポートしており、副作用としてコマンドを実行できる場合があるが、Claude Code のパーミッションルールのマッチング処理はこれを考慮していなかったため、本来確認が必要なコマンドが気づかれないまま許可されてしまうことがあった。\n\n本バージョンでこの抜け穴が修正され、該当するコマンドは黙って実行されるのではなく、通常どおりパーミッションの確認を求めるようになった。",
+      "detail_en": "zsh's `[[ ]]` conditional syntax supports regex matching via `=~`, which can execute commands as a side effect — something Claude Code's permission-rule matching didn't account for, letting such commands slip past the Bash permission check unnoticed.\n\nThis version closes that gap: affected commands now prompt for permission instead of running silently.",
+      "category": "セキュリティ",
+      "category_en": "Security"
+    },
+    {
+      "t": "修正: Windows で、引用符を含むパスを PowerShell のパーミッションチェックが正しく扱えず、承認が必要なコマンドを見逃してしまう問題を修正。該当するパスは今後承認を求めるように",
+      "t_en": "Fixed PowerShell permission checks mishandling paths containing quote characters on Windows; such paths now prompt for approval",
+      "tags": ["バグ修正", "Windows"],
+      "detail": "Windows 上で PowerShell ツールのパーミッションルールのマッチング処理が、引用符を含むファイルパスを参照するコマンドを正しく解析できず、本来求められるはずの承認プロンプトなしにコマンドが実行されてしまうことがあった。\n\n本バージョンでパス解析が修正され、引用符を含むパスを参照するコマンドも正しく認識されるようになり、通常どおり承認プロンプトが表示されるようになった。",
+      "detail_en": "On Windows, the PowerShell tool's permission-rule matching couldn't correctly parse commands referencing file paths that contain quote characters, which could let such commands run without the approval prompt they should have triggered.\n\nThis version fixes the path parsing so these paths are recognized correctly and the normal approval prompt appears as expected.",
+      "category": "パーミッション",
+      "category_en": "Permissions"
+    },
+    {
+      "t": "修正: セッション開始時に thinking がオフになっていると、以降ずっと thinking トグルの切り替えが反映されない問題と、MCP サーバーを接続中に無効化しても設定が黙って元に戻ってしまう問題を修正",
+      "t_en": "Fixed the thinking toggle having no effect for the rest of a session that started with thinking off; disabling an MCP server mid-connect no longer silently reverts",
+      "tags": ["バグ修正", "MCP"],
+      "detail": "セッションが thinking オフの状態で始まった場合、`Option+T`/`Alt+T` や `/config` で thinking を再度オンにしようとしても、そのセッション中は反映されないという状態管理上のバグがあった。同時に、MCP サーバーが接続処理中に無効化を行うと、その無効化が黙って元に戻ってしまう別のバグも存在した。\n\n本バージョンでどちらも修正され、thinking の切り替えはセッション中いつでも正しく反映されるようになり、接続中の MCP サーバーを無効化した場合もその設定が維持されるようになった。",
+      "detail_en": "If a session started with extended thinking off, toggling it back on with `Option+T`/`Alt+T` or `/config` stopped taking effect for the rest of that session — a state bug. Separately, disabling an MCP server while it was still connecting could get silently reverted instead of staying disabled.\n\nBoth issues are fixed in this version: the thinking toggle now works correctly at any point in a session, and disabling an in-progress MCP server connection now sticks.",
+      "category": "セッション管理",
+      "category_en": "Session Management"
+    },
+    {
+      "t": "修正: 非対話モード（`-p`）で `--mcp-config` から指定した MCP サーバーが最初のターンより前に接続を完了しておらず、モデルがツール呼び出しをそのままテキストとして出力してしまう問題を修正",
+      "t_en": "Fixed MCP servers from `--mcp-config` not being connected before the first turn in print mode (`-p`), which made the model emit tool calls as literal text",
+      "tags": ["バグ修正", "MCP"],
+      "detail": "非対話（print）モードでは、`--mcp-config` で指定した MCP サーバーの接続が完了する前に最初のプロンプトが送信されてしまうことがあり、その場合ツールがまだ登録されていないため、モデルが実際のツール呼び出しの代わりにツール呼び出しのようなテキストをそのまま出力してしまっていた。\n\n本バージョンで、`-p` モードの最初のターンを開始する前に `--mcp-config` のサーバー接続完了を待つように修正され、この問題は解消された。",
+      "detail_en": "In non-interactive print mode, MCP servers supplied via `--mcp-config` could still be connecting when the first prompt was sent, so their tools weren't registered yet — causing the model to emit tool-call-like text instead of making real tool calls.\n\nThis version makes Claude Code wait for `--mcp-config` servers to finish connecting before starting the first turn in `-p` mode, fixing the issue.",
+      "category": "MCP 連携",
+      "category_en": "MCP Integration"
+    },
+    {
+      "t": "修正: プロンプトを Esc で一旦引き戻してから再送信すると、@ で言及していたファイルが黙って失われてしまう問題を修正",
+      "t_en": "Fixed @-mentioned files being silently dropped when pressing Esc to retract a prompt and resubmitting it",
+      "tags": ["バグ修正"],
+      "detail": "送信中のプロンプトを Esc キーで一旦手元に戻して編集し、再送信するというワークフローにおいて、そのプロンプトに添付されていた @ メンションのファイル参照が黙って失われ、意図していたコンテキストが Claude に渡らないことがあった。\n\n本バージョンでこの問題が修正され、引き戻して再送信するフローでも @ メンションが正しく保持されるようになった。",
+      "detail_en": "Pressing Esc to retract an in-flight prompt for editing, then resubmitting it, could silently drop any @-mentioned files that had been attached, losing the context you intended to include.\n\nThis version preserves @-mentions through the retract-and-resubmit flow.",
+      "category": "入力",
+      "category_en": "Input"
+    },
+    {
+      "t": "修正: `constructor` のような組み込みオブジェクトのプロパティ名を持つ SDK 定義の MCP ツールで、API リクエスト準備時にクラッシュしてしまう問題を修正",
+      "t_en": "Fixed a crash when preparing API requests for SDK MCP tools named after built-in object properties such as `constructor`",
+      "tags": ["バグ修正", "SDK", "MCP"],
+      "detail": "SDK で定義した MCP ツールは内部的に通常の JavaScript オブジェクトとして保持されており、`constructor` など Object.prototype に元から存在するプロパティ名と同じ名前のツールを定義すると、API リクエストを組み立てる際に名前が衝突し、ツールとして正しく登録される代わりにクラッシュしていた。\n\n本バージョンでこの名前衝突を回避するよう修正され、JavaScript の組み込みプロパティ名と同じ名前のツールでも問題なく動作するようになった。",
+      "detail_en": "SDK-defined MCP tools are held internally in a plain JavaScript object, so a tool named `constructor` (or another built-in Object.prototype property) collided with that property name when Claude Code built the API request, causing a crash instead of registering the tool.\n\nThis version avoids that name collision, so tools can use any name regardless of JavaScript's built-in property names.",
+      "category": "SDK",
+      "category_en": "SDK"
+    },
+    {
+      "t": "修正: thinking を無効にした状態でエフォートレベルが `xhigh`/`max` の場合に、WebSearch が 400 エラーで失敗する問題を修正",
+      "t_en": "Fixed WebSearch failing with a 400 error at effort `xhigh`/`max` when thinking is disabled",
+      "tags": ["バグ修正"],
+      "detail": "`xhigh`/`max` のエフォートレベルは新しいモデルでのみ利用でき、通常は extended thinking とセットで使われる想定だったが、thinking を無効にした状態でこれらのエフォートレベルのまま WebSearch を呼び出すと、API に無効なパラメーターの組み合わせが送られてしまい 400 エラーで失敗することがあった。\n\n本バージョンで、この組み合わせでも WebSearch が有効なリクエストを組み立てるように修正され、失敗しなくなった。",
+      "detail_en": "The `xhigh` and `max` reasoning-effort levels are only available on newer models and are normally paired with extended thinking; if thinking was disabled while at one of these levels, a WebSearch call could send an invalid parameter combination to the API and fail with a 400 error.\n\nThis version makes WebSearch build a valid request in this combination, so it no longer fails.",
+      "category": "モデル",
+      "category_en": "Model"
+    },
+    {
+      "t": "修正: サンドボックスプロキシ経由の大容量アップロードが TLS エラーで失敗する問題を修正",
+      "t_en": "Fixed sandboxed large uploads failing with TLS errors through the sandbox proxy",
+      "tags": ["バグ修正", "Security"],
+      "detail": "サンドボックス内で実行されるコマンドのネットワーク通信は Claude Code のローカルプロキシを経由するが、TLS 経由の大容量ファイルアップロードにおいて、プロキシが接続を中継する処理にバグがあり失敗することがあった。\n\n本バージョンで TLS の処理が修正され、サンドボックス内からの大容量アップロードも正常に完了するようになった。",
+      "detail_en": "Commands running inside the sandbox route their network traffic through Claude Code's local proxy, and large file uploads over TLS could fail there due to a bug in how the proxy relayed the connection.\n\nThis version fixes the TLS handling, so large uploads from inside the sandbox now complete successfully.",
+      "category": "サンドボックス",
+      "category_en": "Sandbox"
+    },
+    {
+      "t": "修正: Team・Enterprise プランで利用上限に達した際のメッセージが、実際には個人の利用上限であるにもかかわらず、組織の月次上限のせいであるかのように誤って表示される問題を修正",
+      "t_en": "Fixed Team and Enterprise spend-limit message incorrectly blaming the org's monthly limit instead of your individual spend limit",
+      "tags": ["バグ修正"],
+      "detail": "Team・Enterprise プランで利用上限に達した場合、実際に適用されたのが個人（メンバー）ごとに設定された利用上限であっても、メッセージ上では組織全体の月次上限が原因であるかのように誤って表示されることがあった。\n\n本バージョンでメッセージが修正され、実際にどの上限が適用されたのかが正しく表示されるようになった。",
+      "detail_en": "When a Team or Enterprise user hit a spend cap, the message Claude Code showed could incorrectly blame the organization's overall monthly limit even when it was actually the individual member's own spend limit that had been reached.\n\nThis version corrects the message to name the limit that actually applied.",
+      "category": "コスト管理",
+      "category_en": "Cost Management"
+    },
+    {
+      "t": "修正: Windows マシンで環境変数 `HOME` が誤って設定されていると、デスクトップ管理セッションで AWS SSO の名前付きプロファイルを使った Bedrock 認証が失敗する問題を修正",
+      "t_en": "Fixed Bedrock authentication with AWS SSO named profiles failing in desktop-managed sessions on Windows machines that set a stray `HOME` environment variable",
+      "tags": ["バグ修正", "Windows", "Platform"],
+      "detail": "Claude Code の AWS 認証情報の解決処理は `HOME` のような環境変数の影響を受けることがあるが、Windows では本来 `HOME` に意味を持たないにもかかわらず、一部のデスクトップ管理セッションで誤って値が設定されており、それが Amazon Bedrock 向けの AWS SSO 名前付きプロファイルの認証情報解決を妨げ、認証が失敗する原因になっていた。\n\n本バージョンでこの誤った `HOME` の影響を受けないように修正され、SSO プロファイルの解決が正しく行われるようになった。",
+      "detail_en": "Claude Code's AWS credential resolution can be sensitive to environment variables like `HOME`, which normally has no meaning on Windows; some desktop-managed sessions set a stray `HOME` value that interfered with resolving AWS SSO named-profile credentials for Amazon Bedrock, causing authentication to fail.\n\nThis version stops that stray variable from breaking SSO profile resolution, fixing Bedrock authentication in this scenario.",
+      "category": "認証",
+      "category_en": "Authentication"
+    },
+    {
+      "t": "修正: `CLAUDE_CODE_RESUME_INTERRUPTED_TURN=0` を設定しても中断ターンの自動再開が無効化されない問題を修正。falsy な値が正しく尊重されるように",
+      "t_en": "Fixed `CLAUDE_CODE_RESUME_INTERRUPTED_TURN=0` not disabling interrupted-turn auto-resume; falsy values are now honored",
+      "tags": ["バグ修正"],
+      "detail": "`CLAUDE_CODE_RESUME_INTERRUPTED_TURN` 環境変数は、途中で終了したセッションを自動的に再開するかどうかを制御するものだが、`0` を設定してもこれまでは自動再開が無効化されず、無効化するには変数自体を unset する必要があった。\n\n本バージョンで `0` などの falsy な値が正しく尊重されるように修正され、変数を unset しなくても値を `0` にするだけで自動再開を無効化できるようになった。",
+      "detail_en": "The `CLAUDE_CODE_RESUME_INTERRUPTED_TURN` environment variable controls whether a session that ended mid-turn is automatically resumed, but setting it to `0` previously still triggered the resume — you had to unset the variable entirely to disable it.\n\nThis version makes falsy values like `0` correctly disable auto-resume, so you no longer need to unset the variable.",
+      "category": "設定",
+      "category_en": "Settings"
+    },
+    {
+      "t": "修正: スリープからの復帰時に、複数の Claude Code プロセスが同じ MCP コネクタや WIF OAuth トークンを同時にリフレッシュしてしまい、再認証が必要になる稀な競合状態を修正",
+      "t_en": "Fixed a rare wake-from-sleep race where two Claude Code processes could both refresh the same MCP connector or WIF OAuth token at once, forcing re-authentication",
+      "tags": ["バグ修正", "MCP"],
+      "detail": "マシンがスリープから復帰すると、複数の Claude Code プロセス（例えばターミナルセッションとバックグラウンドのエージェントビューのワーカーなど）が同時に MCP コネクタや WIF（Workload Identity Federation）OAuth トークンの期限切れを検知し、それぞれがリフレッシュを試みることで、トークンが破損し再認証が必要になってしまう稀な競合状態があった。\n\n本バージョンでこの競合状態が修正され、複数のプロセスによる同時リフレッシュが正しく調整されるようになった。",
+      "detail_en": "When a machine wakes from sleep, multiple Claude Code processes (for example a terminal session and a background agent-view worker) could simultaneously detect an expired MCP connector or WIF (Workload Identity Federation) OAuth token and both attempt to refresh it, corrupting the token and forcing re-authentication.\n\nThis version coordinates these refreshes to avoid the race condition.",
+      "category": "認証",
+      "category_en": "Authentication"
+    },
+    {
+      "t": "修正: Claude Code Desktop や claude.ai からセッションをリネームしても CLI 側のセッション名が更新されない問題を修正。どの画面からリネームした場合でもセッション名がサニタイズされるように",
+      "t_en": "Fixed renaming a session from Claude Code Desktop or claude.ai not updating the CLI's session name; session names from every rename surface are now sanitized",
+      "tags": ["バグ修正"],
+      "detail": "セッション名は CLI（`/rename`）だけでなく、Desktop アプリや claude.ai からもリネームできるが、Desktop や claude.ai からのリネームは CLI が表示するセッション名に反映されず、古い名前のままになってしまうことがあった。\n\n本バージョンで、どの画面からのリネームも正しく同期されるように修正され、あわせてリネーム元の画面によらずセッション名が一貫してサニタイズされるようになった。",
+      "detail_en": "A session can be renamed from several surfaces — the CLI's `/rename`, the Desktop app, or claude.ai — but a rename made from Desktop or claude.ai wasn't propagating back to the name the CLI displayed, leaving it stale.\n\nThis version synchronizes renames from every surface, and also sanitizes the resulting name consistently regardless of where it was set.",
+      "category": "セッション管理",
+      "category_en": "Session Management"
+    },
+    {
+      "t": "修正: `/help` や `/feedback` のようなターミナル専用の組み込みコマンドと同名のプラグイン・組織配信スキルが、非対話セッションで呼び出せない問題を修正",
+      "t_en": "Fixed plugin- and org-delivered skills named after terminal-only built-ins (e.g. `/help`, `/feedback`) being un-invocable in non-interactive sessions",
+      "tags": ["バグ修正", "Plugin"],
+      "detail": "`/help` や `/feedback` のような一部の組み込みスラッシュコマンドはターミナル専用の機能だが、プラグインや組織から配信されたスキルが偶然これらと同じ名前を持つ場合、組み込みコマンドの名前解決が優先されてしまい、非対話モード（`-p`）や SDK からそのスキルを呼び出すことができなかった。\n\n本バージョンでこの問題が修正され、同名のスキルであっても非対話セッションから正しく呼び出せるようになった。",
+      "detail_en": "Some built-in slash commands like `/help` and `/feedback` are terminal-only features. A plugin- or organization-delivered skill that happened to share one of those names couldn't be invoked in non-interactive mode (`-p`) or the SDK, because the built-in name resolution took priority incorrectly.\n\nThis version lets such same-named skills be invoked correctly in non-interactive sessions.",
+      "category": "プラグイン",
+      "category_en": "Plugin"
+    },
+    {
+      "t": "修正: プラグインをリロードした後も「Plugins changed」通知が消えずに残り続けてしまう問題を修正",
+      "t_en": "Fixed the \"Plugins changed\" notification lingering after plugins were reloaded instead of clearing",
+      "tags": ["バグ修正", "Plugin"],
+      "detail": "バックグラウンドでプラグインが更新されると `/reload-plugins` の実行を促す「Plugins changed」通知が表示されるが、実際にリロードを実行した後もこの通知が消えずに表示され続けてしまうことがあった。\n\n本バージョンで、リロードが完了した時点で通知が正しくクリアされるように修正された。",
+      "detail_en": "Claude Code shows a \"Plugins changed\" notification prompting you to run `/reload-plugins` when a plugin updates in the background, but that notification could keep showing even after you had already reloaded.\n\nThis version clears the notification correctly once the reload completes.",
+      "category": "プラグイン管理",
+      "category_en": "Plugin Management"
+    },
+    {
+      "t": "修正: Vim モードで、ダイアログの表示・履歴検索・トランスクリプト表示を行うとヤンクレジスタが黙って空になってしまう問題を修正。これらの操作をまたいでもヤンクした内容が保持されるように",
+      "t_en": "Fixed Vim mode: the yank register now survives dialogs, history search, and the transcript view instead of being silently emptied",
+      "tags": ["バグ修正"],
+      "detail": "プロンプト入力の Vim モードでテキストをヤンク（コピー）した後、ダイアログを開いたりコマンド履歴を検索したり、トランスクリプト表示を開いたりすると、ヤンクレジスタの内容が黙ってクリアされてしまい、その後 `p` で貼り付けようとしても以前ヤンクした内容が失われていることがあった。\n\n本バージョンでこれらの UI 操作をまたいでもヤンクレジスタが保持されるように修正された。",
+      "detail_en": "In Vim mode for the prompt input, yanking text and then opening a dialog, searching command history, or viewing the transcript could silently clear the yank register, so a subsequent paste (`p`) lost the previously yanked text.\n\nThis version preserves the yank register across these UI transitions.",
+      "category": "入力",
+      "category_en": "Input"
+    },
+    {
+      "t": "修正: Vim モードでプロンプトが空になるまで undo すると、確認なしにそのままエージェントビューへ戻ってしまう問題を修正。空になった時点で「もう一度 ← を押す」確認が正しく働くように",
+      "t_en": "Fixed Vim mode: undoing back to an empty prompt now arms the \"press ← again\" confirm before returning to the agent view",
+      "tags": ["バグ修正"],
+      "detail": "Vim モードで `u` による undo を繰り返してプロンプト入力が空になると、通常セッションを誤って離れないように働く「もう一度 ← を押す」という確認ステップを経ずに、そのままエージェントビューへ戻ってしまうことがあった。\n\n本バージョンで、空のプロンプトへの undo でもこの確認ステップが正しく働くように修正された。",
+      "detail_en": "In Vim mode, repeatedly undoing (`u`) until the prompt input became empty could jump straight back to the agent view, skipping the usual \"press ← again\" confirmation that guards against accidentally leaving a session.\n\nThis version restores that confirmation step when undo empties the prompt.",
+      "category": "入力",
+      "category_en": "Input"
+    },
+    {
+      "t": "改善: Google Vertex AI 上でのツールサーチを Claude 4.5 世代以降のモデルで再度有効化",
+      "t_en": "Improved tool search on Google Vertex AI: re-enabled for Claude 4.5-generation and newer models",
+      "tags": ["改善", "Platform"],
+      "detail": "MCP のツールサーチ（ツール定義の読み込みを遅延させ、必要になった時点でオンデマンドに読み込むことでコンテキストを節約する機能）は、安定性の理由から Google Cloud の Agent Platform（Vertex AI）ではこれまでデフォルトで無効化されていた。\n\n本バージョンで、Sonnet 4.5 以降・Opus 4.5 以降のモデルについてはツールサーチが再度有効化され、`ENABLE_TOOL_SEARCH=true` を設定することで Vertex AI ユーザーも最新モデルでコンテキスト節約の恩恵を受けられるようになった。詳しくは[Google Vertex AI のドキュメント](https://code.claude.com/docs/en/google-vertex-ai#4-configure-claude-code)を参照してください。",
+      "detail_en": "MCP tool search — which defers full tool definitions and loads them on demand to save context — had been disabled by default on Google Cloud's Agent Platform (Vertex AI) for stability reasons.\n\nThis version re-enables it for Claude Sonnet 4.5-and-later and Opus 4.5-and-later models, letting Vertex AI users benefit from tool search's context savings on modern models via `ENABLE_TOOL_SEARCH=true`. See the [Google Vertex AI documentation](https://code.claude.com/docs/en/google-vertex-ai#4-configure-claude-code) for details.",
+      "category": "プラットフォーム互換性",
+      "category_en": "Platform Compatibility"
+    },
+    {
+      "t": "改善: 自動モードのパーミッションチェックを改善。並列のツール呼び出しに対するチェックがキャッシュを効率的に再利用するようになり、チェックが保留中にモードを切り替えた場合も、古い結果が適用されず確実に確認が求められるように",
+      "t_en": "Improved auto mode: permission checks for parallel tool calls are now cache-efficient, and switching modes while a check is pending reliably prompts instead of applying the stale result",
+      "tags": ["改善"],
+      "detail": "自動モードの分類器はリスクのある操作を実行前に評価するが、複数のツール呼び出しが並列に発生する場合、これまでは分類器の呼び出しが無駄に重複することがあり、また確認処理が実行中にユーザーがパーミッションモードを切り替えると、その古い判定結果がそのまま適用されてしまうことがあった。\n\n本バージョンで、並列のチェックがキャッシュ結果をより効率的に共有するようになり、チェックが保留中にモードが切り替わった場合は古い判定を破棄して改めて確認を求めるように改善された。",
+      "detail_en": "Auto mode's classifier evaluates each risky action before it runs; with several tool calls firing in parallel, checks could waste redundant classifier calls, and if you switched permission modes while a check was still in flight, the stale verdict could get applied instead of triggering a fresh prompt.\n\nThis version makes parallel checks share cached results more efficiently, and discards an in-flight check (prompting instead) when the mode changes mid-check.",
+      "category": "自動モード",
+      "category_en": "Auto Mode"
+    },
+    {
+      "t": "改善: 会話のキャッシュ済みプレフィックスを判定間で再利用することで、自動モードのパーミッションチェックにかかるプロンプトキャッシュのコストを削減",
+      "t_en": "Reduced prompt-cache costs for auto-mode permission checks by reusing the cached conversation prefix across decisions",
+      "tags": ["改善", "Perf"],
+      "detail": "自動モードの分類器による各チェックは、会話の一部と保留中の操作を別モデルに送信して判定するが、これまでは各チェックのたびに Anthropic のプロンプトキャッシュの恩恵を十分に受けられていない部分があった。\n\n本バージョンで、連続する分類器の判定間でキャッシュ済みの会話プレフィックスを再利用するようになり、自動モードが依存するバックグラウンドのパーミッションチェックにかかるトークンコストが削減された。",
+      "detail_en": "Each auto-mode classifier check sends part of the transcript plus the pending action to a separate model, and previously each check didn't fully benefit from Anthropic's prompt cache.\n\nThis version reuses the cached conversation prefix across consecutive classifier decisions, lowering the token cost of the background permission checks auto mode relies on.",
+      "category": "パフォーマンス",
+      "category_en": "Performance"
+    },
+    {
+      "t": "改善: Stats パネルのトークン合計にキャッシュトークンを含めるように改善し、input・output・cache read・cache write の内訳を表示",
+      "t_en": "Improved Stats panel to count cache tokens in its token totals, with a breakdown by input, output, cache read, and cache write",
+      "tags": ["改善"],
+      "detail": "Stats パネル（`/stats`、`/usage` のエイリアス）はこれまでキャッシュ読み取り・キャッシュ書き込みのトークンをトークン合計に含めておらず、実際のセッションの利用量を過小に表示していた。\n\n本バージョンで input・output・cache read・cache write の内訳を含めて表示するように改善され、セッションが実際に消費した量をより正確かつ透明性高く確認できるようになった。詳しくは[コスト管理のドキュメント](https://code.claude.com/docs/en/costs#using-the-/usage-command)を参照してください。",
+      "detail_en": "The Stats panel (`/stats`, an alias for `/usage`) previously left cache-read and cache-write tokens out of its headline token totals, understating actual usage.\n\nThis version breaks usage down by input, output, cache read, and cache write, giving a more accurate and transparent picture of what a session spent. See the [cost management documentation](https://code.claude.com/docs/en/costs#using-the-/usage-command) for details.",
+      "category": "コスト管理",
+      "category_en": "Cost Management"
+    },
+    {
+      "t": "改善: リポジトリがベースと共有履歴を持たない場合の `/ultrareview` のエラーメッセージを改善。ブランチが一つもないチェックアウトは事前にブランチ作成を促して拒否し、既にフル取得済みのクローンに対して `git fetch --unshallow` を提案しないように",
+      "t_en": "Improved `/ultrareview` error messages when a repo shares no history with its base: a checkout with no branches is now refused up front with advice to create one, and refusal hints no longer suggest `git fetch --unshallow` on clones that are already complete",
+      "tags": ["改善"],
+      "detail": "`/ultrareview` は差分を取るためにマージベースが必要だが、これまでブランチが一つも存在しないチェックアウトや、既にフル取得済み（shallow でない）のクローンに対して分かりにくい案内を表示するケースがあった。\n\n本バージョンで、ブランチが一つもない場合は事前にブランチの作成を促す形で拒否し、フル取得済みのクローンに対しては効果のない `git fetch --unshallow` の提案を表示しないように改善された。",
+      "detail_en": "`/ultrareview` needs a merge base to diff against, and two edge cases previously produced confusing guidance: a checkout with no branches at all, and a fully-fetched clone that was told to run `git fetch --unshallow`, which has no effect on a non-shallow clone.\n\nThis version refuses the no-branches case up front with advice to create one, and drops the unhelpful unshallow suggestion when the clone is already complete.",
+      "category": "コマンド",
+      "category_en": "Commands"
+    },
+    {
+      "t": "改善: Windows の起動処理を改善。プロセス作成時刻の取得を PowerShell の起動ではなくネイティブな kernel32 呼び出しで行うようにし、`powershell.exe` の起動を監視するエンドポイントセキュリティ製品による確認プロンプトが表示されないように",
+      "t_en": "Improved Windows startup: process creation times are now read via a native kernel32 call instead of spawning PowerShell, so endpoint security tools that gate `powershell.exe` no longer prompt",
+      "tags": ["改善", "Windows", "Perf"],
+      "detail": "これまで Windows では起動時にプロセス作成時刻を取得するために PowerShell を起動しており、`powershell.exe` の起動を監視・制限するよう構成されたエンドポイントセキュリティ製品がこれを検知して確認プロンプトを表示することがあった。\n\n本バージョンで、プロセス作成時刻の取得をネイティブな Win32 の `kernel32` API 呼び出しで行うように変更され、PowerShell の起動自体が不要になったことで、この不要なセキュリティプロンプトが表示されなくなった。",
+      "detail_en": "Claude Code previously spawned PowerShell at startup on Windows just to read process creation timestamps, which endpoint security software configured to gate `powershell.exe` launches would flag with a prompt.\n\nThis version reads the timestamp via a native Win32 `kernel32` call instead, avoiding the PowerShell spawn entirely and eliminating that unwanted security prompt on startup.",
+      "category": "パフォーマンス",
+      "category_en": "Performance"
+    },
+    {
+      "t": "変更: バックグラウンドセッションが作業内容を保持するためコミット・プッシュを行い、必要な場合のみドラフト PR を作成し、CLAUDE.md の Git に関する指示に従い、最後に作業の格納場所を必ず報告するように変更",
+      "t_en": "Changed background sessions to commit and push to preserve work, open a draft PR only when the task calls for one, follow your CLAUDE.md git instructions, and always end by reporting where the work lives",
+      "tags": ["改善", "Agent"],
+      "detail": "ワークツリーで変更を分離するバックグラウンドセッションは、これまでも自動でコミット・プッシュを行うことで作業内容の消失を防いでいたが、ドラフト PR を作成するタイミングや、リポジトリの CLAUDE.md に書かれた Git 運用ルールへの追従、作業結果の報告に改善の余地があった。\n\n本バージョンで、ドラフト PR はタスクの内容から必要と判断された場合のみ作成されるようになり、CLAUDE.md の Git に関する指示にも従うようになった。さらにセッションの最後には必ず作業がどこに格納されたかを報告するようになった。詳しくは[エージェントビューのドキュメント](https://code.claude.com/docs/en/agent-view#how-file-edits-are-isolated)を参照してください。",
+      "detail_en": "Background sessions that isolate their edits in a worktree already committed and pushed automatically to avoid losing work, but there was room to improve when a draft PR gets opened, whether the session followed the repository's CLAUDE.md git conventions, and how clearly it reported the outcome.\n\nThis version opens a draft PR only when the task calls for one, makes background sessions follow your CLAUDE.md git instructions, and always ends by reporting where the work landed. See the [agent view documentation](https://code.claude.com/docs/en/agent-view#how-file-edits-are-isolated) for details.",
+      "category": "エージェントビュー",
+      "category_en": "Agent View"
+    },
+    {
+      "t": "変更: `/plugin install` が、プラグインが見つからないと報告する前に、古くなったマーケットプレースのカタログを自動的に更新して再試行するように変更",
+      "t_en": "Changed `/plugin install` to refresh a stale marketplace catalog and retry before reporting a plugin not found",
+      "tags": ["改善", "Plugin"],
+      "detail": "マーケットプレースのローカルキャッシュが古い場合、実際には最近追加されたプラグインであっても `/plugin install` が「見つからない」と報告してしまい、ユーザーが手動で `/plugin marketplace update` を実行してから再試行する必要があった。\n\n本バージョンで、この更新と再試行が `/plugin install` の中で自動的に行われるようになり、手動での回避策が不要になった。",
+      "detail_en": "If a marketplace's locally cached catalog was stale, `/plugin install` would report a plugin as not found even if it had recently been added upstream, requiring you to manually run `/plugin marketplace update` and retry.\n\nThis version makes `/plugin install` refresh the catalog and retry automatically before reporting a not-found error, removing the need for that manual workaround.",
+      "category": "プラグイン管理",
+      "category_en": "Plugin Management"
+    },
+    {
+      "t": "変更: `/plugin` からインストールしたプラグインが、常に `/reload-plugins` を必要としていたのに代わり、安全な場合は即座に有効化されるように変更",
+      "t_en": "Changed plugins installed from `/plugin` to activate immediately when safe, instead of always requiring `/reload-plugins`",
+      "tags": ["改善", "Plugin"],
+      "detail": "セッション中にプラグインをインストール・有効化・無効化した場合、これまでは反映するために常に `/reload-plugins` の実行が必要だった。\n\n本バージョンで、セッションに支障が出ない「安全な」場合には即座に有効化されるようになり、`/reload-plugins` が必要なのはやむを得ない場合のみになった。",
+      "detail_en": "Installing, enabling, or disabling a plugin mid-session previously always required running `/reload-plugins` to take effect.\n\nThis version activates newly installed plugins immediately whenever it's safe to do so, falling back to requiring `/reload-plugins` only when necessary.",
+      "category": "プラグイン管理",
+      "category_en": "Plugin Management"
+    },
+    {
+      "t": "変更: プラグインマニフェストの `skills` パスとして `\".\"` を受け付けるように変更。ルート直下に `SKILL.md` を置いた場合のバリデーションエラーでも、プラグインルートの利用を提案するように",
+      "t_en": "Changed plugins to accept `\".\"` as a `skills` path, and the root-level `SKILL.md` validation error now suggests using the plugin root",
+      "tags": ["改善", "Plugin"],
+      "detail": "プラグインマニフェストの `skills` フィールドでプラグインルートを指定する場合、これまでは `\"./\"` という形式が必要だったが、より単純な `\".\"` という省略形は使えなかった。\n\n本バージョンで `\".\"` も受け付けるようになり、また `SKILL.md` がマーケットプレース・プラグインのルート直下に置かれている場合のバリデーションエラーメッセージも、プラグインルートパスの利用を提案する内容に改善された。詳しくは[プラグインリファレンスのドキュメント](https://code.claude.com/docs/en/plugins-reference#plugin-manifest-schema)を参照してください。",
+      "detail_en": "A plugin manifest's `skills` field pointing at the plugin root previously required the `\"./\"` form.\n\nThis version also accepts the bare `\".\"` shorthand, and the validation error shown when a `SKILL.md` sits directly at a plugin root now suggests using the plugin root path convention. See the [plugin reference documentation](https://code.claude.com/docs/en/plugins-reference#plugin-manifest-schema) for details.",
+      "category": "プラグイン",
+      "category_en": "Plugin"
+    },
+    {
+      "t": "変更: `/status` に、セッションの種類（`interactive` か、バックグラウンドジョブの `attached`／`unattended`）を表示するように変更",
+      "t_en": "Changed `/status` to show the session kind: `interactive`, or a background job that is `attached` or `unattended`",
+      "tags": ["改善", "Agent"],
+      "detail": "`/status` パネルはバージョン・モデル・アカウント・接続状況などを表示するが、これまでそのセッションが通常の対話型セッションなのか、バックグラウンドのエージェントジョブ（ターミナルにアタッチ中か、無人で実行中か）なのかは分からなかった。\n\n本バージョンで、セッションの種類が `/status` に表示されるようになり、いま自分がどのモードのセッションを操作しているのかを素早く把握できるようになった。",
+      "detail_en": "The `/status` panel shows version, model, account, and connectivity information, but previously gave no indication of whether you were in a normal interactive session or a background agent job — and if the latter, whether it was attached to a terminal or running unattended.\n\nThis version adds that session-kind indicator to `/status`, making it easy to tell at a glance what mode a session is running in.",
+      "category": "コマンド",
+      "category_en": "Commands"
+    },
+    {
+      "t": "変更: 絵文字オートコンプリートが `:thumbsup:`・`:thumbsdown:`・`:love:` のような一般的な別名ショートコードも受け付けるように変更",
+      "t_en": "Changed emoji autocomplete to accept common alternate shortcodes like `:thumbsup:`, `:thumbsdown:`, and `:love:`",
+      "tags": ["改善"],
+      "detail": "これまで絵文字のオートコンプリートは正式なショートコード名にしか一致せず、`:thumbsup:`（`:+1:` の別名）や `:love:`（`:heart:` の別名）のような一般的な別表記では候補に出てこなかった。\n\n本バージョンでこれらの一般的な別名ショートコードにも対応し、他のチャットツールと同じ感覚でオートコンプリートを利用できるようになった。",
+      "detail_en": "Emoji autocomplete previously only matched canonical shortcode names, so common alternate spellings like `:thumbsup:` (an alias for `:+1:`) or `:love:` (an alias for `:heart:`) wouldn't resolve.\n\nThis version recognizes these common alternate shortcodes too, matching the autocomplete behavior users expect from other chat tools.",
+      "category": "入力",
+      "category_en": "Input"
+    },
+    {
+      "t": "変更: `/fork` でフォークしたセッションが、元のセッションのチェックアウトで作業するのではなく、独自の新しいワークツリーを作成するように変更",
+      "t_en": "Changed sessions forked with `/fork` to create a new worktree of their own instead of working in the original session's checkout",
+      "tags": ["改善", "Agent"],
+      "detail": "`/fork` は現在の会話をコピーして独立したバックグラウンドセッションとして継続させる機能だが、これまではフォークしたコピーが元のセッションと同じチェックアウトでファイルを編集してしまうことがあり、両セッション間でファイルの競合が起きるおそれがあった。\n\n本バージョンで、フォークしたコピーはファイルを編集する前に必ず独自のワークツリーへ移動するようになり、両セッションのファイル変更が完全に分離されるようになった。詳しくは[エージェントビューのドキュメント](https://code.claude.com/docs/en/agent-view#copy-the-session-with-/fork)を参照してください。",
+      "detail_en": "`/fork` copies the current conversation into a new background session that continues independently, but the forked copy could previously end up editing the same checkout as the original session, risking file conflicts between the two.\n\nThis version makes the forked copy always move into its own worktree before editing files, keeping the two sessions' file changes fully isolated. See the [agent view documentation](https://code.claude.com/docs/en/agent-view#copy-the-session-with-/fork) for details.",
+      "category": "エージェントビュー",
+      "category_en": "Agent View"
+    },
+    {
+      "t": "変更: Claude in Chrome が、自身で開いたブラウザタブが不要になった時点で閉じるように変更",
+      "t_en": "Changed Claude in Chrome to close the browser tabs it opens once it no longer needs them",
+      "tags": ["改善"],
+      "detail": "Claude in Chrome がタスクのために新しいブラウザタブを開いた場合、これまではタスク完了後もそのタブが開いたままになり、セッションを重ねるごとにタブが溜まっていくことがあった。\n\n本バージョンで、Claude が自ら開いたタブについては、そのタスクに不要になった時点で自動的に閉じるようになった。",
+      "detail_en": "When Claude in Chrome opened a new browser tab to carry out a task, it previously left the tab open even after finishing with it, letting tabs accumulate over a session.\n\nThis version closes tabs Claude opened once they're no longer needed for the task.",
+      "category": "ツール改善",
+      "category_en": "Tool Improvements"
+    },
+    {
+      "t": "変更: セッション途中で利用クレジットが尽きた場合、fast mode が黙って失敗するのではなくストリーム上で状況を報告するように変更",
+      "t_en": "Changed fast mode to report on the stream when usage credits run out mid-session, instead of failing silently",
+      "tags": ["改善"],
+      "detail": "fast mode は利用クレジットを直接消費する仕組みのため、セッションの途中でクレジットが尽きたり fast mode 自体のレート制限に達したりすることがあるが、これまではその状況が分かりにくい形で失敗してしまうことがあった。\n\n本バージョンで、クレジットが尽きた際にはレスポンスのストリーム上でその旨が報告されるようになり、通常速度への自動フォールバックと合わせて、なぜ速度が落ちたのかがユーザーにも分かるようになった。詳しくは[fast mode のドキュメント](https://code.claude.com/docs/en/fast-mode#handle-rate-limits)を参照してください。",
+      "detail_en": "Fast mode draws directly from usage credits and can hit its own rate limit or run out of credits mid-session; previously this could happen without clearly surfacing what was going on.\n\nThis version reports the exhaustion on the response stream, alongside the automatic fallback to standard speed, so you understand why performance changed instead of hitting an unexplained failure. See the [fast mode documentation](https://code.claude.com/docs/en/fast-mode#handle-rate-limits) for details.",
+      "category": "モデル",
+      "category_en": "Model"
+    },
+    {
+      "t": "変更: Monitor ツールで、出力を一切出さずに終了した監視について、「stream ended」ではなくその旨を明示的に報告するように変更",
+      "t_en": "Changed Monitor: a watch that exits without producing any output now says so instead of reporting \"stream ended\"",
+      "tags": ["改善"],
+      "detail": "Monitor ツールはバックグラウンドのスクリプトやフィードからの出力をストリームとして返すが、監視対象のプロセスが一切出力を出さずに終了した場合、これまでは汎用的な「stream ended」というメッセージが表示され、実際には出力が一切なかったことが分かりにくかった。\n\n本バージョンで、出力が一切なかった場合はその旨が明示的に報告されるようになった。",
+      "detail_en": "The Monitor tool streams output from a watched background script or feed, but when a watched process exited without ever producing any output, Monitor previously reported the generic \"stream ended\" message, which didn't make clear that there had been no output at all.\n\nThis version reports explicitly when a watch produced no output.",
+      "category": "モニタリング",
+      "category_en": "Monitoring"
+    },
+    {
+      "t": "変更: Gateway 経由のリクエストで `model` フィールドに文字列以外の値が指定された場合、そのまま転送するのではなく 400 エラーで拒否するように変更",
+      "t_en": "Changed the Gateway `model` field validation: non-string values are rejected with a 400 instead of being forwarded",
+      "tags": ["改善"],
+      "detail": "カスタムの LLM ゲートウェイ経由で推論リクエストを送信する際、リクエストボディの `model` フィールドには対象モデルを表す文字列が期待されるが、これまでは文字列以外の値が指定された場合でもそのままアップストリームへ転送されてしまうことがあった。\n\n本バージョンで、クライアント側で `model` フィールドの型を検証するようになり、文字列以外の値が指定された場合は不正なデータを転送する代わりに 400 エラーで拒否するようになった。",
+      "detail_en": "When Claude Code sends inference requests through a custom LLM gateway, the `model` field in the request body is expected to be a string identifying the target model, but a non-string value could previously be forwarded upstream as-is.\n\nThis version validates the `model` field client-side and rejects the request with a 400 error instead of forwarding malformed data.",
+      "category": "API プロキシ",
+      "category_en": "API Proxy"
+    },
+    {
+      "t": "削除: 承認プロンプトに繰り返し表示されていた「auto-mode の分類器呼び出しが保留中にパーミッションモードが変更されました」という通知を削除",
+      "t_en": "Removed the repeated \"Permission mode changed while the auto-mode classifier call was queued\" notice from approval prompts",
+      "tags": ["改善"],
+      "detail": "承認処理の実行中にユーザーがパーミッションモードを切り替えると、その状況を説明する通知が承認プロンプトに表示される仕組みになっていたが、この通知が一度だけでなく繰り返し表示されてしまい、その後のプロンプトにノイズを加えていた。\n\n本バージョンでこの通知が繰り返し表示されないように修正され、承認プロンプトがすっきりするように改善された。",
+      "detail_en": "When you switched permission modes while an auto-mode classifier check was still queued, Claude Code showed a notice explaining the situation on the resulting approval prompt — but that notice kept reappearing on later prompts instead of showing just once, adding noise.\n\nThis version removes the repeated notice, keeping approval prompts cleaner.",
+      "category": "自動モード",
+      "category_en": "Auto Mode"
+    }
+  ]
+}
