@@ -308,5 +308,105 @@
         "tags": ["非推奨"]
       }
     ]
+  },
+  {
+    "v": "2.1.223",
+    "items": [
+      {
+        "t": "追加: マーケットプレース管理設定の strictKnownMarketplaces・blockedMarketplaces に、GitHub Organization 配下のマーケットプレースリポジトリを一括で許可・拒否できるオーナーワイルドカード（\"owner/*\"）指定を追加",
+        "t_en": "Added owner wildcard entries (`\"owner/*\"`) to the `strictKnownMarketplaces` and `blockedMarketplaces` managed settings for allowing or blocking all marketplace repos under a GitHub org",
+        "tags": ["新機能", "Plugin"]
+      },
+      {
+        "t": "追加: workflow agent・フォークされたスキル・スラッシュコマンド・再開されたバックグラウンドエージェントが要求したサブエージェントのモデルが制限されている場合に、親セッションのモデルで実行される旨の警告を追加",
+        "t_en": "Added a warning when workflow agents, forked skills, slash commands, or resumed background agents' requested subagent model is restricted and the parent model runs instead",
+        "tags": ["新機能", "Agent"]
+      },
+      {
+        "t": "追加: クラウドセッションに、`claude --teleport <session id>` でローカルに作業を引き継ぐ方法を示す /teleport ヒントを追加",
+        "t_en": "Added a `/teleport` hint in cloud sessions showing how to continue locally with `claude --teleport <session id>`",
+        "tags": ["新機能"]
+      },
+      {
+        "t": "修正: 巧妙に細工したコマンドが、その一部をパーミッションチェックから隠してしまえる Bash のパーミッションバイパスを修正",
+        "t_en": "Fixed a Bash permission bypass where a crafted command could hide parts of itself from permission checks",
+        "tags": ["バグ修正", "Security"]
+      },
+      {
+        "t": "修正: タブや不可視の Unicode 文字でパディングされたコマンドが、承認ダイアログでその一部を隠してしまえる問題を修正",
+        "t_en": "Fixed permission prompts so commands padded with tabs or invisible Unicode can no longer hide part of the command from the approval dialog",
+        "tags": ["バグ修正", "Security"]
+      },
+      {
+        "t": "修正: workflow スクリプトが動的な import() を使って、workflow のサンドボックス外でコードを実行できてしまう問題を修正",
+        "t_en": "Fixed workflow scripts being able to use dynamic `import()` to run code outside the workflow sandbox",
+        "tags": ["バグ修正", "Security"]
+      },
+      {
+        "t": "修正: エージェント定義の bypassPermissions モードが、組織の bypass-permissions 無効化ポリシーを無視してしまう問題を修正",
+        "t_en": "Fixed a permission gap where an agent definition's `bypassPermissions` mode ignored the org bypass-permissions disable policy",
+        "tags": ["バグ修正", "Security"]
+      },
+      {
+        "t": "修正: セッション中に /cd でディレクトリを変更した後、そのセッションを再開すると会話が空になってしまう問題を修正",
+        "t_en": "Fixed resuming a session after a mid-session `/cd` coming back empty",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: ゲートウェイのモデル探索が、vertex_ai/claude-* や bedrock/anthropic.claude-* のようなプロバイダー接頭辞付き ID で登録された Claude モデルを見逃してしまう問題を修正",
+        "t_en": "Fixed gateway model discovery hiding Claude models registered under provider-prefixed IDs such as `vertex_ai/claude-*` or `bedrock/anthropic.claude-*`",
+        "tags": ["バグ修正", "Platform"]
+      },
+      {
+        "t": "修正: modelOverrides のキーが Anthropic のモデル ID でない場合に、それがそのままセッションの正規モデル ID として扱われてしまう問題を修正。未知のキーはドキュメント通り無視されるように",
+        "t_en": "Fixed `modelOverrides` keys that aren't Anthropic model IDs being treated as the session's canonical model ID; unknown keys are now ignored as documented",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: managed settings において、サーバー配信の設定がマシンローカルの managed-settings.json や MDM プロファイルの env ブロックを無効化してしまっていた問題を修正。管理者の env はキー単位でマージされるように",
+        "t_en": "Fixed managed settings: server-delivered settings no longer disable the env block of a machine-local `managed-settings.json` or MDM profile; admin env now merges per key",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: Linux で sandbox.filesystem.denyWrite が作業ディレクトリを含む場合に、サンドボックス化されたコマンドが起動に失敗してしまう問題を修正",
+        "t_en": "Fixed sandboxed commands failing to start on Linux when `sandbox.filesystem.denyWrite` covers the working directory",
+        "tags": ["バグ修正", "Security"]
+      },
+      {
+        "t": "修正: フォークされたバックグラウンドエージェントが、再開時にフォーク元の親プロンプトの再構築に失敗すると、セッションの残り全体で「already resuming」状態から抜け出せなくなる問題を修正",
+        "t_en": "Fixed forked background agents getting stuck \"already resuming\" for the rest of the session when rebuilding the fork's parent prompt failed during resume",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: 履歴に不正な形式の診断情報の添付があるセッションを再開すると、すべてのターンが失敗する、またはインタラクティブアプリが応答しないエラー画面のまま固まってしまう問題を修正",
+        "t_en": "Fixed a resumed session failing every turn, or leaving the interactive app on an unresponsive error screen, when its history held a malformed diagnostics attachment",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: 通常とは異なる形式の git push 出力を解析する際に、まれにハングしてしまう問題を修正",
+        "t_en": "Fixed a rare hang when parsing unusual `git push` output",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "変更: CLAUDE_CODE_DISABLE_1M_CONTEXT を、固定リストに含まれるモデルだけでなく、ネイティブに 1M コンテキストウィンドウを持つすべての Claude モデルに対して auto-compaction による 200K への制限を適用するように変更。auto-compaction がセッションを 200K に維持できていない場合は起動時に警告を表示するように",
+        "t_en": "Changed `CLAUDE_CODE_DISABLE_1M_CONTEXT` to hold every Claude model with a native 1M window to 200K via auto-compaction, not just a fixed list; a startup warning now appears when auto-compaction isn't holding the session to 200K",
+        "tags": ["改善", "Security"]
+      },
+      {
+        "t": "変更: auto-compact が、未知のモデル ID で動作しているセッションについても、コンテキストが想定ウィンドウを超えて肥大化する前にウィンドウ内に収まるよう制御するように変更。以前の挙動に戻すには CLAUDE_CODE_DISABLE_UNKNOWN_MODEL_WINDOW_ENFORCEMENT=1 を設定",
+        "t_en": "Changed auto-compact to keep sessions on unrecognized model IDs within the assumed context window instead of letting them grow past it; set `CLAUDE_CODE_DISABLE_UNKNOWN_MODEL_WINDOW_ENFORCEMENT=1` to restore the previous behavior",
+        "tags": ["改善"]
+      },
+      {
+        "t": "変更: /review を /code-review のエイリアスに変更。現在の diff または PR（`/code-review <レベル> <PR番号>`）をレビューでき、より踏み込んだクラウドレビューには /code-review ultra を利用可能",
+        "t_en": "Changed `/review` to be an alias of `/code-review`, which reviews the current diff or a PR (`/code-review <level> <pr#>`); use `/code-review ultra` for a deep cloud review",
+        "tags": ["改善"]
+      },
+      {
+        "t": "変更: /code-review をエフォートレベルの指定なしで実行した場合、直前に指定したレベルを再利用するように変更。`/code-review high` のようにレベルを明示すれば変更可能",
+        "t_en": "Changed `/code-review` with no effort level to reuse the level you typed last; type a level like `/code-review high` to change it",
+        "tags": ["改善"]
+      }
+    ]
   }
 ]
