@@ -198,5 +198,215 @@
         "tags": ["改善"]
       }
     ]
+  },
+  {
+    "v": "2.1.222",
+    "items": [
+      {
+        "t": "修正: worktree で分離されたセッションとそのサブエージェントが、メインのチェックアウトに対して破壊的な git コマンドを実行できてしまう問題を修正。ファイル編集と Bash の両方について、すべてのセッション種別で分離が適用されるようになった",
+        "t_en": "Fixed worktree-isolated sessions and their subagents being able to run destructive git commands against the main checkout; isolation now applies to file edits and Bash in every session type",
+        "tags": ["バグ修正", "Security"]
+      },
+      {
+        "t": "修正: PreToolUse フックの自動許可設定が、バックグラウンドのエージェントタスク（要約生成・コンパクション・セッション名変更）でのツール制限を回避してしまう問題を修正",
+        "t_en": "Fixed PreToolUse auto-allow hooks bypassing tool restrictions in background agent tasks (summaries, compaction, renames)",
+        "tags": ["バグ修正", "Security"]
+      },
+      {
+        "t": "修正: Team/Enterprise プランで、以前のリクエストが却下されたメンバーに対しても `/usage-credits` が「既にリクエストを送信済みです」と表示し、新規リクエストの送信をブロックしてしまう問題を修正",
+        "t_en": "Fixed `/usage-credits` on Team and Enterprise showing \"you've already sent a usage credit request\" for members whose earlier request was dismissed, blocking them from sending a new one",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: HTTPS プロキシ環境下で起動時の接続確認がハングした後に失敗する問題を修正。API リクエストと同じプロキシ対応の通信経路を使用し、明確なメッセージとともにタイムアウトするようになった",
+        "t_en": "Fixed the startup connectivity check hanging and then failing behind an HTTPS proxy; it now uses the same proxy-aware transport as API requests and times out with a clear message",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: 実際には完了しているレスポンスに対して「Connection closed mid-response」エラーが表示されてしまう問題を修正",
+        "t_en": "Fixed \"Connection closed mid-response\" errors being reported on responses that had actually completed",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: `/usage` が MCP サーバーの使用量を過大に算出していた問題を修正。サーバーの使用割合は、呼び出し以降のすべてのターンではなく、実際にそのツール結果を利用したリクエストのみを反映するようになった",
+        "t_en": "Fixed `/usage` overattributing usage to MCP servers: a server's share now reflects only the requests that actually consumed its tool results, instead of every turn after any call to it",
+        "tags": ["バグ修正", "MCP"]
+      },
+      {
+        "t": "修正: ブランチをプッシュした後に作成されたプルリクエスト（GitHub REST API 経由での作成を含む）に、セッションが紐付かない問題を修正",
+        "t_en": "Fixed sessions not linking to pull requests created after the branch was pushed, including through the GitHub REST API",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: 組織による利用モデル制限が設定されている環境で、サブエージェントやチームメイトの `model: opus` のようなファミリーエイリアスが、ファミリー内で組織が許可する最新モデルに切り替わらず、親セッションのモデルに戻ってしまう問題を修正",
+        "t_en": "Fixed org-restricted `model: opus`-style subagent and teammate family aliases dropping to the parent model instead of stepping down to the newest org-allowed model in the family",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: カスタムの `ANTHROPIC_BASE_URL` ゲートウェイで、サーバーからの keep-alive ping が届いているにもかかわらずストリームのアイドルタイムアウトが発生してしまう問題を修正",
+        "t_en": "Fixed stream idle timeout firing on custom `ANTHROPIC_BASE_URL` gateways despite server keep-alive pings arriving on the wire",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: セッショントークンが無効な場合に claude.ai コネクタが誤って「認証が必要」と表示される問題を修正。この場合は代わりに `/login` を促すヒントが表示されるようになった",
+        "t_en": "Fixed claude.ai connectors being falsely marked as needing authorization when the session token is invalid — they now show a `/login` hint instead",
+        "tags": ["バグ修正", "MCP"]
+      },
+      {
+        "t": "修正: MCP サーバーの削除などによりローカルで利用できなくなったツールについて、ツールエラーが表示されない問題を修正",
+        "t_en": "Fixed tool errors not being displayed for tools no longer available locally, for example after an MCP server is removed",
+        "tags": ["バグ修正", "MCP"]
+      },
+      {
+        "t": "修正: `SendMessage` が長いサマリーを拒否してしまう問題を修正。文字数上限による送信失敗を防ぐため、超過分は切り詰められるようになった",
+        "t_en": "Fixed `SendMessage` rejecting a long summary — it now truncates instead, so sends no longer fail on a character limit",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: サブエージェントのトランスクリプト表示で、スピナーの effort ラベルがサブエージェント自身の `effort:` 設定ではなくセッションの effort レベルを表示してしまう問題を修正",
+        "t_en": "Fixed the spinner's effort label in a subagent's transcript view showing the session's effort level instead of the subagent's own `effort:` setting",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: ファイルウォッチャーがファイルシステムエラーに遭遇した場合や、ファイルウォッチャーの終了処理中に、まれにクラッシュする問題を修正",
+        "t_en": "Fixed rare crashes when a file watcher hit a filesystem error or during file-watcher teardown",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: `--ax-screen-reader` モードで、バックスペースのたびに入力行全体をスクリーンリーダーが読み上げ直してしまう問題を修正。行末での削除では、削除した文字のみが読み上げられるようになった",
+        "t_en": "Fixed screen readers re-reading the whole input line on every backspace in `--ax-screen-reader` mode — end-of-line deletions now echo just the deleted characters",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: `CLAUDE_CODE_PROVIDER_MANAGED_BY_HOST` が設定されている場合に、ホスト側のモデル選択設定がディスク上の古い `managed-settings.json` より優先されない問題を修正",
+        "t_en": "Fixed host model-selection keys not taking precedence over a stale on-disk `managed-settings.json` when `CLAUDE_CODE_PROVIDER_MANAGED_BY_HOST` is set",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "改善: auto mode の安全性を強化。`SendMessage` で他のエージェントセッションに送信されるメッセージが、送信前にパーミッション分類器による評価を受けるようになった",
+        "t_en": "Improved auto mode safety: messages sent to other agent sessions via `SendMessage` are now evaluated by the permission classifier before dispatch",
+        "tags": ["改善", "Security", "Agent"]
+      },
+      {
+        "t": "改善: `disable-model-invocation` が設定されたスキルを Claude が呼び出そうとした際の拒否メッセージを改善。Claude はスキルのワークフローを自力で再現しようとする代わりに、ユーザーにそのスキルの実行を依頼するよう案内されるようになった",
+        "t_en": "Improved the refusal when Claude tries to invoke a skill with `disable-model-invocation`: Claude is now told to ask you to run the skill instead of replicating its workflow",
+        "tags": ["改善"]
+      },
+      {
+        "t": "改善: `/diff` ビュー、Remote Control のワークスペース diff、および Claude Code on the web セッションのファイル編集 diff が、ワークスペースで設定された diff ドライバや textconv を無視し、生の git blob の内容を使用するように改善",
+        "t_en": "Improved the `/diff` view, the Remote Control workspace diff, and file-edit diffs in Claude Code on the web sessions to use raw git blob content, ignoring workspace-configured diff drivers and textconv",
+        "tags": ["改善"]
+      },
+      {
+        "t": "変更: Remote Control の自動起動を、リポジトリローカルの設定（`.claude/settings.json` または `.claude/settings.local.json`）では有効化できないように変更（無効化は引き続き可能）。有効化するには `/config` からユーザースコープで設定する必要がある",
+        "t_en": "Changed Remote Control auto-start so repo-local settings (`.claude/settings.json` or `.claude/settings.local.json`) can no longer turn it on (they can still turn it off); enable it at user scope via `/config`",
+        "tags": ["改善", "Security"]
+      },
+      {
+        "t": "削除: ultraplan 機能を削除",
+        "t_en": "Removed ultraplan feature",
+        "tags": ["非推奨"]
+      }
+    ]
+  },
+  {
+    "v": "2.1.223",
+    "items": [
+      {
+        "t": "追加: マーケットプレース管理設定の strictKnownMarketplaces・blockedMarketplaces に、GitHub Organization 配下のマーケットプレースリポジトリを一括で許可・拒否できるオーナーワイルドカード（\"owner/*\"）指定を追加",
+        "t_en": "Added owner wildcard entries (`\"owner/*\"`) to the `strictKnownMarketplaces` and `blockedMarketplaces` managed settings for allowing or blocking all marketplace repos under a GitHub org",
+        "tags": ["新機能", "Plugin"]
+      },
+      {
+        "t": "追加: workflow agent・フォークされたスキル・スラッシュコマンド・再開されたバックグラウンドエージェントが要求したサブエージェントのモデルが制限されている場合に、親セッションのモデルで実行される旨の警告を追加",
+        "t_en": "Added a warning when workflow agents, forked skills, slash commands, or resumed background agents' requested subagent model is restricted and the parent model runs instead",
+        "tags": ["新機能", "Agent"]
+      },
+      {
+        "t": "追加: クラウドセッションに、`claude --teleport <session id>` でローカルに作業を引き継ぐ方法を示す /teleport ヒントを追加",
+        "t_en": "Added a `/teleport` hint in cloud sessions showing how to continue locally with `claude --teleport <session id>`",
+        "tags": ["新機能"]
+      },
+      {
+        "t": "修正: 巧妙に細工したコマンドが、その一部をパーミッションチェックから隠してしまえる Bash のパーミッションバイパスを修正",
+        "t_en": "Fixed a Bash permission bypass where a crafted command could hide parts of itself from permission checks",
+        "tags": ["バグ修正", "Security"]
+      },
+      {
+        "t": "修正: タブや不可視の Unicode 文字でパディングされたコマンドが、承認ダイアログでその一部を隠してしまえる問題を修正",
+        "t_en": "Fixed permission prompts so commands padded with tabs or invisible Unicode can no longer hide part of the command from the approval dialog",
+        "tags": ["バグ修正", "Security"]
+      },
+      {
+        "t": "修正: workflow スクリプトが動的な import() を使って、workflow のサンドボックス外でコードを実行できてしまう問題を修正",
+        "t_en": "Fixed workflow scripts being able to use dynamic `import()` to run code outside the workflow sandbox",
+        "tags": ["バグ修正", "Security"]
+      },
+      {
+        "t": "修正: エージェント定義の bypassPermissions モードが、組織の bypass-permissions 無効化ポリシーを無視してしまう問題を修正",
+        "t_en": "Fixed a permission gap where an agent definition's `bypassPermissions` mode ignored the org bypass-permissions disable policy",
+        "tags": ["バグ修正", "Security"]
+      },
+      {
+        "t": "修正: セッション中に /cd でディレクトリを変更した後、そのセッションを再開すると会話が空になってしまう問題を修正",
+        "t_en": "Fixed resuming a session after a mid-session `/cd` coming back empty",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: ゲートウェイのモデル探索が、vertex_ai/claude-* や bedrock/anthropic.claude-* のようなプロバイダー接頭辞付き ID で登録された Claude モデルを見逃してしまう問題を修正",
+        "t_en": "Fixed gateway model discovery hiding Claude models registered under provider-prefixed IDs such as `vertex_ai/claude-*` or `bedrock/anthropic.claude-*`",
+        "tags": ["バグ修正", "Platform"]
+      },
+      {
+        "t": "修正: modelOverrides のキーが Anthropic のモデル ID でない場合に、それがそのままセッションの正規モデル ID として扱われてしまう問題を修正。未知のキーはドキュメント通り無視されるように",
+        "t_en": "Fixed `modelOverrides` keys that aren't Anthropic model IDs being treated as the session's canonical model ID; unknown keys are now ignored as documented",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: managed settings において、サーバー配信の設定がマシンローカルの managed-settings.json や MDM プロファイルの env ブロックを無効化してしまっていた問題を修正。管理者の env はキー単位でマージされるように",
+        "t_en": "Fixed managed settings: server-delivered settings no longer disable the env block of a machine-local `managed-settings.json` or MDM profile; admin env now merges per key",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: Linux で sandbox.filesystem.denyWrite が作業ディレクトリを含む場合に、サンドボックス化されたコマンドが起動に失敗してしまう問題を修正",
+        "t_en": "Fixed sandboxed commands failing to start on Linux when `sandbox.filesystem.denyWrite` covers the working directory",
+        "tags": ["バグ修正", "Security"]
+      },
+      {
+        "t": "修正: フォークされたバックグラウンドエージェントが、再開時にフォーク元の親プロンプトの再構築に失敗すると、セッションの残り全体で「already resuming」状態から抜け出せなくなる問題を修正",
+        "t_en": "Fixed forked background agents getting stuck \"already resuming\" for the rest of the session when rebuilding the fork's parent prompt failed during resume",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: 履歴に不正な形式の診断情報の添付があるセッションを再開すると、すべてのターンが失敗する、またはインタラクティブアプリが応答しないエラー画面のまま固まってしまう問題を修正",
+        "t_en": "Fixed a resumed session failing every turn, or leaving the interactive app on an unresponsive error screen, when its history held a malformed diagnostics attachment",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: 通常とは異なる形式の git push 出力を解析する際に、まれにハングしてしまう問題を修正",
+        "t_en": "Fixed a rare hang when parsing unusual `git push` output",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "変更: CLAUDE_CODE_DISABLE_1M_CONTEXT を、固定リストに含まれるモデルだけでなく、ネイティブに 1M コンテキストウィンドウを持つすべての Claude モデルに対して auto-compaction による 200K への制限を適用するように変更。auto-compaction がセッションを 200K に維持できていない場合は起動時に警告を表示するように",
+        "t_en": "Changed `CLAUDE_CODE_DISABLE_1M_CONTEXT` to hold every Claude model with a native 1M window to 200K via auto-compaction, not just a fixed list; a startup warning now appears when auto-compaction isn't holding the session to 200K",
+        "tags": ["改善", "Security"]
+      },
+      {
+        "t": "変更: auto-compact が、未知のモデル ID で動作しているセッションについても、コンテキストが想定ウィンドウを超えて肥大化する前にウィンドウ内に収まるよう制御するように変更。以前の挙動に戻すには CLAUDE_CODE_DISABLE_UNKNOWN_MODEL_WINDOW_ENFORCEMENT=1 を設定",
+        "t_en": "Changed auto-compact to keep sessions on unrecognized model IDs within the assumed context window instead of letting them grow past it; set `CLAUDE_CODE_DISABLE_UNKNOWN_MODEL_WINDOW_ENFORCEMENT=1` to restore the previous behavior",
+        "tags": ["改善"]
+      },
+      {
+        "t": "変更: /review を /code-review のエイリアスに変更。現在の diff または PR（`/code-review <レベル> <PR番号>`）をレビューでき、より踏み込んだクラウドレビューには /code-review ultra を利用可能",
+        "t_en": "Changed `/review` to be an alias of `/code-review`, which reviews the current diff or a PR (`/code-review <level> <pr#>`); use `/code-review ultra` for a deep cloud review",
+        "tags": ["改善"]
+      },
+      {
+        "t": "変更: /code-review をエフォートレベルの指定なしで実行した場合、直前に指定したレベルを再利用するように変更。`/code-review high` のようにレベルを明示すれば変更可能",
+        "t_en": "Changed `/code-review` with no effort level to reuse the level you typed last; type a level like `/code-review high` to change it",
+        "tags": ["改善"]
+      }
+    ]
   }
 ]

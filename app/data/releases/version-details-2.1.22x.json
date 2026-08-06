@@ -351,5 +351,369 @@
       "category": "自動モード",
       "category_en": "Auto Mode"
     }
+  ],
+  "2.1.222": [
+    {
+      "t": "修正: worktree で分離されたセッションとそのサブエージェントが、メインのチェックアウトに対して破壊的な git コマンドを実行できてしまう問題を修正。ファイル編集と Bash の両方について、すべてのセッション種別で分離が適用されるようになった",
+      "t_en": "Fixed worktree-isolated sessions and their subagents being able to run destructive git commands against the main checkout; isolation now applies to file edits and Bash in every session type",
+      "tags": ["バグ修正", "Security"],
+      "detail": "git worktree はセッションごとに独立したファイルとブランチを提供する一方、リポジトリの `.git` ディレクトリ自体はメインのチェックアウトと共有される。これまでは、スコープが不十分なセッションが reset や checkout のような破壊的な git コマンドを実行した際に、自分の worktree の外側、つまりメインのチェックアウトや他のセッションの作業に影響を及ぼしてしまうことがあった。\n\n本バージョンでは、ファイル編集と Bash コマンドの両方について worktree による分離が、対話セッション・サブエージェント・バックグラウンドセッションを含むすべてのセッション種別で一貫して適用されるように修正された。これにより、`--worktree` や `isolation: worktree` が本来保証すべき分離が静かに回避されてしまう抜け穴が塞がれた。",
+      "detail_en": "A git worktree gives a session its own files and branch, but the repository's `.git` directory itself is shared with the main checkout. Previously, a poorly-scoped session could run destructive git commands, such as resets or checkouts, that reached outside its own worktree and affected the main checkout or another session's work.\n\nThis version makes worktree isolation apply consistently to both file edits and Bash commands across every session type — interactive sessions, subagents, and background sessions. This closes a gap where the isolation guarantee `--worktree` and `isolation: worktree` are supposed to provide could be silently bypassed.",
+      "category": "セキュリティ",
+      "category_en": "Security"
+    },
+    {
+      "t": "修正: PreToolUse フックの自動許可設定が、バックグラウンドのエージェントタスク（要約生成・コンパクション・セッション名変更）でのツール制限を回避してしまう問題を修正",
+      "t_en": "Fixed PreToolUse auto-allow hooks bypassing tool restrictions in background agent tasks (summaries, compaction, renames)",
+      "tags": ["バグ修正", "Security"],
+      "detail": "Claude Code は会話の要約生成・コンテキストのコンパクション・セッション名の自動命名といった内部的なバックグラウンドタスクを実行しており、これらのタスクが使用できるツールは制限されている。これまでは、`PreToolUse` フックで自動許可の判定を設定していると、この制限が回避され、本来アクセスできないはずのツールをバックグラウンドタスクが実行できてしまうことがあった。\n\n本バージョンで、フックの許可判定がこれらの内部バックグラウンドタスクに設定された制限を回避しないように修正され、フックの設定内容にかかわらず利用可能なツールの範囲が狭く保たれるようになった。",
+      "detail_en": "Claude Code runs small internal background jobs during a session, such as generating conversation summaries, compacting context, and auto-naming sessions, and these tasks are meant to have restricted tool access. Previously, a `PreToolUse` hook configured with an auto-allow decision could bypass that restriction, letting a background task run tools it shouldn't have access to.\n\nThis version ensures the hook's allow decision no longer bypasses the tool restrictions enforced for these internal background tasks, keeping their capability surface narrow regardless of hook configuration.",
+      "category": "セキュリティ",
+      "category_en": "Security"
+    },
+    {
+      "t": "修正: Team/Enterprise プランで、以前のリクエストが却下されたメンバーに対しても `/usage-credits` が「既にリクエストを送信済みです」と表示し、新規リクエストの送信をブロックしてしまう問題を修正",
+      "t_en": "Fixed `/usage-credits` on Team and Enterprise showing \"you've already sent a usage credit request\" for members whose earlier request was dismissed, blocking them from sending a new one",
+      "tags": ["バグ修正"],
+      "detail": "Team または Enterprise プランで課金権限を持たないメンバーが `/usage-credits` を実行すると、組織の管理者に対して利用上限の引き上げや有効化を求めるリクエストが送信される。これまでは、管理者が過去のリクエストを却下していた場合でも Claude Code はそれを保留中のリクエストとして扱い続け、メンバーが再度上限に達しても新しいリクエストを送信できずに行き詰まってしまうことがあった。\n\n本バージョンで、却下されたリクエストは解決済みとして正しく認識されるようになり、メンバーは上限に再び達した際に新しいリクエストを送信できるようになった。",
+      "detail_en": "On Team and Enterprise plans, a member without billing access who runs `/usage-credits` sends a request to their org's admins asking to raise or enable usage credits. Previously, if an admin had dismissed an earlier request, Claude Code kept treating it as still pending and blocked the member from submitting a new one, leaving them stuck the next time they hit their limit.\n\nThis version correctly recognizes a dismissed request as resolved, so members can send a fresh request when they hit their limit again.",
+      "category": "コスト管理",
+      "category_en": "Cost Management"
+    },
+    {
+      "t": "修正: HTTPS プロキシ環境下で起動時の接続確認がハングした後に失敗する問題を修正。API リクエストと同じプロキシ対応の通信経路を使用し、明確なメッセージとともにタイムアウトするようになった",
+      "t_en": "Fixed the startup connectivity check hanging and then failing behind an HTTPS proxy; it now uses the same proxy-aware transport as API requests and times out with a clear message",
+      "tags": ["バグ修正"],
+      "detail": "Claude Code は起動時に接続確認を行うが、この確認は通常の API リクエストとは異なる通信経路を使用していたため、HTTPS の社内プロキシ環境下でセッションを起動すると、通常の API 通信は問題なく行えるにもかかわらず、この確認だけがハングした末に分かりにくいエラーで失敗することがあった。\n\n本バージョンで、起動時の接続確認が API リクエストと同一のプロキシ対応通信経路を使用するように修正され、明確なタイムアウトメッセージとともに失敗するようになった。",
+      "detail_en": "Claude Code runs a connectivity check at startup, but that check previously used a different network transport than regular API requests. As a result, launching a session behind an HTTPS corporate proxy could cause the check to hang indefinitely and eventually fail with an unhelpful error, even though normal API traffic worked fine through the same proxy.\n\nThis version routes the startup check through the same proxy-aware transport used for API requests and adds a bounded timeout with a clear failure message.",
+      "category": "ネットワーク",
+      "category_en": "Network"
+    },
+    {
+      "t": "修正: 実際には完了しているレスポンスに対して「Connection closed mid-response」エラーが表示されてしまう問題を修正",
+      "t_en": "Fixed \"Connection closed mid-response\" errors being reported on responses that had actually completed",
+      "tags": ["バグ修正"],
+      "detail": "「Connection closed mid-response」は、Claude が応答を生成し終える前にストリーミング接続が切断された際に表示される警告で、その場合は途中までの出力が保持されつつ警告が付加される仕組みになっている。しかし、実際には正常に完了しているターンに対してもこの警告が表示されてしまうバグがあり、ユーザーに応答が不完全であるかのような誤解を与えていた。\n\n本バージョンで判定ロジックが修正され、この警告は本当に応答が途中で打ち切られた場合にのみ表示されるようになった。",
+      "detail_en": "\"Connection closed mid-response\" is a warning Claude Code shows when a streaming connection drops before Claude finishes producing a response, keeping the partial output while flagging it. A bug caused this warning to appear even for turns that had actually completed successfully, misleading users into thinking the response was incomplete.\n\nThis version corrects the detection logic so the warning is now shown only for genuinely truncated responses.",
+      "category": "安定性",
+      "category_en": "Stability"
+    },
+    {
+      "t": "修正: `/usage` が MCP サーバーの使用量を過大に算出していた問題を修正。サーバーの使用割合は、呼び出し以降のすべてのターンではなく、実際にそのツール結果を利用したリクエストのみを反映するようになった",
+      "t_en": "Fixed `/usage` overattributing usage to MCP servers: a server's share now reflects only the requests that actually consumed its tool results, instead of every turn after any call to it",
+      "tags": ["バグ修正", "MCP"],
+      "detail": "`/usage` コマンドは、直近の利用量をスキル・サブエージェント・プラグイン・個々の MCP サーバーごとの割合として内訳表示する。これまでは、セッション中に一度でも MCP サーバーを呼び出すと、それ以降のすべてのターンの利用量がそのサーバーに帰属してしまい、実際にはそのサーバーのツール結果を使っていないターンまで含まれることで、割合が過大に表示されていた。\n\n本バージョンで、MCP サーバーに帰属する利用量が、実際にそのサーバーのツール結果を消費したリクエストのみを反映するように修正され、どの連携が実際にコストを押し上げているのかをより正確に把握できるようになった。詳しくは[コストと使用量のドキュメント](https://code.claude.com/docs/en/costs#using-the-usage-command)を参照してください。",
+      "detail_en": "The `/usage` command breaks down recent token usage by skills, subagents, plugins, and individual MCP servers as a percentage of the total. Previously, once a session called an MCP server, every subsequent turn's usage was counted against that server even if later turns never touched its tool results, inflating its reported share.\n\nThis version scopes an MCP server's attributed usage to only the requests that actually consumed that server's tool output, giving a more accurate picture of which integrations are actually driving cost. See the [Costs and usage documentation](https://code.claude.com/docs/en/costs#using-the-usage-command) for details.",
+      "category": "MCP 連携",
+      "category_en": "MCP Integration"
+    },
+    {
+      "t": "修正: ブランチをプッシュした後に作成されたプルリクエスト（GitHub REST API 経由での作成を含む）に、セッションが紐付かない問題を修正",
+      "t_en": "Fixed sessions not linking to pull requests created after the branch was pushed, including through the GitHub REST API",
+      "tags": ["バグ修正"],
+      "detail": "Claude Code は、作業したプルリクエストとセッションを紐付け、`--from-pr` やセッションピッカーでの検索を通じて両者を行き来できるようにしている。これまでは、ブランチをプッシュした後に作成されたプルリクエスト、特に GitHub REST API 経由で作成されたプルリクエストについて、この紐付けが行われずセッションが未リンクのままになることがあった。\n\n本バージョンで、これらの作成経路を含めてセッションとプルリクエストの紐付けがより確実に行われるようになり、`--from-pr` やプルリクエスト URL での検索から一貫して正しいセッションを見つけられるようになった。詳しくは[セッションのドキュメント](https://code.claude.com/docs/en/sessions#resume-a-session)を参照してください。",
+      "detail_en": "Claude Code links a session to the pull request it produced so you can move between them with `--from-pr` or by searching the session picker. Previously, this linking could fail to pick up a PR created after the branch had already been pushed, particularly one created via the GitHub REST API rather than through a flow Claude Code observed directly, leaving the session unlinked.\n\nThis version makes session-to-PR association more reliable across these creation paths, so `--from-pr` and PR-URL search consistently find the right session. See the [Sessions documentation](https://code.claude.com/docs/en/sessions#resume-a-session) for details.",
+      "category": "Git 連携",
+      "category_en": "Git Integration"
+    },
+    {
+      "t": "修正: 組織による利用モデル制限が設定されている環境で、サブエージェントやチームメイトの `model: opus` のようなファミリーエイリアスが、ファミリー内で組織が許可する最新モデルに切り替わらず、親セッションのモデルに戻ってしまう問題を修正",
+      "t_en": "Fixed org-restricted `model: opus`-style subagent and teammate family aliases dropping to the parent model instead of stepping down to the newest org-allowed model in the family",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "組織が `availableModels` でモデルを制限している環境では、メインセッションで `opus` のようなファミリーエイリアスを指定すると、その制限の中で許可されている最新バージョンに解決される。しかし、これまではサブエージェントやエージェントチームのチームメイトの `model` frontmatter に同じエイリアスを指定した場合はこの扱いがされず、ファミリー内で段階を落とすのではなく親セッションのモデルにそのまま戻ってしまい、意図しないモデルで実行されることがあった。\n\n本バージョンで、サブエージェントおよびチームメイトのファミリーエイリアスも、メインセッションと同じロジックでファミリー内の許可された最新バージョンに解決されるようになった。詳しくは[モデル設定のドキュメント](https://code.claude.com/docs/en/model-config#restrict-model-selection)を参照してください。",
+      "detail_en": "When an organization restricts available models with `availableModels`, a family alias like `opus` in the main session resolves to the newest version of that family the allowlist still permits. Previously, the same alias set in a subagent's or agent-team teammate's `model` frontmatter didn't receive this treatment — instead of stepping down within the family, it fell back to the parent session's model entirely, silently running on the wrong model.\n\nThis version makes subagent and teammate family aliases resolve the same way main-session aliases do, picking the newest permitted version in the family. See the [Model configuration documentation](https://code.claude.com/docs/en/model-config#restrict-model-selection) for details.",
+      "category": "エージェント設定",
+      "category_en": "Agent Configuration"
+    },
+    {
+      "t": "修正: カスタムの `ANTHROPIC_BASE_URL` ゲートウェイで、サーバーからの keep-alive ping が届いているにもかかわらずストリームのアイドルタイムアウトが発生してしまう問題を修正",
+      "t_en": "Fixed stream idle timeout firing on custom `ANTHROPIC_BASE_URL` gateways despite server keep-alive pings arriving on the wire",
+      "tags": ["バグ修正"],
+      "detail": "Claude Code はストリーミング応答にアイドルタイムアウトを設けており、接続が停止した場合に無限にハングし続けないようにしている。一部のカスタム `ANTHROPIC_BASE_URL` ゲートウェイは、長い待機の間も接続を維持するために定期的な keep-alive ping を送信するが、これまではこの ping がアイドルタイムアウトの判定において活動として認識されず、正常なストリームであってもタイムアウトが発動してしまうことがあった。\n\n本バージョンで、アイドルタイムアウトの監視ロジックが keep-alive の通信を活動として認識するように修正され、ゲートウェイ経由の正当な長時間ストリームが不当に打ち切られなくなった。詳しくは[環境変数のドキュメント](https://code.claude.com/docs/en/env-vars#variables)を参照してください。",
+      "detail_en": "Claude Code enforces an idle timeout on streaming model responses so a stalled connection aborts instead of hanging forever. Some custom `ANTHROPIC_BASE_URL` gateways send periodic keep-alive pings to hold the connection open during long pauses, but Claude Code's idle-timeout logic wasn't recognizing those pings as activity, so it fired the timeout anyway and aborted otherwise-healthy streams.\n\nThis version makes the idle-timeout watchdog count keep-alive traffic as activity, so legitimate long-paused streams behind a gateway are no longer killed prematurely. See the [environment variables documentation](https://code.claude.com/docs/en/env-vars#variables) for details.",
+      "category": "ネットワーク",
+      "category_en": "Network"
+    },
+    {
+      "t": "修正: セッショントークンが無効な場合に claude.ai コネクタが誤って「認証が必要」と表示される問題を修正。この場合は代わりに `/login` を促すヒントが表示されるようになった",
+      "t_en": "Fixed claude.ai connectors being falsely marked as needing authorization when the session token is invalid — they now show a `/login` hint instead",
+      "tags": ["バグ修正", "MCP"],
+      "detail": "claude.ai コネクタ（claude.ai アカウント経由でプロビジョニングされる MCP サーバー）は、リクエストが失敗すると `/mcp` 上で「認証が必要」と表示されることがある。これまでは、実際の原因が claude.ai のセッショントークンの無効化・期限切れであった場合でも、コネクタ固有の認証エラーであるかのような同じ表示がされてしまい、ユーザーを誤った対処法（コネクタごとの OAuth 再認証）へ誘導していた。\n\n本バージョンで、セッショントークンの無効化とコネクタ個別の認証失敗が区別されるようになり、前者の場合は `/login` を促すヒントが表示されるようになった。",
+      "detail_en": "Claude.ai connectors (MCP servers provisioned through your claude.ai account) can be flagged in `/mcp` as needing authentication when a request to them fails. Previously, if the underlying issue was actually an invalid or expired claude.ai session token rather than the connector itself lacking authorization, Claude Code showed the same misleading \"needs authorization\" state, sending users down the wrong troubleshooting path.\n\nThis version distinguishes an invalid session token from a genuine per-connector auth failure and shows a `/login` hint in that case instead.",
+      "category": "認証",
+      "category_en": "Authentication"
+    },
+    {
+      "t": "修正: MCP サーバーの削除などによりローカルで利用できなくなったツールについて、ツールエラーが表示されない問題を修正",
+      "t_en": "Fixed tool errors not being displayed for tools no longer available locally, for example after an MCP server is removed",
+      "tags": ["バグ修正", "MCP"],
+      "detail": "セッション履歴に記録されたツール呼び出しに対応するツールが、その後 MCP サーバーの削除などによりローカルで利用できなくなった場合、Claude Code はその旨を示す必要がある。これまでは、このようなエラーが黙って破棄され、トランスクリプト上にツール結果が欠落していることや、その理由が一切表示されないことがあった。\n\n本バージョンで、この場合に適切なツールエラーが表示されるようになり、ユーザーと Claude 自身の双方が、無音のギャップではなくツールが利用できない旨を明確に把握できるようになった。",
+      "detail_en": "If a tool call was recorded in a session's history and the tool later becomes unavailable, for instance because its MCP server was removed from configuration, Claude Code needs to surface that the call can no longer be resolved. Previously such errors were silently dropped instead of being shown, leaving no indication in the transcript that a tool result was missing or why.\n\nThis version makes Claude Code display a proper tool error in this situation, giving clear feedback about the tool's unavailability instead of a silent gap.",
+      "category": "MCP 連携",
+      "category_en": "MCP Integration"
+    },
+    {
+      "t": "修正: `SendMessage` が長いサマリーを拒否してしまう問題を修正。文字数上限による送信失敗を防ぐため、超過分は切り詰められるようになった",
+      "t_en": "Fixed `SendMessage` rejecting a long summary — it now truncates instead, so sends no longer fail on a character limit",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "`SendMessage` は、エージェント同士のメッセージ送信やサブエージェントの再開に使われるツールで、メッセージ内容を説明する summary フィールドを受け取る。これまでは、この summary が文字数上限を超えると送信全体が失敗してしまい、エージェントが詳細な更新内容を引き継ごうとした際にマルチエージェントの連携が停止してしまうことがあった。\n\n本バージョンで、上限を超えた summary は拒否される代わりに切り詰められるようになり、文字数の都合でメッセージが届かなくなることがなくなった。",
+      "detail_en": "`SendMessage` is the tool agents use to message each other or resume a subagent, and it accepts a summary field describing the message content. Previously, a summary exceeding the tool's character limit caused the entire send to fail outright, which could stall multi-agent coordination when an agent tried to hand off a verbose update.\n\nThis version truncates an oversized summary instead of rejecting the call, so the message still gets delivered.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-Agent"
+    },
+    {
+      "t": "修正: サブエージェントのトランスクリプト表示で、スピナーの effort ラベルがサブエージェント自身の `effort:` 設定ではなくセッションの effort レベルを表示してしまう問題を修正",
+      "t_en": "Fixed the spinner's effort label in a subagent's transcript view showing the session's effort level instead of the subagent's own `effort:` setting",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "サブエージェントは frontmatter の `effort:` でセッションの effort レベルを上書きでき、実行中に表示されるスピナーはそのサブエージェント固有の設定を反映するはずだった。しかし、表示上のバグにより、トランスクリプトビューのスピナーが親セッションの effort レベルを表示してしまい、そのサブエージェントが実際にどの effort で動作しているのかがユーザーに誤って伝わることがあった。\n\n本バージョンで、スピナーがサブエージェント自身の effort 設定を参照するように修正され、表示されるラベルが実際のモデル挙動と一致するようになった。",
+      "detail_en": "A subagent can override the session's effort level with its own `effort:` frontmatter field, and the spinner shown while it's working is meant to reflect that subagent-specific setting. A display bug caused the transcript view's spinner to instead show the parent session's effort level, which could mislead users about what effort a given subagent was actually running at.\n\nThis version makes the spinner read the subagent's own configured effort level so the displayed label matches the model behavior actually in use.",
+      "category": "エージェントビュー",
+      "category_en": "Agent View"
+    },
+    {
+      "t": "修正: ファイルウォッチャーがファイルシステムエラーに遭遇した場合や、ファイルウォッチャーの終了処理中に、まれにクラッシュする問題を修正",
+      "t_en": "Fixed rare crashes when a file watcher hit a filesystem error or during file-watcher teardown",
+      "tags": ["バグ修正"],
+      "detail": "Claude Code は内部でファイルシステムウォッチャーを使用しており、CLAUDE.md や設定変更の検知、スキルの変更監視などに利用している。まれに、予期しないファイルシステムエラーやウォッチャー終了時の競合状態が発生し、正常に処理を終える代わりにプロセス全体がクラッシュしてしまうことがあった。\n\n本バージョンで、ウォッチャーのエラーハンドリングと終了処理が堅牢化され、これらのエッジケースでもセッションがクラッシュしなくなった。",
+      "detail_en": "Claude Code uses filesystem watchers internally, for example to pick up CLAUDE.md and settings changes and to support live change detection for skills. In rare cases an unexpected filesystem error, or a race during watcher shutdown, could crash the whole process instead of failing gracefully.\n\nThis version hardens the watcher's error handling and teardown path so these edge cases no longer bring down the session.",
+      "category": "安定性",
+      "category_en": "Stability"
+    },
+    {
+      "t": "修正: `--ax-screen-reader` モードで、バックスペースのたびに入力行全体をスクリーンリーダーが読み上げ直してしまう問題を修正。行末での削除では、削除した文字のみが読み上げられるようになった",
+      "t_en": "Fixed screen readers re-reading the whole input line on every backspace in `--ax-screen-reader` mode — end-of-line deletions now echo just the deleted characters",
+      "tags": ["バグ修正"],
+      "detail": "スクリーンリーダーモードは、実際に変わった部分だけをスクリーンリーダーが読み上げられるよう、フラットで差分的なテキストを出力することを意図している。これまでは、入力行の末尾でバックスペースにより文字を削除すると入力行全体が再描画されてしまい、前方への入力時は差分読み上げになっているのに対し、削除のたびに行全体が読み上げられてしまい編集作業が非常に聞き取りづらいものになっていた。\n\n本バージョンで、行末での削除も削除した文字のみが読み上げられるようになり、前方入力時と同様の差分読み上げ挙動に統一された。詳しくは[アクセシビリティのドキュメント](https://code.claude.com/docs/en/accessibility#what-your-screen-reader-hears)を参照してください。",
+      "detail_en": "Screen reader mode is meant to print flat, incremental text so a screen reader only announces what actually changed as you type or edit. Previously, deleting a character at the end of the input line with backspace caused Claude Code to redraw the entire input line, so the screen reader re-read the whole line on every keystroke instead of just the deletion, making editing painfully slow to listen to.\n\nThis version makes end-of-line deletions echo only the deleted characters, matching the incremental-echo behavior already used for typing forward. See the [Accessibility documentation](https://code.claude.com/docs/en/accessibility#what-your-screen-reader-hears) for details.",
+      "category": "アクセシビリティ",
+      "category_en": "Accessibility"
+    },
+    {
+      "t": "修正: `CLAUDE_CODE_PROVIDER_MANAGED_BY_HOST` が設定されている場合に、ホスト側のモデル選択設定がディスク上の古い `managed-settings.json` より優先されない問題を修正",
+      "t_en": "Fixed host model-selection keys not taking precedence over a stale on-disk `managed-settings.json` when `CLAUDE_CODE_PROVIDER_MANAGED_BY_HOST` is set",
+      "tags": ["バグ修正"],
+      "detail": "`CLAUDE_CODE_PROVIDER_MANAGED_BY_HOST` は、IDE 拡張機能やデスクトップアプリのように Claude Code を組み込み、利用するモデルプロバイダやエンドポイントを管理するホストプラットフォームによって設定される環境変数で、ローカルファイルによるプロバイダ選択設定を無視させ、常に組み込み側のルーティングを優先させることを意図している。しかし、これまではディスク上に残った古い `managed-settings.json` が、この場合でもホスト側のルーティングを上書きしてしまうことがあり、意図しない古いプロバイダ設定でセッションが動作してしまうことがあった。\n\n本バージョンで、この環境変数が設定されている場合はホストのモデル選択設定が、古い `managed-settings.json` を含むローカル設定ファイルより常に優先されるように修正された。詳しくは[環境変数のドキュメント](https://code.claude.com/docs/en/env-vars#variables)を参照してください。",
+      "detail_en": "`CLAUDE_CODE_PROVIDER_MANAGED_BY_HOST` is set by host platforms, such as IDE extensions or the desktop app, that embed Claude Code and manage which model provider and endpoint it uses; it's designed to make provider-selection settings from local files be ignored so the embedding host's routing always wins. Previously, a stale on-disk `managed-settings.json` could still override the host-provided routing in this scenario, causing the session to use outdated or incorrect provider settings.\n\nThis version ensures the host's model-selection keys always take precedence over local settings files, including a stale `managed-settings.json`, when this variable is set. See the [environment variables documentation](https://code.claude.com/docs/en/env-vars#variables) for details.",
+      "category": "設定",
+      "category_en": "Configuration"
+    },
+    {
+      "t": "改善: auto mode の安全性を強化。`SendMessage` で他のエージェントセッションに送信されるメッセージが、送信前にパーミッション分類器による評価を受けるようになった",
+      "t_en": "Improved auto mode safety: messages sent to other agent sessions via `SendMessage` are now evaluated by the permission classifier before dispatch",
+      "tags": ["改善", "Security", "Agent"],
+      "detail": "auto mode では、リスクのある操作についてユーザーに毎回確認する代わりに、バックグラウンドの分類器が事前にレビューを行う。これまでは、マルチエージェントセッションで `SendMessage` を通じて別のエージェントに送信されるメッセージがこのレビューを完全にすり抜けてしまい、エージェント間で有害な指示や偽の承認情報が受け渡されても検知されない可能性があった。\n\n本バージョンで、`SendMessage` の呼び出しも送信前に分類器を経由するようになり、エージェント間のプロンプトインジェクションや、あるチームメイトが拒否された操作を別のチームメイトに中継してすり抜けようとする経路が塞がれた。詳しくは[パーミッションモードのドキュメント](https://code.claude.com/docs/en/permission-modes#eliminate-prompts-with-auto-mode)を参照してください。",
+      "detail_en": "In auto mode, a background classifier reviews risky actions before they run instead of prompting the user each time. Previously, messages one agent sends another via `SendMessage` in a multi-agent session could bypass this classifier review entirely, meaning a message that smuggled a harmful instruction or fabricated approval between agents wasn't being checked.\n\nThis version routes `SendMessage` calls through the classifier before dispatch, closing a potential path for cross-agent prompt injection or a teammate relaying a denied action to bypass a check. See the [Permission modes documentation](https://code.claude.com/docs/en/permission-modes#eliminate-prompts-with-auto-mode) for details.",
+      "category": "セキュリティ",
+      "category_en": "Security"
+    },
+    {
+      "t": "改善: `disable-model-invocation` が設定されたスキルを Claude が呼び出そうとした際の拒否メッセージを改善。Claude はスキルのワークフローを自力で再現しようとする代わりに、ユーザーにそのスキルの実行を依頼するよう案内されるようになった",
+      "t_en": "Improved the refusal when Claude tries to invoke a skill with `disable-model-invocation`: Claude is now told to ask you to run the skill instead of replicating its workflow",
+      "tags": ["改善"],
+      "detail": "スキルに `disable-model-invocation: true` を設定すると、そのスキルの説明が Claude のコンテキストに読み込まれなくなり、`/スキル名` によるユーザー主導の呼び出しに限定される。これまでは、Claude がこのようなスキルを呼び出そうとして拒否された際、代わりに自力で推測してスキルのワークフローを再現しようとしてしまうことがあり、呼び出しを制限した意図が損なわれていた。\n\n本バージョンで拒否メッセージが改善され、Claude はワークフローを再現しようとする代わりに、ユーザーへそのスキルの実行を依頼するように案内されるようになった。",
+      "detail_en": "Setting `disable-model-invocation: true` on a skill is meant to reserve triggering it for the user — the skill's description isn't even loaded into Claude's context, so it can't be auto-invoked. Previously, if Claude was blocked from invoking such a skill, its fallback behavior could be to try to replicate the skill's workflow manually from what it could infer, defeating the purpose of restricting invocation.\n\nThis version changes the refusal message so Claude is instead instructed to ask the user to run the skill themselves.",
+      "category": "スキル",
+      "category_en": "Skills"
+    },
+    {
+      "t": "改善: `/diff` ビュー、Remote Control のワークスペース diff、および Claude Code on the web セッションのファイル編集 diff が、ワークスペースで設定された diff ドライバや textconv を無視し、生の git blob の内容を使用するように改善",
+      "t_en": "Improved the `/diff` view, the Remote Control workspace diff, and file-edit diffs in Claude Code on the web sessions to use raw git blob content, ignoring workspace-configured diff drivers and textconv",
+      "tags": ["改善"],
+      "detail": "一部のリポジトリは、バイナリファイルや生成ファイルを異なる形で表示するために、カスタムの git diff ドライバや `textconv` フィルタを設定している。Claude Code 自身の diff 表示が同じ仕組みを利用していたため、ワークスペースの diff ドライバや textconv の設定によって、実際の変更内容が歪められたり隠されたりしてしまい、表示される diff を信頼しにくくなることがあった。\n\n本バージョンで、`/diff`、Remote Control のワークスペース diff、Claude Code on the web セッションのファイル編集 diff が、生の git blob の内容を直接読み取るように変更され、リポジトリ固有の diff ツールの設定に関わらず、実際に変更されたバイト列がそのまま表示されるようになった。",
+      "detail_en": "Some repositories configure custom git diff drivers or `textconv` filters, for example to render binary or generated files differently, which change what a normal `git diff` shows. When Claude Code's own diff views used the same mechanism, a workspace's diff driver or textconv configuration could distort or hide the actual underlying change, making the displayed diff harder to trust.\n\nThis version makes `/diff`, the Remote Control workspace diff, and web session file-edit diffs read the raw git blob content directly instead, so what you review always reflects the literal bytes changed, independent of repository-specific diff tooling.",
+      "category": "レンダリング",
+      "category_en": "Rendering"
+    },
+    {
+      "t": "変更: Remote Control の自動起動を、リポジトリローカルの設定（`.claude/settings.json` または `.claude/settings.local.json`）では有効化できないように変更（無効化は引き続き可能）。有効化するには `/config` からユーザースコープで設定する必要がある",
+      "t_en": "Changed Remote Control auto-start so repo-local settings (`.claude/settings.json` or `.claude/settings.local.json`) can no longer turn it on (they can still turn it off); enable it at user scope via `/config`",
+      "tags": ["改善", "Security"],
+      "detail": "`remoteControlAtStartup` 設定（`/config` では「Enable Remote Control for all sessions」として表示される）は、対話セッションの開始時に Claude Code が自動的に Remote Control に接続することを許可する。これまでは、リポジトリ自体にコミットされた設定でこの値を `true` にできてしまい、信頼していないリポジトリをチェックアウトしてセッションを開始するだけで、ユーザーの同意なく Remote Control に公開されてしまう可能性があった。\n\n本バージョンで、リポジトリローカルの設定はこの自動起動を無効化することはできても有効化はできないように変更され、有効化するにはユーザースコープでの明示的な選択が必要になった。これにより、悪意のある、または不注意なリポジトリがデフォルトでリモート公開を有効化してしまう経路が塞がれた。",
+      "detail_en": "The `remoteControlAtStartup` setting (surfaced in `/config` as \"Enable Remote Control for all sessions\") lets Claude Code connect to Remote Control automatically at the start of every interactive session. Previously a repository's own committed settings could set this to `true`, meaning simply checking out and starting a session in an untrusted repository could silently expose it to Remote Control without the user opting in.\n\nThis version makes repo-local settings unable to turn auto-start on — they can still explicitly turn it off — so enabling it requires a deliberate choice at user scope, closing a way a malicious or careless repository could enable remote exposure by default.",
+      "category": "Remote Control",
+      "category_en": "Remote Control"
+    },
+    {
+      "t": "削除: ultraplan 機能を削除",
+      "t_en": "Removed ultraplan feature",
+      "tags": ["非推奨"],
+      "detail": "Ultraplan は、ターミナルからクラウド上でのプランモードのドラフト作成を開始し、生成されたプランをブラウザ上の Claude Code on the web で確認できるリサーチプレビュー機能として提供されていた。リサーチプレビューという位置付け上、フィードバックを踏まえて変更または廃止される可能性が明示されており、今回このバージョンで `/ultraplan` コマンド・`ultraplan` キーワードトリガー・プラン承認ダイアログ内のオプションを含め、この機能全体が削除された。\n\nローカルまたはクラウドでのプランニングを行いたいユーザーは、代わりにプランモードと Claude Code on the web を直接利用することが案内されている。詳しくは[ドキュメント](https://code.claude.com/docs/en/ultraplan)を参照してください。",
+      "detail_en": "Ultraplan was a research-preview feature that let you kick off cloud-based plan-mode drafting from the terminal and review the resulting plan in a browser via Claude Code on the web. As a research preview it was explicitly experimental and subject to change or removal based on feedback, and this version removes it entirely, including the `/ultraplan` command, the `ultraplan` keyword trigger, and its option in the plan approval dialog.\n\nUsers doing local or cloud planning are directed to use plan mode and Claude Code on the web directly instead. See the [documentation](https://code.claude.com/docs/en/ultraplan) for details.",
+      "category": "コマンド",
+      "category_en": "Commands"
+    }
+  ],
+  "2.1.223": [
+    {
+      "t": "追加: マーケットプレース管理設定の strictKnownMarketplaces・blockedMarketplaces に、GitHub Organization 配下のマーケットプレースリポジトリを一括で許可・拒否できるオーナーワイルドカード（\"owner/*\"）指定を追加",
+      "t_en": "Added owner wildcard entries (`\"owner/*\"`) to the `strictKnownMarketplaces` and `blockedMarketplaces` managed settings for allowing or blocking all marketplace repos under a GitHub org",
+      "tags": ["新機能", "Plugin"],
+      "detail": "strictKnownMarketplaces（許可リスト）と blockedMarketplaces（拒否リスト）は、管理者が従業員の追加できるプラグインマーケットプレースを制限するための managed settings 専用の設定項目で、これまでは個々のマーケットプレースのソースを一つずつ列挙する必要があった。\n\n本バージョンでは \"owner/*\" というワイルドカード形式が追加され、特定の GitHub オーナー（Organization）配下のリポジトリをまとめて許可・拒否できるようになった。多数のマーケットプレースリポジトリを一つの GitHub アカウント配下でホストしている組織にとって、ポリシー設定が大幅に簡素化される。詳しくは[設定のドキュメント](https://code.claude.com/docs/en/settings#strictknownmarketplaces)を参照してください。",
+      "detail_en": "`strictKnownMarketplaces` (an allowlist) and `blockedMarketplaces` (a blocklist) are managed-settings-only controls that let admins restrict which plugin marketplaces employees can add; previously each individual marketplace source had to be listed one by one.\n\nThis version adds an `\"owner/*\"` wildcard form so an admin can allow or block every repository under a given GitHub owner (organization) in one entry. This greatly simplifies policy for organizations that host many marketplace repositories under a single GitHub account. See the [settings documentation](https://code.claude.com/docs/en/settings#strictknownmarketplaces) for details.",
+      "category": "設定",
+      "category_en": "Settings"
+    },
+    {
+      "t": "追加: workflow agent・フォークされたスキル・スラッシュコマンド・再開されたバックグラウンドエージェントが要求したサブエージェントのモデルが制限されている場合に、親セッションのモデルで実行される旨の警告を追加",
+      "t_en": "Added a warning when workflow agents, forked skills, slash commands, or resumed background agents' requested subagent model is restricted and the parent model runs instead",
+      "tags": ["新機能", "Agent"],
+      "detail": "組織の availableModels による利用可能モデル制限で、workflow agent やフォークされたスキル、スラッシュコマンド、再開されたバックグラウンドエージェントが要求したモデルがブロックされている場合、Claude Code はこれまでも黙って親（呼び出し元）セッションのモデルにフォールバックして実行していたが、その切り替えはユーザーに通知されなかった。\n\n本バージョンでは、このフォールバックが発生した際に警告が表示されるようになり、要求と異なる（多くの場合コストや性能特性の異なる）モデルで処理が実行されていることをユーザーが把握できるようになった。詳しくは[サブエージェントのドキュメント](https://code.claude.com/docs/en/sub-agents#choose-a-model)を参照してください。",
+      "detail_en": "When an org's `availableModels` allowlist blocks the model requested by a workflow agent, forked skill, slash command, or resumed background agent, Claude Code already fell back silently to the parent (calling) session's model, but that switch was never surfaced to the user.\n\nThis version adds a warning when this fallback happens, so users can see that work is running on a different model than requested, often with different cost or capability characteristics. See the [sub-agents documentation](https://code.claude.com/docs/en/sub-agents#choose-a-model) for details.",
+      "category": "エージェント設定",
+      "category_en": "Agent Settings"
+    },
+    {
+      "t": "追加: クラウドセッションに、`claude --teleport <session id>` でローカルに作業を引き継ぐ方法を示す /teleport ヒントを追加",
+      "t_en": "Added a `/teleport` hint in cloud sessions showing how to continue locally with `claude --teleport <session id>`",
+      "tags": ["新機能"],
+      "detail": "Claude Code on the web のクラウドセッションは、`claude --teleport <session-id>` コマンドや /teleport コマンドを使ってローカルのターミナルに作業を引き継げるが、これまでは主に Web UI の「Open in CLI」からしか気付きにくい機能だった。\n\n本バージョンでは、クラウドセッション内に直接このコマンドを案内するヒントが追加され、Web からターミナルへの作業引き継ぎを発見しやすくなった。詳しくは[Claude Code on the web のドキュメント](https://code.claude.com/docs/en/claude-code-on-the-web#from-web-to-terminal)を参照してください。",
+      "detail_en": "Cloud sessions in Claude Code on the web can already be handed off to a local terminal with the `claude --teleport <session-id>` command or the `/teleport` command, but this was mostly discoverable only through \"Open in CLI\" in the web UI.\n\nThis version adds an inline hint inside the cloud session itself pointing users to the exact command, making the web-to-terminal handoff easier to discover. See the [Claude Code on the web documentation](https://code.claude.com/docs/en/claude-code-on-the-web#from-web-to-terminal) for details.",
+      "category": "UX",
+      "category_en": "UX"
+    },
+    {
+      "t": "修正: 巧妙に細工したコマンドが、その一部をパーミッションチェックから隠してしまえる Bash のパーミッションバイパスを修正",
+      "t_en": "Fixed a Bash permission bypass where a crafted command could hide parts of itself from permission checks",
+      "tags": ["バグ修正", "Security"],
+      "detail": "Bash ツールのパーミッションチェックには、巧妙に細工されたコマンド文字列を使うことで、実際に実行される内容とは異なる（より無害に見える）コマンドとして評価させてしまう脆弱性があった。これにより、本来は承認やパーミッションルールでブロックされるべき操作が、チェックをすり抜けて実行されてしまう恐れがあった。\n\n本バージョンでこの脆弱性が修正され、実際に実行される完全なコマンドが正しくパーミッションチェックの対象になるようになった。",
+      "detail_en": "Bash tool permission checking had a vulnerability where a specially crafted command string could be evaluated as a different, more benign-looking command than what actually ran, letting an operation that should have required approval or been blocked by a permission rule slip past the check.\n\nThis version fixes that vulnerability, so the full, actually-executed command is now what gets checked for permissions.",
+      "category": "パーミッション",
+      "category_en": "Permissions"
+    },
+    {
+      "t": "修正: タブや不可視の Unicode 文字でパディングされたコマンドが、承認ダイアログでその一部を隠してしまえる問題を修正",
+      "t_en": "Fixed permission prompts so commands padded with tabs or invisible Unicode can no longer hide part of the command from the approval dialog",
+      "tags": ["バグ修正", "Security"],
+      "detail": "パーミッション承認ダイアログの表示に関連する脆弱性で、タブ文字や不可視・ゼロ幅の Unicode 文字でコマンドをパディングすることにより、承認ダイアログ上でコマンドの一部が見た目上省略・非表示になってしまう問題があった。これにより、ユーザーが全容を確認しないまま危険な操作を承認してしまう恐れがあった。\n\n本バージョンで、こうしたパディングの有無にかかわらず、承認ダイアログが常にコマンドの全文を表示するように修正された。",
+      "detail_en": "A related vulnerability in the permission approval dialog's display: padding a command with tab characters or invisible/zero-width Unicode characters could cause part of the command text to be visually cut off or hidden in the approval dialog, risking a user approving a dangerous operation without seeing its full content.\n\nThis version fixes the approval dialog so it always displays the full command text regardless of such padding.",
+      "category": "パーミッション",
+      "category_en": "Permissions"
+    },
+    {
+      "t": "修正: workflow スクリプトが動的な import() を使って、workflow のサンドボックス外でコードを実行できてしまう問題を修正",
+      "t_en": "Fixed workflow scripts being able to use dynamic `import()` to run code outside the workflow sandbox",
+      "tags": ["バグ修正", "Security"],
+      "detail": "Dynamic workflow のスクリプトは、直接のファイルシステムアクセスやシェルアクセスを持たない隔離されたランタイムで実行される設計になっている（実際の I/O はエージェントが担う）。しかし、細工された workflow スクリプトが JavaScript の動的 import() を使うことで、このサンドボックス境界を越えて任意のコードを読み込み実行できてしまう問題があった。\n\n本バージョンでこの抜け道が塞がれ、workflow スクリプトが想定通りサンドボックス化された実行モデルの中に確実に閉じ込められるようになった。詳しくは[workflow のドキュメント](https://code.claude.com/docs/en/workflows#behavior-and-limits)を参照してください。",
+      "detail_en": "Dynamic workflow scripts are designed to run in an isolated runtime with no direct filesystem or shell access of their own (agents perform the actual I/O). However, a crafted workflow script could use JavaScript's dynamic `import()` to load and execute arbitrary code that escaped this sandbox boundary.\n\nThis version closes that escape path, so workflow scripts stay confined to the intended sandboxed execution model as designed. See the [workflows documentation](https://code.claude.com/docs/en/workflows#behavior-and-limits) for details.",
+      "category": "セキュリティ",
+      "category_en": "Security"
+    },
+    {
+      "t": "修正: エージェント定義の bypassPermissions モードが、組織の bypass-permissions 無効化ポリシーを無視してしまう問題を修正",
+      "t_en": "Fixed a permission gap where an agent definition's `bypassPermissions` mode ignored the org bypass-permissions disable policy",
+      "tags": ["バグ修正", "Security"],
+      "detail": "組織は managed settings で permissions.disableBypassPermissionsMode を \"disable\" に設定することで、bypassPermissions モードを組織全体で禁止できる。しかし、サブエージェントの frontmatter で permissionMode: bypassPermissions を指定していた場合、このモードがこの組織ポリシーを無視してパーミッション確認をスキップできてしまうというギャップがあった。\n\n本バージョンで、エージェント定義側の bypassPermissions もセッション本体と同じ組織レベルの無効化ポリシーに従うように修正され、この抜け道が塞がれた。詳しくは[パーミッションモードのドキュメント](https://code.claude.com/docs/en/permission-modes#skip-all-checks-with-bypasspermissions-mode)を参照してください。",
+      "detail_en": "Organizations can set `permissions.disableBypassPermissionsMode` to `\"disable\"` in managed settings to block `bypassPermissions` mode org-wide. However, a subagent whose frontmatter set `permissionMode: bypassPermissions` could ignore this org policy and skip permission checks anyway, defeating the org control.\n\nThis version makes agent-defined `bypassPermissions` respect the same org-level disable policy as the top-level session, closing this gap. See the [permission modes documentation](https://code.claude.com/docs/en/permission-modes#skip-all-checks-with-bypasspermissions-mode) for details.",
+      "category": "パーミッション",
+      "category_en": "Permissions"
+    },
+    {
+      "t": "修正: セッション中に /cd でディレクトリを変更した後、そのセッションを再開すると会話が空になってしまう問題を修正",
+      "t_en": "Fixed resuming a session after a mid-session `/cd` coming back empty",
+      "tags": ["バグ修正"],
+      "detail": "セッションの途中で /cd を実行すると、以降のそのセッションの作業ディレクトリが変更される。しかし、そうしたセッションを後で再開（--resume やセッション再開ピッカーなど）すると、それまでの会話履歴が正しく復元されず、空の会話として開始されてしまう不具合があった。ディレクトリ変更と再開時の履歴参照が正しく整合していなかったことが原因と見られる。\n\n本バージョンでこの不具合が修正され、/cd を挟んだセッションでも再開時に正しく履歴が復元されるようになった。",
+      "detail_en": "Running `/cd` mid-session changes the working directory for the rest of that session. Resuming such a session later, via `--resume` or the resume picker, could come back as an empty conversation instead of restoring the prior history, apparently because the directory change wasn't correctly reconciled with resume/history lookup.\n\nThis version fixes the bug, so sessions that used `/cd` mid-session now correctly restore their history on resume.",
+      "category": "セッション管理",
+      "category_en": "Session Management"
+    },
+    {
+      "t": "修正: ゲートウェイのモデル探索が、vertex_ai/claude-* や bedrock/anthropic.claude-* のようなプロバイダー接頭辞付き ID で登録された Claude モデルを見逃してしまう問題を修正",
+      "t_en": "Fixed gateway model discovery hiding Claude models registered under provider-prefixed IDs such as `vertex_ai/claude-*` or `bedrock/anthropic.claude-*`",
+      "tags": ["バグ修正", "Platform"],
+      "detail": "CLAUDE_CODE_ENABLE_GATEWAY_MODEL_DISCOVERY=1 を設定すると、Claude Code はゲートウェイの /v1/models エンドポイントに問い合わせて、返されたモデルを /model ピッカーに追加する。しかしこの探索は、モデル ID が \"claude\" または \"anthropic\" で始まるエントリのみを対象としていたため、vertex_ai/claude-* や bedrock/anthropic.claude-* のようなプロバイダー接頭辞付き ID で登録された正当な Claude モデルが、この条件に一致せず完全に除外されてしまっていた。\n\n本バージョンで、こうしたプロバイダー接頭辞付き ID も認識されるように修正され、ピッカーに正しく表示されるようになった。詳しくは[LLM ゲートウェイプロトコルのドキュメント](https://code.claude.com/docs/en/llm-gateway-protocol#model-discovery)を参照してください。",
+      "detail_en": "When `CLAUDE_CODE_ENABLE_GATEWAY_MODEL_DISCOVERY=1` is set, Claude Code queries a gateway's `/v1/models` endpoint and adds the returned models to the `/model` picker. This discovery only kept entries whose ID begins with \"claude\" or \"anthropic\", so legitimate Claude models registered under provider-prefixed IDs like `vertex_ai/claude-*` or `bedrock/anthropic.claude-*` didn't match and were filtered out entirely.\n\nThis version fixes discovery to recognize such provider-prefixed IDs, so they now appear correctly in the picker. See the [LLM gateway protocol documentation](https://code.claude.com/docs/en/llm-gateway-protocol#model-discovery) for details.",
+      "category": "プラットフォーム互換性",
+      "category_en": "Platform Compatibility"
+    },
+    {
+      "t": "修正: modelOverrides のキーが Anthropic のモデル ID でない場合に、それがそのままセッションの正規モデル ID として扱われてしまう問題を修正。未知のキーはドキュメント通り無視されるように",
+      "t_en": "Fixed `modelOverrides` keys that aren't Anthropic model IDs being treated as the session's canonical model ID; unknown keys are now ignored as documented",
+      "tags": ["バグ修正"],
+      "detail": "modelOverrides は、個々の Anthropic モデル ID（例: \"claude-opus-4-7\"）を Bedrock の推論プロファイル ARN のようなプロバイダー固有の文字列にマッピングするための設定で、ドキュメント上は未知のキーは無視されると説明されていた。しかし実際には、modelOverrides のキーが有効な Anthropic モデル ID でない場合でも、そのままセッションの正規モデルであるかのように扱われてしまい、モデル解決が誤った結果になる不具合があった。\n\n本バージョンでこの不具合が修正され、無効なキーはドキュメント通り正しく無視されるようになった。詳しくは[モデル設定のドキュメント](https://code.claude.com/docs/en/model-config#override-model-ids-per-version)を参照してください。",
+      "detail_en": "`modelOverrides` maps individual Anthropic model IDs (e.g. \"claude-opus-4-7\") to provider-specific strings such as Bedrock inference profile ARNs, and the documentation already stated that unknown keys are ignored. In practice, however, a `modelOverrides` key that wasn't a valid Anthropic model ID could still be treated as if it were the session's canonical model, producing incorrect model resolution.\n\nThis version fixes the bug so invalid keys are correctly ignored as documented. See the [model configuration documentation](https://code.claude.com/docs/en/model-config#override-model-ids-per-version) for details.",
+      "category": "設定",
+      "category_en": "Settings"
+    },
+    {
+      "t": "修正: managed settings において、サーバー配信の設定がマシンローカルの managed-settings.json や MDM プロファイルの env ブロックを無効化してしまっていた問題を修正。管理者の env はキー単位でマージされるように",
+      "t_en": "Fixed managed settings: server-delivered settings no longer disable the env block of a machine-local `managed-settings.json` or MDM profile; admin env now merges per key",
+      "tags": ["バグ修正"],
+      "detail": "Claude Code は、Anthropic のサーバーから配信される server-managed settings と、ローカルの managed-settings.json や MDM プロファイルによる endpoint-managed settings の両方をサポートしており、優先順位は server-managed settings が最も高い。これまでは、サーバー側が何らかのキーを一つでも配信すると、ローカルの managed-settings.json・MDM 側の env ブロックがまるごと無視されてしまい、管理者が設定した環境変数が意図せず失われることがあった。\n\n本バージョンで、この env ブロックがソース全体ではなくキー単位でマージされるように修正され、サーバー配信の設定とローカルの管理者設定を安全に併用できるようになった。詳しくは[サーバー管理設定のドキュメント](https://code.claude.com/docs/en/server-managed-settings#settings-precedence)を参照してください。",
+      "detail_en": "Claude Code supports both server-managed settings delivered from Anthropic's servers and endpoint-managed settings from a local `managed-settings.json` or MDM profile, with server-managed settings taking the highest precedence. Previously, if the server delivered even a single key, the entire local `managed-settings.json`/MDM env block was ignored, which could unexpectedly drop admin-configured environment variables.\n\nThis version fixes the env block to merge per key instead of one source wholesale overriding the other, so server-delivered settings and local admin settings can be safely combined. See the [server-managed settings documentation](https://code.claude.com/docs/en/server-managed-settings#settings-precedence) for details.",
+      "category": "設定",
+      "category_en": "Settings"
+    },
+    {
+      "t": "修正: Linux で sandbox.filesystem.denyWrite が作業ディレクトリを含む場合に、サンドボックス化されたコマンドが起動に失敗してしまう問題を修正",
+      "t_en": "Fixed sandboxed commands failing to start on Linux when `sandbox.filesystem.denyWrite` covers the working directory",
+      "tags": ["バグ修正", "Security"],
+      "detail": "sandbox.filesystem.denyWrite は、サンドボックス化された Bash コマンドに対して特定のパスへの書き込みを拒否する設定で、サンドボックスがデフォルトで作業ディレクトリへの書き込みを許可している挙動の上に重ねて適用される。Linux 環境では、denyWrite のルールがたまたま作業ディレクトリ自体を含んでいた場合、単にその場所への書き込み権限が失われるだけでなく、サンドボックス化されたコマンドの起動自体が失敗してしまう不具合があった。\n\n本バージョンでこの起動失敗が修正された。",
+      "detail_en": "`sandbox.filesystem.denyWrite` denies write access to specific paths for sandboxed Bash commands, layered on top of the sandbox's default write access to the working directory. On Linux, if a `denyWrite` rule happened to cover the working directory itself, sandboxed commands could fail to start entirely, rather than just losing write access there.\n\nThis version fixes that startup failure.",
+      "category": "サンドボックス",
+      "category_en": "Sandbox"
+    },
+    {
+      "t": "修正: フォークされたバックグラウンドエージェントが、再開時にフォーク元の親プロンプトの再構築に失敗すると、セッションの残り全体で「already resuming」状態から抜け出せなくなる問題を修正",
+      "t_en": "Fixed forked background agents getting stuck \"already resuming\" for the rest of the session when rebuilding the fork's parent prompt failed during resume",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "フォークされたバックグラウンドエージェントは、再開時にフォーク元の親プロンプトのコンテキストを再構築する。この再構築処理が失敗した場合、そのエージェントはセッションの残り全体にわたって「already resuming」という状態のまま固まってしまい、それ以降そのエージェントとやり取りできなくなる不具合があった。\n\n本バージョンで、この再構築失敗が適切にハンドリングされるようになり、フォークされたエージェントが恒久的に固まってしまうことがなくなった。",
+      "detail_en": "A forked background agent rebuilds the context of its fork's parent prompt when resumed. If that rebuild failed, the agent could get permanently stuck reporting \"already resuming\" for the rest of the session, making it impossible to interact with it any further.\n\nThis version handles that rebuild failure gracefully, so a forked agent no longer gets permanently wedged.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-Agent"
+    },
+    {
+      "t": "修正: 履歴に不正な形式の診断情報の添付があるセッションを再開すると、すべてのターンが失敗する、またはインタラクティブアプリが応答しないエラー画面のまま固まってしまう問題を修正",
+      "t_en": "Fixed a resumed session failing every turn, or leaving the interactive app on an unresponsive error screen, when its history held a malformed diagnostics attachment",
+      "tags": ["バグ修正"],
+      "detail": "Claude Code のセッションは、履歴の中に診断情報の添付データを保持できる。このセッション履歴に不正な形式の診断情報添付が含まれていた場合、そのセッションを再開するとそれ以降のすべてのターンが失敗したり、インタラクティブなターミナル UI が操作不能なエラー画面のまま固まってしまい、先に進めなくなる不具合があった。\n\n本バージョンで、再開処理が不正な形式の診断情報データに対して耐性を持つように修正され、セッションが引き続き利用可能な状態を保てるようになった。",
+      "detail_en": "Claude Code sessions can hold diagnostics attachment data in their history. If a session's history contained a malformed diagnostics attachment, resuming that session could make every subsequent turn fail, or leave the interactive terminal UI stuck on an unresponsive error screen with no way to proceed.\n\nThis version makes resume tolerant of malformed diagnostics data, so the session stays usable.",
+      "category": "セッション管理",
+      "category_en": "Session Management"
+    },
+    {
+      "t": "修正: 通常とは異なる形式の git push 出力を解析する際に、まれにハングしてしまう問題を修正",
+      "t_en": "Fixed a rare hang when parsing unusual `git push` output",
+      "tags": ["バグ修正"],
+      "detail": "Claude Code は git との連携機能の一環として、例えば push の結果生成された PR リンクや push の状態を検出するために、git push コマンドの出力を解析している。一部の通常とは異なる形式（エッジケース）の git push 出力に対して、この解析処理が正常に完了・失敗せずハングしてしまうことがあった。\n\n本バージョンでこのまれなハングが修正された。",
+      "detail_en": "As part of its git integration, Claude Code parses `git push` command output, for example to detect a resulting PR link or the push status. Certain unusual edge-case `git push` output formats could cause this parsing to hang instead of completing or failing gracefully.\n\nThis version fixes that rare hang.",
+      "category": "Git 連携",
+      "category_en": "Git Integration"
+    },
+    {
+      "t": "変更: CLAUDE_CODE_DISABLE_1M_CONTEXT を、固定リストに含まれるモデルだけでなく、ネイティブに 1M コンテキストウィンドウを持つすべての Claude モデルに対して auto-compaction による 200K への制限を適用するように変更。auto-compaction がセッションを 200K に維持できていない場合は起動時に警告を表示するように",
+      "t_en": "Changed `CLAUDE_CODE_DISABLE_1M_CONTEXT` to hold every Claude model with a native 1M window to 200K via auto-compaction, not just a fixed list; a startup warning now appears when auto-compaction isn't holding the session to 200K",
+      "tags": ["改善", "Security"],
+      "detail": "CLAUDE_CODE_DISABLE_1M_CONTEXT=1 を設定すると、/model ピッカーから 1M コンテキスト対応のモデルバリアントが除外されるが、常に 1M で動作し 200K のバリアントを選べない Sonnet 5 のようなモデルについては、代わりに auto-compaction によってセッションを 200K のウィンドウに収める形で制限がかけられていた。これまでこの 200K への制限は、事実上 Sonnet 5 のみを想定した固定リストのモデルにしか適用されていなかった。\n\n本バージョンで、この制限がネイティブに 1M コンテキストウィンドウを持つ現在および将来のすべての Claude モデルに一般化され、さらに auto-compaction が実際にセッションを 200K に維持できていない場合には起動時に警告が表示されるようになった。コンプライアンス要件でコンテキストサイズの上限を厳格に守りたい環境にとって、より確実な保証が得られる。詳しくは[モデル設定のドキュメント](https://code.claude.com/docs/en/model-config#extended-context)を参照してください。",
+      "detail_en": "Setting `CLAUDE_CODE_DISABLE_1M_CONTEXT=1` removes 1M-context model variants from the `/model` picker, but for a model like Sonnet 5 that always runs at 1M with no 200K variant to select, it instead capped the session to a 200K window via auto-compaction. Until now, this 200K enforcement via auto-compaction only covered a fixed list of models, effectively just Sonnet 5.\n\nThis version generalizes the enforcement to any current or future Claude model with a native 1M context window, and adds a startup warning when auto-compaction isn't actually holding the session to 200K. This gives compliance-focused deployments a clearer guarantee on context size limits. See the [model configuration documentation](https://code.claude.com/docs/en/model-config#extended-context) for details.",
+      "category": "設定",
+      "category_en": "Settings"
+    },
+    {
+      "t": "変更: auto-compact が、未知のモデル ID で動作しているセッションについても、コンテキストが想定ウィンドウを超えて肥大化する前にウィンドウ内に収まるよう制御するように変更。以前の挙動に戻すには CLAUDE_CODE_DISABLE_UNKNOWN_MODEL_WINDOW_ENFORCEMENT=1 を設定",
+      "t_en": "Changed auto-compact to keep sessions on unrecognized model IDs within the assumed context window instead of letting them grow past it; set `CLAUDE_CODE_DISABLE_UNKNOWN_MODEL_WINDOW_ENFORCEMENT=1` to restore the previous behavior",
+      "tags": ["改善"],
+      "detail": "Claude Code は、モデル ID を認識できない場合（カスタムモデルやゲートウェイ経由でルーティングされたモデルなど）、auto-compaction のためにデフォルトの想定コンテキストウィンドウサイズを仮定して動作する。これまでは、未知のモデル ID で動作しているセッションに対して、この想定ウィンドウを超えてコンテキストが肥大化しても auto-compaction が積極的に介入せず、コンテキスト制限エラーのリスクがあった。\n\n本バージョンで、未知のモデルに対しても auto-compact がこの想定ウィンドウを積極的に守るように変更された。以前の（制御しない）挙動に戻したい場合は、環境変数 CLAUDE_CODE_DISABLE_UNKNOWN_MODEL_WINDOW_ENFORCEMENT=1 を設定できる。",
+      "detail_en": "When Claude Code doesn't recognize a model ID, for example a custom or gateway-routed model, it assumes a default context window size for auto-compaction purposes. Previously, sessions on unrecognized model IDs could grow their context past that assumed window without auto-compact actively stepping in, risking context-limit errors.\n\nThis version changes auto-compact to actively enforce the assumed window for unrecognized models too. To restore the previous, unenforced behavior, set the environment variable `CLAUDE_CODE_DISABLE_UNKNOWN_MODEL_WINDOW_ENFORCEMENT=1`.",
+      "category": "会話管理",
+      "category_en": "Conversation Management"
+    },
+    {
+      "t": "変更: /review を /code-review のエイリアスに変更。現在の diff または PR（`/code-review <レベル> <PR番号>`）をレビューでき、より踏み込んだクラウドレビューには /code-review ultra を利用可能",
+      "t_en": "Changed `/review` to be an alias of `/code-review`, which reviews the current diff or a PR (`/code-review <level> <pr#>`); use `/code-review ultra` for a deep cloud review",
+      "tags": ["改善"],
+      "detail": "/review コマンドはこれまで、マルチエージェントによるレビューから /code-review の medium エンジンを使う方式、さらには高速な単発の読み取り専用 PR レビューへと、実装が何度か変遷してきた経緯がある。\n\n本バージョンでこの経緯が整理され、/review は単純に /code-review のエイリアスとなった。/code-review はデフォルトで現在の diff をローカルでレビューし、`/code-review <レベル> <PR番号>` の形式で特定の PR を指定してレビューすることもできる。さらに /code-review ultra（ultrareview）を使えば、クラウド上でのより踏み込んだディープレビューにエスカレーションできる。これにより、レビュー用コマンドの体系が一つのコマンドに一本化され、挙動が一貫するようになった。詳しくは[コードレビューのドキュメント](https://code.claude.com/docs/en/code-review#review-a-diff-locally)を参照してください。",
+      "detail_en": "The `/review` command's implementation has gone through several changes over time: from a multi-agent review, to using `/code-review`'s medium engine, to a fast single-pass read-only PR review.\n\nThis version consolidates that history: `/review` is now simply an alias of `/code-review`, which reviews the current diff locally by default, or a specific PR with `/code-review <level> <pr#>`. It can also escalate to a full cloud-based deep review with `/code-review ultra` (ultrareview). This unifies the review command surface into a single command with consistent behavior. See the [code review documentation](https://code.claude.com/docs/en/code-review#review-a-diff-locally) for details.",
+      "category": "コマンド",
+      "category_en": "Commands"
+    },
+    {
+      "t": "変更: /code-review をエフォートレベルの指定なしで実行した場合、直前に指定したレベルを再利用するように変更。`/code-review high` のようにレベルを明示すれば変更可能",
+      "t_en": "Changed `/code-review` with no effort level to reuse the level you typed last; type a level like `/code-review high` to change it",
+      "tags": ["改善"],
+      "detail": "/code-review は、レビューの網羅性と確度のバランスを取るためのエフォートレベル（low 〜 max、または ultra）をオプションで指定できる。これまでは、エフォートレベルを指定せずに /code-review を実行すると、そのたびにセッションの現在のエフォートレベルが使われていた。\n\n本バージョンからは、レベルを指定せずに実行すると直前に明示的に入力したレベルが再利用されるようになり、同じエフォートレベルで繰り返しレビューを行う際にレベルを毎回入力し直す必要がなくなった。`/code-review high` のように明示的にレベルを入力すれば、そのレベルで上書きされ、以降の記憶にも反映される。詳しくは[コードレビューのドキュメント](https://code.claude.com/docs/en/code-review#tune-effort-and-arguments)を参照してください。",
+      "detail_en": "`/code-review` accepts an optional effort level (low through max, or ultra) to trade off review coverage against confidence. Previously, running `/code-review` with no effort level used the session's current effort level every time.\n\nAs of this version, running it with no level reuses whatever level you last explicitly typed, so repeated reviews at a chosen effort level don't require retyping it. Typing an explicit level like `/code-review high` still overrides it and updates the remembered choice. See the [code review documentation](https://code.claude.com/docs/en/code-review#tune-effort-and-arguments) for details.",
+      "category": "コマンド",
+      "category_en": "Commands"
+    }
   ]
 }
