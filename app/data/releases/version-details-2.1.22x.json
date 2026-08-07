@@ -715,5 +715,286 @@
       "category": "コマンド",
       "category_en": "Commands"
     }
+  ],
+  "2.1.224": [
+    {
+      "t": "追加: セルフホスト環境を追加。`claude self-hosted-runner` を使うと、自社のマシンやコンテナを Claude Code の Web・モバイル・デスクトップセッションの実行先にできる。Team・Enterprise プランで利用可能",
+      "t_en": "Added self-hosted environments: `claude self-hosted-runner` turns your own machines or containers into a place Claude Code web, mobile, and desktop sessions can run, on Team and Enterprise plans",
+      "tags": ["新機能", "Platform"],
+      "detail": "これまで claude.ai・モバイル・デスクトップ・`claude --cloud` から開始したクラウドセッションは、常に Anthropic がホストするインフラ上で実行されていた。\n\n本バージョンで追加されたセルフホスト環境（パブリックベータ、Team・Enterprise 限定、デフォルトでは無効）を使うと、組織は claude.ai の管理設定で環境を作成し、`claude self-hosted-runner` プロセスを自社のマシンやコンテナ上で実行することで、これらのクラウドセッションを自社ネットワーク内で動かせるようになる。セッションは内部サービスへアクセスでき、リポジトリのチェックアウトやビルド成果物を組織管理下のインフラに保持できる一方、オーケストレーションとモデル推論は引き続き Anthropic 側で行われる。詳しくは[セルフホスト環境のドキュメント](https://code.claude.com/docs/en/self-hosted-environments)を参照してください。",
+      "detail_en": "Previously, cloud sessions started from claude.ai, mobile, desktop, or `claude --cloud` always ran on Anthropic-hosted infrastructure.\n\nSelf-hosted environments, added in this version (public beta, Team/Enterprise only, off by default), let an organization create an environment in claude.ai admin settings and run the `claude self-hosted-runner` process on its own machines or containers to execute those cloud sessions inside its own network. Sessions can then reach internal services and keep repository checkouts and build artifacts on org-controlled infrastructure, while orchestration and model inference stay with Anthropic. See the [self-hosted environments docs](https://code.claude.com/docs/en/self-hosted-environments) for details.",
+      "category": "自己ホストランナー",
+      "category_en": "Self-Hosted Runner"
+    },
+    {
+      "t": "追加: git や npm を使わず HTTPS 経由の zip ファイルからプラグインをインストールできる `archive` プラグインソースを追加。SHA-256 によるピン留めもオプションで指定可能",
+      "t_en": "Added `archive` plugin source: install plugins from a zip over HTTPS without git or npm, with optional SHA-256 pinning",
+      "tags": ["新機能", "Plugin"],
+      "detail": "これまでプラグインマーケットプレースからのプラグイン配布は git（GitHub・GitLab・URL）、npm、ローカルパスのいずれかに限られており、いずれもインストール先に git や npm が入っている必要があった。\n\n本バージョンで追加された `archive` ソースタイプは、HTTPS 経由で zip ファイルをダウンロードしてプラグインをインストールする方式で、git や npm がない環境でもインストールできるようになる。`sha256` フィールドを指定すると特定のファイルにピン留めでき、ハッシュが一致しない場合はインストールが拒否される。zip は 256MiB までのサイズ制限があり、このソースタイプは組織同期による非公開プラグイン配布には未対応。詳しくは[プラグインマーケットプレースのドキュメント](https://code.claude.com/docs/en/plugin-marketplaces#zip-archives)を参照してください。",
+      "detail_en": "Previously, plugin marketplace distribution was limited to git (GitHub, GitLab, or URL), npm, or local paths, all of which required git or npm to be present on the installing machine.\n\nThe `archive` source type added in this version downloads a plugin as a zip file over HTTPS, so installs work without git or npm. An optional `sha256` field pins the install to an exact file and causes Claude Code to refuse the install on a mismatch; archives are capped at 256 MiB, and this source type isn't supported for org-synced private plugin distribution. See the [plugin marketplaces docs](https://code.claude.com/docs/en/plugin-marketplaces#zip-archives) for details.",
+      "category": "プラグイン",
+      "category_en": "Plugin"
+    },
+    {
+      "t": "追加: 参照できなくなった貼り付け内容を削除するとコマンドのテキストが変わってしまう場合に、キャンセル＆確認のステップを追加",
+      "t_en": "Added a cancel-and-confirm step when removing an unavailable paste changes a command's text",
+      "tags": ["新機能"],
+      "detail": "プロンプト入力欄に貼り付けたコンテンツはプレースホルダーとして参照されるが、そのプレースホルダーが参照する貼り付け内容がキャッシュから失効するなどして参照できなくなった場合、それを削除すると入力したコマンドのテキストがそのまま書き換わってしまい、意図しない変更に気付きにくかった。\n\n本バージョンでは、こうした削除によってコマンドのテキストが変わる場合にキャンセル＆確認のステップが挟まるようになり、ユーザーが気付かないうちに入力内容が書き換わることを防げるようになった。",
+      "detail_en": "Pasted content in the prompt input is referenced by a placeholder. When the underlying paste a placeholder pointed to became unavailable — for example after it aged out of the paste cache — removing it silently rewrote the command's text, making the change easy to miss.\n\nThis version adds a cancel-and-confirm step whenever such a removal would change the command's text, so the input is no longer rewritten without the user noticing.",
+      "category": "入力",
+      "category_en": "Input"
+    },
+    {
+      "t": "追加: Bedrock で `AWS_REGION` から導出されるものではなく、特定のクロスリージョン推論プロファイルを優先させる環境変数 `ANTHROPIC_BEDROCK_REGION_PREFIX` を追加",
+      "t_en": "Added `ANTHROPIC_BEDROCK_REGION_PREFIX` env var for Bedrock to prefer a specific cross-region inference profile over the `AWS_REGION`-derived one",
+      "tags": ["新機能", "Platform"],
+      "detail": "Amazon Bedrock 上で Claude Code はクロスリージョン推論プロファイル ID を組み立てる際、通常は解決された AWS リージョンから導出されるリージョンプレフィックス（例: `us.`）を使用する。IAM・SSO で使うリージョンと、実際に使いたい推論プロファイルのリージョンが異なる環境では、この自動導出が意図と食い違うことがあった。\n\n本バージョンで追加された `ANTHROPIC_BEDROCK_REGION_PREFIX` を設定すると、この導出されるプレフィックスを直接上書きでき、GovCloud 向けの `us-gov.` のような特殊なケースと同様に、任意のリージョンプレフィックスを明示的に指定できるようになった。",
+      "detail_en": "On Amazon Bedrock, Claude Code builds cross-region inference profile IDs using a region prefix (e.g. `us.`) normally derived from the resolved AWS region. In setups where the IAM/SSO region differs from the inference-profile region you actually want, that automatic derivation could pick the wrong prefix.\n\nSetting the new `ANTHROPIC_BEDROCK_REGION_PREFIX` environment variable added in this version overrides that derived prefix directly, similar to the existing special-cased `us-gov.` prefix for GovCloud, letting you specify any region prefix explicitly.",
+      "category": "プラットフォーム互換性",
+      "category_en": "Platform Compatibility"
+    },
+    {
+      "t": "追加: `crossSessionInbound`・`dialogExpiry` 設定を追加。パーミッションをバイパスして実行中のセッションへのセッション間メッセージは承認待ちで保留され、それ以外のセッションへのメッセージは自動配信されるように",
+      "t_en": "Added `crossSessionInbound` and `dialogExpiry` settings: cross-session messages sent to a session running with bypassed permissions are held for your approval, and messages to other sessions auto-deliver",
+      "tags": ["新機能", "Security", "Agent"],
+      "detail": "Claude Code のセッションは `SendMessage` を通じて別のセッションにメッセージを送れるが、送信先のセッションがパーミッションチェックをバイパスして実行されている場合、そのメッセージがユーザーの確認なしにそのまま処理されてしまうと、意図しない操作につながるリスクがあった。\n\n本バージョンで追加された `crossSessionInbound` 設定により、バイパスパーミッションで動作しているセッションへのセッション間メッセージはユーザーの承認待ちで保留されるようになり、それ以外の通常のセッションへのメッセージは従来どおり自動配信される。あわせて追加された `dialogExpiry` 設定で、この承認ダイアログの有効期限を設定できる。",
+      "detail_en": "Claude Code sessions can message each other via `SendMessage`, but if the receiving session is running with permissions bypassed, having that message processed without any user confirmation risked triggering unintended actions.\n\nThe new `crossSessionInbound` setting added in this version holds cross-session messages sent to a session running with bypassed permissions until you approve them, while messages to ordinary sessions continue to auto-deliver as before. The accompanying `dialogExpiry` setting controls how long that approval dialog stays valid.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-Agent"
+    },
+    {
+      "t": "追加: サンドボックスの認証情報マスキングオプションを追加。構造化された環境変数向けの `extract`・`onExtractNoMatch`、JWT を意識したマスキング向けの `decode: \"jwt\"` と `maskClaims`、AWS SigV4 の再署名向けの `awsPairs`・`sigv4`。いずれも `network.tlsTerminate` が必要で、ユーザー設定・管理設定・`--settings` からのみ有効",
+      "t_en": "Added sandbox credential-masking options: `extract` and `onExtractNoMatch` for structured env values, `decode: \"jwt\"` with `maskClaims` for JWT-aware masking, and `awsPairs`/`sigv4` for AWS SigV4 re-signing; these need `network.tlsTerminate` and are honored only from user, managed, or `--settings` settings",
+      "tags": ["新機能", "Security"],
+      "detail": "サンドボックスの認証情報マスキングはこれまで、認証情報ファイルに対する正規表現ベースの `extract`・`onExtractNoMatch` や、環境変数に対する `injectHosts` によるマスキングをサポートしており、いずれも `network.tlsTerminate` を必要とし、ユーザー設定・管理設定・`--settings` からのみ有効という制約があった。また AWS の `AWS_ACCESS_KEY_ID`・`AWS_SECRET_ACCESS_KEY` を組でマスクした場合の SigV4 再署名にもすでに対応していた。\n\n本バージョンでは `extract` を環境変数にも適用できるようにしたほか、JWT を対象に `decode: \"jwt\"` と `maskClaims` でクレーム単位のマスキングを行う機能、`awsPairs`・`sigv4` で AWS 認証情報ペアと再署名の対象を明示的に指定する機能が追加された。制約は従来どおり `network.tlsTerminate` が必要で、ユーザー設定・管理設定・`--settings` からのみ有効。詳しくは[サンドボックスのドキュメント](https://code.claude.com/docs/en/sandboxing#mask-credentials)を参照してください。",
+      "detail_en": "Sandbox credential masking already supported regex-based `extract`/`onExtractNoMatch` for credential files and `injectHosts`-based masking for environment variables, both requiring `network.tlsTerminate` and both honored only from user, managed, or `--settings` settings. It also already re-signed AWS SigV4 requests when `AWS_ACCESS_KEY_ID`/`AWS_SECRET_ACCESS_KEY` were masked together.\n\nThis version extends `extract` to environment variables, adds JWT-aware masking via `decode: \"jwt\"` and `maskClaims` for per-claim masking, and adds `awsPairs`/`sigv4` to explicitly name AWS credential pairs and their re-signing target. The same restrictions apply: `network.tlsTerminate` is required, and the options are honored only from user, managed, or `--settings` settings. See the [sandboxing docs](https://code.claude.com/docs/en/sandboxing#mask-credentials) for details.",
+      "category": "サンドボックス",
+      "category_en": "Sandbox"
+    },
+    {
+      "t": "追加: セッション間の `SendMessage` を追加。Claude Code のセッションは、同じマシン内に限らず手元のどのマシン上のセッションともメッセージをやり取りできるようになり、`ListAgents` で相手を発見できる（macOS・Linux 対応）",
+      "t_en": "Added cross-session `SendMessage`: Claude Code sessions can now message each other, on any of your machines, with `ListAgents` to discover them (macOS and Linux)",
+      "tags": ["新機能", "Agent"],
+      "detail": "これまで `SendMessage` は同一セッションツリー内のエージェントチームのチームメイトへのメッセージ送信や、サブエージェントの再開といった、単一セッション内でのやり取りに限られていた。\n\n本バージョンでは `SendMessage` がセッションをまたいで拡張され、独立して起動した Claude Code セッション同士が、同じマシン上か別マシン上かを問わずメッセージをやり取りできるようになった（macOS・Linux 対応）。あわせて追加された `ListAgents` を使うと、メッセージを送れる相手のセッションを発見できる。",
+      "detail_en": "Previously, `SendMessage` was limited to messaging teammates within an agent team or resuming a subagent — interactions confined to a single session tree.\n\nThis version extends `SendMessage` across sessions: independently-launched Claude Code sessions can now message each other, whether on the same machine or a different one (macOS and Linux). The new `ListAgents` tool added alongside it lets a session discover which other sessions it can message.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-Agent"
+    },
+    {
+      "t": "修正: 200 文字を超える長いプロジェクトパスが、サニタイズ後のプレフィックスを共有する別プロジェクトのセッションディレクトリに解決されてしまう問題を修正。セッション一覧・リネーム・フォーク・削除・`/resume` が別プロジェクトをまたがなくなった",
+      "t_en": "Fixed long (>200 char) project paths resolving to another project's session directory under a shared sanitized prefix; session list, rename, fork, delete and `/resume` no longer cross projects",
+      "tags": ["バグ修正"],
+      "detail": "Claude Code は各セッションのトランスクリプトを、作業ディレクトリのパスをサニタイズ（英数字以外の文字を `-` に置換）した名前のディレクトリに保存している。200 文字を超える長いプロジェクトパスでは、異なる2つのプロジェクトのサニタイズ後のパスが共有プレフィックス部分で衝突することがあり、その結果セッション一覧・リネーム・フォーク・削除や `/resume` が誤って別プロジェクトのセッションを操作してしまう可能性があった。\n\n本バージョンでは、長く似通ったパスであってもこれらの操作が正しいプロジェクトのセッションだけを対象にするように修正された。",
+      "detail_en": "Claude Code stores each session's transcripts under a directory named by sanitizing the working-directory path (replacing non-alphanumeric characters with `-`). For project paths longer than 200 characters, two different projects' sanitized paths could collide on a shared prefix, so session list, rename, fork, delete, and `/resume` could end up operating on the wrong project's sessions.\n\nThis version fixes these operations to stay correctly scoped to the right project even for long, similar paths.",
+      "category": "セッション管理",
+      "category_en": "Session Management"
+    },
+    {
+      "t": "修正: チームメイトの受信箱への書き込みが実際には失敗しているにもかかわらず、`SendMessage` が「Message sent」と報告してしまう問題を修正。配信に失敗した場合はエラーとして報告されるように",
+      "t_en": "Fixed `SendMessage` reporting \"Message sent\" when the write to a teammate's inbox had actually failed; failed deliveries are now reported as errors",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "エージェントが `SendMessage` で別のエージェントにメッセージを送る際、送信先の受信箱ファイルへの書き込みが実際には失敗していても、送信元には「Message sent」という誤った成功報告が返っていた。\n\n本バージョンの修正により、配信に失敗した場合は正しくエラーとして報告されるようになり、実際には届いていないメッセージを届いたものとしてセッションが処理を続けてしまう事態を防げるようになった。",
+      "detail_en": "When one agent messaged another via `SendMessage`, a failure to actually write the message into the recipient's inbox file was previously reported back to the sender as a false \"Message sent\" success.\n\nThis version's fix surfaces a failed delivery as an error instead, preventing a session from proceeding as if a teammate had been notified when it actually wasn't.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-Agent"
+    },
+    {
+      "t": "修正: 末尾にスラッシュを付けて記述したサンドボックスのファイルシステム拒否エントリ（例: `denyRead: \"~/.aws/\"`）が、Linux・macOS で黙ってバイパスされてしまう問題を修正",
+      "t_en": "Fixed sandbox filesystem deny entries written with a trailing slash (e.g. `denyRead: \"~/.aws/\"`) being silently bypassable on Linux and macOS",
+      "tags": ["バグ修正", "Security"],
+      "detail": "`sandbox.filesystem.denyRead` のようなサンドボックスのファイルシステム拒否ルールは、末尾にスラッシュを付けて記述すると Linux・macOS では正しく機能せず、ルールが黙って無視されてアクセスを拒否できていなかった。\n\n本バージョンの修正により、末尾スラッシュ付きの拒否エントリも両プラットフォームで正しく強制されるようになった。",
+      "detail_en": "Sandbox filesystem deny rules such as `sandbox.filesystem.denyRead` written with a trailing slash were silently ignored by the enforcement layer on Linux and macOS, so such a rule failed to actually block access.\n\nThis version's fix makes trailing-slash deny entries enforce correctly on both platforms.",
+      "category": "サンドボックス",
+      "category_en": "Sandbox"
+    },
+    {
+      "t": "修正: サンドボックス違反の詳細が Bash ツールの結果に一切表示されない問題を修正。どのファイル・ネットワークアクセスが、なぜ拒否されたのかを Claude が確認できるように",
+      "t_en": "Fixed sandbox violation details never appearing in Bash tool results; Claude now sees which file or network access was denied and why",
+      "tags": ["バグ修正", "Security"],
+      "detail": "サンドボックス化された Bash コマンドがファイルやネットワークへのアクセスを拒否された際、その理由が Bash ツールの結果に届く前に失われてしまい、Claude にはコマンドが失敗したことしか分からず、なぜ失敗したのかを推測するしかなかった。\n\n本バージョンの修正により、拒否されたパスやホストとその理由がツールの結果に正しく反映されるようになり、Claude が状況に応じて適切に対応できるようになった。",
+      "detail_en": "When a sandboxed Bash command was denied file or network access, the reason was previously lost before it reached the Bash tool's result, leaving Claude only able to see that the command failed, not why.\n\nThis version's fix surfaces the actual denied path or host and the reason in the tool result, so Claude can react appropriately instead of guessing.",
+      "category": "サンドボックス",
+      "category_en": "Sandbox"
+    },
+    {
+      "t": "修正: ターン途中で接続が完了した MCP ツールが、ツールサーチ用に遅延登録されるだけでモデルに名前が知らされない問題を修正",
+      "t_en": "Fixed MCP tools that connect mid-turn being deferred for tool search without their names announced to the model",
+      "tags": ["バグ修正", "MCP"],
+      "detail": "ツールサーチ（デフォルトで有効）を使っている場合、ツール定義は遅延登録され、必要に応じてモデルがオンデマンドで検索する仕組みになっている。しかし、メッセージ開始時点ではまだ起動中だった MCP サーバーがターンの途中で接続を完了すると、そのツールは通常どおり遅延登録されるものの、モデルに存在が知らされないため、Claude はそのツールを検索すべきだと知る手立てがなかった。\n\n本バージョンの修正により、ターン途中で接続が完了したサーバーのツールについても、存在が正しく知らされるようになった。",
+      "detail_en": "With tool search enabled (the default), tool definitions are deferred and only surfaced to the model on demand. But when an MCP server that was still starting up when a message began finished connecting mid-turn, its tools were deferred as usual without being announced, leaving Claude with no way to know it should search for them.\n\nThis version's fix ensures a server's tools are properly announced even when it connects mid-turn.",
+      "category": "MCP 連携",
+      "category_en": "MCP Integration"
+    },
+    {
+      "t": "修正: 同じプラグインを複数のプロジェクトにインストールすると、プラグインのインストール記録が黙って破損してしまう問題を修正",
+      "t_en": "Fixed plugin install records being silently corrupted when the same plugin is installed in multiple projects",
+      "tags": ["バグ修正", "Plugin"],
+      "detail": "Claude Code はインストール済みプラグインの情報をローカルの記録ファイルで管理しているが、同じプラグインを複数のプロジェクトからインストールすると、この共有される記録が破損し、インストール状態が矛盾したり失われたりすることがあった。\n\n本バージョンの修正により、複数プロジェクトへの同一プラグインのインストールが記録を破損させないようになった。",
+      "detail_en": "Claude Code tracks installed plugins in a local records file. Installing the same plugin from multiple projects could corrupt that shared record, leaving inconsistent or lost install state.\n\nThis version's fix prevents installing the same plugin across multiple projects from corrupting the record.",
+      "category": "プラグイン管理",
+      "category_en": "Plugin Management"
+    },
+    {
+      "t": "修正: 貼り付け内容が失効していたり、プレースホルダー番号が衝突していたりした場合に、呼び出し・復元した貼り付け内容が誤ったデータを添付したり、テキストが黙って失われたりすることがある問題を修正",
+      "t_en": "Fixed recalled or restored paste content occasionally attaching wrong data or silently losing text when the paste had aged out or placeholder numbers collided",
+      "tags": ["バグ修正"],
+      "detail": "Claude Code では、以前貼り付けた内容をプレースホルダー参照から呼び出せるが、参照先の貼り付けがキャッシュから失効していたり、2つのプレースホルダー番号が衝突していたりすると、復元時に誤ったデータが添付されたり、テキストが黙って失われたりすることがあった。\n\n本バージョンの修正により、失効・衝突したプレースホルダーの参照が予測可能な形で扱われるようになった。",
+      "detail_en": "Claude Code lets you recall previously-pasted content via its placeholder reference. If the underlying paste had aged out of the cache, or two placeholder numbers collided, restoring it could attach the wrong data or silently drop the text instead of failing visibly.\n\nThis version's fix makes stale or colliding paste references behave predictably.",
+      "category": "入力",
+      "category_en": "Input"
+    },
+    {
+      "t": "修正: Wayland での copy-on-select が、選択内容をクリップボードに反映できないことがある問題を修正。2つの選択書き込みが競合しないように",
+      "t_en": "Fixed copy-on-select on Wayland sometimes not reaching the clipboard; the two selection writes no longer race",
+      "tags": ["バグ修正"],
+      "detail": "Wayland では、テキストを選択すると `wl-copy` を通じてシステムクリップボードと PRIMARY セレクション（中クリック貼り付け用）の両方に書き込みを行っているが、この2つの書き込みが競合することがあり、PRIMARY への書き込みは成功してもクリップボードへの反映が失敗することがあった。\n\n本バージョンの修正により、2つの書き込みが競合しないように順序立てて実行されるようになった。",
+      "detail_en": "On Wayland, Claude Code writes a text selection to both the system clipboard and the PRIMARY selection (for middle-click paste) via `wl-copy`. These two writes could race, so a selection sometimes failed to reach the clipboard even though the PRIMARY write succeeded.\n\nThis version's fix sequences the two writes so they no longer race.",
+      "category": "ターミナル",
+      "category_en": "Terminal"
+    },
+    {
+      "t": "修正: フィードバックアンケートのトランスクリプト共有が、長いセッションで黙って失敗してしまう問題を修正。共有に失敗した場合は成功メッセージではなくエラーを表示するように",
+      "t_en": "Fixed the feedback survey's transcript share silently failing on long sessions; a failed share now shows an error instead of a success message",
+      "tags": ["バグ修正"],
+      "detail": "フィードバックアンケート後の「Anthropic がセッションのトランスクリプトを確認してもよいか」という確認に同意すると、会話のトランスクリプト・サブエージェントのトランスクリプト・生のセッションログがアップロードされる仕組みになっているが、長いセッションではこのアップロードが黙って失敗し、ユーザーは共有が成功したと誤解してしまうことがあった。\n\n本バージョンの修正により、共有に失敗した場合は成功の確認表示ではなくエラーが表示されるようになった。",
+      "detail_en": "The post-survey transcript-share follow-up (\"Can Anthropic look at your session transcript?\") uploads the conversation transcript, subagent transcripts, and the raw session log when a user opts in. On long sessions, that upload could fail silently, leaving the user believing the share had succeeded.\n\nThis version's fix shows an error instead of the success confirmation when the share fails.",
+      "category": "UX",
+      "category_en": "UX"
+    },
+    {
+      "t": "修正: ログイントークンが古い状態でのコールドスタート時に、Remote Control の自動起動が「Remote credentials fetch failed」で断続的に失敗してしまう問題を修正",
+      "t_en": "Fixed Remote Control auto-start intermittently failing with \"Remote credentials fetch failed\" on a cold start with a stale login token",
+      "tags": ["バグ修正"],
+      "detail": "Remote Control の自動起動（`remoteControlAtStartup`）は、接続を確立するために Anthropic の API から短命の認証情報を取得する。この取得に失敗すると「Remote credentials fetch failed」というエラーが表示され、一般にはサインアウト状態・ネットワークやプロキシの問題・セッション作成の失敗が原因とされる。\n\n本バージョンでは、これらに加えてコールドスタート時に古いログイントークンが残っていることが原因で断続的に発生していたケースが修正された。エラー自体や他の原因への対処は変わらない。",
+      "detail_en": "Remote Control's auto-start (`remoteControlAtStartup`) obtains a short-lived credential from the Anthropic API to establish its connection. When that call fails, it shows a \"Remote credentials fetch failed\" error, generally attributed to being signed out, a network/proxy issue, or a failed session creation.\n\nThis version fixes an additional intermittent cause: a stale login token surviving a cold start. The error itself and its other documented causes are unchanged.",
+      "category": "Remote Control",
+      "category_en": "Remote Control"
+    },
+    {
+      "t": "修正: `/clear` など出力のないコマンドの実行後に、Remote Control や SDK クライアントに空の「(no content)」メッセージが表示されてしまう問題を修正",
+      "t_en": "Fixed Remote Control and SDK clients showing a blank \"(no content)\" message after `/clear` and other output-less commands",
+      "tags": ["バグ修正", "SDK"],
+      "detail": "`/clear` のように目に見える出力を生成しないコマンドを実行すると、Remote Control の Web・モバイルクライアントや Agent SDK ベースのホストに対して、何も表示しないのではなく「(no content)」という空のプレースホルダーがそのまま表示されてしまっていた。\n\n本バージョンの修正により、こうした出力のないターンではプレースホルダーを表示しないように修正された。",
+      "detail_en": "Running a command with no visible output, like `/clear`, previously rendered as a blank \"(no content)\" placeholder to Remote Control web/mobile clients and Agent SDK-based hosts, instead of simply showing nothing.\n\nThis version's fix stops rendering that placeholder for output-less turns.",
+      "category": "Remote Control",
+      "category_en": "Remote Control"
+    },
+    {
+      "t": "修正: Remote Control のサーバーセッションが期限切れになった後に再作成されたセッションが、それ以前のローカル会話履歴を新しいセッションへアップロードしてしまう問題を修正",
+      "t_en": "Fixed a Remote Control session recreated after its server session expired uploading prior local conversation history into the new session",
+      "tags": ["バグ修正"],
+      "detail": "Remote Control のサーバー側セッションが期限切れになり、コンパクションや `/resume` などをきっかけに新しいセッションが発行されると、それまでのローカルの会話履歴全体が新しいセッションへ再アップロードされてしまい、データが不必要に重複していた。\n\n本バージョンの修正により、この不要な履歴の再アップロードが行われなくなった。",
+      "detail_en": "When a Remote Control server-side session expired and a fresh one was minted — for example after compaction or `/resume` — the new session previously re-uploaded the entire prior local conversation history into itself, duplicating data unnecessarily.\n\nThis version's fix stops this unnecessary history re-upload.",
+      "category": "Remote Control",
+      "category_en": "Remote Control"
+    },
+    {
+      "t": "改善: フルスクリーンモードのスクロールバックを改善。繰り返しコンパクションが発生しても、直近の区間だけでなくコンパクション前の履歴全体を保持するように",
+      "t_en": "Improved fullscreen mode to keep the full pre-compaction history in scrollback across repeated compactions, instead of only the most recent interval",
+      "tags": ["改善"],
+      "detail": "フルスクリーンモードのレンダリングでは、コンパクションが発生すると会話履歴がサマリーに置き換えられる。これまでコンパクションを繰り返すと、スクロールバックに残るコンパクション前の詳細な履歴は直近の1区間分だけで、それより前の詳細は失われていた。\n\n本バージョンの改善により、コンパクションを何度繰り返しても、コンパクション前の履歴全体をスクロールバックで確認できるようになった。",
+      "detail_en": "In fullscreen rendering, compaction replaces conversation history with a summary. Previously, across repeated compactions, only the most recent pre-compaction interval's detail remained available in scrollback — earlier detail was lost.\n\nThis version keeps the full pre-compaction history available in scrollback across repeated compactions.",
+      "category": "レンダリング",
+      "category_en": "Rendering"
+    },
+    {
+      "t": "改善: Remote Control を改善。接続中の Web・モバイルクライアントが、無言で一時停止する代わりにコンパクションの進行状況とコンパクション後の境界を確認できるように。`/clear` によるリセットも接続中のクライアントへ反映されるように",
+      "t_en": "Improved Remote Control: attached web and mobile clients now see compaction progress and the post-compaction boundary instead of a silent pause; `/clear` resets now propagate to attached clients",
+      "tags": ["改善"],
+      "detail": "接続中の Remote Control クライアントは、これまでコンパクション中は無言で一時停止しているように見え、別の画面から実行した `/clear` の結果も反映されなかった。\n\n本バージョンの改善により、Web・モバイルクライアントにもコンパクションの進行状況とコンパクション後の境界が表示されるようになり、`/clear` によるリセットも接続中のすべてのクライアントに伝播するようになった。",
+      "detail_en": "Attached Remote Control clients previously appeared to pause silently during compaction, and didn't reflect a `/clear` run from another connected surface.\n\nThis version's improvement shows compaction progress and the post-compaction boundary to web and mobile clients, and propagates `/clear` resets to every attached client.",
+      "category": "Remote Control",
+      "category_en": "Remote Control"
+    },
+    {
+      "t": "改善: Remote Control を改善。接続失敗時に、8秒で消えるトースト通知だけでなく、詳細情報と再接続ショートカットを備えた常時表示の失敗インジケーターが表示されるように",
+      "t_en": "Improved Remote Control: connection failures now show a persistent failure indicator with details and a reconnect shortcut, instead of only an 8-second toast",
+      "tags": ["改善"],
+      "detail": "Remote Control の接続失敗は、これまで約8秒で消えるトースト通知として表示されるだけで、失敗した事実に気付かないまま見過ごしてしまうことがあった。\n\n本バージョンの改善により、失敗の詳細情報と再接続ショートカットを備えた常時表示のインジケーターに置き換わり、対処するまで失敗状態が見えたままになるようになった。",
+      "detail_en": "Remote Control connection failures previously surfaced only as a brief toast notification that disappeared after about 8 seconds, easy to miss.\n\nThis version's improvement replaces it with a persistent indicator carrying failure details and a reconnect shortcut, so the failure state stays visible until addressed.",
+      "category": "Remote Control",
+      "category_en": "Remote Control"
+    },
+    {
+      "t": "削除: セッションあたり200体までというサブエージェント起動数の上限を削除。長時間稼働するセッションでも新しいエージェントの起動が拒否されなくなった（同時実行数・ネスト深さの上限は引き続き適用）",
+      "t_en": "Removed the 200-subagent-per-session spawn cap; long-running sessions no longer refuse new agents (concurrency and depth limits still apply)",
+      "tags": ["改善", "Agent"],
+      "detail": "これまでセッションには、生涯で起動できるサブエージェントの総数がおよそ200体までという内部的な予算があり、これを使い切ると現在何体実行中かに関わらず、それ以上のサブエージェント起動が失敗していた。\n\n本バージョンでこの上限が削除され、セッションの生涯で起動できるサブエージェント数に制限はなくなった。ただし同時実行数の上限（デフォルト20、`CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS` で変更可能）とネストの深さの上限（デフォルト3）は引き続き適用される。詳しくは[サブエージェントのドキュメント](https://code.claude.com/docs/en/sub-agents#concurrent-subagent-limit)を参照してください。",
+      "detail_en": "Sessions previously had an internal budget of roughly 200 total subagent spawns over their lifetime; once exhausted, further spawns failed regardless of how many subagents were currently running.\n\nThis version removes that lifetime cap — there's no longer a limit on the total number of subagents a session can spawn over its lifetime. The concurrent-running limit (20 by default, tunable via `CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS`) and the nesting-depth limit (3 by default) still apply. See the [subagents docs](https://code.claude.com/docs/en/sub-agents#concurrent-subagent-limit) for details.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-Agent"
+    },
+    {
+      "t": "変更: 管理設定を変更。組織の設定に変更がない場合、再ログインや組織切り替え後に承認プロンプトが再表示されないように",
+      "t_en": "Changed managed settings: the approval prompt no longer re-appears after re-login or org switching when the organization's settings are unchanged",
+      "tags": ["改善", "Security"],
+      "detail": "シェルコマンド設定・カスタム環境変数・フック・管理された CLAUDE.md の内容といった一部の管理設定は、有効になる前にユーザー向けのセキュリティ承認ダイアログを必要とする。これまでは組織の設定が変わっていなくても、再ログインや組織切り替えのたびにこの承認ダイアログが不要に再表示されていた。\n\n本バージョンの変更により、組織の設定が変わっていない場合はこの重複した再承認プロンプトが表示されなくなった。",
+      "detail_en": "Certain managed settings — shell-command settings, custom environment variables, hooks, and managed CLAUDE.md content — require a user-facing security approval dialog before they take effect. That dialog previously re-appeared unnecessarily after a re-login or organization switch, even when the org's settings hadn't changed.\n\nThis version's change suppresses that redundant re-prompt when the organization's settings are unchanged.",
+      "category": "設定",
+      "category_en": "Settings"
+    },
+    {
+      "t": "変更: フィードバックアンケートのトランスクリプト共有を変更。同意した場合、直近のリクエストのモデル設定（`CLAUDE.md` の指示を含むシステムプロンプト、ツール定義、モデルパラメーター）もアップロードされるように。シークレットは従来どおりリダクトされ、共有データが大きすぎる場合はこれらのフィールドが最初に削除される",
+      "t_en": "Changed the feedback-survey transcript share: with your consent it now also uploads the last request's model settings — the system prompt (which includes your `CLAUDE.md` instructions), tool definitions, and model parameters. Secrets are redacted as before, and these fields are dropped first if the share is too large",
+      "tags": ["改善", "Security"],
+      "detail": "フィードバックアンケート後のトランスクリプト共有は、これまで会話のトランスクリプト・サブエージェントのトランスクリプト・生のセッションログをアップロードし、既知の API キー・トークンのパターンをリダクトする仕組みだった。\n\n本バージョンでは、同意した場合に限り、直近のリクエストのモデル設定として、`CLAUDE.md` の指示を含むシステムプロンプト・ツール定義・モデルパラメーターも同じアップロードに追加された。シークレットのリダクトは従来どおり行われ、共有データがサイズ上限を超える場合はこれらの追加フィールドから優先的に削除される。詳しくは[データ利用に関するドキュメント](https://code.claude.com/docs/en/data-usage#session-quality-surveys)を参照してください。",
+      "detail_en": "The transcript-share follow-up after a feedback survey previously uploaded the conversation transcript, subagent transcripts, and the raw session log, with known API-key and token patterns redacted.\n\nThis version adds, with the user's consent, the last request's model settings — the system prompt (which includes your `CLAUDE.md` instructions), tool definitions, and model parameters — to that same upload. Secret redaction still applies as before, and these new fields are dropped first if the share exceeds the size limit. See the [data usage docs](https://code.claude.com/docs/en/data-usage#session-quality-surveys) for details.",
+      "category": "セキュリティ",
+      "category_en": "Security"
+    },
+    {
+      "t": "変更: Bash ツールの説明文を変更。コマンドの出力はモデルには確実に表示されるが、ユーザーには必ずしも表示されるとは限らない旨を常に明記するように",
+      "t_en": "Changed the Bash tool description to always note that command output is displayed to the model, not reliably to the user",
+      "tags": ["改善"],
+      "detail": "モデルに提示される Bash ツールの説明文には、その出力が Claude には確実に見える一方、ユーザーには（画面外にスクロールしたり、折りたたまれたり、バックグラウンドで実行されたりして）必ずしも見えているとは限らないという注意点が、これまで一貫して含まれていなかった。\n\n本バージョンの変更により、この注意点が常にツールの説明文に含まれるようになり、Claude がユーザーはすでに出力を見ていると誤って前提してしまう可能性を減らせるようになった。",
+      "detail_en": "The Bash tool's description shown to the model previously didn't consistently note that its output is guaranteed visible to Claude but not necessarily to the user, since output can scroll past, collapse, or run in the background.\n\nThis version's change makes that note always present, reducing the chance Claude assumes the user has already seen output it should instead summarize.",
+      "category": "Bash ツール",
+      "category_en": "Bash Tool"
+    },
+    {
+      "t": "変更: 呼び出した貼り付け内容のプレースホルダー番号が、入力欄に反映される際に振り直されるように変更",
+      "t_en": "Changed recalled paste placeholder numbers to renumber when accepted into the input",
+      "tags": ["改善"],
+      "detail": "以前貼り付けた内容をプレースホルダー参照から呼び出す際、そのプレースホルダー番号が入力欄で既に使われている番号と衝突すると、内容の取り違えにつながる可能性があった。\n\n本バージョンの変更により、呼び出した貼り付け内容が入力欄に反映される際にプレースホルダー番号が振り直されるようになり、番号の衝突を避けられるようになった。",
+      "detail_en": "When previously-pasted content was recalled by its placeholder reference, a collision between its placeholder number and one already in use in the input could risk mixing up content.\n\nThis version's change renumbers a recalled paste's placeholder when it's accepted back into the input, avoiding number collisions.",
+      "category": "入力",
+      "category_en": "Input"
+    },
+    {
+      "t": "変更: コンパクションや `/resume` の後に新しいセッションが発行された際、Remote Control が古いサーバーセッションを死んだまま一覧に残す代わりにアーカイブするように変更",
+      "t_en": "Changed Remote Control to archive the stale server session instead of leaving a dead one listed when a fresh session is minted after compaction or `/resume`",
+      "tags": ["改善"],
+      "detail": "コンパクションや `/resume` をきっかけに新しい Remote Control サーバーセッションが発行されると、それ以前のセッションは claude.ai/code のセッション一覧に死んだエントリとしてそのまま残ってしまっていた。\n\n本バージョンの変更により、こうした古いセッションはアーカイブされるようになり、一覧に使われないエントリが溜まっていくことがなくなった。",
+      "detail_en": "When a fresh Remote Control server-side session was minted after compaction or `/resume`, the prior session was previously left behind as a dead entry in the claude.ai/code session list.\n\nThis version's change archives that stale session instead, so the list no longer accumulates orphaned entries.",
+      "category": "Remote Control",
+      "category_en": "Remote Control"
+    },
+    {
+      "t": "修正: [VSCode] 接続が失敗した後も拡張機能が Remote Control を「接続済み」と表示してしまう問題を修正",
+      "t_en": "[VSCode] Fixed the extension showing Remote Control as connected after the connection failed",
+      "tags": ["バグ修正", "IDE"],
+      "detail": "VS Code 拡張機能の Remote Control ステータスバナーは、接続の試行が実際には失敗していても「接続済み」と表示されてしまうことがあり、リモートからセッションに到達できるかどうかについて誤った情報を与えていた。\n\n本バージョンの修正により、バナーが実際の接続状態を正しく反映するようになった。",
+      "detail_en": "The VS Code extension's Remote Control status banner could show \"connected\" even when the connection attempt had actually failed, misleading the user about whether the session was reachable remotely.\n\nThis version's fix makes the banner reflect the actual connection state.",
+      "category": "IDE",
+      "category_en": "IDE"
+    },
+    {
+      "t": "修正: ユーザーが Remote Control を無効にした後でも、セッションの再開（`--resume`、SDK ホスト、VS Code 拡張機能）で黙って再接続されてしまう問題を修正",
+      "t_en": "Fixed a session resume silently reconnecting Remote Control after the user turned it off (`--resume`, SDK hosts, and the VS Code extension)",
+      "tags": ["バグ修正", "SDK"],
+      "detail": "ユーザーが明示的に Remote Control を無効にしていても、そのセッションを `--resume`・SDK ホストのセッション・VS Code 拡張機能のいずれかで再開すると、Remote Control が黙って再接続されてしまい、ユーザーの選択が無視されていた。\n\n本バージョンの修正により、再開時にも無効化の設定が尊重されるようになった。",
+      "detail_en": "If a user had explicitly turned Remote Control off, resuming that session — via `--resume`, an SDK-hosted session, or the VS Code extension — previously reconnected Remote Control anyway, silently overriding the user's choice.\n\nThis version's fix makes resume respect the off setting.",
+      "category": "SDK",
+      "category_en": "SDK"
+    },
+    {
+      "t": "修正: [VSCode] `remoteControlAtStartup` を明示的に有効化しても、セッションがそれに従わないことがある問題を修正",
+      "t_en": "[VSCode] Fixed sessions not honoring `remoteControlAtStartup` when explicitly enabled",
+      "tags": ["バグ修正", "IDE"],
+      "detail": "VS Code 拡張機能には「すべてのセッションで Remote Control を有効にする」設定トグルがあり、`remoteControlAtStartup` 設定（v2.1.203 以降で利用可能）を切り替える。しかし、これを明示的に有効化しても一部のセッションでは反映されず、Remote Control が自動起動しないことがあった。\n\n本バージョンの修正により、拡張機能がこの設定を一貫して尊重するようになった。",
+      "detail_en": "The VS Code extension exposes an \"Enable Remote Control for all sessions\" toggle that sets the `remoteControlAtStartup` setting (available since v2.1.203). Even when explicitly enabled, some sessions previously failed to honor it and didn't auto-start Remote Control.\n\nThis version's fix makes the extension respect the setting consistently.",
+      "category": "IDE",
+      "category_en": "IDE"
+    }
   ]
 }
