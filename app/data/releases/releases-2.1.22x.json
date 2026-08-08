@@ -568,5 +568,90 @@
         "tags": ["バグ修正", "IDE"]
       }
     ]
+  },
+  {
+    "v": "2.1.225",
+    "items": [
+      {
+        "t": "追加: 利用上限の警告に Gateway の支出上限（spend limit）対応を追加。上限到達時のメッセージに上限額・リセット時刻・運営者からのメッセージが表示されるように（Gateway 側も 2.1.225 以降が必要）",
+        "t_en": "Added gateway spend-limit support to Claude Code's usage warning; the limit-reached message now names the cap, its reset time, and the operator's message (requires the gateway on 2.1.225)",
+        "tags": ["新機能", "Platform"]
+      },
+      {
+        "t": "追加: `claude agents` に未信頼ディレクトリ向けのワークスペース信頼プロンプトを追加（`claude` と同じ挙動に統一）",
+        "t_en": "Added a workspace trust prompt to `claude agents` for untrusted directories, matching the behavior of `claude`",
+        "tags": ["新機能", "Security"]
+      },
+      {
+        "t": "修正: 一時的な401エラーによって、長寿命の `CLAUDE_CODE_OAUTH_TOKEN` が保存済みログインの短寿命トークンに置き換えられ、再起動するまでヘッドレスセッションが壊れる問題を修正",
+        "t_en": "Fixed a transient 401 replacing a long-lived `CLAUDE_CODE_OAUTH_TOKEN` with a stored login's short-lived token, breaking headless sessions until restart",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: macOS で Keychain の読み取りがタイムアウトした後、MCP OAuth サーバーが未認証であるかのように401エラーを連発して間欠的に失敗する問題を修正",
+        "t_en": "Fixed MCP OAuth servers on macOS intermittently failing with a burst of 401 errors, as if never authenticated, after a keychain read timed out",
+        "tags": ["バグ修正", "MCP"]
+      },
+      {
+        "t": "修正: auto モードで権限チェック自体がセーフティフィルターに拒否された場合、それが連続ブロック回数としてカウントされてしまう問題を修正。アクションは引き続き拒否されるが、モデルにはリトライではなく次に進むよう伝えられる",
+        "t_en": "Fixed auto mode counting a safety-filter refusal of its own permission check toward the consecutive-block limit; the action is still denied, but the model is now told to move on rather than retry",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: ヘッドレスセッションおよび起動処理中に、クロスセッションメッセージが通知も有効期限もないまま保留され続ける問題を修正",
+        "t_en": "Fixed cross-session messages staying parked without a notice or expiry in headless sessions and during startup",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: 非常に大きな会話がコンパクションされた後、Remote Control のセッション再開で会話履歴が壊れる問題を修正",
+        "t_en": "Fixed conversation history breaking on Remote Control session resume after very large conversations were compacted",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: エージェント一覧で別プロジェクトのセッションにホバーすると、次に起動するエージェントの開始ディレクトリが変わってしまう問題を修正",
+        "t_en": "Fixed hovering over a session in another project in the agents list changing the directory the next agent starts in",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: `--base-dir` を作成・書き込みできない場合に `claude self-hosted-runner` が登録だけ成功してすべてのセッションを失敗させていた問題を修正。起動時に明確なエラーを出して終了するように変更",
+        "t_en": "Fixed `claude self-hosted-runner` registering and then failing every session when `--base-dir` cannot be created or written; it now exits at startup with a clear error",
+        "tags": ["バグ修正", "Platform"]
+      },
+      {
+        "t": "修正: Claude Code on the web のセッションが「スタックしている」と誤って報告され、再接続のたびに増え続けるイベントのバックログを再送信してしまう問題を修正",
+        "t_en": "Fixed Claude Code on the web sessions being misreported as stuck, re-sending a growing event backlog on every reconnect",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "改善: Remote Control で Claude アプリから添付された写真が、ディスクから別のツール呼び出しで読み込む方式ではなく、Claude に直接表示されるように変更",
+        "t_en": "Improved Remote Control: photos attached from the Claude app are now shown to Claude directly instead of being read from disk with a separate tool call",
+        "tags": ["改善"]
+      },
+      {
+        "t": "修正: [VSCode] Focus view が最新の to-do リスト・保留中の質問の文脈・確定済みの回答まで折りたたんでしまう問題を修正。thinking のみのターンは「Thought for Ns」と表示され、ターン完了時に再び折りたたまれるように",
+        "t_en": "[VSCode] Fixed Focus view folding away the latest to-do list, a pending question's context, and settled answers; thinking-only folds show \"Thought for Ns\" and re-collapse when their turn completes",
+        "tags": ["バグ修正", "IDE"]
+      },
+      {
+        "t": "追加: `SendMessage` が他のマシン上の Remote Control セッションに対して、相手からのメッセージを待たずに名前で会話を開始できるように（`ListAgents` には `name [ref]` の形式で表示）",
+        "t_en": "SendMessage can now start a conversation with your Remote Control sessions on other machines by name (`ListAgents` shows them as `name [ref]`), instead of only replying after they message you first",
+        "tags": ["新機能", "Agent"]
+      },
+      {
+        "t": "修正: `SendMessage` で、すでに確認済みの Remote Control 宛先が、その宛先自身のセッション一覧を確認できなかった場合に、このマシン上の同名セッションへ差し替えられてしまうことがある問題を修正",
+        "t_en": "SendMessage: a Remote Control recipient you already confirmed is never swapped for a same-named session on this machine when its own list couldn't be checked",
+        "tags": ["バグ修正", "Agent"]
+      }
+    ]
+  },
+  {
+    "v": "2.1.226",
+    "items": [
+      {
+        "t": "改善: バグ修正と信頼性の改善",
+        "t_en": "Bug fixes and reliability improvements",
+        "tags": ["バグ修正", "改善"]
+      }
+    ]
   }
 ]
