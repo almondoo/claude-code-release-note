@@ -996,5 +996,144 @@
       "category": "IDE",
       "category_en": "IDE"
     }
+  ],
+  "2.1.225": [
+    {
+      "t": "追加: 利用上限の警告に Gateway の支出上限（spend limit）対応を追加。上限到達時のメッセージに上限額・リセット時刻・運営者からのメッセージが表示されるように（Gateway 側も 2.1.225 以降が必要）",
+      "t_en": "Added gateway spend-limit support to Claude Code's usage warning; the limit-reached message now names the cap, its reset time, and the operator's message (requires the gateway on 2.1.225)",
+      "tags": ["新機能", "Platform"],
+      "detail": "Claude apps gateway では、管理者が開発者ごとの利用上限を日単位・週単位・月単位で設定でき、上限に達した開発者のリクエストは Gateway が HTTP 429 とともに `billing_error` を返して拒否する仕組みになっている。\n\nこれまで Claude Code 側の利用上限警告は、この Gateway 側の上限をわかりやすく表示できなかった。本バージョンで、上限到達時のメッセージに具体的な上限額・リセット時刻・運営者が設定したカスタムメッセージが表示されるようになり、ブロックされた開発者は管理者に問い合わせなくても状況を把握できる（この表示を利用するには Gateway 側も 2.1.225 以降が必要）。詳しくは[Gateway の支出上限ドキュメント](https://code.claude.com/docs/en/claude-apps-gateway-spend-limits#how-enforcement-works)を参照してください。",
+      "detail_en": "The Claude apps gateway lets administrators cap each developer's spend by day, week, or month; when a developer exceeds that cap, the gateway rejects requests with an HTTP 429 and a `billing_error`.\n\nPreviously, Claude Code's own usage warning couldn't represent this gateway-side cap in a useful way. With this version, the limit-reached message now shows the specific cap, when it resets, and any custom message set by the operator, so a blocked developer can understand the situation without contacting an admin (this display requires the gateway itself to be on 2.1.225 or later). See the [gateway spend-limit documentation](https://code.claude.com/docs/en/claude-apps-gateway-spend-limits#how-enforcement-works) for details.",
+      "category": "プラットフォーム互換性",
+      "category_en": "Platform Compatibility"
+    },
+    {
+      "t": "追加: `claude agents` に未信頼ディレクトリ向けのワークスペース信頼プロンプトを追加（`claude` と同じ挙動に統一）",
+      "t_en": "Added a workspace trust prompt to `claude agents` for untrusted directories, matching the behavior of `claude`",
+      "tags": ["新機能", "Security"],
+      "detail": "通常の `claude` コマンドは、未信頼のディレクトリで起動すると、リポジトリ側の許可ルールなどを適用する前に信頼ダイアログを表示する。しかしこれまで `claude agents`（エージェントビュー）は同じ未信頼ディレクトリで開いても、このチェックを経由しないことがあった。\n\n本バージョンで `claude agents` にも同じワークスペース信頼プロンプトが追加され、`claude` と挙動が統一された。悪意あるリポジトリにチェックインされた権限設定が、エージェントビュー経由で信頼確認なしに適用されてしまう抜け道を防ぐ。",
+      "detail_en": "Running plain `claude` in an untrusted directory shows a trust dialog before applying repo-supplied permission rules, but `claude agents` (agent view) could previously open the same untrusted directory without going through that check.\n\nThis version adds the same workspace trust prompt to `claude agents`, aligning its behavior with `claude`. This closes a gap where a malicious repository's checked-in permissions could be applied through agent view without the safeguard `claude` already enforces at startup.",
+      "category": "セキュリティ",
+      "category_en": "Security"
+    },
+    {
+      "t": "修正: 一時的な401エラーによって、長寿命の `CLAUDE_CODE_OAUTH_TOKEN` が保存済みログインの短寿命トークンに置き換えられ、再起動するまでヘッドレスセッションが壊れる問題を修正",
+      "t_en": "Fixed a transient 401 replacing a long-lived `CLAUDE_CODE_OAUTH_TOKEN` with a stored login's short-lived token, breaking headless sessions until restart",
+      "tags": ["バグ修正"],
+      "detail": "認証情報の優先順位では、`claude setup-token` で発行した長寿命の `CLAUDE_CODE_OAUTH_TOKEN` が、保存済みのサブスクリプションログインより優先される。しかし一時的な401エラーが発生すると、Claude Code が保存済みログインの短寿命トークンにフォールバックしてキャッシュしてしまい、その短寿命トークンが失効すると、プロセスを再起動するまでヘッドレスセッションが動かなくなっていた。\n\n本バージョンで、一時的な401エラーによって意図した長寿命トークンが恒久的に置き換えられることがなくなり、CI などの無人・ヘッドレスセッションが安定して動作し続けるようになった。",
+      "detail_en": "In Claude Code's credential precedence, a long-lived `CLAUDE_CODE_OAUTH_TOKEN` (issued by `claude setup-token`) normally outranks a stored subscription login. A transient 401 error previously caused Claude Code to fall back to and cache the stored login's short-lived token instead; once that short-lived token expired, headless sessions kept failing until the process was restarted.\n\nWith this version, a transient 401 no longer permanently replaces the intended long-lived credential, keeping unattended CI and headless sessions running reliably.",
+      "category": "セッション管理",
+      "category_en": "Session Management"
+    },
+    {
+      "t": "修正: macOS で Keychain の読み取りがタイムアウトした後、MCP OAuth サーバーが未認証であるかのように401エラーを連発して間欠的に失敗する問題を修正",
+      "t_en": "Fixed MCP OAuth servers on macOS intermittently failing with a burst of 401 errors, as if never authenticated, after a keychain read timed out",
+      "tags": ["バグ修正", "MCP"],
+      "detail": "macOS では、リモート MCP サーバーの OAuth 認証情報が暗号化された Keychain に保存・読み込みされる。Keychain の読み取りがタイムアウトすると、これまでは一時的なローカル読み取りの失敗としてではなく、サーバーが一度も認証されていないかのように扱われ、401エラーが連発して不要な再認証を強いられていた。\n\n本バージョンで、Keychain の読み取りタイムアウトが新規の認証失敗と誤認されなくなり、既にサインイン済みの MCP サーバーで間欠的な401エラーが発生しなくなった。",
+      "detail_en": "On macOS, Claude Code stores and reads OAuth credentials for remote MCP servers from the encrypted Keychain. Previously, a Keychain read timeout was treated as if the server had never been authenticated at all rather than as a transient local read failure, producing a burst of 401 errors and forcing unnecessary re-authentication.\n\nWith this version, a Keychain read timeout is no longer mistaken for a fresh authentication failure, so servers you've already signed in to no longer intermittently fail with 401 errors.",
+      "category": "MCP 連携",
+      "category_en": "MCP Integration"
+    },
+    {
+      "t": "修正: auto モードで権限チェック自体がセーフティフィルターに拒否された場合、それが連続ブロック回数としてカウントされてしまう問題を修正。アクションは引き続き拒否されるが、モデルにはリトライではなく次に進むよう伝えられる",
+      "t_en": "Fixed auto mode counting a safety-filter refusal of its own permission check toward the consecutive-block limit; the action is still denied, but the model is now told to move on rather than retry",
+      "tags": ["バグ修正"],
+      "detail": "auto モードの分類器は、同じアクションを3回連続、またはセッション内で合計20回ブロックすると、確認プロンプトへのフォールバックに切り替わる。これまでは、権限チェック自体がセーフティフィルターによって拒否された場合（通常のブロック判定ではなく、チェック自体を評価できなかったケース）も、この連続ブロック回数にカウントされてしまい、しきい値が意図せず早期に消費されることがあった。\n\n本バージョンでこの問題が修正された。アクション自体は引き続き拒否されるが、Claude Code はモデルに対して同じブロックされたアクションを再試行せず、別の方法に切り替えるよう伝えるようになった。",
+      "detail_en": "Auto mode's classifier falls back to prompting after blocking the same action 3 times in a row, or 20 times total in a session. Previously, when the classifier itself refused to evaluate a permission check via its safety filter — rather than returning a normal block verdict — that refusal was still counted toward the consecutive-block limit, which could exhaust the threshold prematurely.\n\nThis version fixes the issue. The action is still denied either way, but Claude Code now tells the model to move on to something else instead of retrying the same blocked action.",
+      "category": "パーミッション",
+      "category_en": "Permissions"
+    },
+    {
+      "t": "修正: ヘッドレスセッションおよび起動処理中に、クロスセッションメッセージが通知も有効期限もないまま保留され続ける問題を修正",
+      "t_en": "Fixed cross-session messages staying parked without a notice or expiry in headless sessions and during startup",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "クロスセッションメッセージングでは、受信側セッションが権限確認をバイパスして動作している場合、通常は承認待ちとして保持され、対話的な承認ダイアログ（デフォルトで5分の有効期限付き）が表示される。しかしヘッドレス（`-p`）セッションや起動処理中はこのダイアログを表示できず、これまでは保留されたメッセージが送信元への通知も有効期限もないまま無期限に留まり続けることがあった。\n\n本バージョンで、こうしたケースでも保留メッセージに通知や有効期限が適用されるようになり、メッセージがどちらの側にも気づかれないまま宙に浮いた状態を防ぐ。",
+      "detail_en": "Cross-session messaging holds a message for approval when the receiving session bypasses permission prompts, normally showing an interactive approval dialog with a default five-minute expiry. In headless (`-p`) sessions and during startup, there's no dialog to show, so a held message could previously sit indefinitely with no notice to the sender and no expiry.\n\nWith this version, held messages in these cases now get a notice and/or expire, instead of being silently parked forever with neither side aware.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-Agent"
+    },
+    {
+      "t": "修正: 非常に大きな会話がコンパクションされた後、Remote Control のセッション再開で会話履歴が壊れる問題を修正",
+      "t_en": "Fixed conversation history breaking on Remote Control session resume after very large conversations were compacted",
+      "tags": ["バグ修正"],
+      "detail": "非常に大きな Remote Control の会話がコンパクション（要約によるコンテキスト圧縮）された後、別のデバイスからそのセッションを再開すると、表示される会話履歴が壊れることがあった。\n\n本バージョンで、コンパクション済みトランスクリプトをセッション再開時に再構築する内部処理が修正され、大きな会話をコンパクションした後でも Remote Control から正しく履歴を再開できるようになった。",
+      "detail_en": "When a very large Remote Control conversation was compacted (summarized to reclaim context), resuming that session from another device could previously corrupt the displayed conversation history.\n\nThis version fixes the internal logic that reconstructs a compacted transcript on session resume, so large conversations can be resumed correctly from Remote Control after compaction.",
+      "category": "会話管理",
+      "category_en": "Conversation Management"
+    },
+    {
+      "t": "修正: エージェント一覧で別プロジェクトのセッションにホバーすると、次に起動するエージェントの開始ディレクトリが変わってしまう問題を修正",
+      "t_en": "Fixed hovering over a session in another project in the agents list changing the directory the next agent starts in",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "ディレクトリ単位でグループ化されたエージェントビューでは、ハイライトされた行のディレクトリが次に起動するエージェントのディスパッチ先になる。これまでは、キーボードでのハイライトだけでなく単にマウスホバーしただけでも、別プロジェクトのセッション行のディレクトリがディスパッチ先として扱われてしまい、新しいエージェントが意図しないプロジェクトのディレクトリで起動することがあった。\n\n本バージョンで、ホバーだけではディスパッチ先が変わらないよう修正された。",
+      "detail_en": "In agent view grouped by directory, the highlighted row's directory becomes the dispatch target for the next agent. Previously, merely hovering over — not just keyboard-highlighting — a session row from a different project could change that dispatch target, so a new agent could unexpectedly start in the wrong project's directory.\n\nThis version fixes it so hovering alone no longer changes the dispatch target.",
+      "category": "エージェント設定",
+      "category_en": "Agent Configuration"
+    },
+    {
+      "t": "修正: `--base-dir` を作成・書き込みできない場合に `claude self-hosted-runner` が登録だけ成功してすべてのセッションを失敗させていた問題を修正。起動時に明確なエラーを出して終了するように変更",
+      "t_en": "Fixed `claude self-hosted-runner` registering and then failing every session when `--base-dir` cannot be created or written; it now exits at startup with a clear error",
+      "tags": ["バグ修正", "Platform"],
+      "detail": "`claude self-hosted-runner` は、`--base-dir` に指定されたパス（デフォルトは `/workspace`）配下にリポジトリをチェックアウトし、セッションごとのディレクトリを作成する。これまでは、このディレクトリを作成・書き込みできない場合でも、ランナーはそのまま環境に登録され正常に見えてしまい、実際に割り当てられたセッションはすべて失敗していた。\n\n本バージョンで、起動時に `--base-dir` の妥当性が検証されるようになり、作成・書き込みできない場合は即座に明確なエラーで終了する。設定ミスのランナーが「準備完了」として誤って公開されることがなくなった。",
+      "detail_en": "`claude self-hosted-runner` checks out repositories and creates per-session directories under the path passed to `--base-dir` (defaulting to `/workspace`). Previously, if that directory couldn't be created or written, the runner would still register with the environment and appear healthy, then fail every session dispatched to it.\n\nThis version validates `--base-dir` at startup and exits immediately with a clear error if it can't be created or written, so a misconfigured runner never advertises itself as ready.",
+      "category": "プラットフォーム互換性",
+      "category_en": "Platform Compatibility"
+    },
+    {
+      "t": "修正: Claude Code on the web のセッションが「スタックしている」と誤って報告され、再接続のたびに増え続けるイベントのバックログを再送信してしまう問題を修正",
+      "t_en": "Fixed Claude Code on the web sessions being misreported as stuck, re-sending a growing event backlog on every reconnect",
+      "tags": ["バグ修正"],
+      "detail": "Claude Code on the web の再接続処理では、正常なセッションが「スタックしている（stuck）」と誤って判定されることがあり、さらに再接続のたびに新しいイベントだけでなく、これまでの全イベントを含む増え続けるバックログを再送信してしまっていた。これは帯域を無駄にするだけでなく、さらなる再接続の乱れを招く要因にもなっていた。\n\n本バージョンで再接続・バックログ処理の内部ロジックが修正され、この問題が解消された。",
+      "detail_en": "Claude Code on the web's reconnection logic could previously misidentify a healthy session as \"stuck,\" and on each reconnect it resent an ever-growing backlog of past events instead of just new ones — wasting bandwidth and risking further reconnect churn.\n\nThis version fixes the internal reconnect and backlog logic.",
+      "category": "安定性",
+      "category_en": "Stability"
+    },
+    {
+      "t": "改善: Remote Control で Claude アプリから添付された写真が、ディスクから別のツール呼び出しで読み込む方式ではなく、Claude に直接表示されるように変更",
+      "t_en": "Improved Remote Control: photos attached from the Claude app are now shown to Claude directly instead of being read from disk with a separate tool call",
+      "tags": ["改善"],
+      "detail": "Remote Control セッションに Claude モバイルアプリや claude.ai/code から写真を添付すると、Claude Code はそれをローカルにダウンロードする。これまでは、実際に画像を見るために Claude が別途 Read ツールを呼び出してディスク上のファイルを読み込む必要があった。\n\n本バージョンで、写真がターン内で直接 Claude に表示されるようになり、この追加のディスク読み込みが不要になった。画像添付が速くなり、消費するツール呼び出しも1回減る。",
+      "detail_en": "When you attach a photo from the Claude mobile app or claude.ai/code to a Remote Control session, Claude Code downloads it locally; previously Claude had to issue a separate Read tool call against that file on disk to actually see the image.\n\nWith this version, photos are shown to Claude directly as part of the turn, without that extra disk-read round trip — making image attachments faster and using one fewer tool call.",
+      "category": "ツール改善",
+      "category_en": "Tool Improvements"
+    },
+    {
+      "t": "修正: [VSCode] Focus view が最新の to-do リスト・保留中の質問の文脈・確定済みの回答まで折りたたんでしまう問題を修正。thinking のみのターンは「Thought for Ns」と表示され、ターン完了時に再び折りたたまれるように",
+      "t_en": "[VSCode] Fixed Focus view folding away the latest to-do list, a pending question's context, and settled answers; thinking-only folds show \"Thought for Ns\" and re-collapse when their turn completes",
+      "tags": ["バグ修正", "IDE"],
+      "detail": "VS Code の Focus view は、ツール呼び出し・ツール結果・thinking をターンごとに1行の展開可能な行にまとめて折りたたみ、表示のノイズを減らす機能。しかし不具合により、ユーザーがまだ必要としている情報――最新の to-do リスト、保留中の質問の周辺文脈、すでに確定した回答――までもが折りたたまれてしまっていた。\n\n本バージョンでこれらが折りたたまれないよう修正された。また、ツール呼び出しを含まず thinking のみのターンは、折りたたまれた行に「Thought for Ns」と表示され、そのターンが完了すると再び折りたたまれるようになった。",
+      "detail_en": "VS Code's Focus view collapses tool calls, tool results, and thinking into one expandable row per turn to reduce clutter. A bug caused it to also fold away things users still needed to see: the latest to-do list, the surrounding context for a pending question, and answers already settled.\n\nThis version keeps those visible. For turns containing only thinking (no tool calls), the collapsed row now reads \"Thought for Ns\" and re-collapses once the turn finishes.",
+      "category": "IDE",
+      "category_en": "IDE"
+    },
+    {
+      "t": "追加: `SendMessage` が他のマシン上の Remote Control セッションに対して、相手からのメッセージを待たずに名前で会話を開始できるように（`ListAgents` には `name [ref]` の形式で表示）",
+      "t_en": "SendMessage can now start a conversation with your Remote Control sessions on other machines by name (`ListAgents` shows them as `name [ref]`), instead of only replying after they message you first",
+      "tags": ["新機能", "Agent"],
+      "detail": "これまで Claude は、Remote Control 経由で別のマシン上の自分のセッションから届いたメッセージに返信することしかできず、自分から会話を開始することはできなかった。\n\n本バージョンで `SendMessage` は、別のマシン上の名前付き Remote Control セッションに対して自分から新しい会話を開始できるようになり、`ListAgents` にはこうしたセッションが `name [ref]` の形式で表示され、Claude が直接宛先を指定できるようになった。マシンをまたいだメッセージングの「返信専用」という制約が撤廃された。",
+      "detail_en": "Previously, Claude could only reply to a message that had already arrived from one of your sessions on another machine over Remote Control; it could not initiate contact.\n\nWith this version, `SendMessage` can start a new conversation with a named Remote Control session on another machine, and `ListAgents` lists such sessions as `name [ref]` so Claude can address them directly — removing the reply-only restriction for cross-machine messaging.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-Agent"
+    },
+    {
+      "t": "修正: `SendMessage` で、すでに確認済みの Remote Control 宛先が、その宛先自身のセッション一覧を確認できなかった場合に、このマシン上の同名セッションへ差し替えられてしまうことがある問題を修正",
+      "t_en": "SendMessage: a Remote Control recipient you already confirmed is never swapped for a same-named session on this machine when its own list couldn't be checked",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "2つのセッションが自動生成または手動設定で同じ名前を持つことがあり、Claude Code は通常、作業ディレクトリや短い識別子で両者を区別する。しかしこれまでは、ユーザーがすでに特定の Remote Control 宛先への送信を確認済みであっても、送信時にその宛先自身のセッション一覧を確認できなかった場合、メッセージがサイレントにこのマシン上で動いている別の同名セッションへ差し替えられてしまうことがあった。\n\n本バージョンで、この失敗条件下でも確認済みの Remote Control 宛先が同名のローカルセッションに差し替えられないことが保証されるようになった。",
+      "detail_en": "Two sessions can share the same auto-generated or user-set name, and Claude Code normally disambiguates them by working directory or a short identifier. Previously, if a user had already confirmed sending to a specific Remote Control recipient but that recipient's own session list couldn't be checked at send time, the message could be silently redirected to a different, same-named session running locally instead.\n\nThis version guarantees an already-confirmed Remote Control recipient is never substituted for a same-named local session under that failure condition.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-Agent"
+    }
+  ],
+  "2.1.226": [
+    {
+      "t": "改善: バグ修正と信頼性の改善",
+      "t_en": "Bug fixes and reliability improvements",
+      "tags": ["バグ修正", "改善"],
+      "detail": "このバージョンでは個別の変更内容は公開されておらず、バグ修正と信頼性向上のみが包括的な形でアナウンスされた。\n\nClaude Code の CHANGELOG では、個別に取り上げるほどの内容がないリリースでこうした1行のみのまとめが使われることがある。ユーザーにとっては CLI の安定性向上につながるが、具体的にどの不具合が修正されたか、技術的な仕組みについての情報は示されていない。",
+      "detail_en": "This release does not disclose any individual changes — only a general note about bug fixes and reliability improvements was published.\n\nThe Claude Code CHANGELOG sometimes uses this kind of single-line summary for releases with nothing that warrants an individual callout. For users this translates into a more stable CLI, but no information is given about which specific issue was fixed or the technical mechanism behind it.",
+      "category": "安定性",
+      "category_en": "Stability"
+    }
   ]
 }
