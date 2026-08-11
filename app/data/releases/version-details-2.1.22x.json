@@ -1135,5 +1135,52 @@
       "category": "安定性",
       "category_en": "Stability"
     }
+  ],
+  "2.1.227": [
+    {
+      "t": "修正: 期限切れのログイントークンでセッションを開始した場合、サブスクリプションプランを考慮せずにフィーチャーフラグが評価され、Max プランのユーザーに対しても Fable 向けの利用クレジット有効化を誤って促してしまう問題を修正",
+      "t_en": "Fixed feature flags being evaluated without the user's subscription tier when a session started with an expired login token, which could wrongly prompt Max plan users to enable usage credits for Fable",
+      "tags": ["バグ修正"],
+      "detail": "従来、フィーチャーフラグの評価には UI プロンプトの出し分けに使われるユーザーのサブスクリプションプラン（ティア）情報が使われていたが、セッション開始時のログイントークンが既に期限切れの場合、その情報がまだ取得できておらず、プランが不明であるかのように評価されてしまうことがあった。その結果、Max プランのように既に十分な権限を持つユーザーに対しても、Fable の利用に利用クレジットの有効化を促すプロンプトが誤って表示されることがあった。\n\n本バージョンで、サブスクリプションプランが判明するまでフィーチャーフラグの評価を遅延させるように修正され、この誤ったプロンプト表示は解消された。",
+      "detail_en": "Previously, feature flags — which control which UI prompts appear — were evaluated using the user's subscription plan tier. When a session started with an already-expired login token, that tier information wasn't available yet at evaluation time, so flags could be evaluated as if the tier were unknown. This could incorrectly show the prompt to enable usage credits for Fable even to Max plan subscribers who already have sufficient access.\n\nThis version defers feature-flag evaluation until the subscription tier is known, fixing the incorrect prompt.",
+      "category": "認証",
+      "category_en": "Authentication"
+    },
+    {
+      "t": "修正: `allowed_non_write_users` を設定した `claude-code-action` で、GitHub がホストするランナー上ではすべての Bash コマンドが失敗してしまう問題を修正",
+      "t_en": "Fixed every Bash command failing under `claude-code-action` with `allowed_non_write_users` on GitHub-hosted runners",
+      "tags": ["バグ修正"],
+      "detail": "`claude-code-action`（Claude Code の GitHub Action）は通常、`@claude` へのメンションでトリガーできるのはリポジトリへの書き込み権限を持つユーザーに限られるが、`allowed_non_write_users` 入力を設定することで、書き込み権限を持たない特定のユーザーも許可リストに加えてトリガーできるようになっている。しかし、この `allowed_non_write_users` を設定した状態で GitHub がホストするランナー上で実行すると、Bash ツールの呼び出しがすべて失敗してしまうリグレッションが発生していた。\n\n本バージョンでこの問題が修正され、`allowed_non_write_users` を設定していても Bash コマンドが正常に実行されるようになった。詳しくは[GitHub Actions のドキュメント](https://code.claude.com/docs/en/github-actions#who-can-trigger-runs)を参照してください。",
+      "detail_en": "`claude-code-action` (the Claude Code GitHub Action) normally only lets users with repository write access trigger it via an `@claude` mention; the `allowed_non_write_users` input lets you allowlist specific users without write access so they can trigger it too. However, a regression caused every Bash tool call to fail on GitHub-hosted runners whenever `allowed_non_write_users` was configured.\n\nThis version fixes the regression, so Bash commands now run normally even with `allowed_non_write_users` set. See the [GitHub Actions documentation](https://code.claude.com/docs/en/github-actions#who-can-trigger-runs) for details.",
+      "category": "GitHub Actions",
+      "category_en": "GitHub Actions"
+    },
+    {
+      "t": "修正: 会話を最初のメッセージより前まで rewind した状態で `/tui` を実行すると、消えたはずの会話が復元されてしまう問題を修正",
+      "t_en": "Fixed `/tui` bringing back a conversation that had been rewound to before its first message",
+      "tags": ["バグ修正"],
+      "detail": "`/tui` はクラシック表示とフルスクリーン表示を切り替えるコマンドで、内部的には CLI プロセスを再起動して会話を復元する。v2.1.207 では、`/rewind` で会話を巻き戻した直後に `/tui` でレンダラーを切り替えると、巻き戻しで消えたはずの会話が復元されてしまう問題が修正されていたが、会話の最初のメッセージより前まで rewind して実質的に空の会話にした場合はこの修正の対象外で、`/tui` を実行するとディスクに保存された会話全体がそのまま復元されてしまう問題が残っていた。\n\n本バージョンでこの残っていたエッジケースも修正され、最初のメッセージより前まで rewind した状態で `/tui` を実行しても、空の会話状態が正しく維持されるようになった。詳しくは[フルスクリーンモードのドキュメント](https://code.claude.com/docs/en/fullscreen#enable-fullscreen-rendering)を参照してください。",
+      "detail_en": "`/tui` toggles between the classic and fullscreen renderers by relaunching the CLI process and restoring the conversation. A related bug — where switching renderers with `/tui` right after a `/rewind` restored the conversation the rewind had removed — was already fixed in v2.1.207, but that fix didn't cover the edge case of rewinding all the way back to before the conversation's very first message, leaving an effectively empty conversation; running `/tui` in that state still brought back the full transcript saved to disk.\n\nThis version fixes that remaining edge case, so the empty conversation state is now correctly preserved when running `/tui` after rewinding past the first message. See the [fullscreen mode documentation](https://code.claude.com/docs/en/fullscreen#enable-fullscreen-rendering) for details.",
+      "category": "レンダリング",
+      "category_en": "Rendering"
+    },
+    {
+      "t": "改善: スラッシュコマンドメニューを改善。青色は選択中の行のみを示すようになり、マッチした文字は色ではなく太字で強調され、絵文字やアクセント付き文字を含む名前も正しく表示されるように",
+      "t_en": "Improved slash-command menu: blue now marks only the selected row, matched characters are bolded instead of recolored, and emoji or accented names keep their glyphs",
+      "tags": ["改善"],
+      "detail": "これまでスラッシュコマンドメニューでは、選択中の行を示す青色とファジーマッチした文字の強調に同じ青色が使われており紛らわしいうえ、絵文字やアクセント付き文字を含むコマンド・スキル名が正しく表示されない、あるいは欠落することがあった。\n\n本バージョンで、青色のハイライトは選択中の行のみに限定され、マッチした文字は色ではなく太字で強調されるようになり、テーマを問わず見やすくなった。あわせて絵文字やアクセント付き文字を含む名前も正しくレンダリングされるようになり、特に絵文字や非 ASCII 文字を使ったスキル・プラグイン名を持つ作者にとって視認性が向上した。",
+      "detail_en": "The slash-command menu (covering built-in commands, skills, and plugin/MCP-contributed commands) previously used the same blue coloring for both the selected row and fuzzy-matched characters, which could be confusing, and could mis-render or drop emoji and accented glyphs in command or skill names.\n\nThis version scopes the blue highlight to only the selected row, switches matched-character emphasis from color to bold text for clearer contrast across themes, and fixes rendering of emoji and accented names — particularly useful for plugin and skill authors who use emoji or non-ASCII names.",
+      "category": "UX",
+      "category_en": "UX"
+    },
+    {
+      "t": "改善: ファイルが見つからない場合の候補提示や @ メンションのサイズチェックにおけるイベントループの停滞を削減",
+      "t_en": "Improved performance: fewer event-loop stalls on file-not-found suggestions and at-mention size checks",
+      "tags": ["改善", "Perf"],
+      "detail": "ファイルが見つからない場合の修正候補の生成や、`@` メンションで参照したファイルのサイズ検証は、これまで Node.js のイベントループをブロックしてしまう形で処理されることがあり、特に大規模なリポジトリや候補ファイル数が多い場合に CLI の応答性が低下する原因になっていた。\n\n本バージョンでこれらの処理によるイベントループの停滞が削減され、ファイルパスの修正候補提示や `@` メンションのサイズチェック中も、入力や画面描画がよりスムーズに行われるようになった。",
+      "detail_en": "Generating \"file not found\" correction suggestions and validating the size of files referenced via `@`-mentions previously could run in ways that blocked Node's event loop, making the CLI feel less responsive — especially in large repositories or with many candidate files.\n\nThis version reduces those event-loop stalls, giving smoother, more responsive typing and rendering while Claude Code offers path corrections or checks `@`-mentioned file sizes.",
+      "category": "パフォーマンス",
+      "category_en": "Performance"
+    }
   ]
 }
