@@ -1182,5 +1182,169 @@
       "category": "パフォーマンス",
       "category_en": "Performance"
     }
+  ],
+  "2.1.228": [
+    {
+      "t": "修正: 稀な内部レイアウトエラーの発生後、プロセスは動作し続けているのにインタラクティブセッションの画面が完全に再描画されなくなる問題を修正",
+      "t_en": "Fixed interactive sessions that could stop redrawing entirely, while the process kept running, after a rare internal layout error",
+      "tags": ["バグ修正"],
+      "detail": "ターミナル UI は再描画のたびに内部でレイアウトを計算しているが、まれにこの計算中にエラーが発生すると再描画ループ自体が止まってしまうことがあった。\n\nこの状態になっても Claude Code のプロセス自体はバックグラウンドで動作を続け、応答も生成され続けているにもかかわらず、画面には反映されず固まったように見えてしまう。本バージョンではこのレイアウトエラーに対するガードを追加し、エラー発生時も再描画ループが継続するように修正した。",
+      "detail_en": "The terminal UI recalculates its layout on every redraw, and in rare cases an internal error during that calculation could stall the redraw loop entirely.\n\nEven though the Claude Code process kept running and generating output in the background, the screen would appear frozen with no visible progress. This release adds a guard against that layout error so the redraw loop keeps going instead of silently wedging.",
+      "category": "レンダリング",
+      "category_en": "Rendering"
+    },
+    {
+      "t": "修正: git のインストールフォルダの親フォルダから Claude Code を起動した場合、Windows で git / Git Bash が見つからない問題を修正",
+      "t_en": "Fixed `git` / Git Bash not being found on Windows when Claude Code is launched from a parent folder of the git installation",
+      "tags": ["バグ修正", "Windows"],
+      "detail": "Windows 版の Claude Code は Bash ツールを動かすために Git for Windows（Git Bash）を自動検出しており、検出できない場合は `CLAUDE_CODE_GIT_BASH_PATH` で手動指定することもできる。\n\nしかし検出ロジックに不具合があり、git のインストール先フォルダの親フォルダから Claude Code を起動した場合に限って Git Bash を検出できず、動作に支障が出ていた。本バージョンでは起動フォルダと git インストール先の位置関係にかかわらず正しく検出できるように修正した。",
+      "detail_en": "On native Windows, Claude Code auto-detects Git for Windows (Git Bash) to power the Bash tool, with `CLAUDE_CODE_GIT_BASH_PATH` available as a manual override when detection fails.\n\nA bug in that detection logic caused it to miss Git Bash specifically when Claude Code was launched from a directory that is a parent folder of the actual git installation path. This release fixes detection so the launch directory's relationship to the git install path no longer matters.",
+      "category": "プラットフォーム互換性",
+      "category_en": "Platform Compatibility"
+    },
+    {
+      "t": "修正: `/model` で切り替えた後に `/tui` を実行すると、直前の応答時点のモデルに戻ってしまう問題を修正",
+      "t_en": "Fixed `/tui` reverting the session to an earlier model when `/model` had been changed since the last response",
+      "tags": ["バグ修正"],
+      "detail": "`/tui` はターミナル UI のレンダラーを切り替えつつ会話をそのまま引き継ぐコマンドだが、この切り替え処理に不具合があり、直前の応答が生成された時点で使われていたモデルに戻ってしまうことがあった。\n\nそのため、直前の応答より後に `/model` でモデルを切り替えていても、その変更が `/tui` の実行によって失われてしまっていた。本バージョンでは `/tui` 実行時にも選択中のモデルが維持されるように修正した。",
+      "detail_en": "`/tui` relaunches the terminal UI into a different renderer while keeping the conversation intact, but a bug in that relaunch caused it to also reset the active model back to whatever model was in effect at the session's last response.\n\nAs a result, a `/model` change made after that last response but before running `/tui` was silently discarded. This release fixes `/tui` to preserve the currently selected model across the relaunch.",
+      "category": "コマンド",
+      "category_en": "Commands"
+    },
+    {
+      "t": "修正: インストールまたはアップグレード直後の最初のセッションで、クロスセッションメッセージング用の inbox が用意されないことがある問題を修正",
+      "t_en": "Fixed cross-session messaging sometimes starting without an inbox in the first session after install or upgrade",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "クロスセッションメッセージングでは、各セッションが起動時に専用の inbox（Unix ソケット）を確保することで、他のセッションからのメッセージ送受信を可能にしている。\n\nしかしインストールまたはアップグレード直後の最初のセッションに限り、この inbox 確保処理が完了する前にセッションが起動してしまい、ソケットが登録されず他のセッションから到達できない状態になることがあった。本バージョンでインストール・アップグレード直後の最初のセッションでも確実に inbox が用意されるように修正した。",
+      "detail_en": "Cross-session messaging requires each session to bind a dedicated inbox (a Unix socket) at startup so other sessions can send it messages.\n\nHowever, in the very first session after a fresh install or an upgrade, the session could start before this inbox-binding step finished, leaving it without a registered socket and unreachable from other sessions. This release ensures the first session after install or upgrade reliably gets an inbox.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-Agent"
+    },
+    {
+      "t": "修正: Remote Control 接続中に `/resume` で会話を切り替えると、再開した会話のタイトルや履歴が接続中のセッションに漏れて表示されてしまう問題を修正",
+      "t_en": "Fixed Remote Control `/resume` while connected leaking the resumed conversation's title or history into the connected session",
+      "tags": ["バグ修正"],
+      "detail": "Remote Control 接続中に `/resume` で別の会話に切り替えると、それまで接続されていたリモートセッションはアーカイブされ、新しい会話用のセッションに置き換わる仕様になっている。\n\nしかしこの切り替え処理に不具合があり、新しく再開した会話のタイトルや履歴の一部が、まだ表示中だった接続先のセッションに漏れて表示されてしまうことがあった。本バージョンでは再開した会話のデータが以前の接続セッションの表示に混入しないように修正した。",
+      "detail_en": "Switching to a different local conversation with `/resume` while Remote Control is connected archives the previously connected remote session and replaces it with one for the new conversation.\n\nA bug in that transition could leak the newly resumed conversation's title or message history into the still-displayed connected remote session before the switch completed. This release isolates the resumed conversation's data from the prior connected session's display.",
+      "category": "Remote Control",
+      "category_en": "Remote Control"
+    },
+    {
+      "t": "修正: `claude self-hosted-runner` で、セッションが push しないリポジトリの `checkout` フックが失敗すると新しいランナー上でセッション全体が失敗する問題を修正。該当リポジトリは警告付きでスキップされるように",
+      "t_en": "Fixed `claude self-hosted-runner` sessions failing on every fresh runner when the `checkout` hook fails for a repository the session doesn't push to; that repository is now skipped with a warning",
+      "tags": ["バグ修正", "Platform"],
+      "detail": "セルフホスト環境では、運用者が用意した `checkout` ライフサイクルフックがセッションに必要なリポジトリごとに1回実行され、ランナー組み込みの clone 処理を置き換える。仕様上このフックが 0 以外の終了コードを返すとセッション全体が失敗する。\n\nセッションが複数のリポジトリを参照する構成で、セッションが読み取り専用で push しないリポジトリの `checkout` フックが失敗した場合、そのリポジトリが本質的に不要であっても新しいランナー上で毎回セッション全体が失敗していた。本バージョンでは、push しないリポジトリでフックが失敗した場合はセッションを失敗させず、警告を出したうえでそのリポジトリをスキップするように変更した。",
+      "detail_en": "In self-hosted environments, an operator-provided `checkout` lifecycle hook runs once per repository a session needs, replacing the runner's built-in clone step; a non-zero exit from this hook fails the whole session by design.\n\nWhen a session referenced multiple repositories and the hook failed for one that the session only reads and never pushes to, the entire session failed on every fresh runner even though that repository wasn't essential. This release changes that behavior so a hook failure on a non-pushed repository no longer fails the session — the repository is skipped with a warning instead.",
+      "category": "自己ホストランナー",
+      "category_en": "Self-Hosted Runner"
+    },
+    {
+      "t": "修正: セルフホストランナーで、バックグラウンドタスクの完了後、次のターンが始まるまでの間にセッションが終了してしまうことがある問題を修正",
+      "t_en": "Fixed self-hosted runners ending sessions in the gap between a background task finishing and the follow-up turn starting",
+      "tags": ["バグ修正", "Platform"],
+      "detail": "セルフホストランナーは、一定時間操作がないセッションのスロットを解放する仕組みを持っており、バックグラウンドタスクを実行中のセッションはアイドル扱いにならない設計になっている。\n\nしかし、バックグラウンドタスクが完了してから次のターンが実際に始まるまでのごく短い間に、ランナーがセッションを誤ってアイドルと判定し、セッションを終了・解放してしまうことがあった。この場合、そのターンの続きが失われてしまう。本バージョンではこの隙間で誤ってセッションが終了しないように修正した。",
+      "detail_en": "Self-hosted runners can release idle session slots after a period of inactivity, and a session actively running a background task is not supposed to count as idle.\n\nHowever, there was a narrow timing gap right after a background task finished and before Claude Code started the follow-up turn where the runner could misclassify the session as idle and end or release it prematurely, losing that turn's continuation. This release closes that gap.",
+      "category": "自己ホストランナー",
+      "category_en": "Self-Hosted Runner"
+    },
+    {
+      "t": "修正: セッションのクリーンアップ処理が、プロジェクトの memory フォルダの中身まで削除してしまう問題を修正",
+      "t_en": "Fixed session cleanup deleting contents inside a project's memory folder",
+      "tags": ["バグ修正"],
+      "detail": "Auto memory 機能は、セッションをまたいで蓄積されるプロジェクトごとのメモを `~/.claude/projects/<project>/memory/` 配下に `MEMORY.md` インデックスとトピックファイルとして保存している。\n\nしかし Claude Code 自身が行うセッション・状態のクリーンアップ処理に不具合があり、本来セッションをまたいで保持されるべきこの memory フォルダの中身まで誤って削除してしまうことがあった。本バージョンではクリーンアップ処理が memory フォルダに触れないように修正した。",
+      "detail_en": "Auto memory persists per-project notes that accumulate across sessions at `~/.claude/projects/<project>/memory/`, as a `MEMORY.md` index plus topic files.\n\nA bug in Claude Code's own session and state cleanup routine was incorrectly deleting the contents of that persistent memory directory, wiping out notes that were meant to survive across sessions. This release fixes cleanup so it no longer touches the memory folder.",
+      "category": "メモリ",
+      "category_en": "Memory"
+    },
+    {
+      "t": "修正: プラグインの唯一のインストール済みバージョンがシンボリックリンクの開発用チェックアウトの場合、バックグラウンドのキャッシュクリーンアップでそのキャッシュごと削除されてしまう問題を修正",
+      "t_en": "Fixed background plugin-cache cleanup deleting a plugin's cache when its only version is a symlinked development checkout",
+      "tags": ["バグ修正", "Plugin"],
+      "detail": "Claude Code はマーケットプレースからインストールしたプラグインを `~/.claude/plugins/cache` にコピーして保持しており、更新やアンインストールから約14日後に不要と判断したバージョンディレクトリをバックグラウンドで自動削除する仕組みを持っている。\n\nしかし、プラグインの唯一のインストール済みバージョンが通常のキャッシュコピーではなく、開発用にシンボリックリンクされたローカルチェックアウトだった場合、このクリーンアップ処理が誤ってそれを不要と判断し削除してしまうことがあった。これにより開発者の作業コピーへのリンクが失われてしまう。本バージョンではシンボリックリンクされた開発用チェックアウトをこのクリーンアップ対象から除外するように修正した。",
+      "detail_en": "Claude Code copies marketplace-installed plugins into `~/.claude/plugins/cache` and runs a background sweep that removes version directories it considers orphaned roughly 14 days after an update or uninstall.\n\nWhen a plugin's only installed version was actually a symlinked local development checkout rather than a normal copied cache entry, the sweep could misidentify it as orphaned and delete it, destroying the developer's live link to their working copy. This release excludes symlinked development checkouts from that cleanup sweep.",
+      "category": "プラグイン管理",
+      "category_en": "Plugin Management"
+    },
+    {
+      "t": "修正: 優先度の高い設定階層でマーケットプレースのエントリを再定義した際に、別の階層のカスタムヘッダーを意図せず引き継いでしまう設定マージの不具合を修正。マーケットプレースのエントリはエントリ単位でマージされるように",
+      "t_en": "Fixed a settings-merge issue where a marketplace entry redefined in a higher-precedence settings tier could inherit another tier's custom headers; marketplace entries now merge as whole entries",
+      "tags": ["バグ修正", "Plugin"],
+      "detail": "`extraKnownMarketplaces` はマーケットプレースを管理・プロジェクト・ローカル・ユーザーという複数の設定階層で定義でき、認証付き URL 経由のマーケットプレースには `headers` フィールドを指定できる。\n\nこれまでは同名のマーケットプレースをより優先度の高い階層で再定義すると、フィールド単位でマージされてしまい、再定義側で `headers` を省略していても下位階層の古い・意図しないヘッダーを引き継いでしまうことがあった。本バージョンではマーケットプレースのエントリをエントリ単位でマージするように変更し、上位階層での再定義が下位階層のエントリを完全に置き換えるように修正した。詳しくは[設定のドキュメント](https://code.claude.com/docs/en/settings#extraknownmarketplaces)を参照してください。",
+      "detail_en": "`extraKnownMarketplaces` entries can be declared across multiple settings tiers — managed, project, local, and user — and can include a `headers` field for authenticated URL-based marketplace sources.\n\nPreviously, redefining the same marketplace name at a higher-precedence tier merged individual fields across tiers, so a redefinition that omitted `headers` could still inherit stale or unintended headers from a lower tier. This release changes marketplace entries to merge as whole entries, so a higher-tier redefinition now fully replaces the lower tier's entry instead of blending fields. See the [settings documentation](https://code.claude.com/docs/en/settings#extraknownmarketplaces) for details.",
+      "category": "設定",
+      "category_en": "Settings"
+    },
+    {
+      "t": "修正: スキル呼び出し後に、未読み込みツール（deferred tools）に関するリマインダーがモデルに二重送信されることがある問題を修正",
+      "t_en": "Fixed the deferred-tools reminder occasionally being sent to the model twice after a skill invocation",
+      "tags": ["バグ修正"],
+      "detail": "tool search が有効な場合（デフォルト）、Claude Code はツールの完全な定義をコンテキストに含めず、代わりに未読み込み（deferred）のまま検索可能なツールがあることを定期的にモデルへリマインドしている。\n\nしかしこのリマインダーが、スキルが呼び出された直後の同一ターン内で二重に送信されてしまう不具合があり、コンテキストトークンを無駄に消費し、モデルへの指示も重複していた。本バージョンではリマインダーが一度だけ送信されるように修正した。",
+      "detail_en": "With tool search enabled (the default), Claude Code withholds full tool definitions from context and periodically reminds the model which tools remain deferred and discoverable via search.\n\nA bug could cause that reminder to be emitted twice within the same turn immediately after a skill was invoked, wasting context tokens and duplicating instructions to the model. This release ensures the reminder is sent only once.",
+      "category": "ツール改善",
+      "category_en": "Tool Improvements"
+    },
+    {
+      "t": "改善: claude.ai から同期されたスキルを強化。ローカルのコマンドや MCP のプロンプトを横取りしなくなり、説明文はサニタイズされ出所が明示されるほか、手元の環境ではスキル本文からの `!` コマンド実行や `@` ファイル展開が行われないように",
+      "t_en": "Hardened skills synced from claude.ai: they no longer shadow local commands or MCP prompts, their descriptions are sanitized and labeled, and on your machine their bodies don't run `!` commands or expand `@` files",
+      "tags": ["改善", "Security", "MCP"],
+      "detail": "Claude Code は claude.ai で有効化したスキルを、非対話セッションで利用できるように `~/.claude/skills/synced/` フォルダへダウンロードできる（`CLAUDE_CODE_SYNC_SKILLS`）。この内容はローカルファイルシステムではなく claude.ai 側のアカウント設定に由来する。\n\n本バージョンでは、同期されたコンテンツを起点とするリスクに対処するための安全対策を追加した。同期スキルは同名のローカルコマンドや MCP サーバー提供のプロンプトを横取り（シャドーイング）できなくなり、説明文はサニタイズされたうえで claude.ai 由来であることが明示される。さらに手元の環境では、同期スキルの本文からシェルコマンドを実行する `!` 記法やファイルを展開する `@` 記法が使えないようにブロックされる。これにより、同期コンテンツを経由したプロンプトインジェクションや情報持ち出しの経路を塞いでいる。詳しくは[スキルのドキュメント](https://code.claude.com/docs/en/skills#where-skills-live)を参照してください。",
+      "detail_en": "Claude Code can download the skills you've enabled on claude.ai into a reserved `~/.claude/skills/synced/` folder (via `CLAUDE_CODE_SYNC_SKILLS`) for use in non-interactive sessions. Because that content originates from your claude.ai account configuration rather than your local filesystem, it carries different trust assumptions.\n\nThis release adds safeguards against risks from that synced content. Synced skills can no longer silently shadow local commands or MCP-server-provided prompts of the same name, and their descriptions are sanitized and clearly labeled as coming from claude.ai. On your machine, synced skill bodies are also blocked from running local `!`-shell commands or expanding `@`-file references, closing a potential prompt-injection or data-exfiltration path through synced content. See the [skills documentation](https://code.claude.com/docs/en/skills#where-skills-live) for details.",
+      "category": "スキル",
+      "category_en": "Skills"
+    },
+    {
+      "t": "改善: クロスセッションメッセージの表示を改善。送信者と本文が折りたたまれた1行ではなくインラインで表示されるようになり、別マシン上の Remote Control セッション宛のメッセージには送信元の Remote Control セッション名が表示されるように",
+      "t_en": "Improved cross-session messages: the sender and body now display inline instead of a collapsed line, and messages to Remote Control sessions on other machines show your Remote Control session name as the sender",
+      "tags": ["改善", "Agent"],
+      "detail": "クロスセッションメッセージは、届いた時点では送信者と本文がインラインで会話に表示され、Claude がメッセージを読み終えると「Message from ...」という1行に折りたたまれる（Ctrl+O で展開可能）仕様になっている。以前はこの表示が最初から折りたたまれた状態になっていた。\n\n本バージョンでは、メッセージが届いた時点から送信者と本文をインラインで表示するように改善した。また、Remote Control 経由で別マシン上の自分のセッションにメッセージが届いた場合、受信側セッションでは送信元の Remote Control セッション名が送信者として表示されるようになり、どのマシンから送られたメッセージかが分かりやすくなった。詳しくは[クロスセッションメッセージングのドキュメント](https://code.claude.com/docs/en/cross-session-messaging#what-a-message-looks-like)を参照してください。",
+      "detail_en": "An incoming cross-session message now appears in the conversation with its sender and full text inline as soon as it arrives, only collapsing to a one-line \"Message from ...\" row (expandable with Ctrl+O) after Claude has read it; previously it started out collapsed.\n\nAdditionally, when a message reaches one of your sessions on another machine over a Remote Control connection, the receiving session now labels the sender using your Remote Control session's name, making clear which of your machines sent it. See the [cross-session messaging documentation](https://code.claude.com/docs/en/cross-session-messaging#what-a-message-looks-like) for details.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-Agent"
+    },
+    {
+      "t": "改善: Vertex AI の認証情報の取り扱いを改善。Google Cloud の認証情報が期限切れまたは見つからない場合、数分間のリトライを待たず数秒でエラーになるように",
+      "t_en": "Improved Vertex AI credential handling: expired or missing Google Cloud credentials now fail within seconds instead of retrying for minutes",
+      "tags": ["改善", "Platform"],
+      "detail": "Google Cloud の Vertex AI 連携には、認証情報（Application Default Credentials）の期限切れや読み込み失敗を検知した際に指定コマンドで自動更新する `gcpAuthRefresh` 設定がある。\n\nこれまでは認証情報が無効な状態でリクエストを送ると、内部で数分間リトライを続けたのちにようやくエラーが表面化していた。本バージョンでは認証情報が無効な状態を早期に検知し、数秒でエラーを返すように改善した。これにより `gcloud auth application-default login` の再実行や `gcpAuthRefresh` の設定コマンドによる対処に、より早く気づけるようになった。詳しくは[Google Vertex AI のドキュメント](https://code.claude.com/docs/en/google-vertex-ai#advanced-credential-configuration)を参照してください。",
+      "detail_en": "Google Cloud's Vertex AI integration includes a `gcpAuthRefresh` setting that runs a configured command to refresh Application Default Credentials when Claude Code detects they're expired or can't be loaded.\n\nPreviously, a request made with invalid credentials could retry internally for minutes before the problem surfaced to the user. This release detects the invalid-credential condition early and fails within seconds, so users notice sooner and can re-run `gcloud auth application-default login` or their configured `gcpAuthRefresh` command instead of waiting through a long retry loop. See the [Google Vertex AI documentation](https://code.claude.com/docs/en/google-vertex-ai#advanced-credential-configuration) for details.",
+      "category": "認証",
+      "category_en": "Authentication"
+    },
+    {
+      "t": "改善: コンパクション（要約）の進捗表示を改善。プログレスバーだけでなく、リトライ時のカウントダウンや停滞時のヒントもコンパクション中に表示されるように",
+      "t_en": "Improved compaction progress: the retry countdown and stall hint now appear during compaction instead of only a progress bar",
+      "tags": ["改善"],
+      "detail": "コンテキストウィンドウが埋まってくると、自動コンパクションまたは `/compact` によって会話が要約され、コンテキスト領域が確保される。これまでこの処理中に表示されるのは単純なプログレスバーのみだった。\n\n本バージョンでは、一時的な API リトライが発生して処理に時間がかかっている場合のカウントダウンや、処理が停滞している場合のヒントもプログレスバーとあわせて表示されるようになり、コンパクション中に何が起きているかをより把握しやすくなった。",
+      "detail_en": "Context compaction (automatic or via `/compact`) summarizes the conversation to free up context space when the context window fills up. Previously the only feedback during this process was a bare progress bar.\n\nThis release adds a retry countdown and a stall hint alongside the progress bar, giving better visibility into what's happening — for example when transient API retries are the reason compaction is taking longer than expected — instead of an opaque loading indicator.",
+      "category": "会話管理",
+      "category_en": "Conversation Management"
+    },
+    {
+      "t": "改善: ターミナルのタイトルに表示されるビジー状態のスピナーの絵柄を更新し、一部のターミナルでタブバーがちらつく問題を軽減",
+      "t_en": "Updated terminal title busy-spinner glyphs to reduce tab-bar jitter on some terminals",
+      "tags": ["改善"],
+      "detail": "Claude Code は処理中であることを示すため、ターミナルのタブ・ウィンドウタイトルに「ビジー」状態を表すスピナーアニメーションを表示している。\n\n一部のターミナルでは、このスピナーで使われていた絵柄の幅や切り替わり方によってタブバーが目に見えてジャンプ・ちらつくことがあった。本バージョンではスピナーの絵柄を見直し、こうしたちらつきを軽減した。動作や設定項目に変更はなく、見た目のみの調整。",
+      "detail_en": "Claude Code animates a \"busy\" indicator in the terminal tab/window title while it's working.\n\nIn some terminals, the specific glyphs used for that spinner animation caused the tab bar to visibly jump or flicker as the title updated. This release updates the spinner glyphs to reduce that jitter. This is a purely cosmetic terminal-title tweak with no behavioral or configuration change.",
+      "category": "レンダリング",
+      "category_en": "Rendering"
+    },
+    {
+      "t": "変更: 新しいモデルでは、Write ツールでそのセッション内で読んでいない既存ファイルも上書きできるように変更。Edit ツールと同じ挙動になり、古いモデルではこれまで通り事前の読み込みが必須のまま",
+      "t_en": "Changed the Write tool so newer models can overwrite an existing file they haven't read this session, matching the Edit tool's rules; older models still require the read first",
+      "tags": ["改善"],
+      "detail": "Edit ツールでは以前から、比較的新しいモデル（Claude Opus 4.6・Haiku 4.5 以降）に限り、パーミッションプロンプトが発生しない条件下であればセッション内でまだ読んでいないファイルも編集できる特例が設けられていた。古いモデルでは引き続き事前の読み込みが必須となる。\n\n本バージョンでは、この特例を Write ツールの「既存ファイルの上書き」チェックにも適用した。これにより新しいモデルは条件を満たせば未読のファイルでも Write ツールで上書きできるようになり、Edit ツールと挙動が揃った。古いモデルでは従来どおり事前の読み込みが必須のままとなる。",
+      "detail_en": "The Edit tool already allows newer models (Claude Opus 4.6, Haiku 4.5, and later) to edit a file they haven't read yet in the session, as long as reading it wouldn't require a permission prompt; older models must always read first.\n\nThis release extends that same newer-model exception to the Write tool's overwrite-existing-file check, so newer models no longer need to have read a file before overwriting it under those conditions — matching the Edit tool's behavior. Older models keep the stricter read-first requirement.",
+      "category": "ツール改善",
+      "category_en": "Tool Improvements"
+    },
+    {
+      "t": "削除: Pro・Max・Team プランの初回利用時に表示される案内から、auto mode のセッションはやや高くつくという古い注記を削除",
+      "t_en": "Removed the outdated note about auto mode sessions costing slightly more from the first-use notice for Pro, Max, and Team plans",
+      "tags": ["改善"],
+      "detail": "auto mode のパーミッション分類器は別モデルで動作しており、その呼び出し分のトークン利用が課金対象になるのは Enterprise プランおよび API・サードパーティプロバイダー経由のアカウントのみで、Pro・Max・Team プランでは分類器の利用分は追加課金されない。\n\nしかし Pro・Max・Team プランのユーザーが auto mode を初めて使う際に表示される案内には、依然として「auto mode のセッションはやや高くつく」という古い注記が残っていた。本バージョンではこの古い注記を削除した。なお 2026年8月14日から auto mode が Pro・Max・Team の新規セッションのデフォルトパーミッションモードになる予定であり、これに合わせた整理でもある。詳しくは[パーミッションモードのドキュメント](https://code.claude.com/docs/en/permission-modes#eliminate-prompts-with-auto-mode)を参照してください。",
+      "detail_en": "Auto mode's permission classifier runs on a separate model, and classifier calls count toward token usage only on Enterprise plans and API-based or third-party-provider accounts — not on Pro, Max, or Team plans.\n\nAn older first-use notice shown to Pro, Max, and Team users trying auto mode still warned that auto-mode sessions cost slightly more, which no longer reflects that their classifier usage isn't billed as extra. This release removes that outdated line, consistent with auto mode also becoming the default permission mode for new Pro/Max/Team sessions starting August 14, 2026. See the [permission modes documentation](https://code.claude.com/docs/en/permission-modes#eliminate-prompts-with-auto-mode) for details.",
+      "category": "UX",
+      "category_en": "UX"
+    }
   ]
 }
