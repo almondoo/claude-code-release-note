@@ -653,5 +653,130 @@
         "tags": ["バグ修正", "改善"]
       }
     ]
+  },
+  {
+    "v": "2.1.227",
+    "items": [
+      {
+        "t": "修正: 期限切れのログイントークンでセッションを開始した場合、サブスクリプションプランを考慮せずにフィーチャーフラグが評価され、Max プランのユーザーに対しても Fable 向けの利用クレジット有効化を誤って促してしまう問題を修正",
+        "t_en": "Fixed feature flags being evaluated without the user's subscription tier when a session started with an expired login token, which could wrongly prompt Max plan users to enable usage credits for Fable",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: `allowed_non_write_users` を設定した `claude-code-action` で、GitHub がホストするランナー上ではすべての Bash コマンドが失敗してしまう問題を修正",
+        "t_en": "Fixed every Bash command failing under `claude-code-action` with `allowed_non_write_users` on GitHub-hosted runners",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: 会話を最初のメッセージより前まで rewind した状態で `/tui` を実行すると、消えたはずの会話が復元されてしまう問題を修正",
+        "t_en": "Fixed `/tui` bringing back a conversation that had been rewound to before its first message",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "改善: スラッシュコマンドメニューを改善。青色は選択中の行のみを示すようになり、マッチした文字は色ではなく太字で強調され、絵文字やアクセント付き文字を含む名前も正しく表示されるように",
+        "t_en": "Improved slash-command menu: blue now marks only the selected row, matched characters are bolded instead of recolored, and emoji or accented names keep their glyphs",
+        "tags": ["改善"]
+      },
+      {
+        "t": "改善: ファイルが見つからない場合の候補提示や @ メンションのサイズチェックにおけるイベントループの停滞を削減",
+        "t_en": "Improved performance: fewer event-loop stalls on file-not-found suggestions and at-mention size checks",
+        "tags": ["改善", "Perf"]
+      }
+    ]
+  },
+  {
+    "v": "2.1.228",
+    "items": [
+      {
+        "t": "修正: 稀な内部レイアウトエラーの発生後、プロセスは動作し続けているのにインタラクティブセッションの画面が完全に再描画されなくなる問題を修正",
+        "t_en": "Fixed interactive sessions that could stop redrawing entirely, while the process kept running, after a rare internal layout error",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: git のインストールフォルダの親フォルダから Claude Code を起動した場合、Windows で git / Git Bash が見つからない問題を修正",
+        "t_en": "Fixed `git` / Git Bash not being found on Windows when Claude Code is launched from a parent folder of the git installation",
+        "tags": ["バグ修正", "Windows"]
+      },
+      {
+        "t": "修正: `/model` で切り替えた後に `/tui` を実行すると、直前の応答時点のモデルに戻ってしまう問題を修正",
+        "t_en": "Fixed `/tui` reverting the session to an earlier model when `/model` had been changed since the last response",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: インストールまたはアップグレード直後の最初のセッションで、クロスセッションメッセージング用の inbox が用意されないことがある問題を修正",
+        "t_en": "Fixed cross-session messaging sometimes starting without an inbox in the first session after install or upgrade",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: Remote Control 接続中に `/resume` で会話を切り替えると、再開した会話のタイトルや履歴が接続中のセッションに漏れて表示されてしまう問題を修正",
+        "t_en": "Fixed Remote Control `/resume` while connected leaking the resumed conversation's title or history into the connected session",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: `claude self-hosted-runner` で、セッションが push しないリポジトリの `checkout` フックが失敗すると新しいランナー上でセッション全体が失敗する問題を修正。該当リポジトリは警告付きでスキップされるように",
+        "t_en": "Fixed `claude self-hosted-runner` sessions failing on every fresh runner when the `checkout` hook fails for a repository the session doesn't push to; that repository is now skipped with a warning",
+        "tags": ["バグ修正", "Platform"]
+      },
+      {
+        "t": "修正: セルフホストランナーで、バックグラウンドタスクの完了後、次のターンが始まるまでの間にセッションが終了してしまうことがある問題を修正",
+        "t_en": "Fixed self-hosted runners ending sessions in the gap between a background task finishing and the follow-up turn starting",
+        "tags": ["バグ修正", "Platform"]
+      },
+      {
+        "t": "修正: セッションのクリーンアップ処理が、プロジェクトの memory フォルダの中身まで削除してしまう問題を修正",
+        "t_en": "Fixed session cleanup deleting contents inside a project's memory folder",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: プラグインの唯一のインストール済みバージョンがシンボリックリンクの開発用チェックアウトの場合、バックグラウンドのキャッシュクリーンアップでそのキャッシュごと削除されてしまう問題を修正",
+        "t_en": "Fixed background plugin-cache cleanup deleting a plugin's cache when its only version is a symlinked development checkout",
+        "tags": ["バグ修正", "Plugin"]
+      },
+      {
+        "t": "修正: 優先度の高い設定階層でマーケットプレースのエントリを再定義した際に、別の階層のカスタムヘッダーを意図せず引き継いでしまう設定マージの不具合を修正。マーケットプレースのエントリはエントリ単位でマージされるように",
+        "t_en": "Fixed a settings-merge issue where a marketplace entry redefined in a higher-precedence settings tier could inherit another tier's custom headers; marketplace entries now merge as whole entries",
+        "tags": ["バグ修正", "Plugin"]
+      },
+      {
+        "t": "修正: スキル呼び出し後に、未読み込みツール（deferred tools）に関するリマインダーがモデルに二重送信されることがある問題を修正",
+        "t_en": "Fixed the deferred-tools reminder occasionally being sent to the model twice after a skill invocation",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "改善: claude.ai から同期されたスキルを強化。ローカルのコマンドや MCP のプロンプトを横取りしなくなり、説明文はサニタイズされ出所が明示されるほか、手元の環境ではスキル本文からの `!` コマンド実行や `@` ファイル展開が行われないように",
+        "t_en": "Hardened skills synced from claude.ai: they no longer shadow local commands or MCP prompts, their descriptions are sanitized and labeled, and on your machine their bodies don't run `!` commands or expand `@` files",
+        "tags": ["改善", "Security", "MCP"]
+      },
+      {
+        "t": "改善: クロスセッションメッセージの表示を改善。送信者と本文が折りたたまれた1行ではなくインラインで表示されるようになり、別マシン上の Remote Control セッション宛のメッセージには送信元の Remote Control セッション名が表示されるように",
+        "t_en": "Improved cross-session messages: the sender and body now display inline instead of a collapsed line, and messages to Remote Control sessions on other machines show your Remote Control session name as the sender",
+        "tags": ["改善", "Agent"]
+      },
+      {
+        "t": "改善: Vertex AI の認証情報の取り扱いを改善。Google Cloud の認証情報が期限切れまたは見つからない場合、数分間のリトライを待たず数秒でエラーになるように",
+        "t_en": "Improved Vertex AI credential handling: expired or missing Google Cloud credentials now fail within seconds instead of retrying for minutes",
+        "tags": ["改善", "Platform"]
+      },
+      {
+        "t": "改善: コンパクション（要約）の進捗表示を改善。プログレスバーだけでなく、リトライ時のカウントダウンや停滞時のヒントもコンパクション中に表示されるように",
+        "t_en": "Improved compaction progress: the retry countdown and stall hint now appear during compaction instead of only a progress bar",
+        "tags": ["改善"]
+      },
+      {
+        "t": "改善: ターミナルのタイトルに表示されるビジー状態のスピナーの絵柄を更新し、一部のターミナルでタブバーがちらつく問題を軽減",
+        "t_en": "Updated terminal title busy-spinner glyphs to reduce tab-bar jitter on some terminals",
+        "tags": ["改善"]
+      },
+      {
+        "t": "変更: 新しいモデルでは、Write ツールでそのセッション内で読んでいない既存ファイルも上書きできるように変更。Edit ツールと同じ挙動になり、古いモデルではこれまで通り事前の読み込みが必須のまま",
+        "t_en": "Changed the Write tool so newer models can overwrite an existing file they haven't read this session, matching the Edit tool's rules; older models still require the read first",
+        "tags": ["改善"]
+      },
+      {
+        "t": "削除: Pro・Max・Team プランの初回利用時に表示される案内から、auto mode のセッションはやや高くつくという古い注記を削除",
+        "t_en": "Removed the outdated note about auto mode sessions costing slightly more from the first-use notice for Pro, Max, and Team plans",
+        "tags": ["改善"]
+      }
+    ]
   }
 ]
