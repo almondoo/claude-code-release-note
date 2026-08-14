@@ -1,0 +1,262 @@
+[
+  {
+    "v": "2.1.231",
+    "items": [
+      {
+        "t": "修正: Slack のように事前登録済みの OAuth クライアントを使う MCP サーバーで、リダイレクト URI の不一致により MCP OAuth のサインインが失敗する問題を修正",
+        "t_en": "Fixed MCP OAuth sign-in failing with a redirect URI mismatch for servers that use a pre-registered OAuth client, such as Slack",
+        "tags": ["バグ修正", "MCP"]
+      }
+    ]
+  },
+  {
+    "v": "2.1.232",
+    "items": [
+      {
+        "t": "変更: サブエージェントの fork がデフォルトで有効に。`subagent_type: \"fork\"` のサブエージェントは会話全体とプロンプトキャッシュを引き継ぎ、対話セッションでのチームメイト以外のエージェント起動もデフォルトでバックグラウンド実行されるように",
+        "t_en": "Subagent forking is now on by default: a `subagent_type: \"fork\"` subagent inherits the full conversation and prompt cache, and non-teammate agent spawns in interactive sessions now run in the background by default",
+        "tags": ["改善", "Agent"]
+      },
+      {
+        "t": "追加: プロンプト内で `@` を入力すると名前で他の Claude セッションをメンションできるように。Claude がそのセッションに `SendMessage` で直接連絡する",
+        "t_en": "Type `@` in the prompt to mention another Claude session by name; Claude then uses `SendMessage` to reach that session directly",
+        "tags": ["新機能", "Agent"]
+      },
+      {
+        "t": "改善: `SendMessage` が、生きているセッションのうち1件だけに一致するベアな名前であれば、ref による確認を挟まずそのまま配信するように改善",
+        "t_en": "`SendMessage` now delivers to a bare name that exactly matches one live session, instead of asking to confirm with a ref first",
+        "tags": ["改善", "Agent"]
+      },
+      {
+        "t": "追加: 同一マシン上の対話セッションが一意な名前を保持するように。既に使用中の名前でセッションを開始・リネームすると `name-word-word` の形式に変えられ、その旨が通知される",
+        "t_en": "Interactive sessions on one machine now keep unique names: starting or renaming a session to a name another live session already uses gives it a `name-word-word` variant and tells you",
+        "tags": ["改善", "Agent"]
+      },
+      {
+        "t": "追加: `/config` に「ダイアログの有効期限」「他セッションからのメッセージ」の項目を追加（セッション間の受信メッセージを許可・保留・拒否する設定）",
+        "t_en": "Added `/config` rows for \"Dialog expiry\" and \"Messages from your other sessions\" (cross-session inbound accept/hold/refuse)",
+        "tags": ["改善", "Agent"]
+      },
+      {
+        "t": "追加: GitLab のトークン系統（`glrt-`・`gloas-`・`glptt-`・`glagent-`・`glimt-`・`glsoat-`・`glcbt-`・`glft-`・`glffct-`）のシークレットレダクションを追加し、ルーティング可能な `glpat-`・`gldt-` トークンは全体をレダクション。`glab` CLI の設定ストアも `gh` と同様のサンドボックス・認証情報パス保護の対象に",
+        "t_en": "Added secret redaction for GitLab token families (`glrt-`, `gloas-`, `glptt-`, `glagent-`, `glimt-`, `glsoat-`, `glcbt-`, `glft-`, `glffct-`) and full redaction of routable `glpat-`/`gldt-` tokens; the `glab` CLI config store gets the same sandbox and credential-path protection as `gh`",
+        "tags": ["新機能", "Security"]
+      },
+      {
+        "t": "追加: プラグインマーケットプレイスに GitLab 対応を追加。ネストしたサブグループを含むベアな `gitlab.com` リポジトリ URL が `github.com` の URL と同様にクローンできるように。クローンの認証失敗ヒントも実際の Git ホスト名を表示",
+        "t_en": "Added GitLab support to plugin marketplaces: bare `gitlab.com` repo URLs (including nested subgroups) now clone like `github.com` URLs, and clone auth-failure hints name your actual git host",
+        "tags": ["新機能", "Plugin"]
+      },
+      {
+        "t": "改善: 設定の `additionalMarketplaces`・`allowedMarketplaces` を、`extraKnownMarketplaces`・`strictKnownMarketplaces` のより分かりやすい別名として受け付けるように",
+        "t_en": "Settings: `additionalMarketplaces` and `allowedMarketplaces` are now accepted as friendlier aliases for `extraKnownMarketplaces` and `strictKnownMarketplaces`",
+        "tags": ["改善", "Plugin"]
+      },
+      {
+        "t": "修正: url 型の `blockedMarketplaces` エントリで指定したベアなリポジトリ URL が、CLI がそれを git クローンとして分類する場合でも、引き続きブロック対象として機能するように修正",
+        "t_en": "Enterprise policy: a url-typed `blockedMarketplaces` entry for a bare repo URL keeps blocking that URL when the CLI classifies it as a git clone",
+        "tags": ["バグ修正", "Plugin", "Security"]
+      },
+      {
+        "t": "改善: ゲートウェイの `desktop:` オーバーレイが、Desktop 側のスキーマに対して起動時に検証されたうえで、リリース済みの Desktop 設定すべてを受け付けるように改善（従来は手動管理された11個のキーのみ対応）。未知・不正なキーがあると起動に失敗するように",
+        "t_en": "Gateway: the `desktop:` overlay now accepts every released Desktop setting (was 11 hand-listed keys), validated at boot against Desktop's own schema; unknown or invalid keys fail boot",
+        "tags": ["改善", "Platform"]
+      },
+      {
+        "t": "修正: ゲートウェイで `managed.policies[].match.groups`・`admin.admin_groups` の空エントリや、不正な `email_domain` 値（空、または `@`・空白・カンマを含む）が、誰にも一致しない・意図せず管理者権限を許可してしまう代わりに、起動時に失敗するように修正",
+        "t_en": "Gateway: empty `managed.policies[].match.groups`/`admin.admin_groups` entries and malformed `email_domain` values (empty, or containing `@`, whitespace, or commas) now fail at boot instead of silently matching no one or granting admin access",
+        "tags": ["バグ修正", "Security", "Platform"]
+      },
+      {
+        "t": "修正: Fable 5 access を持つ組織向けに、`/advisor` で再び Fable 5 をアドバイザーとして選択できるように修正。usage credits の同意設定は `/model fable` から行う",
+        "t_en": "Fable 5 is offered as an advisor in `/advisor` again for organizations with Fable access, with usage-credits consent set up through `/model fable`",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: PowerShell のパーミッションバイパスを修正。変数を書き込むパラメータによって `$PSDefaultParameterValues` が黙って上書きされ、後続コマンドのファイルアクセス先がリダイレクトされてしまう問題を修正",
+        "t_en": "Fixed a PowerShell permission bypass where variable-writing parameters could silently overwrite `$PSDefaultParameterValues` and redirect later commands' file access",
+        "tags": ["バグ修正", "Security", "Windows"]
+      },
+      {
+        "t": "修正: Windows のパーミッションバイパスを修正。Git Bash が辿る Cygwin 形式のシンボリックリンクをパス検証が通常ファイルとみなしてしまい、経由した書き込みがパーミッション承認なしに行えてしまう問題を修正",
+        "t_en": "Fixed a Windows permission bypass where Git Bash followed Cygwin-style symlinks that path validation saw as regular files; writes through them now require permission approval",
+        "tags": ["バグ修正", "Security", "Windows"]
+      },
+      {
+        "t": "修正: ネストした git リポジトリが親ディレクトリの trust を引き継いでしまう問題を修正。各リポジトリごとに個別の trust 確認が必要になるように",
+        "t_en": "Fixed nested git repositories inheriting trust from a parent directory; each repository now requires its own trust confirmation",
+        "tags": ["バグ修正", "Security"]
+      },
+      {
+        "t": "修正: MCP サーバーが応答しない、あるいはプロトコルバージョンの確認に不正な応答を返した際、接続処理が接続タイムアウトの30秒間まるごとハングしてしまう問題を修正",
+        "t_en": "Fixed MCP connections hanging for the full 30-second connect timeout when a server fails to answer or sends a malformed reply to the protocol-version probe",
+        "tags": ["バグ修正", "MCP"]
+      },
+      {
+        "t": "修正: クラウドセッション内で bridge によってホストされる Remote Control セッションが、そのホスト元セッションのトランスクリプトや認証情報を引き継いでしまう問題を修正",
+        "t_en": "Fixed Remote Control sessions hosted by a bridge inside a cloud session inheriting that session's transcript or credentials",
+        "tags": ["バグ修正", "Security"]
+      },
+      {
+        "t": "修正: Claude Desktop や IDE から開始した Remote Control セッションが、ローカルセッションを再開するたびに claude.ai 側で新規セッションとして表示されてしまう問題を修正。既存のセッションに再接続するように",
+        "t_en": "Fixed Remote Control sessions started from Claude Desktop or an IDE appearing as a new claude.ai session each time the local session was resumed; they now reattach to the existing one",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: アイドル状態の Remote Control セッションが、新しく接続したクライアントからは到達不能に見えてしまう問題を修正",
+        "t_en": "Fixed Remote Control sessions appearing unreachable to newly attached clients while idle",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: セッションワーカーが再起動した際、Remote Control の bridge セッションが会話履歴を復元できない問題を修正",
+        "t_en": "Fixed Remote Control bridge sessions not restoring conversation history when the session worker restarts",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: claude.ai やアプリ側でセッションが削除された会話を再開すると、ログインに関するメッセージで失敗してしまう問題を修正（v2.1.227 で発生した回帰）。代わりに新しい代替セッションが開始されるように",
+        "t_en": "Remote Control: resuming a conversation whose session was deleted from claude.ai or the app now starts a replacement instead of failing with a message about your login (regressed in v2.1.227)",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: managed settings の読み込みに失敗した際、Cloud gateway の `/login` が「Press Enter to continue」の後に無言で終了したり、ターミナルが無応答のまま残ってしまったりする問題を修正。失敗理由が表示されるように",
+        "t_en": "Fixed Cloud gateway `/login` exiting silently or leaving an unresponsive terminal after \"Press Enter to continue\" when managed settings failed to load; the reason is now shown",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: ネイティブビルドの voice mode で、音声サービスが接続を拒否した際に「listening…」表示のまま固まってしまう問題を修正。拒否は即座に表示されるように",
+        "t_en": "Fixed voice mode on native builds getting stuck on \"listening…\" when the voice service rejected the connection; the rejection is now shown immediately",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: mTLS クライアント証明書のローテーションに再起動が必要だった問題を修正。接続エラー発生時にローテーション後の証明書・鍵を自動的に再読み込みするように",
+        "t_en": "Fixed mTLS client certificate rotation requiring a restart; Claude Code now reloads the rotated cert and key automatically on connection errors",
+        "tags": ["バグ修正", "Security"]
+      },
+      {
+        "t": "修正: 不正な形式の AWS・Vertex リージョン値がそのままリクエスト URL の組み立てに使われてしまう問題を修正。デフォルトリージョンへフォールバックするように",
+        "t_en": "Fixed malformed AWS or Vertex region values being used to build request URLs; they now fall back to the default region",
+        "tags": ["バグ修正", "Platform"]
+      },
+      {
+        "t": "修正: Bedrock・Vertex・ゲートウェイ経由のデプロイで、ストリームのアイドルタイムアウトエラーが復旧されずリクエスト失敗になってしまう問題を修正",
+        "t_en": "Fixed stream idle timeout errors failing the request instead of recovering on Bedrock, Vertex, and gateway deployments",
+        "tags": ["バグ修正", "Platform"]
+      },
+      {
+        "t": "修正: 切り詰めたテキストを含むコンテンツサイズ準拠のオーバーレイが、必要な幅より1桁分広く描画されてしまう問題、および先頭側を切り詰めたテキストが省略記号だけに縮んでしまう問題を修正",
+        "t_en": "Fixed content-sized overlays containing truncated text rendering one column too wide, and start-truncated text collapsing to an ellipsis",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: 長い shell コマンドやエージェントの説明のプレビューを切り詰める際、絵文字の途中で切ってしまい文字化けが発生する問題を修正",
+        "t_en": "Fixed a stray garbled character where a long shell-command or agent-description preview was cut off mid-emoji",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: `known_marketplaces.json` への同時書き込みによる起動時の競合状態で、プラグインマーケットプレイスの登録が黙って解除されてしまうことがある問題を修正",
+        "t_en": "Fixed a startup race that could silently unregister a plugin marketplace due to concurrent writes to `known_marketplaces.json`",
+        "tags": ["バグ修正", "Plugin"]
+      },
+      {
+        "t": "修正: 再起動後も生き残るはずの処理が実行中の場合に `/update`・`/tui` が再起動を拒否してしまう問題を修正",
+        "t_en": "Fixed `/update` and `/tui` refusing to restart while work that survives the relaunch was running",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: SDK・リモートセッションで、利用上限に達した際の案内が利用できないスラッシュコマンドを勧めてしまう問題を修正",
+        "t_en": "Fixed usage-limit guidance suggesting unavailable slash commands in SDK and remote sessions",
+        "tags": ["バグ修正", "SDK"]
+      },
+      {
+        "t": "修正: 対話式の `--advisor fable` 起動で表示される同意メッセージが、既に終了した対話セッション内で `/model fable` を実行するよう案内してしまう問題を修正",
+        "t_en": "Fixed the consent message for interactive `--advisor fable` launches, which told you to run `/model fable` in an interactive session that had just exited",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "改善: フルスクリーンのストリーミング表示を改善。会話全体を更新のたびに再正規化しなくなったことで、長時間のセッションでも応答性を維持",
+        "t_en": "Improved fullscreen streaming: long sessions stay responsive because the whole conversation is no longer re-normalized on every update",
+        "tags": ["改善", "Perf"]
+      },
+      {
+        "t": "改善: managed settings の承認ダイアログを改善。エンドポイント URL を表示し、テレメトリのみの変更には分かりやすい文言を使用し、ルーティンな OpenTelemetry オプションは省略。サーバー管理下でのサンドボックスバイナリの上書き（`sandbox.bwrapPath`・`sandbox.socatPath`・`sandbox.ripgrep`）には承認を必須化",
+        "t_en": "Improved the managed settings approval dialog: shows endpoint URLs, uses clearer wording for telemetry-only changes, skips routine OpenTelemetry options, and requires approval for server-managed sandbox binary overrides (`sandbox.bwrapPath`, `sandbox.socatPath`, `sandbox.ripgrep`)",
+        "tags": ["改善", "Security"]
+      },
+      {
+        "t": "改善: `/feedback`・`/bug` を、Claude が応答中でもターンの完了を待たずに即座に開くように改善",
+        "t_en": "`/feedback` and `/bug` now open immediately when invoked while Claude is responding, instead of waiting for the turn to finish",
+        "tags": ["改善"]
+      },
+      {
+        "t": "改善: `/plugin install plugin@marketplace` が、先にマーケットプレイスを更新してからインストールするように改善。手動でマーケットプレイスを更新しなくても、新しく公開されたプラグインをインストールできるように",
+        "t_en": "`/plugin install plugin@marketplace` now refreshes the marketplace first, so newly published plugins install without a manual marketplace update",
+        "tags": ["改善", "Plugin"]
+      },
+      {
+        "t": "改善: `/code-review` の high・xhigh・max エフォートでも、他のレベルと同様にバックグラウンドエージェントとして実行されるように改善",
+        "t_en": "`/code-review` at high, xhigh, and max effort now runs in a background agent like the other levels",
+        "tags": ["改善", "Agent"]
+      },
+      {
+        "t": "改善: ペーストやクリップボードから取り込む画像を、イベントループをブロックせずに読み込むように改善",
+        "t_en": "Pasted and clipboard images are read without blocking the event loop",
+        "tags": ["改善", "Perf"]
+      },
+      {
+        "t": "改善: Remote Control が、ネットワークの瞬断後も約30分間は再接続を試み続け、1時間の間に何度か瞬断が起きても切断されなくなるように改善",
+        "t_en": "Remote Control now keeps reconnecting for about 30 minutes after a network blip and no longer drops after a few blips spread across an hour",
+        "tags": ["改善"]
+      },
+      {
+        "t": "修正: 会話の再開が、それをまだ保持している同一マシン上の別の Claude Code から Remote Control を黙って奪ってしまう問題を修正。移動させたい場合はそちら側で `/remote-control` を実行する",
+        "t_en": "Remote Control: resuming a conversation no longer silently takes Remote Control away from another Claude Code on the same machine that still has it; run `/remote-control` there to move it",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "改善: エージェントパネルを改善。完了したサブエージェントは即座に非表示になり `/tasks` を案内するフッターが表示される。「↓ 他 N 件」のオーバーフロー表示も見やすい位置に移動",
+        "t_en": "Updated agent panel: completed subagents hide immediately with a `/tasks` footer hint, and the \"↓ N more\" overflow indicator moved left for visibility",
+        "tags": ["改善", "Agent"]
+      },
+      {
+        "t": "改善: Remote Control で、セッションが別デバイスに引き継がれた・別アプリから終了された・削除された、のどれに該当するかをターミナル側で明示するように改善。それを取り消してしまう再接続の提案も行わないように",
+        "t_en": "Remote Control: the terminal now says whether a session was taken over by another device, ended from another app, or deleted, and stops suggesting a reconnect that would undo it",
+        "tags": ["改善"]
+      },
+      {
+        "t": "修正: Bash の入力リダイレクト（`< file`）が、引数として渡した場合と同様にパーミッションチェックの対象になっていなかった問題を、全プラットフォームで修正",
+        "t_en": "Bash input redirections (`< file`) are now permission-checked like their argument spellings on all platforms",
+        "tags": ["バグ修正", "Security"]
+      },
+      {
+        "t": "改善: 完了済みのバックグラウンドエージェントを再開した際に表示されるメッセージを短縮",
+        "t_en": "Shortened the message shown when resuming a completed background agent",
+        "tags": ["改善", "Agent"]
+      },
+      {
+        "t": "変更: Cowork セッションでは、ユーザースコープのメモリファイルにある外部の `@` インポートをインライン展開しないように変更",
+        "t_en": "Cowork sessions no longer inline external @-imports from user-scope memory files",
+        "tags": ["改善", "Security"]
+      },
+      {
+        "t": "改善: 共有 `/tmp` 上に自動生成されるクロスセッションメッセージング用ソケットディレクトリを強化。事前に仕込まれたシンボリックリンクや他ユーザーのディレクトリを、使用せず拒否するように",
+        "t_en": "Hardened the auto-generated cross-session messaging socket directory on shared `/tmp`: a pre-planted symlink or another user's directory is now refused instead of used",
+        "tags": ["改善", "Security", "Agent"]
+      },
+      {
+        "t": "修正: Linux のファイルシステムサンドボックスにあった保護対象パスのバイパスを修正し、強化",
+        "t_en": "Hardened the Linux filesystem sandbox against a protected-path bypass",
+        "tags": ["バグ修正", "Security"]
+      },
+      {
+        "t": "変更: `sandbox.ripgrep` を、ユーザー・managed・`--settings` の各設定からのみ有効になるように変更。プロジェクト設定ではサンドボックスの ripgrep バイナリを上書きできなくなった",
+        "t_en": "Changed `sandbox.ripgrep` to be honored only from user, managed, and `--settings` settings; project settings can no longer override the sandbox's ripgrep binary",
+        "tags": ["改善", "Security"]
+      },
+      {
+        "t": "削除: カスタムサブエージェントの作成を勧める起動時のヒント、および `/powerup` ツアー内の同様の案内を削除",
+        "t_en": "Removed the startup tip suggesting you create custom subagents, and the matching nudge in the `/powerup` tour",
+        "tags": ["非推奨"]
+      }
+    ]
+  }
+]

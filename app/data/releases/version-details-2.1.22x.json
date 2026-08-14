@@ -1346,5 +1346,310 @@
       "category": "UX",
       "category_en": "UX"
     }
+  ],
+  "2.1.229": [
+    {
+      "t": "改善: 直前に停止した Remote Control セッションを再開する `claude remote-control --continue` の使い方をドキュメントに追加",
+      "t_en": "Documented `claude remote-control --continue` for resuming the most recent Remote Control session",
+      "tags": ["改善"],
+      "detail": "`--continue` フラグ自体は v2.1.200 で追加済みだったが、その使い方は公式ドキュメントに明記されていなかった。このフラグは `claude remote-control` を同じディレクトリで直前に開始したセッションだけを呼び戻すもので、そのセッションが終了すると一緒に終了する。サーバーを停止してから約4時間は有効で、v2.1.228 以降ではその間にアーカイブされたセッションも呼び戻せる。\n\n本バージョンでこの挙動が公式ドキュメントに明記され、Remote Control サーバーを一度止めたユーザーが、セッション ID を探さずに同じ端末・ブラウザと紐づいたセッションへすぐ戻れることが分かりやすくなった。",
+      "detail_en": "The `--continue` flag itself was added back in v2.1.200, but its behavior wasn't documented. It brings back only the session that `claude remote-control` most recently started in the same directory, and exits when that session ends. It works for about four hours after the server stopped, and on v2.1.228+ can even unarchive a session that was archived in the meantime.\n\nThis version documents that behavior explicitly, making it clear how users who stopped their Remote Control server can pick the same phone- or browser-linked session back up without hunting for its session ID.",
+      "category": "Remote Control",
+      "category_en": "Remote Control"
+    },
+    {
+      "t": "追加: セルフホストランナーのセッションでも、サーバー側から配布される Claude Code の hook をマネージド環境と同様に利用できるように",
+      "t_en": "Added server-supplied Claude Code hook support for self-hosted runner sessions, matching managed-environment behavior",
+      "tags": ["新機能", "Platform"],
+      "detail": "Anthropic の管理下で動くクラウドセッションには、コントロールプレーンから hook スクリプトが配布・適用されることがあるが、これまでセルフホストランナー上のセッションではこの仕組みが利用できなかった。\n\n本バージョンでは、ランナーがコントロールプレーンから受け取った hook スクリプトを予約済みの `hooks/.ccr-launcher/` サブディレクトリに書き出し、専用の `--settings` ファイル経由で登録するようになった。運用者自身の hook や settings.json を上書きするのではなく重ねて適用される形になり、`disableAllHooks` や `allowManagedHooksOnly` などのポリシーもそのまま有効。これにより、セルフホスト環境でも Anthropic ホストのクラウドセッションと同等のサーバー主導の hook 挙動が得られるようになった。",
+      "detail_en": "Claude Code hooks that Anthropic's control plane pushes to a cloud session weren't previously installed for sessions running on self-hosted runners.\n\nNow the runner writes any control-plane-supplied hook scripts into a reserved `hooks/.ccr-launcher/` subdirectory and registers them via a separate `--settings` file, layering them alongside — not overriding — the operator's own hooks and settings.json. `disableAllHooks` and `allowManagedHooksOnly` policies still apply, so self-hosted environments now get the same server-driven hook behavior as Anthropic-hosted cloud sessions.",
+      "category": "自己ホストランナー",
+      "category_en": "Self-Hosted Runner"
+    },
+    {
+      "t": "追加: ゲートウェイのストリーミング応答に、長時間の思考中の沈黙を埋める SSE keepalive ping を追加し、Vertex・Bedrock アップストリームでのアイドルタイムアウト切断を防止",
+      "t_en": "Added SSE keepalive pings to gateway streaming responses during long thinking pauses, preventing idle-timeout disconnects on Vertex and Bedrock upstreams",
+      "tags": ["新機能", "Platform"],
+      "detail": "Claude Code は、ゲートウェイ経由の SSE ストリームが300秒間無通信になると切断する監視機構を持ち、keep-alive ping イベントだけがその間の通信として許容される。しかし Amazon Bedrock のバイナリイベントストリーム形式のようなアップストリームは、こうした ping をネイティブには送信しないため、長い拡張思考の沈黙中にゲートウェイ自身が ping を合成して送らないと、クライアント側のウォッチドッグに切断されてしまう。\n\n本バージョンでは、この keepalive ping の送出をゲートウェイのストリーミング応答に追加し、Vertex・Bedrock を裏側に持つゲートウェイ経由でも、長時間思考する応答が途中で打ち切られないようにした。",
+      "detail_en": "Claude Code aborts a gateway-relayed SSE stream that goes silent for 300 seconds, relying on keep-alive ping events as the only traffic during long extended-thinking pauses. Upstreams like Amazon Bedrock's binary event-stream format don't natively emit such pings, so a gateway relaying from them must synthesize its own pings during silent gaps or the client's watchdog disconnects mid-turn.\n\nThis version adds that keepalive-ping emission to gateway streaming responses, so long-thinking responses routed through Vertex- or Bedrock-backed gateways are no longer dropped mid-stream.",
+      "category": "プラットフォーム互換性",
+      "category_en": "Platform Compatibility"
+    },
+    {
+      "t": "追加: プラグインマーケットプレイスに `command` ソースを追加。ローカルコマンド（IDE など）がプラグインのディレクトリを出力し、セッションごとに再解決されて再起動なしで反映される。`mode: \"link\"` ならそのディレクトリをそのまま使用",
+      "t_en": "Added plugin marketplace `command` sources: a local command (e.g. an IDE) prints the plugin directory, which is re-resolved each session and applied without a restart; `mode: \"link\"` uses it in place",
+      "tags": ["新機能", "Plugin"],
+      "detail": "マーケットプレイスのエントリはこれまで git や URL からの取得が中心だったが、本バージョンで `command` ソースが追加された。IDE などローカルにインストールされたツールを実行し、その出力（プラグイン一式を含むディレクトリの絶対パス）をプラグインとして扱う仕組みで、動的に生成されるプラグイン内容に対応できる。\n\nこのコマンドはインストール時とセッションごとにバックグラウンドで再実行されるため、再インストールや再起動なしでツールの出力に追従する。`mode: \"link\"` を指定するとプラグインキャッシュへコピーせず出力先ディレクトリをそのまま使用し（大きな生成物向け）、デフォルトの `mode: \"copy\"` ではコピーしてハッシュ検証する。",
+      "detail_en": "Marketplace entries can now use a `command` source, where a locally installed tool (such as an IDE) is run to print the absolute path of a directory containing a complete plugin, so plugin content can be generated dynamically instead of fetched from git or a URL.\n\nClaude Code runs the command on install and again once per session in the background, so the plugin stays current with the tool's output without reinstalling or restarting. `mode: \"link\"` skips copying into the plugin cache and uses the printed directory in place (for large generated directories), while the default `mode: \"copy\"` copies and hashes the contents.",
+      "category": "プラグイン管理",
+      "category_en": "Plugin Management"
+    },
+    {
+      "t": "改善: `ListAgents` で、接続が切れた Remote Control セッションを `offline` と表示し、クラウドセッションには `cloud` というラベルを付けるように",
+      "t_en": "`ListAgents` now marks disconnected Remote Control sessions as `offline` and labels your cloud sessions as `cloud`",
+      "tags": ["改善", "Agent"],
+      "detail": "`ListAgents` は、サブエージェントや他のローカルセッション、Claude Code on the web のセッション、別マシンの Remote Control セッションなど、`SendMessage` で連絡できる相手を Claude が見つけるためのツール。これまでステータス表示が粗く、接続できるかどうかが分かりにくかった。\n\n本バージョンで、Claude Code on the web のセッションには `cloud` ラベルが付き、別マシンの Remote Control セッションのうち接続が切れているものには `offline` ステータスが表示されるようになった。これにより、一時的に届かないだけのセッションと実際に連絡可能なセッションを、Claude もユーザーも区別しやすくなった。",
+      "detail_en": "`ListAgents` is the tool Claude uses (backing `/list-agents`) to discover which of your other sessions it can message with `SendMessage` — subagents, other local sessions, your Claude Code on the web sessions, and your Remote Control sessions on other machines.\n\nThis update improves the status labeling: sessions from Claude Code on the web are now labeled `cloud`, and a Remote Control session on another machine whose connection has dropped now shows an `offline` status, so Claude and the user can tell a temporarily unreachable session from one that's actually addressable.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-Agent"
+    },
+    {
+      "t": "修正: 長い応答がストリーミング中に部分的に消えたり、ターミナルに二重に表示されたりする問題を修正",
+      "t_en": "Fixed long responses partly disappearing while streaming and being printed twice in the terminal",
+      "tags": ["バグ修正"],
+      "detail": "ストリーミング出力のレンダリング処理に不具合があり、長い応答の一部がストリーミング中に見えなくなり、最終的な表示では逆に二重に表示されてしまうことがあった。\n\n本バージョンで、部分応答のチャンクを最終的なトランスクリプト表示へ反映する処理が修正され、この見た目上の不具合が解消された。",
+      "detail_en": "A terminal-rendering bug in the streaming output pipeline could cause portions of a long assistant response to vanish mid-stream and then reappear duplicated in the final printed output.\n\nThis version fixes how partial-response chunks are reconciled with the final rendered transcript, correcting the visual glitch with no other behavior change.",
+      "category": "レンダリング",
+      "category_en": "Rendering"
+    },
+    {
+      "t": "修正: `glob`・`file_path`・`command` の値が文字列でないツール呼び出しでエラー画面にクラッシュしてしまう問題を修正（該当セッションの `--resume` を含む）",
+      "t_en": "Fixed a crash to the error screen (including on `--resume` of the affected session) when a tool call had a non-string `glob`, `file_path`, or `command` value",
+      "tags": ["バグ修正"],
+      "detail": "モデルの応答が崩れるなどの理由でツール呼び出しの `glob`・`file_path`・`command` パラメータが文字列以外の値になっていた場合、Claude Code はエラー画面にクラッシュしていた。しかも不正な値はトランスクリプトに保存されるため、`--resume` で同じセッションを再開しても即座に再クラッシュし、実質的にそのセッションが使えなくなっていた。\n\n本バージョンの修正により、こうした不正な値をクラッシュせずに扱えるようになり、`--resume` 時も含めて、1回の不正なツール呼び出しがセッションを永久に使用不能にすることがなくなった。",
+      "detail_en": "If a tool call's `glob`, `file_path`, or `command` parameter was somehow a non-string value (e.g. from a malformed model response), Claude Code crashed to the error screen. Because the bad value was persisted in the transcript, resuming that session with `--resume` crashed again immediately.\n\nThe fix makes Claude Code handle the malformed value gracefully instead of crashing, including on resume, so a single bad tool call no longer permanently strands a session.",
+      "category": "安定性",
+      "category_en": "Stability"
+    },
+    {
+      "t": "修正: 非常に狭いターミナルウィンドウでプログレスバーや markdown テーブルを描画すると RangeError でクラッシュしてしまう問題を修正（`claude --continue`・`--resume` の起動時クラッシュにもつながっていた）",
+      "t_en": "Fixed a RangeError crash when a progress bar or markdown table rendered in a very narrow terminal window (could also crash `claude --continue`/`--resume` at startup)",
+      "tags": ["バグ修正"],
+      "detail": "想定より狭いターミナル幅でプログレスバーや markdown テーブルを描画すると、レイアウト計算が RangeError を起こしてクラッシュすることがあった。保存済みトランスクリプトの再生時にも同じ処理が走るため、該当する内容を含む会話を狭いターミナルで `claude --continue`・`--resume` すると、起動直後にクラッシュしてそのセッションに事実上アクセスできなくなっていた。\n\n本バージョンでこのレイアウト計算のバグが修正され、狭いターミナル幅でもクラッシュしなくなった。",
+      "detail_en": "Rendering a progress bar or markdown table in a terminal narrower than the layout logic expected could trigger a JavaScript RangeError and crash Claude Code outright. Because this could happen while replaying a saved transcript, it could also crash `claude --continue`/`--resume` immediately at startup if the resumed conversation contained such content, effectively locking a user out of that session in a narrow terminal.\n\nThis version fixes the layout calculation so it no longer crashes at narrow terminal widths.",
+      "category": "安定性",
+      "category_en": "Stability"
+    },
+    {
+      "t": "修正: Windows で拡張長パス（`\\\\?\\`）や UNC パスをツール呼び出しやメッセージで参照するとクラッシュしてしまう問題を修正",
+      "t_en": "Fixed a crash on Windows when a tool call or message referenced a file by an extended-length (`\\\\?\\`) or UNC path",
+      "tags": ["バグ修正", "Windows"],
+      "detail": "Windows では、MAX_PATH の制限を回避する拡張長パス（`\\\\?\\` プレフィックス付き）や、ネットワーク共有を表す UNC パス（`\\\\server\\share\\...`）という特殊な表記が使われることがある。Claude Code のパス処理ロジックはこれらの形式を想定しておらず、ツール呼び出しやメッセージにこうしたパスが含まれるとクラッシュしていた。\n\n本バージョンの修正により、両方の形式を正しく扱えるようになり、クラッシュしなくなった。",
+      "detail_en": "On Windows, paths can be written in the extended-length form (prefixed with `\\\\?\\`) to bypass MAX_PATH, or as UNC network-share paths (`\\\\server\\share\\...`). Claude Code's path-handling logic didn't account for these forms in tool calls or messages and crashed when it encountered one.\n\nThis fix makes path parsing handle both forms without crashing.",
+      "category": "プラットフォーム互換性",
+      "category_en": "Platform Compatibility"
+    },
+    {
+      "t": "修正: `CLAUDE_CODE_ATTRIBUTION_HEADER` で attribution ヘッダーを無効化しているユーザー（Anthropic API に直接接続している場合）で、auto mode がすべてのツール呼び出しで失敗してしまう問題を修正",
+      "t_en": "Fixed auto mode failing on every tool call for users who disable the attribution header via `CLAUDE_CODE_ATTRIBUTION_HEADER` (direct Anthropic API connections)",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "`CLAUDE_CODE_ATTRIBUTION_HEADER=0` を設定すると、システムプロンプトからクライアントバージョンやプロンプトフィンガープリントの attribution ブロックが省かれる。これはシステムプロンプトの内容を作り替える必要があるゲートウェイ向けの機能だが、ゲートウェイを介さず Anthropic API に直接接続している環境でこの設定を有効にすると、auto mode のパーミッション分類器への安全性チェックリクエストがこのブロックの有無に依存していたらしく、すべてのツール呼び出しで失敗するようになっていた。\n\n本バージョンでこの回帰が修正された。",
+      "detail_en": "`CLAUDE_CODE_ATTRIBUTION_HEADER=0` omits the client-version/prompt-fingerprint attribution block from the system prompt, intended for gateways that need to reshape system content.\n\nOn a direct connection to the Anthropic API (no gateway), disabling that header broke auto mode's classifier safety-check request on every tool call, since the request apparently still depended on the block being present. This version fixes that regression.",
+      "category": "自動モード",
+      "category_en": "Auto Mode"
+    },
+    {
+      "t": "修正: カスタムの `ANTHROPIC_BASE_URL` ゲートウェイを使う claude.ai サブスクライバーに対し、`/model` が Sonnet・Opus の 1M コンテキストを拒否してしまう問題を修正",
+      "t_en": "Fixed `/model` rejecting Sonnet/Opus 1M for claude.ai subscribers using a custom `ANTHROPIC_BASE_URL` gateway",
+      "tags": ["バグ修正"],
+      "detail": "1Mトークンのコンテキストバリアント（`sonnet[1m]` など）を選択するには、通常プランや usage credits の権限確認が必要だが、この確認は Anthropic API に直接接続している場合にしか実行できない。これまでは、claude.ai でサブスクライブ済みのユーザーが `ANTHROPIC_BASE_URL` を LLM ゲートウェイに向けている場合でも、Claude Code が usage credits を確認できないという理由で `/model sonnet[1m]` が拒否されていた。実際にはこの構成ではリクエストが成功するかどうかを決めるのは Claude Code ではなくゲートウェイ側であるにもかかわらず、である。\n\n本バージョンでこの誤った拒否が修正された。",
+      "detail_en": "Selecting the 1-million-token context variant (e.g. `sonnet[1m]`) normally requires Claude Code to confirm plan/usage-credit entitlement, a check that only runs against the Anthropic API directly.\n\nBefore this fix, a claude.ai-subscribed user pointing `ANTHROPIC_BASE_URL` at an LLM gateway still had `/model sonnet[1m]` rejected because Claude Code couldn't confirm usage credits, even though the gateway — not Claude Code — decides whether the request succeeds in that configuration. This version fixes the incorrect rejection.",
+      "category": "プラットフォーム互換性",
+      "category_en": "Platform Compatibility",
+      "doc_url": "https://code.claude.com/docs/en/model-config#extended-context"
+    },
+    {
+      "t": "修正: 事前登録済みの OAuth クライアントを使う MCP サーバー向けに、リダイレクト URI を `localhost` から `127.0.0.1` に変更し、認可要件の厳しいサーバーでも MCP OAuth が通るように",
+      "t_en": "Fixed MCP OAuth with strict authorization servers by using `127.0.0.1` instead of `localhost` in the redirect URI",
+      "tags": ["バグ修正", "MCP"],
+      "detail": "Claude Code の MCP OAuth フローはコールバック用にローカルのリダイレクト URI を送信するが、一部の MCP 認可サーバーはこの URI を厳密な文字列一致で検証しており、`localhost` と `127.0.0.1` を同一視しない。本バージョンでは、こうした厳格なサーバーに対応するため、デフォルトのリダイレクトホストを `localhost` から `127.0.0.1` に変更した。\n\nただし、この変更は Slack のように事前登録済みの OAuth クライアントを使うサーバーでは逆にサインインを失敗させる副作用があり、後続の v2.1.231 で `localhost` に戻されている。",
+      "detail_en": "Claude Code's MCP OAuth flow sends a local redirect URI for the callback; some MCP authorization servers validate that URI with an exact string match rather than treating `localhost` and `127.0.0.1` as equivalent. This version switches the default redirect host from `localhost` to `127.0.0.1` to satisfy those stricter servers.\n\nHowever, this change had a side effect: it broke sign-in for servers using a pre-registered OAuth client, such as Slack, whose registered redirect URI expected `localhost`. The following release, v2.1.231, reverted the default back to `localhost` for that reason.",
+      "category": "MCP 連携",
+      "category_en": "MCP Integration",
+      "doc_url": "https://code.claude.com/docs/en/mcp#use-pre-configured-oauth-credentials"
+    },
+    {
+      "t": "修正: ラップトップのターミナルでスラッシュコマンドを入力した後、Remote Control クライアント側で作業中スピナーが固まったまま止まらなくなる問題を修正",
+      "t_en": "Fixed Remote Control clients showing a stuck working spinner after a slash command typed in the laptop terminal",
+      "tags": ["バグ修正"],
+      "detail": "スマートフォンやブラウザから Remote Control で接続している状態で、手元のラップトップ側のターミナルでスラッシュコマンドを入力すると、リモート側のクライアントが完了シグナルを受け取れず、作業中スピナーが固まったまま表示され続けることがあった。一部のスラッシュコマンドはローカル完結のテキスト出力のみでストリーミング完了イベントを送出しないため、リモート UI 側がそれを待ち続けてしまうことが原因とみられる。\n\n本バージョンでこの Remote Control 側の同期不具合が修正された。",
+      "detail_en": "When a user typed a slash command locally while a phone or browser client was connected via Remote Control, the remote client's UI could get stuck showing a working spinner indefinitely — likely because some slash commands produce local-only, text-only output with no streamed completion signal the remote UI expected.\n\nThis version fixes this Remote Control synchronization issue.",
+      "category": "Remote Control",
+      "category_en": "Remote Control"
+    },
+    {
+      "t": "修正: `/install-github-app` が生成する Claude Code Review ワークフローが、プルリクエストにレビューを投稿せずに完了してしまう問題を修正",
+      "t_en": "Fixed the Claude Code Review workflow generated by `/install-github-app` completing without posting its review on the pull request",
+      "tags": ["バグ修正"],
+      "detail": "`/install-github-app` が生成する GitHub Actions のレビューワークフローは、自動化モードで Claude を実行するが、結果を明示的に投稿するよう指示しない限り、通常はワークフロー実行ログにしか結果が残らない。これまで生成される `claude-code-review.yml` にはこの投稿指定が欠けていたため、実行は完了するもののレビュー内容が CI ログに埋もれたままプルリクエストには何も投稿されなかった。\n\n本バージョンでこの生成テンプレートが修正され、問題があれば該当箇所へのインラインコメントとして、問題がなければ1件のサマリーコメントとして、レビューがプルリクエストに実際に投稿されるようになった。",
+      "detail_en": "The GitHub Actions review workflow `/install-github-app` generates runs Claude in automation mode, where results normally only appear in the workflow run log unless explicitly told to post them.\n\nThis fix corrects the generated `claude-code-review.yml` so the run actually posts Claude's review — inline comments per issue, or one summary comment when it finds none — onto the pull request, rather than completing while leaving the review buried in CI logs.",
+      "category": "GitHub Actions",
+      "category_en": "GitHub Actions",
+      "doc_url": "https://code.claude.com/docs/en/github-actions#quick-setup"
+    },
+    {
+      "t": "修正: IDE 拡張機能が接続中に、数千件の診断情報を持つファイルを編集すると UI が数秒間停止してしまう問題を修正",
+      "t_en": "Fixed multi-second UI stalls after editing a file with thousands of IDE diagnostics while the IDE extension is connected",
+      "tags": ["バグ修正", "IDE"],
+      "detail": "IDE 拡張機能が接続された状態で、lint・型エラーなどの診断情報を非常に多く持つファイルを編集すると、その診断情報のペイロード全体を同期的に処理していたためか、Claude Code の UI が数秒間停止することがあった。\n\n本バージョンで診断情報の取り込み処理が修正され、この停止が解消された。",
+      "detail_en": "When the IDE extension is connected and a file with a very large number of diagnostics (lint/type errors) is edited, Claude Code's UI could stall for several seconds, likely from synchronously processing the full diagnostics payload on every edit.\n\nThis version fixes the diagnostics-ingestion path to resolve the stall.",
+      "category": "パフォーマンス",
+      "category_en": "Performance"
+    },
+    {
+      "t": "修正: 一回限りの `claude plugin` コマンドが不要なライブネスファイルを残し、古いプラグインバージョンのクリーンアップを妨げてしまう問題を修正",
+      "t_en": "Fixed one-shot `claude plugin` commands leaving a stray liveness file that could prevent cleanup of outdated plugin versions",
+      "tags": ["バグ修正", "Plugin"],
+      "detail": "Claude Code は、更新やアンインストールからおよそ14日後にバックグラウンドで孤立したプラグインキャッシュを安全に削除できるよう、どのバージョンが使用中かをライブネス情報として追跡している。フルの対話セッションを経由しない一回限りの `claude plugin` シェルコマンドを実行すると、このライブネスマーカーが残ったままクリーンアップされず、Claude Code が古いバージョンをまだ使用中だと誤認して削除をブロックしてしまうことがあった。\n\n本バージョンで、一回限りのコマンドでもライブネスマーカーが正しくクリーンアップされるようになった。",
+      "detail_en": "Claude Code tracks which plugin cache directories are in use so its background sweep can safely delete orphaned versions roughly 14 days after an update or uninstall. Running a one-shot `claude plugin` shell command (which doesn't run inside a full interactive session) previously left behind a liveness marker that was never cleaned up, making Claude Code think an old version was still in use and blocking its removal.\n\nThis fix ensures one-shot commands clean up their liveness marker.",
+      "category": "プラグイン管理",
+      "category_en": "Plugin Management"
+    },
+    {
+      "t": "修正: CPU 制限付きコンテナ内で dynamic workflow がホストマシンのコア数を参照してしまい、コンテナの CPU 上限を無視してエージェントを起動しすぎる問題を修正",
+      "t_en": "Fixed dynamic workflows inside CPU-limited containers using the host machine's core count instead of the container's CPU limit",
+      "tags": ["バグ修正"],
+      "detail": "dynamic workflow は同時実行エージェント数を（最大16まで）制限し、利用可能な CPU が少ない場合はさらに絞ってローカルのリソース消費を抑える設計になっている。しかしこの判定はこれまでホストマシン全体のコア数を参照しており、cgroup クォータなどでコンテナの CPU が制限されている環境では、コンテナが実際に処理できる数をはるかに超えるエージェントをファンアウトしてしまうことがあった。\n\n本バージョンでこの判定がコンテナの CPU 上限を認識するように修正された。",
+      "detail_en": "Dynamic workflows cap concurrent agents (up to 16), scaling down when fewer CPUs are available, to bound local resource use. Before this fix, that check read the host machine's total core count rather than the container's actual CPU limit (e.g. a cgroup quota), so a workflow inside a CPU-constrained container could fan out far more concurrent agents than the container could run.\n\nThis version makes the check container-aware.",
+      "category": "ワークフロー",
+      "category_en": "Workflow",
+      "doc_url": "https://code.claude.com/docs/en/workflows#behavior-and-limits"
+    },
+    {
+      "t": "修正: アトミックなファイル置き換え後にファイルウォッチャーのハンドルがリークする問題、および Windows でスケジュールタスクのウォッチャーがネットワーク・仮想ファイルシステム上で失敗した際に未捕捉エラーになる問題を修正",
+      "t_en": "Fixed a file-watcher handle leak after atomic file replacements, and an uncaught error on Windows when the scheduled-tasks watcher failed on a network or virtual filesystem",
+      "tags": ["バグ修正", "Windows"],
+      "detail": "本バージョンは2つのファイルウォッチャー関連の不具合をまとめて修正した。1つは、安全な書き込み方法としてよく使われるアトミックなファイル置き換えの後、Claude Code 内部のファイルウォッチャーがハンドルを解放できずリークしてしまう問題で、長時間のセッションで蓄積するおそれがあった。もう1つは Windows 固有で、ネットワークドライブや仮想ファイルシステム上のパスにスケジュールタスクのウォッチャーがアタッチできなかった際、未捕捉のエラーとしてプロセスがクラッシュしてしまう問題（こうした環境ではネイティブの監視 API がサポートされないことが多い）。\n\n本バージョンで両方とも修正された。",
+      "detail_en": "This bundles two filesystem-watcher fixes: a handle leak where Claude Code's internal file watcher failed to release its handle after a file was replaced atomically (a common safe-write pattern), which could accumulate over a long session; and, on Windows specifically, an uncaught error that crashed the process when the scheduled-tasks watcher failed to attach to a path on a network drive or virtual filesystem, where native watching APIs are often unsupported.\n\nBoth are fixed in this version.",
+      "category": "プラットフォーム互換性",
+      "category_en": "Platform Compatibility"
+    },
+    {
+      "t": "修正: SDK および `--input-format stream-json` のセッションで、空白のみのメッセージを送信すると 400 エラーになる問題を修正",
+      "t_en": "Fixed SDK and `--input-format stream-json` sessions getting a 400 API error when a whitespace-only message was submitted",
+      "tags": ["バグ修正", "SDK"],
+      "detail": "Agent SDK のストリーミング入力モード、および CLI の `--input-format stream-json` モードでは、空白文字のみのユーザーメッセージがそのまま Anthropic API に転送されていた。API は空でないコンテンツを要求するため、こうしたメッセージは 400 エラーで拒否されていた。\n\n本バージョンでは、API に届く前にローカル側で空白のみのメッセージを処理するようになり、呼び出し元アプリケーションから送られた空白メッセージがリクエスト全体を失敗させることがなくなった。",
+      "detail_en": "In the Agent SDK's streaming input mode, and equivalently the CLI's `--input-format stream-json` mode, a whitespace-only user message was previously forwarded to the Anthropic API as-is, which rejects it with a 400 error since it requires non-empty content.\n\nThis fix handles a whitespace-only message locally before it reaches the API, so a stray blank message from a calling application no longer fails the whole request.",
+      "category": "SDK",
+      "category_en": "SDK"
+    },
+    {
+      "t": "修正: メッセージ本文だけで API の 32MB リクエスト上限を超える会話で、画像やドキュメントを取り除けない場合でもコンパクションを再試行し続けてしまう問題を修正。今後は一度で失敗し、分かりやすいメッセージを表示",
+      "t_en": "Fixed conversations whose messages alone exceed the API's 32 MB request limit retrying compaction when no images or documents can be stripped; they now fail once with a clear message",
+      "tags": ["バグ修正"],
+      "detail": "リクエストが API の 32MB 上限を超えた場合、Claude Code は通常コンパクションで蓄積した画像・添付ファイルを取り除いてから再試行し、画像の多い会話ではこれで解決することが多い。しかし、メッセージのテキスト部分だけで既に 32MB を超えており取り除ける添付物が何もない場合、この再試行は絶対に成功しない。これまでは、そのような場合でも再試行を続け、当てはまらない添付ファイルの整理を促す一般的な案内を表示していた。\n\n本バージョンでは、コンパクションで解決できないケースを区別し、そうした会話では一度で失敗させたうえで、状況に即した分かりやすいメッセージを表示するようになった。",
+      "detail_en": "When a request exceeds the API's 32 MB limit, Claude Code normally retries after compaction strips accumulated images and attachments, resolving the common image-heavy case. But when the message text alone already exceeds 32 MB with nothing to strip, that retry can never succeed; before this fix Claude Code retried anyway, showing generic attachment-trimming advice that didn't apply.\n\nThis version distinguishes the case compaction can't help with and fails once, with a message that matches the actual situation.",
+      "category": "会話管理",
+      "category_en": "Conversation Management",
+      "doc_url": "https://code.claude.com/docs/en/errors#request-too-large"
+    },
+    {
+      "t": "修正: Claude Desktop セッションからの OpenTelemetry エクスポートが、そのゲートウェイ自身がテレメトリのエンドポイントでもある場合に、Desktop 管理下のゲートウェイに拒否されてしまう問題を修正",
+      "t_en": "Fixed OpenTelemetry export from Claude Desktop sessions being rejected by the Desktop-managed gateway when that gateway is also the telemetry endpoint",
+      "tags": ["バグ修正", "Platform"],
+      "detail": "Claude apps gateway の構成では、`/login` でサインインしたセッションは常に OTLP テレメトリをゲートウェイへ送信するが、Desktop から起動された組み込みセッションは `OTEL_EXPORTER_OTLP_ENDPOINT` に設定された送信先へテレメトリを送り、その送信先がゲートウェイ自身を指している場合にのみゲートウェイのセッション認証トークンを付与する仕組みになっている。これまでこの Desktop 起動セッションへのトークン付与が正しく行われていなかったらしく、テレメトリのエンドポイントがゲートウェイ自身である場合、認証されていないエクスポートとしてゲートウェイに拒否されていた。\n\n本バージョンでこの問題が修正された。",
+      "detail_en": "In a Claude apps gateway deployment, sessions signed in through `/login` always send OTLP telemetry to the gateway, but Desktop-launched embedded sessions send telemetry to whatever `OTEL_EXPORTER_OTLP_ENDPOINT` is configured, attaching the gateway's session-auth token only when that endpoint points back at the gateway itself. Before this fix that token attachment apparently didn't happen correctly for Desktop-launched sessions, so when the telemetry endpoint was the gateway itself, the gateway rejected the unauthenticated export.\n\nThis version fixes that token attachment.",
+      "category": "テレメトリ",
+      "category_en": "Telemetry",
+      "doc_url": "https://code.claude.com/docs/en/claude-apps-gateway#whats-enforced-on-developers"
+    },
+    {
+      "t": "修正: `managed-mcp.json` が配置された環境で、サーバーから MCP サーバーが配布されると、セルフホストランナーなど各種リモートセッションが起動時に終了してしまう問題を修正。配布されたサーバーは警告付きでスキップされるように",
+      "t_en": "Fixed self-hosted runner and other remote sessions exiting at startup when `managed-mcp.json` is deployed and the server delivers MCP servers; those servers are now skipped with a warning",
+      "tags": ["バグ修正", "MCP"],
+      "detail": "セルフホストランナーのホストに enterprise スコープの `managed-mcp.json` が存在する場合、どの MCP サーバーを読み込めるかはこのファイルが排他的に制御する。これまでは、この状態でコントロールプレーンがサーバー側設定の MCP サーバー（claude.ai コネクタを含む）を配信しようとすると、「You cannot dynamically configure MCP servers when an enterprise MCP config is present」というエラーでセッションが起動時に終了してしまっていた。\n\n本バージョンでは、配信されたサーバーをスキップし、スキップした各サーバー名を含む警告をログに出すよう修正された。",
+      "detail_en": "When an enterprise-scope `managed-mcp.json` is present on a self-hosted runner host, it takes exclusive control of which MCP servers may load. Before this fix, if the control plane also tried delivering server-configured MCP servers (including claude.ai connectors), the session exited at startup with an error about not being able to dynamically configure MCP servers when an enterprise MCP config is present.\n\nThe fix skips the delivered servers instead, logging a warning naming each skipped server.",
+      "category": "自己ホストランナー",
+      "category_en": "Self-Hosted Runner",
+      "doc_url": "https://code.claude.com/docs/en/self-hosted-environments-configuration#mcp-servers"
+    },
+    {
+      "t": "修正: セルフホストランナーのリポジトリ準備処理が Git Credential Manager のプロンプトでハングしてしまう問題を修正。認証情報がない場合、git は即座に失敗するように",
+      "t_en": "Fixed self-hosted runner repository preparation hanging on a Git Credential Manager prompt; git now fails fast when credentials are missing",
+      "tags": ["バグ修正"],
+      "detail": "セルフホストランナーが組み込みで行うクローン・フェッチ処理は、無人でリポジトリ準備が入力待ちでブロックすることのないよう、git・SSH・askpass ヘルパーからの対話的なプロンプトを無効化している。しかし Git Credential Manager (GCM) はこの対策の対象外だったため、GCM がインストールされていて利用可能な認証情報がないホストでは、GCM が対話的なサインインダイアログを開いてしまい、リポジトリ準備が無期限にハングすることがあった。\n\n本バージョンで `GCM_INTERACTIVE=never` が追加され、他の認証情報経路と同様に GCM も即座に失敗するようになった。",
+      "detail_en": "The self-hosted runner's built-in clone/fetch disables interactive prompts from git, SSH, and any askpass helper so unattended repository preparation never blocks waiting for input. Git Credential Manager (GCM) wasn't covered by those safeguards, so on a host with GCM installed and no usable credential, GCM could still open an interactive sign-in dialog and hang preparation indefinitely.\n\nThis fix adds `GCM_INTERACTIVE=never` so GCM also fails fast, matching the other credential paths.",
+      "category": "自己ホストランナー",
+      "category_en": "Self-Hosted Runner",
+      "doc_url": "https://code.claude.com/docs/en/self-hosted-environments-deploy#ship-git-config-in-your-image"
+    },
+    {
+      "t": "改善: workflow のファンアウトで、プレフィックスを共有する兄弟エージェントの起動をずらし、後続のエージェントがキャッシュ済みのプロンプトプレフィックスを読めるように（無効化する場合は `CLAUDE_CODE_WORKFLOW_PREFIX_STAGGER_MS=0`）",
+      "t_en": "Improved workflow fan-outs to stagger same-prefix sibling agents so subsequent agents read the cached prompt prefix instead of re-paying it (`CLAUDE_CODE_WORKFLOW_PREFIX_STAGGER_MS=0` disables)",
+      "tags": ["改善", "Perf"],
+      "detail": "同じモデル・エフォート・ツール・作業ディレクトリを共有し、キャッシュ可能なプロンプトプレフィックスを持つ複数のエージェントを同時にファンアウトで起動すると、これまでは全員が同時に開始するため、どの兄弟のキャッシュエントリもまだ存在せず、全員がプレフィックスを未キャッシュのまま処理していた。\n\n本バージョンでは、最初の1体を除く残りのエージェントを、最初のエージェントの応答が始まるまで保留してから一斉に解放するようになり、キャッシュが温まった状態でプレフィックスを読めるようになった。この保留時間は新設の `CLAUDE_CODE_WORKFLOW_PREFIX_STAGGER_MS`（デフォルト5000ms、`0` で無効化）で制御できる。",
+      "detail_en": "When a fan-out launches several agents sharing the same model, effort, tools, and working directory (and thus a cacheable prompt prefix), starting them simultaneously meant every agent processed that prefix uncached since no sibling's cache entry existed yet.\n\nThis version holds all but the first agent until the first agent's response begins, then releases the rest together to read the now-warm cache, capped by the new `CLAUDE_CODE_WORKFLOW_PREFIX_STAGGER_MS` (default 5000ms, `0` disables).",
+      "category": "ワークフロー",
+      "category_en": "Workflow",
+      "doc_url": "https://code.claude.com/docs/en/workflows#prompt-caching-in-a-fan-out"
+    },
+    {
+      "t": "改善: 「プロンプトが長すぎます」エラーで、`/compact` を勧めるだけでなく、自動コンパクションが復旧できなかった理由も説明するように改善",
+      "t_en": "Improved \"prompt is too long\" errors to explain why automatic compaction could not recover instead of only suggesting `/compact`",
+      "tags": ["改善"],
+      "detail": "これまで「プロンプトが長すぎます」というエラーは、既に自動コンパクションが試みられて復旧に失敗していた場合でも、一律に `/compact` の実行を勧めるだけで、なぜ手動でのコンパクションが有効か・無効かをユーザーが判断する材料がなかった。\n\n本バージョンで、自動コンパクションが失敗した具体的な理由を示したうえで、Esc での差し戻しや `/clear`、プロンプトを小さく分割するなど、実行可能な次の一手とあわせて表示するように改善された。",
+      "detail_en": "Previously, a \"prompt is too long\" error just suggested running `/compact`, even when automatic compaction had already been tried and failed to recover, leaving users without insight into why manual compaction would or wouldn't help.\n\nThis version now explains the specific reason automatic compaction couldn't recover, alongside actionable next steps such as stepping back with Esc, `/clear`, or breaking work into smaller prompts.",
+      "category": "会話管理",
+      "category_en": "Conversation Management",
+      "doc_url": "https://code.claude.com/docs/en/errors#prompt-is-too-long"
+    },
+    {
+      "t": "改善: サンドボックスのネットワークドメインリストで IPv6 リテラルを角括弧付き表記（`[::1]:443`）に統一。あいまいな表記は fail-closed で拒否され、`/doctor` でも警告されるように",
+      "t_en": "Improved sandbox: IPv6 literals in network domain lists are now bracketed (`[::1]:443`), and ambiguous spellings are enforced fail-closed and flagged by `/doctor`",
+      "tags": ["改善", "Security"],
+      "detail": "サンドボックスのドメインリストに角括弧なしで IPv6 アドレスを書くと、ポート番号との区切りとあいまいになる（例: `::1:443`）。これまでは Claude Code がこの意図を推測して扱っていたが、セキュリティ境界の設定としては安全とは言えなかった。\n\n本バージョンでは、角括弧付きの表記（`\"[::1]\"` や `\"[::1]:443\"`）を必須とすることでこのあいまいさを解消し、それでも残るあいまいな表記は推測せず fail-closed（拒否側）で扱うようにした。加えて `/doctor` が該当する記述を専用の警告として検出するようになった。",
+      "detail_en": "An IPv6 address in a sandbox domain-list entry written without brackets was ambiguous with a port suffix (e.g. `::1:443`), so Claude Code previously guessed at the intended meaning — unsafe for a security boundary.\n\nThe fix requires the bracketed form (`\"[::1]\"` or `\"[::1]:443\"`) to disambiguate, enforces any remaining ambiguous spelling fail-closed rather than guessing, and `/doctor` now flags such entries with a dedicated warning.",
+      "category": "サンドボックス",
+      "category_en": "Sandbox",
+      "doc_url": "https://code.claude.com/docs/en/sandboxing#ipv6-addresses-in-domain-lists"
+    },
+    {
+      "t": "改善: `/login` を、ログイン成功後にも `CLAUDE_CODE_OAUTH_TOKEN` の上書きに関する警告を再度表示するように改善",
+      "t_en": "Updated `/login` to repeat the `CLAUDE_CODE_OAUTH_TOKEN` override warning after a successful login",
+      "tags": ["改善"],
+      "detail": "`CLAUDE_CODE_OAUTH_TOKEN` が設定されている状態で `/login` を実行すると、切り替わるのは現在のセッションだけで、Claude Code は新しいセッションのたびにこの環境変数を再度読み込むため、変数を削除しない限り黙ってトークンベースのログインへ戻ってしまう。\n\n本バージョンでは、ログインが成功した後にもこの上書き警告を改めて表示するようになり、ユーザーが新しいログインを永続的な認証情報だと誤解しにくくなった。",
+      "detail_en": "When `CLAUDE_CODE_OAUTH_TOKEN` is set, running `/login` switches only the current session to the new login, but Claude Code re-reads the environment variable in every subsequent session, silently reverting to the token-based login until the variable is removed.\n\nThis version makes `/login` repeat the override warning after a successful login completes, so users don't mistake their new login for a persistent credential when the environment variable will still win next session.",
+      "category": "認証",
+      "category_en": "Authentication",
+      "doc_url": "https://code.claude.com/docs/en/authentication#authentication-precedence"
+    },
+    {
+      "t": "変更: `/commit-push-pr` で、危険なフラグ（`--force`・`--amend`・`--no-verify` など）を伴う git・gh コマンドは自動承認されないように変更",
+      "t_en": "Changed `/commit-push-pr` so git/gh commands with dangerous flags (`--force`, `--amend`, `--no-verify`, etc.) are no longer auto-approved",
+      "tags": ["改善", "Security"],
+      "detail": "commit-commands プラグインスキルの一部である `/commit-push-pr` は、いくつかの git・gh コマンドをあらかじめ承認済みのパーミッションで実行し、通常操作ではプロンプトなしで進められるようになっている。\n\n本バージョンでは、この事前承認の対象から `--force`（強制プッシュ）・`--amend`（既存コミットの書き換え）・`--no-verify`（hook のスキップ）といった危険なフラグを除外し、これらは明示的なユーザー許可が必要になった。破壊的な git 操作をスキルが気づかないうちに実行してしまうリスクを減らす変更。",
+      "detail_en": "`/commit-push-pr`, part of the commit-commands plugin skill, runs several git and gh commands with pre-approved permissions so it can proceed without prompting on routine operations.\n\nThis version tightens that pre-approval so dangerous flags — `--force` (force push), `--amend` (rewriting existing commits), `--no-verify` (skipping hooks) — are excluded and now require explicit user permission, reducing the risk of the skill silently performing a destructive git operation.",
+      "category": "パーミッション",
+      "category_en": "Permissions"
+    },
+    {
+      "t": "変更: セルフホストランナーの Windows での起動時に `--base-dir` の明示指定を必須化。Windows にはデフォルトのチェックアウトディレクトリが存在しないため",
+      "t_en": "Changed self-hosted runner Windows startup to require an explicit `--base-dir`; there is no default checkout directory on Windows",
+      "tags": ["改善", "Platform", "Windows"],
+      "detail": "セルフホストランナーの `--base-dir` フラグは Linux・macOS では `/workspace` にデフォルト設定されるが、Windows はランナーのホストとしてサポート対象外であり、同等の妥当なデフォルトパスが存在しない。\n\n本バージョンでは、Windows 上では `--base-dir`（または `SELF_HOSTED_RUNNER_BASE_DIR`）を明示的に指定しない限り、後で失敗するのではなく起動時にランナーが終了するように変更された。",
+      "detail_en": "The self-hosted runner's `--base-dir` flag defaults to `/workspace` on Linux/macOS, but Windows isn't a supported runner host and has no equivalent sensible default path.\n\nThis version makes the runner exit at startup on Windows unless `--base-dir` (or `SELF_HOSTED_RUNNER_BASE_DIR`) is explicitly set, rather than falling back to something inappropriate or failing later.",
+      "category": "自己ホストランナー",
+      "category_en": "Self-Hosted Runner",
+      "doc_url": "https://code.claude.com/docs/en/self-hosted-environments-reference#runner-cli-flags"
+    },
+    {
+      "t": "改善: [VSCode] 「問題を報告」と `/bug` が、廃止されたアンケートリンクではなく組み込みのフィードバックダイアログを開くように改善",
+      "t_en": "[VSCode] \"Report a problem\" and `/bug` now open the built-in feedback dialog instead of a retired survey link",
+      "tags": ["改善", "IDE"],
+      "detail": "VS Code 拡張機能のバグ報告の入り口である「問題を報告」と `/bug`・`/feedback` は、これまで外部のアンケートフォームへのリンクを開いていたが、そのフォームは既に廃止されていた。\n\n本バージョンからは拡張機能に組み込みのフィードバックダイアログが開くようになり、任意の説明文を添えて送信できる。Anthropic に一次接続でサインインしている場合はレポートが直接 Anthropic に送信される（サードパーティプロバイダー利用時や未サインイン時はダイアログは開くが送信時にエラーになり、何も送信されない）。",
+      "detail_en": "The VS Code extension's bug-reporting entry points — \"Report a problem\" and `/bug`/`/feedback` — previously linked to an external survey form that has since been retired.\n\nThey now open the extension's own built-in feedback dialog, letting users add an optional description; when signed in to Anthropic on a first-party connection, the report is sent directly to Anthropic (on a third-party provider or without Anthropic credentials, the dialog opens but submission errors and sends nothing).",
+      "category": "IDE",
+      "category_en": "IDE",
+      "doc_url": "https://code.claude.com/docs/en/vs-code#use-the-prompt-box"
+    },
+    {
+      "t": "改善: [VSCode] `/btw` のサイド質問パネルを、境界をドラッグしてリサイズできるように改善（サイドドック表示・スタック表示どちらでも対応）",
+      "t_en": "[VSCode] Made the `/btw` side-question panel resizable by dragging its boundary, in both side-docked and stacked layouts",
+      "tags": ["改善", "IDE"],
+      "detail": "`/btw` は、現在のセッションについて会話履歴に残さずに質問できる VS Code のサイドパネルで、ウィンドウを再読み込みしても続くスレッドを保持する。これまでこのパネルはリサイズできなかった。\n\n本バージョンでは、拡張機能がサイドバーにドッキングされている場合・メインのチャットパネルとスタック表示されている場合のどちらでも、パネルの境界をドラッグしてリサイズできるようになり、長めの回答と並べて読みやすくなった。",
+      "detail_en": "`/btw` opens a side panel in VS Code for asking a question about the current session without adding it to the conversation history, keeping a thread that survives window reloads.\n\nThis version lets users drag the panel's boundary to resize it, whether the extension is docked to a sidebar or stacked with the main chat panel, making the panel easier to read alongside longer answers.",
+      "category": "IDE",
+      "category_en": "IDE"
+    },
+    {
+      "t": "追加: [VSCode] サイドバーにセッショングループを追加。右クリックで作成・リネーム・削除ができ、Cmd/Ctrl クリックや Shift クリックで複数セッションをまとめて移動できるように",
+      "t_en": "[VSCode] Added session groups in the sidebar — right-click to create, rename, or delete; Cmd/Ctrl- or Shift-click to move several sessions at once",
+      "tags": ["新機能", "IDE"],
+      "detail": "VS Code 拡張機能のアクティビティバーにあるセッション一覧が、名前付きで折りたたみ可能なグループに対応した。セッションを右クリックしてそこからグループを作成したりグループへ出し入れしたりでき、グループのヘッダーを右クリックしてリネーム・削除できる（削除してもグループ内のセッション自体は残る）。Cmd/Ctrl クリックや Shift クリックで複数セッションを選択し、まとめて移動することも可能。\n\nグループはワークスペースフォルダーごとに保存され、再読み込みをまたいで保持される。",
+      "detail_en": "The VS Code extension's Activity Bar sessions list now supports named, collapsible groups: right-click a session to create a group from it or move it into or out of one, right-click a group header to rename or delete it (deleting only ungroups its sessions), and Cmd/Ctrl-click or Shift-click to select and move several sessions at once.\n\nGroups are saved per workspace folder, persisting across reloads.",
+      "category": "IDE",
+      "category_en": "IDE",
+      "doc_url": "https://code.claude.com/docs/en/vs-code#organize-sessions-into-groups"
+    }
   ]
 }

@@ -1,0 +1,472 @@
+{
+  "2.1.231": [
+    {
+      "t": "修正: Slack のように事前登録済みの OAuth クライアントを使う MCP サーバーで、リダイレクト URI の不一致により MCP OAuth のサインインが失敗する問題を修正",
+      "t_en": "Fixed MCP OAuth sign-in failing with a redirect URI mismatch for servers that use a pre-registered OAuth client, such as Slack",
+      "tags": ["バグ修正", "MCP"],
+      "detail": "v2.1.229 で、Claude Code は OAuth コールバックのリダイレクト URI を `http://localhost:PORT/callback` ではなく `http://127.0.0.1:PORT/callback` として送信するように変更されていた。しかし Slack のように Dynamic Client Registration ではなく事前登録済みの OAuth クライアントを使う MCP サーバーは、開発者ポータルに登録済みのリダイレクト URI と厳密な文字列一致で照合するため、この不一致によってサインインが拒否されてしまっていた。\n\n本バージョンでリダイレクト URI が `localhost` 表記に戻され、クライアント側のリダイレクト URI をユーザーが再登録するといった回避策なしに、再び OAuth サインインを完了できるようになった。",
+      "detail_en": "In v2.1.229, Claude Code sent the OAuth callback redirect URI as `http://127.0.0.1:PORT/callback` instead of `http://localhost:PORT/callback`. MCP servers using pre-registered OAuth clients (rather than Dynamic Client Registration) — such as Slack — perform an exact string match against the redirect URI registered in their developer portal, so the mismatch caused sign-in to be rejected.\n\nThis version restores the `localhost` form, letting users complete OAuth sign-in again without needing to re-register their client's redirect URI as a workaround.",
+      "category": "MCP 連携",
+      "category_en": "MCP Integration",
+      "doc_url": "https://code.claude.com/docs/en/mcp#use-pre-configured-oauth-credentials"
+    }
+  ],
+  "2.1.232": [
+    {
+      "t": "変更: サブエージェントの fork がデフォルトで有効に。`subagent_type: \"fork\"` のサブエージェントは会話全体とプロンプトキャッシュを引き継ぎ、対話セッションでのチームメイト以外のエージェント起動もデフォルトでバックグラウンド実行されるように",
+      "t_en": "Subagent forking is now on by default: a `subagent_type: \"fork\"` subagent inherits the full conversation and prompt cache, and non-teammate agent spawns in interactive sessions now run in the background by default",
+      "tags": ["改善", "Agent"],
+      "detail": "fork は親セッションの会話履歴・システムプロンプト・ツール・プロンプトキャッシュを丸ごと引き継ぐサブエージェントで、ゼロから始める通常のサブエージェントより、同じコンテキストが必要なタスクでは安上がりになる。この「fork モード」は、これまで `CLAUDE_CODE_FORK_SUBAGENT=1` で明示的に有効化する必要があり、Claude が `fork` タイプを要求できるかどうかと、起動されたサブエージェントが会話をブロックせずバックグラウンドで動くかどうかの両方を左右する設定だった。\n\n本バージョンから、対話セッションではこのモードがデフォルトで有効になった。これにより通常の Agent ツールによる起動も自動的にバックグラウンド実行となり、メインの会話を止めずに委任した作業を進められるようになった。",
+      "detail_en": "A fork is a subagent that inherits the parent conversation's full history, system prompt, tools, and prompt cache instead of starting fresh, so it reuses the parent's cached prefix and is cheaper than a normal subagent for tasks needing the same context. \"Fork mode\" (previously opt-in via `CLAUDE_CODE_FORK_SUBAGENT=1`) governs both whether Claude can request the `fork` subagent type and whether spawned subagents run in the background rather than blocking the conversation.\n\nAs of this version, fork mode is on by default for interactive sessions, so ordinary Agent-tool spawns now run in the background automatically, keeping the main conversation responsive while delegated work proceeds.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-Agent",
+      "doc_url": "https://code.claude.com/docs/en/sub-agents#turn-fork-mode-on-or-off"
+    },
+    {
+      "t": "追加: プロンプト内で `@` を入力すると名前で他の Claude セッションをメンションできるように。Claude がそのセッションに `SendMessage` で直接連絡する",
+      "t_en": "Type `@` in the prompt to mention another Claude session by name; Claude then uses `SendMessage` to reach that session directly",
+      "tags": ["新機能", "Agent"],
+      "detail": "クロスセッションメッセージング（v2.1.224 で追加）では、Claude が `ListAgents` で他のセッションを発見し `SendMessage` でテキストを届けられる。これまでどのセッション宛てかを Claude に伝えるには、プロンプト中で説明的に書く必要があった。\n\n本バージョンでは、ファイルやサブエージェントを `@` でメンションするのと同じ要領で、プロンプト中に `@` を入力して候補から生きているセッションを選べるようになり、Claude はそのセッションへ直接 `SendMessage` を送るようになった。",
+      "detail_en": "Cross-session messaging (added in v2.1.224) lets Claude discover other sessions with `ListAgents` and deliver text with `SendMessage`. This item adds a faster way to target a message: typing `@` in the prompt and picking a live session by name from the typeahead, mirroring how `@` already mentions files and subagents.\n\nClaude then sends directly to that session instead of the user having to describe which session they mean in prose.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-Agent",
+      "doc_url": "https://code.claude.com/docs/en/cross-session-messaging#message-another-session"
+    },
+    {
+      "t": "改善: `SendMessage` が、生きているセッションのうち1件だけに一致するベアな名前であれば、ref による確認を挟まずそのまま配信するように改善",
+      "t_en": "`SendMessage` now delivers to a bare name that exactly matches one live session, instead of asking to confirm with a ref first",
+      "tags": ["改善", "Agent"],
+      "detail": "セッションは名前で宛先指定できるが、同じマシン上で2つのセッションが同じ表示名を持つこともある。これまでは名前があいまいだったり修飾されていなかったりする場合、配信前にセッション固有の ref による確認が必要になることがあった。\n\n本バージョンでは、生きているセッションのうち一意に1件だけへ一致するベアな名前であれば、そのまま即座に配信されるようになった。複数のセッションが同じ名前を共有している場合にのみ、短い識別子で曖昧さを解消する。",
+      "detail_en": "Sessions are addressed by name in `SendMessage`, but two sessions on a machine can share the same display name. Previously an ambiguous or unqualified name may have required confirming a session-specific ref before delivery.\n\nNow a bare name that uniquely matches exactly one live session delivers immediately, and Claude Code falls back to a short disambiguating identifier only when multiple sessions share that name.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-Agent",
+      "doc_url": "https://code.claude.com/docs/en/cross-session-messaging#see-which-sessions-claude-can-reach"
+    },
+    {
+      "t": "追加: 同一マシン上の対話セッションが一意な名前を保持するように。既に使用中の名前でセッションを開始・リネームすると `name-word-word` の形式に変えられ、その旨が通知される",
+      "t_en": "Interactive sessions on one machine now keep unique names: starting or renaming a session to a name another live session already uses gives it a `name-word-word` variant and tells you",
+      "tags": ["改善", "Agent"],
+      "detail": "`SendMessage`・`/list-agents` でのセッション宛先指定をあいまいにしないため、Claude Code はマシンごとのセッション名の一意性を強制するようになった。\n\n既に別の生きているセッションが使っている名前でセッションを開始したり `/rename` したりすると、重複を許すのではなく自動的に `-word-word` 形式のバリアントに変えられ、その旨が通知される。",
+      "detail_en": "To keep session addressing in `SendMessage`/`/list-agents` unambiguous, Claude Code now enforces unique session names per machine.\n\nIf you start or `/rename` a session to a name already in use by another live session, it's automatically suffixed with a `-word-word` variant and you're notified, rather than silently allowing a duplicate.",
+      "category": "セッション管理",
+      "category_en": "Session Management"
+    },
+    {
+      "t": "追加: `/config` に「ダイアログの有効期限」「他セッションからのメッセージ」の項目を追加（セッション間の受信メッセージを許可・保留・拒否する設定）",
+      "t_en": "Added `/config` rows for \"Dialog expiry\" and \"Messages from your other sessions\" (cross-session inbound accept/hold/refuse)",
+      "tags": ["改善", "Agent"],
+      "detail": "これらは settings.json でしか設定できなかった2つの機能を対話式の `/config` メニューに表示するもの。`dialogExpiry` は、承認ダイアログ（セッション間メッセージが保留されている場合を含む）に応答がないまま自動キャンセルされるまでの猶予時間（デフォルト5分）。`crossSessionInbound` は、他の自分のセッションからの受信メッセージを配信する（`accept`）か、承認待ちでキューする（`hold`）か、破棄する（`refuse`）かを選ぶ設定。\n\n`/config` に項目が追加されたことで、settings.json を直接編集しなくてもクロスセッションメッセージングの挙動を調整できるようになった。",
+      "detail_en": "These surface two existing settings.json-only controls in the interactive `/config` menu: `dialogExpiry`, the deadline (default 5 minutes) before an unanswered approval dialog — including one for a held cross-session message — auto-cancels, and `crossSessionInbound`, which chooses whether inbound messages from your other sessions are delivered (`accept`), queued for your approval (`hold`), or dropped (`refuse`).\n\nMaking them `/config` rows lets users adjust cross-session messaging behavior without hand-editing settings.json.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-Agent",
+      "doc_url": "https://code.claude.com/docs/en/cross-session-messaging#control-inbound-messages"
+    },
+    {
+      "t": "追加: GitLab のトークン系統（`glrt-`・`gloas-`・`glptt-`・`glagent-`・`glimt-`・`glsoat-`・`glcbt-`・`glft-`・`glffct-`）のシークレットレダクションを追加し、ルーティング可能な `glpat-`・`gldt-` トークンは全体をレダクション。`glab` CLI の設定ストアも `gh` と同様のサンドボックス・認証情報パス保護の対象に",
+      "t_en": "Added secret redaction for GitLab token families (`glrt-`, `gloas-`, `glptt-`, `glagent-`, `glimt-`, `glsoat-`, `glcbt-`, `glft-`, `glffct-`) and full redaction of routable `glpat-`/`gldt-` tokens; the `glab` CLI config store gets the same sandbox and credential-path protection as `gh`",
+      "tags": ["新機能", "Security"],
+      "detail": "Claude Code はターミナル出力やフィードバック用のバンドルなどから、認識可能なシークレットのパターンをレダクション（伏せ字化）する仕組みを持ち、これまで GitHub のトークンなどが対象だった。\n\n本バージョンでは、この組み込みレダクションの対象が GitLab の各種トークンプレフィックスにも拡張され、`glab` のローカル設定ファイルにも Claude Code が `gh` の設定ストアに対して既に適用しているのと同じデフォルトの保護が与えられるようになった。GitLab の認証情報がトランスクリプト・ログ・共有バンドルに漏れるリスクを減らす変更。",
+      "detail_en": "Claude Code redacts recognizable secret patterns from things like terminal output and feedback bundles, and previously covered tokens such as GitHub's.\n\nThis version extends that built-in redaction to GitLab's various token prefixes and gives `glab`'s local config file the same default protections Claude Code already applies to `gh`'s config store, reducing the chance a GitLab credential leaks into a transcript, log, or shared bundle.",
+      "category": "セキュリティ",
+      "category_en": "Security"
+    },
+    {
+      "t": "追加: プラグインマーケットプレイスに GitLab 対応を追加。ネストしたサブグループを含むベアな `gitlab.com` リポジトリ URL が `github.com` の URL と同様にクローンできるように。クローンの認証失敗ヒントも実際の Git ホスト名を表示",
+      "t_en": "Added GitLab support to plugin marketplaces: bare `gitlab.com` repo URLs (including nested subgroups) now clone like `github.com` URLs, and clone auth-failure hints name your actual git host",
+      "tags": ["新機能", "Plugin"],
+      "detail": "プラグインマーケットプレイスは、GitHub 形式の省略記法や、他のホスト向けの完全な URL からも追加できるようになっていたが、これまで `https://` プレフィックスなしのベアな `gitlab.com` URL は GitHub 形式の省略記法として無効と判定されていた。\n\n本バージョンでは、ネストしたサブグループのパスを含むベアな `gitlab.com/...` URL も、GitHub の URL と同様に `https://` プレフィックスなしでクローンできるようになり、認証失敗時のガイダンスも決め打ちで GitHub を想定するのではなく、実際に失敗した Git ホスト名を表示するよう改善された。",
+      "detail_en": "Plugin marketplaces can already be added from a bare GitHub-style shorthand or a full URL for other hosts. Previously, a bare `gitlab.com/...` URL without the `https://` prefix was rejected as an invalid GitHub owner/repo shorthand.\n\nThis version lets a bare `gitlab.com/...` URL (including nested subgroup paths) clone the way GitHub URLs already do, without requiring the `https://` prefix, and updates authentication-failure guidance to name whichever git host actually failed instead of assuming GitHub.",
+      "category": "プラグイン管理",
+      "category_en": "Plugin Management"
+    },
+    {
+      "t": "改善: 設定の `additionalMarketplaces`・`allowedMarketplaces` を、`extraKnownMarketplaces`・`strictKnownMarketplaces` のより分かりやすい別名として受け付けるように",
+      "t_en": "Settings: `additionalMarketplaces` and `allowedMarketplaces` are now accepted as friendlier aliases for `extraKnownMarketplaces` and `strictKnownMarketplaces`",
+      "tags": ["改善", "Plugin"],
+      "detail": "`extraKnownMarketplaces`（マーケットプレイスを自動登録する）と `strictKnownMarketplaces`（追加を許可するマーケットプレイスをホワイトリスト化する）は、簡潔だが紛らわしい名前の設定キーだった。\n\n本バージョンでは、同じ挙動に対応する、より自己説明的な `additionalMarketplaces`・`allowedMarketplaces` というキーが別名として追加され、settings.json を読み書きしやすくなった。",
+      "detail_en": "`extraKnownMarketplaces` (auto-registers marketplaces) and `strictKnownMarketplaces` (allowlists which marketplaces users can add) are terse, easy-to-confuse names.\n\nThis version adds `additionalMarketplaces` and `allowedMarketplaces` as equivalent, more self-explanatory setting keys that resolve to the same behavior, making settings.json easier to read and write correctly.",
+      "category": "設定",
+      "category_en": "Settings"
+    },
+    {
+      "t": "修正: url 型の `blockedMarketplaces` エントリで指定したベアなリポジトリ URL が、CLI がそれを git クローンとして分類する場合でも、引き続きブロック対象として機能するように修正",
+      "t_en": "Enterprise policy: a url-typed `blockedMarketplaces` entry for a bare repo URL keeps blocking that URL when the CLI classifies it as a git clone",
+      "tags": ["バグ修正", "Plugin", "Security"],
+      "detail": "`blockedMarketplaces`（managed settings 限定）は、ネットワークやファイルシステムへの操作が行われる前に、完全一致でマーケットプレイスのソースをブロックする仕組み。`gitlab.com/owner/repo` のようなベアなホスト URL が（前述の GitLab マーケットプレイス対応により）プレーンな git リポジトリとしてクローン・分類されるようになったことに伴い、url 型のブロックエントリもこの新しい分類のもとで同じ URL に一致し続ける必要があった。\n\n本バージョンでこの整合性が修正され、既存のブロック設定が黙って効かなくなることを防いだ。",
+      "detail_en": "`blockedMarketplaces` (managed-settings only) blocks marketplace sources by exact match before any network or filesystem operation. Once bare host URLs like `gitlab.com/owner/repo` started being classified and cloned as plain git repos (see the GitLab marketplace item above), a `url`-typed block entry needed to keep matching that same URL under its new classification so existing blocks don't silently stop applying.\n\nThis version fixes that consistency.",
+      "category": "プラグイン管理",
+      "category_en": "Plugin Management",
+      "doc_url": "https://code.claude.com/docs/en/settings#available-settings"
+    },
+    {
+      "t": "改善: ゲートウェイの `desktop:` オーバーレイが、Desktop 側のスキーマに対して起動時に検証されたうえで、リリース済みの Desktop 設定すべてを受け付けるように改善（従来は手動管理された11個のキーのみ対応）。未知・不正なキーがあると起動に失敗するように",
+      "t_en": "Gateway: the `desktop:` overlay now accepts every released Desktop setting (was 11 hand-listed keys), validated at boot against Desktop's own schema; unknown or invalid keys fail boot",
+      "tags": ["改善", "Platform"],
+      "detail": "セルフホストの Claude apps gateway は、CLI 向けの `cli:` ブロックとあわせて `desktop:` ブロックを managed policy に含めることで、自動更新の無効化やバナー表示といった Desktop 専用の機能ゲートを Desktop クライアントに配信できる。これまでゲートウェイは手動でメンテナンスされた固定リストのキーしか理解できなかった。\n\n本バージョンでは、Desktop 自身がサポートするあらゆる設定をゲートウェイが受け付けるようになり、`desktop:` ブロックは起動時に Desktop 自身のスキーマに対して検証され、未知または不正なキーがあると黙って無視するのではなく起動そのものが失敗するようになった。",
+      "detail_en": "A self-hosted Claude apps gateway can serve Claude Desktop clients through a `desktop:` block in its managed policy, alongside the CLI-facing `cli:` block, for Desktop-only feature gates like disabling auto-updates or showing a banner. Previously the gateway only understood a fixed, hand-maintained list of Desktop keys.\n\nNow it accepts any setting Desktop itself supports and validates the block at boot against Desktop's own schema, failing boot on an unknown or malformed key instead of silently ignoring it.",
+      "category": "プラットフォーム互換性",
+      "category_en": "Platform Compatibility"
+    },
+    {
+      "t": "修正: ゲートウェイで `managed.policies[].match.groups`・`admin.admin_groups` の空エントリや、不正な `email_domain` 値（空、または `@`・空白・カンマを含む）が、誰にも一致しない・意図せず管理者権限を許可してしまう代わりに、起動時に失敗するように修正",
+      "t_en": "Gateway: empty `managed.policies[].match.groups`/`admin.admin_groups` entries and malformed `email_domain` values (empty, or containing `@`, whitespace, or commas) now fail at boot instead of silently matching no one or granting admin access",
+      "tags": ["バグ修正", "Security", "Platform"],
+      "detail": "ゲートウェイの `managed.policies` マッチャーは `groups`・`email_domain` の条件をサポートし、`admin.admin_groups` リストは指定した IdP グループのメンバーにフル管理者権限を付与する。設定ミスによる空・不正な値（空の groups 配列や、`@`・空白・カンマなどの余分な文字を含む `email_domain`）は、これまで誰にも一致しないまま黙って失敗するか、最悪の場合は意図せず広範な管理者アクセスを許してしまう解釈をされるおそれがあった。\n\n本バージョンでは、こうした値が起動時に拒否されるようになり、設定ミスをその場で検知できるようになった。",
+      "detail_en": "The gateway's `managed.policies` matcher supports `groups` and `email_domain` conditions, and the `admin.admin_groups` list grants full admin access to members of named IdP groups. A misconfigured, empty, or malformed value previously could silently fail to match anyone or, worse, be misinterpreted in a way that granted broad admin access.\n\nThe gateway now rejects these at startup so misconfiguration is caught immediately instead of causing a silent authorization gap.",
+      "category": "セキュリティ",
+      "category_en": "Security"
+    },
+    {
+      "t": "修正: Fable 5 access を持つ組織向けに、`/advisor` で再び Fable 5 をアドバイザーとして選択できるように修正。usage credits の同意設定は `/model fable` から行う",
+      "t_en": "Fable 5 is offered as an advisor in `/advisor` again for organizations with Fable access, with usage-credits consent set up through `/model fable`",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "advisor 機能は、意思決定の要所でメインモデルがより強いモデル（Fable・Opus・Sonnet）に相談できる仕組みで、Fable 5 は最上位のアドバイザーとして v2.1.170 以降かつ組織の Fable 5 access を要件とする。Fable 5 アドバイザーはこれまで選択できない状態になっていた。\n\n本バージョンでこれが復旧し、`/advisor` から再び選択できるようになった。usage credits の課金同意は、Fable 5 がメインモデルの場合と同じ `/model fable` の同意フロー経由で設定する。",
+      "detail_en": "The advisor tool lets a main model consult a stronger model (Fable, Opus, or Sonnet) at key decision points; Fable 5 is the highest-tier accepted advisor and requires v2.1.170+ and organizational Fable 5 access. Fable 5 had become unavailable as an advisor option.\n\nThis version restores Fable 5 as a selectable `/advisor` option, and routes the usage-credits billing consent for it through the same `/model fable` consent flow used when Fable 5 is the main model.",
+      "category": "エージェント設定",
+      "category_en": "Agent Configuration",
+      "doc_url": "https://code.claude.com/docs/en/advisor#choose-an-advisor-model"
+    },
+    {
+      "t": "修正: PowerShell のパーミッションバイパスを修正。変数を書き込むパラメータによって `$PSDefaultParameterValues` が黙って上書きされ、後続コマンドのファイルアクセス先がリダイレクトされてしまう問題を修正",
+      "t_en": "Fixed a PowerShell permission bypass where variable-writing parameters could silently overwrite `$PSDefaultParameterValues` and redirect later commands' file access",
+      "tags": ["バグ修正", "Security", "Windows"],
+      "detail": "Windows 上で Claude Code は、パーミッションプロンプトが必要かどうかを判断するために PowerShell コマンドを静的解析している。しかし、変数を書き込むパラメータを使ったコマンドで `$PSDefaultParameterValues`（後続のコマンドレットにデフォルトのパラメータ値を黙って渡す PowerShell の仕組み）を上書きされると、その後続コマンドの引数自体には表れない形でファイルの書き込み先をリダイレクトでき、コマンドの文字列そのものを見るパーミッションチェックをすり抜けられてしまっていた。\n\n本バージョンで、この Windows 固有のセキュリティ上の抜け道が修正された。",
+      "detail_en": "On Windows, Claude Code statically analyzes PowerShell commands to decide whether a permission prompt is needed. A crafted command using a variable-writing parameter could overwrite `$PSDefaultParameterValues`, silently supplying default parameter values to later cmdlets, letting an attacker redirect a later command's file target without that command's own arguments showing the redirection — bypassing permission checks based on the command's literal text.\n\nThis version closes this Windows-specific security gap.",
+      "category": "パーミッション",
+      "category_en": "Permissions"
+    },
+    {
+      "t": "修正: Windows のパーミッションバイパスを修正。Git Bash が辿る Cygwin 形式のシンボリックリンクをパス検証が通常ファイルとみなしてしまい、経由した書き込みがパーミッション承認なしに行えてしまう問題を修正",
+      "t_en": "Fixed a Windows permission bypass where Git Bash followed Cygwin-style symlinks that path validation saw as regular files; writes through them now require permission approval",
+      "tags": ["バグ修正", "Security", "Windows"],
+      "detail": "Claude Code は書き込みを承認する前にファイルパスを検証するが、Windows 上の Git Bash はシンボリックリンクを Cygwin 固有の形式で表現しており、Claude Code のパス検証はこれをシンボリックリンクとして認識せず通常のファイルとして扱っていた。そのため、こうしたシンボリックリンクを経由して承認範囲外のファイルへ書き込む操作が、パーミッションチェックをすり抜けてしまうことがあった。\n\n本バージョンの修正により、こうしたシンボリックリンクを経由する書き込みも正しく承認が必要になった。",
+      "detail_en": "Claude Code validates file paths before approving writes, but on Windows, Git Bash represents symlinks in a Cygwin-specific format that Claude Code's path validation didn't recognize as a symlink, treating it as an ordinary file. A write that followed such a symlink to an unapproved target could therefore bypass the permission check meant to gate writes outside the approved scope.\n\nWrites through these symlinks now correctly trigger approval.",
+      "category": "パーミッション",
+      "category_en": "Permissions"
+    },
+    {
+      "t": "修正: ネストした git リポジトリが親ディレクトリの trust を引き継いでしまう問題を修正。各リポジトリごとに個別の trust 確認が必要になるように",
+      "t_en": "Fixed nested git repositories inheriting trust from a parent directory; each repository now requires its own trust confirmation",
+      "tags": ["バグ修正", "Security"],
+      "detail": "Claude Code はワークスペースの trust を git リポジトリのルートごとにリポジトリ単位で保存しており、フォルダーを信頼するとそのリポジトリに限ってプロジェクトレベルのパーミッションルールや hook が有効になる。これまで、既に信頼済みの親ディレクトリの中にあるネストした git リポジトリ（サブモジュールや、あるリポジトリの中にチェックアウトされた別のリポジトリなど）は、独自の確認を求められることなく親の trust を引き継いでしまうことがあった。\n\n本バージョンで、ネストしたリポジトリごとに個別の trust ダイアログが必要になるよう修正された。",
+      "detail_en": "Claude Code saves workspace trust per repository, keyed on the git repository root, so that trusting a folder unlocks project-level permission rules and hooks only for that repository. A nested git repository inside an already-trusted parent directory (e.g., a submodule or a repo checked out inside another repo) could previously inherit the parent's trust instead of requiring its own confirmation.\n\nEach nested repository now needs its own trust dialog.",
+      "category": "セキュリティ",
+      "category_en": "Security",
+      "doc_url": "https://code.claude.com/docs/en/permissions#project-allow-rules-and-workspace-trust"
+    },
+    {
+      "t": "修正: MCP サーバーが応答しない、あるいはプロトコルバージョンの確認に不正な応答を返した際、接続処理が接続タイムアウトの30秒間まるごとハングしてしまう問題を修正",
+      "t_en": "Fixed MCP connections hanging for the full 30-second connect timeout when a server fails to answer or sends a malformed reply to the protocol-version probe",
+      "tags": ["バグ修正", "MCP"],
+      "detail": "Claude Code が MCP サーバーに接続する際、ハンドシェイクの一環としてプロトコルバージョンを確認する。このプローブに対してサーバーが一切応答しなかったり、不正な形式の応答を返したりした場合、これまでは速やかに諦めるのではなく接続タイムアウトの全時間を待ちきってしまい、起動やツール利用が遅延していた。\n\n本バージョンではこの失敗を即座に検知し、待たずに処理を打ち切るよう修正された。",
+      "detail_en": "When Claude Code connects to an MCP server it probes the protocol version as part of the handshake. If the server never answered or replied with a malformed response to that probe, Claude Code would wait out the full connection timeout before giving up rather than failing fast, delaying startup or tool use.\n\nThe fix detects the failure and stops waiting immediately.",
+      "category": "MCP 連携",
+      "category_en": "MCP Integration"
+    },
+    {
+      "t": "修正: クラウドセッション内で bridge によってホストされる Remote Control セッションが、そのホスト元セッションのトランスクリプトや認証情報を引き継いでしまう問題を修正",
+      "t_en": "Fixed Remote Control sessions hosted by a bridge inside a cloud session inheriting that session's transcript or credentials",
+      "tags": ["バグ修正", "Security"],
+      "detail": "「bridge」は、ローカルマシンではなくクラウド（セルフホスト環境や Anthropic ホスト）のセッション内から Remote Control 接続をホストできる仕組み。不具合により、こうした bridge 経由の Remote Control セッションが独自のトランスクリプトや認証情報から始まるのではなく、ホスト元のクラウドセッション自身のトランスクリプトや認証情報を引き継いでしまうことがあり、一方のセッションの会話や認証情報がもう一方に漏れるおそれがあった。\n\n本バージョンでこの問題が修正された。",
+      "detail_en": "A \"bridge\" lets a Remote Control connection be hosted from inside a cloud (self-hosted-environment or Anthropic-hosted) session rather than a local machine. A bug could cause such a bridged Remote Control session to inherit the hosting cloud session's own transcript or credentials instead of starting with its own, which could leak one session's conversation or authentication into another.\n\nThis version fixes that issue.",
+      "category": "Remote Control",
+      "category_en": "Remote Control"
+    },
+    {
+      "t": "修正: Claude Desktop や IDE から開始した Remote Control セッションが、ローカルセッションを再開するたびに claude.ai 側で新規セッションとして表示されてしまう問題を修正。既存のセッションに再接続するように",
+      "t_en": "Fixed Remote Control sessions started from Claude Desktop or an IDE appearing as a new claude.ai session each time the local session was resumed; they now reattach to the existing one",
+      "tags": ["バグ修正"],
+      "detail": "Remote Control は、スマートフォンやブラウザから続きの操作ができるよう、ローカルの Claude Code プロセスを claude.ai/code のセッションに紐づける。Claude Desktop や IDE 拡張機能から開始したセッションでは、これまでローカルセッションを再開するたびに、紐づいた既存のセッションに再接続するのではなく claude.ai 側で毎回新しいセッションが作られてしまい、web・アプリ側の履歴が分断されていた。\n\n本バージョンで、既存のリモートセッションに再接続するよう修正された。",
+      "detail_en": "Remote Control links a local Claude Code process to a claude.ai/code session so you can continue from your phone or browser. When a session was started from Claude Desktop or an IDE extension, resuming the underlying local session previously created a brand-new claude.ai-side session each time instead of reconnecting to the one already associated with it, fragmenting session history across the web/app view.\n\nIt now reattaches to the existing remote session.",
+      "category": "Remote Control",
+      "category_en": "Remote Control"
+    },
+    {
+      "t": "修正: アイドル状態の Remote Control セッションが、新しく接続したクライアントからは到達不能に見えてしまう問題を修正",
+      "t_en": "Fixed Remote Control sessions appearing unreachable to newly attached clients while idle",
+      "tags": ["バグ修正"],
+      "detail": "ターンが進行していないアイドル状態の Remote Control セッションは、モバイルアプリやブラウザなど新しく接続してきたクライアントからは到達不能に見えてしまうことがあった。実際には裏側のローカル Claude Code プロセスは動作中で接続もできていたにもかかわらず、セッションが消えた・切断されたかのように見えていた。\n\n本バージョンでこの問題が修正された。",
+      "detail_en": "A Remote Control session that had gone idle (no active turn) could appear as unreachable to a client — such as the mobile app or a browser — connecting for the first time, even though the underlying local Claude Code process was still running and connected, which could make it look like the session had disappeared or disconnected.\n\nThis version fixes that issue.",
+      "category": "Remote Control",
+      "category_en": "Remote Control"
+    },
+    {
+      "t": "修正: セッションワーカーが再起動した際、Remote Control の bridge セッションが会話履歴を復元できない問題を修正",
+      "t_en": "Fixed Remote Control bridge sessions not restoring conversation history when the session worker restarts",
+      "tags": ["バグ修正"],
+      "detail": "Remote Control の bridge セッションはセッションワーカープロセスを介して動作しており、デプロイやクラッシュからの復旧などでこのワーカーが再起動すると、これまでは bridge セッション側で以前の会話履歴を復元できず、セッションデータ自体は存在していても実質的にコンテキストが失われてしまっていた。\n\n本バージョンでこの問題が修正された。",
+      "detail_en": "Remote Control bridge sessions run through a session worker process; when that worker restarted, for example after a deploy or crash recovery, the bridged session previously failed to restore its prior conversation history, effectively losing context on the client side even though the underlying session data still existed.\n\nThis version fixes that issue.",
+      "category": "Remote Control",
+      "category_en": "Remote Control"
+    },
+    {
+      "t": "修正: claude.ai やアプリ側でセッションが削除された会話を再開すると、ログインに関するメッセージで失敗してしまう問題を修正（v2.1.227 で発生した回帰）。代わりに新しい代替セッションが開始されるように",
+      "t_en": "Remote Control: resuming a conversation whose session was deleted from claude.ai or the app now starts a replacement instead of failing with a message about your login (regressed in v2.1.227)",
+      "tags": ["バグ修正"],
+      "detail": "ローカルの会話を再開すると、Claude Code はその会話に紐づく Remote Control セッションに再接続する。そのリモートセッションが claude.ai やモバイル・デスクトップアプリから削除されていた場合、v2.1.227 の回帰により、以前のような寛容な挙動（自動的に代替のリモートセッションを作成する）ではなく、ログインに関するメッセージとともに失敗するようになってしまっていた。\n\n本バージョンで、リモートセッションが確かに削除されたと確認できた場合には自動的に代替セッションを作成する、以前の挙動が復旧された。",
+      "detail_en": "When you resume a local conversation, Claude Code reconnects to the Remote Control session recorded for it; if that remote session was deleted from claude.ai or the mobile/desktop app, a v2.1.227 regression made this fail with a login-related error message instead of gracefully starting a fresh replacement remote session.\n\nThis fix restores the earlier, more forgiving behavior of auto-creating a replacement when the recorded session is confirmed gone.",
+      "category": "Remote Control",
+      "category_en": "Remote Control",
+      "doc_url": "https://code.claude.com/docs/en/remote-control#couldnt-reconnect-to-your-remote-control-session"
+    },
+    {
+      "t": "修正: managed settings の読み込みに失敗した際、Cloud gateway の `/login` が「Press Enter to continue」の後に無言で終了したり、ターミナルが無応答のまま残ってしまったりする問題を修正。失敗理由が表示されるように",
+      "t_en": "Fixed Cloud gateway `/login` exiting silently or leaving an unresponsive terminal after \"Press Enter to continue\" when managed settings failed to load; the reason is now shown",
+      "tags": ["バグ修正"],
+      "detail": "セルフホストの Claude apps gateway 経由でサインインする際、Claude Code は `/login` の一環として managed settings を取得する。この取得が失敗した場合、これまでログインフローは理由を示さずに終了したり、「Press Enter to continue」の表示のままターミナルが無応答になってハングしたりすることがあり、ユーザーはなぜログインが完了しないのか分からなかった。\n\n本バージョンで失敗理由が表示されるようになり、ゲートウェイやネットワークの問題を診断しやすくなった。",
+      "detail_en": "When signing in through a self-hosted Claude apps gateway, Claude Code fetches managed settings as part of `/login`. If that fetch failed, the login flow could previously exit with no explanation, or hang at a \"Press Enter to continue\" prompt with an unresponsive terminal, leaving the user unable to tell why login wasn't completing.\n\nThe failure reason is now surfaced so users can diagnose gateway or network issues.",
+      "category": "認証",
+      "category_en": "Authentication"
+    },
+    {
+      "t": "修正: ネイティブビルドの voice mode で、音声サービスが接続を拒否した際に「listening…」表示のまま固まってしまう問題を修正。拒否は即座に表示されるように",
+      "t_en": "Fixed voice mode on native builds getting stuck on \"listening…\" when the voice service rejected the connection; the rejection is now shown immediately",
+      "tags": ["バグ修正"],
+      "detail": "音声入力は録音した音声を Anthropic のサーバーへストリーミングして文字起こしする。ネイティブ（非ターミナル）ビルドでは、音声サービスが接続の試みを拒否した場合、これまでは拒否理由が表示されずに UI が「listening…」の表示のまま無期限に固まってしまうことがあり、ユーザーは音声入力が動作しているのか分からなかった。\n\n本バージョンで拒否が即座に報告されるようになり、再試行やトラブルシューティングの判断がしやすくなった。",
+      "detail_en": "Voice dictation streams recorded audio to Anthropic's servers for transcription. On native (non-terminal) builds, if the voice service rejected the connection attempt, the UI could get stuck showing \"listening…\" indefinitely instead of surfacing the rejection, leaving users unsure whether dictation was working.\n\nThe rejection is now reported immediately so users know to retry or troubleshoot.",
+      "category": "入力",
+      "category_en": "Input"
+    },
+    {
+      "t": "修正: mTLS クライアント証明書のローテーションに再起動が必要だった問題を修正。接続エラー発生時にローテーション後の証明書・鍵を自動的に再読み込みするように",
+      "t_en": "Fixed mTLS client certificate rotation requiring a restart; Claude Code now reloads the rotated cert and key automatically on connection errors",
+      "tags": ["バグ修正", "Security"],
+      "detail": "エンタープライズ環境では、`CLAUDE_CODE_CLIENT_CERT`・`CLAUDE_CODE_CLIENT_KEY` から読み込んだ mTLS クライアント証明書で送信接続を認証できる。組織がこれらの証明書をローテーションすると、実行中の Claude Code セッションはこれまで再起動するまで古い証明書・鍵を使い続けてしまい、再起動するまで接続エラーが発生していた。\n\n本バージョンでは、接続エラーを検知するとディスクから現在の証明書・鍵を自動的に再読み込みするようになった。",
+      "detail_en": "Enterprise deployments can authenticate outbound connections with mTLS client certificates loaded from `CLAUDE_CODE_CLIENT_CERT`/`CLAUDE_CODE_CLIENT_KEY`. When an organization rotated these certificates, a running Claude Code session previously kept using the stale cert/key until restarted, causing connection failures until relaunch.\n\nIt now detects connection errors and reloads the current cert and key from disk automatically.",
+      "category": "ネットワーク",
+      "category_en": "Network"
+    },
+    {
+      "t": "修正: 不正な形式の AWS・Vertex リージョン値がそのままリクエスト URL の組み立てに使われてしまう問題を修正。デフォルトリージョンへフォールバックするように",
+      "t_en": "Fixed malformed AWS or Vertex region values being used to build request URLs; they now fall back to the default region",
+      "tags": ["バグ修正", "Platform"],
+      "detail": "Amazon Bedrock や Google Cloud 上では、Claude Code は環境変数やプロバイダーのプロファイル設定から解決したリージョン値を使ってリクエスト URL を組み立てる。設定ミスなどで不正な形式のリージョン値になっていた場合、これまではそのままリクエスト URL の組み立てに使われ、不正または失敗するリクエストにつながることがあった。\n\n本バージョンで、不正な値を検知した場合はデフォルトリージョンへフォールバックするようになった。",
+      "detail_en": "On Amazon Bedrock and Google Cloud, Claude Code builds the inference request URL using a region value resolved from environment variables or provider profile configuration. A malformed region value (e.g., from a misconfigured setting or profile) was previously used as-is to construct request URLs, which could produce invalid or failing requests.\n\nClaude Code now detects a malformed value and falls back to the default region instead.",
+      "category": "プラットフォーム互換性",
+      "category_en": "Platform Compatibility"
+    },
+    {
+      "t": "修正: Bedrock・Vertex・ゲートウェイ経由のデプロイで、ストリームのアイドルタイムアウトエラーが復旧されずリクエスト失敗になってしまう問題を修正",
+      "t_en": "Fixed stream idle timeout errors failing the request instead of recovering on Bedrock, Vertex, and gateway deployments",
+      "tags": ["バグ修正", "Platform"],
+      "detail": "Amazon Bedrock・Google Cloud・カスタムゲートウェイの手前にあるロードバランサーやプロキシなどの中継インフラでは、長時間のストリーミング応答がアイドルタイムアウトの条件に稀に引っかかることがある。これまではこのアイドルタイムアウトエラーが発生すると復旧を試みず、そのままリクエスト失敗としてユーザーのターンが中断されていた。\n\n本バージョンでは、この種のエラーを検知した際に失敗させるのではなく復旧を試みるようになった。",
+      "detail_en": "Long-running streaming responses can occasionally hit an idle-timeout condition on intermediate infrastructure (load balancers, proxies) sitting in front of Amazon Bedrock, Google Cloud, or a custom gateway. Previously such an idle-timeout error surfaced as a failed request instead of being recovered from, interrupting the user's turn.\n\nClaude Code now handles this class of error by recovering rather than failing outright.",
+      "category": "ネットワーク",
+      "category_en": "Network"
+    },
+    {
+      "t": "修正: 切り詰めたテキストを含むコンテンツサイズ準拠のオーバーレイが、必要な幅より1桁分広く描画されてしまう問題、および先頭側を切り詰めたテキストが省略記号だけに縮んでしまう問題を修正",
+      "t_en": "Fixed content-sized overlays containing truncated text rendering one column too wide, and start-truncated text collapsing to an ellipsis",
+      "tags": ["バグ修正"],
+      "detail": "コンテンツの内容に合わせてサイズが決まるオーバーレイ（ポップオーバーやパネル）に、切り詰められたテキストが含まれる場合、オフバイワンの描画バグにより必要な幅より1桁分広く表示されてしまうことがあった。これとは別に、先頭側を切り詰めたテキスト（長いパスの末尾だけ表示するケースなど）が、周囲の文脈もなく単なる省略記号だけに縮んでしまうこともあった。\n\n本バージョンでこれらのターミナル描画上の不具合が両方とも修正された。",
+      "detail_en": "Overlays (popovers/panels) that size themselves to their content had an off-by-one rendering bug when the content included truncated text, making the overlay one terminal column wider than needed. Separately, text truncated from the start (e.g., showing the end of a long path) could collapse down to a bare ellipsis with no surrounding context.\n\nBoth are terminal-rendering fixes in this version.",
+      "category": "レンダリング",
+      "category_en": "Rendering"
+    },
+    {
+      "t": "修正: 長い shell コマンドやエージェントの説明のプレビューを切り詰める際、絵文字の途中で切ってしまい文字化けが発生する問題を修正",
+      "t_en": "Fixed a stray garbled character where a long shell-command or agent-description preview was cut off mid-emoji",
+      "tags": ["バグ修正"],
+      "detail": "長い Bash コマンドやエージェントの説明を1行のプレビュー用に切り詰める際、固定の文字数で単純に切ると、複数バイトからなる絵文字を途中で分断してしまい、切り詰め位置に文字化けした文字が表示されることがあった。\n\n本バージョンで、切り詰め処理がマルチバイト文字の途中で切らないよう修正された。",
+      "detail_en": "When Claude Code truncates a long Bash command or agent description for a one-line preview, cutting the string at a fixed character length could split a multi-byte emoji in half, producing a garbled character at the truncation point.\n\nThe truncation logic now avoids cutting in the middle of a multi-byte character.",
+      "category": "レンダリング",
+      "category_en": "Rendering"
+    },
+    {
+      "t": "修正: `known_marketplaces.json` への同時書き込みによる起動時の競合状態で、プラグインマーケットプレイスの登録が黙って解除されてしまうことがある問題を修正",
+      "t_en": "Fixed a startup race that could silently unregister a plugin marketplace due to concurrent writes to `known_marketplaces.json`",
+      "tags": ["バグ修正", "Plugin"],
+      "detail": "マーケットプレイスの登録情報は、ユーザーごとに1つの `~/.claude/plugins/known_marketplaces.json` に保存される。複数の Claude Code プロセスや起動経路がこのファイルへ同時に書き込むと、競合状態によって片方の書き込みがもう片方を上書きしてしまい、エラー表示もないまま以前登録していたマーケットプレイスが黙って失われてしまうことがあった。\n\n本バージョンで、書き込み処理が調整されこの競合が発生しないよう修正された。",
+      "detail_en": "Marketplace registrations are stored once per user in `~/.claude/plugins/known_marketplaces.json`. If multiple Claude Code processes or startup paths wrote to this file concurrently, a race condition could cause one write to clobber another, silently dropping a previously registered marketplace with no error shown to the user.\n\nWrites are now coordinated to prevent this.",
+      "category": "プラグイン管理",
+      "category_en": "Plugin Management"
+    },
+    {
+      "t": "修正: 再起動後も生き残るはずの処理が実行中の場合に `/update`・`/tui` が再起動を拒否してしまう問題を修正",
+      "t_en": "Fixed `/update` and `/tui` refusing to restart while work that survives the relaunch was running",
+      "tags": ["バグ修正"],
+      "detail": "`/tui` は会話を維持したまま別のターミナルレンダラーへ再起動する機能で、バックグラウンドの Bash コマンドや dynamic workflow のような作業はセッションの再起動をまたいで生き残るよう設計されている。これまで `/update`・`/tui` は、こうした本来再起動をまたいで継続できるはずの作業が進行中の場合に、再起動そのものを拒否してしまうことがあった。\n\n本バージョンでは、そうした処理をブロックせず再起動が進むように修正された。",
+      "detail_en": "`/tui` relaunches Claude Code into a different terminal renderer with the conversation intact, and background work like Bash commands and dynamic workflows is designed to survive a session restart. Previously, `/update` and `/tui` could refuse to restart if such background work was in progress, even though that work is meant to carry over the relaunch.\n\nThey now proceed with the restart instead of blocking on it.",
+      "category": "セッション管理",
+      "category_en": "Session Management"
+    },
+    {
+      "t": "修正: SDK・リモートセッションで、利用上限に達した際の案内が利用できないスラッシュコマンドを勧めてしまう問題を修正",
+      "t_en": "Fixed usage-limit guidance suggesting unavailable slash commands in SDK and remote sessions",
+      "tags": ["バグ修正", "SDK"],
+      "detail": "利用上限に達すると、Claude Code は次の一手としてスラッシュコマンドを勧める案内を表示することがある。SDK セッションやリモート（Claude Code on the web など）セッションでは、一部のスラッシュコマンドがそもそも利用できないため、この案内がそうした状況では実行できないコマンドを勧めてしまうことがあった。\n\n本バージョンで、この案内がセッションの種類ごとに実際に利用可能なコマンドに絞り込まれるようになった。",
+      "detail_en": "When Claude Code hits a usage limit, it shows guidance that can include suggesting a slash command as a next step. In SDK sessions and remote (e.g., Claude Code on the web) sessions, some slash commands aren't available, so this guidance previously could suggest a command the user couldn't actually run in that context.\n\nThe guidance is now scoped to commands actually available in the session type.",
+      "category": "SDK",
+      "category_en": "SDK"
+    },
+    {
+      "t": "修正: 対話式の `--advisor fable` 起動で表示される同意メッセージが、既に終了した対話セッション内で `/model fable` を実行するよう案内してしまう問題を修正",
+      "t_en": "Fixed the consent message for interactive `--advisor fable` launches, which told you to run `/model fable` in an interactive session that had just exited",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "`--advisor fable` で起動し、Fable 5 のアドバイザー利用に usage credits の同意が必要な場合、同意メッセージが表示される。しかし表示直後にプロセスが終了してしまう起動（一回限りの実行や設定ミスの対話起動など）では、ユーザーがメッセージを読む頃には既に存在しないセッション内で `/model fable` を実行するよう誤った案内をしていた。\n\n本バージョンで、プロセス終了後にも通用する案内に修正された。",
+      "detail_en": "Launching with `--advisor fable` when Fable 5 advisor usage requires usage-credits consent shows a consent message; for a launch that exits immediately after showing it, the message incorrectly instructed the user to run `/model fable` inside a session that no longer existed by the time they read it.\n\nThe message is corrected to give guidance that applies after the process has exited.",
+      "category": "エージェント設定",
+      "category_en": "Agent Configuration"
+    },
+    {
+      "t": "改善: フルスクリーンのストリーミング表示を改善。会話全体を更新のたびに再正規化しなくなったことで、長時間のセッションでも応答性を維持",
+      "t_en": "Improved fullscreen streaming: long sessions stay responsive because the whole conversation is no longer re-normalized on every update",
+      "tags": ["改善", "Perf"],
+      "detail": "フルスクリーン（オルタネートスクリーン）レンダリングは、会話がストリーミングされるのに合わせてターミナル UI を再描画する。これまでは増分更新のたびに会話全体の描画状態を再正規化しており、スケールが悪く、長いセッションほど徐々に動作が重く感じられていた。\n\n本バージョンでは、更新のたびに会話全体を再処理する無駄をなくし、長いセッションでも応答性が保たれるようになった。",
+      "detail_en": "Fullscreen (alt-screen) rendering redraws the terminal UI as the conversation streams. Previously, every incremental update re-normalized the entire conversation's rendering state, which scaled poorly and made long sessions feel increasingly sluggish.\n\nThe renderer now avoids repeating that full-conversation work on each update, keeping long sessions responsive.",
+      "category": "パフォーマンス",
+      "category_en": "Performance"
+    },
+    {
+      "t": "改善: managed settings の承認ダイアログを改善。エンドポイント URL を表示し、テレメトリのみの変更には分かりやすい文言を使用し、ルーティンな OpenTelemetry オプションは省略。サーバー管理下でのサンドボックスバイナリの上書き（`sandbox.bwrapPath`・`sandbox.socatPath`・`sandbox.ripgrep`）には承認を必須化",
+      "t_en": "Improved the managed settings approval dialog: shows endpoint URLs, uses clearer wording for telemetry-only changes, skips routine OpenTelemetry options, and requires approval for server-managed sandbox binary overrides (`sandbox.bwrapPath`, `sandbox.socatPath`, `sandbox.ripgrep`)",
+      "tags": ["改善", "Security"],
+      "detail": "カスタムエンドポイントや hook、環境変数など特定の managed settings は、Claude Code が適用する前に明示的なユーザー承認ダイアログを必要とする。本バージョンでは、実際のエンドポイント URL を表示し、テレメトリだけのトグルにはより分かりやすい文言を使い、ルーティンな OpenTelemetry オプションではダイアログを省略するなど、この承認ダイアログの UX が改善された。\n\nあわせて、サンドボックスがどの `bwrap`・`socat`・ripgrep バイナリを信頼するかを managed 側から上書きする変更（`sandbox.bwrapPath`・`sandbox.socatPath`・`sandbox.ripgrep`）にも承認が必須となり、こうした変更が管理者によって黙って適用される抜け道が塞がれた。",
+      "detail_en": "Certain managed settings, like custom endpoints, hooks, and env vars, require an explicit user approval dialog before Claude Code applies them. This version improves that dialog's UX: showing the actual endpoint URL, clearer copy for telemetry-only toggles, and skipping the dialog for routine OpenTelemetry options.\n\nIt also closes a gap by now requiring approval when a managed source overrides the sandbox's binary paths, so an admin-pushed change to which `bwrap`/`socat`/ripgrep binary the sandbox trusts (`sandbox.bwrapPath`, `sandbox.socatPath`, `sandbox.ripgrep`) can't apply silently.",
+      "category": "設定",
+      "category_en": "Settings",
+      "doc_url": "https://code.claude.com/docs/en/server-managed-settings#security-approval-dialogs"
+    },
+    {
+      "t": "改善: `/feedback`・`/bug` を、Claude が応答中でもターンの完了を待たずに即座に開くように改善",
+      "t_en": "`/feedback` and `/bug` now open immediately when invoked while Claude is responding, instead of waiting for the turn to finish",
+      "tags": ["改善"],
+      "detail": "`/feedback`・`/bug` は、セッションのコンテキストを添えてバグ報告や製品フィードバックを送信するための同意ダイアログを開く。これまで、Claude がまだ応答を生成している最中にこれらのコマンドを実行すると、ターンが完了するまでダイアログの表示が待たされていた。\n\n本バージョンからは、Claude がターンの途中かどうかにかかわらず即座にダイアログが開くようになり、今まさに起きている問題などをターンの完了を待たずに報告できるようになった。",
+      "detail_en": "`/feedback` and `/bug` open a consent dialog for sending a bug report or product feedback with session context attached. Previously, invoking either command while Claude was still generating a response made the dialog wait until the turn finished.\n\nIt now opens right away regardless of whether Claude is mid-turn, so users can report an issue without waiting.",
+      "category": "UX",
+      "category_en": "UX"
+    },
+    {
+      "t": "改善: `/plugin install plugin@marketplace` が、先にマーケットプレイスを更新してからインストールするように改善。手動でマーケットプレイスを更新しなくても、新しく公開されたプラグインをインストールできるように",
+      "t_en": "`/plugin install plugin@marketplace` now refreshes the marketplace first, so newly published plugins install without a manual marketplace update",
+      "tags": ["改善", "Plugin"],
+      "detail": "`name@marketplace` の形式でプラグインをインストールすると、Claude Code はローカルにキャッシュされたそのマーケットプレイスのカタログのコピーを参照する。これまでこのキャッシュはインストール前に更新されておらず、直近の更新以降に公開されたプラグインは、ユーザーが手動で `/plugin marketplace update` を実行するまでインストールに失敗していた。\n\n本バージョンでは、いくつかの例外（直近に更新済み・リモートソースでない場合など）を除き、対象のマーケットプレイスをまず更新してからルックアップするようになり、新しく公開されたプラグインもすぐにインストールできるようになった。",
+      "detail_en": "Installing a plugin by `name@marketplace` looks the plugin up in Claude Code's local cached copy of that marketplace's catalog. Previously that cached copy wasn't refreshed before the lookup, so a plugin published after the last refresh would fail to install until the user manually ran `/plugin marketplace update`.\n\nNow the named marketplace is refreshed first (with a few exceptions, like recent refreshes or non-remote sources), so newly published plugins install right away.",
+      "category": "プラグイン管理",
+      "category_en": "Plugin Management",
+      "doc_url": "https://code.claude.com/docs/en/discover-plugins#install-plugins"
+    },
+    {
+      "t": "改善: `/code-review` の high・xhigh・max エフォートでも、他のレベルと同様にバックグラウンドエージェントとして実行されるように改善",
+      "t_en": "`/code-review` at high, xhigh, and max effort now runs in a background agent like the other levels",
+      "tags": ["改善", "Agent"],
+      "detail": "`/code-review` は通常バックグラウンドのサブエージェントとして実行され、メインの会話を埋め尽くさないようになっている。これまで最上位のエフォートレベル（high・xhigh・max）はより広範な分析が必要という理由からか、フォアグラウンドで実行されていたとみられる。\n\n本バージョンで、すべてのエフォートレベルが一貫してバックグラウンドエージェントとして実行されるようになった。",
+      "detail_en": "`/code-review` normally runs as a background subagent so it doesn't fill your main conversation. Previously the highest effort levels (high, xhigh, max) apparently ran in the foreground instead, likely because their broader analysis was treated as needing to block.\n\nThis change makes all effort levels consistently run as a background agent.",
+      "category": "コマンド",
+      "category_en": "Commands",
+      "doc_url": "https://code.claude.com/docs/en/code-review#run-in-the-foreground"
+    },
+    {
+      "t": "改善: ペーストやクリップボードから取り込む画像を、イベントループをブロックせずに読み込むように改善",
+      "t_en": "Pasted and clipboard images are read without blocking the event loop",
+      "tags": ["改善", "Perf"],
+      "detail": "画像をプロンプトへペーストしたり、クリップボードから取り込んだりする処理は、これまで画像データを同期的に読み込んでいたため、大きな画像を処理している間 Claude Code のイベントループがブロックされ、入力処理や描画が一時的に固まることがあった。\n\n本バージョンでこの読み込みが非ブロッキングになり、画像のペースト中も UI の応答性が保たれるようになった。",
+      "detail_en": "Pasting an image or reading one from the clipboard into the prompt previously read the image data synchronously, which could block Claude Code's event loop (freezing input handling and rendering) while a large image was processed.\n\nThis is now done without blocking, keeping the UI responsive during image paste.",
+      "category": "パフォーマンス",
+      "category_en": "Performance"
+    },
+    {
+      "t": "改善: Remote Control が、ネットワークの瞬断後も約30分間は再接続を試み続け、1時間の間に何度か瞬断が起きても切断されなくなるように改善",
+      "t_en": "Remote Control now keeps reconnecting for about 30 minutes after a network blip and no longer drops after a few blips spread across an hour",
+      "tags": ["改善"],
+      "detail": "Remote Control はネットワークの中断後、自動的に再接続する。これまでは一度の瞬断だけで諦めるのが早すぎたり、1時間の間に複数回の瞬断が積み重なると接続が完全に切れてしまったりすることがあった。\n\n本バージョンでは、中断後およそ30分間は再接続を試み続け、1時間の間に数回の瞬断が起きても切断されずに許容するようになった。",
+      "detail_en": "Remote Control automatically reconnects after a network interruption. Previously it may have given up reconnecting too quickly after a single blip, or accumulated failures across multiple blips spread over an hour and dropped the connection entirely.\n\nIt now keeps retrying for roughly 30 minutes after an interruption and tolerates several blips spread across an hour without disconnecting.",
+      "category": "Remote Control",
+      "category_en": "Remote Control",
+      "doc_url": "https://code.claude.com/docs/en/remote-control#requirements"
+    },
+    {
+      "t": "修正: 会話の再開が、それをまだ保持している同一マシン上の別の Claude Code から Remote Control を黙って奪ってしまう問題を修正。移動させたい場合はそちら側で `/remote-control` を実行する",
+      "t_en": "Remote Control: resuming a conversation no longer silently takes Remote Control away from another Claude Code on the same machine that still has it; run `/remote-control` there to move it",
+      "tags": ["バグ修正"],
+      "detail": "ある claude.ai セッションの Remote Control 接続を保持できるローカルプロセスは、同時には1つだけ。これまでは、あるマシン上で会話を再開すると、その Remote Control 接続をまだ保持している同じマシン上の別の実行中プロセスから黙って接続を奪ってしまい、そのプロセスが何の警告もなく切断されることがあった。\n\n本バージョンでは、再開しただけでは自動的に奪わないようになり、別のプロセスへ Remote Control を移動させたい場合は、そちら側で明示的に `/remote-control` を実行する必要がある。",
+      "detail_en": "Only one local Claude Code process can hold the Remote Control connection for a given claude.ai session at a time. Previously, resuming a conversation on one machine could silently steal the active Remote Control connection away from another running Claude Code process that still had it attached, disconnecting that other process without warning.\n\nNow resuming doesn't take it away automatically, and moving Remote Control to a different process requires explicitly running `/remote-control` there.",
+      "category": "Remote Control",
+      "category_en": "Remote Control"
+    },
+    {
+      "t": "改善: エージェントパネルを改善。完了したサブエージェントは即座に非表示になり `/tasks` を案内するフッターが表示される。「↓ 他 N 件」のオーバーフロー表示も見やすい位置に移動",
+      "t_en": "Updated agent panel: completed subagents hide immediately with a `/tasks` footer hint, and the \"↓ N more\" overflow indicator moved left for visibility",
+      "tags": ["改善", "Agent"],
+      "detail": "プロンプト欄の下に表示される実行中のサブエージェント・fork の一覧パネルでは、これまで完了したサブエージェントがそのまま表示され続けることがあった。\n\n本バージョンでは、完了したサブエージェントが即座にこの一覧から消えるようになり、完了した作業を振り返るための `/tasks` を案内するフッターが表示されるようになった。あわせて、隠れている追加の行数を示す「↓ N more」のオーバーフロー表示も、目に入りやすいよう左寄りの位置に移動した。",
+      "detail_en": "The in-session panel below the prompt shows running subagents and forks. Previously a completed subagent may have lingered visibly in that panel.\n\nIt now hides immediately once complete, with a footer hint pointing to `/tasks` for reviewing finished work, and the overflow indicator for additional hidden rows was repositioned further left so it's easier to notice.",
+      "category": "エージェントビュー",
+      "category_en": "Agent View"
+    },
+    {
+      "t": "改善: Remote Control で、セッションが別デバイスに引き継がれた・別アプリから終了された・削除された、のどれに該当するかをターミナル側で明示するように改善。それを取り消してしまう再接続の提案も行わないように",
+      "t_en": "Remote Control: the terminal now says whether a session was taken over by another device, ended from another app, or deleted, and stops suggesting a reconnect that would undo it",
+      "tags": ["改善"],
+      "detail": "別のデバイスやアプリが Remote Control セッションを引き継いだり、終了させたり、削除したりすると、これまでラップトップ側のターミナルには一般的な切断メッセージが表示され、再接続が提案されることがあった。しかし、その変更がユーザー自身の意図的な操作（スマートフォン側でセッションを終えたなど）だった場合、再接続の提案はその操作を取り消してしまうものになる。\n\n本バージョンでは、こうしたケースを区別したメッセージが表示されるようになり、他の場所での意図的な変更を巻き戻してしまうような再接続の提案は行われなくなった。",
+      "detail_en": "When another device or app takes over, ends, or deletes a Remote Control session, the local terminal previously may have shown a generic disconnect message and suggested reconnecting — which, if the change was intentional (e.g., you ended it from your phone), would just undo that action.\n\nClaude Code now distinguishes these cases in the message it shows and stops recommending a reconnect when doing so would reverse an intentional change made elsewhere.",
+      "category": "Remote Control",
+      "category_en": "Remote Control"
+    },
+    {
+      "t": "修正: Bash の入力リダイレクト（`< file`）が、引数として渡した場合と同様にパーミッションチェックの対象になっていなかった問題を、全プラットフォームで修正",
+      "t_en": "Bash input redirections (`< file`) are now permission-checked like their argument spellings on all platforms",
+      "tags": ["バグ修正", "Security"],
+      "detail": "シェルの入力リダイレクト（`command < file`）でファイルを読み込む操作は、そのファイルを引数として渡すのと同じ効果を持つ。しかしコマンドの引数を調べるパーミッションチェックは、`< file` が通常の引数としては現れないため、これまでリダイレクト表記のファイル読み込みを見落とすことがあった。\n\n本バージョンで、リダイレクトも引数表記のファイル読み込みと同様にチェックされるようになり、この抜け道が全プラットフォームで塞がれた。",
+      "detail_en": "A command that reads a file via shell input redirection (`command < file`) has the same effect as passing the file as an argument, but permission checks that inspect a command's arguments could previously miss a redirection-spelled file read, since `< file` doesn't appear as a normal argument.\n\nRedirections are now checked the same way argument-spelled file reads are, closing this permission-check gap consistently across platforms.",
+      "category": "パーミッション",
+      "category_en": "Permissions"
+    },
+    {
+      "t": "改善: 完了済みのバックグラウンドエージェントを再開した際に表示されるメッセージを短縮",
+      "t_en": "Shortened the message shown when resuming a completed background agent",
+      "tags": ["改善", "Agent"],
+      "detail": "既に完了したバックグラウンドのサブエージェントやセッションへフォローアップを送って再開すると、エージェントが作業を再開する前に案内メッセージが表示される。\n\n本バージョンでこのメッセージが短縮され、ルーティンな操作にしては目立ちすぎていたトランスクリプト上のノイズが減った。",
+      "detail_en": "Resuming (sending a follow-up to) a background subagent or session that has already completed shows an informational message before the agent picks the work back up.\n\nThis message is now shorter, reducing noise in the transcript for what's otherwise a routine action.",
+      "category": "エージェントビュー",
+      "category_en": "Agent View"
+    },
+    {
+      "t": "変更: Cowork セッションでは、ユーザースコープのメモリファイルにある外部の `@` インポートをインライン展開しないように変更",
+      "t_en": "Cowork sessions no longer inline external @-imports from user-scope memory files",
+      "tags": ["改善", "Security"],
+      "detail": "CLAUDE.md などのメモリファイルは `@` で他のファイルをインポートでき、作業ディレクトリの外を参照する場合は「外部」インポートとして扱われる。通常の Claude Code セッションでは、`~/.claude/CLAUDE.md` のようなユーザースコープの自分自身のファイルからのインポートは、自分で書いたファイルであるため承認ダイアログなしで読み込まれる。\n\nCowork（Claude Desktop のチャット形式モード）では、本バージョンからユーザースコープのメモリファイルにある外部インポートが自動的にインライン展開されなくなり、自分自身のファイルに対してもより厳格な境界が設けられた。",
+      "detail_en": "CLAUDE.md and other memory files can `@`-import other files; an import is \"external\" when it resolves outside the working directory. In ordinary Claude Code sessions, imports from your own user-scope files (like `~/.claude/CLAUDE.md`) load without an approval dialog because they're files you wrote yourself.\n\nIn Cowork (Claude Desktop's chat-style mode), external imports from user-scope memory files are no longer inlined automatically, adding a stricter boundary there even for your own files.",
+      "category": "メモリ",
+      "category_en": "Memory",
+      "doc_url": "https://code.claude.com/docs/en/memory#import-additional-files"
+    },
+    {
+      "t": "改善: 共有 `/tmp` 上に自動生成されるクロスセッションメッセージング用ソケットディレクトリを強化。事前に仕込まれたシンボリックリンクや他ユーザーのディレクトリを、使用せず拒否するように",
+      "t_en": "Hardened the auto-generated cross-session messaging socket directory on shared `/tmp`: a pre-planted symlink or another user's directory is now refused instead of used",
+      "tags": ["改善", "Security", "Agent"],
+      "detail": "クロスセッションメッセージングを有効にした各セッションは、共有ファイルシステムである `/tmp` 上に自動作成されるディレクトリの下で Unix ドメインの受信箱ソケットをバインドする。複数ユーザーが使うマシンでは、攻撃者が想定パスにあらかじめシンボリックリンクや自分が所有するディレクトリを仕込んでおくことで、ソケット作成を横取り・リダイレクトできてしまうおそれがあった。\n\n本バージョンでは、こうした事前に仕込まれたシンボリックリンクや他ユーザー所有のディレクトリを検知して使用を拒否するようになり、共有 `/tmp` を悪用したローカルの傍受リスクが塞がれた。",
+      "detail_en": "Each session with cross-session messaging enabled binds a Unix-domain inbox socket, auto-created under a directory on the shared `/tmp` filesystem. On a multi-user machine, an attacker could pre-plant a symlink or a directory they own at the expected path to intercept or redirect socket creation.\n\nClaude Code now detects and refuses such a pre-planted symlink or foreign-owned directory instead of using it, closing a local privilege/interception risk.",
+      "category": "セキュリティ",
+      "category_en": "Security",
+      "doc_url": "https://code.claude.com/docs/en/cross-session-messaging#the-sessions-inbox-socket"
+    },
+    {
+      "t": "修正: Linux のファイルシステムサンドボックスにあった保護対象パスのバイパスを修正し、強化",
+      "t_en": "Hardened the Linux filesystem sandbox against a protected-path bypass",
+      "tags": ["バグ修正", "Security"],
+      "detail": "サンドボックス化された Bash ツールは、コマンドが本来書き込めるディレクトリの内側であっても、`.claude`・`.git`・hook や MCP の設定ファイルといった保護対象の設定・コード用パスへの書き込みを拒否し、実行中のコマンドが自分自身にパーミッションを与えたりサンドボックスの外側で動く hook を仕込んだりできないようにしている。この保護に、Linux でバイパスできる抜け道が見つかっていた。\n\n本バージョンでこのバイパスが修正され、意図した拒否をすり抜けて保護対象パスへ書き込めてしまう抜け道が塞がれた。",
+      "detail_en": "The sandboxed Bash tool denies writes to protected configuration/code paths (like `.claude`, `.git`, hook and MCP config files) even within directories a command can otherwise write to, so a running command can't grant itself permissions or plant a hook that runs outside the sandbox. A bypass in this protection was found on Linux.\n\nThis version fixes it, closing a gap that could have let a sandboxed command write to one of these protected paths despite the intended denial.",
+      "category": "サンドボックス",
+      "category_en": "Sandbox",
+      "doc_url": "https://code.claude.com/docs/en/sandboxing#protected-paths"
+    },
+    {
+      "t": "変更: `sandbox.ripgrep` を、ユーザー・managed・`--settings` の各設定からのみ有効になるように変更。プロジェクト設定ではサンドボックスの ripgrep バイナリを上書きできなくなった",
+      "t_en": "Changed `sandbox.ripgrep` to be honored only from user, managed, and `--settings` settings; project settings can no longer override the sandbox's ripgrep binary",
+      "tags": ["改善", "Security"],
+      "detail": "`sandbox.ripgrep` は、サンドボックスが検索処理で信頼する ripgrep バイナリを指定する設定。プロジェクトレベルの settings ファイルからこれを設定できてしまうと、リポジトリをチェックアウトするだけで悪意ある・侵害されたリポジトリがサンドボックスを信頼できない ripgrep バイナリへリダイレクトできてしまう。\n\n本バージョンでは、この設定をユーザー・managed・`--settings`（リポジトリではなくユーザーや管理者が制御するソース）に限定することで、このサプライチェーン的なリスクを塞いだ。",
+      "detail_en": "`sandbox.ripgrep` configures which ripgrep binary the sandbox trusts for search operations. Allowing a project-level settings file to set this meant a malicious or compromised repository could redirect the sandbox to an untrusted ripgrep binary just by being checked out.\n\nRestricting it to user, managed, and `--settings` sources (which the user or an admin controls, not the repository) closes that supply-chain-style risk.",
+      "category": "サンドボックス",
+      "category_en": "Sandbox"
+    },
+    {
+      "t": "削除: カスタムサブエージェントの作成を勧める起動時のヒント、および `/powerup` ツアー内の同様の案内を削除",
+      "t_en": "Removed the startup tip suggesting you create custom subagents, and the matching nudge in the `/powerup` tour",
+      "tags": ["非推奨"],
+      "detail": "Claude Code は起動時に不定期のヒントを表示するほか、対話式の機能ツアーである `/powerup` の中でも特定機能への誘導を行うことがある。\n\n本バージョンでは、カスタムサブエージェントの作成を勧めるこの起動時ヒントと、`/powerup` 内の同様の案内が削除された。サブエージェント作成が既定のワークフローでより中心的な位置づけになった（本バージョンの fork モードのデフォルト化なども参照）ことや、案内自体の価値が低いと判断されたことによる、機能追加ではなくコンテンツ面の整理。",
+      "detail_en": "Claude Code shows occasional startup tips and, in the `/powerup` interactive feature tour, nudges toward specific features.\n\nThis version removes the tip and the matching `/powerup` nudge that suggested creating custom subagents — likely because subagent creation is now more central to default workflows (see the fork-mode-by-default item above) or the tip was judged low-value. It's a content trim rather than a functional change.",
+      "category": "UX",
+      "category_en": "UX"
+    }
+  ]
+}
