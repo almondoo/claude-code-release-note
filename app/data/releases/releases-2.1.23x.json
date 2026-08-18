@@ -363,5 +363,265 @@
         "tags": ["バグ修正", "Windows"]
       }
     ]
+  },
+  {
+    "v": "2.1.234",
+    "items": [
+      {
+        "t": "追加: 環境変数 `CLAUDE_CODE_PROJECT_DIR_NAME` を追加。セッションごとに専用の設定ディレクトリを持つホストで、プロジェクトごとのトランスクリプトディレクトリに短い名前を選べるように",
+        "t_en": "Added the optional `CLAUDE_CODE_PROJECT_DIR_NAME` environment variable: hosts that give each session its own config directory can choose a short name for the per-project transcript directory",
+        "tags": ["新機能", "Platform"]
+      },
+      {
+        "t": "追加: キーバインドアクション `selection:clear` を追加。アプリ内のテキスト選択を解除するキーを割り当てられるように。エージェントビューでも動作",
+        "t_en": "Added the `selection:clear` keybinding action, so a key can be bound to clear an in-app text selection; also works in the agents view",
+        "tags": ["新機能"]
+      },
+      {
+        "t": "追加: フッターとステータスラインに GitLab のマージリクエストバッジを追加。GitLab リモートと認証済み glab CLI がある場合、`MR !N` の形式で draft・pending・green のステータスを表示",
+        "t_en": "Added a GitLab merge request badge to the footer and statusline: repos with a GitLab remote and an authenticated glab CLI show MR !N with draft/pending/green states",
+        "tags": ["新機能"]
+      },
+      {
+        "t": "追加: claude.ai の利用上限がリセットされた際、セッションを自動的に再開するように。`/config` の「利用上限到達時に自動再開」で無効化可能",
+        "t_en": "Claude Code now continues your session automatically when a claude.ai usage limit resets; turn it off in `/config` (\"Continue automatically at usage limit\")",
+        "tags": ["新機能"]
+      },
+      {
+        "t": "改善: アカウントのメールアドレスをユーザー識別のみに使い、ユーザーが求めない限り無関係なサービスに送信しないよう Claude に明示するように改善",
+        "t_en": "Claude is now told to use your account email only to identify you, and not to send it to unrelated services unless you ask",
+        "tags": ["改善", "Security"]
+      },
+      {
+        "t": "修正: リモートファイル読み込み・セッション復元・CLAUDE.md のインクルード・ワークフロースクリプト・ファイルアップロードで、Windows の NT ネームスペース形式（`\\??\\`）パスを拒否するように修正。NTLM 認証情報漏えいの経路を残っていた箇所でも封鎖",
+        "t_en": "Security: remote file reads, session restore, CLAUDE.md includes, workflow scripts and file uploads now reject Windows NT-namespace (`\\??\\`) paths, hardening the remaining pre-approval file accesses against the NTLM credential-leak vector",
+        "tags": ["バグ修正", "Security", "Windows"]
+      },
+      {
+        "t": "修正: 非常に長いセッションで、会話が圧縮された後にサンドボックス化されたコマンドのネットワークアクセス許可が繰り返し再チェックされ拒否されてしまう auto モードの問題を修正",
+        "t_en": "Fixed auto mode in very long sessions repeatedly re-checking and denying sandboxed commands' network access after the conversation had been compacted",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: バックグラウンドのサブエージェントによるツールのパーミッションプロンプトに応答した際、セッションスコープの回答（拒否を含む）が反映されない問題を修正",
+        "t_en": "Fixed session-scoped permission answers (including denies) being dropped when answering background subagent tool permission prompts",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: 非ストリーミングのフォールバック経路（主にサードパーティ製ゲートウェイ経由）で、thinking フィールドを欠いた thinking ブロックや text フィールドを欠いた text ブロックを含む API レスポンスを受け取った際にクラッシュする問題を修正",
+        "t_en": "Fixed a crash when an API response on the non-streaming fallback path (typically via third-party gateways) contained a thinking block missing its thinking field or a text block missing its text field",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: 特殊な Unicode シーケンスを含むメッセージで markdown のレンダリングが極端に遅くなる問題を修正",
+        "t_en": "Fixed markdown rendering becoming extremely slow for some messages containing unusual Unicode sequences",
+        "tags": ["バグ修正", "Perf"]
+      },
+      {
+        "t": "修正: `ListAgents` から取得した宛先名が200文字の上限ちょうど、または絵文字を多く含む場合に、`SendMessage` がその宛先を拒否してしまう問題を修正",
+        "t_en": "Fixed `SendMessage` rejecting a recipient copied from `ListAgents` when the session name is at the 200-character cap or emoji-heavy",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: 特殊な userinfo を含む git リモートで、リポジトリ検出がホスト名を誤って読み取り、誤ったホスト向けのリンクやリポジトリ固有の挙動が適用されてしまう問題を修正",
+        "t_en": "Fixed repository detection mis-reading the host of git remotes with unusual userinfo, producing links and repo-specific behavior for the wrong host",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: MCP の診断出力が展開済みのシークレットを表示してしまう問題を修正。スコープ競合の警告は設定済みの `${VAR}` 形式で表示し、接続失敗の詳細はサーバーのオリジンのみを表示するように",
+        "t_en": "Fixed MCP diagnostics printing resolved secrets: scope-conflict warnings now show the configured `${VAR}` form, and connection-failure details show only the server origin",
+        "tags": ["バグ修正", "MCP", "Security"]
+      },
+      {
+        "t": "修正: `strictKnownMarketplaces` の許可リストが、実際に git が接続するホストと異なるホストを指す SCP 形式の git マーケットプレイスソースを通してしまう問題を修正",
+        "t_en": "Fixed `strictKnownMarketplaces` allowlists accepting SCP-style git marketplace sources whose host differs from the one git would actually connect to",
+        "tags": ["バグ修正", "Plugin", "Security"]
+      },
+      {
+        "t": "修正: フルスクリーン表示で `/login` の OAuth URL などのモーダルテキストをコピーすると文字が欠落する問題を修正",
+        "t_en": "Fixed modal text such as the `/login` OAuth URL losing characters when copied in fullscreen",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: レンダリングされた markdown の `---` 水平線が次の行と重なって表示される問題を修正",
+        "t_en": "Fixed a `---` horizontal rule in rendered markdown running into the line after it",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: shell コマンドが連続して実行される際、間に todo・タスクの更新が挟まると「Ran 1 shell command」の行に分割されてしまう問題を修正",
+        "t_en": "Fixed consecutive shell commands splitting into multiple \"Ran 1 shell command\" rows when todo/task updates were interleaved between them",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: `!` shell コマンドの実行中に開いた `/permissions` などのダイアログが、コマンドの完了と同時に閉じてしまう問題を修正",
+        "t_en": "Fixed dialogs like `/permissions` opened while a `!` shell command was running being dismissed when the command finished",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: キューに入れた `!` shell コマンドを上矢印キーで呼び出して編集すると、モデルへプレーンテキストとして送信されてしまう問題を修正",
+        "t_en": "Fixed a queued `!` shell command being sent to the model as plain text after pressing up-arrow to edit the queued input",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: メッセージキューに関する3つの不具合を修正 — キューに入れたメッセージが送信前にプロンプト履歴に表示されてしまう問題、キューされたメッセージ選択中の Esc がターンを中断してしまう問題、ターン途中の送信後に `!` モードが解除されなくなる問題",
+        "t_en": "Fixed queued messages reappearing in the prompt history while still queued, Esc while selecting a queued message no longer interrupts the turn, and `!` mode no longer sticks after a mid-turn submit",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: 「新しいフルスクリーンレンダラーを試す？」のプロンプトを承諾すると、パーミッションモード（`--dangerously-skip-permissions` など）・ツールの allow/deny ルール・モデルや effort のフラグを引き継がずにセッションが再起動してしまう問題を修正",
+        "t_en": "Fixed accepting the \"Try the new fullscreen renderer?\" prompt restarting the session without its permission mode (e.g. `--dangerously-skip-permissions`), tool allow/deny rules, model or effort flags",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: `/tui` の再起動時に起動時の `--allowed-tools`・`--disallowed-tools` ルールが失われる問題を修正。再起動で引き継げない制限がセッションにある場合は、理由を示したうえで切り替えを拒否するように",
+        "t_en": "Fixed `/tui` dropping launch `--allowed-tools`/`--disallowed-tools` rules when it restarts; it now declines to switch, with the reason, when the session has restrictions a restart can't carry over",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: リポジトリが存在するようになる前からそのディレクトリが認識されていた場合、trust プロンプトでリポジトリ全体に及ぶスコープの警告が表示されない問題を修正",
+        "t_en": "Fixed trust prompts omitting the repository-wide scope warning when the directory was first seen before the repository existed there",
+        "tags": ["バグ修正", "Security"]
+      },
+      {
+        "t": "修正: パーミッションの再プロンプト中に IDE の diff タブを閉じると、新しいプロンプトに以前の入力内容が回答として使われてしまうことがある問題を修正",
+        "t_en": "Fixed a case where an IDE diff tab closing during a permission re-prompt could answer the new prompt with the previous input",
+        "tags": ["バグ修正", "IDE"]
+      },
+      {
+        "t": "修正: Claude Code Desktop または VS Code がホストする Remote Control セッションでユーザーに送信したファイルがアップロードされず、スマートフォンや Web で空のカードとして表示されてしまう問題を修正",
+        "t_en": "Fixed: files sent to the user during Remote Control sessions hosted by Claude Code Desktop or VS Code now upload, so they open on phone and web instead of showing an empty card",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: `CLAUDE_CODE_OAUTH_TOKEN` が設定された状態で `/login` を行った後、古いトークンに関するリマインダーが自動的に再開されたターンに紛れ込んでしまう問題を修正。ユーザーにのみ表示されるように",
+        "t_en": "Fixed: after `/login` while `CLAUDE_CODE_OAUTH_TOKEN` is set, the stale-token reminder no longer leaks into Claude's automatically resumed turn — it now appears only to you",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: パーミッションプレビューが、着信側の trust ゲートを通過したチャンネルサーバーにのみ中継されるように修正。サーバー側の明示的なパーミッション機能のオプトアウトも尊重されるように",
+        "t_en": "Fixed: permission previews now relay only to channel servers admitted by the inbound trust gate, and a server's explicit permission-capability opt-out is honored",
+        "tags": ["バグ修正", "Security"]
+      },
+      {
+        "t": "修正: 中継されるパーミッションプレビューの認証情報マスキングが、承認者からコマンド・パス・宛先を過剰に隠してしまう問題を修正。サイズの大きい秘密鍵ブロックはフル強度のレダクション対象に",
+        "t_en": "Fixed: credential masking on relayed permission previews can no longer hide commands, paths, or destinations from the approver; oversized private-key blocks now redact under full-strength redaction",
+        "tags": ["バグ修正", "Security"]
+      },
+      {
+        "t": "修正: パーミッションプレビューでマスクされるはずのプロバイダー API トークンが、直後に shell の区切り文字が続く場合にマスクされない問題を修正",
+        "t_en": "Fixed: provider API tokens that mask on permission previews now mask even when directly followed by shell delimiters",
+        "tags": ["バグ修正", "Security"]
+      },
+      {
+        "t": "修正: クロスセッションメッセージングが無効と読み取られた際、Claude Desktop のセッション間メッセージが受信側セッションで黙って破棄され、送信側の問い合わせが何分も「thinking」状態のままになってしまう問題を修正",
+        "t_en": "Fixed Claude Desktop inter-session messages being silently dropped by the recipient session when cross-session messaging read as disabled, which left the sender's query \"thinking\" for many minutes",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: このマシンを別の claude.ai アカウントまたは組織にサインインさせると、実行中の Remote Control セッションが数秒以内に停止しその理由を表示するように修正。以前は数時間後に紛らわしい HTTP 404 として現れていた",
+        "t_en": "Remote Control: signing this computer in to a different claude.ai account or organization now stops the running session within seconds and says why, instead of a misleading HTTP 404 hours later",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "改善: Claude Code Desktop または VS Code がホストする Remote Control セッションが、パーミッションモード（および claude.ai/code ではモデルも）の変更をスマートフォンや claude.ai/code に継続的に反映するように改善",
+        "t_en": "Remote Control sessions started from Claude Code Desktop or VS Code now keep phones and claude.ai/code updated on the session's permission mode (and claude.ai/code on the model) as they change",
+        "tags": ["改善"]
+      },
+      {
+        "t": "改善: スマートフォンや claude.ai/code で選択した effort レベルが、ターミナルおよび Desktop・VS Code がホストするセッションにも適用されるように改善。セッションは自身の effort レベルを接続中のクライアントへ発行",
+        "t_en": "Remote Control: effort picks made on a phone or on claude.ai/code now apply to terminal- and Desktop/VS Code-hosted sessions, and the session publishes its effort level to connected clients",
+        "tags": ["改善"]
+      },
+      {
+        "t": "改善: アカウントのセッション一覧を完全にはチェックできなかった場合、未確認のセッションを存在しないものとして扱うのではなく、`SendMessage` と `ListAgents` がその旨を明示するように改善",
+        "t_en": "`SendMessage` and `ListAgents` now say when your account's session list was too long to check completely, instead of treating unseen sessions as absent",
+        "tags": ["改善", "Agent"]
+      },
+      {
+        "t": "改善: claude.ai でのログインが優先されるべき状況で Anthropic プロファイルの認証情報が期限切れになった際、`/login` を案内するように改善",
+        "t_en": "Expired Anthropic profile credential now points you at `/login` when a claude.ai login would take precedence",
+        "tags": ["改善"]
+      },
+      {
+        "t": "改善: トランスクリプトで、自分自身が入力したプロンプトも Claude の返信と同じように markdown（シンタックスハイライトされたコードブロック・インラインコード・リストなど）でレンダリングされるように改善",
+        "t_en": "Improved the transcript: your own prompts now render markdown (highlighted code blocks, inline code, lists) the same way replies do",
+        "tags": ["改善"]
+      },
+      {
+        "t": "改善: 「API returned an empty or malformed response」エラーで、実際に返ってきた内容（Content-Type・ボディの種類・サイズ・リクエスト ID）と、元のストリーミングリクエストが失敗した理由を表示するように改善",
+        "t_en": "Improved the \"API returned an empty or malformed response\" error to say what came back (content type, body kind, size, request ID) and why the original streaming request failed",
+        "tags": ["改善"]
+      },
+      {
+        "t": "改善: 自動生成されるセッションタイトルが、リクエストを言い換えた文章（例:「モバイルのログインボタンを修正」）ではなく、短く具体的な名前（例:「ログインボタンのバグ」）になるように改善",
+        "t_en": "Improved auto-generated session titles to read as short, specific names (e.g. \"Login button bug\") rather than sentences restating your request (e.g. \"Fix the login button on mobile\")",
+        "tags": ["改善"]
+      },
+      {
+        "t": "改善: 組み込みの `claude-api` スキルの読み込みにかかるコンテキストコストを、リファレンスドキュメントをオンデマンドで読み込むことで約20万トークン以上から約2万5000トークンに削減",
+        "t_en": "Reduced the context cost of loading the built-in `claude-api` skill from ~200k+ tokens to ~25k by loading reference docs on demand",
+        "tags": ["改善", "Perf"]
+      },
+      {
+        "t": "改善: `/permissions` が Claude の作業中でも開けるように改善。ルール変更は現在のターンの残りにも適用される",
+        "t_en": "`/permissions` can now be opened while Claude is working — rule changes apply to the rest of the current turn",
+        "tags": ["改善"]
+      },
+      {
+        "t": "改善: Claude の作業中でも `/add-dir <path>` を使えるように改善。`/add-dir`・`/autocompact`・`/theme`・`/help`・`/config`・`/advisor` の各ダイアログがフルスクリーン TUI でターン途中でも開くように",
+        "t_en": "`/add-dir <path>` can now be used while Claude is working; `/add-dir`, `/autocompact`, `/theme`, `/help`, `/config` and `/advisor` dialogs open mid-turn in the fullscreen TUI",
+        "tags": ["改善"]
+      },
+      {
+        "t": "改善: `/goal` が、認証の失効・利用クレジットの枯渇・コンテキストオーバーフローなど回復不能なエラーでターンが終了した際、armed のまま残らず通知とともに自身をクリアするように改善",
+        "t_en": "`/goal` now clears itself with a notice when a turn dies on an unrecoverable error (e.g. revoked auth, an exhausted credit balance, or a context overflow) instead of staying armed",
+        "tags": ["改善", "Agent"]
+      },
+      {
+        "t": "追加: `/goal` でバックグラウンドタスクの待ちが30分以上続いた場合、Claude が無期限に待つ代わりに状況を確認しにいくように改善。環境変数 `CLAUDE_CODE_GOAL_CHECKIN_MINUTES=0` でオプトアウト可能",
+        "t_en": "`/goal`: when background tasks keep a goal waiting for 30+ minutes, Claude now checks in on them instead of waiting indefinitely (set `CLAUDE_CODE_GOAL_CHECKIN_MINUTES=0` to opt out)",
+        "tags": ["新機能", "Agent"]
+      },
+      {
+        "t": "改善: `claude setup-token` が想定外の余分な引数を黙って無視せず、拒否するように改善",
+        "t_en": "`claude setup-token` now rejects unexpected extra arguments instead of silently ignoring them",
+        "tags": ["改善"]
+      },
+      {
+        "t": "変更: フルスクリーンモードの Esc キーがマウスのテキスト選択を解除しないように変更。割り込み・ダイアログの終了は従来どおり行われ、選択はハイライトされたまま残る",
+        "t_en": "Changed Esc in fullscreen mode to no longer clear a mouse text selection: it interrupts or dismisses as usual and the selection stays highlighted",
+        "tags": ["改善"]
+      },
+      {
+        "t": "削除: auto モードがすべての Agent ツール呼び出しの下に表示していた冗長な「Allowed by auto mode classifier」の行を削除",
+        "t_en": "Removed the redundant \"Allowed by auto mode classifier\" line that auto mode showed under every Agent tool call",
+        "tags": ["非推奨"]
+      },
+      {
+        "t": "削除: `/config` から「デフォルトのチームメイトモデル」設定を削除。エージェントチームのチームメイトは、起動時にモデルが指定されない限りリーダーのモデルを使用するように",
+        "t_en": "Removed the \"Default teammate model\" setting from `/config`; agent-team teammates now use the leader's model unless the spawn names one",
+        "tags": ["非推奨", "Agent"]
+      },
+      {
+        "t": "改善: 実行中のツールヘッダーの経過時間カウンターを、太字のカウント表示と競合しないよう控えめな色に変更",
+        "t_en": "Dimmed the elapsed-time counter on the running tool header so it no longer competes with the bold counts",
+        "tags": ["改善"]
+      },
+      {
+        "t": "改善: ターン間に配信されるバックグラウンドタスクの通知が、ターン中の配信と同様に `<system-reminder>` タグに包まれてモデルへ送られるように改善",
+        "t_en": "Background task notifications delivered between turns are now sent to the model inside `<system-reminder>` tags, matching mid-turn delivery",
+        "tags": ["改善"]
+      },
+      {
+        "t": "改善: メインループのモデルが既に決まっている場合、Mantle が起動時の admin-pin 可用性プローブをスキップするように改善",
+        "t_en": "Mantle: skip the admin-pin availability probe at startup when a main-loop model is already picked",
+        "tags": ["改善", "Perf"]
+      },
+      {
+        "t": "修正: Windows で `~/.claude.json` が読み取り専用の場合、リネームの再試行を繰り返して起動が止まってしまう問題を修正",
+        "t_en": "Windows: startup no longer stalls on repeated rename retries when `~/.claude.json` is read-only",
+        "tags": ["バグ修正", "Windows"]
+      }
+    ]
   }
 ]
