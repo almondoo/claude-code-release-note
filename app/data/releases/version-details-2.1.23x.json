@@ -1114,5 +1114,178 @@
       "category": "安定性",
       "category_en": "Stability"
     }
+  ],
+  "2.1.235": [
+    {
+      "t": "追加: プロンプト入力中にスペルミスを下線でリアルタイム表示する spellcheck 設定を追加。インストール済みの aspell・hunspell・ispell のいずれかを利用",
+      "t_en": "Added an optional `spellcheck` setting that underlines misspelled words in the prompt input as you type, using your installed `aspell`, `hunspell`, or `ispell`",
+      "tags": ["新機能"],
+      "detail": "これまで Claude Code のプロンプト入力欄には、送信前にタイプミスに気づく手段がなかった。\n\n本バージョンでオプションの spellcheck 設定が追加され、入力中のスペルミスに下線が表示されるようになった。ローカルにインストールされた aspell・hunspell・ispell のいずれかを利用する仕組みのため、辞書を同梱せずオフラインで動作し、既存の個人辞書もそのまま活用できる。ターミナルで長いプロンプトを直接書く際に、その場でタイプミスに気づけるようになる。",
+      "detail_en": "Until now, Claude Code's prompt input had no way to catch typos before you submitted a message.\n\nThis version adds an optional `spellcheck` setting that underlines misspelled words as you type. It works by using whichever local spell-checking backend you already have installed — aspell, hunspell, or ispell — so it needs no bundled dictionary, works offline, and reuses your existing personal dictionary. This helps anyone drafting long prompts directly in the terminal catch typos on the spot.",
+      "category": "設定",
+      "category_en": "Configuration"
+    },
+    {
+      "t": "修正: セッション中に言語サーバーが切断・再接続すると、プロンプトキャッシュ全体が無効化されてしまう問題を修正",
+      "t_en": "Fixed whole-prompt-cache invalidation when a language server disconnected or reconnected mid-session",
+      "tags": ["バグ修正", "Perf"],
+      "detail": "LSP ツールは実行中の言語サーバーからコード情報を取得する仕組みで、本来は言語サーバーの情報がキャッシュのブレークポイントより後ろに置かれ、キャッシュ全体を作り直させることはないはずだった。しかし、セッション途中で言語サーバーが（プロセスのクラッシュや再起動などにより）切断・再接続すると、これがキャッシュされたプレフィックスへの変更として誤って扱われ、プロンプトキャッシュ全体が無効化されてしまっていた。\n\n本バージョンでこの問題が修正され、言語サーバーの切断・再接続がキャッシュされたプレフィックスに影響しないようになり、次のターンで会話全体を高コスト・高レイテンシで読み直す必要がなくなった。",
+      "detail_en": "The LSP tool provides code intelligence from a running language server, and by design LSP server information is meant to sit after the cache breakpoint so it never forces the whole cache to be rebuilt. However, when a language server disconnected or reconnected mid-session (for example due to a process crash or restart), this was mistakenly treated as a change to the cached prefix, invalidating the entire prompt cache.\n\nThis version fixes the issue so a language server disconnect/reconnect no longer touches the cached prefix, avoiding the need to re-read the whole conversation at full cost and latency on the next turn.",
+      "category": "パフォーマンス",
+      "category_en": "Performance"
+    },
+    {
+      "t": "修正: ターミナル UI でネストした Markdown リストが3階層以上でずれる問題を修正し、折り返した行にぶら下げインデントを追加",
+      "t_en": "Fixed nested markdown list items misaligning at depth 3+ and added a hanging indent to wrapped list items in the terminal UI",
+      "tags": ["バグ修正"],
+      "detail": "Claude のターミナル出力は Markdown をレンダリングしてリストの入れ子表示にも対応しているが、3階層以上ネストしたリストではインデントがずれ、深い階層のリストが崩れて見えてしまっていた。\n\n本バージョンでこのずれが修正されるとともに、複数行にわたって折り返されたリスト項目にぶら下げインデントが追加され、折り返した行が箇条書き記号ではなく項目本文の位置に揃うようになった。",
+      "detail_en": "Claude's terminal output renders Markdown, including nested lists, but lists nested three or more levels deep previously had misaligned indentation, making deeply nested lists look broken.\n\nThis version fixes that misalignment and adds a hanging indent to list items that wrap across multiple lines, so wrapped text now lines up under the item's content instead of the bullet.",
+      "category": "レンダリング",
+      "category_en": "Rendering"
+    },
+    {
+      "t": "修正: 複数行のプロンプトでスラッシュコマンド・キーワード・メンションのハイライト表示が文字位置から1文字以上ずれる問題を修正",
+      "t_en": "Fixed prompt input highlights (slash commands, keywords, mentions) appearing shifted by one or more characters in some multi-line prompts",
+      "tags": ["バグ修正"],
+      "detail": "プロンプト入力欄はスラッシュコマンドや ultrathink のようなキーワード、@ メンションを視覚的に区別できるようハイライト表示しているが、一部の複数行プロンプトではオフセット計算のバグにより、ハイライトが対象の文字位置から1文字以上ずれて表示されてしまっていた。\n\n本バージョンでこのオフセット計算が修正され、行の折り返し状況に関わらずハイライトが対象の文字と正しく揃うようになった。",
+      "detail_en": "The prompt input highlights slash commands, keywords such as ultrathink, and @-mentions to make them visually distinct as you type. In some multi-line prompts, an offset calculation bug caused these highlights to render shifted by one or more characters from the text they were meant to cover.\n\nThis version fixes the offset calculation so highlights stay aligned with their text regardless of line wrapping.",
+      "category": "レンダリング",
+      "category_en": "Rendering"
+    },
+    {
+      "t": "修正: パーミッションプロンプトのコメント欄で Shift+Tab を押すと、欄を閉じる代わりに編集が承認されセッション全体の編集権限が付与されてしまう問題を修正",
+      "t_en": "Fixed Shift+Tab inside the permission prompt's comment field approving the edit and granting session-wide edit permission instead of closing the field",
+      "tags": ["バグ修正", "Security"],
+      "detail": "パーミッションプロンプトには、承認・拒否の理由を書き込める自由記述のコメント欄がある。このコメント欄で Shift+Tab を押すと、本来はパーミッションモードを切り替えるためのショートカットとして扱われ、欄を閉じる代わりに保留中の編集が承認され、セッション全体に対する編集権限まで付与されてしまっていた。そのため、コメント欄を閉じようとしただけのユーザーが意図せず広範な権限を付与してしまう恐れがあった。\n\n本バージョンでこの問題が修正され、コメント欄での Shift+Tab は単に欄を閉じるだけの動作となり、パーミッションの判断には影響しなくなった。",
+      "detail_en": "The permission prompt includes a free-text comment field for explaining an approval or denial. Pressing Shift+Tab in that field was previously misinterpreted as its normal shortcut for cycling permission modes, which approved the pending edit and granted session-wide edit permission instead of simply closing the field — meaning a user trying to dismiss the comment box could accidentally grant broad access they never intended.\n\nThis version fixes the issue so Shift+Tab in the comment field just closes it, leaving the permission decision untouched.",
+      "category": "パーミッション",
+      "category_en": "Permissions"
+    },
+    {
+      "t": "修正: general-purpose エージェントが利用できないセッションで Agent ツールの subagent_type を省略した際、不明瞭なエラーの代わりに利用可能なエージェント一覧を示す明確なエラーを返すように修正",
+      "t_en": "Fixed the Agent tool advertising a general-purpose default in sessions where that agent is unavailable: an omitted `subagent_type` there now gets a clear error listing the available agents",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "Agent ツールは subagent_type を省略すると general-purpose エージェントが常に使えるものとして扱っていたが、CLAUDE_AGENT_SDK_DISABLE_BUILTIN_AGENTS=1 が設定されている場合や tools: Agent(...) による制限的な許可リストを使っているセッションでは、general-purpose が登録されていないことがある。これまでは、そうしたセッションで subagent_type を省略すると「Agent type 'general-purpose' not found」という分かりにくいエラーになっていた。\n\n本バージョンでこの点が修正され、そのセッションで実際に利用可能なエージェントの一覧を示す明確なエラーメッセージが返るようになり、Claude がすぐに正しい subagent_type を指定して再試行できるようになった。詳しくは[エラーリファレンス](https://code.claude.com/docs/en/errors#subagent-type-is-required)を参照してください。",
+      "detail_en": "The Agent tool treated the `general-purpose` agent as always available as the default when `subagent_type` is omitted, but sessions with `CLAUDE_AGENT_SDK_DISABLE_BUILTIN_AGENTS=1` or a restrictive `tools: Agent(...)` allowlist may not have it registered. Before this fix, omitting `subagent_type` in such a session failed with the unhelpful error `Agent type 'general-purpose' not found`.\n\nThis version fixes that: the error now clearly lists the agents actually available in that session, so Claude can immediately retry with a valid `subagent_type`. See the [error reference](https://code.claude.com/docs/en/errors#subagent-type-is-required) for details.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-Agent"
+    },
+    {
+      "t": "修正: ノートブックやセルが読み込めない場合に、セル削除・置換の承認ダイアログが既存のセル内容を理由の説明なく省略していた問題を修正し、省略理由を表示するように改善",
+      "t_en": "Fixed notebook cell delete/replace approval dialogs silently omitting the existing cell content when the notebook or cell could not be read; the dialog now says why",
+      "tags": ["バグ修正"],
+      "detail": "NotebookEdit による削除・置換の承認ダイアログは、変更対象の既存セル内容を表示してユーザーがレビューできるようにする仕組みだが、ノートブックファイルやセル（古い cell_id や読み取り不能なファイルなど）が読み込めない場合、これまではその内容表示が理由の説明なく黙って省略されてしまっていた。\n\n本バージョンでこの点が改善され、内容を表示できない理由がダイアログ上に明示されるようになり、単なる表示漏れと区別できるようになった。",
+      "detail_en": "NotebookEdit's delete/replace approval dialog is meant to show the existing cell content being changed so the user can review it before approving. When the notebook file or cell couldn't be read (for example a stale `cell_id` or an unreadable file), that content preview was previously omitted silently with no explanation.\n\nThis version improves the dialog to explicitly state why the content couldn't be shown, turning a silent gap into a stated limitation.",
+      "category": "パーミッション",
+      "category_en": "Permissions"
+    },
+    {
+      "t": "修正: Claude が応答中にスラッシュコマンドを実行すると、実際の文字ではなく HTML エンティティが表示される問題を修正",
+      "t_en": "Fixed slash commands run while Claude is responding showing HTML entities instead of the actual characters",
+      "tags": ["バグ修正"],
+      "detail": "Claude が前のターンにまだ応答している間にスラッシュコマンドを実行すると、そのコマンドはキューに入れられて表示されるが、この表示処理にエスケープ処理のバグがあり、実際の文字の代わりに &amp; のような HTML エンティティがそのまま表示されてしまっていた。\n\n本バージョンでこのエスケープ処理が修正され、キューに入れられたコマンドのテキストが正しく表示されるようになった。",
+      "detail_en": "Running a slash command while Claude is still responding to a previous turn queues the command for display, but an escaping bug in that display path caused it to show literal HTML entities like `&amp;` instead of the actual characters.\n\nThis version fixes the escaping so queued command text now displays correctly.",
+      "category": "レンダリング",
+      "category_en": "Rendering"
+    },
+    {
+      "t": "修正: バックグラウンドでの自動更新後、プロンプトフッターに「Update installed」の再起動通知が表示されない問題を修正",
+      "t_en": "Fixed the prompt footer not showing the \"Update installed\" restart notice after a background auto-update",
+      "tags": ["バグ修正"],
+      "detail": "Claude Code はバックグラウンドで自動更新を行い、新しいバージョンを適用するには再起動が必要であることをプロンプトフッターの「Update installed」通知で知らせる仕組みになっているが、これまでバックグラウンド自動更新の完了後にこの通知が表示されないことがあり、ユーザーが更新の存在に気づけない場合があった。\n\n本バージョンでこの通知が確実に表示されるようになり、更新が適用されたら再起動が必要であることを確実にユーザーへ伝えられるようになった。",
+      "detail_en": "Claude Code auto-updates in the background and is meant to tell you a restart is needed via an \"Update installed\" notice in the prompt footer, but that notice previously failed to appear after a background auto-update completed, leaving some users unaware an update was ready.\n\nThis version restores the footer notice so users are reliably prompted to restart.",
+      "category": "UX",
+      "category_en": "UX"
+    },
+    {
+      "t": "修正: 未完了のタスクが残るセッションを再開・再起動すると、展開していたタスク一覧（ctrl+t）が常に折りたたまれた状態で表示されてしまう問題を修正",
+      "t_en": "Fixed the expanded task list (`ctrl+t`) always starting collapsed when resuming or relaunching into a session that still has open tasks",
+      "tags": ["バグ修正"],
+      "detail": "Claude のタスクチェックリストは ctrl+t で表示・非表示を切り替えられ、その展開・折りたたみ状態は維持される想定になっているが、これまでは未完了のタスクが残るセッションを再開・再起動すると、以前展開していたかどうかに関わらずタスク一覧が常に折りたたまれた状態でリセットされてしまっていた。\n\n本バージョンでこの点が修正され、再開・再起動をまたいでも展開状態が維持されるようになり、進行中のタスクが残るセッションに戻った際に以前の表示状態のまま確認できるようになった。",
+      "detail_en": "Claude's task checklist can be toggled with Ctrl+T, and its expanded/collapsed state is meant to persist, but resuming or relaunching into a session with open tasks previously reset the task list view to collapsed regardless of how it had been left.\n\nThis version fixes the issue so the expanded state now persists across resume/relaunch, letting you return to a session with in-progress tasks and see it exactly as you left it.",
+      "category": "UX",
+      "category_en": "UX"
+    },
+    {
+      "t": "改善: /ultrareview や /autofix-pr などのクラウドセッションをバックグラウンドで実行中、イベントストリームを更新のたびに再スキャン・再描画しないようにしてメモリ・CPU 使用量を削減",
+      "t_en": "Improved memory and CPU usage while cloud sessions such as `/ultrareview` or `/autofix-pr` run in the background — their event streams are no longer re-scanned and re-rendered on every update",
+      "tags": ["改善", "Perf"],
+      "detail": "/ultrareview や /autofix-pr のようなバックグラウンドのクラウドセッションは、実行中のイベントをクライアント側にストリーミングする仕組みになっているが、これまでは新しいイベントが届くたびにイベントストリーム全体を最初から再スキャン・再描画しており、メモリ・CPU 使用量がイベント総量に比例して増え続けてしまっていた。長時間にわたるバックグラウンドレビューでは実際にコストがかさむ要因になっていた。\n\n本バージョンで差分更新のみを処理するようになり、そうしたセッションの実行中のメモリ・CPU 使用量が削減された。表示内容自体に変更はない。",
+      "detail_en": "Background cloud sessions such as `/ultrareview` or `/autofix-pr` stream their running events back to the client, but previously each new event caused the entire event stream to be re-scanned and re-rendered from the start, so memory and CPU usage grew with the total event volume rather than just the latest update — a real cost for long-running background reviews.\n\nThis version processes only incremental updates instead, cutting memory and CPU usage while such sessions run, with no change in what is displayed.",
+      "category": "パフォーマンス",
+      "category_en": "Performance"
+    },
+    {
+      "t": "改善: パーミッションダイアログの表示テキストと「今後は確認しない」の選択肢が、実際に付与される権限の範囲と常に一致するように改善。内容を完全に表示できない場合は「今後は確認しない」を選択できないように変更",
+      "t_en": "Improved permission dialogs: display text and \"don't ask again\" options now always match what a grant would cover, and \"don't ask again\" is withheld when contents cannot be fully displayed",
+      "tags": ["改善", "Security"],
+      "detail": "パーミッションプロンプトの「Yes, and don't ask again」を含む表示は、保存されるルールが実際に何を許可することになるかを正確に示し、ユーザーが権限の範囲を正しく判断できるようにする想定だが、これまでは表示テキストと実際に付与される権限の範囲が一致しないケースがあった。\n\n本バージョンでこの不一致が修正されるとともに、ダイアログが内容を完全に表示できない場合には「今後は確認しない」の選択肢自体が提示されなくなり、内容を十分に確認できないまま広範な恒久ルールが作られてしまうことを防げるようになった。",
+      "detail_en": "Permission prompts, including the \"Yes, and don't ask again\" option, are meant to show exactly what a saved rule would grant so users can judge the scope accurately, but the displayed text and the resulting grant could previously fail to match.\n\nThis version fixes that mismatch and now withholds the \"don't ask again\" option entirely when the dialog cannot fully display the content being approved, preventing a broad standing rule from being created for something the user couldn't fully review.",
+      "category": "パーミッション",
+      "category_en": "Permissions"
+    },
+    {
+      "t": "改善: macOS/Linux ネイティブビルドに組み込まれた grep を改善。病的な正規表現パターンでメモリを枯渇させる代わりに早期に失敗するようになり、-m N と -A/-C を組み合わせた際のコンテキスト表示も正しく修正",
+      "t_en": "Improved the embedded `grep` in native macOS/Linux builds: pathological patterns now fail fast instead of exhausting memory, and `-m N` with `-A/-C` prints correct context",
+      "tags": ["改善", "Perf"],
+      "detail": "Claude Code の macOS/Linux ネイティブビルドには grep の実装が組み込まれているが、一部の病的な正規表現パターンを与えるとメモリを際限なく消費してしまうことがあり、長時間稼働するセッションや自動化されたセッションでは実際のリスクになっていた。また、-m N（最大マッチ数）と -A/-C（前後のコンテキスト行）を組み合わせた場合に、誤ったコンテキストが表示されるバグもあった。\n\n本バージョンで病的なパターンはメモリを枯渇させる前に早期に失敗するようになり、-m N と -A/-C の組み合わせでも正しいコンテキストが表示されるように修正された。",
+      "detail_en": "Claude Code's native macOS/Linux builds include an embedded `grep` implementation. Certain pathological regex patterns could previously cause it to consume unbounded memory instead of failing — a real risk in long-running or automated sessions — and combining `-m N` (max matches) with `-A`/`-C` (context lines) printed the wrong surrounding context.\n\nThis version makes pathological patterns fail fast instead of exhausting memory, and fixes `-m N` combined with `-A`/`-C` to print the correct context.",
+      "category": "ツール改善",
+      "category_en": "Tool Improvements"
+    },
+    {
+      "t": "改善: コンテキスト上限到達時のエラーメッセージに、auto-compact が無効になっている場合はその旨と /config での再有効化方法を表示するように改善",
+      "t_en": "Improved the context-limit error to say when auto-compact is off and point to `/config` to re-enable it",
+      "tags": ["改善"],
+      "detail": "会話がコンテキスト上限に達すると「Context limit reached · /compact or /clear to continue」と表示されるが、これまではユーザー自身が auto-compact をオフに設定していた場合でもその旨が示されず、なぜ自動的に圧縮が行われなかったのか分かりにくかった。\n\n本バージョンで、/config の変更によって実際に再有効化できる状況であれば「auto-compact is off · /config to turn it on」という案内が追加で表示されるようになった（マネージド設定など上位スコープが auto-compact を強制的に無効化している場合や、クラウドセッションが auto-compact を管理している場合は表示されない）。詳しくは[エラーリファレンス](https://code.claude.com/docs/en/errors#prompt-is-too-long)を参照してください。",
+      "detail_en": "When a conversation hits the context limit, Claude Code shows `Context limit reached · /compact or /clear to continue`, but previously gave no indication when the user had turned auto-compact off themselves, leaving it unclear why compaction hadn't already run.\n\nThis version adds an `auto-compact is off · /config to turn it on` hint whenever a `/config` change would actually re-enable it (the hint is suppressed when a higher-precedence scope such as managed settings forces auto-compact off, or a cloud session owns it). See the [error reference](https://code.claude.com/docs/en/errors#prompt-is-too-long) for details.",
+      "category": "会話管理",
+      "category_en": "Conversation Management"
+    },
+    {
+      "t": "改善: Vim モードで詳細トランスクリプト表示の切り替え（ctrl+o）やパネルを閉じた際に、NORMAL モードとカーソル位置が保持されるように改善",
+      "t_en": "Vim mode: NORMAL mode and cursor position are now preserved when toggling the detailed transcript (ctrl+o) or closing a panel",
+      "tags": ["改善"],
+      "detail": "Claude Code の Vim エディタモードは NORMAL・INSERT のどちらのモードにあるか、およびプロンプト内のカーソル位置を保持する仕組みだが、これまではトランスクリプトビューアーの切り替え（ctrl+o）やオーバーレイパネルを閉じる操作を行うとこの状態がリセットされ、NORMAL モードから外れてカーソル位置も失われてしまっていた。\n\n本バージョンでこれらのパネル切り替えをまたいでも NORMAL モードとカーソル位置が保持されるようになり、トランスクリプト表示との行き来が Vim での編集作業を妨げなくなった。",
+      "detail_en": "Claude Code's Vim editor mode tracks whether you're in NORMAL or INSERT mode and where the cursor sits in the prompt, but toggling the transcript viewer (Ctrl+O) or closing an overlay panel previously reset that state, dropping out of NORMAL mode and losing cursor position on return.\n\nThis version preserves NORMAL mode and cursor position across those panel toggles, so switching to the transcript view and back no longer disrupts an in-progress Vim editing session.",
+      "category": "入力",
+      "category_en": "Input"
+    },
+    {
+      "t": "修正: ダイアログで矢印キーと Enter を素早く連続して押した際に、直前にハイライトされていた選択肢ではなく実際に移動先の選択肢が選ばれるように修正",
+      "t_en": "Dialogs: arrow keys and Enter pressed in quick succession now select the option you navigated to instead of the previously highlighted one",
+      "tags": ["バグ修正"],
+      "detail": "選択ダイアログは矢印キーで選択肢を移動し、Enter で確定する操作に対応しているが、矢印キーの入力と Enter がごく短い間隔で連続して届いた場合（高速な入力やペーストされたキー列など）、最後の矢印キーによる移動が処理される前に Enter が確定として扱われ、実際に移動した先ではなく直前にハイライトされていた選択肢が選ばれてしまうことがあった。\n\n本バージョンでこの競合状態が修正され、素早く「移動してから確定」という操作を行っても、意図した選択肢が確実に選ばれるようになった。",
+      "detail_en": "Selection dialogs let users navigate options with arrow keys and confirm with Enter. When arrow-key presses and Enter arrived in quick succession — for example from fast typing or a pasted key sequence — the dialog could register Enter before processing the last arrow-key move, selecting the previously highlighted option instead of the one just navigated to.\n\nThis version fixes that race condition so rapid navigate-then-confirm input reliably selects the intended option.",
+      "category": "入力",
+      "category_en": "Input"
+    },
+    {
+      "t": "修正: SendMessage が、クロスセッション配信には大きすぎるメッセージを黙って破棄する代わりに、送信前に拒否するように修正",
+      "t_en": "`SendMessage` now refuses messages too large for cross-session delivery up front instead of silently dropping them",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "クロスセッションメッセージングは SendMessage ツールを使って Claude Code のセッション間でテキストをやり取りできる機能で、同一マシン上のメッセージには約100万文字の上限があるが、これまでは上限を超えるメッセージを送信すると送信側には成功したと報告される一方、受信側のセッションではそのメッセージが未読のまま黙って破棄されてしまい、送信側は配信失敗に気づけなかった。\n\n本バージョンで SendMessage が送信前にサイズを確認し、上限を超えるメッセージを送信元で拒否するようになった。実際のメッセージサイズと上限を示すエラーが返るため、内容を短縮したり分割したり、ファイルに移すといった対応がすぐに取れるようになった。詳しくは[エラーリファレンス](https://code.claude.com/docs/en/errors#message-too-large-for-cross-session-delivery)を参照してください。",
+      "detail_en": "Cross-session messaging lets one Claude Code session send text to another via the `SendMessage` tool, with same-machine messages capped at roughly one million characters. Previously, an oversized message was reported to the sender as successfully sent, while the receiving session silently dropped it unread — leaving the sender unaware delivery had failed.\n\nThis version makes `SendMessage` check the size up front and refuse oversized messages before they leave the sender, returning an error with the exact message size and limit so the content can be shortened, split, or moved to a file. See the [error reference](https://code.claude.com/docs/en/errors#message-too-large-for-cross-session-delivery) for details.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-Agent"
+    },
+    {
+      "t": "修正: claude rc が、対話起動時と同じエンタープライズゲートウェイの可用性チェックを適用するように修正",
+      "t_en": "Remote Control: `claude rc` now applies the same enterprise-gateway availability check as interactive startup",
+      "tags": ["バグ修正", "Security"],
+      "detail": "claude rc は Remote Control セッションを開始するための短縮コマンド（--remote-control / --rc、または /remote-control / /rc と同等）だが、通常の対話的な Claude Code の起動では、組織が設定したエンタープライズゲートウェイ（自己ホスト型の Claude apps gateway など）に対する可用性チェックがすでに行われているのに対し、claude rc はこのチェックを素通りしてしまっていた。\n\n本バージョンで claude rc にも同じゲートウェイ可用性チェックが適用されるようになり、到達可能なゲートウェイを要求するエンタープライズ環境において、起動経路によってチェックの有無が異なるという一貫性のギャップが解消された。",
+      "detail_en": "`claude rc` is a shorthand command for starting a Remote Control session (equivalent to `--remote-control`/`--rc`, or `/remote-control`/`/rc`). Ordinary interactive Claude Code startup already checks availability against an organization's configured enterprise gateway (such as a self-hosted Claude apps gateway) before proceeding, but `claude rc` previously bypassed that check.\n\nThis version applies the same gateway-availability check to `claude rc`, closing a consistency gap for enterprise deployments that require a reachable gateway, regardless of which startup path is used.",
+      "category": "セキュリティ",
+      "category_en": "Security"
+    },
+    {
+      "t": "修正: 複数の Claude パネルを開いたウィンドウを復元・再読み込みした際に、フォーカスが開いているタブ間で勝手に切り替わってしまう問題を修正",
+      "t_en": "[VSCode] Fixed focus jumping between open Claude tabs on its own when a window with several Claude panels is restored or reloaded",
+      "tags": ["バグ修正", "IDE"],
+      "detail": "VS Code 拡張機能は複数の Claude Code タブ・パネルを同時に開いておける仕組みになっているが、複数の Claude パネルを含む VS Code ウィンドウが復元された場合（再読み込みや保存済みレイアウトの再オープンなど）、キーボード・エディターのフォーカスが開いている Claude のタブ間で勝手に移動してしまい、作業の妨げになることがあった。\n\n本バージョンでこの意図しない自動フォーカス移動が修正され、複数パネルのウィンドウを復元・再読み込みしてもユーザーが操作していた場所からフォーカスが奪われなくなった。",
+      "detail_en": "The VS Code extension supports multiple open Claude Code tabs/panels at once. When a VS Code window containing several Claude panels was restored — for example after a reload or reopening a saved layout — keyboard/editor focus could jump on its own between the open Claude tabs, interrupting whatever the user was doing.\n\nThis version fixes that unintended automatic focus-stealing, so restoring or reloading a multi-panel window no longer shifts focus away from where the user left it.",
+      "category": "IDE",
+      "category_en": "IDE"
+    }
   ]
 }

@@ -623,5 +623,105 @@
         "tags": ["バグ修正", "Windows"]
       }
     ]
+  },
+  {
+    "v": "2.1.235",
+    "items": [
+      {
+        "t": "追加: プロンプト入力中にスペルミスを下線でリアルタイム表示する spellcheck 設定を追加。インストール済みの aspell・hunspell・ispell のいずれかを利用",
+        "t_en": "Added an optional `spellcheck` setting that underlines misspelled words in the prompt input as you type, using your installed `aspell`, `hunspell`, or `ispell`",
+        "tags": ["新機能"]
+      },
+      {
+        "t": "修正: セッション中に言語サーバーが切断・再接続すると、プロンプトキャッシュ全体が無効化されてしまう問題を修正",
+        "t_en": "Fixed whole-prompt-cache invalidation when a language server disconnected or reconnected mid-session",
+        "tags": ["バグ修正", "Perf"]
+      },
+      {
+        "t": "修正: ターミナル UI でネストした Markdown リストが3階層以上でずれる問題を修正し、折り返した行にぶら下げインデントを追加",
+        "t_en": "Fixed nested markdown list items misaligning at depth 3+ and added a hanging indent to wrapped list items in the terminal UI",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: 複数行のプロンプトでスラッシュコマンド・キーワード・メンションのハイライト表示が文字位置から1文字以上ずれる問題を修正",
+        "t_en": "Fixed prompt input highlights (slash commands, keywords, mentions) appearing shifted by one or more characters in some multi-line prompts",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: パーミッションプロンプトのコメント欄で Shift+Tab を押すと、欄を閉じる代わりに編集が承認されセッション全体の編集権限が付与されてしまう問題を修正",
+        "t_en": "Fixed Shift+Tab inside the permission prompt's comment field approving the edit and granting session-wide edit permission instead of closing the field",
+        "tags": ["バグ修正", "Security"]
+      },
+      {
+        "t": "修正: general-purpose エージェントが利用できないセッションで Agent ツールの subagent_type を省略した際、不明瞭なエラーの代わりに利用可能なエージェント一覧を示す明確なエラーを返すように修正",
+        "t_en": "Fixed the Agent tool advertising a general-purpose default in sessions where that agent is unavailable: an omitted `subagent_type` there now gets a clear error listing the available agents",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: ノートブックやセルが読み込めない場合に、セル削除・置換の承認ダイアログが既存のセル内容を理由の説明なく省略していた問題を修正し、省略理由を表示するように改善",
+        "t_en": "Fixed notebook cell delete/replace approval dialogs silently omitting the existing cell content when the notebook or cell could not be read; the dialog now says why",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: Claude が応答中にスラッシュコマンドを実行すると、実際の文字ではなく HTML エンティティが表示される問題を修正",
+        "t_en": "Fixed slash commands run while Claude is responding showing HTML entities instead of the actual characters",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: バックグラウンドでの自動更新後、プロンプトフッターに「Update installed」の再起動通知が表示されない問題を修正",
+        "t_en": "Fixed the prompt footer not showing the \"Update installed\" restart notice after a background auto-update",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: 未完了のタスクが残るセッションを再開・再起動すると、展開していたタスク一覧（ctrl+t）が常に折りたたまれた状態で表示されてしまう問題を修正",
+        "t_en": "Fixed the expanded task list (`ctrl+t`) always starting collapsed when resuming or relaunching into a session that still has open tasks",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "改善: /ultrareview や /autofix-pr などのクラウドセッションをバックグラウンドで実行中、イベントストリームを更新のたびに再スキャン・再描画しないようにしてメモリ・CPU 使用量を削減",
+        "t_en": "Improved memory and CPU usage while cloud sessions such as `/ultrareview` or `/autofix-pr` run in the background — their event streams are no longer re-scanned and re-rendered on every update",
+        "tags": ["改善", "Perf"]
+      },
+      {
+        "t": "改善: パーミッションダイアログの表示テキストと「今後は確認しない」の選択肢が、実際に付与される権限の範囲と常に一致するように改善。内容を完全に表示できない場合は「今後は確認しない」を選択できないように変更",
+        "t_en": "Improved permission dialogs: display text and \"don't ask again\" options now always match what a grant would cover, and \"don't ask again\" is withheld when contents cannot be fully displayed",
+        "tags": ["改善", "Security"]
+      },
+      {
+        "t": "改善: macOS/Linux ネイティブビルドに組み込まれた grep を改善。病的な正規表現パターンでメモリを枯渇させる代わりに早期に失敗するようになり、-m N と -A/-C を組み合わせた際のコンテキスト表示も正しく修正",
+        "t_en": "Improved the embedded `grep` in native macOS/Linux builds: pathological patterns now fail fast instead of exhausting memory, and `-m N` with `-A/-C` prints correct context",
+        "tags": ["改善", "Perf"]
+      },
+      {
+        "t": "改善: コンテキスト上限到達時のエラーメッセージに、auto-compact が無効になっている場合はその旨と /config での再有効化方法を表示するように改善",
+        "t_en": "Improved the context-limit error to say when auto-compact is off and point to `/config` to re-enable it",
+        "tags": ["改善"]
+      },
+      {
+        "t": "改善: Vim モードで詳細トランスクリプト表示の切り替え（ctrl+o）やパネルを閉じた際に、NORMAL モードとカーソル位置が保持されるように改善",
+        "t_en": "Vim mode: NORMAL mode and cursor position are now preserved when toggling the detailed transcript (ctrl+o) or closing a panel",
+        "tags": ["改善"]
+      },
+      {
+        "t": "修正: ダイアログで矢印キーと Enter を素早く連続して押した際に、直前にハイライトされていた選択肢ではなく実際に移動先の選択肢が選ばれるように修正",
+        "t_en": "Dialogs: arrow keys and Enter pressed in quick succession now select the option you navigated to instead of the previously highlighted one",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: SendMessage が、クロスセッション配信には大きすぎるメッセージを黙って破棄する代わりに、送信前に拒否するように修正",
+        "t_en": "`SendMessage` now refuses messages too large for cross-session delivery up front instead of silently dropping them",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: claude rc が、対話起動時と同じエンタープライズゲートウェイの可用性チェックを適用するように修正",
+        "t_en": "Remote Control: `claude rc` now applies the same enterprise-gateway availability check as interactive startup",
+        "tags": ["バグ修正", "Security"]
+      },
+      {
+        "t": "修正: 複数の Claude パネルを開いたウィンドウを復元・再読み込みした際に、フォーカスが開いているタブ間で勝手に切り替わってしまう問題を修正",
+        "t_en": "[VSCode] Fixed focus jumping between open Claude tabs on its own when a window with several Claude panels is restored or reloaded",
+        "tags": ["バグ修正", "IDE"]
+      }
+    ]
   }
 ]
