@@ -1287,5 +1287,304 @@
       "category": "IDE",
       "category_en": "IDE"
     }
+  ],
+  "2.1.236": [
+    {
+      "t": "追加: 新しいセッションの起動時モデルを設定する ANTHROPIC_DEFAULT_MODEL 環境変数を追加。/model での選択は引き続き上書き可能で、再起動後もその選択が維持される点が ANTHROPIC_MODEL と異なる",
+      "t_en": "Added `ANTHROPIC_DEFAULT_MODEL` environment variable: sets the model new sessions start on, while a `/model` pick still overrides it and persists across restarts (unlike `ANTHROPIC_MODEL`)",
+      "tags": ["新機能"],
+      "detail": "これまでモデルに関する環境変数は ANTHROPIC_MODEL のみで、これは起動したセッションにのみ適用され、次回起動時には設定に保存されたモデルで再び上書きされてしまうため、恒久的なデフォルト値として機能させることができなかった。\n\n本バージョンで追加された ANTHROPIC_DEFAULT_MODEL は、設定ファイルの model キーと同様に新しいセッションの起動時モデルを指定できる環境変数で、セッション内で明示的に /model を選択した場合はそちらが優先され、再起動後もその選択が維持される。シェルプロファイルやコンテナ環境、CI などの環境変数経由でベースラインのモデルを設定しつつ、ユーザーが /model で選んだ内容を毎回上書きしてしまう ANTHROPIC_MODEL とは異なり、ユーザーの選択を尊重できるようになった。",
+      "detail_en": "Previously the only model-related environment variable was `ANTHROPIC_MODEL`, which applies solely to the session it launches and gets overridden again on the next launch by whatever model is saved in settings — it couldn't act as a persistent default.\n\n`ANTHROPIC_DEFAULT_MODEL`, added in this version, behaves like the `model` settings-file key: it seeds the starting model for new sessions, while an explicit in-session `/model` pick still takes precedence and keeps its own persistence across restarts. This lets teams set a baseline model through environment configuration (shell profile, container env, CI) without it re-overriding a user's saved `/model` choice on every launch, unlike `ANTHROPIC_MODEL`.",
+      "category": "設定",
+      "category_en": "Settings"
+    },
+    {
+      "t": "追加: クロスセッション SendMessage に notify_when_idle オプションを追加。同じマシン上の別の Claude Code セッションに対して、次にアイドル状態になったタイミングで一度だけ通知を送るよう依頼できる（オプトイン・ワンショットでポーリング不要、macOS/Linux 対応）",
+      "t_en": "Added `notify_when_idle` to cross-session `SendMessage`: ask another Claude Code session on this machine to send one notice when it next goes idle — opt-in, one-shot, no polling (macOS and Linux)",
+      "tags": ["新機能", "Agent"],
+      "detail": "クロスセッションの SendMessage はすでに同一マシン上の Claude Code セッション同士でメッセージをやり取りでき、相手セッションがツール呼び出しの合間やアイドル状態になったタイミングで配信されるが、これまでは相手セッションが手すきになったことを知る手段がなく、何度もメッセージを送って様子を見るしかなかった。\n\n本バージョンで追加された notify_when_idle オプションを使うと、送信側は相手セッションが次にアイドルになった際に一度だけ自動的に通知を受け取れるようになり、手動でのポーリングが不要になる。オプトインかつワンショットの仕組みで、既存のアイドル配信の仕組みをそのまま利用しているため、対応プラットフォームは macOS と Linux に限られる。",
+      "detail_en": "Cross-session `SendMessage` already lets one local Claude Code session message another, with delivery timed to when the recipient is between tool calls or goes idle, but there was previously no way to learn that a busy peer session had become free short of repeatedly sending check-in messages.\n\n`notify_when_idle`, added in this version, lets the sender request exactly one automatic notice the next time that peer session goes idle, replacing manual polling with a single push-style callback. It's opt-in and one-shot, built directly on the existing idle-delivery mechanics of cross-session messaging, and is scoped to macOS and Linux.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-Agent"
+    },
+    {
+      "t": "修正: macOS のサンドボックスで、ワイルドカードの読み取り拒否ルール（例: **/.env）が許可された読み取り範囲内でも優先されるように修正。一致したディレクトリの中身もカバーされ、拒否対象のファイルをリネームしても回避できなくなった",
+      "t_en": "Sandbox: on macOS, wildcard read-deny rules (e.g. `**/.env`) now take precedence inside allowed read regions, cover matched directories' contents, and can't be bypassed by renaming the denied file",
+      "tags": ["バグ修正", "Security"],
+      "detail": "サンドボックスの sandbox.filesystem の denyRead/allowRead はワイルドカードパターンに対応しており、明示的な拒否ルールは広い許可範囲の内側でも優先され、広範な許可設定によって機密ファイルが意図せず露出することがないという原則がすでに存在していたが、macOS ではこの保証がワイルドカードの拒否ルールに対して弱く、**/.env のようなパターンで指定したファイルが広い allowRead 範囲によって読み取れてしまったり、拒否対象のファイルをリネームすることでルールをすり抜けられてしまう場合があった。\n\n本バージョンで macOS におけるワイルドカードの読み取り拒否ルールが強化され、一致するファイルだけでなくその親ディレクトリの中身も拒否対象としてカバーされるようになり、ファイル名の変更によるルールの回避もできなくなった。これにより、明示的なパス指定の拒否ルールと同等の強度をワイルドカードルールでも得られるようになった。",
+      "detail_en": "The sandbox's `sandbox.filesystem` `denyRead`/`allowRead` lists already support wildcard patterns, and the general guarantee that 'an exact deny holds inside a wider allow, so a broad allow can't silently re-expose a secret' already existed — but on macOS that guarantee was weaker for wildcard deny rules: a pattern like `**/.env` could still be exposed by a broader `allowRead` region, and renaming a denied file could evade the rule entirely.\n\nThis version hardens macOS wildcard read-deny rules so they cover not just the matched file but the contents of matched directories, and can no longer be bypassed by renaming the denied file. This brings wildcard-based rules up to the same strength as exact-path deny rules.",
+      "category": "サンドボックス",
+      "category_en": "Sandbox"
+    },
+    {
+      "t": "修正: セッションが切り替えていたディレクトリが削除された後、クリップボードコピー・バックグラウンドのハウスキーピング・バックグラウンドセッション・ローカル MCP ログが壊れる問題を修正（2.1.229 以降で発生）",
+      "t_en": "Fixed clipboard copy, background housekeeping, background sessions, and local MCP logs breaking after the directory a session had switched into was removed (since 2.1.229)",
+      "tags": ["バグ修正", "MCP"],
+      "detail": "クリップボードへのコピー、定期的なバックグラウンドのハウスキーピング処理、バックグラウンドセッション、ローカル MCP サーバーのログ出力といった複数の機能は、セッションのカレントディレクトリが存在し続けることを前提に動作していたため、2.1.229 で発生したリグレッションにより、セッションが cd などで切り替えた先のディレクトリが実行中に削除されると、これらの機能が静かに壊れてしまう状態になっていた。\n\n本バージョンでこれらの機能がカレントディレクトリの削除に対して耐性を持つように修正され、作業ディレクトリが途中で削除されても、クリップボードコピーやバックグラウンド処理、MCP のログ出力が引き続き正常に動作するようになった。",
+      "detail_en": "Clipboard copy, periodic background housekeeping tasks, background sessions, and local MCP server logging all relied on the session's current working directory continuing to exist. A regression introduced in 2.1.229 meant that once a session's working directory was deleted (for example after a `cd` into it), these features would silently break.\n\nThis version makes these subsystems resilient to a removed working directory, so clipboard copy, background processing, and MCP logging keep working correctly even after the directory a session had switched into is deleted.",
+      "category": "安定性",
+      "category_en": "Stability"
+    },
+    {
+      "t": "修正: フルスクリーンレンダラーが一度起動に失敗すると、それ以降ずっと失敗し続ける問題を修正。以後は毎回終了する代わりにクラシックレンダラーへフォールバックするように改善",
+      "t_en": "Fixed the fullscreen renderer failing permanently after a single failed start: it now falls back to the classic renderer instead of exiting on every subsequent launch",
+      "tags": ["バグ修正"],
+      "detail": "フルスクリーンレンダリングはターミナルの描画方式の一つだが、一部のターミナルでは正しく初期化できないことがある。これまでは一度フルスクリーンモードの起動に失敗すると、以降の起動でも毎回失敗して終了してしまい、正常に復帰できなかった。\n\n本バージョンでこの問題が修正され、起動に失敗した場合はその起動時に限りクラシックレンダラーへフォールバックするようになったため、フルスクリーンの初期化に問題があるターミナルでも CLI を引き続き利用できるようになった。",
+      "detail_en": "Fullscreen rendering is an alternate terminal-drawing mode that some terminals can fail to initialize correctly. Previously, once fullscreen mode failed to start, Claude Code kept failing and exiting on every subsequent launch instead of recovering.\n\nThis version fixes that: a failed start now falls back to the classic renderer for that launch, so the CLI remains usable even on terminals where fullscreen initialization has trouble.",
+      "category": "レンダリング",
+      "category_en": "Rendering"
+    },
+    {
+      "t": "修正: /model ピッカーがターミナルの高さより高く表示されてしまう問題を修正。ウィンドウに収まる分だけモデルを表示し、残りはスクロールで確認できるように改善",
+      "t_en": "Fixed the `/model` picker rendering taller than the terminal: it now shows only as many models as fit the window, with the rest reachable by scrolling",
+      "tags": ["バグ修正"],
+      "detail": "/model ピッカーには default・best・fable・sonnet・opus・haiku・sonnet[1m]・opus[1m]・opusplan に加えて、カスタムモデルや許可リストに登録されたモデルなど多数の選択肢が表示されるが、ターミナルウィンドウが低い場合に一覧がターミナルの高さより高く表示されてしまい、画面からはみ出したり表示が崩れたりすることがあった。\n\n本バージョンでピッカーの表示件数がウィンドウの高さに合わせて制限されるようになり、収まりきらない残りの選択肢はスクロールして確認できるようになった。モデルの選択方法自体に変更はない。",
+      "detail_en": "The `/model` picker lists model aliases and options (`default`, `best`, `fable`, `sonnet`, `opus`, `haiku`, `sonnet[1m]`, `opus[1m]`, `opusplan`, plus any custom or allowlisted entries), and on a short terminal window the list could render taller than the available rows, pushing content off-screen or corrupting the display.\n\nThis version caps the picker to the visible window height, with the remaining entries reachable by scrolling. There is no change to how models are actually selected or configured.",
+      "category": "UX",
+      "category_en": "UX"
+    },
+    {
+      "t": "修正: 不正な閉じタグによってメッセージ本文が summary フィールド側に残ってしまい、SendMessage の呼び出しが拒否される問題を修正",
+      "t_en": "Fixed `SendMessage` calls being rejected when a malformed closing tag left the message text inside the summary field",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "SendMessage はエージェントチーム間のメッセージングとクロスセッションメッセージングの両方で使われるツールで、summary フィールドと本文（message）フィールドを分けて呼び出す構造になっているが、不正な閉じタグが含まれていると、パーサーが本来 message フィールドに入るべきテキストを summary フィールド側に残したまま処理してしまい、呼び出し全体が拒否されるという問題があった。\n\n本バージョンでパーサーがこの不正な閉じタグのケースを許容するように修正され、こうした入力でもメッセージが正しく配信されるようになった。SendMessage 自体の仕様に変更はない。",
+      "detail_en": "`SendMessage` is used for both agent-team messaging and cross-session messaging, and structures its call with separate `summary` and message-body fields. A malformed closing tag could cause the parser to leave the actual message text sitting inside the `summary` field instead of the body, which then caused the call to be rejected outright rather than delivered.\n\nThis version makes the parser tolerant of this malformed-tag case, so the message still goes through correctly. There is no change to `SendMessage`'s documented contract.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-Agent"
+    },
+    {
+      "t": "修正: サブプロセスの起動に失敗した際（Windows の相互運用が無効な WSL 上での powershell.exe など）に未処理の Promise 拒否が発生する問題を修正（2.1.234 で発生したリグレッション）",
+      "t_en": "Fixed unhandled promise rejections when a subprocess fails to start, for example `powershell.exe` on WSL with Windows interop disabled (regression in 2.1.234)",
+      "tags": ["バグ修正", "Windows"],
+      "detail": "WSL 環境では、Claude Code が一部の処理のために powershell.exe など Windows 側のバイナリを呼び出すことがあるが、Windows の相互運用機能が無効になっているとこの起動が失敗する。2.1.234 で発生したリグレッションにより、この失敗が未処理の Promise 拒否として扱われてしまい、プロセスのクラッシュやセッション状態の破損につながる恐れがあった。\n\n本バージョンでサブプロセスの起動失敗が正しくキャッチされ、通常のエラーとして処理されるように修正された。WSL と Windows の相互運用に関する特定のエッジケースに対する安定性の修正となる。",
+      "detail_en": "On WSL, Claude Code can shell out to Windows binaries such as `powershell.exe` for certain operations, but when Windows interop is disabled that spawn fails. A regression introduced in 2.1.234 left that failure as an unhandled promise rejection instead of a caught error, risking a process crash or corrupted session state.\n\nThis version catches subprocess-start failures properly so they're handled as ordinary errors instead of unhandled rejections — a stability fix specific to this WSL/Windows-interop edge case.",
+      "category": "安定性",
+      "category_en": "Stability"
+    },
+    {
+      "t": "修正: フルスクリーンモードで、ターミナルをリサイズした直後は新しく送信したメッセージが次の更新まで表示されないことがある問題を修正",
+      "t_en": "Fixed fullscreen mode sometimes not showing a newly sent message until the next update after the terminal was resized",
+      "tags": ["バグ修正"],
+      "detail": "フルスクリーンレンダリングは前回の描画から変化したセルだけを再描画し、ターミナルのリサイズ時にはレイアウトを再計算する仕組みになっているが、リサイズ直後に新しいメッセージが送信されると、そのレイアウトの変化とメッセージの表示が同じ描画パスでまとめて反映されず、次の更新が発生するまで画面が古い状態のままになることがあった。\n\n本バージョンでリサイズによるレイアウト変更と新しいメッセージの表示が同じ描画パスで確実に反映されるように修正され、この表示の遅延が解消された。",
+      "detail_en": "Fullscreen rendering only redraws cells that changed since the last frame and reflows layout on terminal resize. A bug meant that immediately after a resize, a newly sent message could fail to appear in the same render pass as the layout change, leaving the display stale until a later update triggered a repaint.\n\nThis version reconciles a resize-triggered layout change and a new message within the same render pass, eliminating this display delay.",
+      "category": "レンダリング",
+      "category_en": "Rendering"
+    },
+    {
+      "t": "修正: フルスクリーンモードで、複数行のプロンプトをクリアした後にプロンプト上部に空白の帯が残ることがある問題と、ターミナルを縮小してから元のサイズに戻した際にペインが再描画されない問題を修正",
+      "t_en": "Fixed a blank band that could remain above the prompt after clearing a multi-line prompt, and panes not repainting after resizing the terminal away and back, in fullscreen mode",
+      "tags": ["バグ修正"],
+      "detail": "フルスクリーンモードでは、複数行にわたるプロンプトをクリアすると、レンダラーが以前のプロンプトが占めていた行を正しく回収できず、新しい（短くなった）プロンプトの上に空白の帯が残ってしまうことがあった。また別の問題として、ターミナルウィンドウを一度縮小してから元のサイズに戻すと、リサイズが元に戻ったことを示すイベントで全体の再描画がトリガーされず、ペインが再描画されないままになることがあった。\n\n本バージョンでこれら2つのレイアウト・再描画に関する不具合がいずれも修正され、複数行プロンプトのクリア後やターミナルのリサイズ後も、画面の表示内容が実際の状態と正しく一致するようになった。",
+      "detail_en": "In fullscreen rendering, clearing a prompt that spanned multiple lines could leave a leftover blank band above the new, shorter prompt, because the renderer didn't fully reclaim the rows the old prompt had occupied. Separately, shrinking and then restoring the terminal window could leave panes un-repainted because the resize-back event wasn't triggering a full redraw.\n\nThis version fixes both of these fullscreen layout and repaint bugs, so the displayed screen matches the actual content after clearing a multi-line prompt or resizing the terminal away and back.",
+      "category": "レンダリング",
+      "category_en": "Rendering"
+    },
+    {
+      "t": "修正: 起動時に管理設定の承認プロンプトが表示されないことがあるにもかかわらず、最初のキー入力を承認として扱ってしまう問題を修正",
+      "t_en": "Fixed the managed-settings approval prompt sometimes not appearing at startup while still capturing the first keypress as approval",
+      "tags": ["バグ修正", "Security"],
+      "detail": "組織のポリシーとして配信される管理設定（managed-settings.json や MDM、サーバー管理設定など）に、ユーザーの確認を必要とする変更が含まれる場合、Claude Code は起動時に承認プロンプトを表示する仕組みになっているが、不具合によりこのプロンプトが画面に表示されないことがある一方で、セッションはユーザーの次のキー入力を（表示されていない）プロンプトへの承認として黙って消費してしまうことがあった。\n\n本バージョンでこの起動時 UI のタイミング・描画の問題が修正され、プロンプトが入力を受け付けられる前に確実に表示されるようになった。ユーザーが意図せず管理設定の変更を承認してしまうリスクが解消される。",
+      "detail_en": "When managed settings (organization policy delivered via `managed-settings.json`, MDM, or server-managed settings) change in a way that requires user acknowledgment, Claude Code shows an approval prompt at startup. A bug could cause that prompt to sometimes not render on screen at all, while the session nonetheless silently consumed the user's next keypress as approval of the invisible prompt.\n\nThis version fixes this startup UI timing/rendering bug so the prompt reliably displays before it can accept input, removing the risk of a user unintentionally approving a managed-settings change they never saw.",
+      "category": "セキュリティ",
+      "category_en": "Security"
+    },
+    {
+      "t": "修正: tmux（iTerm2 の tmux 統合）でターミナルのタブタイトルが揺れる問題を修正。タイトルはテキストが実際に変化した場合のみ書き込まれるようになり、960ms ごとにアニメーションすることがなくなった",
+      "t_en": "Fixed terminal tab titles jumping in tmux (iTerm tmux integration): the title is now written only when its text changes instead of animating every 960ms",
+      "tags": ["バグ修正"],
+      "detail": "Claude Code はセッションの状態（作業中・アイドルなど）を示すためにターミナルのタブタイトルを更新するが、これまではタイトルのテキストが実際に変化したかどうかに関わらず、約960ミリ秒ごとのアニメーションタイマーで常に書き込みを行っていた。この挙動が iTerm2 の tmux 統合モードでは、タブタイトルが目に見えて揺れたり点滅したりする原因になっていた。\n\n本バージョンでタイトルの書き込みをテキストが実際に変化した場合のみに限定するよう修正し、不要な再描画による見た目のちらつきが解消された。tmux と iTerm2 を組み合わせたタイトルバー統合に固有の見た目の修正となる。",
+      "detail_en": "Claude Code updates the terminal tab title to reflect session state (working/idle, etc.). Previously it rewrote the title on a fixed ~960ms animation timer regardless of whether the text had actually changed, which under iTerm2's tmux integration mode caused the tab title to visibly jump or flicker.\n\nThis version writes the title only when its text actually changes, eliminating the unnecessary redraw churn — a cosmetic fix specific to the tmux + iTerm2 title-bar integration.",
+      "category": "ターミナル",
+      "category_en": "Terminal"
+    },
+    {
+      "t": "修正: クラウド環境の一覧が空または不正な形式で返ってきた場合の、分かりにくいエラーメッセージを修正",
+      "t_en": "Fixed an unclear error when the cloud environments list came back empty or malformed",
+      "tags": ["バグ修正"],
+      "detail": "Claude Code on the web やバックグラウンド・クラウドホストのセッションで使われるクラウド環境の機能では、サーバーから利用可能な環境の一覧を取得するが、このレスポンスが空または不正な形式で返ってきた場合に、これまでは何が問題なのか分かりにくいエラーが表示されていた。\n\n本バージョンでこの失敗ケースにおけるエラーメッセージが改善され、実際の問題を特定しやすい内容になった。クラウド環境機能そのものの仕組みに変更はない。",
+      "detail_en": "Claude Code's cloud environments feature (used for background and cloud-hosted sessions) fetches a list of available environments from the server. When that response came back empty or malformed, the CLI previously surfaced an unclear error rather than a message that identifies the actual problem.\n\nThis version improves the error message shown in that failure case so it's actionable, without changing the underlying cloud environments feature.",
+      "category": "エラーハンドリング",
+      "category_en": "Error Handling"
+    },
+    {
+      "t": "修正: Remote Control 経由で利用している場合、Fable 5 の初回利用クレジット確認プロンプトが60秒間応答がないとフォールバックモデルを自動選択してしまう問題を修正",
+      "t_en": "Fixed the Fable 5 first-time usage-credits prompt auto-selecting the fallback model after 60 seconds with no answer when using Remote Control",
+      "tags": ["バグ修正"],
+      "detail": "対話セッションでは、Fable 5 へのリクエストが利用クレジットとして課金される前に、一度だけ確認プロンプトが表示され、ユーザーは Fable 5 を利用クレジットで使い続けるか、デフォルトのモデルに切り替えるかを選べる仕組みになっている。この確認プロンプトを Remote Control（スマートフォンやブラウザから端末のセッションを操作する機能）経由で表示した場合、不具合により60秒間応答がないとフォールバックモデルが自動的に選択されてしまい、ユーザーの実際の選択を待たずに Fable 5 の利用が事実上拒否されてしまうことがあった。\n\n本バージョンでこの確認プロンプトが、直接ターミナルで操作している場合と同様に、Remote Control 経由でもユーザーの実際の応答を待つように修正された。",
+      "detail_en": "In interactive sessions, Claude Code shows a one-time consent prompt before a Fable 5 request bills to usage credits, letting the user continue on Fable 5 or fall back to their default model. When that prompt appeared through a Remote Control connection (a phone or browser controlling a local session), a bug caused it to auto-select the fallback model after 60 seconds of no response instead of waiting for the user's actual choice — effectively denying Fable 5 usage silently.\n\nThis version makes the prompt wait for a real answer over Remote Control the same way it does in a direct terminal session.",
+      "category": "Remote Control",
+      "category_en": "Remote Control"
+    },
+    {
+      "t": "修正: ~/.claude.json にキャッシュされたゲストパス報酬のデータが不正な形式の場合、スピナーのヒントが一切表示されなくなり、バックグラウンドエラーが繰り返し発生する問題を修正",
+      "t_en": "Fixed spinner tips never appearing, with a repeated background error, when the cached guest-pass reward in `~/.claude.json` was malformed",
+      "tags": ["バグ修正"],
+      "detail": "Claude Code は処理中のスピナー表示と合わせてヒントをローテーション表示する機能を持ち、別途 ~/.claude.json にゲストパス報酬などの状態をキャッシュしているが、このキャッシュされたゲストパス報酬のデータが不正な形式になっていると、ヒントの読み込み処理が実行するたびに失敗してしまい、スピナーのヒントが一切表示されなくなるうえ、同じバックグラウンドエラーが繰り返し記録されるという問題があった。\n\n本バージョンでヒントの読み込み処理が不正な形式のゲストパスキャッシュに対して耐性を持つように修正され、ヒントが正常に表示され、エラーの繰り返しも解消された。内部の状態解析に関する堅牢性の修正となる。",
+      "detail_en": "Claude Code shows rotating tips alongside its working spinner, and separately caches state such as guest-pass reward info in `~/.claude.json`. If that cached guest-pass reward value became malformed, a bug caused the tip-loading logic to fail every time it ran, both suppressing all spinner tips and repeatedly logging the same background error.\n\nThis version makes tip loading tolerant of a malformed guest-pass cache entry, so tips display normally and the error no longer repeats — an internal state-parsing robustness fix.",
+      "category": "安定性",
+      "category_en": "Stability"
+    },
+    {
+      "t": "修正: セッションの作業ディレクトリが削除された後、SDK/VS Code セッションでスキルのホットリロードがスキルの変更のたびにエラーを発生させる問題を修正（2.1.229 以降で発生）",
+      "t_en": "Fixed skills hot-reload in SDK/VS Code sessions raising an error on every skills change after the session's working directory was deleted (2.1.229+)",
+      "tags": ["バグ修正", "SDK", "IDE"],
+      "detail": "Claude Code は Agent SDK 経由のセッションや VS Code 拡張機能のセッションで、スキルディレクトリを監視してスキル定義をホットリロードする仕組みを持っているが、2.1.229 で発生したリグレッション（本バージョンの他の項目にもある作業ディレクトリ削除に関する問題と同じ系統）以降、セッションの作業ディレクトリが削除された後は、スキルディレクトリに変更があるたびにこのホットリロードのウォッチャーがエラーを発生させるようになっていた。\n\n本バージョンでスキルのホットリロードのウォッチャーが、作業ディレクトリが削除された状態でも耐性を持つように修正された。ファイル監視ロジックに関する内部的な堅牢性の修正であり、スキルの検出やフロントマターの仕様自体に変更はない。",
+      "detail_en": "Claude Code watches the skills directory and hot-reloads skill definitions for sessions run through the Agent SDK or the VS Code extension. After a regression starting in 2.1.229 (related to the same working-directory-removal issue affecting other items in this changelog), once a session's working directory had been deleted, every subsequent skills-directory change caused the hot-reload watcher to raise an error.\n\nThis version makes the skills hot-reload watcher tolerant of a removed working directory — an internal robustness fix to the file-watching logic, with no change to skill discovery or frontmatter behavior itself.",
+      "category": "スキル",
+      "category_en": "Skills"
+    },
+    {
+      "t": "修正: アイドル・リタイア・起動タイムアウトによって解放されたセルフホストランナーのセッションが、post-session フックの完了前に別のランナー上で再開されてしまうことがある問題を修正",
+      "t_en": "Fixed self-hosted runner sessions released on idle, retire, or startup timeout occasionally resuming on another runner before the post-session hook had finished",
+      "tags": ["バグ修正"],
+      "detail": "セルフホスト環境では、ランナーがアイドルタイムアウト・リタイア（--retire-at）・起動タイムアウトなどの理由でセッションを解放すると、そのセッションは別のランナー上で再開されることがある。post-session フックは、未コミットの作業を退避ブランチに保存するといったクリーンアップ処理に使われるが、不具合によりこのフックの完了を待たずにセッションが別のランナーへ引き継がれてしまうことがあり、クリーンアップ処理とセッションの引き継ぎの間でレースコンディションが発生していた。\n\n本バージョンで、post-session フックの完了を待ってからセッションが別の場所で再開されるように修正された。post-session フックを使ってクリーンアップや状態の保存を行っているセルフホストランナー環境に特に関係する修正となる。",
+      "detail_en": "In self-hosted environments, when a runner releases a session due to an idle timeout, retirement (`--retire-at`), or a startup timeout, the session can resume on a different runner. The `post-session` hook — used for tasks like saving uncommitted work to a rescue branch — could previously be interrupted by that handoff, because the resumption could happen before the hook had finished running, creating a race between cleanup and handoff.\n\nThis version ensures the `post-session` hook completes before the session is allowed to resume elsewhere. This matters mainly to platform engineers who rely on the `post-session` hook for cleanup or state preservation on self-hosted runner fleets.",
+      "category": "自己ホストランナー",
+      "category_en": "Self-Hosted Runner"
+    },
+    {
+      "t": "修正: iTerm2 の一部のフォントサイズで Clawd マスコットの目と足が不揃いに表示される問題を修正",
+      "t_en": "Fixed the Clawd mascot's eyes and feet rendering unevenly in iTerm2 at some font sizes",
+      "tags": ["バグ修正"],
+      "detail": "Claude Code の CLI 画面に表示されるマスコットキャラクター「Clawd」は、iTerm2 で特定のフォントサイズを使用していると、目と足の位置が不揃いに表示されることがあった。これは iTerm2 がそれらのフォントサイズで文字セルの寸法を計算する方法が、他のターミナルと異なることが原因とみられる。\n\n本バージョンで該当するフォントサイズでもマスコットが均等に表示されるよう描画が調整された。見た目のみに関するターミナル描画の修正で、動作や設定への影響はない。",
+      "detail_en": "Clawd, Claude Code's mascot shown in some CLI displays, rendered with unevenly placed eyes and feet in iTerm2 at certain font sizes — likely because of how iTerm2 computes character cell dimensions at those sizes compared to other terminals.\n\nThis version adjusts the mascot's rendering so it displays evenly across the affected font sizes. This is a purely cosmetic terminal-rendering fix with no behavioral or configuration impact.",
+      "category": "レンダリング",
+      "category_en": "Rendering"
+    },
+    {
+      "t": "修正: セッションのリキャップ（自動生成および /recap）が稀に長くなりすぎてしまう問題を修正。テキストは単語の区切りで400文字に制限されるようになった",
+      "t_en": "Fixed occasional runaway session recaps: recap text (automatic and `/recap`) is now capped at 400 characters, cut at a word boundary",
+      "tags": ["バグ修正"],
+      "detail": "Claude Code には、離席後に自動で表示されるセッションのリキャップと、/recap コマンドで手動生成するリキャップの2種類があるが、まれに生成されるリキャップのテキストが異常に長くなってしまうことがあった。\n\n本バージョンでリキャップのテキストが単語の区切りで400文字までに制限されるように修正され、暴走した生成結果でセッションや再開後のコンテキストが埋め尽くされることがなくなった。",
+      "detail_en": "Claude Code's session recap feature — the automatic recap shown after being away, and the manual `/recap` command — could occasionally generate an excessively long summary.\n\nThis version caps recap text at 400 characters, cutting at a word boundary rather than mid-word, keeping recaps concise and preventing runaway generations from cluttering the session or resumed context.",
+      "category": "会話管理",
+      "category_en": "Conversation Management"
+    },
+    {
+      "t": "改善: セッションカウンターの書き込みをバックグラウンドで行うようにして、起動時のパフォーマンスを改善",
+      "t_en": "Improved startup performance: the session counter is now written in the background",
+      "tags": ["改善", "Perf"],
+      "detail": "Claude Code は起動時にセッションカウンターの書き込みを行うが、これまではこの書き込み処理が起動時の待ち時間に上乗せされる形になっていた。\n\n本バージョンでこの書き込みをバックグラウンドで行うように変更し、この記帳処理の I/O を待たずにセッションを開始できるようになったことで、起動が速くなった。ユーザーが設定できる項目はない、内部的なパフォーマンス最適化となる。",
+      "detail_en": "Claude Code writes a session counter at startup, and this write previously added to startup latency.\n\nThis version moves the write to the background, letting Claude Code begin the session sooner without blocking on this bookkeeping I/O — an internal performance optimization with no user-facing configuration.",
+      "category": "パフォーマンス",
+      "category_en": "Performance"
+    },
+    {
+      "t": "改善: auto mode が有効な間は Monitor の allow ルールも一時的に無効化されるように変更し、Monitor コマンドが Bash コマンドと同様にレビューされるように改善",
+      "t_en": "Improved auto mode: `Monitor` allow rules are now set aside while auto mode is active, so Monitor commands are reviewed the same way Bash commands are",
+      "tags": ["改善", "Security"],
+      "detail": "Monitor ツール（ログ・CI・ファイル・WebSocket などをバックグラウンドで監視するツール）は Bash と同じパーミッションルールを共有しており、Bash(...) の allow ルールは Monitor のコマンドにもそのまま適用される。auto mode はセッション開始時に Bash(*) のような広範な allow ルールを一時的に無効化し、分類器によるレビューを必ず経由させる仕組みになっていたが、これまで Monitor コマンドはこの対象に含まれていなかった。\n\n本バージョンで Monitor にも同様の扱いが適用されるようになり、広範な allow ルールによって Monitor 経由のコマンドが分類器のレビューをすり抜けることができなくなった。Bash と Monitor の間で auto mode の安全性チェックの一貫性が確保される。",
+      "detail_en": "The `Monitor` tool (for background log/CI/file/WebSocket watching) shares Bash's permission rules, so a `Bash(...)` allow rule also matches Monitor commands. Auto mode already set aside broad Bash allow rules like `Bash(*)` on entry so the classifier reviews those commands instead of auto-approving them, but Monitor commands were not previously covered by that same treatment.\n\nThis version extends that treatment to Monitor, so a broad allow rule can no longer let a Monitor-issued command skip classifier review — ensuring consistent auto-mode safety scrutiny between Bash and Monitor commands.",
+      "category": "自動モード",
+      "category_en": "Auto Mode"
+    },
+    {
+      "t": "改善: Bedrock・Vertex AI・Foundry 利用時、およびテレメトリが無効な場合の auto mode で、分類器が Claude API と同じデフォルト（重大度スコアによる分類を含む）を使用するように統一",
+      "t_en": "Improved auto mode on Bedrock, Vertex AI, and Foundry, and when telemetry is disabled: the classifier now uses the same defaults as on the Claude API, including severity-scored classification",
+      "tags": ["改善", "Platform"],
+      "detail": "auto mode の分類器は、Amazon Bedrock・Google Cloud（Vertex AI）・Microsoft Foundry を利用している場合や、テレメトリが無効化されている場合に、Claude API を直接利用しているセッションとは異なるデフォルトルールや判定結果の形式を使用していた。\n\n本バージョンでこれらの経路でも Claude API と同じデフォルトが使用されるようになり、内部的な重大度スコアによる分類（バージョン2.1.208で導入された「分類器によりブロック」という拒否理由の元になっている仕組み）も含めて統一された。これにより、利用しているプロバイダーやテレメトリ設定に関わらず、auto mode の安全性に関する挙動と拒否メッセージが一貫するようになった。",
+      "detail_en": "The auto-mode classifier previously used different default rules, or a different (non-severity-scored) verdict format, on Amazon Bedrock, Google Cloud's Vertex AI, or Microsoft Foundry, or when telemetry was disabled, compared to sessions on the Claude API.\n\nThis version unifies the classifier's defaults across those paths, including producing the same internal severity-scored classification (the mechanism behind the \"Blocked by classifier\" denial reason introduced in v2.1.208) rather than a different verdict format — giving consistent auto-mode safety behavior and denial messaging regardless of provider or telemetry setting.",
+      "category": "自動モード",
+      "category_en": "Auto Mode"
+    },
+    {
+      "t": "改善: auto mode の git status チェックが、リポジトリの status.showUntrackedFiles=no 設定によってクリーンな作業ツリーであるかのように偽装されなくなるように修正",
+      "t_en": "Improved auto mode: the git status check can no longer be fooled by a repo's `status.showUntrackedFiles=no` setting into reporting a clean tree",
+      "tags": ["改善", "Security"],
+      "detail": "auto mode は、一部の破壊的な操作を許可するかどうかの判断材料の一つとして git のステータスチェックを利用しているが、リポジトリに status.showUntrackedFiles=no という git 設定がされていると、実際には未追跡のファイルが存在していても git status がクリーンな作業ツリーであるかのように報告してしまい、この git の設定によってチェックが誤誘導される余地があった。\n\n本バージョンでこの git 設定を考慮したチェックが行われるようになり、status.showUntrackedFiles=no によってクリーンな作業ツリーであると偽装できなくなった。安全性チェックの回避経路をふさぐ小さな改善となる。",
+      "detail_en": "Auto mode relies on a git-status check as one signal in certain destructive-action decisions. A repository configured with `status.showUntrackedFiles=no` could previously make `git status` report a clean tree even with untracked files present, letting that git configuration mislead the classifier's check.\n\nThis version accounts for this git configuration so the check can no longer be spoofed into reporting a clean tree — closing a minor safety-check evasion vector.",
+      "category": "自動モード",
+      "category_en": "Auto Mode"
+    },
+    {
+      "t": "変更: /model ピッカーのハイライトを最新モデルの名前のみに変更し、恣意的な一部のモデルではなく新しいリリースをハイライトで示すように改善",
+      "t_en": "Changed the `/model` picker to highlight only the newest model's name, so the highlight marks the new release rather than an arbitrary subset of the list",
+      "tags": ["改善"],
+      "detail": "/model ピッカーはこれまで、どのモデルが最新のリリースなのかが分かりにくい形で複数のモデルをハイライト表示していた。\n\n本バージョンでハイライトの対象が最新モデルの名前のみに変更され、ユーザーが新しく利用可能になったモデルにすぐ気づけるようになった。表示上の分かりやすさを高める小さな改善であり、モデルの選択方法自体には変更はない。",
+      "detail_en": "The `/model` picker previously highlighted a set of models that didn't clearly signal which one was the newest release, potentially confusing users about what had just become available.\n\nThis version highlights only the newest model's name, so the highlight specifically marks the new release rather than an arbitrary subset of the list — a small UI clarity improvement that doesn't change how models are actually selected.",
+      "category": "UX",
+      "category_en": "UX"
+    },
+    {
+      "t": "改善: 長時間実行中のバックグラウンド作業の陰で評価が保留されたままアイドル状態になっている /goal セッションが、ユーザーの復帰を待たずに30分後（その後1時間、2時間と間隔を広げながら）自動的に進捗を確認しにいくように改善",
+      "t_en": "`/goal`: an idle session whose goal is parked behind long-running background work now checks in automatically after 30 minutes (then 1h, 2h) instead of waiting for you to return",
+      "tags": ["改善"],
+      "detail": "/goal の評価がサブエージェントやバックグラウンドのシェルコマンドといった長時間実行中のバックグラウンド作業の陰で保留されている場合、Claude Code は定期的にその作業の進捗を確認するよう Claude に依頼する仕組みをすでに持っていた。\n\n本バージョンでこの確認の間隔が、30分後、その後1時間後、2時間後というように段階的に広がっていくように改善され、長時間待ち続ける場合に確認の頻度を抑えつつ、何もしないまま待ち続けるよりも早く進捗を把握できるようになった。",
+      "detail_en": "When a `/goal` session's evaluation is deferred behind long-running background work (a subagent or a background shell command), Claude Code already asks Claude to periodically check on that work rather than waiting silently.\n\nThis version makes the check-in interval escalate — 30 minutes, then 1 hour, then 2 hours — instead of firing at a constant cadence, reducing how often Claude re-checks stalled work over long waits while still surfacing progress sooner than pure silence would.",
+      "category": "エージェント設定",
+      "category_en": "Agent Configuration"
+    },
+    {
+      "t": "改善: /usage が Team・Enterprise プランのメンバー向けに usage-credits の支出行を表示するようになり、まだ何も消費していない場合は 0% に固定された行として表示されるように改善",
+      "t_en": "`/usage` now shows the usage-credits spend row for Team and Enterprise members, and shows a capped row at 0% before anything is spent",
+      "tags": ["改善"],
+      "detail": "Team・Enterprise プランでは、usage credits（利用クレジット）を管理コンソールや /usage-credits から消費できるようになっているが、これまで /usage のプラン利用状況の内訳には、usage-credits の消費専用の行が用意されていなかった。\n\n本バージョンで /usage に Team・Enterprise メンバー向けの usage-credits 支出行が追加され、まだ何も消費していない場合でも 0% に固定された行として正しく表示されるようになった。利用クレジットの消費状況を /usage 上でひと目で確認できるようになる改善となる。",
+      "detail_en": "On Team and Enterprise plans, usage credits can already be spent via the admin console and `/usage-credits`, but `/usage`'s plan-usage breakdown previously had no dedicated row for usage-credits spend.\n\nThis version adds a usage-credits spend row to `/usage` for Team and Enterprise members, correctly rendering as a capped 0% row before any spend occurs, so credit consumption is now visible at a glance in `/usage`.",
+      "category": "コスト管理",
+      "category_en": "Cost Management"
+    },
+    {
+      "t": "改善: print/SDK モードで SIGTERM を受信した際、終了前に中断されたターンや疑似的なツール拒否がセッション履歴に記録されないように変更。実行中のコマンドは引き続き強制終了され、プロセスは終了コード143で終了する",
+      "t_en": "SIGTERM in print/SDK mode no longer records an interrupted turn or synthetic tool denials before exiting; running commands are still terminated and the process still exits with code 143",
+      "tags": ["改善", "SDK"],
+      "detail": "非対話的な claude -p や SDK 駆動のセッションで SIGTERM を送信すると、これまでは終了前に中断されたターンや疑似的なツール拒否のエントリがセッション履歴に記録されてしまうことがあり、トランスクリプトが汚れたり、後で resume した際に混乱を招く可能性があった。\n\n本バージョンでこの余計な記録が行われないように改善されつつ、重要な安全性の挙動、すなわち実行中の Bash コマンドのプロセスツリーの強制終了と、プロセスの終了コード143での終了は引き続き維持される。SDK を利用するホストやプロセススーパーバイザーにとって、強制終了後のセッション状態がより予測しやすくなる。",
+      "detail_en": "In non-interactive (`claude -p`) and SDK-driven sessions, sending SIGTERM could previously cause Claude Code to record the interrupted turn or synthetic tool-denial entries into session history before exiting, potentially polluting the transcript or confusing a later resume.\n\nThis version removes that spurious recording while preserving the important safety behavior: any running Bash command's process tree is still terminated, and the process still exits with code 143 — giving SDK hosts and process supervisors cleaner, more predictable session state after a forced termination.",
+      "category": "SDK",
+      "category_en": "SDK"
+    },
+    {
+      "t": "修正: スラッシュコマンドの入力ミスや、このセッションで利用できないコマンドで Enter を押した際に、最も近いあいまい一致のコマンドを実行してしまう代わりに、入力ミスとして報告するように修正（プレフィックスやエイリアスは引き続き動作する）",
+      "t_en": "Pressing Enter on a slash-command typo or a command unavailable in this session now reports it instead of running the closest fuzzy match; prefixes and aliases still run",
+      "tags": ["バグ修正"],
+      "detail": "これまでは、タイプミスのあるスラッシュコマンドや、現在のセッションでは利用できないスラッシュコマンドを入力して Enter を押すと、最も近いあいまい一致のコマンドが黙って実行されてしまうことがあり、意図しないコマンドが実行されてしまう予期しない、場合によってはリスクのある挙動になっていた。\n\n本バージョンでこの挙動が修正され、あいまい一致を推測して実行する代わりに、入力ミスまたは利用できないコマンドである旨が報告されるようになった。/review のような正規のプレフィックスやエイリアスは引き続きこれまで通り動作する。タイプミスによる意図しないコマンド実行が減る改善となる。",
+      "detail_en": "Previously, pressing Enter after typing a slash command with a typo, or one unavailable in the current session, could silently run the closest fuzzy-matching command instead of reporting the mistake — a potentially surprising or even risky behavior if the matched command wasn't the one intended.\n\nThis version reports the typo or unavailable command instead of guessing, while legitimate prefixes and aliases (such as `/review` for `/code-review`) continue to work as before, reducing accidental command execution caused by typos.",
+      "category": "コマンド",
+      "category_en": "Commands"
+    },
+    {
+      "t": "改善: CLI が終了した場合やターミナルが閉じられた場合に、Remote Control がセッションを数秒以内にオフラインとして表示するように改善",
+      "t_en": "Remote Control now marks a session offline within seconds when the CLI exits or its terminal closes",
+      "tags": ["改善"],
+      "detail": "Remote Control はスマートフォンやブラウザからローカルの Claude Code プロセスに接続してセッションを操作できる機能で、ローカル側のプロセスが終了したりターミナルが閉じられたりした場合、リモート側のセッションはオフラインとして表示されるべきだが、これまでこのオフライン表示への切り替わりには時間がかかることがあった。\n\n本バージョンで、CLI の終了やターミナルのクローズから数秒以内にセッションがオフラインとして表示されるように改善され、リモートから利用しているユーザーがより速く正確な状態を把握できるようになった。",
+      "detail_en": "Remote Control connects a phone or browser session to a local Claude Code process; when that local process exits or its terminal closes, the remote session should show as offline. Previously this offline transition could take a while to register.\n\nThis version makes Remote Control mark the session offline within seconds of the CLI exiting or the terminal closing, giving remote users faster, more accurate status feedback.",
+      "category": "Remote Control",
+      "category_en": "Remote Control"
+    },
+    {
+      "t": "修正: 急激なメッセージのバーストが受信先セッションの受信ボックスの許容量を超える場合、実際には破棄されていたメッセージを SendMessage が「送信済み」と報告していた問題を修正。事前に許容量を確認し、超える場合は送信を拒否するように改善",
+      "t_en": "`SendMessage` now refuses further messages to a session up front once a rapid burst would exceed what that session's inbox accepts, instead of reporting them sent while they were dropped",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "クロスセッションメッセージングでは、受信側セッションの受信ボックスが受け付けられる未読メッセージ数に上限（1セッションあたり50件）が設けられ、同じメッセージの連続送信にはレート制限もかけられているが、これまでは短時間に大量の SendMessage 呼び出しを行いこの上限を超えるバーストが発生した場合、上限を超えた分が実際には黙って破棄されているにもかかわらず、呼び出し元には送信成功として報告されてしまうことがあった。\n\n本バージョンで SendMessage が送信前に受信先の受信ボックスの残り容量を確認し、バーストが容量を超える場合は超過分の送信をあらかじめ拒否するように修正された。これにより呼び出し元は、実際には配信されていないメッセージを送信済みだと誤認することがなくなる。",
+      "detail_en": "Cross-session messaging caps how many unread messages a receiving session's inbox holds (50 per session) and rate-limits repeated messages, but a rapid burst of `SendMessage` calls exceeding that capacity could previously be reported as successfully sent even though some of them were silently dropped once the cap was hit.\n\nThis version makes `SendMessage` check the target inbox's remaining capacity up front and refuse further messages once a burst would exceed it, so callers get accurate delivery feedback instead of a false report that a dropped message was sent.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-Agent"
+    },
+    {
+      "t": "修正: プロンプト境界上のセッションタイトルのチップを、フッターの右端と揃うように修正",
+      "t_en": "Aligned the session title chip on the prompt border with the footer's right edge",
+      "tags": ["バグ修正"],
+      "detail": "CLI のプロンプト境界に表示されるセッションタイトルのチップが、フッターの右端と位置がずれて表示されており、見た目の一貫性を欠いていた。\n\n本バージョンでこのチップの位置がフッターの右端と揃うように修正され、プロンプト周りの表示の一貫性が向上した。動作に影響のない見た目のみの修正となる。",
+      "detail_en": "In the CLI's prompt border UI, the session title chip was misaligned relative to the footer's right edge — a purely visual layout inconsistency.\n\nThis version aligns the chip with the footer's right edge for a visually consistent prompt area. It has no behavioral effect.",
+      "category": "UX",
+      "category_en": "UX"
+    },
+    {
+      "t": "修正: 右寄せのフッター項目（ゴールインジケーター・セッション状態・バックグラウンドエージェントの状態）と省略表示された通知が、プロンプトエリアの他の要素と一貫した右マージンを共有するように修正",
+      "t_en": "Right-aligned footer items (goal indicator, session state, background agent status) and truncated notices now share a consistent right margin with the rest of the prompt area",
+      "tags": ["バグ修正"],
+      "detail": "フッターの右寄せ要素であるゴールインジケーター・セッション状態・バックグラウンドエージェントの状態、および省略表示された通知は、これまでプロンプトエリアの他の要素と右マージンが揃っておらず、見た目の一貫性を欠いていた。\n\n本バージョンでこれらの要素すべてが共通の右マージンに揃うように修正された。セッションタイトルのチップの修正と同様、動作への影響がない見た目のみの改善となる。",
+      "detail_en": "Right-aligned footer elements — the goal indicator, session state, background agent status, and truncated notices — previously didn't share a consistent right margin with the rest of the prompt area, creating visual inconsistency.\n\nThis version aligns all of these elements to a shared right margin. Like the session-title-chip fix, this is a pure visual polish change with no behavioral effect.",
+      "category": "UX",
+      "category_en": "UX"
+    },
+    {
+      "t": "追加: VS Code 拡張機能のトランスクリプトにスクリーンリーダー対応を追加。返信・パーミッションリクエスト・エラー・ステータス変化のライブアナウンスと、ターン単位の見出しナビゲーションに対応",
+      "t_en": "[VSCode] Added screen reader support for the transcript: live announcements for replies, permission requests, errors, and status changes, plus per-turn heading navigation",
+      "tags": ["新機能", "IDE"],
+      "detail": "Claude Code の CLI にはすでに --ax-screen-reader によるオプトインのスクリーンリーダーモードがあり、VoiceOver や NVDA 向けにラベル付きの線形テキストを出力し、応答完了やプロンプト表示時にはビープ音を鳴らす仕組みを持っていたが、VS Code 拡張機能のトランスクリプトにはこれまで専用のスクリーンリーダー対応がなかった。\n\n本バージョンで VS Code 拡張機能に、Claude の返信・パーミッションリクエスト・エラー・ステータス変化に対するライブアナウンスと、ターンごとにジャンプできる見出しナビゲーションが追加され、支援技術を利用するユーザーにとって VS Code 拡張機能のアクセシビリティが CLI のスクリーンリーダーモードに近づいた。",
+      "detail_en": "The CLI already has an opt-in screen reader mode (`--ax-screen-reader`) that prints labeled, linear text for VoiceOver/NVDA and rings a bell on completion or prompts, but the VS Code extension's conversation transcript previously had no dedicated screen reader support.\n\nThis version adds live announcements in the VS Code extension for Claude's replies, permission requests, errors, and status changes, plus per-turn heading navigation so screen reader users can jump between turns in the transcript — bringing VS Code's accessibility closer to parity with the CLI's screen reader mode.",
+      "category": "アクセシビリティ",
+      "category_en": "Accessibility"
+    }
   ]
 }
