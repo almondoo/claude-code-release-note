@@ -723,5 +723,175 @@
         "tags": ["バグ修正", "IDE"]
       }
     ]
+  },
+  {
+    "v": "2.1.236",
+    "items": [
+      {
+        "t": "追加: 新しいセッションの起動時モデルを設定する ANTHROPIC_DEFAULT_MODEL 環境変数を追加。/model での選択は引き続き上書き可能で、再起動後もその選択が維持される点が ANTHROPIC_MODEL と異なる",
+        "t_en": "Added `ANTHROPIC_DEFAULT_MODEL` environment variable: sets the model new sessions start on, while a `/model` pick still overrides it and persists across restarts (unlike `ANTHROPIC_MODEL`)",
+        "tags": ["新機能"]
+      },
+      {
+        "t": "追加: クロスセッション SendMessage に notify_when_idle オプションを追加。同じマシン上の別の Claude Code セッションに対して、次にアイドル状態になったタイミングで一度だけ通知を送るよう依頼できる（オプトイン・ワンショットでポーリング不要、macOS/Linux 対応）",
+        "t_en": "Added `notify_when_idle` to cross-session `SendMessage`: ask another Claude Code session on this machine to send one notice when it next goes idle — opt-in, one-shot, no polling (macOS and Linux)",
+        "tags": ["新機能", "Agent"]
+      },
+      {
+        "t": "修正: macOS のサンドボックスで、ワイルドカードの読み取り拒否ルール（例: **/.env）が許可された読み取り範囲内でも優先されるように修正。一致したディレクトリの中身もカバーされ、拒否対象のファイルをリネームしても回避できなくなった",
+        "t_en": "Sandbox: on macOS, wildcard read-deny rules (e.g. `**/.env`) now take precedence inside allowed read regions, cover matched directories' contents, and can't be bypassed by renaming the denied file",
+        "tags": ["バグ修正", "Security"]
+      },
+      {
+        "t": "修正: セッションが切り替えていたディレクトリが削除された後、クリップボードコピー・バックグラウンドのハウスキーピング・バックグラウンドセッション・ローカル MCP ログが壊れる問題を修正（2.1.229 以降で発生）",
+        "t_en": "Fixed clipboard copy, background housekeeping, background sessions, and local MCP logs breaking after the directory a session had switched into was removed (since 2.1.229)",
+        "tags": ["バグ修正", "MCP"]
+      },
+      {
+        "t": "修正: フルスクリーンレンダラーが一度起動に失敗すると、それ以降ずっと失敗し続ける問題を修正。以後は毎回終了する代わりにクラシックレンダラーへフォールバックするように改善",
+        "t_en": "Fixed the fullscreen renderer failing permanently after a single failed start: it now falls back to the classic renderer instead of exiting on every subsequent launch",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: /model ピッカーがターミナルの高さより高く表示されてしまう問題を修正。ウィンドウに収まる分だけモデルを表示し、残りはスクロールで確認できるように改善",
+        "t_en": "Fixed the `/model` picker rendering taller than the terminal: it now shows only as many models as fit the window, with the rest reachable by scrolling",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: 不正な閉じタグによってメッセージ本文が summary フィールド側に残ってしまい、SendMessage の呼び出しが拒否される問題を修正",
+        "t_en": "Fixed `SendMessage` calls being rejected when a malformed closing tag left the message text inside the summary field",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: サブプロセスの起動に失敗した際（Windows の相互運用が無効な WSL 上での powershell.exe など）に未処理の Promise 拒否が発生する問題を修正（2.1.234 で発生したリグレッション）",
+        "t_en": "Fixed unhandled promise rejections when a subprocess fails to start, for example `powershell.exe` on WSL with Windows interop disabled (regression in 2.1.234)",
+        "tags": ["バグ修正", "Windows"]
+      },
+      {
+        "t": "修正: フルスクリーンモードで、ターミナルをリサイズした直後は新しく送信したメッセージが次の更新まで表示されないことがある問題を修正",
+        "t_en": "Fixed fullscreen mode sometimes not showing a newly sent message until the next update after the terminal was resized",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: フルスクリーンモードで、複数行のプロンプトをクリアした後にプロンプト上部に空白の帯が残ることがある問題と、ターミナルを縮小してから元のサイズに戻した際にペインが再描画されない問題を修正",
+        "t_en": "Fixed a blank band that could remain above the prompt after clearing a multi-line prompt, and panes not repainting after resizing the terminal away and back, in fullscreen mode",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: 起動時に管理設定の承認プロンプトが表示されないことがあるにもかかわらず、最初のキー入力を承認として扱ってしまう問題を修正",
+        "t_en": "Fixed the managed-settings approval prompt sometimes not appearing at startup while still capturing the first keypress as approval",
+        "tags": ["バグ修正", "Security"]
+      },
+      {
+        "t": "修正: tmux（iTerm2 の tmux 統合）でターミナルのタブタイトルが揺れる問題を修正。タイトルはテキストが実際に変化した場合のみ書き込まれるようになり、960ms ごとにアニメーションすることがなくなった",
+        "t_en": "Fixed terminal tab titles jumping in tmux (iTerm tmux integration): the title is now written only when its text changes instead of animating every 960ms",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: クラウド環境の一覧が空または不正な形式で返ってきた場合の、分かりにくいエラーメッセージを修正",
+        "t_en": "Fixed an unclear error when the cloud environments list came back empty or malformed",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: Remote Control 経由で利用している場合、Fable 5 の初回利用クレジット確認プロンプトが60秒間応答がないとフォールバックモデルを自動選択してしまう問題を修正",
+        "t_en": "Fixed the Fable 5 first-time usage-credits prompt auto-selecting the fallback model after 60 seconds with no answer when using Remote Control",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: ~/.claude.json にキャッシュされたゲストパス報酬のデータが不正な形式の場合、スピナーのヒントが一切表示されなくなり、バックグラウンドエラーが繰り返し発生する問題を修正",
+        "t_en": "Fixed spinner tips never appearing, with a repeated background error, when the cached guest-pass reward in `~/.claude.json` was malformed",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: セッションの作業ディレクトリが削除された後、SDK/VS Code セッションでスキルのホットリロードがスキルの変更のたびにエラーを発生させる問題を修正（2.1.229 以降で発生）",
+        "t_en": "Fixed skills hot-reload in SDK/VS Code sessions raising an error on every skills change after the session's working directory was deleted (2.1.229+)",
+        "tags": ["バグ修正", "SDK", "IDE"]
+      },
+      {
+        "t": "修正: アイドル・リタイア・起動タイムアウトによって解放されたセルフホストランナーのセッションが、post-session フックの完了前に別のランナー上で再開されてしまうことがある問題を修正",
+        "t_en": "Fixed self-hosted runner sessions released on idle, retire, or startup timeout occasionally resuming on another runner before the post-session hook had finished",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: iTerm2 の一部のフォントサイズで Clawd マスコットの目と足が不揃いに表示される問題を修正",
+        "t_en": "Fixed the Clawd mascot's eyes and feet rendering unevenly in iTerm2 at some font sizes",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: セッションのリキャップ（自動生成および /recap）が稀に長くなりすぎてしまう問題を修正。テキストは単語の区切りで400文字に制限されるようになった",
+        "t_en": "Fixed occasional runaway session recaps: recap text (automatic and `/recap`) is now capped at 400 characters, cut at a word boundary",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "改善: セッションカウンターの書き込みをバックグラウンドで行うようにして、起動時のパフォーマンスを改善",
+        "t_en": "Improved startup performance: the session counter is now written in the background",
+        "tags": ["改善", "Perf"]
+      },
+      {
+        "t": "改善: auto mode が有効な間は Monitor の allow ルールも一時的に無効化されるように変更し、Monitor コマンドが Bash コマンドと同様にレビューされるように改善",
+        "t_en": "Improved auto mode: `Monitor` allow rules are now set aside while auto mode is active, so Monitor commands are reviewed the same way Bash commands are",
+        "tags": ["改善", "Security"]
+      },
+      {
+        "t": "改善: Bedrock・Vertex AI・Foundry 利用時、およびテレメトリが無効な場合の auto mode で、分類器が Claude API と同じデフォルト（重大度スコアによる分類を含む）を使用するように統一",
+        "t_en": "Improved auto mode on Bedrock, Vertex AI, and Foundry, and when telemetry is disabled: the classifier now uses the same defaults as on the Claude API, including severity-scored classification",
+        "tags": ["改善", "Platform"]
+      },
+      {
+        "t": "改善: auto mode の git status チェックが、リポジトリの status.showUntrackedFiles=no 設定によってクリーンな作業ツリーであるかのように偽装されなくなるように修正",
+        "t_en": "Improved auto mode: the git status check can no longer be fooled by a repo's `status.showUntrackedFiles=no` setting into reporting a clean tree",
+        "tags": ["改善", "Security"]
+      },
+      {
+        "t": "変更: /model ピッカーのハイライトを最新モデルの名前のみに変更し、恣意的な一部のモデルではなく新しいリリースをハイライトで示すように改善",
+        "t_en": "Changed the `/model` picker to highlight only the newest model's name, so the highlight marks the new release rather than an arbitrary subset of the list",
+        "tags": ["改善"]
+      },
+      {
+        "t": "改善: 長時間実行中のバックグラウンド作業の陰で評価が保留されたままアイドル状態になっている /goal セッションが、ユーザーの復帰を待たずに30分後（その後1時間、2時間と間隔を広げながら）自動的に進捗を確認しにいくように改善",
+        "t_en": "`/goal`: an idle session whose goal is parked behind long-running background work now checks in automatically after 30 minutes (then 1h, 2h) instead of waiting for you to return",
+        "tags": ["改善"]
+      },
+      {
+        "t": "改善: /usage が Team・Enterprise プランのメンバー向けに usage-credits の支出行を表示するようになり、まだ何も消費していない場合は 0% に固定された行として表示されるように改善",
+        "t_en": "`/usage` now shows the usage-credits spend row for Team and Enterprise members, and shows a capped row at 0% before anything is spent",
+        "tags": ["改善"]
+      },
+      {
+        "t": "改善: print/SDK モードで SIGTERM を受信した際、終了前に中断されたターンや疑似的なツール拒否がセッション履歴に記録されないように変更。実行中のコマンドは引き続き強制終了され、プロセスは終了コード143で終了する",
+        "t_en": "SIGTERM in print/SDK mode no longer records an interrupted turn or synthetic tool denials before exiting; running commands are still terminated and the process still exits with code 143",
+        "tags": ["改善", "SDK"]
+      },
+      {
+        "t": "修正: スラッシュコマンドの入力ミスや、このセッションで利用できないコマンドで Enter を押した際に、最も近いあいまい一致のコマンドを実行してしまう代わりに、入力ミスとして報告するように修正（プレフィックスやエイリアスは引き続き動作する）",
+        "t_en": "Pressing Enter on a slash-command typo or a command unavailable in this session now reports it instead of running the closest fuzzy match; prefixes and aliases still run",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "改善: CLI が終了した場合やターミナルが閉じられた場合に、Remote Control がセッションを数秒以内にオフラインとして表示するように改善",
+        "t_en": "Remote Control now marks a session offline within seconds when the CLI exits or its terminal closes",
+        "tags": ["改善"]
+      },
+      {
+        "t": "修正: 急激なメッセージのバーストが受信先セッションの受信ボックスの許容量を超える場合、実際には破棄されていたメッセージを SendMessage が「送信済み」と報告していた問題を修正。事前に許容量を確認し、超える場合は送信を拒否するように改善",
+        "t_en": "`SendMessage` now refuses further messages to a session up front once a rapid burst would exceed what that session's inbox accepts, instead of reporting them sent while they were dropped",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: プロンプト境界上のセッションタイトルのチップを、フッターの右端と揃うように修正",
+        "t_en": "Aligned the session title chip on the prompt border with the footer's right edge",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: 右寄せのフッター項目（ゴールインジケーター・セッション状態・バックグラウンドエージェントの状態）と省略表示された通知が、プロンプトエリアの他の要素と一貫した右マージンを共有するように修正",
+        "t_en": "Right-aligned footer items (goal indicator, session state, background agent status) and truncated notices now share a consistent right margin with the rest of the prompt area",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "追加: VS Code 拡張機能のトランスクリプトにスクリーンリーダー対応を追加。返信・パーミッションリクエスト・エラー・ステータス変化のライブアナウンスと、ターン単位の見出しナビゲーションに対応",
+        "t_en": "[VSCode] Added screen reader support for the transcript: live announcements for replies, permission requests, errors, and status changes, plus per-turn heading navigation",
+        "tags": ["新機能", "IDE"]
+      }
+    ]
   }
 ]
