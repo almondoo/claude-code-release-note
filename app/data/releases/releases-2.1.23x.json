@@ -893,5 +893,220 @@
         "tags": ["新機能", "IDE"]
       }
     ]
+  },
+  {
+    "v": "2.1.237",
+    "items": [
+      {
+        "t": "修正: LLM ゲートウェイやカスタムベース URL を使用しているセッションでのプロンプトキャッシュの不具合を修正",
+        "t_en": "Fixed prompt caching for sessions using an LLM gateway or custom base URL",
+        "tags": ["バグ修正", "Platform"]
+      },
+      {
+        "t": "追加: 結論から述べ前置きや実況を省く、組み込みの出力スタイル「Concise」を追加。`/config` の Output style から選択可能",
+        "t_en": "Added a built-in \"Concise\" output style: Claude leads with results and skips preamble and narration, while doing the work just as thoroughly. Select it under Output style in /config.",
+        "tags": ["新機能"]
+      }
+    ]
+  },
+  {
+    "v": "2.1.238",
+    "items": [
+      {
+        "t": "追加: `keybindingFlavor` 設定を追加。`\"readline\"` に設定するとプロンプト内の Ctrl+W が Bash と同様に直前の空白まで削除するようになる（デフォルトの `\"classic\"` は従来どおり）",
+        "t_en": "Added a `keybindingFlavor` setting: set it to `\"readline\"` to make Ctrl+W in the prompt delete back to the previous whitespace, as in Bash; the default (`\"classic\"`) is unchanged",
+        "tags": ["新機能"]
+      },
+      {
+        "t": "追加: プラグインマーケットプレースの `headersHelper`。url 型マーケットプレースまたはカタログエントリに設定すると、カタログおよび同一オリジンのアーカイブ取得時に短命トークンなどの HTTP ヘッダーを生成するコマンドを実行できる",
+        "t_en": "Plugin marketplaces: `headersHelper` on a url marketplace or a catalog entry runs a command that mints HTTP headers (e.g. a short-lived token) for catalog and same-origin archive fetches",
+        "tags": ["新機能", "Plugin"]
+      },
+      {
+        "t": "追加: カタログエントリの `headersHelper` は、そのプラグインのインストール・更新時にのみ、コマンド内容を表示した上で実行されるように。`claude plugin install`/`update` は `[y/N]` で確認を求める（`-y` で省略可）",
+        "t_en": "A catalog entry's `headersHelper` runs only when you install or update that plugin, after its command is shown; `claude plugin install/update` ask `[y/N]` (or pass `-y`)",
+        "tags": ["新機能", "Plugin", "Security"]
+      },
+      {
+        "t": "追加: `claude self-hosted-runner --defer-shutdown-max-min <分数>` を追加。SIGTERM 受信後も接続中のセッションを提供し続け、指定した分数が過ぎた時点で残りを退避してから終了する",
+        "t_en": "Added `claude self-hosted-runner --defer-shutdown-max-min <minutes>`: on SIGTERM, keep serving attached sessions, park what is left after that many minutes, then exit",
+        "tags": ["新機能", "Platform"]
+      },
+      {
+        "t": "追加: `claude self-hosted-runner --proxy-authorization-command` / `--proxy-authorization-file` を追加。接続のたびに新しい `Proxy-Authorization` ヘッダーの発行を要求するアウトバウンドプロキシに対応",
+        "t_en": "Added `claude self-hosted-runner --proxy-authorization-command` / `--proxy-authorization-file` for egress proxies that require a freshly issued `Proxy-Authorization` header on every connection",
+        "tags": ["新機能", "Platform", "Security"]
+      },
+      {
+        "t": "修正: 長時間の対話セッションでメモリ使用量が際限なく増加する問題を修正。サブエージェントのツール結果は、最近の表示ウィンドウから外れた時点でメモリから解放されるように",
+        "t_en": "Fixed unbounded memory growth in long interactive sessions: subagent tool results are now released once they leave the recent display window",
+        "tags": ["バグ修正", "Perf"]
+      },
+      {
+        "t": "修正: カスタム・プロジェクト・プラグインの出力スタイルが、セッション途中でデフォルトの応答トーンに戻ってしまう問題を修正",
+        "t_en": "Fixed custom, project, and plugin output styles drifting back to the default voice mid-session",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: `CLAUDE_CODE_ENABLE_PROMPT_SUGGESTION=true` を設定していても、アカウントの利用上限に近づく（超過はしていない）とプロンプト候補が無効化されてしまう問題を修正",
+        "t_en": "Fixed `CLAUDE_CODE_ENABLE_PROMPT_SUGGESTION=true` not keeping prompt suggestions on when your account is near, but not over, its usage limit",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: ワークツリー隔離による Bash 拒否メッセージが、コマンドにリダイレクトが含まれていない場合でも「リダイレクトを削除してください」と案内してしまう問題を修正",
+        "t_en": "Fixed worktree-isolation Bash refusals telling you to remove a redirect when the command had none",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: ポーリングリクエストが1回でも遅延・消失すると、セルフホストランナーがサーバー側から削除され、正常だったセッションが別のランナーに引き継がれてしまうことがある問題を修正",
+        "t_en": "Fixed self-hosted runners occasionally being removed by the server after a single slow or lost poll request, handing their healthy session to another runner",
+        "tags": ["バグ修正", "Platform"]
+      },
+      {
+        "t": "修正: 4,096文字を超える URL を含む MCP エリシテーションダイアログが何も表示されない問題、およびプロジェクトパスがターミナル幅に収まらない場合にパーミッションプロンプトから「今後確認しない」の選択肢が消えてしまう問題を修正",
+        "t_en": "Fixed MCP elicitation dialogs showing nothing for URLs longer than 4,096 characters, and permission prompts dropping the \"don't ask again\" option when the project path didn't fit the terminal width",
+        "tags": ["バグ修正", "MCP"]
+      },
+      {
+        "t": "修正: Bash コマンドが強制終了・タイムアウト・中断された際に `/tmp/claude-*-cwd` ファイルが残り続けてしまう問題を修正",
+        "t_en": "Fixed leftover `/tmp/claude-*-cwd` files when a Bash command is killed, times out, or is interrupted",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: Backspace の代わりに Ctrl+H を送出するターミナルで、キー入力がまとまって大量に届いた際に、押しっぱなしの Backspace が無視されてしまう問題を修正（低速な SSH/mosh 接続など）",
+        "t_en": "Fixed held Backspace being ignored on terminals that send Ctrl+H for Backspace when keystrokes arrive in large bursts (slow SSH/mosh links)",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: パーミッションプロンプトの diff 表示で、絵文字のような幅の広いマルチコードポイント文字やタブを含む行が切り詰められてしまう問題を修正",
+        "t_en": "Fixed text-wrapping in permission prompt diffs: lines containing wide multi-code-point characters (such as emoji) or tabs are no longer clipped",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: 一時停止中（Ctrl+Z）のセッションを終了すると、ターミナルが bracketed paste モードのままカーソルが非表示になってしまうことがある問題を修正",
+        "t_en": "Fixed killing a suspended (Ctrl+Z) session sometimes leaving the terminal in bracketed-paste mode with the cursor hidden",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: stdio 接続の MCP サーバーが `initialize` より先に `server/discover` リクエストを受け取ってしまい、遅延起動を意図したサーバーがセッションを開くたびにバックエンドを起動させられていた問題を修正",
+        "t_en": "Fixed stdio MCP servers receiving a `server/discover` request before `initialize`, forcing lazy servers to start their backend on every session open",
+        "tags": ["バグ修正", "MCP"]
+      },
+      {
+        "t": "修正: プロキシによる接続拒否が、どのプロキシによる拒否かを示さない汎用的なネットワークエラーとして表示されてしまう問題を修正",
+        "t_en": "Fixed a proxy's refusal of a connection being reported as a generic network error instead of naming the proxy",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: プロンプトキャッシュが既に期限切れになっている場合でも `/model` と `/effort` のキャッシュミス警告が表示されてしまう問題を修正",
+        "t_en": "Fixed the `/model` and `/effort` cache-miss warning appearing when the prompt cache had already expired",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: Remote Control のタスクパネルからのタスク単位の Stop が、CLI がホストするセッションに対して何も効果を持たない問題を修正",
+        "t_en": "Fixed per-task Stop from the Remote Control tasks panel doing nothing on CLI-hosted sessions",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: クライアントが不正な role のユーザーメッセージを送信すると、リモートセッションが終了してしまう問題を修正",
+        "t_en": "Fixed remote sessions exiting when a client delivered a user message without a valid role",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: `claude remote-control` で開始した Remote Control セッションが、起動元シェルのセッションスコープの環境変数を引き継いでしまう問題を修正",
+        "t_en": "Fixed Remote Control sessions started by `claude remote-control` inheriting session-scoped environment variables from the launching shell",
+        "tags": ["バグ修正", "Security"]
+      },
+      {
+        "t": "修正: プロセスがクラッシュした Remote Control セッションが、`claude remote-control` を再起動するまで利用不能のままになってしまう問題を修正。次回メッセージ送信時に再利用できるように",
+        "t_en": "Fixed a Remote Control session whose process crashed staying unavailable until `claude remote-control` was restarted; it can now be reused when you next message it",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: Claude がターン処理中に Web や Desktop から送信された Remote Control のメッセージが、ターン完了後にトランスクリプトから消えてしまう問題を修正",
+        "t_en": "Fixed Remote Control messages sent from the web or Desktop while Claude is mid-turn disappearing from the transcript after the turn finishes",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: スマートフォンや Web で行った Remote Control 上のモデル選択が、ターミナル側の表示に反映されない問題を修正",
+        "t_en": "Fixed Remote Control model picks made on a phone or web not updating the model shown in the terminal",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: サインインの更新が短時間のネットワーク不調で遅延した際、Remote Control が「login expired」で切断されてしまう問題を修正。今後は再試行して接続を維持する",
+        "t_en": "Fixed Remote Control disconnecting with \"login expired\" when a brief network hiccup delays renewing your sign-in; it now retries and stays connected",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: サインアウト時に Remote Control が「再接続に失敗した」と報告してしまう問題を修正。サインアウトは明確なメッセージとともにセッションを正常終了するように",
+        "t_en": "Fixed Remote Control reporting a failed reconnect on sign-out; signing out now ends the session with a clear message",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: `claude remote-control`（サーバーモード）や Desktop/IDE がホストするセッションで `ListAgents`/`SendMessage` が「Remote Control is not connected」と報告してしまう問題を修正。これらのホストからも Remote Control のピアを一覧・到達できるように",
+        "t_en": "Fixed `ListAgents`/`SendMessage` reporting \"Remote Control is not connected\" in sessions run by `claude remote-control` (server mode) or Desktop/IDE hosts; they now list and reach Remote Control peers",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: エージェントビューが次のバックグラウンドセッションに備えて事前に用意しているアイドルワーカーが `ListAgents`/`SendMessage` に表示されてしまう問題を修正。タスクに割り当てられて初めて表示されるように",
+        "t_en": "Fixed `ListAgents` and `SendMessage` exposing the idle worker that the agent view pre-warms for your next background session; it now appears only once a task claims it",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "改善: クロスセッションメッセージングで、このマシン上の受信を拒否しているセッション（`crossSessionInbound: \"refuse\"` など）宛てに送信すると、無言で成功したことにするのではなく送信者に「refused」と報告するように改善",
+        "t_en": "Cross-session messaging: sending to a session on this machine that refuses inbound messages (e.g. `crossSessionInbound: \"refuse\"`) now reports \"refused\" to the sender instead of a silent success",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "改善: クロスセッションメッセージングで、受信側の受信箱（inbox）がレート制限や満杯によってメッセージを取りこぼした場合、無言で消えるのではなく送信元のセッションに通知するように改善",
+        "t_en": "Cross-session messaging: a session whose inbox drops your messages (rate limit or full queue) now tells your session, instead of the messages vanishing silently",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "改善: macOS で引数なしの `claude` の起動が高速化するように改善",
+        "t_en": "Improved startup: bare `claude` starts sooner on macOS",
+        "tags": ["改善", "Perf"]
+      },
+      {
+        "t": "改善: シェルの条件式に含まれる zsh 固有の構文に対する Bash ツールのパーミッションチェックを改善",
+        "t_en": "Improved Bash tool permission checking for zsh-specific syntax in shell conditionals",
+        "tags": ["改善", "Security"]
+      },
+      {
+        "t": "改善: Remote Control の接続耐性を改善。ネットワークエッジ・VPN・プロキシからの一時的な HTTP 403 拒否を最大3分間許容し、拒否状態が続く場合は拒否元を明示するように",
+        "t_en": "Improved Remote Control connection resilience: brief HTTP 403 refusals from a network edge, VPN, or proxy are now tolerated for up to 3 minutes, with the refusing party named when a block persists",
+        "tags": ["改善"]
+      },
+      {
+        "t": "改善: 起動時のレスポンス向上のため、自動アップデートチェックの実行タイミングを起動直後から約10秒後に変更",
+        "t_en": "Improved startup responsiveness: the automatic update check now runs about 10 seconds after launch instead of competing with startup for CPU",
+        "tags": ["改善", "Perf"]
+      },
+      {
+        "t": "改善: 同梱の `claude-api` スキルを Managed Agents の8月19日リリース内容（Web 検索・フェッチのドメイン設定、セルフホストサンドボックスでのメモリストア）に合わせて更新",
+        "t_en": "Updated the bundled `claude-api` skill for the Managed Agents Aug 19 release: web search/fetch domain settings and memory stores on self-hosted sandboxes",
+        "tags": ["改善", "SDK"]
+      },
+      {
+        "t": "変更: フルスクリーンモードの Ctrl+L / Cmd+K を常に再描画のみを行うように変更。2回連続押下による `/clear` ショートカットは廃止され、1行の nvim ターミナルで自動的に `/clear` が繰り返されてしまう問題も解消",
+        "t_en": "Changed Ctrl+L and Cmd+K in fullscreen to always just repaint — the double-press `/clear` shortcut was removed, and 1-row nvim terminals no longer trigger automatic `/clear` loops",
+        "tags": ["改善"]
+      },
+      {
+        "t": "変更: `claude mcp list` と `claude mcp get` が、無効化されたサーバーに対してヘルスチェックのため接続を試みるのではなく `⊘ Disabled` と表示するように変更",
+        "t_en": "Changed `claude mcp list` and `claude mcp get` to show disabled servers as `⊘ Disabled` instead of connecting to them for a health check",
+        "tags": ["改善", "MCP"]
+      },
+      {
+        "t": "修正: プロジェクトの `.mcp.json` の `headersHelper` や、プロジェクト・`--add-dir` のエージェントファイルに定義されたインライン MCP サーバーが、フォルダの信頼ダイアログを承認していなくても実行されてしまうセキュリティ上の抜け穴を修正（`claude -p` でも同様）",
+        "t_en": "MCP `headersHelper` in a project `.mcp.json`, and inline MCP servers in project or `--add-dir` agent files, now require that folder's trust dialog to have been accepted (also under `claude -p`)",
+        "tags": ["バグ修正", "Security", "MCP"]
+      },
+      {
+        "t": "改善: プロジェクトの `.mcp.json`・プラグイン・エージェントファイルの `headersHelper` が、継承された資格情報の環境変数なしで実行されるように改善。ユーザー・マネージド・claude.ai スコープのヘルパーは Claude の設定ディレクトリから実行されるように変更",
+        "t_en": "MCP `headersHelper` from a project `.mcp.json`, plugin, or agent file runs without inherited credential env vars; user, managed and claude.ai-scope helpers now run from the Claude config dir",
+        "tags": ["改善", "Security", "MCP"]
+      }
+    ]
   }
 ]
