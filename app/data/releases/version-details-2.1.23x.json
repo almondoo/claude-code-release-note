@@ -1586,5 +1586,387 @@
       "category": "アクセシビリティ",
       "category_en": "Accessibility"
     }
+  ],
+  "2.1.237": [
+    {
+      "t": "修正: LLM ゲートウェイやカスタムベース URL を使用しているセッションでのプロンプトキャッシュの不具合を修正",
+      "t_en": "Fixed prompt caching for sessions using an LLM gateway or custom base URL",
+      "tags": ["バグ修正", "Platform"],
+      "detail": "プロンプトキャッシュはリクエストの先頭部分が完全に一致した場合にのみ再利用され、Claude Code はファイル変更通知などの追記されたシステムコンテキストにキャッシュの区切り（ブレークポイント）を設定して再利用を図る。しかし LLM ゲートウェイやカスタムの `ANTHROPIC_BASE_URL` を経由するセッションでは、そのブレークポイントが正しく扱われない場合があり、該当箇所がキャッシュされないまま会話の残り全体に影響してしまっていた。\n\n本バージョンでこの不具合が修正され、ゲートウェイ経由やカスタムエンドポイントを利用するセッションでもキャッシュヒット率が回復し、レイテンシやコストの面でプロンプトキャッシュ本来のメリットを再び得られるようになった。",
+      "detail_en": "Prompt caching only reuses content when a request's prefix matches exactly, and Claude Code marks appended system context — such as file-change notices — with a cache breakpoint so it can be reused across turns. On sessions routed through an LLM gateway or a custom `ANTHROPIC_BASE_URL`, that breakpoint could be mishandled, leaving the affected content uncached for the rest of the conversation.\n\nThis version fixes the issue, restoring cache hit rates for sessions on gateways or custom endpoints and returning the latency and cost benefits that prompt caching is meant to provide.",
+      "category": "パフォーマンス",
+      "category_en": "Performance",
+      "doc_url": "https://code.claude.com/docs/en/prompt-caching#where-the-cache-lives"
+    },
+    {
+      "t": "追加: 結論から述べ前置きや実況を省く、組み込みの出力スタイル「Concise」を追加。`/config` の Output style から選択可能",
+      "t_en": "Added a built-in \"Concise\" output style: Claude leads with results and skips preamble and narration, while doing the work just as thoroughly. Select it under Output style in /config.",
+      "tags": ["新機能"],
+      "detail": "これまで組み込みの出力スタイルには Default・Explanatory・Learning などが用意されていたが、簡潔さそのものを目的としたスタイルはなく、前置きや実況を省いた短い応答を望むユーザーは独自の出力スタイルを自作する必要があった。\n\n本バージョンで追加された「Concise」は、作業の丁寧さは Default と変わらないまま、結論から述べて前置きや途中経過の実況を省略するスタイルで、`/config` の Output style（または設定ファイルの `outputStyle`）から選択できる。より詳しい説明を求めれば通常どおり詳細な回答が得られ、エラー報告やセキュリティ上の警告、破壊的操作の確認は省略されずに常に表示される。",
+      "detail_en": "Claude Code previously shipped built-in output styles like Default, Explanatory, and Learning, but none optimized purely for brevity — users who wanted short, results-first responses had to write a custom output style themselves.\n\nThe new built-in \"Concise\" style, added in this version, has Claude lead with the result and skip preamble and narration while doing the work just as thoroughly as Default. It's selected under Output style in `/config` (or via the `outputStyle` setting); asking for more detail still gets a full answer, and error reports, security warnings, and destructive-action confirmations are always kept complete.",
+      "category": "UX",
+      "category_en": "UX",
+      "doc_url": "https://code.claude.com/docs/en/output-styles#built-in-output-styles"
+    }
+  ],
+  "2.1.238": [
+    {
+      "t": "追加: `keybindingFlavor` 設定を追加。`\"readline\"` に設定するとプロンプト内の Ctrl+W が Bash と同様に直前の空白まで削除するようになる（デフォルトの `\"classic\"` は従来どおり）",
+      "t_en": "Added a `keybindingFlavor` setting: set it to `\"readline\"` to make Ctrl+W in the prompt delete back to the previous whitespace, as in Bash; the default (`\"classic\"`) is unchanged",
+      "tags": ["新機能"],
+      "detail": "これまでプロンプト入力欄の Ctrl+W は常に「現在の単語（トークン）の先頭」まで削除する挙動で、Bash など readline ベースのシェルに慣れたユーザーが期待する「直前の空白まで削除する」挙動とは異なっていた。\n\n新しい `keybindingFlavor` 設定を `\"readline\"` にすると、Ctrl+W の単語削除が Bash/readline の慣習に合わせて動作するようになる。デフォルト値の `\"classic\"` では従来どおりの挙動が維持され、`keybindings.json` によるキー割り当てのカスタマイズとは独立した、入力編集の全体的な挙動を切り替える設定として追加された。",
+      "detail_en": "Ctrl+W in the prompt input previously always deleted back to the start of the current word/token, which differed from what users coming from Bash or other readline-based shells expected — deleting only back to the previous whitespace boundary.\n\nThe new `keybindingFlavor` setting, when set to `\"readline\"`, switches Ctrl+W's word-deletion behavior to match Bash/readline conventions, while the default `\"classic\"` value keeps the existing behavior. This is a session-wide input-editing preference, distinct from the separate `keybindings.json` key-remapping system.",
+      "category": "入力",
+      "category_en": "Input"
+    },
+    {
+      "t": "追加: プラグインマーケットプレースの `headersHelper`。url 型マーケットプレースまたはカタログエントリに設定すると、カタログおよび同一オリジンのアーカイブ取得時に短命トークンなどの HTTP ヘッダーを生成するコマンドを実行できる",
+      "t_en": "Plugin marketplaces: `headersHelper` on a url marketplace or a catalog entry runs a command that mints HTTP headers (e.g. a short-lived token) for catalog and same-origin archive fetches",
+      "tags": ["新機能", "Plugin"],
+      "detail": "プラグインマーケットプレースのカタログやアーカイブは通常のプレーンな HTTP リクエストで取得されるため、これまで認証が必要なプライベートなマーケットプレースホストに対して、資格情報を添付する標準的な方法が存在しなかった。\n\n本バージョンでは url 型マーケットプレースや個々のカタログエントリに `headersHelper` を設定できるようになり、短命なベアラートークンなどの HTTP ヘッダーをローカルコマンドで生成して、マーケットプレースのカタログ取得や同一オリジンのアーカイブダウンロードのリクエストに付与できる。これは MCP サーバー接続で既に存在する `headersHelper` の仕組みを、プラグインの配布にも拡張したものである。",
+      "detail_en": "Plugin marketplace catalogs and archives are normally fetched as plain HTTP requests, so a private or authenticated marketplace host had no standard way to attach credentials.\n\nA `headersHelper` can now be set on a `url`-type marketplace or on an individual catalog entry to run a local command that mints HTTP headers, such as a short-lived bearer token, which Claude Code merges into requests for the marketplace catalog and same-origin archive downloads. This mirrors the existing MCP `headersHelper` mechanism, extended to plugin distribution.",
+      "category": "プラグイン管理",
+      "category_en": "Plugin Management"
+    },
+    {
+      "t": "追加: カタログエントリの `headersHelper` は、そのプラグインのインストール・更新時にのみ、コマンド内容を表示した上で実行されるように。`claude plugin install`/`update` は `[y/N]` で確認を求める（`-y` で省略可）",
+      "t_en": "A catalog entry's `headersHelper` runs only when you install or update that plugin, after its command is shown; `claude plugin install/update` ask `[y/N]` (or pass `-y`)",
+      "tags": ["新機能", "Plugin", "Security"],
+      "detail": "カタログエントリの `headersHelper` は任意のローカルコマンドを実行するため、マーケットプレースを更新するたびに無言で実行してしまうとサプライチェーン上のリスクになる。\n\nそのため Claude Code は、対象プラグインをインストールまたは更新する瞬間にのみ `headersHelper` を実行するようにし、実行前に実際のコマンド内容を表示した上で `claude plugin install`/`update` が `[y/N]` の確認を求めるようにした（非対話的に進めたい場合は `-y` を指定できる）。これにより実行タイミングが明示的でプラグイン単位の可視な操作に限定される。",
+      "detail_en": "Because a catalog entry's `headersHelper` executes an arbitrary local command, running it silently on every marketplace refresh would be a supply-chain risk.\n\nClaude Code now runs it only at the moment you install or update that specific plugin, shows the exact command first, and has `claude plugin install`/`update` prompt `[y/N]` for confirmation, bypassable non-interactively with `-y`. This limits execution to an explicit, visible, per-plugin action.",
+      "category": "プラグイン管理",
+      "category_en": "Plugin Management"
+    },
+    {
+      "t": "追加: `claude self-hosted-runner --defer-shutdown-max-min <分数>` を追加。SIGTERM 受信後も接続中のセッションを提供し続け、指定した分数が過ぎた時点で残りを退避してから終了する",
+      "t_en": "Added `claude self-hosted-runner --defer-shutdown-max-min <minutes>`: on SIGTERM, keep serving attached sessions, park what is left after that many minutes, then exit",
+      "tags": ["新機能", "Platform"],
+      "detail": "セルフホストランナーには SIGTERM 受信時に進行中のターンを待ってから終了する仕組みが既にあったが、実行中のセッションをシャットダウンをブロックせずにそれ以上長く提供し続ける手段はなかった。\n\n`--defer-shutdown-max-min` を指定すると、SIGTERM 後も指定した分数までは接続中のセッションへのサービス提供を継続し、その時点で残っているセッションは退避（park）した上でランナーを終了する。ローリング再起動の際に長時間のターンへ余裕を持たせられるようになる。",
+      "detail_en": "On SIGTERM, a self-hosted runner already had flags to wait for in-flight turns before draining, but no way to keep serving a running session past that wait without blocking shutdown indefinitely.\n\n`--defer-shutdown-max-min` lets an operator keep the runner serving its attached sessions after SIGTERM for up to N minutes, then park whatever is still outstanding and exit, giving long turns more room during a rolling restart.",
+      "category": "自己ホストランナー",
+      "category_en": "Self-Hosted Runner"
+    },
+    {
+      "t": "追加: `claude self-hosted-runner --proxy-authorization-command` / `--proxy-authorization-file` を追加。接続のたびに新しい `Proxy-Authorization` ヘッダーの発行を要求するアウトバウンドプロキシに対応",
+      "t_en": "Added `claude self-hosted-runner --proxy-authorization-command` / `--proxy-authorization-file` for egress proxies that require a freshly issued `Proxy-Authorization` header on every connection",
+      "tags": ["新機能", "Platform", "Security"],
+      "detail": "一部のアウトバウンド（egress）プロキシは、固定の資格情報ではなく接続ごとに新しく発行された `Proxy-Authorization` ヘッダーを要求するが、これまでのセルフホストランナーのプロキシ対応ではこれに対応できなかった。\n\n`--proxy-authorization-command` は指定したコマンドを実行してヘッダー値をその場で生成し、`--proxy-authorization-file` はファイルからヘッダー値を読み込む。これにより、資格情報を頻繁にローテーションするプロキシの背後にセルフホストランナーを配置できるようになった。",
+      "detail_en": "Some egress proxies require a `Proxy-Authorization` header freshly minted per connection rather than a static credential, which the runner's existing proxy support couldn't accommodate.\n\n`--proxy-authorization-command` runs a command to generate that header value on demand, and `--proxy-authorization-file` reads it from a file, letting operators front self-hosted runners with proxies that rotate credentials frequently.",
+      "category": "自己ホストランナー",
+      "category_en": "Self-Hosted Runner"
+    },
+    {
+      "t": "修正: 長時間の対話セッションでメモリ使用量が際限なく増加する問題を修正。サブエージェントのツール結果は、最近の表示ウィンドウから外れた時点でメモリから解放されるように",
+      "t_en": "Fixed unbounded memory growth in long interactive sessions: subagent tool results are now released once they leave the recent display window",
+      "tags": ["バグ修正", "Perf"],
+      "detail": "長時間の対話セッションでは、サブエージェントのツール結果がトランスクリプトの表示ウィンドウからスクロールアウトした後もメモリ上に無期限に保持されており、これがメモリ使用量の際限のない増加につながっていた。\n\n本バージョンでは、サブエージェントのツール結果が最近の表示ウィンドウから外れた時点でメモリから解放されるようになり、Claude が推論に必要とする情報は保持したまま、この増加傾向を修正した。",
+      "detail_en": "In long interactive sessions, subagent tool-result content was retained in memory indefinitely even after scrolling out of the visible transcript window, causing memory usage to climb without bound.\n\nThis release releases that content once it leaves the recently displayed window, fixing the growth while preserving what Claude still needs for reasoning.",
+      "category": "パフォーマンス",
+      "category_en": "Performance"
+    },
+    {
+      "t": "修正: カスタム・プロジェクト・プラグインの出力スタイルが、セッション途中でデフォルトの応答トーンに戻ってしまう問題を修正",
+      "t_en": "Fixed custom, project, and plugin output styles drifting back to the default voice mid-session",
+      "tags": ["バグ修正"],
+      "detail": "カスタム出力スタイル、プロジェクト定義の出力スタイル、プラグイン提供の出力スタイルは、セッションの途中で徐々に Claude のデフォルトの応答トーンへ戻ってしまうことがあり、セッション全体を通して設定どおりのスタイルが維持されなかった。\n\n本バージョンでこの不具合が修正され、設定した出力スタイルがセッション全体を通して一貫して適用されるようになった。",
+      "detail_en": "Custom, project-defined, and plugin-provided output styles could gradually revert to Claude's default response voice partway through a session instead of staying in effect for its full duration.\n\nThis fix keeps the configured output style applied consistently for the whole session.",
+      "category": "UX",
+      "category_en": "UX"
+    },
+    {
+      "t": "修正: `CLAUDE_CODE_ENABLE_PROMPT_SUGGESTION=true` を設定していても、アカウントの利用上限に近づく（超過はしていない）とプロンプト候補が無効化されてしまう問題を修正",
+      "t_en": "Fixed `CLAUDE_CODE_ENABLE_PROMPT_SUGGESTION=true` not keeping prompt suggestions on when your account is near, but not over, its usage limit",
+      "tags": ["バグ修正"],
+      "detail": "`CLAUDE_CODE_ENABLE_PROMPT_SUGGESTION=true` は、グレーアウト表示のプロンプト候補を強制的に有効化するための環境変数だが、アカウントが利用上限に近づいただけで実際にはまだ超過していない場合でも、Claude Code が誤って候補表示をオフにしてしまっていた。\n\n本バージョンの修正により、利用上限を超過していない限り、この環境変数による上書き設定が維持されるようになった。",
+      "detail_en": "`CLAUDE_CODE_ENABLE_PROMPT_SUGGESTION=true` is meant to force grayed-out prompt suggestions on, but Claude Code was incorrectly turning suggestions off once an account got close to its usage limit even though it hadn't actually been exceeded.\n\nThe fix makes the override hold as long as the account is merely near, not over, its limit.",
+      "category": "UX",
+      "category_en": "UX"
+    },
+    {
+      "t": "修正: ワークツリー隔離による Bash 拒否メッセージが、コマンドにリダイレクトが含まれていない場合でも「リダイレクトを削除してください」と案内してしまう問題を修正",
+      "t_en": "Fixed worktree-isolation Bash refusals telling you to remove a redirect when the command had none",
+      "tags": ["バグ修正"],
+      "detail": "ワークツリー隔離のガード機能は、現在のワークツリーの外に影響しうる一部の Bash コマンドをブロックし、その際の拒否メッセージはシェルのリダイレクトを取り除くよう案内していたが、リダイレクトを一切含まないコマンドに対してもこの案内が表示されてしまい、実際のコマンド内容と食い違う誤った対処法を示していた。\n\n本バージョンで拒否メッセージが実際のコマンド内容に応じて正しく表示されるように修正された。",
+      "detail_en": "Claude Code's worktree-isolation guard blocks certain Bash commands that could reach outside the current worktree, and its refusal message instructed the user to remove a shell redirect as the fix. That message appeared even for commands containing no redirect at all, giving misleading remediation advice.\n\nThis release corrects the refusal text to match the actual command.",
+      "category": "パーミッション",
+      "category_en": "Permissions"
+    },
+    {
+      "t": "修正: ポーリングリクエストが1回でも遅延・消失すると、セルフホストランナーがサーバー側から削除され、正常だったセッションが別のランナーに引き継がれてしまうことがある問題を修正",
+      "t_en": "Fixed self-hosted runners occasionally being removed by the server after a single slow or lost poll request, handing their healthy session to another runner",
+      "tags": ["バグ修正", "Platform"],
+      "detail": "コントロールプレーンは、ポーリングリクエストがたった1回遅延または消失しただけで、実際には正常に稼働しているセルフホストランナーを登録解除し、進行中の健全なセッションを別のランナーに引き継がせてしまうことがあった。\n\n本バージョンでは、ポーリングの一時的な遅延・消失1回程度ではランナーが失われたと判断しないよう、サーバー側の許容度が改善された。",
+      "detail_en": "The control plane could deregister a self-hosted runner and reassign its healthy, in-progress session to a different runner after just one slow or dropped poll request, even though the original runner was still fine.\n\nThis fix makes the server more tolerant of a single missed or delayed poll before treating a runner as gone.",
+      "category": "自己ホストランナー",
+      "category_en": "Self-Hosted Runner"
+    },
+    {
+      "t": "修正: 4,096文字を超える URL を含む MCP エリシテーションダイアログが何も表示されない問題、およびプロジェクトパスがターミナル幅に収まらない場合にパーミッションプロンプトから「今後確認しない」の選択肢が消えてしまう問題を修正",
+      "t_en": "Fixed MCP elicitation dialogs showing nothing for URLs longer than 4,096 characters, and permission prompts dropping the \"don't ask again\" option when the project path didn't fit the terminal width",
+      "tags": ["バグ修正", "MCP"],
+      "detail": "本バージョンでは表示に関する2つの不具合が修正された。1つは、MCP のエリシテーション（追加情報要求）ダイアログが、4,096文字を超える長さの URL を含むリクエストの場合に何も表示されなくなってしまう問題。もう1つは、プロジェクトパスが長くターミナル幅に収まらない場合、パーミッションプロンプトから「今後確認しない」の選択肢が黙って消えてしまう問題。\n\nいずれも表示ロジックの切り詰め・オーバーフローに起因する不具合であり、挙動そのものの変更ではなく表示の修正である。",
+      "detail_en": "Two separate display bugs are fixed here: an MCP elicitation dialog rendered nothing when its request carried a URL longer than 4,096 characters, and a file permission prompt silently dropped its \"don't ask again\" option whenever the project path was too long to fit the terminal's width.\n\nBoth are UI truncation/overflow bugs rather than behavior changes.",
+      "category": "パーミッション",
+      "category_en": "Permissions"
+    },
+    {
+      "t": "修正: Bash コマンドが強制終了・タイムアウト・中断された際に `/tmp/claude-*-cwd` ファイルが残り続けてしまう問題を修正",
+      "t_en": "Fixed leftover `/tmp/claude-*-cwd` files when a Bash command is killed, times out, or is interrupted",
+      "tags": ["バグ修正"],
+      "detail": "Claude Code は実行中の Bash コマンドの作業ディレクトリを追跡するため `/tmp/claude-*-cwd` という小さなファイルを書き出すが、これまでコマンドが正常終了した場合しかこのファイルが削除されず、強制終了・タイムアウト・中断といった終了経路ではファイルが残り続けてしまっていた。\n\n本バージョンでは、これらの異常終了経路でも同様にファイルが削除されるように修正された。",
+      "detail_en": "Claude Code writes a small `/tmp/claude-*-cwd` file to track a Bash command's working directory while it runs, and that file was left behind when the command was killed, timed out, or interrupted instead of being cleaned up only on normal completion.\n\nThis fix removes the file in those exit paths too.",
+      "category": "安定性",
+      "category_en": "Stability"
+    },
+    {
+      "t": "修正: Backspace の代わりに Ctrl+H を送出するターミナルで、キー入力がまとまって大量に届いた際に、押しっぱなしの Backspace が無視されてしまう問題を修正（低速な SSH/mosh 接続など）",
+      "t_en": "Fixed held Backspace being ignored on terminals that send Ctrl+H for Backspace when keystrokes arrive in large bursts (slow SSH/mosh links)",
+      "tags": ["バグ修正"],
+      "detail": "Backspace キーを Ctrl+H として送出するターミナルでは、低速な SSH や mosh 接続のようにキー入力がバッファリングされてまとめて届く環境の場合、押しっぱなしの Backspace が無視されてしまうことがあった。\n\n本バージョンでは、Ctrl+H のシーケンスがまとめて届いた場合でも押しっぱなしの Backspace が正しく認識されるように修正された。",
+      "detail_en": "On terminals that translate Backspace into Ctrl+H, holding the key down could get ignored once keystrokes arrived in a large burst, which happens over slow SSH or mosh connections that buffer and flush input all at once.\n\nThis fix makes held Backspace register correctly even when a burst of Ctrl+H sequences arrives together.",
+      "category": "入力",
+      "category_en": "Input"
+    },
+    {
+      "t": "修正: パーミッションプロンプトの diff 表示で、絵文字のような幅の広いマルチコードポイント文字やタブを含む行が切り詰められてしまう問題を修正",
+      "t_en": "Fixed text-wrapping in permission prompt diffs: lines containing wide multi-code-point characters (such as emoji) or tabs are no longer clipped",
+      "tags": ["バグ修正"],
+      "detail": "パーミッションプロンプトの diff 表示は、絵文字のような幅の広いマルチコードポイント文字やタブを含む行の表示幅の計算を誤り、該当行が途中で切り詰められて表示されてしまっていた。\n\n本バージョンで表示幅の計算が修正され、こうした行も正しく折り返されるようになった。",
+      "detail_en": "Permission-prompt diffs clipped lines containing wide multi-code-point characters, such as emoji, or literal tabs, because the wrapping logic miscalculated their display width.\n\nThis fix corrects the width calculation so those lines wrap properly instead of being cut off.",
+      "category": "レンダリング",
+      "category_en": "Rendering"
+    },
+    {
+      "t": "修正: 一時停止中（Ctrl+Z）のセッションを終了すると、ターミナルが bracketed paste モードのままカーソルが非表示になってしまうことがある問題を修正",
+      "t_en": "Fixed killing a suspended (Ctrl+Z) session sometimes leaving the terminal in bracketed-paste mode with the cursor hidden",
+      "tags": ["バグ修正"],
+      "detail": "Ctrl+Z で一時停止していた Claude Code のセッションを終了すると、終了前にターミナルの状態を正常に復元する機会がないまま終了してしまい、bracketed paste モードのままカーソルが非表示になってしまうことがあった。\n\n本バージョンでは、一時停止中に終了された場合でもターミナルのモードとカーソルの表示状態が正しく復元されるように修正された。",
+      "detail_en": "Killing a Claude Code session that had been suspended with Ctrl+Z could leave the terminal stuck in bracketed-paste mode with the cursor hidden, because the session never got a chance to restore normal terminal state before exiting.\n\nThis fix ensures terminal mode and cursor visibility are restored even in that kill-while-suspended path.",
+      "category": "安定性",
+      "category_en": "Stability"
+    },
+    {
+      "t": "修正: stdio 接続の MCP サーバーが `initialize` より先に `server/discover` リクエストを受け取ってしまい、遅延起動を意図したサーバーがセッションを開くたびにバックエンドを起動させられていた問題を修正",
+      "t_en": "Fixed stdio MCP servers receiving a `server/discover` request before `initialize`, forcing lazy servers to start their backend on every session open",
+      "tags": ["バグ修正", "MCP"],
+      "detail": "Claude Code は MCP のプロトコル順序に反して、stdio 接続の MCP サーバーに対して必須の `initialize` ハンドシェイクより先に `server/discover` リクエストを送信してしまっていた。初回利用時までバックエンドプロセスの起動を遅らせる設計のサーバーにとっては、この順序違反により実際に使われるかどうかに関わらずセッションを開くたびに強制的に起動させられていた。\n\n本バージョンでリクエスト順序が修正され、遅延起動を意図したサーバーは実際に必要になるまで休止状態を保てるようになった。",
+      "detail_en": "Claude Code was sending a `server/discover` request to stdio MCP servers before the required `initialize` handshake, out of MCP protocol order. For a server designed to start its backend process lazily on first real use, this forced it to boot on every session open regardless of whether it was ever used.\n\nFixing the request order lets lazy servers stay dormant until actually needed.",
+      "category": "MCP 連携",
+      "category_en": "MCP Integration"
+    },
+    {
+      "t": "修正: プロキシによる接続拒否が、どのプロキシによる拒否かを示さない汎用的なネットワークエラーとして表示されてしまう問題を修正",
+      "t_en": "Fixed a proxy's refusal of a connection being reported as a generic network error instead of naming the proxy",
+      "tags": ["バグ修正"],
+      "detail": "HTTP(S) プロキシが接続を明示的に拒否した場合でも、Claude Code はそれをどのプロキシによる拒否かを示さない、役に立たない汎用的なネットワークエラーとして表示してしまっていた。\n\n本バージョンでは、接続を拒否したプロキシ名がエラーメッセージに明示されるようになり、問題が一般的な接続不良ではなくプロキシ設定に起因することが明確に分かるようになった。",
+      "detail_en": "When an HTTP(S) proxy actively refused a connection, Claude Code surfaced it as a generic, unhelpful network error instead of identifying which proxy rejected the request.\n\nThis fix names the refusing proxy in the error so the problem is clearly attributed to the proxy configuration rather than general connectivity.",
+      "category": "ネットワーク",
+      "category_en": "Network"
+    },
+    {
+      "t": "修正: プロンプトキャッシュが既に期限切れになっている場合でも `/model` と `/effort` のキャッシュミス警告が表示されてしまう問題を修正",
+      "t_en": "Fixed the `/model` and `/effort` cache-miss warning appearing when the prompt cache had already expired",
+      "tags": ["バグ修正"],
+      "detail": "`/model` や `/effort` でモデルやエフォートを切り替える際、Claude Code はプロンプトキャッシュのミスが発生する可能性を警告するが、この警告はキャッシュが既に自然に期限切れとなっており、切り替えによる追加のキャッシュミスが実際には発生しない場合にも表示されてしまっていた。\n\n本バージョンでは、キャッシュが既に失効している場合はこの警告が表示されないように修正された。",
+      "detail_en": "`/model` and `/effort` warn when switching would cause a prompt-cache miss, but that warning appeared even when the cache had already expired on its own, so switching couldn't cause any additional miss.\n\nThis fix suppresses the warning once the cache is already stale.",
+      "category": "キャッシュ",
+      "category_en": "Cache"
+    },
+    {
+      "t": "修正: Remote Control のタスクパネルからのタスク単位の Stop が、CLI がホストするセッションに対して何も効果を持たない問題を修正",
+      "t_en": "Fixed per-task Stop from the Remote Control tasks panel doing nothing on CLI-hosted sessions",
+      "tags": ["バグ修正"],
+      "detail": "Remote Control のタスクパネルにあるタスク単位の Stop ボタンは、特定の実行中タスクを中断するためのものだが、セッションが Desktop や Web ではなく CLI（`claude remote-control` によるサーバーモード）でホストされている場合には効果を持たなかった。\n\n本バージョンで CLI がホストするセッションに対してもタスク単位の Stop が正しく動作するように修正された。",
+      "detail_en": "The Remote Control tasks panel's per-task Stop button is meant to interrupt a specific running task, but had no effect when the target session was hosted by a CLI instance (`claude remote-control` / server mode) rather than the Desktop or web host.\n\nThis fix makes per-task Stop work against CLI-hosted sessions too.",
+      "category": "Remote Control",
+      "category_en": "Remote Control"
+    },
+    {
+      "t": "修正: クライアントが不正な role のユーザーメッセージを送信すると、リモートセッションが終了してしまう問題を修正",
+      "t_en": "Fixed remote sessions exiting when a client delivered a user message without a valid role",
+      "tags": ["バグ修正"],
+      "detail": "接続中のクライアントが `role` フィールドを持たない、あるいは不正な `role` のユーザーメッセージを送信すると、その1件のメッセージだけを拒否するのではなく、リモートセッション全体が終了してしまっていた。\n\n本バージョンでは、不正な `role` を含むメッセージを受け取ってもセッション全体は終了せず、そのメッセージのみを適切に扱えるように修正された。",
+      "detail_en": "A remote session would crash and exit entirely if a connected client sent a user message that didn't carry a valid `role` field, rather than rejecting just that malformed message.\n\nThis fix makes the session tolerate an invalid role without ending the whole session.",
+      "category": "安定性",
+      "category_en": "Stability"
+    },
+    {
+      "t": "修正: `claude remote-control` で開始した Remote Control セッションが、起動元シェルのセッションスコープの環境変数を引き継いでしまう問題を修正",
+      "t_en": "Fixed Remote Control sessions started by `claude remote-control` inheriting session-scoped environment variables from the launching shell",
+      "tags": ["バグ修正", "Security"],
+      "detail": "`claude remote-control` で開始したサーバーモードの Remote Control セッションが、起動元のシェルが持つセッションスコープの環境変数を引き継いでしまい、本来リモートの別デバイスから利用することを意図したセッションに、ローカルのシェル状態が漏れ込んでしまう可能性があった。\n\n本バージョンでこの引き継ぎが行われないように修正された。",
+      "detail_en": "A Remote Control server session started with `claude remote-control` was picking up session-scoped environment variables from the shell that launched it, which could leak local shell state into sessions meant to be reached remotely from other devices.\n\nThis fix stops that inheritance.",
+      "category": "Remote Control",
+      "category_en": "Remote Control"
+    },
+    {
+      "t": "修正: プロセスがクラッシュした Remote Control セッションが、`claude remote-control` を再起動するまで利用不能のままになってしまう問題を修正。次回メッセージ送信時に再利用できるように",
+      "t_en": "Fixed a Remote Control session whose process crashed staying unavailable until `claude remote-control` was restarted; it can now be reused when you next message it",
+      "tags": ["バグ修正"],
+      "detail": "Remote Control セッションの背後にあるプロセスがクラッシュすると、そのセッションはオペレーターが手動で `claude remote-control` プロセス全体を再起動するまで、恒久的に利用不能なままになってしまっていた。\n\n本バージョンでは、クラッシュしたセッションでも次回メッセージを送信した時点で自動的に再利用できるようになり、手動での再起動が不要になった。",
+      "detail_en": "If the underlying process behind a Remote Control session crashed, that session stayed permanently unavailable until the operator manually restarted the whole `claude remote-control` process.\n\nNow a crashed session can be reused automatically the next time you message it, with no manual restart needed.",
+      "category": "Remote Control",
+      "category_en": "Remote Control"
+    },
+    {
+      "t": "修正: Claude がターン処理中に Web や Desktop から送信された Remote Control のメッセージが、ターン完了後にトランスクリプトから消えてしまう問題を修正",
+      "t_en": "Fixed Remote Control messages sent from the web or Desktop while Claude is mid-turn disappearing from the transcript after the turn finishes",
+      "tags": ["バグ修正"],
+      "detail": "Claude がまだターンの処理中である間に Web UI や Desktop アプリから送信されたメッセージは、そのターンが完了すると会話のトランスクリプトから消えてしまい、履歴として残らないことがあった。\n\n本バージョンでこの問題が修正され、そうしたメッセージもトランスクリプトに残り続けるようになった。",
+      "detail_en": "A message sent from the web UI or Desktop app while Claude was still mid-turn could vanish from the conversation transcript once that turn finished, instead of remaining visible as part of the history.\n\nThis fix keeps such messages in the transcript.",
+      "category": "Remote Control",
+      "category_en": "Remote Control"
+    },
+    {
+      "t": "修正: スマートフォンや Web で行った Remote Control 上のモデル選択が、ターミナル側の表示に反映されない問題を修正",
+      "t_en": "Fixed Remote Control model picks made on a phone or web not updating the model shown in the terminal",
+      "tags": ["バグ修正"],
+      "detail": "Remote Control 経由でスマートフォンや Web から別のモデルを選択しても、その選択が接続中のターミナルに伝わらず、ターミナル側のモデル表示がセッションの実際のモデルと食い違ったままになってしまっていた。\n\n本バージョンでこの問題が修正され、ターミナルのモデル表示がリモートでの選択と同期するようになった。",
+      "detail_en": "Picking a different model from a phone or the web through Remote Control didn't propagate back to update the model indicator shown in the connected terminal, leaving the terminal display out of sync with the session's actual model.\n\nThis fix keeps the terminal's model display in sync with remote picks.",
+      "category": "Remote Control",
+      "category_en": "Remote Control"
+    },
+    {
+      "t": "修正: サインインの更新が短時間のネットワーク不調で遅延した際、Remote Control が「login expired」で切断されてしまう問題を修正。今後は再試行して接続を維持する",
+      "t_en": "Fixed Remote Control disconnecting with \"login expired\" when a brief network hiccup delays renewing your sign-in; it now retries and stays connected",
+      "tags": ["バグ修正"],
+      "detail": "サインイントークンの更新が短時間のネットワーク不調によって遅延しただけでも、資格情報自体はまだ有効であるにもかかわらず、Remote Control が「login expired」というメッセージとともに切断されてしまうことがあった。\n\n本バージョンでは、即座に切断するのではなく更新処理を再試行するようになり、短時間のネットワーク問題が発生しても接続が維持されるようになった。",
+      "detail_en": "A short network hiccup that delayed renewing the sign-in token could cause Remote Control to disconnect outright with a \"login expired\" message, even though the credentials were still valid.\n\nThis fix retries the renewal instead of disconnecting immediately, keeping the connection alive through brief network issues.",
+      "category": "Remote Control",
+      "category_en": "Remote Control"
+    },
+    {
+      "t": "修正: サインアウト時に Remote Control が「再接続に失敗した」と報告してしまう問題を修正。サインアウトは明確なメッセージとともにセッションを正常終了するように",
+      "t_en": "Fixed Remote Control reporting a failed reconnect on sign-out; signing out now ends the session with a clear message",
+      "tags": ["バグ修正"],
+      "detail": "Remote Control からサインアウトすると、これは意図した正常な操作であるにもかかわらず、再接続に失敗したエラーとして報告されてしまい、ユーザーを混乱させていた。\n\n本バージョンでは、サインアウトが再接続失敗ではなく、明確なメッセージを伴うセッションの正常終了として報告されるように修正された。",
+      "detail_en": "Signing out of Remote Control was reported as a failed reconnect attempt rather than as an intentional, successful end to the session, which was confusing since sign-out is an expected user action, not an error.\n\nThis fix reports sign-out as a clean session end with a clear message instead of a reconnect failure.",
+      "category": "Remote Control",
+      "category_en": "Remote Control"
+    },
+    {
+      "t": "修正: `claude remote-control`（サーバーモード）や Desktop/IDE がホストするセッションで `ListAgents`/`SendMessage` が「Remote Control is not connected」と報告してしまう問題を修正。これらのホストからも Remote Control のピアを一覧・到達できるように",
+      "t_en": "Fixed `ListAgents`/`SendMessage` reporting \"Remote Control is not connected\" in sessions run by `claude remote-control` (server mode) or Desktop/IDE hosts; they now list and reach Remote Control peers",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "クロスセッションメッセージングで他のセッションを発見・連絡するために使う `ListAgents` と `SendMessage` は、サーバーモード（`claude remote-control`）や Desktop アプリ、IDE がホストするセッション自体からは、実際には Remote Control への接続に問題がない場合でも「Remote Control is not connected」と誤って報告してしまっていた。\n\n本バージョンの修正により、これらのホスト種別からでも Remote Control のピアを正しく一覧表示し、メッセージを届けられるようになった。",
+      "detail_en": "The `ListAgents` and `SendMessage` tools, which cross-session messaging uses to discover and reach a user's other sessions, incorrectly reported \"Remote Control is not connected\" for sessions themselves running in server mode (`claude remote-control`) or hosted by the Desktop app or an IDE, even when Remote Control connectivity from those hosts was fine.\n\nThis fix lets those host types list and message Remote Control peers correctly.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-Agent",
+      "doc_url": "https://code.claude.com/docs/en/cross-session-messaging#see-which-sessions-claude-can-reach"
+    },
+    {
+      "t": "修正: エージェントビューが次のバックグラウンドセッションに備えて事前に用意しているアイドルワーカーが `ListAgents`/`SendMessage` に表示されてしまう問題を修正。タスクに割り当てられて初めて表示されるように",
+      "t_en": "Fixed `ListAgents` and `SendMessage` exposing the idle worker that the agent view pre-warms for your next background session; it now appears only once a task claims it",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "エージェントビューは次のバックグラウンドセッションを素早く開始できるよう、あらかじめアイドル状態のワーカーを用意しているが、このまだ何のタスクにも割り当てられていないワーカーが、`ListAgents` や `SendMessage` の結果に実在する宛先として表示されてしまい、Claude がまだ何も開始していないセッションに対してメッセージを送ろうとしてしまうことがあった。\n\n本バージョンでは、事前に用意されたワーカーは実際のタスクに割り当てられるまで表示されないように修正された。",
+      "detail_en": "Agent view pre-warms an idle background worker in advance so your next background session starts quickly, but that pre-warmed, not-yet-claimed worker was showing up as a real target in `ListAgents` and `SendMessage` results, letting Claude address a session nothing had actually started yet.\n\nThis fix hides the pre-warmed worker until an actual task claims it.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-Agent"
+    },
+    {
+      "t": "改善: クロスセッションメッセージングで、このマシン上の受信を拒否しているセッション（`crossSessionInbound: \"refuse\"` など）宛てに送信すると、無言で成功したことにするのではなく送信者に「refused」と報告するように改善",
+      "t_en": "Cross-session messaging: sending to a session on this machine that refuses inbound messages (e.g. `crossSessionInbound: \"refuse\"`) now reports \"refused\" to the sender instead of a silent success",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "`crossSessionInbound` を `\"refuse\"` に設定しているセッションに対して、同一マシン上の別セッションからメッセージを送信すると、受信側は無言でメッセージを破棄する一方で、送信側の `SendMessage` 呼び出しは成功として報告されてしまい、実際にはメッセージが届いていないことに気づけなかった。\n\n本バージョンでは、受信側が拒否した場合は送信元のセッションに「refused」という結果が返るようになり、見かけ上の成功と実際の未達を混同しなくなった。",
+      "detail_en": "When a session set `crossSessionInbound` to `\"refuse\"` and another session on the same machine tried to message it, the receiving session silently dropped the message while the sender's `SendMessage` call still reported success, giving no indication the message never arrived.\n\nThis fix has the receiving session report \"refused\" back to the sender instead of a false success.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-Agent",
+      "doc_url": "https://code.claude.com/docs/en/cross-session-messaging#control-inbound-messages"
+    },
+    {
+      "t": "改善: クロスセッションメッセージングで、受信側の受信箱（inbox）がレート制限や満杯によってメッセージを取りこぼした場合、無言で消えるのではなく送信元のセッションに通知するように改善",
+      "t_en": "Cross-session messaging: a session whose inbox drops your messages (rate limit or full queue) now tells your session, instead of the messages vanishing silently",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "セッションの受信箱は、送信元がレート制限にかかっている場合や、受信箱のキューが満杯（未読メッセージは1セッションあたり最大50件）の場合に届いたメッセージを取りこぼすことがあるが、これまではその取りこぼしが送信側に何も伝わらず、静かに失われていた。\n\n本バージョンでは、いずれの理由でメッセージが取りこぼされた場合も、その旨が送信元のセッションに通知されるように改善された。",
+      "detail_en": "A session's message inbox can drop an incoming cross-session message when the sender is rate-limited or the inbox's queue is full (Claude Code caps accepted messages waiting to be read at 50 per session), and previously that drop happened silently with no feedback to the sender.\n\nThis fix reports the drop back to the sending session instead of losing the message with no trace.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-Agent",
+      "doc_url": "https://code.claude.com/docs/en/cross-session-messaging#limitations"
+    },
+    {
+      "t": "改善: macOS で引数なしの `claude` の起動が高速化するように改善",
+      "t_en": "Improved startup: bare `claude` starts sooner on macOS",
+      "tags": ["改善", "Perf"],
+      "detail": "macOS で引数なしの `claude` を起動する際、起動処理に無視できないオーバーヘッドがあり、利用可能なプロンプトに到達するまでに時間がかかっていた。\n\n本バージョンでこのオーバーヘッドが削減され、macOS では引数なしの `claude` 起動がより速く完了するようになった。",
+      "detail_en": "Launching `claude` with no arguments on macOS had startup overhead that this release trims, so a bare `claude` invocation now reaches a usable prompt sooner.\n\nThis is a startup-latency optimization specific to macOS rather than a behavior or feature change.",
+      "category": "パフォーマンス",
+      "category_en": "Performance"
+    },
+    {
+      "t": "改善: シェルの条件式に含まれる zsh 固有の構文に対する Bash ツールのパーミッションチェックを改善",
+      "t_en": "Improved Bash tool permission checking for zsh-specific syntax in shell conditionals",
+      "tags": ["改善", "Security"],
+      "detail": "Claude Code の Bash パーミッションチェッカーは、提案されたコマンドを解析して承認が必要かどうかを判断するが、zsh 固有の条件式の構文がこの解析ロジックを混乱させ、誤ったパーミッション判定につながることがあった。\n\n本バージョンでは、zsh 固有のシェル条件式の認識と評価が改善され、パーミッションチェックの精度が向上した。",
+      "detail_en": "Claude Code's Bash permission checker parses a proposed command to decide whether it needs approval, and zsh-specific conditional syntax could confuse that parser and lead to incorrect permission decisions.\n\nThis release improves how zsh-specific shell conditionals are recognized and evaluated during permission checking.",
+      "category": "パーミッション",
+      "category_en": "Permissions"
+    },
+    {
+      "t": "改善: Remote Control の接続耐性を改善。ネットワークエッジ・VPN・プロキシからの一時的な HTTP 403 拒否を最大3分間許容し、拒否状態が続く場合は拒否元を明示するように",
+      "t_en": "Improved Remote Control connection resilience: brief HTTP 403 refusals from a network edge, VPN, or proxy are now tolerated for up to 3 minutes, with the refusing party named when a block persists",
+      "tags": ["改善"],
+      "detail": "ネットワークエッジ・VPN・企業プロキシなどが断続的に HTTP 403 を返す環境では、これまで最初の拒否だけで Remote Control のセッションが切断されてしまうことがあった。\n\n本バージョンでは、Remote Control が最大3分間まで一時的な 403 拒否を許容してから諦めるようになり、それを超えてブロックが続く場合には拒否元を明示するようになった。これにより問題の切り分けが容易になった。",
+      "detail_en": "A network edge, VPN, or corporate proxy that intermittently returns HTTP 403 to Remote Control's connection could previously drop the session outright on the first refusal.\n\nClaude Code now tolerates brief 403 refusals for up to 3 minutes before giving up, and when a block persists past that, it names the specific party that refused the connection, making the failure easier to diagnose.",
+      "category": "Remote Control",
+      "category_en": "Remote Control"
+    },
+    {
+      "t": "改善: 起動時のレスポンス向上のため、自動アップデートチェックの実行タイミングを起動直後から約10秒後に変更",
+      "t_en": "Improved startup responsiveness: the automatic update check now runs about 10 seconds after launch instead of competing with startup for CPU",
+      "tags": ["改善", "Perf"],
+      "detail": "これまで自動アップデートチェックは起動直後に実行されており、CLI 自体の起動処理と CPU を奪い合うことで、利用可能なプロンプトに到達するまでの速度を低下させていた。\n\n本バージョンでは、起動処理が落ち着いた頃合いである起動から約10秒後にアップデートチェックが実行されるようになり、この競合が回避された。",
+      "detail_en": "The automatic update check used to run immediately at startup, competing with the CLI's own startup work for CPU and slowing down how quickly you get a usable prompt.\n\nIt now runs roughly 10 seconds after launch, once startup itself has settled, avoiding that contention.",
+      "category": "パフォーマンス",
+      "category_en": "Performance"
+    },
+    {
+      "t": "改善: 同梱の `claude-api` スキルを Managed Agents の8月19日リリース内容（Web 検索・フェッチのドメイン設定、セルフホストサンドボックスでのメモリストア）に合わせて更新",
+      "t_en": "Updated the bundled `claude-api` skill for the Managed Agents Aug 19 release: web search/fetch domain settings and memory stores on self-hosted sandboxes",
+      "tags": ["改善", "SDK"],
+      "detail": "Claude Code が Anthropic API や Agent SDK に関する質問に答える際に参照する、同梱の `claude-api` リファレンススキルが、Managed Agents の8月19日リリース内容に合わせて更新された。具体的には、Web 検索・フェッチのドメイン制限設定と、セルフホストサンドボックスで利用できるメモリストアが反映されている。\n\nこれは Claude Code の CLI としての挙動そのものを変えるものではなく、最新の Agent プラットフォームの機能に合わせてスキルの案内内容を最新化するものである。",
+      "detail_en": "The bundled `claude-api` reference skill, which Claude Code uses to answer questions about the Anthropic API and Agent SDK, was updated to reflect the Managed Agents Aug 19 release: new web search/fetch domain restriction settings and memory stores available specifically on self-hosted sandboxes.\n\nThis keeps the skill's guidance current with the latest Agent-platform capabilities rather than changing any Claude Code CLI behavior itself.",
+      "category": "SDK",
+      "category_en": "SDK"
+    },
+    {
+      "t": "変更: フルスクリーンモードの Ctrl+L / Cmd+K を常に再描画のみを行うように変更。2回連続押下による `/clear` ショートカットは廃止され、1行の nvim ターミナルで自動的に `/clear` が繰り返されてしまう問題も解消",
+      "t_en": "Changed Ctrl+L and Cmd+K in fullscreen to always just repaint — the double-press `/clear` shortcut was removed, and 1-row nvim terminals no longer trigger automatic `/clear` loops",
+      "tags": ["改善"],
+      "detail": "フルスクリーン表示モードでは、2秒以内に Ctrl+L または Cmd+K を2回押すと `/clear` が実行されるショートカットが用意されていたが、この2回押下の判定ロジックは誤作動することがあり、例えば1行しか表示領域のない nvim ターミナルでは、意図せず `/clear` が繰り返し実行されるループを引き起こすことがあった。\n\n本バージョンで2回押下による `/clear` ショートカットは廃止され、Ctrl+L と Cmd+K は常に画面の再描画のみを行うようになった。会話を実際にクリアするには明示的に `/clear` を実行する必要がある。",
+      "detail_en": "In fullscreen rendering mode, pressing Ctrl+L or Cmd+K twice within two seconds used to run `/clear` as a shortcut, but that double-press heuristic could misfire — for example in a 1-row nvim terminal, triggering unwanted repeated `/clear` loops.\n\nClaude Code removed the double-press-to-clear behavior: Ctrl+L and Cmd+K now always just repaint the screen, and `/clear` must be run explicitly to actually clear the conversation.",
+      "category": "入力",
+      "category_en": "Input",
+      "doc_url": "https://code.claude.com/docs/en/fullscreen#clear-the-conversation"
+    },
+    {
+      "t": "変更: `claude mcp list` と `claude mcp get` が、無効化されたサーバーに対してヘルスチェックのため接続を試みるのではなく `⊘ Disabled` と表示するように変更",
+      "t_en": "Changed `claude mcp list` and `claude mcp get` to show disabled servers as `⊘ Disabled` instead of connecting to them for a health check",
+      "tags": ["改善", "MCP"],
+      "detail": "`claude mcp list` と `claude mcp get` は、これまで意図的に無効化しているサーバーに対しても実際に接続してヘルスチェックを試みており、無効化したはずのサーバーへの接続試行が無駄になっていた。\n\n本バージョンでは、両コマンドが無効化されたサーバーをあらかじめ認識し、接続を試みることなく `⊘ Disabled` というステータスを表示するように変更された。",
+      "detail_en": "`claude mcp list` and `claude mcp get` previously attempted a live connection health check even for a server that was explicitly disabled, wasting a connection attempt on a server you'd deliberately turned off.\n\nBoth commands now recognize a disabled server up front and print a `⊘ Disabled` status instead of trying to connect to it.",
+      "category": "MCP 連携",
+      "category_en": "MCP Integration",
+      "doc_url": "https://code.claude.com/docs/en/mcp#server-status"
+    },
+    {
+      "t": "修正: プロジェクトの `.mcp.json` の `headersHelper` や、プロジェクト・`--add-dir` のエージェントファイルに定義されたインライン MCP サーバーが、フォルダの信頼ダイアログを承認していなくても実行されてしまうセキュリティ上の抜け穴を修正（`claude -p` でも同様）",
+      "t_en": "MCP `headersHelper` in a project `.mcp.json`, and inline MCP servers in project or `--add-dir` agent files, now require that folder's trust dialog to have been accepted (also under `claude -p`)",
+      "tags": ["バグ修正", "Security", "MCP"],
+      "detail": "プロジェクトの `.mcp.json` は任意のシェルコマンドを実行する `headersHelper` を定義でき、エージェントファイルにはインラインの MCP サーバーを定義できるが、いずれもそのフォルダのワークスペース信頼ダイアログを一度も承認していない状態、さらには `claude -p` の実行下でも実行されてしまうことがあった。\n\n本バージョンでは、これら2つの仕組みがそのフォルダの信頼ダイアログの承認を必須とするように変更され、未確認のリポジトリの設定がユーザーのレビュー前にコードを実行したりネットワークへ到達したりする経路が塞がれた。",
+      "detail_en": "A project's `.mcp.json` can define a `headersHelper` that runs an arbitrary shell command, and an agent file can define an inline MCP server; both could previously run in a folder whose workspace trust dialog you'd never accepted, including under `claude -p`.\n\nThis release gates both behind that folder's trust dialog having been accepted, closing a path where an untrusted repository's configuration could execute code or reach a network endpoint before you'd reviewed it.",
+      "category": "セキュリティ",
+      "category_en": "Security",
+      "doc_url": "https://code.claude.com/docs/en/permissions#what-runs-before-you-trust-a-folder"
+    },
+    {
+      "t": "改善: プロジェクトの `.mcp.json`・プラグイン・エージェントファイルの `headersHelper` が、継承された資格情報の環境変数なしで実行されるように改善。ユーザー・マネージド・claude.ai スコープのヘルパーは Claude の設定ディレクトリから実行されるように変更",
+      "t_en": "MCP `headersHelper` from a project `.mcp.json`, plugin, or agent file runs without inherited credential env vars; user, managed and claude.ai-scope helpers now run from the Claude config dir",
+      "tags": ["改善", "Security", "MCP"],
+      "detail": "プロジェクトの `.mcp.json`・プラグイン・エージェントファイルで定義された `headersHelper` は、これまで親プロセスから資格情報を含む環境変数を引き継いで実行されており、リポジトリ提供のヘルパースクリプトが実行環境から読み取れる情報が必要以上に広くなっていた。\n\n本バージョンでは、こうした資格情報系の環境変数を継承せずに実行されるように改善された。またユーザー・マネージド・claude.ai コネクタースコープのように信頼された設定で定義された `headersHelper` は、セッションの作業ディレクトリではなく Claude の設定ディレクトリから実行されるようになり、どのプロジェクトからでも相対パスが一貫して解決されるようになった。",
+      "detail_en": "A `headersHelper` defined in a project's `.mcp.json`, in a plugin, or in an agent file now runs without any credential-bearing environment variables inherited from the parent process, reducing what a project-supplied helper script can read from its execution environment.\n\nSeparately, a `headersHelper` defined at user, managed, or claude.ai connector scope — trusted configuration rather than repository-supplied — now runs from the Claude config directory rather than the session's working directory, so its relative paths resolve consistently regardless of which project you're in.",
+      "category": "セキュリティ",
+      "category_en": "Security",
+      "doc_url": "https://code.claude.com/docs/en/mcp#use-dynamic-headers-for-custom-authentication"
+    }
   ]
 }
