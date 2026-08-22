@@ -1968,5 +1968,550 @@
       "category_en": "Security",
       "doc_url": "https://code.claude.com/docs/en/mcp#use-dynamic-headers-for-custom-authentication"
     }
+  ],
+  "2.1.239": [
+    {
+      "t": "変更: データレジデンシーワークスペースの US-only 推論に適用される1.1倍の割増料金を、コスト見積もりに反映するよう変更",
+      "t_en": "Cost estimates now account for the 1.1× US-only-inference premium for data-residency workspaces",
+      "tags": ["改善"],
+      "detail": "データレジデンシーワークスペースで推論を US 拠点のみに限定している場合、通常のトークン単価に加えて1.1倍の割増料金が発生するが、これまで `/cost` やステータスライン、`--max-budget-usd` によるコスト見積もりはこの割増分を考慮しておらず、実際の請求額より低い金額を表示していた。\n\n本バージョンでは見積もりロジックが更新され、`/cost` やステータスラインに表示される金額、および予算上限の判定がこの1.1倍の割増を反映するようになった。影響を受けるのはデータレジデンシーワークスペースで US-only 推論を選択している組織のみで、それ以外の利用には変更はない。",
+      "detail_en": "Organizations on data-residency workspaces that restrict inference to US-only regions pay a 1.1× premium on top of standard token pricing, but Claude Code's cost estimates in `/cost`, the status line, and `--max-budget-usd` budget tracking previously didn't factor this multiplier in, understating the actual spend.\n\nThis release updates the estimator so the figures shown in `/cost`, the status line, and budget-limit checks now reflect the 1.1× premium. Only organizations on data-residency workspaces with US-only inference are affected; other setups see no change.",
+      "category": "コスト管理",
+      "category_en": "Cost Management"
+    },
+    {
+      "t": "追加: フルスクリーンレンダラーの利用案内を、これまで対象外だった Bedrock・Vertex・Foundry などの環境でも表示するように追加",
+      "t_en": "Added fullscreen renderer offer on Bedrock, Vertex, Foundry and other previously excluded setups",
+      "tags": ["新機能", "Platform"],
+      "detail": "ちらつきのないマウス対応のフルスクリーンレンダリング機能は、これまで一部の環境でしか一度限りの利用案内（オファー）が表示されず、Amazon Bedrock・Google Vertex・Microsoft Foundry などの構成を使うユーザーは対象外だった。\n\n本バージョンでは、これらの環境でも同じオファーが表示されるようになり、新規インストールではデフォルトでフルスクリーンモードが有効になる。これにより `/tui fullscreen` を手動で実行しなくても、より多くのプラットフォームでちらつきの少ない表示を利用できるようになった。",
+      "detail_en": "Fullscreen rendering — the flicker-free, mouse-enabled alternate-screen renderer — previously offered its one-time opt-in prompt only on certain setups, excluding users on Amazon Bedrock, Google Vertex, Microsoft Foundry, and other previously excluded configurations.\n\nThis release extends that one-time offer to those setups, and new installs there now start in fullscreen mode by default, without needing to run `/tui fullscreen` manually.",
+      "category": "プラットフォーム互換性",
+      "category_en": "Platform Compatibility",
+      "doc_url": "https://code.claude.com/docs/en/fullscreen#enable-fullscreen-rendering"
+    },
+    {
+      "t": "追加: Python プロジェクトを `anthropic` パッケージの 0.x 系から 1.x 系へ移行する `/claude-api upgrade` コマンドを追加",
+      "t_en": "Added `/claude-api upgrade` to migrate Python projects from `anthropic` 0.x to 1.x",
+      "tags": ["新機能", "SDK"],
+      "detail": "Anthropic の Python SDK（`anthropic` パッケージ）はメジャーバージョン 1.x で `httpx.Timeout` から `anthropic.Timeout` へのタイムアウト指定方法の変更など、0.x 系との互換性のない変更を含むリリースを行っており、既存プロジェクトの移行には手作業が必要だった。\n\n本バージョンでは、組み込みの claude-api スキルの一部として `/claude-api upgrade` コマンドが追加され、Python プロジェクトのコードを 0.x 系 API から 1.x 系 API へ自動的に移行できるようになった。あわせてスキル内の Python リファレンス情報も 1.x の作法に合わせて更新されている。対象は Anthropic Python SDK 上でアプリケーションを開発しているユーザーであり、Claude Code 自体の SDK 移行とは異なる。",
+      "detail_en": "Anthropic's Python SDK (the `anthropic` package) shipped a 1.x major version with breaking changes from the 0.x line, such as moving from `httpx.Timeout` to `anthropic.Timeout` for request timeouts, requiring manual migration work in existing projects.\n\nThis release adds a `/claude-api upgrade` command, part of the built-in claude-api skill, that automates migrating a Python project's code from the 0.x API to the 1.x API, and updates that skill's Python reference material for 1.x conventions. It targets developers building applications on the Anthropic Python SDK, not Claude Code's own SDK.",
+      "category": "SDK",
+      "category_en": "SDK"
+    },
+    {
+      "t": "追加: クラウドセッションで claude.ai から同期されたプラグインが `name@synced` として表示され、有効化・無効化コマンドでも操作できるように追加",
+      "t_en": "Cloud sessions: synced plugins from claude.ai display as `name@synced` and work with enable/disable commands",
+      "tags": ["新機能", "Plugin"],
+      "detail": "Claude Code on the web では claude.ai 上で有効化したプラグインをクラウドセッションに同期できるが、これまでは同期されたプラグインとローカルにインストールされたプラグインを見分ける方法がなく、同名のプラグインが存在するとサイレントに競合する恐れがあった。\n\n本バージョンでは、同期されたプラグインが `name@synced` という表示名になり、`claude plugin enable`/`disable name@synced` のように個別に操作できるようになった。また同期されたプラグインがローカルにインストール済みの同名プラグインを上書きすることもなくなり、クラウドセッションでの名前の混乱や意図しない上書きを防げるようになった。",
+      "detail_en": "Claude Code on the web lets users enable plugins from claude.ai, but previously there was no way to distinguish a synced claude.ai plugin from a locally installed one, risking a silent clash between same-named plugins.\n\nThis release makes synced plugins display with a `@synced` suffix (e.g. `name@synced`), lets them be targeted with `claude plugin enable`/`disable name@synced`, and ensures a synced plugin never overrides a same-named plugin the user already installed.",
+      "category": "プラグイン管理",
+      "category_en": "Plugin Management"
+    },
+    {
+      "t": "修正: Alpine/musl 環境で画像ペースト・クリップボード・音声キャプチャのネイティブアドオンが正しく読み込まれない不具合を修正",
+      "t_en": "Alpine/musl builds: native image paste, clipboard, and audio-capture add-ons now load properly",
+      "tags": ["バグ修正"],
+      "detail": "Claude Code は Alpine Linux など musl libc ベースのディストリビューションにも対応しているが、画像ペースト・クリップボード操作・音声キャプチャ用のネイティブアドオンが glibc 向けにビルドされていたため、musl 環境では読み込みに失敗し、これらの機能が無言で動作しない状態になっていた。\n\n本バージョンでは musl 向けにビルドされたネイティブアドオンが同梱されるようになり、Alpine などの musl 系ディストリビューションでも正しく読み込まれるようになった。影響を受けるのはこれらのオプションのネイティブアドオンのみで、Claude Code のコア機能には影響しない。",
+      "detail_en": "Claude Code supports Alpine Linux and other musl-libc-based distributions, but its native add-ons for image paste, clipboard access, and audio capture were built against glibc, so the musl runtime silently refused to load them.\n\nThis release ships musl-built versions of those native add-ons so they load correctly on Alpine and similar systems. The fix only affects these optional native add-ons, not Claude Code's core functionality.",
+      "category": "プラットフォーム互換性",
+      "category_en": "Platform Compatibility",
+      "doc_url": "https://code.claude.com/docs/en/setup#alpine-linux-and-musl-based-distributions"
+    },
+    {
+      "t": "改善: 利用上限メッセージに、セッション上限や週次上限がリセットされる時刻を表示するよう改善",
+      "t_en": "Usage-limit messages now indicate when session or weekly limits reset",
+      "tags": ["改善"],
+      "detail": "サブスクリプションの月間上限に達した際に表示される利用上限メッセージは、これまでセッション上限や週次上限にも近づいている場合でも、いつ再開できるかを示していなかった。\n\n本バージョンでは、メッセージに他の箇所と同じ形式でリセット時刻の情報が追加され、「セッション上限に達しました・15:45にリセット」のように表示されるようになった。これにより、ユーザーは次にいつ作業を再開できるかをより明確に把握できるようになった。",
+      "detail_en": "When a subscriber hit their monthly spend limit, Claude Code's usage-limit message previously said the limit was used up without showing when access would return if the user was also close to a session or weekly cap.\n\nThis release adds reset-time information to the message, matching the format already used elsewhere, such as \"You've hit your session limit · resets 3:45pm\", giving users a clearer picture of exactly when they can work again.",
+      "category": "コスト管理",
+      "category_en": "Cost Management",
+      "doc_url": "https://code.claude.com/docs/en/errors#youve-hit-your-session-limit"
+    },
+    {
+      "t": "修正: レスポンスの Content-Type ヘッダーを除去するプロキシ経由で Bedrock を利用した際、ストリーミングが機能しない不具合を修正",
+      "t_en": "Fixed Bedrock streaming behind proxies that strip response Content-Type headers",
+      "tags": ["バグ修正", "Platform"],
+      "detail": "Amazon Bedrock 経由で Claude Code を利用する際、レスポンスの Content-Type ヘッダーを取り除くタイプのプロキシを通していると、ストリーミングの判定に失敗して各ターンが自動的に非ストリーミングモードで再実行され、エラー表示のないまま課金対象の API 呼び出しが2倍になっていた。\n\n本バージョンでは、一部のプロキシが取り除いてしまう Content-Type ヘッダーに依存しない形でストリーミングを判定するように修正され、この二重課金が発生しなくなった。この修正は、そうしたプロキシ経由で Bedrock を利用しているユーザーに限定される。",
+      "detail_en": "When Claude Code ran against Amazon Bedrock through a proxy that stripped the Content-Type header from streaming responses, it silently fell back to re-running every turn in non-streaming mode, doubling the number of billed API calls with no visible error.\n\nThis release fixes the streaming detection so it no longer depends on a Content-Type header some proxies strip, avoiding the duplicate billed calls. This is a targeted fix for Bedrock users behind such proxies.",
+      "category": "Platform",
+      "category_en": "Platform"
+    },
+    {
+      "t": "修正: Bedrock と SSO プロファイルを HTTPS プロキシ経由で利用した際、起動時に Claude Code がハングする不具合を修正",
+      "t_en": "Fixed Claude Code hanging at startup behind HTTPS proxy with Bedrock and SSO profile",
+      "tags": ["バグ修正", "Platform"],
+      "detail": "SSO プロファイルと `awsAuthRefresh` を組み合わせて Amazon Bedrock を利用する構成では、資格情報の事前チェック処理が `HTTPS_PROXY` 環境変数を参照していなかったため、そのチェックが HTTPS プロキシ経由で実行される環境では起動時に Claude Code が無期限にハングすることがあった。\n\n本バージョンでは資格情報の事前チェックが `HTTPS_PROXY` を尊重するように修正され、プロキシ経由でも AWS に到達できるようになりハングが解消された。影響を受けるのは SSO プロファイル・`awsAuthRefresh`・HTTPS プロキシを組み合わせて Bedrock を利用しているユーザーに限られる。",
+      "detail_en": "Claude Code could hang indefinitely at startup when configured for Amazon Bedrock with an SSO profile and `awsAuthRefresh`, if the credential pre-check ran behind an HTTPS proxy, because that pre-check didn't honor the `HTTPS_PROXY` environment variable.\n\nThis release makes the credential pre-check respect `HTTPS_PROXY`, letting it reach AWS through the proxy instead of hanging. This only affects Bedrock users combining SSO profiles, `awsAuthRefresh`, and an HTTPS proxy.",
+      "category": "Platform",
+      "category_en": "Platform"
+    },
+    {
+      "t": "修正: 存在しないディレクトリから起動した際に生のクラッシュダンプが表示されていた不具合を修正し、分かりやすいエラーメッセージを表示するように変更",
+      "t_en": "Fixed raw crash dump when starting from non-existent directory; now shows clear message",
+      "tags": ["バグ修正"],
+      "detail": "すでにディスク上に存在しない作業ディレクトリから Claude Code を起動すると、これまでは未処理のクラッシュダンプがそのまま表示され、何が起きたのか分かりにくかった。\n\n本バージョンではこのケースを検知し、クラッシュする代わりに問題を説明する分かりやすいエラーメッセージを表示するように修正された。削除・移動されたディレクトリから起動してしまうという、限定的なエッジケースに対する堅牢性向上である。",
+      "detail_en": "Starting Claude Code from a working directory that no longer existed on disk previously produced a raw, unhandled crash dump instead of a helpful message.\n\nThis release catches that case and prints a clear error explaining the problem instead of crashing. It's a small robustness fix for the edge case of a deleted or moved launch directory.",
+      "category": "エラーハンドリング",
+      "category_en": "Error Handling"
+    },
+    {
+      "t": "修正: JetBrains IDE のターミナルで Edit・Write の呼び出しが約5秒間停止する不具合を修正",
+      "t_en": "Fixed Edit and Write calls pausing ~5 seconds in JetBrains IDE terminals",
+      "tags": ["バグ修正", "IDE"],
+      "detail": "Claude Code の JetBrains プラグインに接続した状態で IDE 内蔵のターミナルを使っていると、Edit や Write ツールの呼び出しごとに約5秒間の停止が発生し、ファイル編集を伴うターンの体感速度が大きく低下していた。\n\n本バージョンではこの遅延の原因が解消され、JetBrains のターミナルから作業していても Edit・Write が即座に完了するようになった。この修正は JetBrains プラグインのターミナル連携に固有のものである。",
+      "detail_en": "When the Claude Code JetBrains plugin was connected, Edit and Write tool calls could pause for roughly five seconds each in the IDE's integrated terminal, slowing down file-editing turns.\n\nThis release removes that delay so edits and writes complete promptly when working from a JetBrains terminal. The fix is specific to the JetBrains plugin's terminal integration.",
+      "category": "IDE",
+      "category_en": "IDE"
+    },
+    {
+      "t": "修正: キュー済みのプロンプトがある状態で Esc を押すと、まれにセッションが早期に終了してしまう競合状態を修正",
+      "t_en": "Fixed race where pressing Esc with queued prompt could end session early",
+      "tags": ["バグ修正"],
+      "detail": "実行中のターンの後ろにプロンプトがキューされている状態で Esc を押すと、まれに競合状態が発生し、次のターンが早期に終了してセッションがアイドル状態になってしまうことがあった。この間 Claude は実質的にまだ処理を続けており、後で再送信すると以前の操作が繰り返される可能性もあった。\n\n本バージョンではこの競合状態が解消され、キュー済みプロンプトと Esc の操作が正しく連携するようになった。これによりセッションが意図せず早期にアイドル化する問題と、操作が重複するリスクの両方が解消されている。",
+      "detail_en": "If a user pressed Esc while a prompt was queued behind an in-progress turn, a race condition could let the next turn finish early and leave the session idle while Claude was technically still working, with a later resubmission risking repeated actions.\n\nThis release closes that race so queued prompts and Esc interact correctly, avoiding both the premature idle state and the duplicate-action risk. It's a concurrency bug fix in the interactive input handling.",
+      "category": "セッション管理",
+      "category_en": "Session Management"
+    },
+    {
+      "t": "修正: WebFetch が本来15分で期限切れになるはずのページ内容を、期限を過ぎても保持し続けていた不具合を修正",
+      "t_en": "Fixed WebFetch retaining expired page content beyond intended 15-minute window",
+      "tags": ["バグ修正"],
+      "detail": "WebFetch はデフォルトで取得したページを15分間キャッシュする仕様だが、不具合により期限切れになったページ内容がメモリ上から破棄されず、セッション中ずっと保持され続けていた。\n\n本バージョンではキャッシュの動作が修正され、仕様どおり15分経過後は内容が破棄されるようになった。これにより Claude が古いページ内容をもとに作業し続けてしまうことがなくなる。キャッシュの保持時間は引き続き `CLAUDE_CODE_WEBFETCH_CACHE_TTL_MS` で調整できる。",
+      "detail_en": "WebFetch is documented to cache each fetched page for 15 minutes by default, but a bug caused it to keep expired page content in memory for the entire session instead of discarding it after that window.\n\nThis release fixes the cache so content is actually dropped after 15 minutes as intended, preventing Claude from working off stale page data indefinitely. Users can still adjust the cache lifetime with `CLAUDE_CODE_WEBFETCH_CACHE_TTL_MS`.",
+      "category": "キャッシュ",
+      "category_en": "Cache",
+      "doc_url": "https://code.claude.com/docs/en/tools-reference#webfetch-tool-behavior"
+    },
+    {
+      "t": "修正: アイドル状態のワーカー再起動後、クラウドセッションが plan mode の状態を失って再開されてしまう不具合を修正",
+      "t_en": "Fixed cloud sessions resuming out of plan mode after idle worker restart",
+      "tags": ["バグ修正"],
+      "detail": "Claude Code on the web・デスクトップ・モバイルのクラウドセッションは、アイドル状態が続くと再起動されるワーカー VM 上で動作しているが、再起動前に plan mode になっていたセッションが、再開後は plan mode でない状態になってしまうことがあり、パーミッションの挙動が意図せず変わってしまっていた。\n\n本バージョンでは、アイドルワーカーの再起動をまたいでも plan mode の状態が正しく復元されるように修正された。plan mode を使ってコード変更前にレビューする運用をしているユーザーにとって重要な修正である。",
+      "detail_en": "Claude Code on the web, desktop, and mobile apps run cloud sessions on worker VMs that can restart after being idle; a session that was in plan mode before an idle restart could previously resume out of plan mode, silently changing its permission behavior.\n\nThis release ensures cloud sessions restore their plan-mode state correctly across idle worker restarts. This protects users who rely on plan mode to review changes before Claude edits code.",
+      "category": "セッション管理",
+      "category_en": "Session Management"
+    },
+    {
+      "t": "修正: フルスクリーンモードでターミナルの高さより大きい MCP elicitation フォームが表示しきれずクリップされる不具合を修正",
+      "t_en": "Fixed MCP elicitation forms taller than terminal being clipped in fullscreen",
+      "tags": ["バグ修正", "MCP"],
+      "detail": "MCP サーバーはタスクの途中で構造化された入力を求める elicitation ダイアログを表示できるが、フルスクリーンレンダリングでこのダイアログがターミナルの高さより大きい場合、これまでは画面からはみ出た部分がクリップされ、フォームの一部が操作できなくなっていた。\n\n本バージョンではフォームがウィンドウ内に収まるように修正され、収まりきらない項目はスクロールで到達でき、Accept/Decline ボタンは常に表示されるようになった。フルスクリーンレンダリングにおける MCP elicitation 機能のレイアウト修正である。",
+      "detail_en": "MCP servers can request structured input mid-task through elicitation dialogs, which Claude Code displays automatically; when a dialog was taller than the terminal window in fullscreen rendering, it used to get clipped so parts of the form were inaccessible.\n\nThis release makes the form fit the window instead, with any fields that don't fit reachable by scrolling and the Accept/Decline buttons always visible. This is a fullscreen-rendering layout fix for the MCP elicitation feature.",
+      "category": "MCP",
+      "category_en": "MCP",
+      "doc_url": "https://code.claude.com/docs/en/mcp#respond-to-mcp-elicitation-requests"
+    },
+    {
+      "t": "修正: セッション途中の再接続時に一時的な 5xx エラーが発生すると、リモート MCP サーバーが失敗状態のまま復帰しない不具合を修正",
+      "t_en": "Fixed remote MCP servers staying failed after transient 5xx on mid-session reconnect",
+      "tags": ["バグ修正", "MCP"],
+      "detail": "クラウドセッションや、SDK の `setMcpServers()` によってセッション途中で MCP サーバー構成を変更する場合、再接続時に一時的な 5xx エラーが発生すると、そのサーバーが失敗状態のまま固定されてしまい、`/mcp` から手動で再接続しない限り復旧しないことがあった。\n\n本バージョンではこの再接続処理が修正され、一時的な 5xx エラーによってサーバーが恒久的に失敗状態になることがなくなった。修正対象はクラウドセッションおよび SDK によるセッション途中のサーバー変更という特定のシナリオである。",
+      "detail_en": "In cloud sessions, and when the SDK's `setMcpServers()` reconfigures servers mid-session, a remote MCP server that hit a transient 5xx error during a mid-session reconnect could get stuck marked as failed instead of being retried, requiring a manual reconnect from `/mcp`.\n\nThis release fixes that reconnect path so a transient 5xx no longer leaves the server permanently marked failed. The fix targets the specific mid-session reconnect scenario in cloud sessions and SDK-driven server changes.",
+      "category": "MCP",
+      "category_en": "MCP",
+      "doc_url": "https://code.claude.com/docs/en/mcp#automatic-reconnection"
+    },
+    {
+      "t": "修正: 会話量が約64KBを超えると、カスタムのセッションタイトルが消えてしまう不具合を修正",
+      "t_en": "Fixed custom session titles disappearing after ~64 KB of conversation",
+      "tags": ["バグ修正"],
+      "detail": "`/rename` でリネームしたセッションは、リネーム後に約64KBを超える量の会話が追加されると `/resume` の一覧からカスタムタイトルが消え、自動生成された名前に戻ってしまうことがあった。\n\n本バージョンではタイトルの追跡ロジックが修正され、リネーム後にどれだけ会話が続いてもカスタムタイトルが保持されるようになった。セッションのメタデータに関するデータ整合性の修正である。",
+      "detail_en": "A session renamed with `/rename` could lose its custom title from the `/resume` list once more than roughly 64 KB of additional conversation had been written after the rename, reverting to an auto-generated name.\n\nThis release fixes the title-tracking logic so custom titles persist regardless of how much conversation follows the rename. It's a data-integrity fix for session metadata.",
+      "category": "セッション管理",
+      "category_en": "Session Management"
+    },
+    {
+      "t": "修正: `/resume` が、パスが似ているだけの別ディレクトリのセッションまで対象に含めてしまう不具合を修正",
+      "t_en": "Fixed `/resume` picking up sessions from different directories with similar paths",
+      "tags": ["バグ修正"],
+      "detail": "`claude -c`/`--resume` は、現在のディレクトリと `_`・`-`・`.` などの文字が異なるだけの別ディレクトリのセッションを、誤って同じプロジェクトのものとして扱ってしまうことがあった。\n\n本バージョンではディレクトリの一致判定が厳密化され、実際に一致するパスのセッションのみが再開候補として表示されるようになった。これにより、無関係なプロジェクトの会話を誤って再開してしまう事態を防げる。",
+      "detail_en": "`claude -c`/`--resume` could mistakenly match sessions from a different directory whose path differed from the current one only by characters like `_`, `-`, or `.`, treating visually similar but distinct paths as the same project.\n\nThis release tightens the directory-matching logic so only genuinely matching paths are offered for resume. This avoids accidentally resuming an unrelated project's conversation.",
+      "category": "セッション管理",
+      "category_en": "Session Management"
+    },
+    {
+      "t": "修正: セッションを開き直しただけ、あるいはファイルに触れただけで「最近変更された」扱いになってしまう不具合を修正",
+      "t_en": "Fixed sessions appearing recently changed when only reopened or file touched",
+      "tags": ["バグ修正"],
+      "detail": "`/resume` やエージェントビューでは、会話の内容自体は何も変わっていないにもかかわらず、セッションのファイルがディスク上で触れられただけ、あるいはセッションを開き直しただけで「最近変更された」とマークされ、並び順が変わってしまうことがあった。\n\n本バージョンでは変更検知のロジックが修正され、実際に会話が更新された場合のみ最近の順位に反映されるようになった。これにより `/resume` の一覧が、付随的なファイル操作ではなく実際の活動順に並ぶようになる。",
+      "detail_en": "`/resume` and the agent view previously marked and reordered a session as 'recently changed' even when nothing about its conversation actually changed — for example, when its file was merely touched on disk or the session was simply reopened.\n\nThis release fixes the change-detection logic so only real conversation updates affect a session's recency ordering. This keeps the resume list sorted by genuine activity rather than incidental file touches.",
+      "category": "セッション管理",
+      "category_en": "Session Management"
+    },
+    {
+      "t": "修正: 全プロジェクトモードの `/resume` が、すでに削除されたディレクトリを参照してしまう不具合を修正",
+      "t_en": "Fixed `/resume` in all-projects mode referencing deleted directories",
+      "tags": ["バグ修正"],
+      "detail": "全プロジェクトモードの `/resume` では、削除済みの worktree など元の作業ディレクトリがすでに存在しないセッションに対しても、そのディレクトリへ `cd` してから再開するよう案内してしまうことがあった。\n\n本バージョンでは、そのようなセッションは案内された削除済みディレクトリではなく、現在のディレクトリで再開されるように修正された。プロジェクトのディレクトリが後から整理・削除されていた場合の行き詰まりを防ぐ。",
+      "detail_en": "In all-projects mode, `/resume` could point to a session whose original working directory no longer existed (for example, a removed worktree) and tell the user to `cd` into that deleted directory before resuming.\n\nThis release makes such sessions resume in the current directory instead of directing users to a path that's gone. This avoids a dead-end instruction when a project's directory has since been cleaned up.",
+      "category": "セッション管理",
+      "category_en": "Session Management"
+    },
+    {
+      "t": "修正: `dark-ansi` テーマで展開したツール結果の文字が背景と同化して見えなくなる不具合を修正",
+      "t_en": "Fixed `dark-ansi` theme rendering expanded tool results with invisible text",
+      "tags": ["バグ修正"],
+      "detail": "組み込みのカラーテーマ `dark-ansi`（カスタムテーマのベースプリセットの一つ）は、フルスクリーンレンダリングモードで展開したツール結果のテキストを背景と同じ色でレンダリングしてしまい、実質的に文字が見えなくなっていた。\n\n本バージョンではこのテーマの配色マッピングが修正され、フルスクリーンモードでも展開したツール出力が読めるようになった。この不具合はこの特定の組み込みテーマとフルスクリーンモードの組み合わせでのみ発生していた。",
+      "detail_en": "The built-in `dark-ansi` color theme, one of the base presets available for custom themes, rendered expanded tool-result text in fullscreen rendering mode using the same color as the background, making that text effectively invisible.\n\nThis release fixes the theme's color mapping so expanded tool output is legible under `dark-ansi` in fullscreen mode. The bug only affected this specific built-in theme in the newer rendering mode.",
+      "category": "レンダリング",
+      "category_en": "Rendering"
+    },
+    {
+      "t": "修正: フルスクリーンレンダラーの利用案内が、答えようがない状況でも起動のたびに繰り返し表示され続ける不具合を修正",
+      "t_en": "Fixed fullscreen renderer prompt reappearing on every launch indefinitely",
+      "tags": ["バグ修正"],
+      "detail": "Claude Code はフルスクリーンレンダリングへの切り替えを提案する一度限りのダイアログを表示できるが、不具合により、実質的に一度も回答できない状況でもこのダイアログが起動のたびに繰り返し表示され、起動フローを何度も妨げていた。\n\n本バージョンでは、回答されないまま3回表示された時点でこの案内が打ち止めになるように修正された。これは、フルスクリーン起動が繰り返し失敗した場合に案内を停止する既存のロジックとは別に追加された対策である。",
+      "detail_en": "Claude Code can show a one-time dialog offering to switch to fullscreen rendering, but a bug made this offer reappear on every launch in situations where it could never actually be answered, repeatedly interrupting startup.\n\nThis release caps the offer so it stops appearing after being shown three times without a response. This complements the separate, already-documented logic that stops offering fullscreen after repeated failed starts.",
+      "category": "レンダリング",
+      "category_en": "Rendering",
+      "doc_url": "https://code.claude.com/docs/en/fullscreen#enable-fullscreen-rendering"
+    },
+    {
+      "t": "修正: `.worktreeinclude` の `**/` から始まるパターンが、何にもマッチせず無言で失敗する不具合を修正",
+      "t_en": "Fixed `.worktreeinclude` patterns with `**/` silently matching nothing",
+      "tags": ["バグ修正"],
+      "detail": "`.worktreeinclude` ファイルは `.gitignore` と同じ構文で、`.env` のような gitignore 済みファイルを新しい worktree にコピーする対象を指定できるが、対象ファイルが gitignore 済みのディレクトリ内にある場合、`**/` から始まるパターンが無言で何にもマッチしないという不具合があった。\n\n本バージョンではこのパターンマッチングが修正され、gitignore 済みディレクトリ配下のファイルに対しても `**/` から始まるパターンが正しくマッチするようになった。これまでこの不具合の影響を受けていたユーザーは、エラーもなく期待したファイルが新しい worktree に存在しないという状況に陥っていた。",
+      "detail_en": "`.worktreeinclude` files use `.gitignore`-style syntax to copy gitignored files like `.env` into new worktrees, but a bug made patterns starting with `**/` silently match nothing when the target file lived inside a gitignored directory.\n\nThis release fixes that pattern matching so `**/`-prefixed patterns correctly find files under gitignored directories. Previously affected users would have seen expected files simply missing from new worktrees with no error.",
+      "category": "Git 連携",
+      "category_en": "Git Integration",
+      "doc_url": "https://code.claude.com/docs/en/worktrees#copy-gitignored-files-into-worktrees"
+    },
+    {
+      "t": "修正: UTF-8 BOM 付きのエージェント・スキル・カスタムコマンドのファイルが無言で無視される不具合を修正",
+      "t_en": "Fixed agents/skills/commands with UTF-8 BOM being silently ignored",
+      "tags": ["バグ修正"],
+      "detail": "一部のエディタが自動的に付与する UTF-8 の BOM（バイトオーダーマーク）で始まるエージェント・スキル・カスタムコマンドの `.md` ファイルは、これまで読み込まれず無言で無視されており、警告もないままファイルの内容が反映されない状態になっていた。\n\n本バージョンでは、これらのファイルの先頭に BOM が付いていても許容されるように修正された。主に Windows や、デフォルトで BOM を付与するエディタを使っているユーザーに関係する修正である。",
+      "detail_en": "Agent, skill, and command `.md` files that started with a UTF-8 byte-order-mark (BOM) — a marker some editors add automatically — were previously silently ignored by Claude Code instead of being loaded, so the file's content never took effect with no warning.\n\nThis release makes Claude Code tolerate a leading BOM in these files. This mainly affects users on Windows or editors that insert a BOM by default.",
+      "category": "スキル",
+      "category_en": "Skills"
+    },
+    {
+      "t": "修正: 一部のモデルで `/insights` が `<message>` タグをそのまま出力してしまう不具合を修正",
+      "t_en": "Fixed `/insights` echoing literal `<message>` tags on some models",
+      "tags": ["バグ修正"],
+      "detail": "直近のセッションを分析して HTML の利用状況レポートを作成する `/insights` コマンドは、一部のモデルバックエンドで内部的な整形用マーカーであるはずの `<message>` タグを、剥がさずにそのまま応答テキストに出力してしまうことがあった。\n\n本バージョンではこの不具合が修正され、そうしたタグが表示結果に混入しなくなった。特定のモデルバックエンドでのみ発生していた表示上の不具合である。",
+      "detail_en": "The `/insights` command, which analyzes recent sessions and writes an HTML usage report, could echo literal `<message>` tags into its response text on some models instead of stripping them as internal formatting markers.\n\nThis release fixes that so the tags no longer leak into the visible output. It's a formatting bug affecting only certain model backends.",
+      "category": "コマンド",
+      "category_en": "Commands"
+    },
+    {
+      "t": "修正: マーケットプレースの `metadata.pluginRoot` が、プラグイン名をそのまま指定した場合に効かない不具合を修正",
+      "t_en": "Fixed marketplace `metadata.pluginRoot` having no effect on bare plugin names",
+      "tags": ["バグ修正", "Plugin"],
+      "detail": "マーケットプレースの `metadata.pluginRoot` フィールドは、プラグインエントリのソースを `\"formatter\"` のようなベアな相対名だけで指定できるようにし、実際には設定されたルートディレクトリを前置して解決する仕組みだが、不具合によりこのフィールドがベアな名前に対して効果を持たず、ドキュメントどおりに解決されていなかった。\n\n本バージョンではこの不具合が修正され、ベアな名前が再び `pluginRoot` 配下として正しく解決されるようになった。",
+      "detail_en": "A marketplace's `metadata.pluginRoot` field is meant to let plugin entries use a bare relative source (e.g. `\"formatter\"`) instead of a full relative path, by prepending the configured root directory. A bug made this field have no effect on bare plugin source names, so they failed to resolve as documented.\n\nThis release fixes `pluginRoot` so bare names correctly resolve under it again.",
+      "category": "プラグイン管理",
+      "category_en": "Plugin Management",
+      "doc_url": "https://code.claude.com/docs/en/plugin-marketplaces#optional-fields"
+    },
+    {
+      "t": "修正: ターミナルでのマウス移動によって、プロンプト欄に意味不明な文字列が挿入されてしまう不具合を修正",
+      "t_en": "Fixed mouse movement in terminals inserting garbage text into prompt",
+      "tags": ["バグ修正"],
+      "detail": "ブラウザベースのターミナルでは、マウス移動のレポートが複数回の書き込みに分割されて届くことがあるが、Claude Code はその分割されたレポートを正しく再構成できず、`\"35;150;7M\"` のような意味不明な文字列がそのままプロンプト入力に挿入されてしまうことがあった。\n\n本バージョンでは、断片化して届くマウスレポートも正しく処理できるようにパース処理が修正された。これは特定のブラウザベースのターミナル環境に固有の、フルスクリーンモードのマウス対応に関する不具合である。",
+      "detail_en": "In browser-based terminals, a mouse-movement report from the terminal could arrive split across multiple writes, and when that happened Claude Code failed to reassemble it correctly, inserting garbage text such as `\"35;150;7M\"` directly into the prompt input.\n\nThis release fixes the mouse-report parsing to handle reports that arrive in fragments. This is a fullscreen mouse-capture bug specific to certain browser-based terminal environments.",
+      "category": "ターミナル",
+      "category_en": "Terminal"
+    },
+    {
+      "t": "修正: カスタムテーマで effort バッジの色を上書き指定しても反映されない不具合を修正",
+      "t_en": "Fixed custom theme overrides for effort badge colors being ignored",
+      "tags": ["バグ修正"],
+      "detail": "Claude Code ではカスタムテーマで個々の色トークンを上書きできるが、effort（ウルトラコード）ステータスバッジの色を対象とした上書き指定は反映されず、カスタムテーマの設定にかかわらずデフォルトの色のまま表示されていた。\n\n本バージョンではテーマの適用処理が修正され、effort/ultracode バッジの色の上書きが正しく反映されるようになった。UI 要素の一部に限定された狭い範囲のテーマ表示の不具合である。",
+      "detail_en": "Claude Code lets users override individual color tokens in a custom theme, but overrides targeting the effort/ultracode status badge colors were being ignored, so those badges kept their default colors regardless of a custom theme's settings.\n\nThis release fixes theme application so effort/ultracode badge color overrides take effect. It's a narrow theming bug affecting one category of UI element.",
+      "category": "カスタマイズ",
+      "category_en": "Customization"
+    },
+    {
+      "t": "修正: ツール実行が遅延（defer）された場合に OpenTelemetry のトレースが分断されてしまう不具合を修正",
+      "t_en": "Fixed OpenTelemetry trace fragmentation with deferred tool executions",
+      "tags": ["バグ修正"],
+      "detail": "`PreToolUse` フックによってツール実行が遅延（defer）されると、再開後のツール呼び出しは元のターンのトレースを引き継がず、新しい OpenTelemetry トレースとして開始されてしまい、本来一つに繋がっているはずのトレースが分断されていた。\n\n本バージョンでは、遅延されたツール実行が元のターンのトレース内で再開されるように修正された。フックでツール呼び出しを遅延させる構成で OTel トレーシングを利用しているチームにとって、トレースの相関関係の精度が向上する。",
+      "detail_en": "When a `PreToolUse` hook deferred a tool execution, the resumed tool call previously started a brand-new OpenTelemetry trace instead of continuing in the original turn's trace, fragmenting what should have been one end-to-end trace into disconnected pieces.\n\nThis release fixes deferred tool executions so they resume within the original turn's trace. This improves trace correlation for teams using OTel tracing with hooks that defer tool calls.",
+      "category": "テレメトリ",
+      "category_en": "Telemetry"
+    },
+    {
+      "t": "修正: vim モードで Escape を押すとテキストが消えてしまっていた不具合を修正し、NORMAL モードへの切り替えとして正しく動作するように変更",
+      "t_en": "Fixed vim mode: Escape now switches to NORMAL mode preserving text",
+      "tags": ["バグ修正"],
+      "detail": "エージェントビューの vim 編集モードでは、Escape を押すと本来期待される「INSERT モードから NORMAL モードへ切り替わり、入力済みのテキストは保持される」という vim の挙動ではなく、プロンプトのテキストが消去されてしまっていた。\n\n本バージョンでは Escape が本来の vim の挙動どおりに動作するように修正され、NORMAL モードへ切り替わりつつ入力したテキストはそのまま保持されるようになった。これは CLI の他の部分ですでにドキュメント化されている vim モードの挙動と一致するものである。",
+      "detail_en": "In vim editing mode within the agent view, pressing Escape was clearing the prompt's text instead of the expected vim behavior of switching from INSERT to NORMAL mode while preserving what had been typed.\n\nThis release fixes Escape to behave like real vim: it switches to NORMAL mode and keeps the text intact. This matches the vim-mode behavior already documented for the rest of the CLI.",
+      "category": "入力",
+      "category_en": "Input",
+      "doc_url": "https://code.claude.com/docs/en/keybindings#vim-mode-interaction"
+    },
+    {
+      "t": "修正: `selection:copy` キーバインドが、拡張されたテキスト選択範囲をコピーできない不具合を修正",
+      "t_en": "Fixed `selection:copy` keybinding dropping extended text selections",
+      "tags": ["バグ修正"],
+      "detail": "フルスクリーンレンダリングでテキスト選択をコピーする `selection:copy` キーバインドは、Shift+矢印キーで拡張した選択範囲についてはコピーに失敗し、範囲全体ではなく一部しかコピーされない、あるいは無言で失敗することがあった。\n\n本バージョンでは `selection:copy` が修正され、マウスだけで作った選択範囲だけでなく、キーボードで拡張した選択範囲も正しくコピーできるようになった。フルスクリーンモードのテキスト選択に関する不具合である。",
+      "detail_en": "The `selection:copy` keybinding, used to copy a text selection in fullscreen rendering, silently dropped selections that had been extended with Shift+Arrow keys instead of copying the full extended range.\n\nThis release fixes `selection:copy` so it correctly copies selections extended from the keyboard, not just ones made purely with the mouse. This is a fullscreen text-selection bug.",
+      "category": "入力",
+      "category_en": "Input",
+      "doc_url": "https://code.claude.com/docs/en/keybindings#scroll-actions"
+    },
+    {
+      "t": "修正: 音声入力を有効化した後も `/voice` の起動時ヒントが表示され続ける不具合を修正",
+      "t_en": "Fixed `/voice` startup tip persisting after voice dictation enabled",
+      "tags": ["バグ修正"],
+      "detail": "Claude Code は起動時に音声入力（voice dictation）に関する一度限りのヒントを表示するが、`voice.enabled` 設定ですでに音声入力を有効化した後もこのヒントが表示され続けてしまい、本来不要になったはずの案内が残ってしまっていた。\n\n本バージョンでは `voice.enabled` が設定された時点でこのヒントが表示されなくなるように修正された。音声入力機能に関する、オンボーディング表示の小さな修正である。",
+      "detail_en": "Claude Code shows a one-time tip about voice dictation at startup, but that tip kept appearing even after a user had already turned voice dictation on via the `voice.enabled` setting, when it should stop being relevant once dictation is enabled.\n\nThis release makes the tip stop appearing once `voice.enabled` is set. It's a small onboarding-UX fix for the voice dictation feature.",
+      "category": "UX",
+      "category_en": "UX"
+    },
+    {
+      "t": "修正: シェルモードの Tab 補完でスクリプトパスの先頭の `./` が消えてしまう不具合を修正",
+      "t_en": "Fixed shell-mode Tab completion dropping `./` from script paths",
+      "tags": ["バグ修正"],
+      "detail": "入力を `!` で始めるシェルモードでは、`./script` のようなパスを Tab 補完すると先頭の `./` が失われてしまい、そのままではシェルが実行できないコマンドが補完結果として生成されていた。\n\n本バージョンではシェルモードの Tab 補完が修正され、`./` プレフィックスが保持されるようになった。相対パスでのスクリプト実行に関わる、限定的な補完機能の不具合である。",
+      "detail_en": "In shell mode (prefixing input with `!`), Tab-completing a path like `./script` used to drop the leading `./`, producing a completed command the shell couldn't actually run without that prefix.\n\nThis release fixes Tab completion in shell mode to preserve the `./` prefix. It's a narrow completion bug affecting relative script invocations.",
+      "category": "ファイル補完",
+      "category_en": "File Completion"
+    },
+    {
+      "t": "修正: フルスクリーンモードで、ウィンドウにフォーカスを戻すためのクリックがパーミッションプロンプトへの回答として扱われてしまう不具合を修正",
+      "t_en": "Fixed fullscreen mode answering permission prompts on window focus click",
+      "tags": ["バグ修正"],
+      "detail": "フルスクリーンレンダリングモードでは、フォーカスを戻すためだけにターミナルウィンドウをクリックしただけでも、それがパーミッションプロンプトやボタンへのクリックとして誤認識され、ユーザーが意図していない回答が実行されてしまうことがあった。\n\n本バージョンでは、フォーカス回復のためのクリックと、UI 要素への意図的なクリックを区別できるように修正された。これによりターミナルへ再フォーカスした際に、意図せずプロンプトを承認したりボタンを押してしまったりすることがなくなる。",
+      "detail_en": "In fullscreen rendering mode, clicking the terminal window just to bring it back into focus could be misinterpreted as a click on a permission prompt or button, causing Claude Code to act on a prompt the user never intended to answer.\n\nThis release fixes fullscreen mode to distinguish a focus-restoring click from an intentional click on UI elements. This prevents accidental approvals or button presses when refocusing the terminal.",
+      "category": "レンダリング",
+      "category_en": "Rendering"
+    },
+    {
+      "t": "修正: フルスクリーンモードでスラッシュコマンドのパネルが最新のメッセージを覆い隠してしまう不具合を修正",
+      "t_en": "Fixed slash-command panels covering latest messages in fullscreen",
+      "tags": ["バグ修正"],
+      "detail": "フルスクリーンレンダリングでは、`/config` や `/model` のようなコマンドで開くパネルが最新の会話メッセージを覆い隠してしまい、パネルを開いている間は直近の文脈が見えなくなっていた。\n\n本バージョンでは会話がパネルの上部に固定表示されるようになり、パネルを開いていても最新のメッセージが見えるように修正された。オーバーレイパネルを開くあらゆるコマンドに影響する、フルスクリーンのレイアウト修正である。",
+      "detail_en": "In fullscreen rendering, panels opened by commands like `/config` or `/model` used to cover the latest conversation messages, hiding recent context while the panel was open.\n\nThis release keeps the conversation pinned above the panel so recent messages stay visible alongside it. This is a fullscreen layout fix affecting any command that opens an overlay panel.",
+      "category": "レンダリング",
+      "category_en": "Rendering"
+    },
+    {
+      "t": "修正: `/workflows` の詳細ダイアログがターミナルからはみ出し、ヘッダーが見えなくなる不具合を修正",
+      "t_en": "Fixed `/workflows` detail dialog overflowing terminal and losing header",
+      "tags": ["バグ修正"],
+      "detail": "Claude が応答中の状態で `/workflows` の詳細ダイアログを開くと、ダイアログがターミナルの表示領域からはみ出してヘッダー部分が画面外に押し出され、何を表示しているダイアログなのか分かりにくくなることがあった。\n\n本バージョンではダイアログのサイズ計算が修正され、応答の途中で開いた場合でもターミナル内に収まり、ヘッダーが常に見えるようになった。この特定のダイアログとタイミングの組み合わせに限定されたレイアウト不具合である。",
+      "detail_en": "Opening the `/workflows` detail dialog while Claude was still responding could cause the dialog to overflow the terminal, pushing its header off-screen and making it hard to identify what the dialog was showing.\n\nThis release fixes the dialog's sizing so it stays within the terminal and keeps its header visible even when opened mid-response. It's a layout bug specific to this one dialog and timing condition.",
+      "category": "ワークフロー",
+      "category_en": "Workflow"
+    },
+    {
+      "t": "修正: Linux サンドボックスが、一部のリポジトリで `.git/config.worktree` を読み取れなくしてしまう不具合を修正",
+      "t_en": "Fixed Linux sandbox making `.git/config.worktree` unreadable in some repos",
+      "tags": ["バグ修正"],
+      "detail": "`extensions.worktreeConfig` を有効にしたリポジトリでは、まだ存在しないこともあるオプションのファイル `.git/config.worktree` を git が参照しようとするが、Linux サンドボックスがこの存在しないパスへのアクセスを読み取り不可にしてしまい、そうしたリポジトリではサンドボックス下のすべての git コマンドが失敗する状態になっていた。\n\n本バージョンではサンドボックスのファイルシステムルールが修正され、`.git/config.worktree` が存在しなくても git コマンドをブロックしないようになった。worktree 単位の git 設定を有効にしたリポジトリで、Linux 上のサンドボックスを利用しているユーザーに限定される修正である。",
+      "detail_en": "In repositories with `extensions.worktreeConfig` enabled, git expects an optional `.git/config.worktree` file that may not exist yet; the Linux sandbox made that nonexistent path unreadable, which broke every sandboxed git command in such repositories.\n\nThis release fixes the sandbox's filesystem rules so a missing `.git/config.worktree` no longer blocks git commands. This specifically affects Linux users running Claude Code's sandbox in repos with worktree-scoped git config enabled.",
+      "category": "サンドボックス",
+      "category_en": "Sandbox"
+    },
+    {
+      "t": "修正: 作業ディレクトリが削除された後、フックが \"posix_spawn ENOENT\" エラーで失敗する不具合を修正",
+      "t_en": "Fixed hooks failing with \"posix_spawn ENOENT\" after working directory deletion",
+      "tags": ["バグ修正"],
+      "detail": "Claude Code の実行中にセッションの作業ディレクトリが削除されると、フックはすでに存在しないディレクトリから起動しようとしてしまい、\"posix_spawn ENOENT\" という低レベルなエラーで失敗していた。\n\n本バージョンでは、フックが起動しようとしていた作業ディレクトリが存在しない場合、代わりにプロジェクトルートまたはユーザーのホームディレクトリから実行するようフォールバックする修正が入った。これにより、起動ディレクトリがセッション途中で消えてしまってもフックが機能し続けるようになる。",
+      "detail_en": "If the session's working directory was deleted while Claude Code was running, hooks previously failed with a low-level \"posix_spawn ENOENT\" error because they tried to spawn from a directory that no longer existed.\n\nThis release makes hooks fall back to running from the project root or the user's home directory instead of the now-missing working directory. This keeps hooks functional even after their launch directory disappears mid-session.",
+      "category": "フック",
+      "category_en": "Hooks"
+    },
+    {
+      "t": "修正: `claudeMdExcludes` がシンボリックリンクされた `.claude/rules` ファイルを除外できない不具合を修正",
+      "t_en": "Fixed `claudeMdExcludes` not excluding symlinked `.claude/rules` files",
+      "tags": ["バグ修正"],
+      "detail": "`claudeMdExcludes` 設定は、絶対パスに対する glob パターンでメモリ読み込みから特定の CLAUDE.md ファイルを除外できるが、除外パターンが rules ディレクトリやシンボリックリンク自体を指している場合、シンボリックリンクされた `.claude/rules` ファイルを正しく除外できないことがあった。\n\n本バージョンではパス解決の処理が修正され、そうしたパターンでもシンボリックリンクされたファイルが正しく除外されるようになった。ルールファイルをシンボリックリンクで複数プロジェクト間に共有しているような構成に主に影響する修正である。",
+      "detail_en": "The `claudeMdExcludes` setting excludes specific CLAUDE.md files from memory loading using glob patterns matched against absolute paths, but it failed to exclude a symlinked `.claude/rules` file when the exclusion pattern named the rules directory or the symlink itself rather than the file the symlink resolved to.\n\nThis release fixes path resolution so such patterns correctly exclude the symlinked file. This mainly affects setups that share rules files across projects via symlinks.",
+      "category": "メモリ",
+      "category_en": "Memory",
+      "doc_url": "https://code.claude.com/docs/en/settings-reference#claudemdexcludes"
+    },
+    {
+      "t": "修正: バックグラウンドジョブの状態が共有されている場合、Remote Control へのセッションタイトル同期が暴走してしまう不具合（v2.1.232 の regression）を修正",
+      "t_en": "Fixed runaway session-title syncing to Remote Control with shared background job",
+      "tags": ["バグ修正"],
+      "detail": "v2.1.232 で発生した regression により、2つの Claude Code プロセスが同じバックグラウンドジョブの状態を共有していると、Remote Control へのセッションタイトル同期が暴走し、タイトル更新が際限なく送信され続けることがあった。\n\n本バージョンではタイトル更新の重複排除とレート制限が行われるようになり、プロセス間で状態を共有していても過剰な同期が発生しなくなった。特定バージョンで生じていた regression に対するピンポイントな修正である。",
+      "detail_en": "A regression introduced in v2.1.232 could cause runaway session-title syncing to Remote Control when two Claude Code processes shared one background job's state, repeatedly pushing title updates.\n\nThis release deduplicates and rate-limits title updates so sharing state between processes no longer causes excessive syncing. This is a fix for a specific prior-version regression in the Remote Control title-sync path.",
+      "category": "Remote Control",
+      "category_en": "Remote Control"
+    },
+    {
+      "t": "修正: タイトルが `/` で始まるセッションが `SendMessage` で宛先指定できない不具合を修正",
+      "t_en": "Fixed sessions with `/` prefix being unaddressable by `SendMessage`",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "タイトルが `/` で始まるセッションは、クロスセッションメッセージングの `SendMessage` から名前で指定できず、`ListAgents` の一覧では「(untitled)」と表示されてしまい、実質的に名前で到達できない状態になっていた。\n\n本バージョンでは名前の処理が修正され、`/` で始まるタイトルでも正しく宛先指定でき、エージェント一覧にも正しく表示されるようになった。ユーザーまたは Claude がスラッシュから始まる名前を付けたセッションに関係する修正である。",
+      "detail_en": "A session whose title started with `/` could not be addressed by the `SendMessage` cross-session-messaging tool and showed up as \"(untitled)\" in `ListAgents`, effectively making it unreachable by name.\n\nThis release fixes name handling so `/`-prefixed titles are addressable and displayed correctly in agent listings. This affects sessions users or Claude named starting with a slash character.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-Agent",
+      "doc_url": "https://code.claude.com/docs/en/cross-session-messaging#see-which-sessions-claude-can-reach"
+    },
+    {
+      "t": "修正: 折りたたまれた貼り付けプレースホルダー内でテキスト編集ショートカットを使うと、プレースホルダーが壊れてしまう不具合を修正",
+      "t_en": "Fixed text editing shortcuts leaving broken placeholder text in input",
+      "tags": ["バグ修正"],
+      "detail": "折りたたまれた `[Pasted text #N]` というプレースホルダーの内部にカーソルがある状態で、Ctrl+W・Ctrl+U・Ctrl+K・Option+Backspace・Option+D や、vim の `df`・`dt` といった削除系のショートカットを使うと、そのプレースホルダーが壊れ、実際に貼り付けた内容への参照が崩れてしまうことがあった。\n\n本バージョンでは、これらの編集ショートカットがプレースホルダーの内部にカーソルがある場合でもそれを破損させないように修正された。大きな貼り付け内容を折りたたんで表示するプレースホルダー機構を、通常のテキスト編集ショートカットによる意図しない破損から保護する修正である。",
+      "detail_en": "Deleting text with shortcuts like Ctrl+W, Ctrl+U, Ctrl+K, Option+Backspace, Option+D, or vim's `df`/`dt` while the cursor was positioned inside a collapsed `[Pasted text #N]` placeholder could leave that placeholder broken, corrupting the reference to the originally pasted content.\n\nThis release fixes these editing shortcuts so they no longer corrupt a placeholder when the cursor sits inside it. This protects large pasted content, which Claude Code collapses into placeholders, from being mangled by ordinary text-editing shortcuts.",
+      "category": "入力",
+      "category_en": "Input",
+      "doc_url": "https://code.claude.com/docs/en/terminal-config#paste-large-content"
+    },
+    {
+      "t": "修正: マスクされた入力欄のテキストが、Ctrl+Y やプロンプト履歴を通じて漏洩してしまう不具合を修正",
+      "t_en": "Fixed masked inputs leaking text through Ctrl+Y or prompt history",
+      "tags": ["バグ修正", "Security"],
+      "detail": "ログインコード入力欄のようなマスク（パスワード風）入力は、本来テキストを隠し履歴にも残さないはずだが、Ctrl+Y で別の場所に貼り付けられてしまう、あるいは Esc を2回押してフィールドをクリアするとプロンプト履歴に保存されてしまうという、2つの経路でテキストが漏洩することがあった。\n\n本バージョンではこの両方の漏洩経路が塞がれ、マスクされた入力のテキストが貼り付け履歴やプロンプト再呼び出しを通じて露出しなくなった。ログインコードのような機密性の高い一時入力に関わる、セキュリティ上重要な修正である。",
+      "detail_en": "Masked (password-style) inputs, such as the login code field, could leak their entered text back out — either by having it pasted elsewhere with Ctrl+Y, or by having it saved to prompt history when the field was cleared with a double Esc — even though masked fields are meant to keep that text hidden and out of history.\n\nThis release closes both leak paths so masked input text is never exposed through paste history or prompt recall. This is a security-relevant fix for sensitive one-time inputs like login codes.",
+      "category": "セキュリティ",
+      "category_en": "Security"
+    },
+    {
+      "t": "修正: 検索ボックスで Ctrl+Backspace が単語単位ではなく1文字だけ削除してしまう不具合を修正",
+      "t_en": "Fixed Ctrl+Backspace deleting single character instead of word in search",
+      "tags": ["バグ修正"],
+      "detail": "検索ボックスでは、本来メインのプロンプト入力欄と同様に単語単位で削除されるはずの Ctrl+Backspace が、1文字だけしか削除しない挙動になっていた。\n\n本バージョンでは検索ボックスの Ctrl+Backspace が修正され、インターフェースの他の部分と同様に単語単位で削除されるようになった。特定の入力コンテキストに限定された狭いキーバインドの不具合である。",
+      "detail_en": "In search boxes, Ctrl+Backspace was deleting only a single character instead of deleting a whole word, unlike its documented word-deletion behavior in the main prompt input.\n\nThis release fixes Ctrl+Backspace in search boxes so it deletes a full word, consistent with the rest of the interface. It's a narrow, context-specific keybinding bug.",
+      "category": "入力",
+      "category_en": "Input"
+    },
+    {
+      "t": "修正: 組織ポリシーで拒否されたリクエストが、拒否通知の表示より先に再送されてしまう不具合を修正",
+      "t_en": "Fixed rejected organization policy requests being re-sent before notification",
+      "tags": ["バグ修正"],
+      "detail": "組織のポリシーチェックによってリクエストが拒否された際、実際に拒否通知がユーザーに表示される前に同じリクエストが再送されてしまうことがあり、ブロックされた操作が自動的にリトライされているかのような紛らわしい挙動になっていた。\n\n本バージョンでは処理順序が修正され、拒否の通知が表示される前にリクエストが再送されることはなくなった。ポリシーベースのリクエストブロックを利用している組織に関係する修正である。",
+      "detail_en": "When an organization policy check rejected a request, Claude Code could resend that same request before the rejection notice was actually shown to the user, creating a confusing sequence where a blocked action appeared to retry itself.\n\nThis release fixes the ordering so a rejected request isn't resent before its rejection is surfaced. This affects organizations that use policy-based request blocking.",
+      "category": "パーミッション",
+      "category_en": "Permissions"
+    },
+    {
+      "t": "改善: コンパクション後のリマインダーを改善し、スキル呼び出し時の元の引数が意図せず再実行されないように修正",
+      "t_en": "Improved post-compaction reminder so original skill arguments don't re-run",
+      "tags": ["改善"],
+      "detail": "会話履歴を要約するコンパクションの後、Claude が正しく作業を継続できるようにするためのリマインダーが表示されるが、この文言によってスキル呼び出し時の元の引数が、あたかも新しいリクエストであるかのように再実行されてしまうことがあった。\n\n本バージョンではこのリマインダーの文言が改善され、コンパクションを挟んだスキル呼び出しが誤って繰り返されることがなくなった。これにより、コンパクション後にスキルの引数が意図せず再実行される冗長な処理を防げる。",
+      "detail_en": "After compaction summarizes older conversation history, Claude Code shows a reminder to help Claude continue correctly; that reminder previously could cause a skill's original invocation arguments to be re-run as if they were a brand-new request.\n\nThis release improves the reminder's wording so a compacted skill invocation isn't mistakenly repeated. This avoids redundant or unintended re-execution of skill arguments after compaction.",
+      "category": "コンテキスト管理",
+      "category_en": "Context Management"
+    },
+    {
+      "t": "改善: ツール実行行に表示される長いファイルパスが、中央部分を省略して1行に収まるように改善",
+      "t_en": "Long file paths now truncate in middle on tool-use rows",
+      "tags": ["改善"],
+      "detail": "ツール実行行に表示される長いファイルパスは、これまで折り返されたり表示範囲からはみ出したりしてしまい、一覧を見渡しにくくなっていた。\n\n本バージョンでは長いパスの中央部分が省略されるようになり、パスの先頭とファイル名という識別しやすい部分を残したまま1行に収まるように改善された。ツール実行の出力表示に関する見た目の改善である。",
+      "detail_en": "Long file paths shown on tool-use rows in the interface previously could wrap or overflow rather than staying on a single line, making the display harder to scan.\n\nThis release truncates long paths in the middle, keeping the most identifying parts (start and filename) visible while fitting on one line. It's a display-polish improvement for tool-use output.",
+      "category": "UI",
+      "category_en": "UI"
+    },
+    {
+      "t": "改善: 長時間実行される `SessionStart`・`Setup` フックの実行中も、リモートセッションが keep-alive を維持し続けるように改善",
+      "t_en": "Remote sessions maintain keep-alives during long `SessionStart` or `Setup` hooks",
+      "tags": ["改善"],
+      "detail": "リモートセッションは、アイドル状態が続くとコンテナが回収される仕組みになっているが、`SessionStart` や `Setup` フックが長時間実行されている間はその活動が keep-alive として認識されず、フック実行中にセッションが回収されてしまうことがあった。\n\n本バージョンでは、こうしたフックの実行中もリモートセッションが keep-alive 信号を送り続けるように改善され、フックの途中でコンテナが回収されることがなくなった。セットアップスクリプトや SessionStart フックが遅いクラウド・リモート環境の構成にとって有用な改善である。",
+      "detail_en": "Remote sessions could be idle-reaped — their container reclaimed for inactivity — while a long-running `SessionStart` or `Setup` hook was still executing, since the hook's activity wasn't being reported as keeping the session alive.\n\nThis release makes remote sessions keep sending keep-alive signals for the duration of such hooks, so the container isn't reclaimed mid-hook. This benefits setups with slow setup scripts or SessionStart hooks in cloud/remote environments.",
+      "category": "フック",
+      "category_en": "Hooks"
+    },
+    {
+      "t": "変更: `/goal` の繰り返しチェックインの間隔を、30分・1時間・以降2時間おきと段階的に広がるように変更",
+      "t_en": "`/goal`: repeat check-ins back off progressively (30m, 1h, then 2h intervals)",
+      "tags": ["改善"],
+      "detail": "`/goal` はバックグラウンドの長時間タスクを待っている間、定期的に進捗を確認するチェックインを行うが、これまではセッションがアイドル状態でも常に30分おきという固定間隔で繰り返されていた。\n\n本バージョンではアイドル時のチェックイン間隔が段階的に広がるようになり、最初は30分後、次は1時間後、その後は2時間おきというように変化するようになった。これにより、長時間のバックグラウンドタスクにおける不要なチェックインによるトークン消費を抑えられる。",
+      "detail_en": "While `/goal` waits on long-running background work, it periodically delivers a check-in that asks Claude to review progress; previously these idle check-ins repeated every 30 minutes indefinitely while the session sat idle.\n\nThis release makes idle check-ins back off progressively — the first at 30 minutes, then 1 hour after that, then every 2 hours — instead of repeating at a fixed 30-minute cadence. This reduces unnecessary token spend from repeated check-ins on long background tasks.",
+      "category": "タスク管理",
+      "category_en": "Task Management",
+      "doc_url": "https://code.claude.com/docs/en/goal#background-work-defers-evaluation"
+    },
+    {
+      "t": "修正: セッション再開時、`--resume` ピッカーから選んだ場合にアクティブな `/goal` が復元されない不具合を修正",
+      "t_en": "`/goal`: resuming from picker now restores active goal",
+      "tags": ["バグ修正"],
+      "detail": "セッション終了時にまだアクティブだった `/goal` は、`claude --resume` のピッカーからそのセッションを選び直して再開した場合には復元されず、アクティブな goal 条件が無言で失われてしまっていた。\n\n本バージョンでは、`--resume`/`--continue` フラグの場合と同様に、ピッカーからの再開でもアクティブな goal が復元されるように修正された。ただしターン数・タイマー・トークン消費の基準値はリセットされる。これにより、goal が有効だったセッションを再開した後に手動で `/goal` を実行し直す必要がなくなる。",
+      "detail_en": "A goal that was still active when a session ended previously wasn't restored when the user picked that session back up from the `claude --resume` picker, silently dropping the active `/goal` condition.\n\nThis release restores an active goal on resume from the picker, matching how it already worked with `--resume`/`--continue` flags, though the turn count, timer, and token-spend baseline reset. Users no longer need to manually re-run `/goal` after resuming a session that had one active.",
+      "category": "タスク管理",
+      "category_en": "Task Management",
+      "doc_url": "https://code.claude.com/docs/en/goal#resume-with-an-active-goal"
+    },
+    {
+      "t": "修正: `ListAgents` がセッション自身の名前を伝えず、稼働中のチームメイトも一覧に表示していなかった不具合を修正",
+      "t_en": "`ListAgents` now tells sessions their own name and shows live teammates",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "これまで `ListAgents` はセッションに自分自身の名前（他のセッションがメッセージを送る際に使う名前）を伝えておらず、自分自身の名前宛てに `SendMessage` を送ると「該当する名前のエージェントがいません」という汎用的なエラーになっていた。また `ListAgents`/`/list-agents` はサブエージェントや独立した他のセッションしか一覧表示せず、稼働中のエージェントチームのチームメイトは実際には稼働していても到達不可能に見えていた。\n\n本バージョンでは両方の不具合が修正され、`ListAgents` がセッション自身の名前を報告し、`SendMessage` で自分自身の名前を指定した場合はその旨を明示するようになった。あわせて `ListAgents`/`/list-agents` は稼働中のチームメイトも一覧に含めるようになり、クロスセッションメッセージングやチームでのメッセージングにおける発見精度が向上した。",
+      "detail_en": "`ListAgents` previously didn't tell a session its own name (the name other sessions would use to message it), so `SendMessage` to your own name failed with a generic \"no agent named…\" error; separately, `ListAgents`/`/list-agents` only listed subagents and other independent sessions, so a live agent-team teammate looked unreachable even though it was running.\n\nThis release fixes both: `ListAgents` now reports a session's own name, with `SendMessage` to that name saying so explicitly, and `ListAgents`/`/list-agents` now also list live teammates. This makes cross-session and team messaging discovery more accurate.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-Agent",
+      "doc_url": "https://code.claude.com/docs/en/cross-session-messaging#see-which-sessions-claude-can-reach"
+    },
+    {
+      "t": "改善: `keybindingFlavor: \"readline\"` の単語境界の挙動を、Ctrl+W 以外のショートカットでも Bash に合わせるように改善",
+      "t_en": "`keybindingFlavor: \"readline\"` matches Bash word-boundary behavior",
+      "tags": ["改善"],
+      "detail": "v2.1.238 で追加された `keybindingFlavor: \"readline\"` 設定は、これまで Ctrl+W の単語削除を Bash の空白区切りの挙動に合わせるだけだった。\n\n本バージョンでは `\"readline\"` の対象が広がり、Alt+F や Ctrl/Option+→ が単語の末尾で止まるようになり、Alt+D で単語末尾まで削除でき（Ctrl+Y で復元可能）、句読点による単語区切りも Bash と同じ扱いになった。Bash に近い Ctrl+W の挙動を求めてこの設定を有効にしていたユーザーは、関連する他のショートカットでも一貫した単語境界の挙動を得られるようになる。",
+      "detail_en": "The `keybindingFlavor: \"readline\"` setting, introduced in v2.1.238, previously only changed how Ctrl+W deletes text to match Bash's whitespace-based word deletion.\n\nThis release extends \"readline\" to also match Bash for other word-navigation keys: Alt+F and Ctrl/Option+→ now stop at the end of a word, Alt+D deletes to the end of a word (recoverable with Ctrl+Y), and punctuation now separates words the way it does in Bash. Users who set this flavor for Bash-like Ctrl+W behavior now get consistent word-boundary behavior across the related shortcuts too.",
+      "category": "入力",
+      "category_en": "Input",
+      "doc_url": "https://code.claude.com/docs/en/interactive-mode#make-ctrl-w-delete-back-to-whitespace"
+    },
+    {
+      "t": "変更: 永続リトライモードが、組織の支出上限やクレジット切れのエラーについては待たずに即座に失敗するように変更",
+      "t_en": "Persistent retry mode fails immediately on org spend-limit and credit errors",
+      "tags": ["改善"],
+      "detail": "`CLAUDE_CODE_RETRY_WATCHDOG` を有効にすると、無人実行のセッションは `429`/`529` の容量エラーを無期限にリトライし続け、その他の一時的なエラーについてもリトライ上限が引き上げられる。これにより長時間のジョブが一時的な障害を待ち抜けるようになっているが、これまではこの永続リトライモードが、組織の支出上限超過やクレジット切れといった、自然に解消することのないエラーに対しても無期限にリトライを続けてしまい、時間を浪費していた。\n\n本バージョンでは、こうした管理者側の対応が必要な2種類のエラーについては、無期限に待つのではなく即座に失敗するように改善された。容量エラーの解消を待つケースとは異なる扱いに分けられている。",
+      "detail_en": "`CLAUDE_CODE_RETRY_WATCHDOG` makes unattended sessions retry `429`/`529` capacity errors indefinitely (and raises retry limits for other transient errors) so long-running jobs can wait out temporary outages. Previously, this persistent retry mode also kept retrying indefinitely on organization spend-limit and out-of-credits errors, which will never resolve on their own and just waste time waiting.\n\nThis release makes the watchdog fail immediately on those two error types instead of waiting indefinitely, since they require administrator action rather than a capacity reset.",
+      "category": "エラーハンドリング",
+      "category_en": "Error Handling",
+      "doc_url": "https://code.claude.com/docs/en/env-vars#variables"
+    },
+    {
+      "t": "改善: Claude in Chrome で `/clear` を実行すると、そのセッションの Chrome タブグループが閉じられるように改善",
+      "t_en": "Claude in Chrome: `/clear` closes session's Chrome tab group",
+      "tags": ["改善"],
+      "detail": "Claude in Chrome はブラウザ操作タスクのために新しいタブを開き、セッションごとにグループ化するが、`/clear` で新しい会話を始めても、それまでの会話に紐づいていた Chrome のタブグループはこれまで開いたまま残ってしまっていた。\n\n本バージョンでは `/clear` を実行するとそのセッションのタブグループが閉じられるようになり、あわせて `/resume` 時や Claude Code 終了時にも空のタブグループが閉じられるようになった。セッションのクリア・再開・終了に伴って Chrome を整理された状態に保てるようになる。",
+      "detail_en": "Claude in Chrome opens new tabs for browser tasks, grouped per session, but running `/clear` to start a fresh conversation previously left that session's Chrome tab group open even though the conversation it belonged to was gone.\n\nThis release makes `/clear` close the session's tab group, and also closes empty tab groups on `/resume` and when Claude Code exits. This keeps Chrome tidy as sessions are cleared, resumed, or ended.",
+      "category": "ツール",
+      "category_en": "Tools"
+    },
+    {
+      "t": "改善: リモートセッションで、モバイルからアップロードした画像に保存先のファイルパスが含まれるように改善",
+      "t_en": "Remote sessions: mobile-uploaded images include saved file path",
+      "tags": ["改善"],
+      "detail": "Claude のモバイルアプリから Remote Control セッションに画像をアップロードした際、これまで Claude はその画像がディスク上のどこに保存されたかを把握できず、閲覧以外にできることが限られていた。\n\n本バージョンではモバイルからアップロードされた画像に保存先のファイルパスが含まれるようになり、Claude がそのファイルを参照したり、作成するファイルにコピーしたりできるようになった。モバイルからリモートセッションへの画像を伴うワークフローの改善である。",
+      "detail_en": "When a user uploaded an image from the Claude mobile app into a Remote Control session, Claude previously didn't know where that image had been saved on disk, limiting what it could do with the file beyond viewing it.\n\nThis release includes the saved file path with mobile-uploaded images, so Claude can reference and copy them into files it creates. This improves mobile-to-remote-session workflows involving images.",
+      "category": "Remote Control",
+      "category_en": "Remote Control"
+    },
+    {
+      "t": "修正: Claude on the web で、API 以外の anthropic.com ホストへのリクエストがセッションのプロキシを経由していなかった不具合を修正",
+      "t_en": "Claude on web: requests to non-API anthropic.com hosts use session's proxy",
+      "tags": ["バグ修正", "Security"],
+      "detail": "Claude Code on the web では、Bash などのツールから API 以外の anthropic.com のホスト（www や docs のサブドメインなど）へリクエストを送る際、これまでセッションに設定されたネットワークプロキシを経由しておらず、環境の許可ドメイン制限がこうしたリクエストには適用されない抜け穴になっていた。\n\n本バージョンでは、こうしたリクエストも他の通信と同様にセッションのネットワークプロキシを経由するように修正され、許可ドメインのポリシーが一貫して適用されるようになった。ネットワークアクセスを制限した環境であっても、API 以外の Anthropic のホストには到達できてしまっていたという抜け穴が塞がれた。",
+      "detail_en": "In Claude Code on the web, Bash and other tools making requests to non-API anthropic.com hosts (such as www or docs subdomains) previously bypassed the session's configured network proxy, so an environment's allowed-domains restrictions didn't apply to those requests.\n\nThis release routes such requests through the session's network proxy like other traffic, so allowed-domain policies are enforced consistently. This closes a gap where non-API Anthropic hosts could be reached even when the environment restricted network access.",
+      "category": "ネットワーク",
+      "category_en": "Network"
+    },
+    {
+      "t": "改善: アカウントで Remote Control が有効になっていない場合のメッセージを、より分かりやすい文言に改善",
+      "t_en": "Remote Control: clearer messaging when not enabled for account",
+      "tags": ["改善"],
+      "detail": "アカウントで Remote Control が有効になっていない場合、これまでは「Remote Control is not yet enabled for your account.」というメッセージが表示されていた。\n\n本バージョンでは文言が「Remote Control isn't enabled for this account」に変更され、具体的にどの利用資格チェックが失敗しているかは `claude doctor` で確認できる旨が案内されるようになった。Remote Control の利用資格そのものに機能的な変更はなく、メッセージの分かりやすさを改善するものである。",
+      "detail_en": "When Remote Control isn't enabled for an account, Claude Code previously showed the message \"Remote Control is not yet enabled for your account.\"\n\nThis release changes the wording to \"Remote Control isn't enabled for this account\" and clarifies that `claude doctor` shows which individual eligibility check failed. This is a messaging clarity improvement, not a functional change to Remote Control eligibility itself.",
+      "category": "Remote Control",
+      "category_en": "Remote Control",
+      "doc_url": "https://code.claude.com/docs/en/remote-control"
+    },
+    {
+      "t": "追加: Windows でもクロスセッションメッセージングを利用できるように追加",
+      "t_en": "Windows: cross-session messaging now available",
+      "tags": ["新機能", "Windows", "Agent"],
+      "detail": "セッション同士が `ListAgents` で互いを発見し `SendMessage` でメッセージを送り合うクロスセッションメッセージング機能は、WSL 2 上も含め macOS と Linux ではすでに利用できていたが、ネイティブの Windows には対応していなかった。\n\n本バージョンでこの機能がネイティブ Windows にも対応し、Windows 上のセッションもユーザーの他のマシン上のセッションと同様に発見・メッセージングできるようになった。ネイティブ Windows では、受信箱の下位実装として Unix ドメインソケットの代わりに名前付きパイプを使用し、他のプラットフォームではオプションである明示的な認証ハンドシェイクが必須になっている。",
+      "detail_en": "Cross-session messaging — letting Claude Code sessions discover each other with `ListAgents` and message each other with `SendMessage` — was already available on macOS and Linux, including inside WSL 2, but not on native Windows.\n\nThis release brings the feature to native Windows, so Windows sessions across a user's machines can now message and discover each other the same way macOS and Linux sessions already could. Native Windows uses a named pipe instead of a Unix domain socket for the underlying inbox transport, and requires an explicit auth handshake the other platforms treat as optional.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-Agent",
+      "doc_url": "https://code.claude.com/docs/en/cross-session-messaging#availability"
+    },
+    {
+      "t": "改善: VSCode で利用上限の警告に表示される「View usage」リンクが、警告文と並んだインライン表示になるように改善",
+      "t_en": "VSCode: \"View usage\" sits inline with warning text instead of floating",
+      "tags": ["改善", "IDE"],
+      "detail": "VSCode 拡張機能では、利用上限に関する警告バナーに表示される「View usage」リンクが、これまで警告文の一部としてではなく、バナー中央に浮いたような見た目で表示されていた。\n\n本バージョンではこのリンクが警告文と並んだインライン表示に変更された。VSCode の利用上限バナーの見た目を整える、小さなレイアウト改善である。",
+      "detail_en": "In the VS Code extension, the \"View usage\" link in the usage-limit banner previously floated in the middle of the banner rather than reading as part of the warning text.\n\nThis release places it inline with the warning text instead. It's a small layout polish fix for the VS Code usage-limit banner.",
+      "category": "IDE",
+      "category_en": "IDE"
+    }
   ]
 }
