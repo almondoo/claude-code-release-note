@@ -1423,5 +1423,310 @@
         "tags": ["バグ修正", "改善"]
       }
     ]
+  },
+  {
+    "v": "2.1.243",
+    "items": [
+      {
+        "t": "追加: /usage に Loops の内訳を追加。ループごとの実行回数・合計トークン数・実行あたりのトークン数・最終実行日時を表示し、暴走・多弁な /loop タスクを見つけやすく",
+        "t_en": "Added a Loops breakdown to `/usage`: per-loop run count, total tokens, tokens per run, and last run, so runaway or chatty `/loop` tasks are easy to spot",
+        "tags": ["新機能"]
+      },
+      {
+        "t": "追加: modelPicker 設定を追加。/model ピッカーに順序付き・ラベル付きのモデル一覧を設定でき（Vertex/Bedrock の ID を含む任意の ID 表記に対応）、組み込みのラインナップに追加または置き換え可能に",
+        "t_en": "Added `modelPicker` setting: curate the `/model` picker with an ordered, labeled list of models (any id spelling, including Vertex/Bedrock ids), appended to or replacing the built-in lineup",
+        "tags": ["新機能"]
+      },
+      {
+        "t": "追加: promptCacheTtl・subagentPromptCacheTtl 設定を追加。API キー利用者やクラウドプロバイダー利用者が、メイン会話は1時間のプロンプトキャッシュを維持しつつ、サブエージェントは5分のままにできるように",
+        "t_en": "Added `promptCacheTtl` and `subagentPromptCacheTtl` settings so API-key and cloud-provider users can keep a 1-hour prompt cache on the main conversation while subagents stay at 5 minutes",
+        "tags": ["新機能"]
+      },
+      {
+        "t": "追加: modelPricing 管理設定を追加。組織が契約した各モデルの単価と割引率を /cost・ステータスライン・テレメトリのコスト表示に反映できるように（定価表示に代わって）",
+        "t_en": "Added `modelPricing` managed setting so an organization's contracted per-model rates and discount multiplier are used for `/cost`, the status line, and telemetry cost figures instead of list price",
+        "tags": ["新機能"]
+      },
+      {
+        "t": "追加: /login の Anthropic Console 選択時に、API キー作成に加えて「Sign in with your Console account」（推奨）というキーレスサインインを追加。API キーを許可しない組織でもサインイン可能に",
+        "t_en": "Added a keyless sign-in under `/login` → Anthropic Console: \"Sign in with your Console account\" (recommended) alongside creating an API key, so organizations that don't allow API keys can sign in",
+        "tags": ["新機能"]
+      },
+      {
+        "t": "追加: /status に「Skipped sources」の行を追加。より優先度の高い管理設定ソースが有効なために適用されなかった管理設定ソース（managed-settings.json など）を一覧表示",
+        "t_en": "Added a `Skipped sources` line to `/status` that lists managed settings sources (for example `managed-settings.json`) present but not applied because a higher-precedence managed source is active",
+        "tags": ["新機能"]
+      },
+      {
+        "t": "追加: 組織によって認証が管理されている claude.ai コネクタに対し、/mcp・/plugins に managed マーカーを表示",
+        "t_en": "Added a `managed` marker in `/mcp` and `/plugins` on claude.ai connectors whose authentication is managed by your organization",
+        "tags": ["新機能", "MCP", "Plugin"]
+      },
+      {
+        "t": "追加: GitHub を Claude Code on the web 用に接続していない claude.ai ユーザーに対し、/web-setup を案内するヒントを追加",
+        "t_en": "Added a tip pointing claude.ai users who haven't connected GitHub for Claude Code on the web to `/web-setup`",
+        "tags": ["新機能"]
+      },
+      {
+        "t": "追加: /status に、Claude Code on the web（Pro/Max）向けの GitHub 接続状況を表示する行を追加。未接続の場合は /web-setup を案内",
+        "t_en": "Added a `/status` line showing whether GitHub is connected for Claude Code on the web (Pro/Max), pointing to `/web-setup` when it isn't",
+        "tags": ["新機能"]
+      },
+      {
+        "t": "追加: /tasks とエージェント詳細ダイアログに、各サブエージェントが実行したモデル（およびエフォートレベル）を表示",
+        "t_en": "Added the model (and effort level) each subagent ran on to `/tasks` and the agent detail dialogs",
+        "tags": ["新機能", "Agent"]
+      },
+      {
+        "t": "修正: 非対話モード（-p）や SDK セッションで、接続が切れたリモート MCP サーバーが復旧しない問題を修正。自動的に再接続するか、失敗として報告するように",
+        "t_en": "Fixed remote MCP servers in non-interactive (`-p`) and SDK sessions never recovering after a dropped connection; they now reconnect automatically or report as failed",
+        "tags": ["バグ修正", "MCP", "SDK"]
+      },
+      {
+        "t": "修正: デスクトップアプリから開始した MCP サーバーのサインインが、Client ID Metadata Document 対応サーバー（Linear など）で「Invalid redirect URI」エラーとなり失敗する問題を修正",
+        "t_en": "Fixed MCP server sign-in started from the desktop app failing with \"Invalid redirect URI\" on servers that support client ID metadata documents (for example Linear)",
+        "tags": ["バグ修正", "MCP"]
+      },
+      {
+        "t": "修正: 一時的なサーバー側の無効化がキャッシュされた状態で、その後のフラグ取得が失敗し続けると、auto mode が起動時に利用不可のままになる問題を修正",
+        "t_en": "Fixed auto mode staying unavailable at startup when a temporary server-side disable was cached and later flag fetches failed",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: Claude API が一時的に過負荷でリトライを要求した際、約1分待った後に auto mode のツール呼び出しが「temporarily unavailable」として拒否されてしまう問題を修正",
+        "t_en": "Fixed auto mode tool calls being denied as \"temporarily unavailable\" after about a minute of waiting when the API was briefly overloaded and asked the client to retry",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: モデル選択時に Ultracode の選択が無視されてしまう問題を修正。Ultracode を選択すると現在のセッションに正しく適用されるように",
+        "t_en": "Fixed the `/model` picker silently ignoring an Ultracode selection; picking Ultracode now applies it to the current session",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: /resume が直近50件のセッションしか一覧表示しない問題を修正。ピッカーがスクロールに応じて追加のセッションを読み込むように",
+        "t_en": "Fixed `/resume` only listing the 50 most recent sessions; the picker now loads more as you scroll",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: クラウドセッションがターン途中の再起動から復帰する際、保留中のフックやバックグラウンドタスクの通知が、通常の継続メッセージではなくユーザーのプロンプトとして再送されてしまう問題を修正",
+        "t_en": "Fixed cloud sessions resuming after a mid-turn restart with a pending hook or background-task notification re-sent as the prompt instead of the normal continuation message",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: 2.1.232 のソケットディレクトリ強化以降、ユーザー名前空間や rootless コンテナ内でクロスセッションメッセージングが黙って無効になっていた問題を修正",
+        "t_en": "Fixed cross-session messaging silently turning off inside user namespaces and rootless containers after the 2.1.232 socket-directory hardening",
+        "tags": ["バグ修正", "Security"]
+      },
+      {
+        "t": "修正: コンテナ外にはみ出して表示されるテキスト（/login のサインイン URL など）が、画面の別の部分が再描画された際に先頭の列を失ってしまう問題を修正",
+        "t_en": "Fixed text that hangs outside its container (for example the sign-in URL in `/login`) losing its leading columns when another part of the screen repaints",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: 絵文字の直後に入力した誤字に spellcheck の下線が引かれない問題を修正",
+        "t_en": "Fixed `spellcheck` not underlining a misspelled word typed directly after an emoji",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: バックグラウンドサブエージェントが、最後に残ったバックグラウンド Bash タスクの完了時にウェイクしない問題を修正",
+        "t_en": "Fixed background subagents not waking when their last background Bash task completes",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: Anthropic API が応答を開始しないままセッションが10分以上無反応になる問題を修正。リクエストが約3分でタイムアウトして1回リトライし、それでも失敗した場合は「API Error: No response from API」を表示するように",
+        "t_en": "Fixed sessions going silent for 10+ minutes when the Anthropic API never starts a response: the request now times out after ~3 minutes, retries once, then shows `API Error: No response from API`",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: 認証エラーやモデル利用不可などクライアント側で生成されたエラーメッセージが、エラー行としてではなくモデルの出力のように表示されてしまう問題を修正",
+        "t_en": "Fixed auth, model-availability, and other client-generated error messages rendering like model output instead of as error lines",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: CI での Workload Identity Federation で、同一ジョブ内の複数プロセスがシングルユースのトークンを個別に交換しようとして失敗する問題を修正。トークンをジョブ内で共有し、交換が拒否された場合はサーバーのメッセージで即座に失敗するように",
+        "t_en": "Fixed workload identity federation in CI: processes in one job share the exchanged token instead of re-exchanging the single-use token; a rejected exchange fails fast with the server's message",
+        "tags": ["バグ修正", "Security"]
+      },
+      {
+        "t": "修正: サインインから始まったセッション（/logout 後の初回起動など）で、サーバー管理の companyAnnouncements が起動時に表示されない問題を修正",
+        "t_en": "Fixed server-managed `companyAnnouncements` not showing at startup in a session that began with signing in (for example the first launch after `/logout`)",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: フックの if 条件（例: Bash(cat *)）が、コマンドに $() やバッククォートによるコマンド置換とその後に続く引数が含まれる場合、無関係な Bash コマンドに対しても発火してしまう問題を修正",
+        "t_en": "Fixed hook `if` conditions like `Bash(cat *)` firing on unrelated Bash commands when the command contained `$()` or backtick command substitution followed by more arguments",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: marketplace フィールドを指定したプラグイン依存関係が、依存元・依存先の両方を --plugin-dir で同時に読み込んだ場合に解決できない問題を修正",
+        "t_en": "Fixed plugin dependencies declared with a `marketplace` field never resolving when both plugins are loaded together via `--plugin-dir`",
+        "tags": ["バグ修正", "Plugin"]
+      },
+      {
+        "t": "修正: 最後の LSP プラグインを無効化した後も /reload-plugins が LSP ツールを残してしまう問題を修正。LSP プラグインの変更で会話全体の再読み込みが発生する場合は事前に警告するように",
+        "t_en": "Fixed `/reload-plugins` keeping the LSP tool after the last LSP plugin is disabled; it now also warns before an LSP plugin change that would re-read the conversation",
+        "tags": ["バグ修正", "Plugin"]
+      },
+      {
+        "t": "修正: --agents に不正な JSON や無効なエージェント定義を渡しても黙って無視されていた問題を修正。--mcp-config と同様に明確なエラーで終了するように",
+        "t_en": "Fixed `--agents` silently ignoring invalid JSON or invalid agent definitions; it now exits with a clear error, like `--mcp-config`",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: ~/.claude.json に無効な MCP サーバーエントリがある場合、/status が対象ファイル名を示さずに「Found invalid entries in: .」とだけ表示する問題を修正",
+        "t_en": "Fixed `/status` showing \"Found invalid entries in: .\" with no filename when `~/.claude.json` has an invalid MCP server entry",
+        "tags": ["バグ修正", "MCP"]
+      },
+      {
+        "t": "修正: /clear 実行後、新しいセッションには /rename で設定した名前が引き継がれているにもかかわらず、プロンプトバー上の表示だけ名前が消えてしまう問題を修正",
+        "t_en": "Fixed `/clear` removing the `/rename` session name from the prompt bar even though the name was kept for the new session",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: ~/.claude/history.jsonl に不正な形式のエントリが含まれていると、Ctrl+R の履歴検索と上矢印による履歴呼び出しの両方が壊れてしまう問題を修正",
+        "t_en": "Fixed Ctrl+R history search and up-arrow history breaking when `~/.claude/history.jsonl` contains a malformed entry",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: modifyOtherKeys や Kitty キーボードプロトコルで修飾キーをエンコードするターミナルで、Ctrl+[ が vim モードの INSERT を抜けられない問題を修正",
+        "t_en": "Fixed Ctrl+[ not leaving vim INSERT mode in terminals that encode modified keys (modifyOtherKeys / kitty protocol)",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: localhost が大文字の NO_PROXY にのみ含まれ、小文字の no_proxy に含まれていない場合、ローカル IDE 接続が HTTPS_PROXY 経由になり失敗することがある問題を修正。両方の大文字・小文字表記を尊重するように",
+        "t_en": "Fixed the local IDE connection being routed through `HTTPS_PROXY` (and sometimes failing) when `localhost` was listed in `NO_PROXY` but not lowercase `no_proxy`; both casings are now honored",
+        "tags": ["バグ修正", "IDE"]
+      },
+      {
+        "t": "修正: ブロックされたコマンドが exit 0 で終了した場合（curl がプロキシの403ページを出力して正常終了する場合など）、サンドボックスのネットワーク違反の詳細が Bash ツールの結果から失われる問題を修正",
+        "t_en": "Fixed sandbox network-violation details being dropped from the Bash tool result when the blocked command still exited 0 (for example `curl` printing the proxy's 403 page)",
+        "tags": ["バグ修正", "Security"]
+      },
+      {
+        "t": "修正: セッションがアイドル状態のままレート制限ウィンドウがリセットされた後も、ステータスラインの rate_limits フィールドと /usage がリセット前の使用率を表示し続ける問題を修正",
+        "t_en": "Fixed the status line `rate_limits` fields and `/usage` still showing a rate-limit window's pre-reset usage percentage after the window reset while the session was idle",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: claude --teleport <セッション> が、未コミットの変更がある場合にセッションピッカーと同様の stash 提案を行わず終了してしまう問題を修正",
+        "t_en": "Fixed `claude --teleport <session>` exiting on uncommitted changes instead of offering to stash them and continue, as the session picker already does",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: gh auth token に対応していない古い GitHub CLI で既に認証済みの場合でも、/web-setup が繰り返しログインを求めてしまう問題を修正",
+        "t_en": "Fixed `/web-setup` repeatedly asking you to log in when an older GitHub CLI (without `gh auth token`) was already authenticated",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: ネイティブアップデートによって古いバージョンのバイナリが削除された後、Claude in Chrome が Claude Code との接続を失う問題を修正。ネイティブホストが安定版の claude ランチャー経由で起動するように",
+        "t_en": "Fixed Claude in Chrome losing its connection to Claude Code after an auto-update cleaned up the version it was set up with; the native host now launches via the stable `claude` launcher",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: フィーチャーフラグの初回取得前に開始したセッション（インストール直後の初回起動など）が、auto mode や設定済みのデフォルトモードではなく既定の権限モードで開くことがある問題を修正",
+        "t_en": "[VSCode] Fixed sessions started before feature flags were first fetched (for example right after install) opening in the default permission mode instead of auto mode or your configured default mode",
+        "tags": ["バグ修正", "IDE"]
+      },
+      {
+        "t": "修正: サブエージェントのツール実行中に、ユーザーが展開した Focus View のセクションが勝手に折りたたまれてしまう問題を修正",
+        "t_en": "[VSCode] Fixed Focus view sections you expanded collapsing on their own during subagent tool activity",
+        "tags": ["バグ修正", "IDE", "Agent"]
+      },
+      {
+        "t": "改善: 起動時間を改善。サンドボックスと MCP の初期化が最初のフレーム描画をブロックしないように、単純な起動時はサブコマンド登録をスキップし、ワークフロー検出・設定読み込み・トラストストア処理を軽量化",
+        "t_en": "Improved startup time: sandbox and MCP bring-up no longer block the first frame, bare launches skip subcommand registration, and workflow discovery, settings, and trust-store work is cheaper",
+        "tags": ["改善", "MCP", "Perf"]
+      },
+      {
+        "t": "改善: ネイティブインストールと自動アップデートのダウンロードサイズを改善。バイナリを zstd 圧縮することで Linux x64 で約340MBから約75MBに削減",
+        "t_en": "Improved native install and auto-update download size: the binary is now zstd-compressed (about 75 MB instead of 340 MB on Linux x64)",
+        "tags": ["改善", "Perf"]
+      },
+      {
+        "t": "改善: ANTHROPIC_AUTH_TOKEN で Anthropic API に直接認証するセッションについて、利用状況テレメトリの組織への帰属を改善し、組織側のデータ取扱い設定が適用されるように",
+        "t_en": "Improved attribution of usage telemetry to your organization for sessions that authenticate with `ANTHROPIC_AUTH_TOKEN` directly against the Anthropic API, so its data-handling settings apply",
+        "tags": ["改善"]
+      },
+      {
+        "t": "改善: 組み込みのスキル・プロンプトテキストをよりコンパクトに格納することで、ネイティブバイナリのサイズを約2MB削減",
+        "t_en": "Improved native binary size: about 2 MB smaller by storing the bundled skill and prompt text more compactly",
+        "tags": ["改善", "Perf"]
+      },
+      {
+        "t": "改善: ネイティブビルドのメモリ使用量を改善。バンドル全体を常駐させる代わりにコードをオンデマンドで読み込むようになり、セッションあたり約40〜70MBのメモリ削減",
+        "t_en": "Improved memory usage of native builds: code is now loaded on demand instead of keeping the whole bundle resident (roughly 40–70 MB less memory per session)",
+        "tags": ["改善", "Perf"]
+      },
+      {
+        "t": "改善: 長時間実行セッションでのピークメモリ使用量を改善。ヒープが大きくなるにつれてランタイムがより早いタイミングでガベージコレクションを行うように",
+        "t_en": "Improved peak memory usage in long-running sessions (the runtime now garbage-collects sooner as the heap grows)",
+        "tags": ["改善", "Perf"]
+      },
+      {
+        "t": "改善: SSH 経由の /login を改善。サインイン URL が即座に表示されるようになり、c キー押下時には常に成功と表示するのではなく実際のコピー方法を報告し、フルスクリーンモードでのテキスト選択方法を説明するヒントを追加",
+        "t_en": "Improved `/login` over SSH: the sign-in URL appears immediately, pressing `c` reports how the URL was copied instead of always claiming success, and a hint explains how to select text in fullscreen",
+        "tags": ["改善"]
+      },
+      {
+        "t": "改善: エフォート xhigh・max を thinking 無効時に使おうとした際のエラーメッセージを改善。指定したレベル・thinking を無効化している設定・解決策としての /effort high を明示するように",
+        "t_en": "Improved the error when effort `xhigh`/`max` is used with thinking turned off: it now names the level, the setting that disabled thinking, and `/effort high` as the fix",
+        "tags": ["改善"]
+      },
+      {
+        "t": "改善: /loop で、Claude が何もすることがない連続したウェイクアップを、それぞれ表示する代わりに1行にまとめて表示するように改善",
+        "t_en": "Improved `/loop`: consecutive wake-ups where Claude has nothing to do now fold into a single line in the terminal instead of printing each one",
+        "tags": ["改善"]
+      },
+      {
+        "t": "変更: サンドボックス化された Bash ツールのプロンプトから許可済みネットワークホストの一覧表示を削除。未掲載のホストを拒否済みと Claude が思い込む代わりに、実際にリクエストを試み（新しいホストは承認できる）ように変更",
+        "t_en": "Changed the sandboxed Bash tool prompt to no longer list allowed network hosts, so Claude attempts requests (and you can approve new hosts) instead of assuming unlisted hosts are blocked",
+        "tags": ["改善", "Security"]
+      },
+      {
+        "t": "変更: /model ピッカーと組み込みの claude-api スキルで、Sonnet 5 の $2/$10（100万トークンあたり）の料金を期間限定プロモーションではなく標準の定価として表示するように変更",
+        "t_en": "Updated the `/model` picker and the bundled `claude-api` skill to show Sonnet 5's $2/$10 per Mtok pricing as its standard list price rather than a limited-time promo",
+        "tags": ["改善", "SDK"]
+      },
+      {
+        "t": "変更: macOS の Computer Use で、デスクトップ・Dock・Finder ウィンドウのクリックも他のアプリと同様にアクセスダイアログでの Finder への許可が必要になるように変更",
+        "t_en": "Changed computer use on macOS so clicking the desktop, Dock, or a Finder window requires granting Finder via the access dialog, like any other app",
+        "tags": ["改善", "Security"]
+      },
+      {
+        "t": "変更: Bedrock・Vertex・Foundry、およびテレメトリが無効な環境では、/model・/fast・/effort がターン終了まで待たされることなく即座に反映されるように変更",
+        "t_en": "Changed `/model`, `/fast`, and `/effort` to also run immediately instead of queueing until the turn ends on Bedrock, Vertex, and Foundry and when telemetry is disabled",
+        "tags": ["改善"]
+      },
+      {
+        "t": "修正: サーバーが実行環境をセッション途中で失った際に claude remote-control が終了し、接続中の Remote Control セッションが取り残されてしまう問題を修正。現在は復旧するように",
+        "t_en": "Fixed `claude remote-control` exiting and stranding attached Remote Control sessions when the server drops its environment mid-session; it now recovers",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: 管理者・オーナー権限を持たない Team・Enterprise メンバーで、claude remote-control を停止・再起動した後に Remote Control セッションが動かなくなることがある問題を修正",
+        "t_en": "Fixed Remote Control sessions served by `claude remote-control` sometimes getting stuck after it was stopped and restarted, for Team and Enterprise members without an admin or owner role",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "変更: クロスセッションメッセージングの受信箱ソケットが、30秒以内に完全な1行を送信しない接続を切断するように変更。スクリプトから投稿する場合はデータの準備が整ってから接続すること",
+        "t_en": "Changed the cross-session messaging inbox socket to close connections that send no complete line within 30 seconds; scripts posting to it should connect once their data is ready",
+        "tags": ["改善"]
+      },
+      {
+        "t": "改善: 別のターミナルが Remote Control を保持している会話を再開した際の通知メッセージを改善。他のマシン上のセッションはこのセッションから見ることも、このセッションに到達することもできない旨を明示するように",
+        "t_en": "Improved the notice when resuming a conversation whose Remote Control is held by another terminal: it now says sessions on other machines can't be seen from, or reach, this one",
+        "tags": ["改善"]
+      },
+      {
+        "t": "改善: 長時間セッションでの履歴のトリミング方法を改善。古いツール活動の行から優先的に削除することで、ユーザーのメッセージと Claude の返信が表示され続けるように",
+        "t_en": "[VSCode] Improved history trimming in long sessions: older tool-activity rows are dropped first so your messages and Claude's replies stay visible",
+        "tags": ["改善", "IDE"]
+      },
+      {
+        "t": "改善: Claude アカウントでサインインしている場合、拡張機能自身の利用状況テレメトリの組織への帰属を改善し、組織側のデータ取扱い設定が適用されるように",
+        "t_en": "[VSCode] Improved attribution of the extension's own usage telemetry to your organization when you are signed in with a Claude account, so its data-handling settings apply",
+        "tags": ["改善", "IDE"]
+      }
+    ]
   }
 ]
