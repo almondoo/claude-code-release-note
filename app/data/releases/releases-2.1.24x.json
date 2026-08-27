@@ -318,5 +318,175 @@
         "tags": ["バグ修正"]
       }
     ]
+  },
+  {
+    "v": "2.1.247",
+    "items": [
+      {
+        "t": "追加: 新機能として `SendFeedback` ツールを追加。セッション内で問題が発生した際に、Claude がフィードバックレポートを下書きし、`/feedback` から確認・送信できるように（`feedbackDrafts` 設定でオフに可能）",
+        "t_en": "Added the `SendFeedback` tool: when something goes wrong in a session, Claude can draft a feedback report for you to review and send from `/feedback` (turn off with the `feedbackDrafts` setting)",
+        "tags": ["新機能"]
+      },
+      {
+        "t": "追加: `spinnerTipsOverride` に `{id, text, cooldownSessions, priority}` 形式のエントリ・`tipsFile`・`label` を追加。組織が独自の Tips を組み込みの Tips と一緒にローテーションできるように",
+        "t_en": "Added `{id, text, cooldownSessions, priority}` entries, `tipsFile`, and `label` to `spinnerTipsOverride`, so organizations can rotate their own tips alongside the built-in ones",
+        "tags": ["新機能"]
+      },
+      {
+        "t": "追加: Bash パーミッションプロンプトに auto mode を案内する Tips を追加。1キー操作で「Yes, and switch to auto mode」を選択可能に",
+        "t_en": "Added a tip on Bash permission prompts pointing to auto mode, with a one-keystroke \"Yes, and switch to auto mode\" option",
+        "tags": ["新機能"]
+      },
+      {
+        "t": "追加: `/claude-api cost-optimize` を追加。既存プロジェクトの Claude API 利用コストをプロファイリングし、キャッシュ・トークン運用・バッチ処理・effort・モデル選択などのコスト削減策を1つずつ効果測定しながら適用できるように",
+        "t_en": "Added `/claude-api cost-optimize` to profile an existing project's Claude API spend and work through cost levers (caching, token hygiene, batch, effort, model choice) one measured change at a time",
+        "tags": ["新機能", "SDK"]
+      },
+      {
+        "t": "改善: `/claude-api` スキルに Admin API 関連の情報（組織メンバー・招待・ワークスペース・API キー・レート制限レポート・workload identity federation・CMEK）を追加",
+        "t_en": "Updated the `/claude-api` skill with Admin API coverage (organization members, invites, workspaces, API keys, rate limit reports, workload identity federation, CMEK)",
+        "tags": ["改善", "SDK"]
+      },
+      {
+        "t": "修正: 履歴検索・`/config`・`/mcp`・`/skills`・バックグラウンドタスク一覧・`/model` で、矢印キーと Enter を素早く連続操作すると、移動先ではなく1つ上の行に対して操作が実行されてしまう問題を修正",
+        "t_en": "Fixed fast arrow-key + Enter sequences acting on the row above the one you navigated to in history search, `/config`, `/mcp`, `/skills`, background tasks, and `/model`",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: サブエージェントの最初のモデル呼び出しが 404 になると死んでしまう問題を修正。セッションのフォールバックモデルチェーンを使用するようになり、親に返るエラーにはエラー種別・ステータス・リクエスト ID・モデル名が含まれるように",
+        "t_en": "Fixed sub-agents dying on a first-call model 404: they now use the session's fallback model chain, and the error returned to the parent includes the error type, status, request id, and model",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: フックやバックグラウンドエージェントが大量（メガバイト単位）のエラー出力を出した場合に、会話がオーバーフローして「Prompt is too long」でセッションが動かなくなってしまう問題を修正",
+        "t_en": "Fixed a hook or background agent that printed megabytes of error output being able to overflow the conversation and wedge the session on \"Prompt is too long\"",
+        "tags": ["バグ修正", "Perf"]
+      },
+      {
+        "t": "修正: kitty プロトコル対応ターミナルで、非ラテン文字（キリル文字など）のキーボードレイアウト使用時に Ctrl キーボードショートカットが発火しない問題を修正",
+        "t_en": "Fixed Ctrl keyboard shortcuts not firing under non-Latin (e.g. Cyrillic) keyboard layouts in kitty-protocol terminals",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: エスケープ接頭辞の直後でマウスレポートが分割されて届いた場合に、文字化けしたテキストがプロンプトに挿入されてしまう問題を修正",
+        "t_en": "Fixed text like `<35;150;7M` being inserted into the prompt when a mouse report arrived split across reads right after the escape prefix",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: dotfile 管理ツール（nix/home-manager、stow など）でサンドボックスの書き込み可能領域外に再配置された `~/.claude/settings.json` のシンボリックリンクが、Bash サンドボックスのコマンド実行後クリーンアップによって削除されてしまう問題を修正",
+        "t_en": "Fixed the Bash sandbox's after-command cleanup deleting a dotfile-managed `~/.claude/settings.json` symlink (nix/home-manager, stow) when it is repointed outside the sandbox's writable area",
+        "tags": ["バグ修正", "Security"]
+      },
+      {
+        "t": "修正: Zed で `/terminal-setup` を実行すると、キーバインドをマージするのではなく `keymap.json` 全体を上書きしてしまう問題を修正",
+        "t_en": "Fixed `/terminal-setup` overwriting your entire Zed `keymap.json` instead of merging in its keybinding",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: セッションレジストリの更新に失敗した場合でも `/rename` が黙って成功表示をしてしまう問題を修正。他のセッションでは旧名のまま表示され得る旨が案内されるように",
+        "t_en": "Fixed `/rename` silently confirming when the session registry could not be updated; it now says other sessions may still show the old name",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: `--agent` で起動したセッションで `/compact` や「Summarize from here」を実行すると、会話本来のシステムプロンプトではなくデフォルトのシステムプロンプトで要約されてしまう問題を修正",
+        "t_en": "Fixed `/compact` and \"Summarize from here\" in sessions started with `--agent` summarizing under the default system prompt instead of the conversation's own",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: バックグラウンドセッションのターミナルホストプロセスが停止すると `claude agents` に「opening…」が表示されたまま戻らなくなる問題を修正。数秒以内に理由付きで失敗と表示され、Enter キーで再起動できるように",
+        "t_en": "Fixed a background session showing \"opening…\" forever in `claude agents` after its terminal host process died; the row now fails within seconds with the reason, and Enter restarts it",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: フックやバックグラウンドタスクの出力ファイルへの書き込みに失敗した場合にメモリが際限なく増加してしまう問題を修正。出力ファイルには出力が失われた箇所が記録されるように",
+        "t_en": "Fixed unbounded memory growth when a hook's or background task's output file could not be written; the file now notes where output was lost",
+        "tags": ["バグ修正", "Perf"]
+      },
+      {
+        "t": "修正: SSH 経由で `/install-github-app` を実行した際の挙動を修正。コピー用ショートカットが常に成功と表示するのではなく実際のサインイン URL のコピー方法を伝えるように、また、ブラウザを開けない場合は URL が即座に表示されるように",
+        "t_en": "Fixed `/install-github-app` over SSH: the copy shortcut now says how the sign-in URL was copied instead of always claiming success, and the URL appears immediately when no browser can open",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: フォアグラウンドから引き継がれたシェルコマンドがバックグラウンドセッションで完了した際に、内部エラーがログに出力されたり誤解を招く `[exited with code -1]` の表示になったりする問題を修正",
+        "t_en": "Fixed shell commands carried over from the foreground logging an internal error or showing a misleading `[exited with code -1]` line when they finish in background sessions",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: バージョン指定のないマーケットプレイスプラグインで、別スコープへの2回目のインストール時に稼働中のキャッシュディレクトリが削除・再作成されてしまい、それを使用中のセッションが混乱する問題を修正",
+        "t_en": "Fixed a version-less marketplace plugin's live cache directory being deleted and recreated on a second-scope install, which could disrupt a running session using it",
+        "tags": ["バグ修正", "Plugin"]
+      },
+      {
+        "t": "修正: `/remote-control` で開始した Remote Control セッションが、接続先クライアントに作業ツリーの diff を報告していなかった問題を修正",
+        "t_en": "Fixed Remote Control sessions started with `/remote-control` not reporting the working-tree diff to connected clients",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: self-hosted runner のセッションが Claude Code の起動前に `running` と報告してしまい、Claude デスクトップアプリから「Claude is waiting for your input」という時期尚早な通知が発生することがある問題を修正",
+        "t_en": "Fixed self-hosted runner sessions reporting `running` before Claude Code had started, which could trigger a premature \"Claude is waiting for your input\" notification from the Claude desktop app",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: managed settings で Claude apps gateway サインインが構成されており、かつ Anthropic のエンドポイントに到達できない場合に、初回起動セットアップが「Unable to connect to Anthropic services」で終了してしまう問題を修正",
+        "t_en": "Fixed first-run setup exiting with \"Unable to connect to Anthropic services\" when managed settings configure Claude apps gateway sign-in and Anthropic endpoints are unreachable",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: クラウドセッション（Claude Code on the web・デスクトップアプリ・モバイルアプリ）で、メッセージ送信直後にパーミッションモードを切り替えると、切り替え前のモードが表示されたままになることがある問題を修正",
+        "t_en": "Fixed cloud sessions (Claude Code on the web, desktop and mobile apps) sometimes showing the previous permission mode when you switch modes right after sending a message",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: バックグラウンドエージェント・シェル・Monitor が実行中のままターン間でコンテナが再起動すると、クラウドセッションが無応答になってしまう問題を修正。再開後のセッションは失われた作業内容を報告するように",
+        "t_en": "Fixed cloud sessions going silent when the session's container restarts between turns while a background agent, shell, or monitor is still running — the resumed session now reports the lost work",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "改善: プラグインマーケットプレイスのセキュリティ強化を改善。制御文字や不可視文字を含む名前を拒否し、`/plugin`・`claude plugin` の出力に含まれるマーケットプレイス由来のテキストをエスケープセーフ化",
+        "t_en": "Improved plugin marketplace hardening: names containing control or invisible characters are rejected, and marketplace-supplied text in `/plugin` and `claude plugin` output is escape-safe",
+        "tags": ["改善", "Security", "Plugin"]
+      },
+      {
+        "t": "改善: Bedrock・Vertex・Foundry を使うセッション（およびテレメトリを無効化しているセッション）を改善。設定した MCP サーバーへの接続に失敗した場合、そのツールが存在しないと Claude が誤って判断するのではなく、接続失敗そのものが Claude に伝えられるように",
+        "t_en": "Improved Bedrock, Vertex, and Foundry sessions (and any with telemetry disabled): Claude is now told when a configured MCP server failed to connect, instead of concluding its tools don't exist",
+        "tags": ["改善", "MCP", "Platform"]
+      },
+      {
+        "t": "変更: Sonnet 5 のデフォルト auto-compact ウィンドウをフルの 1M コンテキストに変更。1M ウィンドウのセッションは約934Kトークンではなく約967Kトークンで auto-compact されるように",
+        "t_en": "Changed Sonnet 5's default auto-compact window to its full 1M context, so sessions on the 1M window now auto-compact at about 967K tokens instead of about 934K",
+        "tags": ["改善"]
+      },
+      {
+        "t": "変更: セッション間メッセージ（クロスセッションメッセージ）の表示をデフォルトで1行のプレビュー「Message from @<送信元>: <本文の最初の1行>」に折りたたむように変更。Ctrl+O で全文を展開可能に",
+        "t_en": "Changed cross-session peer messages to collapse by default to a one-line `Message from @<sender>: <first line>` preview; Ctrl+O expands the full body",
+        "tags": ["改善", "Agent"]
+      },
+      {
+        "t": "変更: レンダリングされた markdown 内のターミナルハイパーリンクの挙動を変更。ネットワークパスや automounter パスを指す・制御文字を含む・先頭が不可視文字であるリンク先は、クリック可能なリンクではなくプレーンテキストとして表示されるように",
+        "t_en": "Changed terminal hyperlinks in rendered markdown: link targets that point at a network or automounter path, contain a control character, or lead with an invisible character now render as plain text",
+        "tags": ["改善", "Security"]
+      },
+      {
+        "t": "変更: プロンプトフッターの PR バッジについて、直近のチェックから1分未満の場合はターミナルのフォーカス復帰時の GitHub 再チェックをスキップするように変更",
+        "t_en": "Changed the prompt-footer PR badge to skip its GitHub re-check on terminal refocus when the last check is under a minute old",
+        "tags": ["改善"]
+      },
+      {
+        "t": "変更: managed settings で gateway サインインの強制やカスタム OAuth デプロイが構成されている場合、アナリティクスをログイン後だけでなく起動時からオフのままにするように変更",
+        "t_en": "Changed analytics to stay off from startup, not only after login, when managed settings force gateway login or a custom OAuth deployment is configured",
+        "tags": ["改善", "Security"]
+      },
+      {
+        "t": "変更: Claude apps gateway へのサインインリクエストで Claude Code を識別できるように変更（device-authorization パラメータに `surface=claude_code` を追加、User-Agent を `claude-code/<バージョン>` に）",
+        "t_en": "Changed Claude apps gateway sign-in requests to identify Claude Code (a `surface=claude_code` device-authorization parameter and a `claude-code/<version>` User-Agent)",
+        "tags": ["改善", "Security"]
+      },
+      {
+        "t": "変更: 管理者の managed settings を読み込めない場合、ホスト提供やユーザーごとの Windows レジストリ設定が存在していても、組織のサインイン強制を起動時に終了するように変更",
+        "t_en": "Changed organization sign-in enforcement to exit at start when the administrator's managed settings cannot be read, even if host-supplied or per-user Windows registry settings exist",
+        "tags": ["改善", "Security", "Windows"]
+      }
+    ]
   }
 ]
