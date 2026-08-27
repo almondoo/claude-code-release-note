@@ -575,5 +575,304 @@
       "category": "サンドボックス",
       "category_en": "Sandboxing"
     }
+  ],
+  "2.1.247": [
+    {
+      "t": "追加: 新機能として `SendFeedback` ツールを追加。セッション内で問題が発生した際に、Claude がフィードバックレポートを下書きし、`/feedback` から確認・送信できるように（`feedbackDrafts` 設定でオフに可能）",
+      "t_en": "Added the `SendFeedback` tool: when something goes wrong in a session, Claude can draft a feedback report for you to review and send from `/feedback` (turn off with the `feedbackDrafts` setting)",
+      "tags": ["新機能"],
+      "detail": "これまで Claude Code に関するフィードバックを送るには、`/bug` を自分で実行するかセッションを離れて報告する必要があった。\n\n本バージョンで追加された `SendFeedback` ツールにより、ツールの失敗が続く・要求に応えられない・ミスを指摘されたなどの場面で、Claude が自らフィードバックレポートを下書きできるようになった。下書きは `~/.claude/feedback/drafts/` にローカル保存され、`/feedback` でユーザーが確認・編集した上で送信するまで Anthropic には送信されない。`feedbackDrafts` 設定（`notify`・`quiet`・`off`）で下書きカードの表示方法を調整したり、機能自体をオフにしたりできる。詳しくは[ツールリファレンス](https://code.claude.com/docs/en/tools-reference#sendfeedback-tool-behavior)を参照してください。",
+      "detail_en": "Previously, sending feedback about Claude Code required manually running /bug or leaving the session to report it.\n\nThe new SendFeedback tool lets Claude proactively draft a feedback report when a tool keeps failing, it can't help with something, or you point out a mistake. Drafts are saved locally under ~/.claude/feedback/drafts/, with nothing sent to Anthropic until you review and send it via /feedback. The feedbackDrafts setting (notify/quiet/off) controls how draft cards appear, or turns the feature off entirely. See the [tools reference](https://code.claude.com/docs/en/tools-reference#sendfeedback-tool-behavior) for details.",
+      "category": "ツール改善",
+      "category_en": "Tool Improvements"
+    },
+    {
+      "t": "追加: `spinnerTipsOverride` に `{id, text, cooldownSessions, priority}` 形式のエントリ・`tipsFile`・`label` を追加。組織が独自の Tips を組み込みの Tips と一緒にローテーションできるように",
+      "t_en": "Added `{id, text, cooldownSessions, priority}` entries, `tipsFile`, and `label` to `spinnerTipsOverride`, so organizations can rotate their own tips alongside the built-in ones",
+      "tags": ["新機能"],
+      "detail": "`spinnerTipsOverride` は以前は単純な文字列の Tips のみを受け付けており、表示順や再表示までの間隔を制御する手段がなかった。\n\n本バージョンで、`id`（並べ替えても再表示間隔を安定して追跡するため）・`cooldownSessions`・`priority` を持つ構造化された Tips エントリに対応。さらに外部 JSON ファイルから最大200件の Tips を読み込める `tipsFile` パスと、表示される接頭辞をカスタマイズする `label` も追加された。これにより組織は独自の社内 Tips を Anthropic 提供の組み込み Tips と同じローテーションに混ぜたり、完全に置き換えたりできるようになった。詳しくは[設定リファレンス](https://code.claude.com/docs/en/settings-reference#spinnertipsoverride)を参照してください。",
+      "detail_en": "spinnerTipsOverride previously only accepted plain-string tips, with no way to control display order or how often a tip reappears.\n\nThis version adds structured tip objects with an id (for stable cooldown tracking even after reordering), cooldownSessions, and priority, plus a tipsFile path for loading up to 200 tips from an external JSON file and a label to customize the shown prefix. This lets organizations rotate their own internal tips into the same spinner rotation as Anthropic's built-in ones, or replace them entirely. See the [settings reference](https://code.claude.com/docs/en/settings-reference#spinnertipsoverride) for details.",
+      "category": "設定",
+      "category_en": "Configuration"
+    },
+    {
+      "t": "追加: Bash パーミッションプロンプトに auto mode を案内する Tips を追加。1キー操作で「Yes, and switch to auto mode」を選択可能に",
+      "t_en": "Added a tip on Bash permission prompts pointing to auto mode, with a one-keystroke \"Yes, and switch to auto mode\" option",
+      "tags": ["新機能"],
+      "detail": "Bash コマンドの承認を繰り返し求められることは、これまで auto mode の存在に気づくきっかけが乏しかった。\n\n本バージョンから、Bash パーミッションプロンプトに auto mode への切り替えを案内する Tips が表示されるようになり、1キー操作の「Yes, and switch to auto mode」でその場から auto mode へ切り替えられるようになった。繰り返しの承認作業を減らしたいユーザーが auto mode を発見しやすくなる。",
+      "detail_en": "Repeatedly being asked to approve Bash commands previously gave users little indication that auto mode existed as an alternative.\n\nBash permission prompts now show a tip pointing to auto mode, with a one-keystroke \"Yes, and switch to auto mode\" option to switch immediately from the prompt itself, making it easier for users who want fewer repeated approvals to discover auto mode.",
+      "category": "パーミッション",
+      "category_en": "Permissions"
+    },
+    {
+      "t": "追加: `/claude-api cost-optimize` を追加。既存プロジェクトの Claude API 利用コストをプロファイリングし、キャッシュ・トークン運用・バッチ処理・effort・モデル選択などのコスト削減策を1つずつ効果測定しながら適用できるように",
+      "t_en": "Added `/claude-api cost-optimize` to profile an existing project's Claude API spend and work through cost levers (caching, token hygiene, batch, effort, model choice) one measured change at a time",
+      "tags": ["新機能", "SDK"],
+      "detail": "`/claude-api` スキルにはこれまで `migrate`・`upgrade`・`managed-agents-onboard`・`prompt-audit` のサブコマンドがあったが、既存プロジェクトの API コストを体系的に見直す手段はなかった。\n\n新しい `cost-optimize` サブコマンドは、プロジェクトの実際の Claude API 利用コストをプロファイリングした上で、プロンプトキャッシュ・トークン運用の見直し・バッチ処理・effort レベル・モデル選択といったコスト削減策を、一度にまとめてではなく1つずつ変更し効果を測定しながら適用していく。",
+      "detail_en": "The /claude-api skill previously offered migrate, upgrade, managed-agents-onboard, and prompt-audit subcommands, but no systematic way to review an existing project's API costs.\n\nThe new cost-optimize subcommand profiles a project's actual Claude API spend, then works through cost-reduction levers — prompt caching, token hygiene, batch processing, effort level, and model choice — applying and measuring each change individually rather than all at once.",
+      "category": "SDK",
+      "category_en": "SDK"
+    },
+    {
+      "t": "改善: `/claude-api` スキルに Admin API 関連の情報（組織メンバー・招待・ワークスペース・API キー・レート制限レポート・workload identity federation・CMEK）を追加",
+      "t_en": "Updated the `/claude-api` skill with Admin API coverage (organization members, invites, workspaces, API keys, rate limit reports, workload identity federation, CMEK)",
+      "tags": ["改善", "SDK"],
+      "detail": "`/claude-api` スキルに同梱されているリファレンス資料は、これまでアプリケーションコード向けの Claude Messages API を中心に扱っていた。\n\n本バージョンでは組織メンバーの管理・招待・ワークスペース・API キー・レート制限レポート・workload identity federation・CMEK（顧客管理鍵）といった Admin API 関連の情報が追加され、リクエスト・レスポンスのコーディング支援だけでなく、アカウントやインフラの管理タスクでも Claude の支援を受けられるようになった。",
+      "detail_en": "The /claude-api skill's bundled reference material previously focused on the Claude Messages API for application code.\n\nThis update adds Admin API coverage — organization members and invites, workspaces, API keys, rate-limit reports, workload identity federation, and CMEK — so Claude can help with account and infrastructure administration tasks against the Claude API, not just request/response code.",
+      "category": "SDK",
+      "category_en": "SDK"
+    },
+    {
+      "t": "修正: 履歴検索・`/config`・`/mcp`・`/skills`・バックグラウンドタスク一覧・`/model` で、矢印キーと Enter を素早く連続操作すると、移動先ではなく1つ上の行に対して操作が実行されてしまう問題を修正",
+      "t_en": "Fixed fast arrow-key + Enter sequences acting on the row above the one you navigated to in history search, `/config`, `/mcp`, `/skills`, background tasks, and `/model`",
+      "tags": ["バグ修正"],
+      "detail": "これらの一覧 UI では、矢印キーでの移動処理が UI に反映される前に Enter が処理されてしまうタイミングの問題があり、矢印キーと Enter を素早く連続して押すと、移動先の行ではなく直前にいた行に対して操作が実行されてしまうことがあった。\n\n本バージョンでこの2つの処理が直列化され、Enter は常にハイライトされている行（実際に移動した行）に対して作用するように修正された。",
+      "detail_en": "A timing bug in these list UIs meant that pressing an arrow key and Enter in quick succession could submit the row you'd just left rather than the one you navigated to, because Enter could be processed before the arrow-key move finished updating the UI.\n\nThe two are now serialized, so Enter always acts on the currently highlighted row.",
+      "category": "UX",
+      "category_en": "UX"
+    },
+    {
+      "t": "修正: サブエージェントの最初のモデル呼び出しが 404 になると死んでしまう問題を修正。セッションのフォールバックモデルチェーンを使用するようになり、親に返るエラーにはエラー種別・ステータス・リクエスト ID・モデル名が含まれるように",
+      "t_en": "Fixed sub-agents dying on a first-call model 404: they now use the session's fallback model chain, and the error returned to the parent includes the error type, status, request id, and model",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "サブエージェントが最初に送るモデルリクエストが 404（利用不可のモデル ID など）になった場合、これまではリトライされずサブエージェント自体が停止してしまい、親セッションに返されるエラーにも詳細な情報が含まれていなかった。\n\n本バージョンから、サブエージェントもセッションが使うのと同じフォールバックモデルチェーンを利用できるようになり、それでも失敗した場合はエラー種別・HTTP ステータス・リクエスト ID・モデル名を含むエラーが親に返されるようになった。デバッグがしやすくなる。詳しくは[モデル設定のドキュメント](https://code.claude.com/docs/en/model-config#fallback-model-chains)を参照してください。",
+      "detail_en": "If a subagent's very first model request hit a 404 (e.g. an unavailable model ID), the subagent could previously die outright instead of retrying, and the error surfaced to the parent lacked useful detail.\n\nSubagents now draw on the same fallback model chain a session can use, and a failure that still occurs reports the error type, HTTP status, request id, and model back to the parent for easier debugging. See the [model configuration docs](https://code.claude.com/docs/en/model-config#fallback-model-chains) for details.",
+      "category": "エージェント設定",
+      "category_en": "Agent Configuration"
+    },
+    {
+      "t": "修正: フックやバックグラウンドエージェントが大量（メガバイト単位）のエラー出力を出した場合に、会話がオーバーフローして「Prompt is too long」でセッションが動かなくなってしまう問題を修正",
+      "t_en": "Fixed a hook or background agent that printed megabytes of error output being able to overflow the conversation and wedge the session on \"Prompt is too long\"",
+      "tags": ["バグ修正", "Perf"],
+      "detail": "フックやバックグラウンドエージェントが異常に大量のエラー出力を出力すると、その内容がそのまま会話に取り込まれてコンテキストウィンドウを超過し、「Prompt is too long」という回復不能なエラーでセッションが動かなくなってしまうことがあった。\n\n本バージョンで会話に取り込まれる出力量に上限が設けられ、暴走したフックによってセッションがこの形でデッドロックすることがなくなった。",
+      "detail_en": "A hook or background agent that printed an unusually large volume of error output could have that entire blob pulled into the conversation, blowing past the context window and wedging the session on an unrecoverable \"Prompt is too long\" error.\n\nThe amount of such output that reaches the conversation is now bounded, so a runaway hook can no longer deadlock a session this way.",
+      "category": "安定性",
+      "category_en": "Stability"
+    },
+    {
+      "t": "修正: kitty プロトコル対応ターミナルで、非ラテン文字（キリル文字など）のキーボードレイアウト使用時に Ctrl キーボードショートカットが発火しない問題を修正",
+      "t_en": "Fixed Ctrl keyboard shortcuts not firing under non-Latin (e.g. Cyrillic) keyboard layouts in kitty-protocol terminals",
+      "tags": ["バグ修正"],
+      "detail": "kitty キーボードプロトコルを実装したターミナル（Kitty、WezTerm、Ghostty、iTerm2 など）では、キーコードのデコード処理がラテン文字レイアウトのキーコードを前提としていたため、キリル文字などの非ラテン文字レイアウトが有効な場合に Ctrl ベースのショートカットが認識されなかった。\n\n本バージョンでこのデコード処理が修正され、キーボードレイアウトに関わらずこれらのターミナルで Ctrl ショートカットが正しく動作するようになった。",
+      "detail_en": "In terminals implementing the kitty keyboard protocol (Kitty, WezTerm, Ghostty, iTerm2), Ctrl-based shortcuts failed to register when the active keyboard layout was non-Latin, such as Cyrillic, because key-code decoding assumed Latin-layout key codes.\n\nThis decoding is now corrected so Ctrl shortcuts work regardless of keyboard layout in these terminals.",
+      "category": "入力",
+      "category_en": "Input"
+    },
+    {
+      "t": "修正: エスケープ接頭辞の直後でマウスレポートが分割されて届いた場合に、文字化けしたテキストがプロンプトに挿入されてしまう問題を修正",
+      "t_en": "Fixed text like `<35;150;7M` being inserted into the prompt when a mouse report arrived split across reads right after the escape prefix",
+      "tags": ["バグ修正"],
+      "detail": "ターミナルのマウスクリックレポートはエスケープシーケンスとして届くが、そのシーケンスが2回の read に分割されて届き、かつ分割位置がエスケープ接頭辞の直後だった場合、Claude Code がそれをマウスイベントとして認識できず、断片がそのままプロンプトへ文字として挿入されてしまうことがあった。\n\n本バージョンで分割されたシーケンスをパース前にバッファリング・再構築するようになり、このような文字化けした断片が入力に混入しなくなった。",
+      "detail_en": "A terminal mouse-click report is an escape sequence; when it arrived from the terminal split across two separate reads, with the split landing right after the escape prefix, Claude Code could fail to recognize it as a mouse event and instead insert the raw fragment as literal text into the prompt.\n\nClaude Code now buffers and reassembles a split sequence before parsing it, so garbled fragments no longer leak into typed input.",
+      "category": "入力",
+      "category_en": "Input"
+    },
+    {
+      "t": "修正: dotfile 管理ツール（nix/home-manager、stow など）でサンドボックスの書き込み可能領域外に再配置された `~/.claude/settings.json` のシンボリックリンクが、Bash サンドボックスのコマンド実行後クリーンアップによって削除されてしまう問題を修正",
+      "t_en": "Fixed the Bash sandbox's after-command cleanup deleting a dotfile-managed `~/.claude/settings.json` symlink (nix/home-manager, stow) when it is repointed outside the sandbox's writable area",
+      "tags": ["バグ修正", "Security"],
+      "detail": "サンドボックス化された Bash ツールは、サンドボックス内で実行されるコマンドによる `settings.json` などの保護対象パスへの書き込みを拒否し、保護対象パスに置かれたシンボリックリンク経由の書き込みも拒否する。しかし、コマンド実行後のクリーンアップ処理はそれよりも踏み込んで動作しており、nix/home-manager や GNU stow のようなツールによってサンドボックスの書き込み可能領域外へ再配置された `settings.json` のシンボリックリンク自体を削除してしまうことがあった。dotfile 管理によるリンクが破壊される形になっていた。\n\n本バージョンでこのクリーンアップ処理がそのようなシンボリックリンクを削除しないように修正された。詳しくは[サンドボックスのドキュメント](https://code.claude.com/docs/en/sandboxing#protected-paths)を参照してください。",
+      "detail_en": "The sandboxed Bash tool protects settings.json and similar paths from writes by commands running inside the sandbox, and denies writes through a symlink placed at one of those paths. Its post-command cleanup step went further, though, and could actually delete a settings.json symlink when tooling like nix/home-manager or GNU stow had repointed it outside the sandbox's writable area, destroying a dotfile-managed link.\n\nThis cleanup step no longer removes such symlinks. See the [sandboxing docs](https://code.claude.com/docs/en/sandboxing#protected-paths) for details.",
+      "category": "サンドボックス",
+      "category_en": "Sandboxing"
+    },
+    {
+      "t": "修正: Zed で `/terminal-setup` を実行すると、キーバインドをマージするのではなく `keymap.json` 全体を上書きしてしまう問題を修正",
+      "t_en": "Fixed `/terminal-setup` overwriting your entire Zed `keymap.json` instead of merging in its keybinding",
+      "tags": ["バグ修正"],
+      "detail": "Zed で `/terminal-setup` を実行すると、Shift+Enter のキーバインドを追加するためだけに `keymap.json` ファイル全体が上書きされ、既存のカスタムバインドやコメントが失われてしまっていた。\n\n本バージョンから既存ファイルへ新しいバインドをマージするように修正され、必要に応じて元のファイルは事前にバックアップされる。安全にマージできない・パースできない場合はファイルに一切手を加えない。詳しくは[ターミナル設定のドキュメント](https://code.claude.com/docs/en/terminal-config#enter-multiline-prompts)を参照してください。",
+      "detail_en": "Running /terminal-setup in Zed previously overwrote the user's whole keymap.json just to add the Shift+Enter keybinding, discarding any existing custom bindings and comments.\n\nIt now merges the new binding into the existing file, backing up the original first when needed, and leaves the file untouched entirely if it can't safely parse or verify the merge. See the [terminal configuration docs](https://code.claude.com/docs/en/terminal-config#enter-multiline-prompts) for details.",
+      "category": "IDE",
+      "category_en": "IDE"
+    },
+    {
+      "t": "修正: セッションレジストリの更新に失敗した場合でも `/rename` が黙って成功表示をしてしまう問題を修正。他のセッションでは旧名のまま表示され得る旨が案内されるように",
+      "t_en": "Fixed `/rename` silently confirming when the session registry could not be updated; it now says other sessions may still show the old name",
+      "tags": ["バグ修正"],
+      "detail": "`/rename` は内部的にセッションレジストリの更新に依存しているが、その更新が失敗した場合でも、これまでは通常どおりの成功メッセージが表示され、他のセッションには旧名のままの表示が残っていることに気づけなかった。\n\n本バージョンからこの失敗を検知し、他のセッションでは旧名のまま表示される可能性がある旨を明示的に警告するようになった。改名が完全に反映されたかのような誤解を避けられる。",
+      "detail_en": "/rename depends on an underlying session-registry update, but previously showed a normal success confirmation even when that update failed, silently leaving other sessions still displaying the old name.\n\nIt now detects that failure and explicitly warns that other sessions may still show the old name, instead of implying the rename fully propagated.",
+      "category": "セッション管理",
+      "category_en": "Session Management"
+    },
+    {
+      "t": "修正: `--agent` で起動したセッションで `/compact` や「Summarize from here」を実行すると、会話本来のシステムプロンプトではなくデフォルトのシステムプロンプトで要約されてしまう問題を修正",
+      "t_en": "Fixed `/compact` and \"Summarize from here\" in sessions started with `--agent` summarizing under the default system prompt instead of the conversation's own",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "`--agent` で起動したセッションは、デフォルトのシステムプロンプトではなく、指定したサブエージェント固有のシステムプロンプトで動作する。しかし `/compact` と「Summarize from here」はこれを考慮しておらず、あたかもデフォルトのシステムプロンプトで会話が進んでいたかのように要約を生成してしまい、要約内容の視点がずれることがあった。\n\n本バージョンで、圧縮処理が会話が実際に使用しているシステムプロンプトの下で要約を行うように修正された。",
+      "detail_en": "Sessions started with --agent run under that subagent's own system prompt rather than the default one. Previously, /compact and \"Summarize from here\" ignored this and produced summaries as if the conversation had run under the default system prompt, which could skew the summary's framing.\n\nCompaction now summarizes under the conversation's actual system prompt.",
+      "category": "会話管理",
+      "category_en": "Conversation Management"
+    },
+    {
+      "t": "修正: バックグラウンドセッションのターミナルホストプロセスが停止すると `claude agents` に「opening…」が表示されたまま戻らなくなる問題を修正。数秒以内に理由付きで失敗と表示され、Enter キーで再起動できるように",
+      "t_en": "Fixed a background session showing \"opening…\" forever in `claude agents` after its terminal host process died; the row now fails within seconds with the reason, and Enter restarts it",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "バックグラウンドのエージェントビューセッションを支えるターミナルホストプロセスが停止した場合、これまでは該当行が「opening…」のまま無期限に固まってしまい、Claude Code 全体を再起動する以外に復旧手段がなかった。\n\n本バージョンから、ホストプロセスの停止を数秒以内に検知するようになり、該当行には「terminal host process died — press Enter to restart」と表示されるように。Enter キーを押すことで会話を失うことなく新しいホストプロセス上でセッションを再起動できる。詳しくは[エージェントビューのドキュメント](https://code.claude.com/docs/en/agent-view#the-terminal-host-died-or-the-session-stopped-responding)を参照してください。",
+      "detail_en": "If the terminal host process behind a background agent-view session died, its row could get stuck showing \"opening…\" indefinitely with no way to recover short of restarting Claude Code entirely.\n\nThe supervisor now detects a dead host process within seconds and the row instead reads \"terminal host process died — press Enter to restart,\" letting you restart it on a fresh host process without losing the conversation. See the [agent view docs](https://code.claude.com/docs/en/agent-view#the-terminal-host-died-or-the-session-stopped-responding) for details.",
+      "category": "エージェント設定",
+      "category_en": "Agent Configuration"
+    },
+    {
+      "t": "修正: フックやバックグラウンドタスクの出力ファイルへの書き込みに失敗した場合にメモリが際限なく増加してしまう問題を修正。出力ファイルには出力が失われた箇所が記録されるように",
+      "t_en": "Fixed unbounded memory growth when a hook's or background task's output file could not be written; the file now notes where output was lost",
+      "tags": ["バグ修正", "Perf"],
+      "detail": "フックやバックグラウンドタスクの出力先ファイルへの書き込みに（ディスクやパーミッションの問題などで）失敗すると、これまではその出力をメモリ上でバッファリングし続けてしまい、メモリ使用量が際限なく増加していた。\n\n本バージョンでは書き込み失敗時に出力ファイル自体へ「どこで出力が失われたか」が記録されるようになり、メモリ使用量が抑えられると同時に、何かが記録されなかったことの記録が残るようになった。",
+      "detail_en": "When a hook's or background task's output couldn't be written to its designated file — for example a disk or permissions problem — Claude Code previously kept buffering that output in memory rather than failing gracefully, causing unbounded memory growth.\n\nThe output file itself now notes where output was lost, keeping memory bounded while leaving a record that something wasn't captured.",
+      "category": "パフォーマンス",
+      "category_en": "Performance"
+    },
+    {
+      "t": "修正: SSH 経由で `/install-github-app` を実行した際の挙動を修正。コピー用ショートカットが常に成功と表示するのではなく実際のサインイン URL のコピー方法を伝えるように、また、ブラウザを開けない場合は URL が即座に表示されるように",
+      "t_en": "Fixed `/install-github-app` over SSH: the copy shortcut now says how the sign-in URL was copied instead of always claiming success, and the URL appears immediately when no browser can open",
+      "tags": ["バグ修正"],
+      "detail": "ブラウザを自動起動できず、クリップボードへのアクセスもしばしば利用できない SSH 環境で `/install-github-app` を実行すると、サインイン URL のコピー用ショートカットは実際にコピーが成功したかどうかに関わらず常に成功したと表示していた。また、手動で使うための URL もすぐには表示されなかった。\n\n本バージョンで、URL のコピー方法を正確に伝えるメッセージに修正されるとともに、ブラウザを開けない場合には URL が即座に表示されるようになった。",
+      "detail_en": "Running /install-github-app over SSH, where no browser can open automatically and clipboard access is often unavailable, the copy-to-clipboard shortcut for the sign-in URL previously always reported success regardless of whether the copy actually worked, and didn't show the URL for manual use right away.\n\nThe message now accurately describes how the URL was copied, and the URL is displayed immediately when no browser can open.",
+      "category": "Git 連携",
+      "category_en": "Git Integration"
+    },
+    {
+      "t": "修正: フォアグラウンドから引き継がれたシェルコマンドがバックグラウンドセッションで完了した際に、内部エラーがログに出力されたり誤解を招く `[exited with code -1]` の表示になったりする問題を修正",
+      "t_en": "Fixed shell commands carried over from the foreground logging an internal error or showing a misleading `[exited with code -1]` line when they finish in background sessions",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "フォアグラウンドセッションで開始されたシェルコマンドが（← ショートカットなどで）バックグラウンドへ移動した後に完了すると、実際の終了ステータスの代わりに紛らわしい内部エラーがログに出力されたり、誤解を招く `[exited with code -1]` という表示になってしまうことがあった。\n\n本バージョンで、このように引き継がれたコマンドがバックグラウンドセッションで完了した際に、実際の完了状態を正しく報告するように修正された。",
+      "detail_en": "A shell command started in a foreground session before it moved to the background (via the ← shortcut or similar) could, on finishing in the background, log a confusing internal error or print a misleading [exited with code -1] line instead of its real exit status.\n\nSuch carried-over commands now correctly report their actual completion state once they finish in the background session.",
+      "category": "エージェント設定",
+      "category_en": "Agent Configuration"
+    },
+    {
+      "t": "修正: バージョン指定のないマーケットプレイスプラグインで、別スコープへの2回目のインストール時に稼働中のキャッシュディレクトリが削除・再作成されてしまい、それを使用中のセッションが混乱する問題を修正",
+      "t_en": "Fixed a version-less marketplace plugin's live cache directory being deleted and recreated on a second-scope install, which could disrupt a running session using it",
+      "tags": ["バグ修正", "Plugin"],
+      "detail": "マーケットプレイスプラグインは実行時にそのまま参照されるのではなく、ローカルキャッシュ（`~/.claude/plugins/cache`）にコピーされ、バージョンごとに専用のディレクトリが割り当てられる。バージョンを明示的に固定していないプラグインの場合、別のスコープ（例えばユーザースコープの後にプロジェクトスコープ）へ2回目のインストールを行うと、稼働中のキャッシュディレクトリが削除・再作成されてしまい、そのファイルを実際に使用しているセッションが混乱することがあった。\n\n本バージョンで、このような2回目のスコープインストールの場合に稼働中のキャッシュディレクトリを破壊しないように修正された。詳しくは[プラグインリファレンス](https://code.claude.com/docs/en/plugins-reference#plugin-caching-and-file-resolution)を参照してください。",
+      "detail_en": "Marketplace plugins are copied into a local cache (~/.claude/plugins/cache) rather than run in place, with each installed version in its own directory. For a plugin with no explicit version pinned, installing it a second time into a different scope (e.g. project after user) could delete and recreate that live cache directory, disrupting a session actively using files from it.\n\nThis case no longer tears down the live cache directory. See the [plugins reference](https://code.claude.com/docs/en/plugins-reference#plugin-caching-and-file-resolution) for details.",
+      "category": "Plugin 連携",
+      "category_en": "Plugin Integration"
+    },
+    {
+      "t": "修正: `/remote-control` で開始した Remote Control セッションが、接続先クライアントに作業ツリーの diff を報告していなかった問題を修正",
+      "t_en": "Fixed Remote Control sessions started with `/remote-control` not reporting the working-tree diff to connected clients",
+      "tags": ["バグ修正"],
+      "detail": "`/remote-control` で開始したセッションでは、接続された claude.ai クライアントからローカルのターミナルセッションを操作・監視できるが、このタイプのセッションでは接続先クライアントへ作業ツリーの diff が報告されておらず、他のセッション種別とは異なり、リモート側から未コミットの変更を確認できなかった。\n\n本バージョンで、他のセッション種別と同様に diff が報告されるように修正された。",
+      "detail_en": "Sessions started with /remote-control let a connected claude.ai client steer and monitor a local terminal session, but such sessions previously weren't reporting the working-tree diff to connected clients, so remote viewers couldn't see uncommitted changes the way they could for other session types.\n\nRemote Control sessions now report the diff like other surfaces do.",
+      "category": "Remote Control",
+      "category_en": "Remote Control"
+    },
+    {
+      "t": "修正: self-hosted runner のセッションが Claude Code の起動前に `running` と報告してしまい、Claude デスクトップアプリから「Claude is waiting for your input」という時期尚早な通知が発生することがある問題を修正",
+      "t_en": "Fixed self-hosted runner sessions reporting `running` before Claude Code had started, which could trigger a premature \"Claude is waiting for your input\" notification from the Claude desktop app",
+      "tags": ["バグ修正"],
+      "detail": "self-hosted 環境では、セッションの状態が Claude Code の実際の起動前に `running` として報告されてしまうことがあり、これによりまだ準備が整っていないセッションに対して Claude デスクトップアプリが時期尚早な「Claude is waiting for your input」通知を発してしまうことがあった。\n\n本バージョンで、Claude Code が実際に起動するまで `running` ステータスの報告が遅延されるように修正された。",
+      "detail_en": "On self-hosted environments, a session's status could previously be reported as running before Claude Code had actually started inside it, which could cause the Claude desktop app to fire a premature \"Claude is waiting for your input\" notification for a session that wasn't actually ready.\n\nThe running status is now delayed until Claude Code has actually started.",
+      "category": "セッション管理",
+      "category_en": "Session Management"
+    },
+    {
+      "t": "修正: managed settings で Claude apps gateway サインインが構成されており、かつ Anthropic のエンドポイントに到達できない場合に、初回起動セットアップが「Unable to connect to Anthropic services」で終了してしまう問題を修正",
+      "t_en": "Fixed first-run setup exiting with \"Unable to connect to Anthropic services\" when managed settings configure Claude apps gateway sign-in and Anthropic endpoints are unreachable",
+      "tags": ["バグ修正"],
+      "detail": "初回起動時のセットアップは、サインイン画面を表示する前に `api.anthropic.com` と `platform.claude.com` へ到達できるかを確認しており、到達できない場合は「Unable to connect to Anthropic services」で終了していた。しかし managed settings によってサインインが Claude apps gateway 経由に構成されている場合、この Anthropic 自身のエンドポイントへの疎通確認は本来不要であり、gateway には到達できるがそれらの Anthropic ホストには到達できないネットワークで、誤ってセットアップがブロックされてしまっていた。\n\n本バージョンで、gateway サインインが構成されている場合はこのチェックがスキップ・調整されるように修正された。詳しくは[エラーのドキュメント](https://code.claude.com/docs/en/errors#unable-to-connect-to-anthropic-services)を参照してください。",
+      "detail_en": "First-run setup checks that it can reach api.anthropic.com and platform.claude.com before showing the sign-in screen, exiting with \"Unable to connect to Anthropic services\" if it can't. When managed settings route sign-in through a Claude apps gateway instead, that check against Anthropic's own endpoints is unnecessary and could wrongly block setup on a network that can reach the gateway but not those Anthropic hosts.\n\nSetup now skips or adjusts the check in the gateway-sign-in case. See the [errors docs](https://code.claude.com/docs/en/errors#unable-to-connect-to-anthropic-services) for details.",
+      "category": "セキュリティ",
+      "category_en": "Security"
+    },
+    {
+      "t": "修正: クラウドセッション（Claude Code on the web・デスクトップアプリ・モバイルアプリ）で、メッセージ送信直後にパーミッションモードを切り替えると、切り替え前のモードが表示されたままになることがある問題を修正",
+      "t_en": "Fixed cloud sessions (Claude Code on the web, desktop and mobile apps) sometimes showing the previous permission mode when you switch modes right after sending a message",
+      "tags": ["バグ修正"],
+      "detail": "クラウドセッションでメッセージ送信の直後にパーミッションモードを切り替えると、メッセージ送信の処理とモード変更の反映処理との間で競合が起き、UI に一時的に切り替え前のモードが表示されたままになってしまうことがあった。\n\n本バージョンで処理の順序が修正され、UI が実際に選択されたモードを正しく反映するようになった。",
+      "detail_en": "In cloud sessions, switching the permission mode immediately after sending a message could leave the UI briefly showing the mode you switched away from rather than the new one — a race between the message send and the mode-change update.\n\nThe ordering is now corrected so the UI reflects the mode actually selected.",
+      "category": "パーミッション",
+      "category_en": "Permissions"
+    },
+    {
+      "t": "修正: バックグラウンドエージェント・シェル・Monitor が実行中のままターン間でコンテナが再起動すると、クラウドセッションが無応答になってしまう問題を修正。再開後のセッションは失われた作業内容を報告するように",
+      "t_en": "Fixed cloud sessions going silent when the session's container restarts between turns while a background agent, shell, or monitor is still running — the resumed session now reports the lost work",
+      "tags": ["バグ修正"],
+      "detail": "クラウドセッションでバックグラウンドエージェント・シェルコマンド・`Monitor` の呼び出しが実行中の状態のまま、ターンの合間にコンテナが再起動すると、これまでは進行中だった作業が中断されたことを示す手掛かりがないままセッションが無応答になってしまうことがあった。\n\n本バージョンから、再開後のセッションが失われた作業内容を明示的に報告するように修正され、原因不明のまま放置されることがなくなった。",
+      "detail_en": "If a cloud session's underlying container restarted between turns while a background agent, shell, or Monitor call was still running, the session could go silent with no indication that in-progress work had been interrupted.\n\nThe resumed session now explicitly reports the lost work instead of leaving it unexplained.",
+      "category": "プラットフォーム互換性",
+      "category_en": "Platform Compatibility"
+    },
+    {
+      "t": "改善: プラグインマーケットプレイスのセキュリティ強化を改善。制御文字や不可視文字を含む名前を拒否し、`/plugin`・`claude plugin` の出力に含まれるマーケットプレイス由来のテキストをエスケープセーフ化",
+      "t_en": "Improved plugin marketplace hardening: names containing control or invisible characters are rejected, and marketplace-supplied text in `/plugin` and `claude plugin` output is escape-safe",
+      "tags": ["改善", "Security", "Plugin"],
+      "detail": "プラグインマーケットプレイスのメタデータはマーケットプレイスの公開者が提供するものであり、そのため信頼できない入力として扱う必要がある。\n\n本バージョンのセキュリティ強化により、制御文字や不可視文字を含むプラグイン名は拒否されるようになった（一覧表示でプラグインの正体を偽装・隠蔽するために悪用され得るため）。また `/plugin` や `claude plugin` の CLI 出力に表示されるマーケットプレイス由来のテキストがエスケープされ、ターミナル制御シーケンスの注入に使われないようになった。",
+      "detail_en": "Plugin marketplace metadata is supplied by whoever publishes the marketplace and is therefore untrusted input.\n\nThis hardening rejects plugin names containing control or invisible characters, which could otherwise be used to spoof or obscure a plugin's identity in listings, and ensures marketplace-supplied text rendered in /plugin and claude plugin CLI output is escaped so it can't inject terminal control sequences.",
+      "category": "セキュリティ",
+      "category_en": "Security"
+    },
+    {
+      "t": "改善: Bedrock・Vertex・Foundry を使うセッション（およびテレメトリを無効化しているセッション）を改善。設定した MCP サーバーへの接続に失敗した場合、そのツールが存在しないと Claude が誤って判断するのではなく、接続失敗そのものが Claude に伝えられるように",
+      "t_en": "Improved Bedrock, Vertex, and Foundry sessions (and any with telemetry disabled): Claude is now told when a configured MCP server failed to connect, instead of concluding its tools don't exist",
+      "tags": ["改善", "MCP", "Platform"],
+      "detail": "設定した MCP サーバーへの接続に失敗した場合、これまで Claude はその事実を具体的に知る手段がなく、単にそのサーバーのツールが利用できないことだけが見え、ツール自体が存在しないと誤って判断してしまうことがあった。特に Bedrock・Vertex AI・Foundry を利用するセッションや、テレメトリを無効化しているセッションでは、公式ドキュメントの現行版によれば接続失敗が Claude に報告されない仕様だった。\n\n本バージョンでこれらの環境でも接続失敗とそのエラー内容が Claude に伝えられるようになり、Claude が推測ではなく実際の原因を踏まえて説明できるようになった。",
+      "detail_en": "When a configured MCP server fails to connect, Claude previously had no specific way to know that — it could only see the server's tools were unavailable and might wrongly conclude the tools simply don't exist. In particular, the currently published docs state that Bedrock, Vertex AI, and Foundry sessions (and telemetry-disabled sessions) don't report failed server connections to Claude at all.\n\nThis version has Claude told about the connection failure and its error even in these environments, so Claude can explain the real cause instead of guessing.",
+      "category": "MCP 連携",
+      "category_en": "MCP Integration"
+    },
+    {
+      "t": "変更: Sonnet 5 のデフォルト auto-compact ウィンドウをフルの 1M コンテキストに変更。1M ウィンドウのセッションは約934Kトークンではなく約967Kトークンで auto-compact されるように",
+      "t_en": "Changed Sonnet 5's default auto-compact window to its full 1M context, so sessions on the 1M window now auto-compact at about 967K tokens instead of about 934K",
+      "tags": ["改善"],
+      "detail": "Sonnet 5 は Anthropic API 上では常にネイティブの 1M トークンコンテキストウィンドウで動作するが、デフォルトの auto-compact 閾値はこれまでフルのウィンドウよりも手前の約934Kトークン付近に調整されていた。\n\n本バージョンでデフォルトの auto-compact トリガーが約967Kトークンまで引き上げられ、ハードリミットまでの余裕を保ちつつ、要約が行われるまでセッションをより長く継続できるようになった。詳しくは[モデル設定のドキュメント](https://code.claude.com/docs/en/model-config#sonnet-5-context-window)を参照してください。",
+      "detail_en": "Sonnet 5 always runs with its native 1M-token context window on the Anthropic API, but its default auto-compact threshold was previously tuned closer to about 934K tokens rather than using the full window.\n\nThis change raises the default auto-compact trigger to about 967K tokens, letting sessions run longer before summarizing while still leaving headroom before the hard limit. See the [model configuration docs](https://code.claude.com/docs/en/model-config#sonnet-5-context-window) for details.",
+      "category": "セッション管理",
+      "category_en": "Session Management"
+    },
+    {
+      "t": "変更: セッション間メッセージ（クロスセッションメッセージ）の表示をデフォルトで1行のプレビュー「Message from @<送信元>: <本文の最初の1行>」に折りたたむように変更。Ctrl+O で全文を展開可能に",
+      "t_en": "Changed cross-session peer messages to collapse by default to a one-line `Message from @<sender>: <first line>` preview; Ctrl+O expands the full body",
+      "tags": ["改善", "Agent"],
+      "detail": "クロスセッションメッセージ機能によって他の Claude Code セッションから届いたメッセージは、これまで長さに関わらず全文がそのまま会話に表示されていた。\n\n本バージョンからこうしたメッセージはデフォルトで「Message from @<送信元>: <本文の最初の1行>」という1行のプレビューに折りたたまれるようになり、Ctrl+O で全文を展開できる。ピアセッションから長い更新内容が送られてきた場合でも、トランスクリプトの見やすさが保たれる。詳しくは[クロスセッションメッセージのドキュメント](https://code.claude.com/docs/en/cross-session-messaging#what-a-message-looks-like)を参照してください。",
+      "detail_en": "A message from another Claude Code session, delivered via cross-session messaging, previously appeared in full in the receiving conversation regardless of length.\n\nSuch messages now collapse by default to a one-line \"Message from @<sender>: <first line>\" preview, with Ctrl+O expanding the full body, keeping the transcript readable when a peer session sends a long update. See the [cross-session messaging docs](https://code.claude.com/docs/en/cross-session-messaging#what-a-message-looks-like) for details.",
+      "category": "マルチエージェント",
+      "category_en": "Multi-Agent"
+    },
+    {
+      "t": "変更: レンダリングされた markdown 内のターミナルハイパーリンクの挙動を変更。ネットワークパスや automounter パスを指す・制御文字を含む・先頭が不可視文字であるリンク先は、クリック可能なリンクではなくプレーンテキストとして表示されるように",
+      "t_en": "Changed terminal hyperlinks in rendered markdown: link targets that point at a network or automounter path, contain a control character, or lead with an invisible character now render as plain text",
+      "tags": ["改善", "Security"],
+      "detail": "Claude Code は出力内の markdown リンクをクリック可能なターミナルハイパーリンクに変換して表示する。しかし、リンク先がネットワークパスや automounter パスを指している、制御文字を含んでいる、あるいは先頭が不可視文字であるといったリンクは、実際のリンク先を偽装できてしまい、特にネットワークパスの場合は開いた際に Windows の認証情報が漏洩する経路になり得た。\n\n本バージョンから、こうした疑わしいリンク先はクリック可能なハイパーリンクではなく、プレーンな（クリックできない）テキストとして表示されるようになった。",
+      "detail_en": "Claude Code turns markdown links in its output into clickable terminal hyperlinks. A link target pointing at a network/automounter path, or containing a control character or a leading invisible character, could disguise where a link actually leads, and a network path in particular could leak Windows credentials if opened.\n\nSuch suspicious link targets now render as plain, unclickable text instead of a hyperlink.",
+      "category": "セキュリティ",
+      "category_en": "Security"
+    },
+    {
+      "t": "変更: プロンプトフッターの PR バッジについて、直近のチェックから1分未満の場合はターミナルのフォーカス復帰時の GitHub 再チェックをスキップするように変更",
+      "t_en": "Changed the prompt-footer PR badge to skip its GitHub re-check on terminal refocus when the last check is under a minute old",
+      "tags": ["改善"],
+      "detail": "プロンプトフッターに表示される PR・マージリクエストのステータスバッジは、定期的な更新に加えてターミナルウィンドウがフォーカスを取り戻すたびに GitHub の状態を再チェックしていた。直前に確認したばかりであっても毎回再チェックが行われており、無駄な GitHub API 呼び出しが発生していた。\n\n本バージョンから、直近のチェックから1分未満の場合はフォーカス復帰時の再チェックがスキップされるようになり、冗長な API 呼び出しが削減された。詳しくは[インタラクティブモードのドキュメント](https://code.claude.com/docs/en/interactive-mode#pr-review-status)を参照してください。",
+      "detail_en": "The prompt-footer PR/merge-request status badge refreshes its GitHub status periodically and also whenever the terminal window regains focus. It previously always re-checked on refocus even if a check had just run moments before, causing redundant GitHub API calls.\n\nIt now skips the refocus-triggered re-check when the last check completed under a minute ago. See the [interactive mode docs](https://code.claude.com/docs/en/interactive-mode#pr-review-status) for details.",
+      "category": "Git 連携",
+      "category_en": "Git Integration"
+    },
+    {
+      "t": "変更: managed settings で gateway サインインの強制やカスタム OAuth デプロイが構成されている場合、アナリティクスをログイン後だけでなく起動時からオフのままにするように変更",
+      "t_en": "Changed analytics to stay off from startup, not only after login, when managed settings force gateway login or a custom OAuth deployment is configured",
+      "tags": ["改善", "Security"],
+      "detail": "managed settings によって Claude apps gateway 経由のサインインが強制されている場合、またはカスタム OAuth デプロイが構成されている場合、アナリティクスはオフのままであるべきだが、これまではログインが完了して初めてその設定が有効になっており、サインイン完了までの起動直後の期間にテレメトリが送信されてしまう余地があった。\n\n本バージョンから、こうした構成ではプロセス起動時点からアナリティクスがオフのままになるように修正された。詳しくは[データ利用に関するドキュメント](https://code.claude.com/docs/en/data-usage#default-behaviors-by-api-provider)を参照してください。",
+      "detail_en": "When managed settings force sign-in through a Claude apps gateway, or a custom OAuth deployment is configured, analytics is meant to stay off — but previously this only took effect once login completed, meaning some telemetry could be sent during the startup window before sign-in finished.\n\nAnalytics now stays off from process startup in these configurations, not only after login. See the [data usage docs](https://code.claude.com/docs/en/data-usage#default-behaviors-by-api-provider) for details.",
+      "category": "セキュリティ",
+      "category_en": "Security"
+    },
+    {
+      "t": "変更: Claude apps gateway へのサインインリクエストで Claude Code を識別できるように変更（device-authorization パラメータに `surface=claude_code` を追加、User-Agent を `claude-code/<バージョン>` に）",
+      "t_en": "Changed Claude apps gateway sign-in requests to identify Claude Code (a `surface=claude_code` device-authorization parameter and a `claude-code/<version>` User-Agent)",
+      "tags": ["改善", "Security"],
+      "detail": "Claude Code が Claude apps gateway に送るサインインリクエストは、これまで他のクライアントと区別できる形で自身を明示していなかった。\n\n本バージョンから device-authorization リクエストに `surface=claude_code` パラメータが追加され、User-Agent も `claude-code/<バージョン>` になった。これにより gateway 運用者はログや per-client ポリシーの中で Claude Code からのサインイントラフィックを他のクライアントと区別できるようになった。",
+      "detail_en": "Requests Claude Code sends to a Claude apps gateway for sign-in previously didn't clearly identify themselves as coming from Claude Code specifically, versus another client.\n\nThis adds a surface=claude_code parameter to the device-authorization request and a claude-code/<version> User-Agent header, letting gateway operators distinguish Claude Code sign-in traffic from other clients in logs and per-client policy.",
+      "category": "セキュリティ",
+      "category_en": "Security"
+    },
+    {
+      "t": "変更: 管理者の managed settings を読み込めない場合、ホスト提供やユーザーごとの Windows レジストリ設定が存在していても、組織のサインイン強制を起動時に終了するように変更",
+      "t_en": "Changed organization sign-in enforcement to exit at start when the administrator's managed settings cannot be read, even if host-supplied or per-user Windows registry settings exist",
+      "tags": ["改善", "Security", "Windows"],
+      "detail": "`forceLoginOrgUUID` のような組織のサインイン制限は、最も優先度の高い managed settings ソース（管理者がデプロイした managed-settings.json や MDM ポリシー）から強制されることが前提になっており、ユーザーごとの Windows HKCU レジストリやホスト提供の親設定のような優先度の低いソースは、より高いソースがポリシーキーを設定していない場合のフォールバックとしてのみ使われる。これまでは、管理者の managed settings ファイル自体が読み込めなかった場合に、Claude Code がこれらのより弱くユーザーが書き換え可能なソースにフォールバックしてしまうことがあった。\n\n本バージョンから、この場合は弱いポリシー・ポリシー不在のまま実行するリスクを避けるため、Claude Code が起動時に終了するように修正された。詳しくは[managed settings のドキュメント](https://code.claude.com/docs/en/managed-settings#which-managed-source-claude-code-uses)を参照してください。",
+      "detail_en": "Organization sign-in restrictions like forceLoginOrgUUID are meant to be enforced from the highest-priority managed settings source (an admin-deployed managed-settings.json or MDM policy), with lower-priority sources such as the per-user Windows HKCU registry or host-supplied parent settings used only as a fallback when no higher source sets a policy key. Previously, if the administrator's managed settings file itself couldn't be read, Claude Code could fall through to those weaker, user-writable sources instead of failing closed.\n\nClaude Code now exits at startup in that case rather than risk enforcing a weaker or absent policy. See the [managed settings docs](https://code.claude.com/docs/en/managed-settings#which-managed-source-claude-code-uses) for details.",
+      "category": "セキュリティ",
+      "category_en": "Security"
+    }
   ]
 }
