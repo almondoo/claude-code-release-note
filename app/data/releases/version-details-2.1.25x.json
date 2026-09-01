@@ -639,5 +639,43 @@
       "category": "IDE",
       "category_en": "IDE"
     }
+  ],
+  "2.1.252": [
+    {
+      "t": "修正: 一部の Mac で Bash コマンドが「task output swap refused (tasks dir moved or linked)」エラーで失敗する問題を修正",
+      "t_en": "Fixed Bash commands failing with \"task output swap refused (tasks dir moved or linked)\" on some Macs",
+      "tags": ["バグ修正"],
+      "detail": "Bash ツールはコマンドの出力をメモリではなく、セッションごとの一時ディレクトリ（tasks ディレクトリ）にディスク保存する「スワップ」方式を採用しており、これによってフォアグラウンド・バックグラウンドを問わず大量の出力を扱えるようになっている。書き込み前には、このディレクトリがシンボリックリンクや移動によって差し替えられていないかを確認する安全チェックが行われる。\n\nしかし一部の Mac 環境ではこのチェックが正常なコマンドに対しても誤って失敗と判定してしまい、「task output swap refused (tasks dir moved or linked)」というエラーで通常の Bash コマンドが実行できなくなっていた。本バージョンでこの判定ロジックが修正され、該当環境でも誤検知なくコマンドを実行できるようになった。",
+      "detail_en": "The Bash tool streams command output to disk-backed files in a per-session temporary directory (the \"tasks\" directory) rather than holding it all in memory, which is what lets both foreground and background commands handle large output. Before writing, it runs a safety check to confirm this directory hasn't been swapped out via a symlink or a move.\n\nOn some Mac setups, however, this check misfired even for ordinary commands, causing the affected Bash command to fail with \"task output swap refused (tasks dir moved or linked)\" instead of running. This version corrects that detection logic, so those Macs no longer see spurious failures.",
+      "category": "プラットフォーム互換性",
+      "category_en": "Platform Compatibility"
+    },
+    {
+      "t": "修正: .claude/settings.local.json がまだ存在しないプロジェクトで「常に許可」の選択が保存されない問題を修正",
+      "t_en": "Fixed \"always allow\" not saving in a project that has no .claude/settings.local.json yet",
+      "tags": ["バグ修正", "Security"],
+      "detail": "権限確認ダイアログで「Yes, and don't ask again（常に許可）」を選択すると、その承認内容はプロジェクトの個人設定ファイルである .claude/settings.local.json に恒久的なルールとして保存される。このファイルがまだ存在しないプロジェクトでは、初回の承認時にファイルの新規作成と書き込みが行われる仕組みになっている。\n\nしかし、この初回のファイル作成・保存処理に不具合があり、新規プロジェクトで「常に許可」を選んでも設定が反映されないことがあった。そのため同じ権限確認が繰り返し表示されてしまっていた。本バージョンでこの初回書き込み処理が修正され、常に許可の選択がドキュメント通り正しく永続化されるようになった。詳しくは[設定ドキュメント](https://code.claude.com/docs/en/settings#find-or-create-your-settings-files)を参照してください。",
+      "detail_en": "Choosing \"Yes, and don't ask again\" on a permission prompt is meant to persist that approval as a standing rule in the project's personal settings file, .claude/settings.local.json, which Claude Code creates on the first such approval in a project that doesn't have one yet.\n\nThat first-time file creation and write could silently fail, so choosing \"always allow\" in a brand-new project didn't stick and the same prompt kept reappearing. This version fixes that first-time write path, so standing approvals now persist as documented. See the [settings docs](https://code.claude.com/docs/en/settings#find-or-create-your-settings-files) for more.",
+      "category": "パーミッション",
+      "category_en": "Permissions"
+    },
+    {
+      "t": "修正: claude.ai への接続が不安定な状態のとき、Claude Desktop または VS Code でホストされた Remote Control セッションがツール完了後に数分間応答を停止してしまう問題を修正",
+      "t_en": "Fixed Remote Control sessions hosted by Claude Desktop or VS Code stalling for minutes after a tool finished when the connection to claude.ai was degraded",
+      "tags": ["バグ修正"],
+      "detail": "Remote Control は、Claude Desktop や VS Code 拡張機能上でローカルに実行されているセッションを claude.ai やモバイルアプリから操作できる機能で、実行やファイルアクセスはローカルマシン上で行われる一方、トランスクリプトやツールの実行状況を同期するために Anthropic のサーバーと常時接続を維持している。\n\nこれまで、接続が完全に切断された場合は自動再接続とメッセージのキューイングが行われる一方、接続が完全には切れていないものの不安定（degraded）な状態になった場合の対応は弱く、ツール呼び出しが完了した後に次のステップがなかなか配信されず、Claude Desktop や VS Code でホストされたセッションが数分間応答しなくなることがあった。本バージョンでこうした不安定な接続状態を素早く検知して復旧できるように修正された。",
+      "detail_en": "Remote Control lets a Claude Code session running locally inside Claude Desktop or the VS Code extension be driven from claude.ai or the Claude mobile app, while execution and file access stay on the local machine; the local host keeps a live connection to Anthropic's servers to sync the transcript and tool activity.\n\nPreviously, a fully dropped connection triggered automatic reconnection and message queuing, but a degraded (not fully dropped) connection was handled less gracefully: after a tool call finished, a Desktop- or VS Code-hosted session could sit unresponsive for minutes before the next step was delivered. This version makes these hosted sessions detect and recover from degraded connectivity quickly instead of stalling.",
+      "category": "Remote Control",
+      "category_en": "Remote Control"
+    },
+    {
+      "t": "修正: バックグラウンドタスクの失敗時の出力が非常に大きい場合（ディスクフル時の git エラーなど）に、その通知が会話を API のリクエストサイズ上限超過に陥らせる問題を修正",
+      "t_en": "Fixed background task notifications with very large failure output (for example git errors on a full disk) making the conversation exceed the API request size limit",
+      "tags": ["バグ修正", "Perf"],
+      "detail": "バックグラウンドで実行した Bash コマンドが完了すると、Claude Code はそのステータスと出力を通知として会話に挿入し、Claude が結果を踏まえて対応できるようにしている。一方、Anthropic API にはリクエストサイズに 32MB という上限がある。\n\nこれまで、バックグラウンドタスクが極端に大量の出力を伴って失敗した場合（例えばディスクフルの状態で git がエラーを繰り返し出力し続けるようなケース）、その失敗内容を含む通知によって以降の API リクエストが 32MB の上限を超えてしまい、「Request too large」エラーで会話が壊れてしまうことがあった。本バージョンで、こうした通知に含める失敗出力の量に上限（切り詰め）が設けられ、暴走したバックグラウンドコマンドがリクエストサイズ上限を超過させることがなくなった。",
+      "detail_en": "When a backgrounded Bash command finishes, Claude Code injects a notification into the conversation with its status and output so Claude can react to it. The Anthropic API caps request size at 32MB.\n\nPreviously, when a background task failed with an extremely large amount of output — for example git repeatedly erroring because the disk was full — the failure notification could include enough of that output to push the resulting API request over the 32MB limit, breaking the conversation with a \"Request too large\" error. This version caps the failure output included in these notifications, so a runaway background command can no longer push a request past the size limit.",
+      "category": "安定性",
+      "category_en": "Stability"
+    }
   ]
 }
