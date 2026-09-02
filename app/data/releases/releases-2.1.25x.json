@@ -383,5 +383,545 @@
         "tags": ["バグ修正", "Perf"]
       }
     ]
+  },
+  {
+    "v": "2.1.257",
+    "items": [
+      {
+        "t": "追加: Claude Fable 5.1 (`claude-fable-5-1`) を追加。Fable ファミリーの新しいデフォルトモデルとなり、100万トークンコンテキストで $10/$50 per Mtok（キャッシュ読み取り $0.25/Mtok）",
+        "t_en": "Added Claude Fable 5.1 (`claude-fable-5-1`), now the default Fable model — 1M context, $10/$50 per Mtok with $0.25/Mtok cache reads",
+        "tags": ["新機能"]
+      },
+      {
+        "t": "追加: 「Time format」(`timeFormat`) と `timeZone` 設定を追加し、ターン終了時刻の表示やトランスクリプト内のタイムスタンプを12時間制・24時間制・24時間制(UTC)・strftime パターンから選べるように",
+        "t_en": "Added \"Time format\" (`timeFormat`) and `timeZone` settings: 12-hour, 24-hour, 24-hour UTC, or a strftime pattern for the turn-end clock and transcript-view timestamps",
+        "tags": ["新機能"]
+      },
+      {
+        "t": "追加: auto モードに Containment Escape ルールを追加し、クラウドのメタデータ認証情報の取得・イグレス回避・テナント越えのアクセスなどを、環境側で想定済みと明示しない限り自動承認しないように",
+        "t_en": "Added a Containment Escape rule to auto mode so cloud metadata-credential fetches, egress evasion, and cross-tenant reach are no longer auto-approved unless your environment marks them expected",
+        "tags": ["新機能", "Security"]
+      },
+      {
+        "t": "追加: `CLAUDE_CODE_SUBAGENT_MODEL_FORCE` を追加し、個別起動時の指定やエージェント定義側のモデル指定を無視して、すべてのサブエージェントに `CLAUDE_CODE_SUBAGENT_MODEL`（未設定時はメインモデル）を強制適用できるように",
+        "t_en": "Added `CLAUDE_CODE_SUBAGENT_MODEL_FORCE` to apply `CLAUDE_CODE_SUBAGENT_MODEL` (or the main model) to every subagent, ignoring per-spawn and agent-definition model overrides",
+        "tags": ["新機能", "Agent"]
+      },
+      {
+        "t": "追加: `/effort` に `s` を追加し、`/model` と同様に現在のセッションのみエフォートレベルを変更できるように",
+        "t_en": "Added `s` in `/effort` to change effort for the current session only, matching `/model`",
+        "tags": ["新機能"]
+      },
+      {
+        "t": "追加: 強制終了されたセッションが残した古いサンドボックスマスクファイルについて `/doctor` に警告を追加",
+        "t_en": "Added a `/doctor` warning for stale sandbox mask files left by a killed session",
+        "tags": ["新機能"]
+      },
+      {
+        "t": "追加: auto モードで作業ディレクトリ外のファイルを初めて読み取る際にワンタイムの確認を表示するように。`permissions.blockReadsOutsideWorkingDirectories` でそうした読み取り自体をブロックする選択肢も追加",
+        "t_en": "Added a one-time prompt in auto mode before the first file read outside the working directories, with the option to block such reads (`permissions.blockReadsOutsideWorkingDirectories`)",
+        "tags": ["新機能", "Security"]
+      },
+      {
+        "t": "追加: ゲートウェイが提供する `/model` ピッカーの検出済みエントリに `description` を表示できるように（`CLAUDE_CODE_ENABLE_GATEWAY_MODEL_DISCOVERY`）。`description` がないエントリはこれまでどおり「From gateway」と表示される",
+        "t_en": "Added support for a gateway-supplied `description` on discovered `/model` picker entries (`CLAUDE_CODE_ENABLE_GATEWAY_MODEL_DISCOVERY`); entries without one still read \"From gateway\"",
+        "tags": ["新機能"]
+      },
+      {
+        "t": "修正: 起動後に作成された `.claude/` フォルダ内の設定が、再起動するまで読み込まれない問題を修正",
+        "t_en": "Fixed settings in a `.claude/` folder created after startup not being picked up until restart",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: `←` で開いたエージェントビューから新規セッションをディスパッチした際、対象ディレクトリの `defaultMode` やエージェントの `permissionMode` を無視して、常に元セッションのパーミッションモードで開始してしまう問題を修正",
+        "t_en": "Fixed sessions dispatched from an agent view opened with `←` always starting in the original session's permission mode, overriding the target directory's `defaultMode` and the agent's `permissionMode`",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: `keybindings.json` での Ctrl+G の再割り当てが `claude agents` 内で無視されていた問題を修正し、新しい `Agents` コンテキスト経由で Ctrl+S・Ctrl+T も再割り当てできるように",
+        "t_en": "Fixed `keybindings.json` rebinds of Ctrl+G being ignored in `claude agents`; its Ctrl+S / Ctrl+T are now rebindable via the new `Agents` context",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: macOS の npm インストール環境でセルフアップデート中にバックグラウンドセッションが起動に失敗する問題と、Windows で使い回された PID を指す古いデーモンロックファイルが原因で起動に失敗する問題を修正",
+        "t_en": "Fixed background sessions failing to start on macOS npm installs during a self-update, and on Windows when a stale daemon lock file pointed at a reused process id",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: スラッシュコマンドパネルの裏で応答がストリーミングされている間、作業中スピナーが止まってしまう問題を修正",
+        "t_en": "Fixed the working spinner stopping while a response streams behind a slash-command panel",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: スケジュールされたウェイクアップの後、バックグラウンドセッションの `state.json` の `detail` が自分自身のディスパッチプロンプトを繰り返し表示してしまう問題を修正",
+        "t_en": "Fixed a background session's `state.json` `detail` repeating its own dispatch prompt after a scheduled wake-up",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: 再度プロンプトを送ったバックグラウンドセッションが、完了後も Completed の中に埋もれたままになる問題を修正。Completed は最新の完了時刻順に並ぶように",
+        "t_en": "Fixed `claude agents` keeping a background session you re-prompted buried in Completed after it finished again; Completed now orders by the latest finish",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: 直前に削除されたディレクトリから `claude --bg` を実行すると「backgrounded」と表示されるだけでクラッシュしたセッション行が残ってしまう問題を修正し、理由を表示して終了コード1で終了するように",
+        "t_en": "Fixed `claude --bg` from a directory that was just deleted reporting \"backgrounded\" and leaving a crashed session row; it now prints the reason and exits 1",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: セッション中に Remote Control が接続すると Bash ツール定義が再送信され、プロンプトキャッシュミスを引き起こしていた問題を修正",
+        "t_en": "Fixed Remote Control connecting mid-session re-sending the Bash tool definition, causing a prompt-cache miss",
+        "tags": ["バグ修正", "Perf"]
+      },
+      {
+        "t": "修正: Bedrock・Bedrock Mantle・Vertex・WIF で二重に設定されたカスタム `Authorization` ヘッダーが設定済みの認証情報を上書きしてしまう問題と、Vertex セットアップウィザードが `~/.config/anthropic` の残留プロファイルを誤って使ってしまう問題を修正",
+        "t_en": "Fixed a doubly-listed custom `Authorization` header overriding the configured credential on Bedrock, Mantle, Vertex, and WIF, and the Vertex setup wizard picking up a leftover Anthropic profile from `~/.config/anthropic`",
+        "tags": ["バグ修正", "Platform"]
+      },
+      {
+        "t": "修正: Claude apps gateway が Foundry・Vertex・Bedrock に不要なホストの `Authorization` やプロファイルヘッダーを送ってしまう問題と、`ANTHROPIC_FOUNDRY_API_KEY` が設定されていると Foundry の Entra ID アップストリームが起動しない問題を修正",
+        "t_en": "Fixed Claude apps gateway sending stray host `Authorization` or profile headers to Foundry, Vertex, and Bedrock, and Foundry Entra ID upstreams not starting when `ANTHROPIC_FOUNDRY_API_KEY` is set",
+        "tags": ["バグ修正", "Platform"]
+      },
+      {
+        "t": "修正: API キーモードで、Foundry のサブスクリプションキーと一緒に残留した Anthropic API キーや認証トークンが送信されてしまう問題を修正",
+        "t_en": "Fixed a leftover Anthropic API key or auth token being sent alongside your Foundry subscription key in API-key mode",
+        "tags": ["バグ修正", "Platform"]
+      },
+      {
+        "t": "修正: `/schedule` のルーティンでメッセージロールなしにプロンプトが保存され、実行しても何もしないまま終わってしまう問題を修正",
+        "t_en": "Fixed `/schedule` routines whose prompt was saved without a message role and then ran with nothing to do",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: `claude agents` が、バックグラウンドセッションが別セッションからのメッセージ承認待ちであることや、その送信元を表示していなかった問題を修正",
+        "t_en": "Fixed `claude agents` not saying that a background session is waiting for you to approve a message from another session, or who sent it",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: 開いたバックグラウンドセッション内で Ctrl+S でスタッシュしたプロンプトが、セッションがアイドルになったり停止して再度開いた際に失われてしまう問題を修正",
+        "t_en": "Fixed a prompt stashed with Ctrl+S inside an opened background session being lost when the session went idle or was stopped and then reopened",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: サーバー管理設定経由で配信されたテレメトリ（OTEL）設定が、Claude Desktop 内のセッションを含むウォームスタート時に無視されてしまう問題を修正",
+        "t_en": "Fixed telemetry (OTEL) settings pushed through server-managed settings being ignored on warm starts, including desktop-app Code sessions",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: リードのメールボックス書き込みが一時的にロックされているタイミングと重なると、チームメイトのパーミッションリクエストが二重に応答されてしまう問題を修正",
+        "t_en": "Fixed a teammate permission request being answered twice when the leader's mailbox write was briefly locked",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: コマンドの自動継続応答がストリーミングされている間、実行中ターンの下に幻のスラッシュコマンド行が重複表示されてしまう問題を修正",
+        "t_en": "Fixed a phantom duplicate slash-command row rendering below the in-flight turn while a command's auto-continued response streamed",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: `policyHelper` の `timeoutMs`・`refreshIntervalMs` にタイマーの上限値（2147483647）を超える値を設定すると失敗したりミリ秒単位で再実行され続けたりする問題を修正し、値をクランプするように",
+        "t_en": "Fixed `policyHelper` `timeoutMs` and `refreshIntervalMs` values above the timer maximum (2147483647) causing failures or re-runs every millisecond; they are now clamped",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: 別のサブエージェントのトランスクリプトに切り替えた後にトークンカウンターが固まったり動きが遅くなったりする問題を修正し、応答ストリーミング中にバックグラウンドのサブエージェントやチームメイトのカウンターもライブで更新されるように",
+        "t_en": "Fixed the token counter freezing or crawling after switching to another subagent's transcript, and made background subagents' and teammates' counters update live while a response streams",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: 末尾にドットが付いたホスト名（`example.com.` など）について、サンドボックス内で `deniedDomains` によるブロックが効かず、「今後確認しない」を選んでもプロンプトが繰り返し表示されてしまう問題を修正",
+        "t_en": "Fixed sandbox network hosts written with a trailing dot (`example.com.`): a `deniedDomains` entry didn't block the host inside the sandbox, and \"don't ask again\" for such a host kept prompting",
+        "tags": ["バグ修正", "Security"]
+      },
+      {
+        "t": "修正: Remote Control の接続同意プロンプトを Esc や `claude remote-control` での `n` で却下しても同意扱いになってしまい、次回のリクエストが確認なしで接続していた問題を修正",
+        "t_en": "Fixed dismissing the Remote Control consent prompt (Esc, or `n` at `claude remote-control`) counting as consent, so the next request connected without asking",
+        "tags": ["バグ修正", "Security"]
+      },
+      {
+        "t": "修正: 起動後に読み込まれた管理対象 MCP の許可・拒否リストや `strictPluginOnlyCustomization` によってブロックされるべき設定ファイル定義の MCP サーバーが、`/mcp` の再接続・有効化ではブロックされずに接続できてしまう問題を修正",
+        "t_en": "Fixed `/mcp` reconnect and enable still connecting a settings-file MCP server that a managed MCP allow/deny list or `strictPluginOnlyCustomization` loaded after startup should block",
+        "tags": ["バグ修正", "MCP", "Security"]
+      },
+      {
+        "t": "修正: `strictPluginOnlyCustomization` で MCP をプラグイン提供サーバーのみに制限している場合、`claude mcp remove` がリモートサーバーの保存済み OAuth 認証情報を削除せずに残してしまう問題を修正",
+        "t_en": "Fixed `claude mcp remove` leaving a remote server's stored OAuth credentials behind when `strictPluginOnlyCustomization` locks MCP to plugin-only servers",
+        "tags": ["バグ修正", "MCP", "Security"]
+      },
+      {
+        "t": "修正: Claude アプリから開始した Remote Control (`claude remote-control`) セッションが、選択したモデルを無視してマシンのデフォルトで実行されてしまう問題を修正",
+        "t_en": "Fixed Remote Control (`claude remote-control`) sessions started from the Claude app ignoring the selected model and running on the machine's default instead",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: `allowManagedPermissionRulesOnly` が有効な場合、`--disallowedTools` やセッションの拒否ルールが最初の設定リロード後に失われてしまう問題を修正",
+        "t_en": "Fixed `--disallowedTools` and session deny rules being dropped after the first settings reload when `allowManagedPermissionRulesOnly` is enabled",
+        "tags": ["バグ修正", "Security"]
+      },
+      {
+        "t": "修正: `--resume` がバックグラウンド化した会話を二重に一覧表示してしまう問題と、`--continue` がバックグラウンド化前の停止した古いコピーを開いてしまう問題を修正。`--continue` は完了済みのバックグラウンドセッションも開けるように",
+        "t_en": "Fixed `--resume` listing a backgrounded conversation twice and `--continue` reopening its stalled pre-background copy; `--continue` now also opens finished background sessions",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: フルスクリーンモードで `!` シェルコマンドの出力をクリックして展開できない問題を修正",
+        "t_en": "Fixed fullscreen mode not letting you click `!` shell command output to expand it",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: 自動アップデートのたびに、古い Claude Code バイナリを実行し続けているバックグラウンドセッションが退役されずに積み重なっていく問題を修正",
+        "t_en": "Fixed background sessions left running an older Claude Code binary piling up across auto-updates instead of being retired",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: `claude agents --json` が終了時に、一時的にターミナルを raw モードへ切り替え、他プログラムのターミナル設定を上書きしてしまう問題を修正",
+        "t_en": "Fixed `claude agents --json` briefly switching the terminal to raw mode and undoing another program's terminal settings on exit",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: Proactive 出力スタイルのセッションが、自身が開始したバックグラウンドコマンドや Monitor がまだ実行中でも静かに待機せず、埋め草メッセージやログの再読み込みを繰り返すビジーループに陥る問題を修正",
+        "t_en": "Fixed Proactive output style sessions busy-looping with filler messages and repeated log reads instead of idling while a background command or Monitor they started is still running",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: スリープ・接続断・サーバーエラーで応答がストリーミング途中に打ち切られるとサブエージェントが停止してしまう問題を修正し、不完全な応答のまま終わらせず自動的に続行するように",
+        "t_en": "Fixed subagents stopping when a response was cut off mid-stream by a computer sleep, dropped connection, or server error; they now automatically continue instead of ending with an incomplete response",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: `claude agents` セッション内の `/btw` パネルで `←` が何も反応しない問題を修正し、回答生成中でもエージェント一覧に戻れるように。セッションを再度開くとパネルも復元されるように",
+        "t_en": "Fixed `←` doing nothing in the `/btw` panel inside a `claude agents` session: it now returns to the agents list (even mid-answer), and the panel comes back when you reopen the session",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: アドバイザーモデルを設定しているセッションで、コンパクション・`/recap`・プロンプト提案などバックグラウンドリクエストがプロンプトキャッシュを外し、毎回会話全体をキャッシュなしで再送してしまう問題を修正",
+        "t_en": "Fixed sessions with an advisor model set missing the prompt cache on background requests (compaction, `/recap`, prompt suggestions) and re-sending the full conversation uncached each time",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: モデルが起動した Monitor がまだ実行中でも、`claude -p` が最終結果の約5秒後に終了してしまう問題を修正し、監視が発火またはタイムアウトするまで待つように",
+        "t_en": "Fixed `claude -p` exiting about 5 seconds after its final result while a Monitor the model armed was still running; it now waits for the watch to fire or time out",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: auto モードで、対象コマンドが複合コマンドやサブシェルの中で実行された場合に `permissions.ask` ルールがスキップされ、確認プロンプトなしで実行できてしまう問題を修正",
+        "t_en": "Fixed a `permissions.ask` rule being skipped in auto mode when the matching command ran inside a compound command or subshell, letting it run without the confirmation prompt",
+        "tags": ["バグ修正", "Security"]
+      },
+      {
+        "t": "修正: プラグインが、コマンド・エージェント・スキル・フックなどのコンポーネントパスにシンボリックリンクを使うことで、自身のディレクトリ外のファイルを読み取れてしまう問題を修正し、そのようなパスをエラーとして拒否するように",
+        "t_en": "Fixed plugins being able to read files outside their own directory through a declared command, agent, skill, hooks or other component path that is a symlink; such paths are now refused with an error",
+        "tags": ["バグ修正", "Security", "Plugin"]
+      },
+      {
+        "t": "修正: `/add-dir` が現在の作業ディレクトリ内にあるディレクトリを拒否してしまう問題を修正し、`--add-dir` が起動時に行うのと同様に、そのディレクトリのスキル・コマンド・エージェントを読み込むように",
+        "t_en": "Fixed `/add-dir` rejecting a directory inside the current working directory; it now loads that directory's skills, commands, and agents like `--add-dir` does at startup",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: トランスクリプトビューから停止していたサブエージェントを再開した際に、メインエージェントにその旨が通知されない問題を修正",
+        "t_en": "Fixed the main agent not being told when you resume a subagent you had stopped from its transcript view",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: CI ログなど ANSI カラー付きのテキストを `/feedback` などのダイアログに貼り付けるとクラッシュする問題を修正",
+        "t_en": "Fixed a crash when pasting ANSI-colored text (e.g. a CI log) into dialogs like `/feedback`",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: プロジェクトの `.mcp.json` が FIFO やデバイスファイルへのシンボリックリンクだった場合に `claude mcp add`・`remove` がハングまたはメモリを使い切ってしまう問題を修正し、実行可能なエラーメッセージとともに早期に失敗するように",
+        "t_en": "Fixed `claude mcp add/remove` hanging or exhausting memory when the project's `.mcp.json` is a FIFO or a device-file symlink; it now fails fast with an actionable message",
+        "tags": ["バグ修正", "MCP", "Security"]
+      },
+      {
+        "t": "修正: `claude -p --input-format stream-json` に JSONL でないデータをパイプすると際限なくメモリが増加してしまう問題を修正し、明確なエラーとともに早期に失敗するように",
+        "t_en": "Fixed unbounded memory growth when non-JSONL data is piped into `claude -p --input-format stream-json`; it now fails fast with a clear error",
+        "tags": ["バグ修正", "SDK"]
+      },
+      {
+        "t": "修正: サブエージェントや他のツールの実行中にターンをバックグラウンド化（`←` や Ctrl+B）すると、バックグラウンドセッションがそのツール呼び出しを再実行せず拒否扱いにしてしまうことがある問題を修正",
+        "t_en": "Fixed backgrounding a turn (`←` or Ctrl+B) while a subagent or other tool was running occasionally making the background session treat that tool as rejected instead of re-running it",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: Bash の `Read()`・`Edit()` 拒否ルールが `< file` によるリダイレクトや `tac`・`egrep` のようなリーダーコマンドに適用されていなかった問題を修正し、引数やリダイレクト先のいずれに対する拒否ルールでもコマンドを拒否できるように",
+        "t_en": "Fixed Bash `Read()`/`Edit()` deny rules not applying to `< file` redirects and reader commands like `tac` and `egrep`; a deny rule on any argument or redirect target now refuses the command",
+        "tags": ["バグ修正", "Security"]
+      },
+      {
+        "t": "修正: 大量の画像読み込みなどでトランスクリプトが5MBを超えたサブエージェントを再開・メッセージ送信しようとすると「No transcript found」で失敗する問題を修正",
+        "t_en": "Fixed resuming or messaging a subagent whose transcript had grown past 5 MB (for example after reading many images) failing with \"No transcript found\"",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: worktree で隔離されたセッションが、git に一切触れないループ・`$VAR` の参照・`\"$(…)\"`・ヒアドキュメントまで「worktree 内に収まることを検証できない」として拒否してしまう問題を修正",
+        "t_en": "Fixed worktree-isolated sessions refusing Bash loops, `$VAR` reads, `\"$(…)\"` and heredocs that never touch git as \"too complex to verify that it stays inside the worktree\"",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: 会話を空の状態まで巻き戻した後も `/model`・`/effort` がプロンプトキャッシュの警告を表示し続けてしまう問題を修正",
+        "t_en": "Fixed `/model` and `/effort` showing a prompt-cache warning after rewinding a conversation back to empty",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: 画像がリクエストごとのサイズ上限を超えたスクリーンショット中心の長いセッションで、以降すべてのターンでプロンプトキャッシュがミスし続けてしまう問題を修正",
+        "t_en": "Fixed prompt-cache misses on every turn in long screenshot-heavy sessions once images exceeded the per-request size cap",
+        "tags": ["バグ修正", "Perf"]
+      },
+      {
+        "t": "修正: Edit のパーミッション確認プロンプトの diff 表示で、絵文字や複数コードポイントの文字の幅が誤って計算されてしまう問題を修正",
+        "t_en": "Fixed the Edit permission prompt's diff view rendering emoji and multi-code-point characters with incorrect widths",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: WebSocket 経由の MCP サーバー接続失敗が、実際のエラー内容ではなく「[object ErrorEvent]」としてログに記録されてしまう問題を修正",
+        "t_en": "Fixed WebSocket MCP server connection failures being logged as \"[object ErrorEvent]\" instead of the underlying error",
+        "tags": ["バグ修正", "MCP"]
+      },
+      {
+        "t": "修正: 別の Claude Code プロセスが npm アップデートをダウンロード中に、バックグラウンドセッションが「Couldn't start the background service」で起動に失敗する問題を修正し、ダウンロード完了を待つように",
+        "t_en": "Fixed background sessions failing to open with \"Couldn't start the background service\" while another Claude Code process was downloading an npm update; the start now waits for it",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: `timeout` や `setsid` などでシェルから切り離されたバックグラウンドコマンドが、タスクの停止や Claude Code の終了後も生き残ってしまう問題を修正",
+        "t_en": "Fixed background commands that detach from their shell (for example under `timeout` or `setsid`) surviving a task stop or Claude Code exit",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: タスクパネルや接続中のクライアントからバックグラウンドコマンドを停止しても、Claude にその旨が通知されない問題を修正",
+        "t_en": "Fixed Claude not being told when you stop a background command from the tasks panel or a connected client",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: バックグラウンドのサブエージェントを停止しても、その Monitor が動き続けてしまう問題を修正",
+        "t_en": "Fixed stopping a background subagent leaving its monitors running",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: リンクされた worktree でサブディレクトリへ `cd` した後、サンドボックス化された git コマンドがリポジトリ共通の `.git` ディレクトリへの書き込み権限を失ってしまう問題を修正",
+        "t_en": "Fixed sandboxed git commands in a linked worktree losing write access to the repository's common `.git` directory after `cd` into a subdirectory",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: Opus 4.7 以降で Bedrock・Bedrock Mantle のリクエストが、長い非表示思考フェーズ中に無通信となりアイドルタイムアウトで接続が切断されてしまう問題を修正し、ストリームが進行状況イベントを運ぶように",
+        "t_en": "Fixed Bedrock and Bedrock Mantle requests going silent during long hidden-thinking phases on Opus 4.7 and later, which let idle timeouts cut the connection; the stream now carries progress events",
+        "tags": ["バグ修正", "Platform"]
+      },
+      {
+        "t": "修正: Claude apps gateway のセッションが期限切れ・失効した後の起動時に、ネットワークエラーではなく「セッションが終了した」旨と `/login` を案内するように修正",
+        "t_en": "Fixed launching Claude Code after a Claude apps gateway expired or revoked your session: it now says the session ended and offers `/login` instead of reporting a network error",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: クラウドセッションのネットワークプロキシが起動時に開始に失敗すると、そのセッション以降ずっと git・GitHub の認証情報を失ってしまう問題を修正し、バックグラウンドでリトライして復旧できるように",
+        "t_en": "Fixed cloud sessions losing git/GitHub credentials for the rest of the session when the session's network proxy failed to start at launch; it now retries in the background and recovers",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: バックグラウンドデーモンの起動が中断された際にシステム一時ディレクトリに残る `cc-daemon-*` フォルダを、`cleanupPeriodDays` の保持ポリシーによる掃除で削除するように修正",
+        "t_en": "Fixed leftover `cc-daemon-*` folders in the system temp directory after an interrupted background daemon start; the `cleanupPeriodDays` retention sweep now removes them",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: zsh が bash とは異なる解釈をする特定の `[[ ]]` 条件式が、Bash のパーミッションチェックで自動承認されてしまう問題を修正し、承認プロンプトを表示するように",
+        "t_en": "Fixed Bash permission checks auto-approving certain `[[ ]]` conditionals that zsh parses differently from bash; these commands now prompt for approval",
+        "tags": ["バグ修正", "Security"]
+      },
+      {
+        "t": "修正: 管理設定の変更が詳細なトレーシングや生の API ボディログをオフにする、あるいはトレースエクスポートをオンにする場合でも、承認ダイアログが専用のテレメトリ向け文言ではなく汎用の警告を表示してしまう問題を修正",
+        "t_en": "Fixed the managed-settings approval prompt showing the generic warning instead of its telemetry wording when the settings also turn detailed tracing or raw API body logging off, or trace export on",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: tmux・iTerm2 のペイン分割で動作するエージェントチームのチームメイトが、シャットダウン要求を確認応答した後もペインが開いたままになることがある問題を修正",
+        "t_en": "Fixed agent-team teammates in tmux/iTerm2 panes sometimes staying open after acknowledging a shutdown request",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: キーレスの Console サインイン（「Sign in with your Console account」）で組織のサーバー管理設定が適用されず、`/status` にもそのサインインの Organization が表示されない問題を修正",
+        "t_en": "Fixed the keyless Console sign-in (\"Sign in with your Console account\") not applying your organization's server-managed settings, and `/status` not showing the Organization for that sign-in",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "改善: 長い会話でのターンごとの再描画処理を削減し、応答が長くなってもストリーミングが遅くならず、バックグラウンドエージェントの更新も画面全体を再描画しないように改善",
+        "t_en": "Improved rendering performance: less re-render work per turn in long conversations, streaming no longer slows down as the reply grows, and background-agent updates no longer re-render the whole screen",
+        "tags": ["改善", "Perf"]
+      },
+      {
+        "t": "改善: キーストロークごとの描画処理を削減し、プロンプト入力の応答性を改善",
+        "t_en": "Improved prompt input responsiveness by reducing per-keystroke rendering work",
+        "tags": ["改善", "Perf"]
+      },
+      {
+        "t": "改善: ポリシーヘルパーの診断を改善。リフレッシュ失敗が `/status` に表示され、管理設定ダイアログを拒否すると Claude Code が終了した理由が表示され、ヘルパーのタイムアウトもタイムアウトとして報告されるように",
+        "t_en": "Improved policy helper diagnostics — refresh failures now show in `/status`, declining the managed-settings dialog prints why Claude Code exited, and helper timeouts are reported as timeouts",
+        "tags": ["改善"]
+      },
+      {
+        "t": "改善: `/code-review --comment` が、対象未対応と報告する代わりに `glab mr note` 経由で GitLab のマージリクエストに指摘をコメントできるように改善",
+        "t_en": "Improved `/code-review --comment` to post findings on GitLab merge requests via `glab mr note` instead of reporting the target as unsupported",
+        "tags": ["改善"]
+      },
+      {
+        "t": "改善: 他のダイアログの裏でキューされた MCP の elicitation やパーミッション確認についても、表示中のものと同じ遅延でアイドル通知が送られるように改善",
+        "t_en": "Improved notifications: an MCP elicitation or permission ask queued under another dialog now sends its idle desktop notification at the same delay as a visible ask",
+        "tags": ["改善", "MCP"]
+      },
+      {
+        "t": "改善: verbose・トランスクリプト出力で、同時に完了した非同期フックの完了通知を、フックごとに1行ずつではなく1行にまとめて表示するように改善",
+        "t_en": "Improved verbose/transcript output: async hook completion notices that arrive together now appear on one line instead of one line per hook",
+        "tags": ["改善"]
+      },
+      {
+        "t": "改善: `claude self-hosted-runner --configure-git` が git のプッシュネゴシエーションも有効化するように改善し、古いクローンからの新規ブランチの初回プッシュで全ツリーではなく新規コミットのみがアップロードされるように",
+        "t_en": "Improved `claude self-hosted-runner --configure-git` to also enable git push negotiation, so the first push of a new branch from a stale clone uploads only the new commits instead of the whole tree",
+        "tags": ["改善"]
+      },
+      {
+        "t": "改善: ゲートウェイの keep-alive によって応答が保持されている間の SDK ホストへの生存報告を改善し、`CLAUDE_STREAM_IDLE_TIMEOUT_MS` を長めに設定した際の長い待機がハングと誤認されないように",
+        "t_en": "Improved liveness reporting to SDK hosts while a response is held open by gateway keep-alives, so long waits under a raised `CLAUDE_STREAM_IDLE_TIMEOUT_MS` are not mistaken for a hung session",
+        "tags": ["改善", "SDK"]
+      },
+      {
+        "t": "改善: サーバーの URL やリクエストヘッダーに含まれる認証情報が、MCP 接続・OAuth のデバッグ・エラーログでリダクトされるように改善",
+        "t_en": "Improved MCP connection and OAuth debug/error logs so credentials carried in a server's URL or request headers are redacted",
+        "tags": ["改善", "Security", "MCP"]
+      },
+      {
+        "t": "改善: `/fork` が元の会話のプロンプトキャッシュを新しいバックグラウンドセッションでも維持するように改善。worktree のブリーフィングはシステムプロンプトの変更ではなくメッセージとして届くように",
+        "t_en": "Improved `/fork` to keep the original conversation's prompt cache in the new background session: its worktree briefing now arrives as a message instead of a system-prompt change",
+        "tags": ["改善"]
+      },
+      {
+        "t": "改善: 残りの GitHub・Slack 形式の絵文字ショートコードエイリアス（`:satisfied:`・`:telephone:`・`:collision:` など）も絵文字オートコンプリートで認識できるように改善",
+        "t_en": "Improved emoji autocomplete to accept the remaining GitHub/Slack shortcode aliases (`:satisfied:`, `:telephone:`, `:collision:`, …)",
+        "tags": ["改善"]
+      },
+      {
+        "t": "変更: `--effort` が新しいモデルのデフォルトエフォート保持を恒久的にではなく、そのセッションだけ解除するように変更。claude.ai 側で選んだエフォートは Remote Control セッションでも保持期間中に適用される",
+        "t_en": "Changed `--effort` to lift a new model's default-effort hold for that session only rather than permanently; an effort picked on claude.ai for a Remote Control session now applies during the hold",
+        "tags": ["改善"]
+      },
+      {
+        "t": "変更: MDM や `managed-settings.json` の `policyHelper` がキャッシュされたサーバー管理設定によって起動時に覆われていた場合、次回起動を待たずフェッチが削除を検知した時点で実行（または終了）するように変更",
+        "t_en": "Changed a `policyHelper` in MDM or `managed-settings.json` shadowed at launch by cached server-managed settings to run (or exit) as soon as the fetch reports them removed, not at the next launch",
+        "tags": ["改善"]
+      },
+      {
+        "t": "変更: `managedSourcesBehavior: \"merge\"` で、`sandbox.credentials.awsPairs` と `sandbox.ripgrep` は各ソースの値を組み合わせるのではなく、それらを設定している優先度最上位の管理ソースから丸ごと取得するように変更",
+        "t_en": "Changed `managedSourcesBehavior: \"merge\"` to take `sandbox.credentials.awsPairs` and `sandbox.ripgrep` whole from the highest managed source that sets them instead of combining the sources' values",
+        "tags": ["改善"]
+      },
+      {
+        "t": "変更: ゲートウェイモデル検出（`CLAUDE_CODE_ENABLE_GATEWAY_MODEL_DISCOVERY=1`）は自分のゲートウェイにしか問い合わせないため、`CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` が設定されていても実行されるように変更",
+        "t_en": "Changed gateway model discovery (`CLAUDE_CODE_ENABLE_GATEWAY_MODEL_DISCOVERY=1`) to run even when `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` is set, since it only queries your gateway",
+        "tags": ["改善"]
+      },
+      {
+        "t": "変更: `claude --resume <セッションID> --bg` を、そのセッションを実行しているプロセスがない場合はコピーを静かに開始するのではなく、同じ ID のまま継続するように変更。コピーを開始する場合はその旨を明示",
+        "t_en": "Changed `claude --resume <session-id> --bg` to continue that session under its own ID when nothing is running it, instead of silently starting a copy; a copy is now announced",
+        "tags": ["改善"]
+      },
+      {
+        "t": "変更: `/btw` の履歴閲覧を `←`・`→` から `Shift+←`・`Shift+→`（または `[`・`]`）に変更し、直近の脇道質問を行き来できるように",
+        "t_en": "Changed `/btw` history browsing from `←`/`→` to `Shift+←`/`Shift+→` (or `[`/`]`), stepping through your recent side questions and back to the live answer",
+        "tags": ["改善"]
+      },
+      {
+        "t": "変更: `.claude/settings.json` や `.claude/settings.local.json` での `defaultMode: \"bypassPermissions\"` を、`\"auto\"` と同様に無視するように変更。設定するにはユーザー設定・管理設定を使うか `--permission-mode` を渡す",
+        "t_en": "Changed `defaultMode: \"bypassPermissions\"` in `.claude/settings.json` or `.claude/settings.local.json` to be ignored, like `\"auto\"`; set it in user or managed settings, or pass `--permission-mode`",
+        "tags": ["改善", "Security"]
+      },
+      {
+        "t": "変更: Claude apps gateway セッションでは、まだ Fable 5.1 に対応していないゲートウェイがリクエストを拒否してしまうため、当面 `fable`・`best` は引き続き Fable 5 を指すように変更。`/model` で明示的に選べば Fable 5.1 を利用可能",
+        "t_en": "Changed `fable` and `best` in Claude apps gateway sessions to keep resolving to Fable 5 for now, since gateways not yet configured for Fable 5.1 reject it; pick Fable 5.1 in `/model` to use it",
+        "tags": ["改善"]
+      },
+      {
+        "t": "変更: `--add-dir`・`/add-dir`・`additionalDirectories` が、UNC 共有や `/net/<host>` のオートマウントなどネットワークパスを触る前に拒否し、メッセージを表示するように変更。Windows ではマップ済みドライブレターの利用を案内",
+        "t_en": "Changed `--add-dir`, `/add-dir`, and `additionalDirectories` to refuse network paths (UNC shares, `/net/<host>` automounts) with a message before touching them; on Windows use a mapped drive letter",
+        "tags": ["改善", "Security"]
+      },
+      {
+        "t": "変更: 管理設定のフェッチが既に行っているのと同様に、Claude apps gateway のサインイン・トークンリフレッシュのリクエストでも、ゲートウェイの固定 TLS 証明書を検証するように変更",
+        "t_en": "Changed Claude apps gateway sign-in and token refresh requests to verify the gateway's pinned TLS certificate, as the managed settings fetch already does",
+        "tags": ["改善", "Security"]
+      },
+      {
+        "t": "変更: Cowork や claude.ai のクラウドセッションで、自分のものではないアーティファクトを読み取る際は auto モードでも常に先に確認するように変更",
+        "t_en": "Changed Cowork and claude.ai cloud sessions: reading an artifact that isn't yours now always asks you first, even in auto mode",
+        "tags": ["改善", "Security"]
+      },
+      {
+        "t": "削除: Bash・PowerShell のパーミッション確認プロンプトから Ctrl+E コマンドの説明表示を削除",
+        "t_en": "Removed the Ctrl+E command explanation on Bash and PowerShell permission prompts",
+        "tags": ["非推奨"]
+      },
+      {
+        "t": "追加: [VSCode] セッション一覧パネルに、折りたたみ可能な ACCOUNT & USAGE・SESSION MANAGER のセクションヘッダーを追加。アカウントのメールアドレス・利用状況メーター・詳細ダイアログを開く View details リンクを表示",
+        "t_en": "[VSCode] Added collapsible ACCOUNT & USAGE and SESSION MANAGER section headers to the session list panel, with the account email, the usage meter, and a View details link opening the usage dialog",
+        "tags": ["新機能", "IDE"]
+      },
+      {
+        "t": "追加: [VSCode] 入力欄フッターに現在のモデルを表示しモデルピッカーを開けるモデルピルを追加。Effort 行と「More models」ページも用意",
+        "t_en": "[VSCode] Added a model pill to the input footer that shows the current model and opens the model picker, with an Effort row and a \"More models\" page",
+        "tags": ["新機能", "IDE"]
+      },
+      {
+        "t": "追加: [VSCode] セッション一覧の Ungrouped セクションに折りたたみトグルを追加",
+        "t_en": "[VSCode] Added a collapse toggle to the Ungrouped section of the session list",
+        "tags": ["新機能", "IDE"]
+      },
+      {
+        "t": "追加: [VSCode] コマンドメニューにカスタムスタイルを含む出力スタイルの選択機能を追加",
+        "t_en": "[VSCode] Added output style selection to the command menu, including custom styles",
+        "tags": ["新機能", "IDE"]
+      },
+      {
+        "t": "修正: [VSCode] サードパーティプロバイダー（Bedrock・Vertex など）のデプロイで、claude.ai 専用機能（リモートセッション・音声入力・利用状況）が引き続き表示され、残った古いログインで claude.ai を呼び出してしまう問題を修正",
+        "t_en": "[VSCode] Fixed third-party provider deployments (Bedrock, Vertex, and others) still showing claude.ai-only features (remote sessions, dictation, usage) and calling claude.ai with a leftover login",
+        "tags": ["バグ修正", "IDE"]
+      },
+      {
+        "t": "修正: [VSCode] セッション一覧パネルの利用状況メーターがパネル読み込み後も空白のままになる問題を修正し、直近の利用状況をすぐに表示するように",
+        "t_en": "[VSCode] Fixed the session list panel's usage meter staying blank after the panel loads; it now shows the last known usage immediately",
+        "tags": ["バグ修正", "IDE"]
+      },
+      {
+        "t": "修正: [VSCode] 「Enable Remote Control for all sessions」のトグルが、既に開いているセッションには適用されず新規セッションのみに反映されていた問題を修正",
+        "t_en": "[VSCode] Fixed the \"Enable Remote Control for all sessions\" toggle so turning it on or off applies to sessions that are already open, not only to new ones",
+        "tags": ["バグ修正", "IDE"]
+      },
+      {
+        "t": "修正: [VSCode] スクリーンリーダーの読み上げで、コードフェンスや見出しの直前にある制御文字によって表示上の行が読み上げから欠落する問題と、見出しをまたぐ太字マーカーの対応がずれる問題を修正",
+        "t_en": "[VSCode] Fixed screen reader announcements: a control character before a fence or heading no longer drops visible lines from speech, and bold markers spanning a heading are no longer mis-paired",
+        "tags": ["バグ修正", "IDE"]
+      },
+      {
+        "t": "変更: [VSCode] アクションメニューのスラッシュコマンド表示を、インライン表示ではなく絞り込み可能な「Slash commands」ダイアログに変更。選択すると実行される。MCP サーバーダイアログにも同様の絞り込みボックスを追加",
+        "t_en": "[VSCode] Changed the action menu to list slash commands in a filterable \"Slash commands\" dialog instead of inline; picking one runs it; the MCP servers dialog gained the same filter box",
+        "tags": ["改善", "IDE"]
+      },
+      {
+        "t": "変更: [VSCode] 「Delete session」を「Archive session」に変更。アーカイブされたセッションは一覧下部の折りたたみ可能な「Archived sessions」グループに移動し、Unarchive で復元できるように",
+        "t_en": "[VSCode] Changed \"Delete session\" to \"Archive session\": archived sessions move to a collapsible \"Archived sessions\" group at the bottom of the list with an Unarchive action",
+        "tags": ["改善", "IDE"]
+      }
+    ]
+  },
+  {
+    "v": "2.1.258",
+    "items": [
+      {
+        "t": "修正: 2.1.255 で発生したリグレッションにより macOS 12 (Monterey) で Claude Code が起動できなくなっていた問題を修正",
+        "t_en": "Fixed Claude Code failing to launch on macOS 12 (Monterey), a regression introduced in 2.1.255",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: 再送されたパーミッション承認を適用できなかった際に、リモートセッションやスケジュール実行セッションが「user messages must have non-empty content」エラーで失敗する問題を修正",
+        "t_en": "Fixed remote and scheduled sessions failing with \"user messages must have non-empty content\" after a re-sent permission approval could not be applied",
+        "tags": ["バグ修正"]
+      }
+    ]
   }
 ]
