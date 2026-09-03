@@ -4,8 +4,8 @@
       "t": "変更: `AskUserQuestion` ダイアログがデフォルトでは自動継続しないように（アイドルタイムアウトは `/config` からオプトイン）",
       "t_en": "Changed `AskUserQuestion` dialogs to no longer auto-continue by default; opt into an idle timeout via `/config`",
       "tags": ["改善"],
-      "detail": "これまで `AskUserQuestion` のダイアログは、一定時間放置すると事前選択された選択肢のまま自動的に会話が継続されることがあり、ユーザーが確認していない選択のまま作業が進んでしまう恐れがあった。\n\n本バージョンからデフォルトが「自動継続しない」に変更され、質問はユーザーが実際に回答するまで待機するようになった。従来の自動継続の挙動が必要な場合は、`/config` の「Question auto-continue timeout」（`askUserQuestionTimeout` 設定。`60s`・`5m`・`10m`・`never` を指定可能）でオプトインできる。詳しくは[設定のドキュメント](https://code.claude.com/docs/en/settings#askuserquestiontimeout)を参照してください。",
-      "detail_en": "Previously an idle `AskUserQuestion` dialog could auto-continue with the pre-selected options, letting work proceed on a decision the user never actually reviewed.\n\nThe default is now to never auto-continue, so a question waits until you answer it. To opt back into the hands-off behavior, use the \"Question auto-continue timeout\" entry in `/config` (the `askUserQuestionTimeout` setting, accepting `60s`, `5m`, `10m`, or `never`). See the [settings documentation](https://code.claude.com/docs/en/settings#askuserquestiontimeout) for details.",
+      "detail": "これまで `AskUserQuestion` のダイアログは、一定時間放置すると事前選択された選択肢のまま自動的に会話が継続されることがあり、ユーザーが確認していない選択のまま作業が進んでしまう恐れがあった。\n\n本バージョンからデフォルトが「自動継続しない」に変更され、質問はユーザーが実際に回答するまで待機するようになった。従来の自動継続の挙動が必要な場合は、`/config` の「Question auto-continue timeout」（`askUserQuestionTimeout` 設定。`60s`・`5m`・`10m`・`never` を指定可能）でオプトインできる。詳しくは[設定のドキュメント](https://code.claude.com/docs/en/settings-reference#askuserquestiontimeout)を参照してください。",
+      "detail_en": "Previously an idle `AskUserQuestion` dialog could auto-continue with the pre-selected options, letting work proceed on a decision the user never actually reviewed.\n\nThe default is now to never auto-continue, so a question waits until you answer it. To opt back into the hands-off behavior, use the \"Question auto-continue timeout\" entry in `/config` (the `askUserQuestionTimeout` setting, accepting `60s`, `5m`, `10m`, or `never`). See the [settings documentation](https://code.claude.com/docs/en/settings-reference#askuserquestiontimeout) for details.",
       "category": "設定",
       "category_en": "Configuration"
     },
@@ -388,8 +388,8 @@
       "t": "修正: コンテキスト使用量インジケーターが毎ターン全トランスクリプトを再解析し、メモリと CPU 負荷が増大する問題",
       "t_en": "Fixed a memory and per-turn CPU regression where the context-usage indicator re-analyzed the entire transcript after every turn",
       "tags": ["バグ修正", "Perf"],
-      "detail": "インタラクティブセッションで、コンテキスト使用量インジケーターがターン終了のたびに会話全体のトランスクリプトを解析し直しており、セッションが長くなるほどメモリ使用量とターンごとの CPU 負荷が増大していく回帰が生じていた。\n\n本バージョンでこの再解析処理が修正され、インジケーターは差分のみを処理するようになったため、長時間のセッションでもメモリと CPU の負荷が抑えられるようになった。",
-      "detail_en": "In interactive sessions, the context-usage indicator was re-analyzing the entire conversation transcript after every turn, causing memory usage and per-turn CPU cost to climb as a session grew longer.\n\nThis version fixes the regression: the indicator no longer re-scans the full transcript each turn, keeping memory and CPU overhead in check during long sessions.",
+      "detail": "インタラクティブセッションで、コンテキスト使用量インジケーターがターン終了のたびに会話全体のトランスクリプトを解析し直しており、セッションが長くなるほどメモリ使用量とターンごとの CPU 負荷が増大していく回帰が生じていた。\n\n本バージョンでこの再解析処理が修正され、インジケーターはターンごとに会話全体を再スキャンしなくなったため、長時間のセッションでもメモリと CPU の負荷が抑えられるようになった。",
+      "detail_en": "In interactive sessions, the context-usage indicator was re-analyzing the entire conversation transcript at the end of every turn, causing memory usage and per-turn CPU load to climb as the session grew longer.\n\nThis version fixes the re-analysis process, so the indicator no longer re-scans the entire conversation on every turn, keeping memory and CPU load in check even during long sessions.",
       "category": "パフォーマンス",
       "category_en": "Performance"
     },
@@ -860,8 +860,8 @@
       "t": "改善: /doctor をセットアップの問題を診断・修正できるフルチェックに刷新（エイリアス /checkup を追加）",
       "t_en": "Improved `/doctor` into a full setup checkup that can diagnose and fix issues, with `/checkup` added as its alias",
       "tags": ["改善"],
-      "detail": "従来の `/doctor` は Claude Code のインストール状態や設定を診断し、結果をステータスアイコンで表示する機能だった。本バージョンから `/doctor` はインストールやセットアップ全般を対象としたフルチェックへと拡張され、検出した問題を `f` キーひとつで Claude に修正させることもできるようになった。あわせて `/checkup` という別名でも同じコマンドを呼び出せるようになり、直感的な名前でセットアップ診断を実行できる。詳細は[コマンド一覧](https://code.claude.com/docs/en/commands)を参照。",
-      "detail_en": "Previously, `/doctor` diagnosed Claude Code's installation and settings and displayed the results with status icons. As of this version, `/doctor` has been expanded into a full setup checkup covering installation and setup issues more broadly, and pressing `f` lets Claude fix any reported issues. The same command can now also be invoked via the alias `/checkup`, giving it a more intuitive name for running a setup diagnosis. See the [commands reference](https://code.claude.com/docs/en/commands) for details.",
+      "detail": "`/doctor` がセットアップ全般を対象としたフルチェックに拡張され、問題の診断だけでなく修正も行えるようになった。\n\nあわせて `/checkup` が `/doctor` のエイリアスとして追加され、どちらの名前でも同じチェックを実行できる。詳細は[コマンド一覧](https://code.claude.com/docs/en/commands)を参照。",
+      "detail_en": "`/doctor` has been expanded into a full setup checkup that can not only diagnose issues but also fix them.\n\n`/checkup` has been added as an alias for `/doctor`, so the same checkup can be run under either name. See the [commands reference](https://code.claude.com/docs/en/commands) for details.",
       "category": "コマンド",
       "category_en": "Commands"
     },
@@ -1341,8 +1341,8 @@
       "t": "修正: `/usage-credits` の金額入力で、貼り付けたタイムスタンプなど不正な値が数字だけに黙って切り詰められる問題（不正な金額はエラーで拒否、1,000ドルを超える金額は入力による確認を必須に）",
       "t_en": "Fixed `/usage-credits` amount inputs silently stripping malformed values (e.g. a pasted timestamp) to digits; malformed amounts are now rejected with an error, and amounts over $1,000 require a typed confirmation",
       "tags": ["バグ修正"],
-      "detail": "`/usage-credits` コマンドは、Pro・Max ユーザーが利用クレジットの月間支出上限を設定するためのものである。これまでは、誤ってタイムスタンプなどをペーストしてしまった場合でも、その不正な値が黙って数字だけに切り詰められ、意図しない金額が上限として設定されてしまうことがあった。\n\n本バージョンから、不正な形式の入力は明確なエラーで拒否されるようになり、また1,000ドルを超える金額を設定する際にはタイプによる確認ステップが追加され、誤入力を事前に防げるようになった。詳しくは[コストに関するドキュメント](https://code.claude.com/docs/en/costs#managing-costs-for-teams)を参照してください。",
-      "detail_en": "The `/usage-credits` command lets Pro and Max users set a monthly spend limit on usage credits. Previously, pasting a malformed value into the amount field — such as an accidentally pasted timestamp — was silently stripped down to just its digits and used as the limit, which could set a confusingly wrong spend limit with no warning.\n\nMalformed input is now rejected with an explicit error, and setting an amount over $1,000 now requires a typed confirmation step to catch likely mistakes before they take effect. See the [costs documentation](https://code.claude.com/docs/en/costs#managing-costs-for-teams) for details.",
+      "detail": "`/usage-credits` コマンドは、Pro・Max ユーザーが利用クレジットの月間支出上限を設定するためのものである。これまでは、誤ってタイムスタンプなどをペーストしてしまった場合でも、その不正な値が黙って数字だけに切り詰められ、意図しない金額が上限として設定されてしまうことがあった。\n\n本バージョンから、不正な形式の入力は明確なエラーで拒否されるようになり、また1,000ドルを超える金額を設定する際にはタイプによる確認ステップが追加され、誤入力を事前に防げるようになった。詳しくは[コストに関するドキュメント](https://code.claude.com/docs/en/costs#claude-for-teams-and-enterprise)を参照してください。",
+      "detail_en": "The `/usage-credits` command lets Pro and Max users set a monthly spend limit on usage credits. Previously, pasting a malformed value into the amount field — such as an accidentally pasted timestamp — was silently stripped down to just its digits and used as the limit, which could set a confusingly wrong spend limit with no warning.\n\nMalformed input is now rejected with an explicit error, and setting an amount over $1,000 now requires a typed confirmation step to catch likely mistakes before they take effect. See the [costs documentation](https://code.claude.com/docs/en/costs#claude-for-teams-and-enterprise) for details.",
       "category": "コマンド",
       "category_en": "Commands"
     }
@@ -1352,8 +1352,8 @@
       "t": "追加: スクリーンリーダー利用者向けのオプトイン式プレーンテキスト表示モードを追加（`claude --ax-screen-reader` の実行、`CLAUDE_AX_SCREEN_READER=1` の設定、または settings への `\"axScreenReader\": true` の追加で有効化）",
       "t_en": "Added screen reader mode: opt-in plain-text rendering for screen reader users. Run `claude --ax-screen-reader`, set CLAUDE_AX_SCREEN_READER=1, or add \"axScreenReader\": true to settings.",
       "tags": ["新機能"],
-      "detail": "これまで Claude Code の既定のターミナル描画は、装飾的な罫線・アニメーション・全画面再描画を多用しており、スクリーンリーダーでは内容を正しく読み上げにくかった。\n\nスクリーンリーダーモードを有効にすると、旧来のレンダラーに切り替わり、罫線やアニメーションを排したフラットなプレーンテキスト出力になる。CLI フラグ・環境変数・設定ファイルのいずれからでも有効化でき、視覚障害・弱視の開発者が支援技術と組み合わせて Claude Code を使いやすくなる。詳しくは[アクセシビリティのドキュメント](https://code.claude.com/docs/en/settings#available-settings)を参照してください。",
-      "detail_en": "Claude Code's default terminal rendering relied heavily on decorative borders, animations, and full-screen redraws, which screen readers struggled to narrate correctly.\n\nEnabling screen reader mode switches to the classic renderer and produces flat, plain-text output with no borders or animations. It can be turned on via a CLI flag, an environment variable, or a settings file entry, making Claude Code more usable with assistive technology for blind and low-vision developers. See the [settings docs](https://code.claude.com/docs/en/settings#available-settings) for details.",
+      "detail": "これまで Claude Code の既定のターミナル描画は、装飾的な罫線・アニメーション・全画面再描画を多用しており、スクリーンリーダーでは内容を正しく読み上げにくかった。\n\nスクリーンリーダーモードを有効にすると、旧来のレンダラーに切り替わり、罫線やアニメーションを排したフラットなプレーンテキスト出力になる。CLI フラグ・環境変数・設定ファイルのいずれからでも有効化でき、視覚障害・弱視の開発者が支援技術と組み合わせて Claude Code を使いやすくなる。詳しくは[アクセシビリティのドキュメント](https://code.claude.com/docs/en/settings-reference)を参照してください。",
+      "detail_en": "Claude Code's default terminal rendering relied heavily on decorative borders, animations, and full-screen redraws, which screen readers struggled to narrate correctly.\n\nEnabling screen reader mode switches to the classic renderer and produces flat, plain-text output with no borders or animations. It can be turned on via a CLI flag, an environment variable, or a settings file entry, making Claude Code more usable with assistive technology for blind and low-vision developers. See the [settings docs](https://code.claude.com/docs/en/settings-reference) for details.",
       "category": "アクセシビリティ",
       "category_en": "Accessibility"
     },
@@ -1712,8 +1712,8 @@
       "t": "修正: `$(…)`・バッククォート・`<(…)` によるコマンド置換/プロセス置換を含むコマンド内の破壊的な削除（`rm -rf ~` 等）が、通常形式と同様に `--dangerously-skip-permissions` と auto mode でも確認プロンプトを出すように",
       "t_en": "Catastrophic removals (e.g. `rm -rf ~`) in commands containing `$(…)`/backticks/`<(…)` now prompt in `--dangerously-skip-permissions` and auto mode, matching the plain form",
       "tags": ["バグ修正", "Security"],
-      "detail": "bypassPermissions モード（`--dangerously-skip-permissions`）と auto mode には、これらのモードが通常パーミッション確認をスキップする中でも、`rm -rf ~` のようなファイルシステムルートやホームディレクトリの破壊的な削除だけは必ず確認を求める「サーキットブレーカー」が以前から存在していた。しかし、この保護はコマンドの通常の記述形式にしか適用されておらず、`echo \"$(rm -rf ~)\"` のようにコマンド置換（`$(...)`、バッククォート）やプロセス置換（`<(...)`）を経由した削除はこのチェックをすり抜け、自動承認や分類器による承認に直行してしまっていた。\n\n本バージョンでは、置換形式のコマンドでも同じ確認プロンプトが発火するようになり、この抜け穴が塞がれた。詳しくは[パーミッションモードのドキュメント](https://code.claude.com/docs/en/permission-modes#eliminate-prompts-with-auto-mode)を参照してください。",
-      "detail_en": "Both bypassPermissions mode (`--dangerously-skip-permissions`) and auto mode have long had a \"circuit breaker\" that always prompts before a catastrophic filesystem-root or home-directory removal like `rm -rf ~`, even though these modes otherwise skip permission prompts. This protection previously only caught the plain command form; a removal reached via command substitution (`$(...)`, backticks) or process substitution (`<(...)`) — e.g. `echo \"$(rm -rf ~)\"` — bypassed the check and went straight to auto-approval or classifier approval.\n\nThe same prompt now fires for substitution forms too, closing this gap. See the [permission modes docs](https://code.claude.com/docs/en/permission-modes#eliminate-prompts-with-auto-mode) for details.",
+      "detail": "bypassPermissions モード（`--dangerously-skip-permissions`）と auto mode には、これらのモードが通常パーミッション確認をスキップする中でも、`rm -rf ~` のようなファイルシステムルートやホームディレクトリの破壊的な削除だけは必ず確認を求める「サーキットブレーカー」が以前から存在していた。しかし、この保護はコマンドの通常の記述形式にしか適用されておらず、`echo \"$(rm -rf ~)\"` のようにコマンド置換（`$(...)`、バッククォート）やプロセス置換（`<(...)`）を経由した削除はこのチェックをすり抜け、自動承認や分類器による承認に直行してしまっていた。\n\n本バージョンでは、置換形式のコマンドでも同じ確認プロンプトが発火するようになり、この抜け穴が塞がれた。詳しくは[パーミッションモードのドキュメント](https://code.claude.com/docs/en/permission-modes)を参照してください。",
+      "detail_en": "Both bypassPermissions mode (`--dangerously-skip-permissions`) and auto mode have long had a \"circuit breaker\" that always prompts before a catastrophic filesystem-root or home-directory removal like `rm -rf ~`, even though these modes otherwise skip permission prompts. This protection previously only caught the plain command form; a removal reached via command substitution (`$(...)`, backticks) or process substitution (`<(...)`) — e.g. `echo \"$(rm -rf ~)\"` — bypassed the check and went straight to auto-approval or classifier approval.\n\nThe same prompt now fires for substitution forms too, closing this gap. See the [permission modes docs](https://code.claude.com/docs/en/permission-modes) for details.",
       "category": "セキュリティ",
       "category_en": "Security"
     },
@@ -1752,6 +1752,15 @@
       "detail_en": "In v2.1.207, Claude Code's Bedrock region resolution incorrectly overrode the AWS SSO profile's own `sso_region` with the Bedrock region, so a profile whose IAM Identity Center instance lived in a different region than the Bedrock endpoint failed authentication with \"Session token not found or invalid\".\n\nThis release fixes the regression: Claude Code now correctly requests role credentials from the IAM Identity Center region named by the profile's `sso_region`, independent of the Bedrock region. See the [Amazon Bedrock docs](https://code.claude.com/docs/en/amazon-bedrock#2-configure-aws-credentials) for details.",
       "category": "プラットフォーム互換性",
       "category_en": "Platform Compatibility"
+    },
+    {
+      "t": "変更: Fable 5 の usage-credits 同意プロンプトで、初期フォーカスが「辞退する」の選択肢に当たるように変更",
+      "tags": ["改善"],
+      "detail": "Fable 5 の usage-credits（従量課金の追加利用枠）消費に同意するかどうかを尋ねる確認プロンプトが表示される際、選択肢の初期フォーカス位置が変更された。\n\n本バージョンでは、このプロンプトが表示されたときに、あらかじめ「辞退する」の選択肢にフォーカスが当たった状態で表示されるようになった。",
+      "category": "UX",
+      "detail_en": "When the confirmation prompt asking whether to consent to Fable 5 usage-credits (metered additional usage allowance) consumption is shown, the initial focus position of the options has been changed.\n\nIn this version, when this prompt is displayed, the \"Decline\" option is now focused by default.",
+      "t_en": "Changed the Fable 5 usage-credits consent prompt to start with the decline option focused",
+      "category_en": "UX"
     }
   ],
   "2.1.209": [

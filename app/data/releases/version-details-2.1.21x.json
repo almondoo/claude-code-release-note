@@ -518,7 +518,7 @@
     {
       "t": "改善: Windows での同期スキル・プラグインのディレクトリ命名を堅牢化するとともに、`/clear` 後も CCR の Web 取得・検索プロキシが動作し続けるように修正",
       "t_en": "Hardened synced skill/plugin directory naming on Windows and kept CCR web fetch/search proxies working after `/clear`",
-      "tags": ["バグ修正", "Windows"],
+      "tags": ["改善", "Windows"],
       "detail": "Windows 環境では、同期されるスキルやプラグインのディレクトリ名が Windows のファイルシステムの命名規則と衝突したり無効になったりすることがあった。また、Claude Code Remote（CCR）のセッションでは、`/clear` を実行すると Web 取得・検索ツールのプロキシが動作しなくなることがあった。\n\n本バージョンでは、Windows でのディレクトリ命名処理を堅牢化するとともに、`/clear` 後も CCR の Web 取得・検索プロキシが正しく動作し続けるように修正した。",
       "detail_en": "On Windows, directory names for synced skills/plugins could collide with or be invalid under Windows filesystem naming rules. Separately, in Claude Code Remote (CCR) sessions, the web fetch/search tool proxies could stop working after running `/clear`.\n\nThis version hardens the Windows directory naming and keeps CCR's web fetch/search proxies working correctly after `/clear`.",
       "category": "プラグイン",
@@ -707,8 +707,8 @@
       "category_en": "Security"
     },
     {
-      "t": "修正: フックが continue:false で処理を停止させても、ツール呼び出し失敗時にはその停止指示が無視されていた不具合を修正",
-      "t_en": "Fixed `continue:false` hook halts being dropped on tool failures",
+      "t": "修正: フックの continue:false による停止指示がツール呼び出しの失敗・中断時に無視される不具合と、フック基盤のエラーがユーザーによる拒否として誤表示される不具合を修正",
+      "t_en": "Fixed a `continue:false` hook's halt being dropped when the tool fails or completes mid-stream, and hook infrastructure errors being misreported as user rejections",
       "tags": ["バグ修正"],
       "detail": "フックは continue: false を返すことで以降の処理を停止できるが、紐づくツール呼び出しが失敗した場合や処理が中断された場合には、この停止指示が無視されてターンがそのまま続行されてしまう不具合があった。またフック基盤自体のエラーがユーザーによる拒否として誤表示されることもあった。\n\n本バージョンで両方の不具合が修正され、停止指示が確実に反映されるとともに、基盤エラーは正しくエラーとして報告されるようになった。",
       "detail_en": "A hook can return `continue: false` to halt further execution, but a bug dropped that halt signal when the associated tool call failed or completed mid-stream, letting the turn continue instead of stopping. Hook infrastructure errors were also misreported as user rejections.\n\nThis version fixes both issues: halts are now honored reliably, and infrastructure errors are reported accurately.",
@@ -989,8 +989,8 @@
       "t": "変更: 質問なしで /btw を実行すると、直近のやり取りに関するサイドクエスチョンパネルが再度開くように変更",
       "t_en": "Changed bare `/btw` to reopen side-question panel on recent exchanges",
       "tags": ["改善"],
-      "detail": "これまで /btw は質問を伴わずに実行すると新しい質問の入力を求められるだけで、過去のやり取りを見返す手段がなかった。\n\n本バージョンから、質問を指定せずに /btw を実行すると直近のやり取りに関するサイドクエスチョンのオーバーレイが再び開くようになり、セッション内で過去に /btw に尋ねた内容を閲覧できるようになった。詳しくは[インタラクティブモードのドキュメント](https://code.claude.com/docs/en/interactive-mode#side-questions-with-%2Fbtw)を参照してください。",
-      "detail_en": "Previously, running `/btw` with no question just prompted for a new one, with no way to browse earlier exchanges.\n\nAs of this version, typing `/btw` with no question reopens the side-question overlay showing the most recent exchange, letting users browse earlier `/btw` answers from the session. See the [interactive mode docs](https://code.claude.com/docs/en/interactive-mode#side-questions-with-%2Fbtw) for details.",
+      "detail": "これまで /btw は質問を伴わずに実行すると新しい質問の入力を求められるだけで、過去のやり取りを見返す手段がなかった。\n\n本バージョンから、質問を指定せずに /btw を実行すると直近のやり取りに関するサイドクエスチョンのオーバーレイが再び開くようになり、セッション内で過去に /btw に尋ねた内容を閲覧できるようになった。詳しくは[インタラクティブモードのドキュメント](https://code.claude.com/docs/en/interactive-mode#side-questions-with-btw)を参照してください。",
+      "detail_en": "Previously, running `/btw` with no question just prompted for a new one, with no way to browse earlier exchanges.\n\nAs of this version, typing `/btw` with no question reopens the side-question overlay showing the most recent exchange, letting users browse earlier `/btw` answers from the session. See the [interactive mode docs](https://code.claude.com/docs/en/interactive-mode#side-questions-with-btw) for details.",
       "category": "UX",
       "category_en": "UX"
     },
@@ -1351,8 +1351,8 @@
       "t": "修正: エージェントビューのセッションで /install-github-app と /mcp の設定メニューがブロックされてしまう不具合を修正、ターミナル未接続のバックグラウンドセッションでのみ拒否されるように変更",
       "t_en": "Fixed `/install-github-app` and the `/mcp` settings menu being blocked in agent-view sessions — they're now refused only in background sessions with no terminal attached",
       "tags": ["バグ修正", "MCP"],
-      "detail": "/install-github-app と /mcp の設定メニューは、実際にはターミナルが接続されていて対話的にプロンプトへ回答できる場合であっても、エージェントビューのセッションであれば一律に拒否されてしまっていた。\n\n本バージョンから、この制限はターミナル未接続のバックグラウンドセッションに限定されるように修正された。[エージェントビューのドキュメント](https://code.claude.com/docs/en/agent-view#settings-plugins-and-mcp-servers)にあるとおり、これらのコマンドはアタッチ中でもピークパネルからの返信中でも拒否され通常の claude セッションでの実行を案内される一方、/mcp reconnect・/mcp enable・/mcp disable は引き続き利用できる。",
-      "detail_en": "`/install-github-app` and the `/mcp` settings menu were previously refused in any agent-view session, even when a terminal was actually attached and the user could interactively answer prompts.\n\nThe fix narrows the restriction to background sessions with no terminal attached, matching [documented behavior](https://code.claude.com/docs/en/agent-view#settings-plugins-and-mcp-servers): these commands are refused whether attached or replying from the peek panel, directing users to a regular `claude` session, while `/mcp reconnect`, `/mcp enable`, and `/mcp disable` keep working.",
+      "detail": "エージェントビューのセッションでは、`/install-github-app` と `/mcp` の設定メニューが一律にブロックされていた。\n\n本バージョンでこの制限が見直され、これらが拒否されるのはターミナルが接続されていないバックグラウンドセッションに限られるようになった。",
+      "detail_en": "In agent-view sessions, `/install-github-app` and the `/mcp` settings menu were blocked across the board.\n\nThis version narrows the restriction: they are now refused only in background sessions with no terminal attached.",
       "category": "エージェントビュー",
       "category_en": "Agent View"
     },
@@ -1651,7 +1651,7 @@
     {
       "t": "修正: セッションの OAuth トークンに必要なスコープが欠けている場合、Claude in Chrome の再接続時に 403 エラーのループに陥ってしまう問題",
       "t_en": "Fixed Claude-in-Chrome 403-looping on reconnect when the session's OAuth token lacks a required scope",
-      "tags": ["バグ修正", "IDE"],
+      "tags": ["バグ修正"],
       "detail": "Claude in Chrome 拡張機能は OAuth トークンを使ってバックエンドと通信するが、再接続を試みる際に保存済みのトークンに必要なスコープが欠けていると、これまで 403 エラーが解消されないまま再接続を無限に繰り返すループに陥ってしまうことがあった。\n\n本バージョンでは、スコープ不足によるエラーを正しく検知してこのループを打ち切り、再認証を促すようになった。",
       "detail_en": "The Claude in Chrome extension authenticates with the backend using an OAuth token. If the stored token lacked a required scope when reconnecting, it could previously enter a repeating loop of 403 errors instead of resolving.\n\nThis release detects the missing-scope error correctly, breaks the loop, and prompts for re-authentication.",
       "category": "IDE",
@@ -2085,15 +2085,6 @@
       "category_en": "UX"
     },
     {
-      "t": "追加: MCP サーバーへの接続に失敗した際、claude mcp list と /mcp に HTTP ステータスとエラー内容を表示するように。また MCP 設定値の前後に隠れた空白がある場合に警告を表示するように",
-      "t_en": "Added HTTP status and error text to `claude mcp list` and `/mcp` when a server fails to connect, and a warning for MCP config values with hidden leading or trailing whitespace",
-      "tags": ["新機能", "MCP"],
-      "detail": "これまで MCP サーバーへの接続に失敗した場合、claude mcp list や /mcp パネルではその原因についてほとんど情報が得られなかった。\n\n本バージョンでは、接続失敗時に HTTP ステータスコードとエラー内容が表示されるようになり、原因の切り分けがしやすくなった。また、ヘッダーや URL などの設定値の前後に目に見えない空白が含まれている場合、それが原因で接続が静かに失敗することを防ぐため警告が表示されるようになった。詳しくは[MCP のドキュメント](https://code.claude.com/docs/en/mcp)を参照してください。",
-      "detail_en": "Previously, when an MCP server failed to connect, `claude mcp list` and the `/mcp` panel gave little information about the cause.\n\nThis version shows the HTTP status code and error text when a connection fails, making it easier to diagnose. It also warns when a configured value (such as a header or URL) has invisible leading or trailing whitespace that could silently cause a connection to fail. See the [MCP documentation](https://code.claude.com/docs/en/mcp) for details.",
-      "category": "MCP 連携",
-      "category_en": "MCP Integration"
-    },
-    {
       "t": "修正: 貼り付けた改行を Ctrl+J として送信するターミナルで、複数行の貼り付けが改行の代わりに j が挿入されて1行に潰れてしまう問題を修正",
       "t_en": "Fixed multi-line paste collapsing into one line with `j` in place of newlines in terminals that encode pasted newlines as Ctrl+J",
       "tags": ["バグ修正"],
@@ -2178,8 +2169,8 @@
       "t": "修正: プラグインおよび設定パネルで、矢印キーによる操作時にターミナルのカーソルがフォーカス行へ移動せず、スクリーンリーダーや画面拡大鏡が追従できない問題を修正",
       "t_en": "Fixed plugin and settings panels not moving the terminal cursor to the focused row, so screen readers and magnifiers can follow arrow-key navigation",
       "tags": ["バグ修正"],
-      "detail": "/plugin や /config などのパネルでは、矢印キーによるナビゲーション時に実際のターミナルカーソルがハイライト行へ移動していなかったため、カーソル位置を頼りに動作するスクリーンリーダーや画面拡大鏡がキーボード操作に追従できなかった。\n\n本バージョンでは、これらのパネルでもターミナルカーソルがハイライト行に追従するようになり、入力欄のキャレットと同様の挙動になった。詳しくは[アクセシビリティのドキュメント](https://code.claude.com/docs/en/accessibility#accessibility-settings-beyond-screen-reader-mode)を参照してください。",
-      "detail_en": "In panels like `/plugin` and `/config`, navigating with arrow keys previously didn't move the actual terminal cursor to the highlighted row, so screen readers and magnifiers that track cursor position couldn't follow keyboard navigation.\n\nThis version makes the terminal cursor follow the highlighted row in these panels too, matching the existing behavior of the input caret. See the [accessibility documentation](https://code.claude.com/docs/en/accessibility#accessibility-settings-beyond-screen-reader-mode) for details.",
+      "detail": "/plugin や /config などのパネルでは、矢印キーによるナビゲーション時に実際のターミナルカーソルがハイライト行へ移動していなかったため、カーソル位置を頼りに動作するスクリーンリーダーや画面拡大鏡がキーボード操作に追従できなかった。\n\n本バージョンでは、これらのパネルでもターミナルカーソルがハイライト行に追従するようになり、入力欄のキャレットと同様の挙動になった。詳しくは[アクセシビリティのドキュメント](https://code.claude.com/docs/en/accessibility#accessibility-settings)を参照してください。",
+      "detail_en": "In panels like `/plugin` and `/config`, navigating with arrow keys previously didn't move the actual terminal cursor to the highlighted row, so screen readers and magnifiers that track cursor position couldn't follow keyboard navigation.\n\nThis version makes the terminal cursor follow the highlighted row in these panels too, matching the existing behavior of the input caret. See the [accessibility documentation](https://code.claude.com/docs/en/accessibility#accessibility-settings) for details.",
       "category": "アクセシビリティ",
       "category_en": "Accessibility"
     },
@@ -2456,15 +2447,6 @@
       "category_en": "MCP Integration"
     },
     {
-      "t": "修正: セルフホストランナーの再起動中に承認したパーミッションが、セッション再開時に失われて反映されない問題",
-      "t_en": "Fixed a permission you approved while a self-hosted runner was restarting being dropped when the session resumed, so the approved action now runs",
-      "tags": ["バグ修正"],
-      "detail": "セルフホストランナーが再起動している最中にユーザーがパーミッションを承認しても、セッションが再開された際にその承認が失われ、承認したはずのアクションが実行されない不具合があった。\n\n本バージョンでこの問題を修正し、再起動中に承認したパーミッションがセッション再開後も正しく反映され、承認済みのアクションが実行されるようになった。",
-      "detail_en": "If a user approved a permission while a self-hosted runner was restarting, that approval could be dropped when the session resumed, so the approved action failed to run.\n\nThis release fixes the issue: a permission approved during a runner restart now carries through to the resumed session, and the approved action runs.",
-      "category": "自己ホストランナー",
-      "category_en": "Self-Hosted Runner"
-    },
-    {
       "t": "修正: Fable が利用可能なプランでも、キャッシュが古いままだと `/model` ピッカーの Fable の行に「Requires usage credits」と誤表示されてしまう問題",
       "t_en": "Fixed the Fable model row showing \"Requires usage credits\" for plans that include it, when a stale cache had baked the label in",
       "tags": ["バグ修正"],
@@ -2472,24 +2454,6 @@
       "detail_en": "Even on plans where Fable was included and usable, a stale cached entitlement label could cause the `/model` picker's Fable row to incorrectly show \"Requires usage credits\".\n\nThis release fixes the display bug so the correct label is shown even with a stale cache.",
       "category": "モデル",
       "category_en": "Model"
-    },
-    {
-      "t": "修正: セルフホストランナーの起動中に SIGTERM を受信すると、リースが失効するまでアクティブな状態の行が残り続けてしまう問題(正しく登録解除されるように修正)",
-      "t_en": "Fixed a SIGTERM arriving while a self-hosted runner was starting up leaving a stale active row until the lease expired; it now deregisters cleanly",
-      "tags": ["バグ修正"],
-      "detail": "セルフホストランナーの起動処理中に SIGTERM を受信すると、そのランナーの登録がクリーンに解除されず、リースが失効するまで「アクティブ」な状態の行が残り続けてしまう不具合があった。\n\n本バージョンでこの問題を修正し、起動中に SIGTERM を受信した場合でも登録が正しく解除されるようになった。",
-      "detail_en": "If a self-hosted runner received SIGTERM while it was still starting up, its registration wasn't cleanly removed, leaving a stale \"active\" row until the lease expired.\n\nThis release fixes the issue so a runner that receives SIGTERM during startup deregisters cleanly.",
-      "category": "自己ホストランナー",
-      "category_en": "Self-Hosted Runner"
-    },
-    {
-      "t": "追加: セルフホストランナーの起動・セッション失敗に構造化された失敗カテゴリを追加し、フックのエラー・ランナーのクラッシュ・設定エラーを区別できるように",
-      "t_en": "Added structured failure categories to self-hosted runner spawn and session failures, so hook errors, runner crashes and config errors can be told apart",
-      "tags": ["新機能"],
-      "detail": "これまでセルフホストランナーの起動やセッションが失敗しても、原因がフックのエラーなのか、ランナー自体のクラッシュなのか、設定の誤りなのかを機械的に区別する手段がなかった。\n\n本バージョンで失敗理由に構造化されたカテゴリが追加され、監視・アラート側でこれらの失敗種別を区別できるようになった。",
-      "detail_en": "Previously, when a self-hosted runner spawn or session failed, there was no machine-readable way to tell whether the cause was a user hook error, a runner crash, or a configuration error.\n\nThis release adds structured failure categories so monitoring and alerting can distinguish these failure types.",
-      "category": "自己ホストランナー",
-      "category_en": "Self-Hosted Runner"
     },
     {
       "t": "修正: `/model` ピッカーで 1M コンテキストにアップグレードされた Opus の統合行が「Opus (1M context)」ではなく単に「Opus」と表示されてしまう問題",
@@ -2549,8 +2513,8 @@
       "t": "改善: 「Remote Control is only available via api.anthropic.com」エラーに、原因となった具体的な設定名を表示するように改善",
       "t_en": "Improved the \"Remote Control is only available via api.anthropic.com\" error to name the specific setting that caused it",
       "tags": ["改善"],
-      "detail": "このエラーは、Remote Control が claude.ai のバックエンドに直接到達できない場合(多くは `ANTHROPIC_BASE_URL` がゲートウェイやプロキシを指している場合)に表示されるが、これまでは原因となっている設定が何かをエラーメッセージから読み取れなかった。\n\n本バージョンでエラーメッセージが改善され、原因となった具体的な設定名(`ANTHROPIC_BASE_URL` など)が表示されるようになり、ユーザー自身で問題を切り分けやすくなった。詳しくは[Remote Control のドキュメント](https://code.claude.com/docs/en/remote-control#remote-control-is-only-available-when-using-claude-via-api-anthropic-com)を参照してください。",
-      "detail_en": "This error appears when Remote Control can't reach claude.ai's backend directly, most often because `ANTHROPIC_BASE_URL` points at a gateway or proxy, but previously the error message didn't say which setting was responsible.\n\nThis release improves the error to name the specific setting that caused it (such as `ANTHROPIC_BASE_URL`), making it easier for users to self-diagnose. See the [Remote Control documentation](https://code.claude.com/docs/en/remote-control#remote-control-is-only-available-when-using-claude-via-api-anthropic-com) for details.",
+      "detail": "このエラーは、Remote Control が claude.ai のバックエンドに直接到達できない場合(多くは `ANTHROPIC_BASE_URL` がゲートウェイやプロキシを指している場合)に表示されるが、これまでは原因となっている設定が何かをエラーメッセージから読み取れなかった。\n\n本バージョンでエラーメッセージが改善され、原因となった具体的な設定名(`ANTHROPIC_BASE_URL` など)が表示されるようになり、ユーザー自身で問題を切り分けやすくなった。詳しくは[Remote Control のドキュメント](https://code.claude.com/docs/en/remote-control#remote-control-is-only-available-when-using-claude-via-apianthropiccom)を参照してください。",
+      "detail_en": "This error appears when Remote Control can't reach claude.ai's backend directly, most often because `ANTHROPIC_BASE_URL` points at a gateway or proxy, but previously the error message didn't say which setting was responsible.\n\nThis release improves the error to name the specific setting that caused it (such as `ANTHROPIC_BASE_URL`), making it easier for users to self-diagnose. See the [Remote Control documentation](https://code.claude.com/docs/en/remote-control#remote-control-is-only-available-when-using-claude-via-apianthropiccom) for details.",
       "category": "Remote Control",
       "category_en": "Remote Control"
     },
@@ -2582,7 +2546,7 @@
       "category_en": "MCP Integration"
     },
     {
-      "t": "改善: `/model` ピッカーのハイライト表示を最新モデルの名前のみに変更し、一覧の一部ではなく新しいリリースそのものが強調されるように改善",
+      "t": "変更: `/model` ピッカーのハイライト表示を最新モデルの名前のみに変更し、一覧の一部ではなく新しいリリースそのものが強調されるように",
       "t_en": "Changed the `/model` picker to highlight only the newest model's name, so the highlight marks the new release rather than an arbitrary subset of the list",
       "tags": ["改善"],
       "detail": "`/model` ピッカーは新しくリリースされたモデルを視覚的に強調表示するが、これまではその強調表示のロジックが一覧中の任意の複数行を対象にしてしまうことがあり、どのモデルが実際に新しいのか分かりにくかった。\n\n本バージョンでハイライトの対象が最新モデルの名前のみに限定されるように改善され、新しいリリースを正確に強調できるようになった。",
@@ -2600,7 +2564,7 @@
       "category_en": "Workflow"
     },
     {
-      "t": "非推奨: fast mode から Opus 4.7 のサポートを削除、`/fast` は Opus 5 と Opus 4.8 のみに適用されるように",
+      "t": "削除: fast mode から Opus 4.7 のサポートを削除、`/fast` は Opus 5 と Opus 4.8 のみに適用されるように",
       "t_en": "Removed Opus 4.7 from fast mode; `/fast` now applies to Opus 5 and Opus 4.8",
       "tags": ["非推奨"],
       "detail": "fast mode は以前は Opus 4.7 を含む複数の Opus モデルに対応していた。Opus 4.7 の fast mode は 2026年6月25日に非推奨となり、本バージョン(2026年7月24日リリース)で正式に削除された。\n\n以降、Opus 4.7 に対する fast mode のリクエストは API 側で拒否されるようになり、`/fast` は Opus 5 と Opus 4.8 にのみ適用される。Opus 4.7 で高速化を利用していたユーザーは、モデルを切り替える必要がある。詳しくは[fast mode のドキュメント](https://code.claude.com/docs/en/fast-mode#toggle-fast-mode)を参照してください。",

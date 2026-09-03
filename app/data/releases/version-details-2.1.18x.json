@@ -55,11 +55,11 @@
       "category_en": "Network"
     },
     {
-      "t": "改善: サブエージェントパネルのアイドル状態のエージェントを30秒後に自動非表示、リストは最大5行に制限しスクロールヒントを表示",
-      "t_en": "Improved subagent panel: idle subagents auto-hide after 30s, list caps at 5 rows with scroll hints",
+      "t": "改善: サブエージェントパネルのアイドル状態のエージェントを30秒後に自動非表示、リストは最大5行に制限しスクロールヒントを表示、フッターにキーボードヒントを表示",
+      "t_en": "Improved the subagent panel: idle subagents auto-hide after 30s, the list caps at 5 rows with scroll hints, and keyboard hints now show in the footer",
       "tags": ["改善", "Agent"],
-      "detail": "サブエージェントパネルの表示が改善されました。アイドル状態のサブエージェントは30秒後に自動的に非表示になり、パネルの表示がすっきりします。また、リストは最大5行に制限され、それ以上のエージェントがある場合はスクロールヒントが表示されます。\n\n多数のサブエージェントを扱うワークフローでの視認性が向上し、アクティブなエージェントに集中しやすくなります。",
-      "detail_en": "The subagent panel display has been improved. Idle subagents automatically hide after 30 seconds, keeping the panel tidy. The list is also capped at 5 rows, with scroll hints appearing when there are more agents.\n\nThis improves visibility in workflows with many subagents and makes it easier to focus on active agents.",
+      "detail": "サブエージェントパネルの表示が改善されました。アイドル状態のサブエージェントは30秒後に自動的に非表示になり、パネルの表示がすっきりします。また、リストは最大5行に制限され、それ以上のエージェントがある場合はスクロールヒントが表示されます。さらに、フッターにキーボードヒントが表示されるようになりました。\n\n多数のサブエージェントを扱うワークフローでの視認性が向上し、アクティブなエージェントに集中しやすくなります。",
+      "detail_en": "The subagent panel display has been improved. Idle subagents now automatically hide after 30 seconds, keeping the panel display tidy. The list is also capped at 5 rows, and a scroll hint is shown when there are more agents than that. In addition, keyboard hints are now shown in the footer.\n\nThis improves visibility in workflows with many subagents and makes it easier to focus on active agents.",
       "category": "マルチエージェント",
       "category_en": "Multi-Agent"
     },
@@ -118,11 +118,11 @@
       "category_en": "Sandbox"
     },
     {
-      "t": "修正: 起動リグレッション — 最初のプロンプトが managed-settings のフェッチを待機するようになっていた問題",
-      "t_en": "Fixed startup regression: first prompt no longer waits for managed-settings fetch",
+      "t": "修正: 起動リグレッション（新規環境で起動あたり約120ms、2.1.169 で導入）— MCP サーバーが設定されていない場合に最初のプロンプトが managed-settings のフェッチを待機するようになっていた問題",
+      "t_en": "Fixed a startup regression (~120ms per launch in fresh environments, introduced in 2.1.169): the first prompt no longer waits for the managed-settings fetch when no MCP servers are configured",
       "tags": ["バグ修正", "Perf"],
-      "detail": "起動時のリグレッションが修正されました。以前のバージョンで導入された変更により、最初のプロンプト送信が managed-settings のフェッチ完了を待機するようになっていました。\n\nこの修正により、managed-settings のフェッチ状態に関わらず最初のプロンプトが即座に処理されるようになり、起動後の体感的なレスポンス速度が改善されます。",
-      "detail_en": "A startup regression has been fixed. A change introduced in a previous version caused the first prompt submission to wait for the managed-settings fetch to complete.\n\nWith this fix, the first prompt is processed immediately regardless of the managed-settings fetch state, improving the perceived response speed after startup.",
+      "detail": "起動時のリグレッションが修正されました。2.1.169 で導入された変更により、MCP サーバーが設定されていない環境でも最初のプロンプト送信が managed-settings のフェッチ完了を待機するようになっており、新規環境では起動ごとに約120ms の遅延が発生していました。\n\nこの修正により、MCP サーバーが設定されていない場合は managed-settings のフェッチ完了を待たずに最初のプロンプトが処理されるようになり、起動後の体感的なレスポンス速度が改善されます。なお、MCP サーバーが設定されている環境では、引き続き managed-settings のフェッチを待機します。",
+      "detail_en": "A startup regression has been fixed. A change introduced in 2.1.169 caused the first prompt submission to wait for the managed-settings fetch to complete even in environments with no MCP servers configured, adding roughly 120ms of delay per launch on fresh environments.\n\nWith this fix, when no MCP servers are configured, the first prompt is now processed without waiting for the managed-settings fetch to complete, improving the perceived response speed after startup. In environments with MCP servers configured, the first prompt still waits for the managed-settings fetch as before.",
       "category": "パフォーマンス",
       "category_en": "Performance"
     },
@@ -208,20 +208,20 @@
       "category_en": "UX"
     },
     {
-      "t": "修正: AWS `awsCredentialExport` の認証情報が毎分リフレッシュを引き起こす問題",
-      "t_en": "Fixed AWS `awsCredentialExport` credentials causing refreshes every minute",
+      "t": "修正: AWS `awsCredentialExport` で残り有効期限が短い認証情報が毎分リフレッシュを引き起こす問題、および `aws configure export-credentials` の JSON 形式に対応",
+      "t_en": "Fixed AWS `awsCredentialExport` credentials with a short remaining lifetime causing credential refreshes every minute, and now accepts the JSON shape from `aws configure export-credentials`",
       "tags": ["バグ修正", "Platform"],
-      "detail": "AWS の `awsCredentialExport` 設定を使用している場合に、認証情報が毎分リフレッシュされてしまう問題が修正されました。\n\n過剰なリフレッシュは不要な AWS API コールを引き起こしていました。修正により、認証情報は適切なタイミングのみリフレッシュされるようになりました。",
-      "detail_en": "Fixed an issue where using AWS `awsCredentialExport` configuration would cause credentials to be refreshed every minute.\n\nExcessive refreshes were causing unnecessary AWS API calls. With this fix, credentials are only refreshed at appropriate intervals.",
+      "detail": "AWS の `awsCredentialExport` 設定を使用している場合に、残りの有効期限が短い認証情報が原因で認証情報が毎分リフレッシュされてしまう問題が修正されました。過剰なリフレッシュは不要な AWS API コールを引き起こしていました。\n\nあわせて、`aws configure export-credentials` コマンドが出力する JSON 形式の認証情報も受け付けられるようになりました。\n\nこの修正により、認証情報は適切なタイミングのみリフレッシュされるようになり、`aws configure export-credentials` を使った運用でも `awsCredentialExport` 設定が正しく機能します。",
+      "detail_en": "Fixed an issue where using the AWS `awsCredentialExport` configuration would cause credentials to be refreshed every minute due to a short remaining validity period. The excessive refreshing was causing unnecessary AWS API calls.\n\nIn addition, the JSON format output by the `aws configure export-credentials` command is now accepted as credentials.\n\nWith this fix, credentials are now refreshed only at appropriate times, and the `awsCredentialExport` configuration works correctly even in workflows using `aws configure export-credentials`.",
       "category": "プラットフォーム互換性",
       "category_en": "Platform Compatibility"
     },
     {
-      "t": "修正: `claude mcp get`/`list` が tools/list の失敗時に `✓ Connected` と表示する問題",
-      "t_en": "Fixed `claude mcp get`/`list` showing `✓ Connected` when tools/list fails",
+      "t": "修正: `claude mcp get`/`list` が tools/list の失敗時に `✓ Connected` と表示する問題 — 現在はエラー詳細付きで `! Connected · tools fetch failed` と表示",
+      "t_en": "Fixed `claude mcp get`/`list` showing `✓ Connected` when tools/list fails; they now show `! Connected · tools fetch failed` with the error detail",
       "tags": ["バグ修正", "MCP"],
-      "detail": "`claude mcp get` または `claude mcp list` コマンド実行時に、MCP サーバーとの接続は確立されているが tools/list の呼び出しが失敗している場合でも `✓ Connected` と表示されてしまう問題が修正されました。\n\n接続状態の確認がより正確になり、ツール一覧の取得に失敗した場合は接続が不完全であることが明示されます。",
-      "detail_en": "Fixed an issue where `claude mcp get` or `claude mcp list` would display `✓ Connected` even when the connection to the MCP server was established but the tools/list call had failed.\n\nConnection status checking is now more accurate, and an incomplete connection is clearly indicated when the tool list retrieval fails.",
+      "detail": "`claude mcp get` または `claude mcp list` コマンド実行時に、MCP サーバーとの接続は確立されているが tools/list の呼び出しが失敗している場合でも `✓ Connected` と表示されてしまう問題が修正されました。\n\n修正後は、ツール一覧の取得に失敗した場合は `! Connected · tools fetch failed` とエラー詳細付きで表示されるようになり、接続状態がより正確に把握できるようになりました。",
+      "detail_en": "Fixed an issue where `claude mcp get` or `claude mcp list` would show `✓ Connected` even when the connection to the MCP server was established but the tools/list call had failed.\n\nNow, when fetching the tool list fails, the command shows `! Connected · tools fetch failed` along with the error details, giving a more accurate picture of the connection status.",
       "category": "MCP 連携",
       "category_en": "MCP Integration"
     },
@@ -235,20 +235,20 @@
       "category_en": "UX"
     },
     {
-      "t": "修正: ExitWorktree が「Could not verify worktree state」エラーでクリーンなワークツリーの削除を拒否する問題",
-      "t_en": "Fixed ExitWorktree refusing to remove clean worktree with \"Could not verify worktree state\"",
-      "tags": ["バグ修正"],
-      "detail": "ExitWorktree ツールが、実際にはクリーンな状態のワークツリーに対して「Could not verify worktree state」エラーを返し、削除を拒否する問題が修正されました。\n\nワークツリーの状態検証ロジックが改善され、クリーンなワークツリーが正常に削除されるようになりました。",
-      "detail_en": "Fixed an issue where the ExitWorktree tool would return a \"Could not verify worktree state\" error and refuse to remove a worktree that was actually in a clean state.\n\nThe worktree state verification logic has been improved, allowing clean worktrees to be correctly removed.",
+      "t": "修正: Windows で bare `git` を解決できない場合に ExitWorktree が「Could not verify worktree state」エラーでクリーンなワークツリーの削除を拒否する問題",
+      "t_en": "Fixed ExitWorktree refusing to remove a clean worktree with \"Could not verify worktree state\" when bare `git` cannot be resolved on Windows",
+      "tags": ["バグ修正", "Windows"],
+      "detail": "Windows 環境で bare `git` コマンドを解決できない場合に、ExitWorktree ツールが、実際にはクリーンな状態のワークツリーに対して「Could not verify worktree state」エラーを返し、削除を拒否する問題が修正されました。\n\nワークツリーの状態検証ロジックが改善され、Windows 環境で bare `git` を解決できない場合でも、クリーンなワークツリーが正常に削除されるようになりました。",
+      "detail_en": "Fixed an issue on Windows where, if the bare `git` command could not be resolved, the ExitWorktree tool would return a \"Could not verify worktree state\" error and refuse to remove a worktree that was actually in a clean state.\n\nThe worktree state verification logic has been improved so that clean worktrees are now correctly removed even when bare `git` cannot be resolved on Windows.",
       "category": "Git 連携",
       "category_en": "Git Integration"
     },
     {
-      "t": "修正: `settings.json` が相対シンボリックリンクの場合に設定変更が ENOENT で失敗する問題",
-      "t_en": "Fixed settings changes failing with ENOENT when settings.json is relative symlink",
+      "t": "修正: `~/.claude` 自体がシンボリックリンクで、かつ `~/.claude/settings.json` が相対シンボリックリンクの場合に、`/effort` や `/model` などの設定変更が ENOENT で失敗する問題",
+      "t_en": "Fixed settings changes (such as `/effort` or `/model`) failing with ENOENT when `~/.claude/settings.json` is a relative symlink under a symlinked `~/.claude`",
       "tags": ["バグ修正"],
-      "detail": "`settings.json` が相対パスを参照するシンボリックリンクになっている場合、設定変更時に ENOENT エラーが発生して変更が保存できない問題が修正されました。\n\nシンボリックリンクの解決ロジックが改善され、相対シンボリックリンクでも設定変更が正常に保存されます。",
-      "detail_en": "Fixed an issue where attempting to change settings would fail with an ENOENT error when `settings.json` was a symbolic link pointing to a relative path.\n\nThe symlink resolution logic has been improved so that settings changes are correctly saved even with relative symbolic links.",
+      "detail": "`~/.claude` ディレクトリ自体がシンボリックリンクになっており、さらにその配下の `settings.json` が相対パスを参照するシンボリックリンクになっている場合、`/effort` や `/model` などの設定変更時に ENOENT エラーが発生して変更が保存できない問題が修正されました。\n\nシンボリックリンクの解決ロジックが改善され、`~/.claude` がシンボリックリンクの環境で `settings.json` が相対シンボリックリンクになっていても、設定変更が正常に保存されるようになりました。",
+      "detail_en": "Fixed an issue where changing settings via `/effort`, `/model`, and similar commands failed with an ENOENT error when the `~/.claude` directory itself was a symbolic link and the `settings.json` under it was also a symbolic link pointing to a relative path.\n\nThe symlink resolution logic has been improved so that settings changes now save correctly even in environments where `~/.claude` is a symlink and `settings.json` is a relative symlink.",
       "category": "設定",
       "category_en": "Configuration"
     },
@@ -271,11 +271,11 @@
       "category_en": "Input"
     },
     {
-      "t": "修正: Ctrl+V でテキストを貼り付けようとすると「No image found」と表示される問題",
-      "t_en": "Fixed Ctrl+V showing \"No image found\" instead of pasting text",
+      "t": "修正: Ctrl+V でテキストを貼り付けようとすると「No image found in clipboard」と表示される問題",
+      "t_en": "Fixed Ctrl+V showing \"No image found in clipboard\" instead of pasting when the clipboard contains text",
       "tags": ["バグ修正"],
-      "detail": "Ctrl+V でテキストを貼り付けようとすると、テキストが貼り付けられる代わりに「No image found」というエラーメッセージが表示されてしまう問題が修正されました。Ctrl+V でテキストが正常に貼り付けられるようになりました。",
-      "detail_en": "Fixed an issue where pressing Ctrl+V to paste text would display the error message \"No image found\" instead of pasting the text. Ctrl+V now correctly pastes text.",
+      "detail": "Ctrl+V でテキストを貼り付けようとすると、テキストが貼り付けられる代わりに「No image found in clipboard」というエラーメッセージが表示されてしまう問題が修正されました。Ctrl+V でテキストが正常に貼り付けられるようになりました。",
+      "detail_en": "Fixed an issue where trying to paste text with Ctrl+V would show the error message \"No image found in clipboard\" instead of pasting the text. Ctrl+V now correctly pastes text.",
       "category": "入力",
       "category_en": "Input"
     },
@@ -316,11 +316,11 @@
       "category_en": "UX"
     },
     {
-      "t": "修正: Linux で `/copy` およびコピーオンセレクトがクリップボードユーティリティを検出できない問題",
-      "t_en": "Fixed `/copy` and copy-on-select on Linux not detecting clipboard utility",
+      "t": "修正: Linux で `/copy` およびコピーオンセレクトが Claude Code 起動後にインストールされたクリップボードユーティリティを検出できない問題",
+      "t_en": "Fixed `/copy` and copy-on-select on Linux not detecting a clipboard utility installed after Claude Code started",
       "tags": ["バグ修正"],
-      "detail": "Linux 環境で `/copy` コマンドやテキスト選択時の自動コピー機能が、`xclip` や `xsel`、`wl-clipboard` などのクリップボードユーティリティを正常に検出できない問題が修正されました。クリップボードへのコピーが Linux でも正しく動作するようになりました。",
-      "detail_en": "Fixed an issue on Linux where the `/copy` command and copy-on-select functionality could not correctly detect clipboard utilities such as `xclip`, `xsel`, or `wl-clipboard`.\n\nCopying to the clipboard now works correctly on Linux.",
+      "detail": "Linux 環境で `/copy` コマンドやテキスト選択時の自動コピー機能が、Claude Code の起動後にインストールされた `xclip`・`xsel`・`wl-clipboard` などのクリップボードユーティリティを検出できない問題が修正されました。\n\n修正により、Claude Code の起動後にクリップボードユーティリティをインストールした場合でも、`/copy` やコピーオンセレクトが Linux 上で正しく動作するようになりました。",
+      "detail_en": "Fixed an issue on Linux where the `/copy` command and the copy-on-select feature during text selection failed to detect clipboard utilities such as `xclip`, `xsel`, or `wl-clipboard` when they were installed after Claude Code had started.\n\nWith this fix, `/copy` and copy-on-select now work correctly on Linux even when the clipboard utility is installed after Claude Code has started.",
       "category": "プラットフォーム互換性",
       "category_en": "Platform Compatibility"
     },
@@ -375,8 +375,8 @@
       "t": "追加: web および Remote Control セッションのコミットと PR から claude.ai のセッションリンクを省略する `attribution.sessionUrl` 設定を追加",
       "t_en": "Added `attribution.sessionUrl` setting to omit the claude.ai session link from commits and PRs in web and Remote Control sessions",
       "tags": ["新機能"],
-      "detail": "web セッション（claude.ai/code）や Remote Control からのコミットでは、git コミットや PR の説明に `https://claude.ai/code/...` 形式のセッションリンクが付加されていました。`attribution.commit` を空にしてもこの URL だけは除去できないという課題がありましたが、v2.1.183 で独立した設定キー `attribution.sessionUrl` が追加され、セッションリンクのみを選択的に省略できるようになりました。\n\nコミット履歴に外部リンクを残したくない場合や、社内ポリシーでセッション URL の混入を避けたい場合に有用です。詳しくは[設定ドキュメントの attribution セクション](https://code.claude.com/docs/en/settings#attribution-settings)を参照してください。",
-      "detail_en": "For commits made from a web session (claude.ai/code) or Remote Control, Claude Code attached a session link in the `https://claude.ai/code/...` format to git commits and PR descriptions. There was an issue where this URL alone couldn't be removed even by emptying `attribution.commit`. In v2.1.183, an independent setting key `attribution.sessionUrl` was added, allowing you to selectively omit just the session link.\n\nThis is useful when you don't want to leave external links in your commit history, or when company policy requires avoiding session URLs. See the [attribution section of the settings documentation](https://code.claude.com/docs/en/settings#attribution-settings) for details.",
+      "detail": "web セッション（claude.ai/code）や Remote Control からのコミットでは、git コミットや PR の説明に `https://claude.ai/code/...` 形式のセッションリンクが付加されていました。`attribution.commit` を空にしてもこの URL だけは除去できないという課題がありましたが、v2.1.183 で独立した設定キー `attribution.sessionUrl` が追加され、セッションリンクのみを選択的に省略できるようになりました。\n\nコミット履歴に外部リンクを残したくない場合や、社内ポリシーでセッション URL の混入を避けたい場合に有用です。詳しくは[設定ドキュメントの attribution セクション](https://code.claude.com/docs/en/settings-reference#attribution)を参照してください。",
+      "detail_en": "For commits made from a web session (claude.ai/code) or Remote Control, Claude Code attached a session link in the `https://claude.ai/code/...` format to git commits and PR descriptions. There was an issue where this URL alone couldn't be removed even by emptying `attribution.commit`. In v2.1.183, an independent setting key `attribution.sessionUrl` was added, allowing you to selectively omit just the session link.\n\nThis is useful when you don't want to leave external links in your commit history, or when company policy requires avoiding session URLs. See the [attribution section of the settings documentation](https://code.claude.com/docs/en/settings-reference#attribution) for details.",
       "category": "Git 連携",
       "category_en": "Git Integration"
     },
@@ -399,11 +399,11 @@
       "category_en": "Configuration"
     },
     {
-      "t": "変更: 起動時の「setup issues」行を削除。設定の問題は `/doctor` で確認するように",
-      "t_en": "Removed startup \"setup issues\" line; use `/doctor` for configuration issues",
+      "t": "削除: 起動時の「setup issues」行を削除。設定の問題は `/doctor` で確認するように",
+      "t_en": "Removed the startup \"setup issues\" line under the logo — run `/doctor` to see configuration issues or use `--debug`",
       "tags": ["改善"],
-      "detail": "起動時にロゴの下へ表示されていた「setup issues」の行が削除されました。この行は設定上の問題の要約を示していましたが、起動画面をクリーンに保つために廃止されました。\n\n設定の問題を確認したい場合は、セッション内で `/doctor` コマンドを実行するか、`--debug` フラグを付けて起動してください。詳しくは[設定ドキュメント](https://code.claude.com/docs/en/settings#invalid-entries-in-managed-settings)を参照してください。",
-      "detail_en": "The \"setup issues\" line that appeared below the logo at startup has been removed. This line summarized configuration problems, but it was retired to keep the startup screen clean.\n\nWhen you want to check for configuration issues, run the `/doctor` command within a session, or launch with the `--debug` flag. See the [settings documentation](https://code.claude.com/docs/en/settings#invalid-entries-in-managed-settings) for details.",
+      "detail": "起動時にロゴの下へ表示されていた「setup issues」の行が削除されました。この行は設定上の問題の要約を示していましたが、起動画面をクリーンに保つために廃止されました。\n\n設定の問題を確認したい場合は、セッション内で `/doctor` コマンドを実行するか、`--debug` フラグを付けて起動してください。詳しくは[設定ドキュメント](https://code.claude.com/docs/en/managed-settings#find-entries-claude-code-dropped)を参照してください。",
+      "detail_en": "The \"setup issues\" line that appeared below the logo at startup has been removed. This line summarized configuration problems, but it was retired to keep the startup screen clean.\n\nWhen you want to check for configuration issues, run the `/doctor` command within a session, or launch with the `--debug` flag. See the [settings documentation](https://code.claude.com/docs/en/managed-settings#find-entries-claude-code-dropped) for details.",
       "category": "UX",
       "category_en": "UX"
     },
@@ -426,11 +426,11 @@
       "category_en": "Multi-Agent"
     },
     {
-      "t": "修正: vim モードのヒストリナビゲーション後にターミナルカーソルの位置がずれる問題",
-      "t_en": "Fixed terminal cursor positioning after vim mode history navigation",
+      "t": "修正: ネイティブカーソルを有効にした vim モードでヒストリナビゲーション後にターミナルカーソルがプロンプトより上の位置に取り残される問題",
+      "t_en": "Fixed the terminal cursor being stranded above the prompt after navigating history in vim mode with the native cursor enabled",
       "tags": ["バグ修正"],
-      "detail": "vim モードを有効にしている環境で、ヒストリナビゲーション（上下キーによる履歴移動）を行った後に、ターミナルカーソルがプロンプトより上の誤った位置に残ってしまう問題が修正されました。カーソルが正しい入力位置に表示されるようになりました。",
-      "detail_en": "Fixed an issue where, with vim mode enabled, the terminal cursor would be left in an incorrect position above the prompt after history navigation (moving through history with the arrow keys). The cursor is now displayed at the correct input position.",
+      "detail": "vim モードでネイティブカーソル表示を有効にしている環境で、ヒストリナビゲーション（上下キーによる履歴移動）を行った後に、ターミナルカーソルがプロンプトより上の誤った位置に取り残されてしまう問題が修正されました。\n\nカーソルが正しい入力位置に表示されるようになりました。",
+      "detail_en": "Fixed an issue where, in environments with native cursor display enabled in vim mode, the terminal cursor would be left in an incorrect position above the prompt after history navigation (moving through history with the up/down arrow keys).\n\nThe cursor is now displayed at the correct input position.",
       "category": "入力",
       "category_en": "Input"
     },
@@ -489,8 +489,8 @@
       "category_en": "Multi-Agent"
     },
     {
-      "t": "修正: auto モードでスケジュールされたタスクがキーボード入力として扱われる問題",
-      "t_en": "Fixed scheduled tasks being treated as keyboard input in auto mode",
+      "t": "修正: スケジュールされたタスクや webhook トリガーの配信がキーボード入力として扱われ、auto モードでペンディング中のアクションを承認したりセッションタイトルを設定したりできてしまう問題",
+      "t_en": "Fixed scheduled task and webhook trigger deliveries being treated as keyboard input; they now classify as task notifications and can no longer approve a pending action or set the session title in auto mode",
       "tags": ["バグ修正"],
       "detail": "スケジュールされたタスクや webhook トリガーの配信が、キーボード入力として誤って処理される問題が修正されました。auto モードでこの誤認識が起きると、ペンディング中のアクションが意図せず承認されたり、セッションタイトルが誤って設定されることがありましたが、これらがタスク通知として正しく分類されるようになりました。",
       "detail_en": "Fixed an issue where the delivery of scheduled tasks or webhook triggers was mistakenly processed as keyboard input. When this misrecognition occurred in auto mode, pending actions could be unintentionally approved or session titles could be set incorrectly; these are now correctly classified as task notifications.",
@@ -520,11 +520,11 @@
   ],
   "2.1.186": [
     {
-      "t": "追加: CLI から MCP サーバーの OAuth 認証を管理できる `claude mcp login <name>` / `claude mcp logout <name>` を追加",
-      "t_en": "Added `claude mcp login <name>` and `claude mcp logout <name>` for CLI-based MCP server authentication",
+      "t": "追加: CLI から MCP サーバーの OAuth 認証を管理できる `claude mcp login <name>` / `claude mcp logout <name>` を追加。`--no-browser` 指定で stdin 経由の認証に対応し、SSH 越しでも認証を完了可能に",
+      "t_en": "Added `claude mcp login <name>` and `claude mcp logout <name>` to authenticate MCP servers from the CLI without opening the interactive `/mcp` menu, with `--no-browser` stdin redirect support for completing over SSH",
       "tags": ["新機能", "MCP"],
-      "detail": "CLI から直接 MCP サーバーの OAuth 認証とログアウトを行える新サブコマンド `claude mcp login <name>` と `claude mcp logout <name>` が追加されました。これまで MCP サーバーへの認証は対話 UI 経由が中心でしたが、スクリプトや headless 環境でも認証管理が行えるようになります。\n\n`claude mcp login <name>` を実行すると OAuth フローが開始され、ブラウザでの認証を完了させることで指定したサーバーへの認証情報が保存されます。`claude mcp logout <name>` は保存された認証情報を削除します。\n\n詳しくは[MCP ドキュメント](https://code.claude.com/docs/en/mcp)を参照してください。",
-      "detail_en": "New subcommands `claude mcp login <name>` and `claude mcp logout <name>` have been added to manage MCP server OAuth authentication directly from the CLI. Previously, authenticating with MCP servers was primarily done through the interactive UI, but authentication can now be managed in scripts and headless environments.\n\nRunning `claude mcp login <name>` initiates the OAuth flow; after completing authentication in the browser, credentials for the specified server are saved. `claude mcp logout <name>` removes the saved credentials.\n\nSee the [MCP documentation](https://code.claude.com/docs/en/mcp) for details.",
+      "detail": "CLI から直接 MCP サーバーの OAuth 認証とログアウトを行える新サブコマンド `claude mcp login <name>` と `claude mcp logout <name>` が追加されました。これまで MCP サーバーへの認証は対話 UI の `/mcp` メニューを開いて行う必要がありましたが、メニューを開かずに CLI から直接認証・ログアウトできるようになります。\n\n`claude mcp login <name>` を実行すると OAuth フローが開始され、ブラウザでの認証を完了させることで指定したサーバーへの認証情報が保存されます。`claude mcp logout <name>` は保存された認証情報を削除します。\n\nさらに `--no-browser` オプションを指定すると、ブラウザを起動せず stdin 経由で認証情報をリダイレクト入力できるため、ローカルにブラウザがない SSH 接続先でも認証を完了できます。\n\n詳しくは[MCP ドキュメント](https://code.claude.com/docs/en/mcp)を参照してください。",
+      "detail_en": "New subcommands `claude mcp login <name>` and `claude mcp logout <name>` have been added, letting you authenticate with and log out of MCP servers directly from the CLI. Previously, authenticating with an MCP server required opening the `/mcp` menu in the interactive UI, but now you can authenticate and log out directly from the CLI without opening the menu.\n\nRunning `claude mcp login <name>` starts the OAuth flow; completing authentication in the browser saves the credentials for the specified server. `claude mcp logout <name>` removes the saved credentials.\n\nAdditionally, specifying the `--no-browser` option lets you enter credentials via a redirected stdin without launching a browser, so authentication can be completed even on an SSH destination with no local browser.\n\nSee the [MCP documentation](https://code.claude.com/docs/en/mcp) for details.",
       "category": "MCP 連携",
       "category_en": "MCP Integration"
     },
@@ -547,20 +547,20 @@
       "category_en": "Plugin"
     },
     {
-      "t": "追加: エージェントチームの表示モードに `teammateMode: \"iterm2\"` 設定を追加（auto モードの制限についての警告も表示）",
-      "t_en": "Added `teammateMode: \"iterm2\"` setting (with a warning about auto mode limitations)",
+      "t": "追加: エージェントチームの表示モードに `teammateMode: \"iterm2\"` 設定を追加。`auto` モードが `it2` CLI を検出できない場合は警告を表示",
+      "t_en": "Added `teammateMode: \"iterm2\"` setting with a warning when auto mode cannot find the `it2` CLI",
       "tags": ["新機能", "Agent"],
-      "detail": "エージェントチームの表示モードに `teammateMode: \"iterm2\"` が追加され、iTerm2 のネイティブ分割ペインを明示的に選択できるようになりました。これまで `auto` モードでは環境を自動判定していましたが、iTerm2 を明示指定することで意図した分割ペイン表示を確実に得られます。\n\nまた、`auto` モード使用時にはその制限（環境によって表示が変わることがある）についての警告が表示されるようになりました。詳しくは[エージェントチームドキュメント](https://code.claude.com/docs/en/agent-teams#choose-a-display-mode)を参照してください。",
-      "detail_en": "The `teammateMode: \"iterm2\"` setting has been added to the agent team display mode, allowing you to explicitly select iTerm2's native split panes. Previously, `auto` mode automatically detected the environment, but explicitly specifying iTerm2 ensures you get the intended split-pane display.\n\nA warning about the limitations of `auto` mode (the display may vary depending on the environment) is now also shown when it is used. See the [agent teams documentation](https://code.claude.com/docs/en/agent-teams#choose-a-display-mode) for details.",
+      "detail": "エージェントチームの表示モードに `teammateMode: \"iterm2\"` が追加され、iTerm2 のネイティブ分割ペインを明示的に選択できるようになりました。これまで `auto` モードでは環境を自動判定していましたが、iTerm2 を明示指定することで意図した分割ペイン表示を確実に得られます。\n\nまた、`auto` モードを使用している際に `it2` CLI が見つからない場合には、警告が表示されるようになりました。詳しくは[エージェントチームドキュメント](https://code.claude.com/docs/en/agent-teams#choose-a-display-mode)を参照してください。",
+      "detail_en": "The `teammateMode: \"iterm2\"` setting has been added to agent teams' display mode, allowing you to explicitly select iTerm2's native split panes. Previously, `auto` mode automatically determined the environment, but explicitly specifying iTerm2 ensures you reliably get the intended split-pane display.\n\nAdditionally, a warning is now shown when the `it2` CLI cannot be found while using `auto` mode. See the [agent teams documentation](https://code.claude.com/docs/en/agent-teams#choose-a-display-mode) for details.",
       "category": "マルチエージェント",
       "category_en": "Multi-Agent"
     },
     {
-      "t": "追加: `/login` に「Claude Platform on AWS - refresh credentials」オプションを追加",
-      "t_en": "Added a \"Claude Platform on AWS - refresh credentials\" option to `/login`",
+      "t": "追加: `awsAuthRefresh` が設定されている場合に `/login` へ「Claude Platform on AWS - refresh credentials」オプションを追加",
+      "t_en": "Added \"Claude Platform on AWS - refresh credentials\" option to `/login` when `awsAuthRefresh` is configured",
       "tags": ["新機能", "Platform"],
-      "detail": "`/login` コマンドのオプション一覧に「Claude Platform on AWS - refresh credentials」が追加されました。AWS 上の Claude Platform を利用している場合に、このオプションを選択することで認証情報をリフレッシュできます。\n\nセッションの有効期限切れや認証エラーが発生した際に、再ログインすることなく認証情報を更新できるようになりました。",
-      "detail_en": "\"Claude Platform on AWS - refresh credentials\" has been added to the option list of the `/login` command. When using Claude Platform on AWS, selecting this option allows you to refresh your credentials.\n\nThis makes it possible to update credentials when a session expires or an authentication error occurs, without having to log in again.",
+      "detail": "`awsAuthRefresh` が設定されている環境では、`/login` コマンドのオプション一覧に「Claude Platform on AWS - refresh credentials」が追加されました。AWS 上の Claude Platform を利用しており、この設定が有効な場合に、このオプションを選択することで認証情報をリフレッシュできます。\n\nセッションの有効期限切れや認証エラーが発生した際に、再ログインすることなく認証情報を更新できるようになりました。",
+      "detail_en": "In environments where `awsAuthRefresh` is configured, a \"Claude Platform on AWS - refresh credentials\" option has been added to the option list of the `/login` command. If you use Claude Platform on AWS and have this setting enabled, selecting this option refreshes your credentials.\n\nThis makes it possible to update credentials when a session expires or an authentication error occurs, without having to log in again.",
       "category": "プラットフォーム互換性",
       "category_en": "Platform Compatibility"
     },
@@ -568,8 +568,8 @@
       "t": "追加: `!` bash コマンドの出力に Claude が自動応答するように。`\"respondToBashCommands\": false` で無効化可能",
       "t_en": "`!` bash commands now trigger automatic Claude responses; set `\"respondToBashCommands\": false` to disable",
       "tags": ["新機能"],
-      "detail": "入力ボックスで `!` を付けて実行した bash コマンドの出力に対し、Claude が自動で応答するようになりました。コマンド結果に基づいてすぐに次のアクションを提案したり、エラーの内容を解説したりといった対話がよりスムーズになります。\n\n従来の「応答せず出力をコンテキストに追加するだけ」の挙動に戻したい場合は、設定に `\"respondToBashCommands\": false` を追加してください。詳しくは[設定ドキュメント](https://code.claude.com/docs/en/settings#available-settings)を参照してください。",
-      "detail_en": "Claude now automatically responds to the output of bash commands run with the `!` prefix in the input box. This makes it smoother to, for example, have Claude immediately suggest the next action based on the command result, or explain the content of an error.\n\nTo revert to the previous behavior of \"add output to context without responding,\" add `\"respondToBashCommands\": false` to your settings. See the [settings documentation](https://code.claude.com/docs/en/settings#available-settings) for details.",
+      "detail": "入力ボックスで `!` を付けて実行した bash コマンドの出力に対し、Claude が自動で応答するようになりました。コマンド結果に基づいてすぐに次のアクションを提案したり、エラーの内容を解説したりといった対話がよりスムーズになります。\n\n従来の「応答せず出力をコンテキストに追加するだけ」の挙動に戻したい場合は、設定に `\"respondToBashCommands\": false` を追加してください。詳しくは[設定ドキュメント](https://code.claude.com/docs/en/settings-reference)を参照してください。",
+      "detail_en": "Claude now automatically responds to the output of bash commands run with the `!` prefix in the input box. This makes it smoother to, for example, have Claude immediately suggest the next action based on the command result, or explain the content of an error.\n\nTo revert to the previous behavior of \"add output to context without responding,\" add `\"respondToBashCommands\": false` to your settings. See the [settings documentation](https://code.claude.com/docs/en/settings-reference) for details.",
       "category": "設定",
       "category_en": "Configuration"
     },
@@ -583,11 +583,11 @@
       "category_en": "Network"
     },
     {
-      "t": "修正: サブエージェントのトランスクリプトでスクロール位置がずれる問題",
-      "t_en": "Fixed subagent transcript scroll position issues",
+      "t": "修正: サブエージェントのトランスクリプトを閉じた際、そのスクロール位置がメインのトランスクリプトに引き継がれてしまう問題",
+      "t_en": "Fixed subagent transcript scroll position bleeding into the main transcript on exit",
       "tags": ["バグ修正", "Agent"],
-      "detail": "サブエージェントのトランスクリプト表示において、スクロール位置が期待した位置からずれてしまう問題が修正されました。トランスクリプトを確認する際に正確な位置にスクロールできるようになりました。",
-      "detail_en": "Fixed an issue where the scroll position in the subagent transcript view would shift from the expected position. The transcript now scrolls to the correct position when viewing it.",
+      "detail": "サブエージェントのトランスクリプトを閉じてメインのトランスクリプトに戻った際、サブエージェント側のスクロール位置がそのままメイン側に引き継がれてしまい、意図しない位置が表示される問題が修正されました。サブエージェントのトランスクリプトを閉じても、メインのトランスクリプトのスクロール位置は独立して保たれるようになりました。",
+      "detail_en": "Fixed an issue where closing a subagent's transcript and returning to the main transcript would carry over the subagent's scroll position, causing the main transcript to display an unintended location. Closing a subagent's transcript now keeps the main transcript's scroll position independent and unaffected.",
       "category": "マルチエージェント",
       "category_en": "Multi-Agent"
     },
@@ -601,11 +601,11 @@
       "category_en": "Rendering"
     },
     {
-      "t": "修正: 複数の CLI セッションを同時実行した際に Chrome のタブグループ分離が正しく機能しない問題",
-      "t_en": "Fixed Chrome tab-group isolation with concurrent CLI sessions",
+      "t": "修正: アプリ内のパーミッションゲートがオフの状態で複数の CLI セッションを同時実行した際、Chrome のタブグループ分離が正しく機能しない問題",
+      "t_en": "Fixed Chrome tab-group isolation not applying when the in-product permissions gate is off for concurrent CLI sessions",
       "tags": ["バグ修正"],
-      "detail": "複数の CLI セッションを同時に起動した際に、Chrome ブラウザのタブグループ分離が正しく機能せず、セッション間でタブが混在してしまう問題が修正されました。並行セッション実行時も各セッションのタブが適切に分離されます。",
-      "detail_en": "Fixed an issue where Chrome browser tab-group isolation would not function correctly when multiple CLI sessions were running simultaneously, causing tabs to mix between sessions. Tab groups for each session are now properly isolated even when running concurrent sessions.",
+      "detail": "アプリ内のパーミッションゲートがオフになっている状態で複数の CLI セッションを同時に起動すると、Chrome ブラウザのタブグループ分離が正しく機能しない問題が修正されました。並行セッション実行時も各セッションのタブが適切に分離されます。",
+      "detail_en": "Fixed an issue where, with the in-app permission gate turned off, launching multiple CLI sessions at the same time caused Chrome tab-group isolation to malfunction. Each session's tabs are now properly isolated even when running concurrent sessions.",
       "category": "安定性",
       "category_en": "Stability"
     },
@@ -628,11 +628,11 @@
       "category_en": "Rendering"
     },
     {
-      "t": "修正: `Agent(type)` の deny ルールが名前付きサブエージェントの生成に適用されない問題",
-      "t_en": "Fixed `Agent(type)` deny rules not enforcing for named subagent spawns",
+      "t": "修正: `Agent(type)` の deny ルールと `Agent(x,y)` の allowed-types 制限が、名前付きサブエージェントの生成に適用されない問題",
+      "t_en": "Fixed `Agent(type)` deny rules and `Agent(x,y)` allowed-types restrictions not being enforced for named subagent spawns",
       "tags": ["バグ修正", "Security", "Agent"],
-      "detail": "パーミッション設定の `Agent(type)` deny ルールが、名前付きサブエージェントの生成に対して適用されない問題が修正されました。意図したパーミッション制限が確実に効くようになり、deny 設定したエージェントタイプが名前付きでも生成をブロックします。",
-      "detail_en": "Fixed an issue where `Agent(type)` deny rules in permission settings were not being enforced when spawning named subagents. Intended permission restrictions are now reliably applied, blocking spawning of deny-listed agent types even when named.",
+      "detail": "パーミッション設定の `Agent(type)` deny ルールおよび `Agent(x,y)` による許可タイプ制限が、名前付きサブエージェントの生成に対して適用されない問題が修正されました。意図したパーミッション制限が確実に効くようになり、deny 設定したエージェントタイプや許可タイプ制限の対象外のタイプは、名前付きで指定してもブロックされます。",
+      "detail_en": "Fixed an issue where `Agent(type)` deny rules and the allowed-type restrictions from `Agent(x,y)` in permission settings were not being enforced when spawning named subagents. Intended permission restrictions are now reliably applied — agent types set to deny, or types outside the allowed-type restriction, are blocked even when specified by name.",
       "category": "パーミッション",
       "category_en": "Permissions"
     },
@@ -664,11 +664,11 @@
       "category_en": "Multi-Agent"
     },
     {
-      "t": "修正: 意図的に廃止されたツールに対して「MCP server disconnected」の通知が表示される問題",
-      "t_en": "Fixed \"MCP server disconnected\" notices for intentionally retired tools",
+      "t": "修正: 古いセッションを再開した際、意図的に廃止されたツールに対して「MCP server disconnected」という誤解を招く通知が表示される問題",
+      "t_en": "Fixed a misleading \"MCP server disconnected\" notice for intentionally retired tools when resuming older sessions",
       "tags": ["バグ修正", "MCP"],
-      "detail": "MCP サーバーが意図的にツールを廃止した際に、「MCP server disconnected」という誤った通知が表示される問題が修正されました。ツールの廃止は接続断とは区別されるようになり、不要な通知が表示されなくなりました。",
-      "detail_en": "Fixed an issue where \"MCP server disconnected\" notifications would appear when an MCP server intentionally retired a tool. Tool retirement is now distinguished from a connection drop, and unnecessary notifications are no longer shown.",
+      "detail": "古いセッションを再開した際に、MCP サーバーが意図的に廃止したツールに対して「MCP server disconnected」という誤解を招く通知が表示される問題が修正されました。ツールの廃止は接続断とは区別されるようになり、不要な通知が表示されなくなりました。",
+      "detail_en": "Fixed an issue where resuming an old session would show a misleading \"MCP server disconnected\" notification for a tool the MCP server had intentionally retired. Tool retirement is now distinguished from a connection drop, so the unnecessary notification no longer appears.",
       "category": "MCP 連携",
       "category_en": "MCP Integration"
     },
@@ -691,11 +691,11 @@
       "category_en": "Rendering"
     },
     {
-      "t": "修正: フィーチャーフラグの読み込み前にフラグで制御されたツールが表示されてしまう問題",
-      "t_en": "Fixed feature-gated tools appearing before flags loaded",
+      "t": "修正: コールドな初回起動時、`--tools` オプションでフィーチャーフラグの読み込み前にゲート対象のツールがすり抜けて有効になってしまう問題",
+      "t_en": "Fixed `--tools` allowing feature-gated tools to slip through before flags loaded on a cold first launch",
       "tags": ["バグ修正"],
-      "detail": "フィーチャーフラグによって制御されているツールが、フラグの読み込みが完了する前に表示されてしまう問題が修正されました。ツールはフィーチャーフラグの読み込み完了後に適切に表示されるようになりました。",
-      "detail_en": "Fixed an issue where tools gated behind feature flags were appearing before the flags had finished loading. Tools are now only shown after feature flag loading is complete.",
+      "detail": "コールドな初回起動時（起動直後でまだフィーチャーフラグが読み込まれていない状態）に `--tools` オプションを使用すると、本来フィーチャーフラグで制御されているはずのツールが、フラグの読み込み前にすり抜けて有効になってしまう問題が修正されました。フィーチャーフラグの読み込みが完了してからツールが評価されるようになりました。",
+      "detail_en": "Fixed an issue where, on a cold first launch (right after startup, before feature flags had finished loading), using the `--tools` option could let tools that are normally gated behind feature flags slip through and become enabled before the flags loaded. Tools are now evaluated only after feature flag loading has completed.",
       "category": "安定性",
       "category_en": "Stability"
     },
@@ -745,11 +745,11 @@
       "category_en": "Multi-Agent"
     },
     {
-      "t": "修正: Workflow の `agent({schema})` で生成されたサブエージェントがスキーマ検証の失敗時に無限ループする問題",
-      "t_en": "Fixed Workflow `agent({schema})` subagents looping on validation failures",
+      "t": "修正: Workflow の `agent({schema})` で生成されたサブエージェントが、スキーマ検証に繰り返し失敗した際に5回で中断せず無限ループする問題",
+      "t_en": "Fixed Workflow `agent({schema})` subagents looping forever on repeated schema validation failures instead of aborting after 5 attempts",
       "tags": ["バグ修正", "Agent"],
-      "detail": "Workflow の `agent({schema})` を使って生成されたサブエージェントが、出力のスキーマ検証に失敗した際に無限ループに陥る問題が修正されました。検証エラー時はループせずに適切にエラーが処理されるようになりました。",
-      "detail_en": "Fixed an issue where subagents created using the Workflow `agent({schema})` would enter an infinite loop when the output failed schema validation. Validation errors are now handled appropriately without looping.",
+      "detail": "Workflow の `agent({schema})` を使って生成されたサブエージェントが、出力のスキーマ検証に繰り返し失敗した場合、本来は5回の試行後に中断するはずが、中断されずに無限ループへ陥る問題が修正されました。検証エラーが続く場合は5回の試行で正しく中断されるようになりました。",
+      "detail_en": "Fixed an issue where subagents created with Workflow's `agent({schema})` would enter an infinite loop instead of stopping after 5 attempts when repeated output schema validation failures occurred. Subagents now correctly stop after 5 attempts when validation errors persist.",
       "category": "マルチエージェント",
       "category_en": "Multi-Agent"
     },
@@ -799,11 +799,11 @@
       "category_en": "Configuration"
     },
     {
-      "t": "変更: バックグラウンドのサブエージェントが必要とするパーミッションプロンプトをメインセッション側に表示するように変更",
-      "t_en": "Changed background subagents to surface permission prompts in the main session",
+      "t": "変更: バックグラウンドのサブエージェントが必要とするパーミッションプロンプトを自動拒否せずメインセッション側に表示するように変更。ダイアログにはどのエージェントが要求しているかが表示され、Esc でそのツールだけを拒否できる",
+      "t_en": "Changed background subagents to surface permission prompts in the main session instead of auto-denying; the dialog shows which agent is asking, and Esc denies just that tool",
       "tags": ["改善", "Agent"],
-      "detail": "バックグラウンドで動作するサブエージェントがパーミッションを要求する際に、バックグラウンドセッション内ではなくメインセッション側にプロンプトが表示されるようになりました。\n\nこれまでバックグラウンドでエージェントを実行中に承認が必要な操作が発生しても、メインセッションからは気づきにくい状況でした。この変更により、バックグラウンドで実行中でもパーミッション要求を見落とさず、タイムリーに対応できます。",
-      "detail_en": "When background subagents require permissions, the prompt is now surfaced in the main session rather than inside the background session.\n\nPreviously, when an operation requiring approval arose during a background agent run, it was easy to miss from the main session. This change makes it possible to respond to permission requests in a timely manner without missing them, even during background execution.",
+      "detail": "バックグラウンドで動作するサブエージェントがパーミッションを要求する際、これまでは自動的に拒否（auto-deny）されていましたが、メインセッション側にプロンプトが表示され、都度対応できるように変更されました。\n\nダイアログにはどのエージェントが要求しているかが表示され、Esc キーを押すとそのツールの要求だけを拒否できます。バックグラウンドで実行中でもパーミッション要求を見落とさず、必要な操作を許可できるようになります。",
+      "detail_en": "Previously, when a background subagent requested a permission, it was automatically auto-denied. This has been changed so that the prompt is now surfaced in the main session, allowing you to respond to it each time.\n\nThe dialog shows which agent is making the request, and pressing Esc denies only that tool's request. This means permission requests are no longer missed while running in the background, and you can grant the operations that are needed.",
       "category": "パーミッション",
       "category_en": "Permissions"
     },
@@ -837,38 +837,38 @@
       "category_en": "UX"
     },
     {
-      "t": "改善: フルスクリーンモードのセレクトメニューでマウスクリックによる選択に対応",
-      "t_en": "Added mouse click support for select menus in fullscreen mode",
+      "t": "追加: フルスクリーンモードのセレクトメニュー（権限プロンプト、`/model`、`/config` など）でマウスクリックによる選択に対応",
+      "t_en": "Added mouse click support to select menus (permission prompts, `/model`, `/config`, etc.) in fullscreen mode",
       "tags": ["改善"],
-      "detail": "フルスクリーンモードのセレクトメニュー（選択肢を一覧から選ぶ UI）で、マウスクリックによる選択に対応しました。\n\nこれまでフルスクリーンモードでは選択肢の移動・決定にキーボードを使う必要がありましたが、マウスでクリックして直接項目を選べるようになり、操作性が向上しました。",
-      "detail_en": "Select menus (the UI for choosing from a list of options) in fullscreen mode now support selection by mouse click.\n\nPreviously, in fullscreen mode you had to use the keyboard to move through and confirm options. Now you can click directly on an item with the mouse, improving usability.",
+      "detail": "フルスクリーンモードのセレクトメニュー（権限確認プロンプトや `/model`・`/config` などの選択肢一覧 UI）で、新たにマウスクリックによる選択に対応しました。\n\nこれまでフルスクリーンモードでは選択肢の移動・決定にキーボードを使う必要がありましたが、マウスでクリックして直接項目を選べるようになり、操作性が向上しました。",
+      "detail_en": "Select menus in fullscreen mode (the UI for choosing from a list of options, such as permission confirmation prompts or the `/model` and `/config` option lists) now support selection by mouse click.\n\nPreviously, in fullscreen mode you had to use the keyboard to move through and confirm options. Now you can click directly on an item with the mouse, improving usability.",
       "category": "入力",
       "category_en": "Input"
     },
     {
-      "t": "修正: 元の実行でモデルのターンが1つも生成されなかった場合に `--resume` が失敗する問題",
-      "t_en": "Fixed `--resume` failing when the original run produced no model turns",
+      "t": "修正: 元の `-p` 実行でモデルのターンが1つも生成されなかった場合に `--resume` が「No conversation found」で失敗する問題",
+      "t_en": "Fixed `--resume` failing with \"No conversation found\" when the original `-p` run produced no model turns",
       "tags": ["バグ修正"],
-      "detail": "元の実行がモデルのターンを1つも生成せずに終了していた場合（例: 起動直後にエラーで中断したセッション）に、`--resume` でそのセッションを再開しようとすると失敗する問題が修正されました。\n\nモデルのターンを含まないセッションでも `--resume` が正しく扱えるようになり、再開が失敗しなくなりました。",
-      "detail_en": "Fixed an issue where `--resume` would fail when trying to resume a session whose original run ended without producing any model turns (for example, a session interrupted by an error right after startup).\n\n`--resume` now correctly handles sessions that contain no model turns, so resuming no longer fails.",
+      "detail": "`-p`（非対話・print モード）での元の実行がモデルのターンを1つも生成せずに終了していた場合に、`--resume` でそのセッションを再開しようとすると「No conversation found」というエラーで失敗する問題が修正されました。\n\nモデルのターンを含まないセッションでも `--resume` が正しく扱えるようになり、再開が失敗しなくなりました。",
+      "detail_en": "Fixed an issue where, if the original run in `-p` (non-interactive print mode) ended without producing any model turns, trying to resume that session with `--resume` would fail with a \"No conversation found\" error.\n\n`--resume` now correctly handles sessions that contain no model turns, so resuming no longer fails.",
       "category": "セッション管理",
       "category_en": "Session Management"
     },
     {
-      "t": "修正: `--json-schema` の構造化出力で `StructuredOutput` が無制限に再呼び出しできてしまう問題",
-      "t_en": "Fixed `--json-schema` structured output allowing indefinite `StructuredOutput` re-calls",
+      "t": "修正: `--json-schema` およびワークフローの `agent({schema})` の構造化出力で、成功後も `StructuredOutput` を無制限に再呼び出しできてしまう問題を修正し、後続ターンでも構造化出力を確実に返すように",
+      "t_en": "Fixed `--json-schema` and workflow `agent({schema})` structured output: the model can no longer re-call `StructuredOutput` indefinitely after a successful call, and follow-up turns now reliably return structured output",
       "tags": ["バグ修正", "SDK"],
-      "detail": "`--json-schema` で構造化出力を指定した実行において、モデルが `StructuredOutput` ツールを無制限に何度も再呼び出しできてしまう問題が修正されました。\n\nこの挙動は、構造化出力の確定後もループが続いて処理が終わらない原因になっていました。修正により、`StructuredOutput` の再呼び出しが適切に打ち切られ、構造化出力が想定どおりに完了します。\n\nSDK や headless モードでスキーマ付きの構造化出力を利用する際の安定性が向上します。",
-      "detail_en": "Fixed an issue where, in runs specifying structured output with `--json-schema`, the model could re-call the `StructuredOutput` tool indefinitely.\n\nThis behavior caused the loop to continue even after the structured output was finalized, preventing the process from completing. With the fix, re-calls to `StructuredOutput` are properly terminated and structured output completes as expected.\n\nThis improves stability when using schema-based structured output in the SDK or headless mode.",
+      "detail": "`--json-schema` や、ワークフローの `agent({schema})` で構造化出力を指定した実行において、`StructuredOutput` ツールの呼び出しに成功した後もモデルが同ツールを無制限に何度も再呼び出しできてしまう問題が修正されました。\n\nこの挙動は、構造化出力が確定した後もループが続いて処理が終わらない原因になっていました。修正により、`StructuredOutput` の再呼び出しが適切に打ち切られるようになり、後続のターンでも構造化出力が確実に返されるようになりました。\n\nSDK や headless モード、ワークフローでスキーマ付きの構造化出力を利用する際の安定性が向上します。",
+      "detail_en": "Fixed an issue where, in runs specifying structured output via `--json-schema` or a workflow's `agent({schema})`, the model could keep re-calling the `StructuredOutput` tool indefinitely even after it had already succeeded.\n\nThis behavior caused the loop to continue even after the structured output was finalized, preventing the run from completing. With the fix, re-calls to `StructuredOutput` are now properly cut off, and structured output is reliably returned on subsequent turns as well.\n\nThis improves stability when using schema-based structured output in the SDK, headless mode, or workflows.",
       "category": "SDK",
       "category_en": "SDK"
     },
     {
-      "t": "改善: リモート MCP のツール呼び出しが無制限にブロックする代わりに、5分間アイドルで中断するように",
-      "t_en": "Remote MCP tool calls now abort after a 5-minute idle timeout instead of blocking indefinitely",
+      "t": "修正: 応答のないリモート MCP ツール呼び出しが無期限にブロックし続ける問題を修正し、5分間アイドルで自動的にエラー中断するように（`CLAUDE_CODE_MCP_TOOL_IDLE_TIMEOUT` で上書き可能）",
+      "t_en": "Fixed remote MCP tool calls that hang with no response for 5 minutes — they now abort with an error instead of blocking indefinitely (override with `CLAUDE_CODE_MCP_TOOL_IDLE_TIMEOUT`)",
       "tags": ["改善", "MCP"],
-      "detail": "リモート MCP サーバーへのツール呼び出しが応答を返さないまま無制限にブロックし続ける問題に対し、5分間アイドル（無応答）が続いた時点で呼び出しを中断するタイムアウトが導入されました。\n\nこれまではリモート MCP サーバー側が応答しないと、その呼び出しがいつまでもブロックしてセッション全体が止まってしまうことがありました。今回の変更で、5分間応答がなければ自動的に中断されるため、ハングから復帰できるようになりました。",
-      "detail_en": "Fixed an issue where tool calls to a remote MCP server could block indefinitely without returning a response, by introducing a timeout that aborts the call after 5 minutes of idle (no response).\n\nPreviously, if a remote MCP server stopped responding, the call could block forever and stall the entire session. With this change, the call is automatically aborted after 5 minutes of silence, allowing recovery from the hang.",
+      "detail": "リモート MCP サーバーへのツール呼び出しが応答を返さないまま無期限にブロックし続けていた問題が修正されました。5分間アイドル（無応答）が続くと、呼び出しがエラーで自動的に中断されるようになりました。\n\nこれまではリモート MCP サーバー側が応答しないと、その呼び出しがいつまでもブロックしてセッション全体が止まってしまうことがありました。今回の修正で、5分間応答がなければ自動的に中断されるため、ハングから復帰できるようになりました。\n\nタイムアウトの秒数は `CLAUDE_CODE_MCP_TOOL_IDLE_TIMEOUT` 環境変数で上書きできます。",
+      "detail_en": "Fixed an issue where tool calls to remote MCP servers could block indefinitely without returning a response. If the call stays idle (no response) for 5 minutes, it is now automatically aborted with an error.\n\nPreviously, when a remote MCP server failed to respond, the call could block forever, stalling the entire session. With this fix, the call is now automatically aborted after 5 minutes of no response, allowing recovery from the hang.\n\nThe timeout duration can be overridden with the `CLAUDE_CODE_MCP_TOOL_IDLE_TIMEOUT` environment variable.",
       "category": "MCP 連携",
       "category_en": "MCP Integration"
     },
@@ -909,29 +909,29 @@
       "category_en": "Session Management"
     },
     {
-      "t": "修正: エージェントビューを操作・移動した後にチャンネル接続が切断される問題",
-      "t_en": "Fixed channel connections dropping after agents view navigation",
+      "t": "修正: エージェントビューへ移動して戻った後、および `/bg`・`/tui`・`/update` の実行後にチャンネル接続が切断される問題",
+      "t_en": "Fixed channel connections dropping after navigating to the agents view and back, and after `/bg`, `/tui`, or `/update`",
       "tags": ["バグ修正", "Agent"],
-      "detail": "エージェントビュー（agents view）を開いて操作・移動した後に、チャンネル接続が切断されてしまう問題が修正されました。\n\nエージェントビューのナビゲーション後も接続が維持されるようになり、リモートのチャンネルやエージェントとの通信が途切れなくなりました。",
-      "detail_en": "Fixed an issue where channel connections would drop after opening and navigating the agents view.\n\nConnections are now maintained after navigating the agents view, so communication with remote channels and agents is no longer interrupted.",
+      "detail": "エージェントビュー（agents view）に移動して元の画面に戻った後、または `/bg`・`/tui`・`/update` を実行した後に、チャンネル接続が切断されてしまう問題が修正されました。\n\nこれらの操作の後も接続が維持されるようになり、リモートのチャンネルやエージェントとの通信が途切れなくなりました。",
+      "detail_en": "Fixed an issue where channel connections would drop after navigating to the agents view and back, or after running `/bg`, `/tui`, or `/update`.\n\nConnections are now maintained after these operations, so communication with remote channels and agents is no longer interrupted.",
       "category": "マルチエージェント",
       "category_en": "Multi-Agent"
     },
     {
-      "t": "修正: エージェントの停止通知を修正し、メッセージ表示（「finished」「stopped」）を改善",
-      "t_en": "Fixed agent stop notifications and improved messaging (\"finished\"/\"stopped\")",
+      "t": "修正: エージェント停止通知で誰が停止したかの表示が正しくない問題を修正し、文言を「came to rest」から「finished」「stopped」に改善",
+      "t_en": "Fixed agent stop notifications not correctly attributing who stopped the agent, and improved wording (\"finished\"/\"stopped\" instead of \"came to rest\")",
       "tags": ["バグ修正", "Agent"],
-      "detail": "エージェントの停止通知が正しく発火しない問題が修正され、あわせて通知メッセージの文言が改善されました。エージェントが完了した場合は「finished」、停止された場合は「stopped」と、状態に応じて適切に表示されます。\n\n通知の発火と文言が整理されたことで、エージェントが正常に終わったのか途中で止められたのかをひと目で区別できるようになりました。",
-      "detail_en": "Fixed an issue where agent stop notifications did not fire correctly, and improved the wording of the notification messages. They now display appropriately based on state: \"finished\" when an agent completes, and \"stopped\" when it is stopped.\n\nWith the firing and wording cleaned up, you can tell at a glance whether an agent finished normally or was stopped partway.",
+      "detail": "エージェントの停止通知で、誰がエージェントを停止させたかが正しく表示されない問題が修正されました。あわせて通知メッセージの文言も改善され、エージェントが完了した場合は「finished」、停止された場合は「stopped」と表示されます（従来の「came to rest」という表現から変更）。\n\n表示と文言が整理されたことで、エージェントが正常に終わったのか、誰かによって途中で止められたのかをひと目で区別できるようになりました。",
+      "detail_en": "Fixed an issue where agent stop notifications did not correctly show who stopped the agent. The notification wording was also improved: it now displays \"finished\" when the agent completes and \"stopped\" when it is stopped, replacing the previous \"came to rest\" phrasing.\n\nWith the display and wording cleaned up, you can now tell at a glance whether an agent ended normally or was stopped partway by someone.",
       "category": "マルチエージェント",
       "category_en": "Multi-Agent"
     },
     {
-      "t": "修正: 再開・フォークされたサブエージェントの深度トラッキングが正しく行われない問題",
-      "t_en": "Fixed subagent depth tracking for resumed and forked subagents",
+      "t": "修正: サブエージェントの深度トラッキングを修正 — 再開時に元のスポーン深度を復元し、フォークされたサブエージェントも深度上限のカウント対象に",
+      "t_en": "Fixed subagent depth tracking: resumed subagents now restore their original spawn depth, and forked subagents now count toward the depth cap",
       "tags": ["バグ修正", "Agent"],
-      "detail": "再開（resume）またはフォーク（fork）されたサブエージェントについて、ネストの深度（depth）が正しく追跡されない問題が修正されました。\n\n深度トラッキングが正確になったことで、再開・フォーク後もサブエージェントのネスト制限が適切に適用され、想定外の深いネストが防止されます。",
-      "detail_en": "Fixed an issue where the nesting depth was not tracked correctly for resumed or forked subagents.\n\nWith accurate depth tracking, subagent nesting limits are now properly enforced after resume or fork, preventing unexpectedly deep nesting.",
+      "detail": "再開（resume）されたサブエージェントについて、元のスポーン深度（spawn depth）が復元されずに深度トラッキングが正しく行われない問題と、フォーク（fork）されたサブエージェントが深度の上限カウントに含まれていなかった問題が修正されました。\n\n修正により、再開されたサブエージェントは元の深度を正しく引き継ぎ、フォークされたサブエージェントも深度上限のカウント対象になります。\n\nこれにより、再開・フォークを経ても意図しない深いネストが防止されます。",
+      "detail_en": "Fixed an issue where resumed subagents did not have their original spawn depth restored, causing incorrect depth tracking, and where forked subagents were not counted toward the depth limit.\n\nWith this fix, resumed subagents now correctly inherit their original depth, and forked subagents are also counted toward the depth limit.\n\nThis prevents unintentionally deep nesting across resumes and forks.",
       "category": "マルチエージェント",
       "category_en": "Multi-Agent"
     },

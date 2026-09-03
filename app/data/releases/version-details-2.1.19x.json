@@ -468,7 +468,7 @@
       "category_en": "UX"
     },
     {
-      "t": "変更: `claude mcp list`/`get` が、リポジトリにコミットされた `.claude/settings.json` で自己承認された `.mcp.json` サーバーを起動しないように（信頼できないワークスペースでは `⏸ Pending approval` と表示）",
+      "t": "セキュリティ: `claude mcp list`/`get` が、リポジトリにコミットされた `.claude/settings.json` で自己承認された `.mcp.json` サーバーを起動しないように（信頼できないワークスペースでは `⏸ Pending approval` と表示）",
       "t_en": "Security: `claude mcp list`/`get` no longer spawn `.mcp.json` servers that a repo self-approved via a committed `.claude/settings.json`; untrusted workspaces show `⏸ Pending approval`",
       "tags": ["改善", "Security", "MCP"],
       "detail": "リポジトリは `.mcp.json` で MCP サーバーを定義し、コミットされた `.claude/settings.json` でそれ自身を「承認済み」として扱わせることができてしまっていた。この自己承認により、信頼していないリポジトリを開いただけで `claude mcp list` / `get` が MCP サーバープロセスを起動してしまうリスクがあった。\n\n本バージョンでは、`claude mcp list` / `get` がリポジトリの自己承認による `.mcp.json` サーバーを起動しなくなった。信頼できないワークスペースでは該当サーバーが `⏸ Pending approval`（承認待ち）状態で表示され、明示的な承認があるまで起動されない。悪意あるリポジトリによるサプライチェーン的なリスクを低減する。\n\n詳しくは[MCP のセキュリティモデル](https://code.claude.com/docs/en/security#mcp-security)を参照してください。",
@@ -689,8 +689,8 @@
       "t": "追加: Claude Sonnet 5 を導入し、Claude Code の既定モデルに（ネイティブ 1M トークンのコンテキストウィンドウ、8月31日まで 100万トークンあたり入力 $2 / 出力 $10 のプロモーション価格）",
       "t_en": "Introducing Claude Sonnet 5: now the default model in Claude Code, with a native 1M-token context window and promotional pricing of $2/$10 per Mtok through August 31. Update to version 2.1.197 for access.",
       "tags": ["新機能"],
-      "detail": "Claude Sonnet 5 は Anthropic の最新世代の Sonnet モデルで、エージェント的なコーディングやツール利用に最適化されている。\n\n本バージョン（v2.1.197）で Claude Sonnet 5 が Claude Code の既定モデルになった。あわせて、従来の標準的な 200K トークンを大きく上回るネイティブ 1M トークンのコンテキストウィンドウを備え、より大規模なコードベースや長いセッションを圧縮（compaction）なしでコンテキストに保持できる。\n\n導入記念として、8月31日までは 100万トークンあたり入力 $2 / 出力 $10 のプロモーション価格が適用される（期間終了後は $3 / $15 に戻る）。利用するにはバージョン 2.1.197 以降へ更新する。詳しくは[Claude Sonnet 5 の発表](https://www.anthropic.com/news/claude-sonnet-5)を参照してください。",
-      "detail_en": "Claude Sonnet 5 is Anthropic's latest-generation Sonnet model, optimized for agentic coding and tool use.\n\nWith this version (v2.1.197), Claude Sonnet 5 becomes the default model in Claude Code. It also ships with a native 1M-token context window — well beyond the prior 200K standard — letting it hold much larger codebases and longer sessions in context without compaction.\n\nAs an introductory offer, promotional pricing of $2 per million input tokens and $10 per million output tokens applies through August 31 (reverting to $3/$15 afterward). Update to version 2.1.197 or later to access it. See the [Claude Sonnet 5 announcement](https://www.anthropic.com/news/claude-sonnet-5) for details.",
+      "detail": "Claude Sonnet 5 が導入され、Claude Code の既定モデルになった。ネイティブ 1M トークンのコンテキストウィンドウを備える。\n\n8月31日までは 100万トークンあたり入力 $2 / 出力 $10 のプロモーション価格が適用される。利用するにはバージョン 2.1.197 以降へ更新する。詳しくは[Claude Sonnet 5 の発表](https://www.anthropic.com/news/claude-sonnet-5)を参照してください。",
+      "detail_en": "Claude Sonnet 5 is now available and is the default model in Claude Code. It comes with a native 1M-token context window.\n\nPromotional pricing of $2 input / $10 output per million tokens applies through August 31. Update to version 2.1.197 or later for access. See the [Claude Sonnet 5 announcement](https://www.anthropic.com/news/claude-sonnet-5) for details.",
       "category": "モデル",
       "category_en": "Model"
     }
@@ -983,6 +983,15 @@
       "detail_en": "The `/agents` command previously opened an interactive wizard for listing, creating, editing, and deleting subagents.\n\nThis version removes the wizard. To create or manage subagents, ask Claude conversationally or edit the markdown files under `.claude/agents/` directly.",
       "category": "エージェント設定",
       "category_en": "Agent Configuration"
+    },
+    {
+      "t": "変更: サブエージェントが既定でバックグラウンドで実行されるようになり、実行中も Claude は作業を続け、完了時に通知されるように（これまでは段階的ロールアウト中だった）",
+      "tags": ["改善", "Agent"],
+      "detail": "これまでサブエージェントをバックグラウンドで実行する機能は段階的ロールアウト中で、一部のユーザーにのみ提供されていた。従来の同期実行では、サブエージェントの完了を待つ間メインセッションの作業が止まることがあった。\n\n本バージョンから、サブエージェントは既定でバックグラウンド実行されるようになった。サブエージェントが実行されている間もメインセッションで作業を続けられ、サブエージェントが完了すると通知される。",
+      "category": "マルチエージェント",
+      "detail_en": "Previously, running subagents in the background was part of a gradual rollout available to only some users. With the traditional synchronous execution, work in the main session could stop while waiting for a subagent to finish.\n\nStarting with this version, subagents now run in the background by default. You can keep working in the main session while a subagent is running, and you'll be notified when it completes.",
+      "t_en": "Subagents now run in the background by default, so Claude keeps working while they run and is notified when they finish (previously a gradual rollout)",
+      "category_en": "Multi-Agent"
     }
   ],
   "2.1.199": [
@@ -1152,8 +1161,8 @@
       "t": "修正: 起動時のリカバリーダイアログから破損した設定ファイルをリセットすると復元不能に破壊される問題（リセット前にファイルをバックアップするように）",
       "t_en": "Fixed resetting a corrupted config file from the startup recovery dialog destroying it unrecoverably — it now backs up the file first",
       "tags": ["バグ修正"],
-      "detail": "起動時に破損した設定ファイルが検出されるとリカバリーダイアログでリセットを提案されるが、これまでリセットを選ぶとファイルがそのまま上書きされ、（部分的にはまだ有効かもしれない）以前の内容を復元する手段がなかった。\n\n本バージョンから、リセットの前にファイルのバックアップが作成されるようになった。Claude Code が設定ファイルのタイムスタンプ付きバックアップを保持する仕組みと整合する挙動になっている。詳しくは[設定のドキュメント](https://code.claude.com/docs/en/settings#settings-files)を参照してください。",
-      "detail_en": "When Claude Code detected a corrupted config file at startup and offered a reset via the recovery dialog, choosing reset overwrote the file with no way to recover its previous — possibly partially valid — contents.\n\nThe file is now backed up before the reset, in line with Claude Code's practice of keeping timestamped config backups. See the [settings documentation](https://code.claude.com/docs/en/settings#settings-files) for details.",
+      "detail": "起動時に破損した設定ファイルが検出されるとリカバリーダイアログでリセットを提案されるが、これまでリセットを選ぶとファイルがそのまま上書きされ、（部分的にはまだ有効かもしれない）以前の内容を復元する手段がなかった。\n\n本バージョンから、リセットの前にファイルのバックアップが作成されるようになった。Claude Code が設定ファイルのタイムスタンプ付きバックアップを保持する仕組みと整合する挙動になっている。詳しくは[設定のドキュメント](https://code.claude.com/docs/en/settings#settings-files-and-who-they-affect)を参照してください。",
+      "detail_en": "When Claude Code detected a corrupted config file at startup and offered a reset via the recovery dialog, choosing reset overwrote the file with no way to recover its previous — possibly partially valid — contents.\n\nThe file is now backed up before the reset, in line with Claude Code's practice of keeping timestamped config backups. See the [settings documentation](https://code.claude.com/docs/en/settings#settings-files-and-who-they-affect) for details.",
       "category": "設定",
       "category_en": "Configuration"
     },
