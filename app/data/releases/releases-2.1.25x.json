@@ -923,5 +923,195 @@
         "tags": ["バグ修正"]
       }
     ]
+  },
+  {
+    "v": "2.1.259",
+    "items": [
+      {
+        "t": "追加: 組織が HTTP/SSE の MCP サーバーを全ユーザーに配布できる管理設定 `managedMcpServers` を追加（`.mcp.json` と同じ形式のエントリを使用。コマンド実行を指定するエントリはスキップされる）",
+        "t_en": "Added `managedMcpServers` managed setting: organizations can provide HTTP/SSE MCP servers to every user (same entry shape as `.mcp.json`); entries that name a command to run are skipped",
+        "tags": ["新機能", "MCP"]
+      },
+      {
+        "t": "追加: 無人のヘッドレスホスト向けに `--permission-prompts none` を追加。プロンプトが発生するはずの操作はすべて自動的に拒否されつつ、auto モードを含む有効なパーミッションモードによる判定は継続される",
+        "t_en": "Added `--permission-prompts none` for unattended headless hosts: anything that would prompt is denied automatically while the active permission mode (including auto mode) keeps deciding",
+        "tags": ["新機能", "Security"]
+      },
+      {
+        "t": "追加: `glab mr create/merge/close/reopen/note/update` を認識し、GitLab のマージリクエストが折りたたまれたツール概要に `MR !N` として表示され、フッターの MR バッジも更新されるように",
+        "t_en": "Added recognition of `glab mr create/merge/close/reopen/note/update` so GitLab merge requests show as `MR !N` in the collapsed tool summary and refresh the footer MR badge",
+        "tags": ["新機能"]
+      },
+      {
+        "t": "追加: `claude plugin validate` に `--json` を追加し、機械可読な検証レポートを出力できるように",
+        "t_en": "Added `--json` to `claude plugin validate` for a machine-readable validation report",
+        "tags": ["新機能", "Plugin"]
+      },
+      {
+        "t": "修正: 複数セッションを同時に実行すると、互いの `~/.claude.json` への変更を静かに上書きし合い、ワークスペースの信頼設定がリセットされたり MCP・プロジェクトの状態が失われたりする問題を修正",
+        "t_en": "Fixed concurrent sessions silently reverting each other's `~/.claude.json` changes — workspace trust no longer resets and MCP/project state is no longer lost when running many sessions at once",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: 一度 thinking が拒否された会話で、それ以降のすべてのターンでも thinking が拒否され続けてしまう問題を修正",
+        "t_en": "Fixed a conversation whose thinking was rejected once being rejected again on every later turn",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: Bash の `Read()` 拒否ルールが、オプションの値として渡されたファイル（`--ignore-revs-file=.env`、`-f.env`、`@file` など）、`git diff`・`git grep` のファイルオペランド、`cd DIR && cat FILE` の複合コマンドを対象外にしていた問題を修正。また拒否対象ファイルを含むディレクトリに対する `grep -r`・`cp -r` の実行時に確認を求めるように",
+        "t_en": "Fixed Bash `Read()` deny rules not covering files given as option values (`--ignore-revs-file=.env`, `-f.env`, `@file`), `git diff`/`git grep` file operands, or `cd DIR && cat FILE` compounds; `grep -r`/`cp -r` over a directory holding a denied file now asks",
+        "tags": ["バグ修正", "Security"]
+      },
+      {
+        "t": "修正: テレメトリを無効にしたセッションで OAuth トークンが更新された際に、プロンプトキャッシュが無効化されてしまう問題を修正",
+        "t_en": "Fixed the prompt cache being invalidated when the OAuth token refreshed in sessions with telemetry disabled",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: 数百件のツール呼び出しを伴う長いターンの後、フルスクリーンモードで会話が空白表示になる問題を修正",
+        "t_en": "Fixed fullscreen mode showing a blank conversation after a long turn with hundreds of tool calls",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: コマンドやスキルの frontmatter で `model:` が指定されている場合に、auto モードが非対応のモデルでターンを実行してしまう問題を修正。現在はセッションのモデルを維持するように",
+        "t_en": "Fixed auto mode running a turn on a model it doesn't support when a command or skill's frontmatter `model:` named one; the turn now keeps the session model",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: Claude Code が認識しないモデルバージョンについて、Vertex 形式のモデル ID（`@YYYYMMDD` サフィックス付き）で `CLAUDE_CODE_MAX_CONTEXT_TOKENS` が無視されてしまう問題を修正",
+        "t_en": "Fixed `CLAUDE_CODE_MAX_CONTEXT_TOKENS` being ignored for Vertex-style model IDs (`@YYYYMMDD` suffix) of model versions Claude Code doesn't recognize",
+        "tags": ["バグ修正", "Platform"]
+      },
+      {
+        "t": "修正: 実行中のシェルコマンドのライブ出力プレビューで、途中の行が折り返されていると最新行が隠れてしまう問題を修正",
+        "t_en": "Fixed the live output preview of a running shell command hiding its newest lines when an earlier line wrapped",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: claude.ai ユーザー向けの GitHub 接続状態のバックグラウンドチェックが毎回の起動時に実行されていた問題を修正し、結果を起動間で記憶するように",
+        "t_en": "Fixed a background GitHub connection check that ran on every launch for claude.ai users; the result is now remembered across launches",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: 保存されたセッションに中身のない添付ファイルのエントリが含まれている場合に、`--resume` が失敗し `--continue` が空の会話を開いてしまう問題を修正",
+        "t_en": "Fixed `--resume` failing (and `--continue` opening an empty conversation) when a saved session contains an attachment entry with no payload",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: カスタムコマンドやスキルの frontmatter に指定した `model:` が、対話セッションでは無視されてしまう問題を修正",
+        "t_en": "Fixed frontmatter `model:` on custom commands and skills being ignored in interactive sessions",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: 旧バージョンから継続した会話で、Artifact の公開が「unexpected parameter `note`」エラーで一度失敗する問題を修正",
+        "t_en": "Fixed Artifact publishing failing once with an \"unexpected parameter `note`\" error in conversations continued from an older version",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: MDM や管理設定ファイルで設定された policy helper が既に実行済みの場合に、管理設定 `forceRemoteSettingsRefresh` が起動時に無視されてしまう問題を修正",
+        "t_en": "Fixed managed `forceRemoteSettingsRefresh` being ignored at startup when a policy helper configured by MDM or the managed settings file had already run",
+        "tags": ["バグ修正", "Security"]
+      },
+      {
+        "t": "修正: `git rev-parse` が「not a git repository」以外のメッセージで失敗する環境で、worktree isolation がフック作成の worktree を拒否してしまう問題を修正",
+        "t_en": "Fixed worktree isolation refusing hook-created worktrees on machines where `git rev-parse` fails with a message other than \"not a git repository\"",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: クラウドセッションから送信される OpenTelemetry のメトリクスとイベントに `user.email`・`organization.id`・`user.account_uuid` の属性が欠落していた問題を修正",
+        "t_en": "Fixed OpenTelemetry metrics and events from cloud sessions missing the `user.email`, `organization.id`, and `user.account_uuid` attributes",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: 起動時にツール一覧を取得している最中に切断した MCP サーバーが、エラーとして報告されず、ツールなしの「接続済み」として表示されてしまう問題を修正",
+        "t_en": "Fixed MCP servers that disconnect while their tools are being listed at startup showing as connected with no tools instead of reporting the error",
+        "tags": ["バグ修正", "MCP"]
+      },
+      {
+        "t": "修正: ファイル編集のパーミッションダイアログで、変更後の行が何の表示もなく途中で切れてしまうことがある問題を修正",
+        "t_en": "Fixed the file edit permission dialog sometimes showing a changed line cut short with no indication",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: 一時的な git のプローブ失敗の後、既知だったリポジトリの識別情報が失われてしまう問題を修正",
+        "t_en": "Fixed repository detection dropping a known repo identity after a transient git probe failure",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: 管理設定ファイル・drop-in ファイル・MDM の plist・HKLM の値のいずれかを解析できない場合に、管理設定が静かに強制されなくなってしまう問題を修正。現在は起動を拒否し、原因となったソースを明示するように",
+        "t_en": "Fixed managed settings silently going unenforced when the managed-settings file, a drop-in, the MDM plist, or the HKLM value cannot be parsed: Claude Code now refuses to start and names the source",
+        "tags": ["バグ修正", "Security"]
+      },
+      {
+        "t": "修正: remote-control セッションで Stop を実行してもバックグラウンドのエージェントやワークフローが実際には停止していなかった問題を修正。停止させたタスクはプロセスが終了するまで表示され続け、再度停止操作できるように",
+        "t_en": "Fixed Stop not actually stopping background agents and workflows in remote-control sessions: killed tasks now stay visible and re-stoppable until their processes exit",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: 直前に停止したワークフロー実行がまだ終了処理中であるうちに再開すると、そのエージェントが重複して実行されてしまうことがある問題を修正",
+        "t_en": "Fixed resuming a workflow run while its previous stopped run was still exiting, which could run duplicate copies of its agents",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: 末尾にスラッシュや不完全な `?`・`#` が付いた github.com のマーケットプレイス URL から、利用できない `.git` クローン URL が生成されてしまう問題を修正",
+        "t_en": "Fixed marketplace repo URLs on github.com with a trailing slash or dangling `?`/`#` producing an unusable `.git` clone URL",
+        "tags": ["バグ修正", "Plugin"]
+      },
+      {
+        "t": "修正: ブロックする Stop フックにより、ブロックされたターンの直後のターンでモデルの推論内容が失われ、モデルによってはプロンプトキャッシュも外れてしまう問題を修正",
+        "t_en": "Fixed blocking Stop hooks causing the turn after a block to lose the model's reasoning from that turn and, on some models, miss the prompt cache",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: ブラウザ上で動作する MCP サーバーのページが失われた後、claude.ai のリモートセッションでターンの開始に 60 秒かかっていた問題を修正",
+        "t_en": "Fixed remote (claude.ai) sessions taking 60 seconds to start a turn after a browser-hosted MCP server's page had gone away",
+        "tags": ["バグ修正", "MCP"]
+      },
+      {
+        "t": "修正: worktree で隔離されたセッションが、メインのチェックアウトに到達しえない一般的な Bash のループ・xargs パイプライン・ランチャーでラップされたコマンドまで拒否してしまう問題を修正",
+        "t_en": "Fixed worktree-isolated sessions refusing common Bash loops, xargs pipelines and launcher-wrapped commands that cannot reach the main checkout",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "改善: テキストの計測結果を再利用することで、長い応答におけるターミナルのリサイズと初回描画のパフォーマンスを改善",
+        "t_en": "Improved terminal resize and first-render performance for long responses by reusing text measurements",
+        "tags": ["改善", "Perf"]
+      },
+      {
+        "t": "改善: `/workflows` のエージェント詳細で、JSON の実行結果がシンタックスカラー付き・実改行ありで整形表示されるようになり、長い結果は展開トグルの背後に折りたたまれるように",
+        "t_en": "Improved `/workflows` agent detail: JSON outcomes are pretty-printed with syntax colors and real line breaks, and long outcomes fold behind an expand toggle",
+        "tags": ["改善", "Agent"]
+      },
+      {
+        "t": "改善: MCP サーバーの接続完了時、headless／SDK セッションの最初のターンの開始が最大 50ms 早くなるように改善",
+        "t_en": "Improved headless/SDK session start: the first turn begins up to 50 ms sooner when MCP servers finish connecting",
+        "tags": ["改善", "SDK", "Perf"]
+      },
+      {
+        "t": "改善: `/install-github-app` を GitLab リポジトリ内で実行した場合に、GitHub 専用であることを説明し GitLab の CI/CD ドキュメントへ誘導するように改善",
+        "t_en": "Improved `/install-github-app` to explain it is GitHub-only and point to the GitLab CI/CD docs when run inside a GitLab repository",
+        "tags": ["改善"]
+      },
+      {
+        "t": "改善: ネストしたバックグラウンドのサブエージェントの実行結果が親サブエージェントのトランスクリプトに保存されるようになり、再開したサブエージェントもその結果を保持し、共有されたトランスクリプトにも反映されるように改善",
+        "t_en": "Improved nested background subagent results to be saved in the parent subagent's transcript, so resumed subagents keep them and shared transcripts show the delivery",
+        "tags": ["改善", "Agent"]
+      },
+      {
+        "t": "変更: `allowedMcpServers` の対象をユーザーが追加したサーバーのみに変更。これまでこの許可リストで除外されていた `managed-mcp.json` の固定サーバーはアップグレード後に読み込まれるようになり、除外したい場合は `deniedMcpServers` を使用する",
+        "t_en": "Changed `allowedMcpServers` to govern only servers users add: a literal `managed-mcp.json` server your allowlist used to filter out now loads on upgrade; use `deniedMcpServers` to keep it off",
+        "tags": ["改善", "MCP"]
+      },
+      {
+        "t": "追加: [VSCode] セッション一覧のサイドバーに Active クイックフィルターと、ステータスで絞り込むフィルターメニュー（Needs input・Working・Completed）を追加",
+        "t_en": "[VSCode] Added an Active quick filter and a status filter menu (Needs input, Working, Completed) to the session list sidebar",
+        "tags": ["新機能", "IDE"]
+      },
+      {
+        "t": "修正: セッションが一時停止中にコネクタツールのパーミッション承認が行われた後、リモートセッションやスケジュール実行セッションが何もしなくなってしまう問題を修正",
+        "t_en": "Fixed remote and scheduled sessions doing nothing after a connector-tool permission prompt was approved while the session was paused",
+        "tags": ["バグ修正"]
+      }
+    ]
   }
 ]
