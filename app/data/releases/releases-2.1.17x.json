@@ -203,8 +203,8 @@
         "tags": ["バグ修正"]
       },
       {
-        "t": "修正: エンタープライズアカウントに「Fable 5 がクレジットを消費しています」バナーが誤って表示される問題",
-        "t_en": "Fixed \"Fable 5 consuming credits\" banner incorrectly showing for enterprise accounts",
+        "t": "修正: 従量課金のエンタープライズアカウントに「Fable 5 がクレジットを消費しています」バナーが誤って表示される問題",
+        "t_en": "Fixed the \"Fable 5 is now consuming usage credits\" banner incorrectly showing for enterprise accounts with usage-based billing",
         "tags": ["バグ修正"]
       },
       {
@@ -246,6 +246,11 @@
         "t": "[VSCode] 追加: Account & usage ダイアログにキャッシュミスや内訳を含む使用帰属を表示",
         "t_en": "[VSCode] Added usage attribution to Account & usage dialog showing cache misses and breakdowns",
         "tags": ["新機能", "IDE"]
+      },
+      {
+        "t": "修正: 事前起動済みのバックグラウンドワーカーが、アイドル状態のまま放置された後に割り当てられると「Could not resolve authentication method」エラーで失敗する問題",
+        "tags": ["バグ修正", "Agent"],
+        "t_en": "Fixed pre-warmed background workers failing with \"Could not resolve authentication method\" when claimed after sitting idle"
       }
     ]
   },
@@ -298,23 +303,23 @@
         "tags": ["バグ修正"]
       },
       {
-        "t": "修正: tmux over SSH で `/copy` とマウス選択によるコピーがクリップボードに届かない問題",
-        "t_en": "Fixed `/copy` and mouse-selection copy not reaching clipboard in tmux over SSH",
+        "t": "修正: tmux over SSH で `/copy` とマウス選択によるコピーがクリップボードに届かない問題と、tmux 3.2 より古いバージョンで paste buffer が読み込まれない問題",
+        "t_en": "Fixed `/copy` and mouse-selection copy not reaching the system clipboard inside tmux over SSH, and tmux paste buffer not loading on versions older than 3.2",
         "tags": ["バグ修正"]
       },
       {
-        "t": "修正: Remote Control がセッションのモデルを無言で切り替える問題",
-        "t_en": "Fixed Remote Control silently switching session model",
+        "t": "修正: Remote Control で web/mobile から接続するとセッションのモデルが無言で切り替わる問題",
+        "t_en": "Fixed Remote Control connecting from web/mobile silently switching the session's model",
         "tags": ["バグ修正"]
       },
       {
-        "t": "修正: Remote Control の切断通知に人間が読める理由ではなく数値コードが表示される問題",
-        "t_en": "Fixed Remote Control disconnect notifications showing numeric code instead of human-readable reason",
+        "t": "修正: Remote Control の切断通知に人間が読める理由ではなく数値コードが表示される問題と、接続失敗時に会話のトランスクリプトに重複した行が追加される問題",
+        "t_en": "Fixed Remote Control disconnect notifications showing a bare numeric code instead of a human-readable reason, and connection failures adding a duplicate line to the conversation transcript",
         "tags": ["バグ修正"]
       },
       {
-        "t": "修正: Remote Control セッションがアカウントサインイン時に切断されない問題",
-        "t_en": "Fixed Remote Control sessions not disconnecting on account sign-in",
+        "t": "修正: 別のアカウントにサインインしても Remote Control セッションが切断されない問題",
+        "t_en": "Fixed Remote Control sessions not disconnecting when you sign in to a different account",
         "tags": ["バグ修正"]
       },
       {
@@ -333,8 +338,8 @@
         "tags": ["バグ修正", "Agent"]
       },
       {
-        "t": "修正: PR URL によるバックグラウンドエージェントの検索が機能しない問題",
-        "t_en": "Fixed background agent search by PR URL",
+        "t": "修正: スケジュールされたウェイクアップ中またはジョブがブロックされている間に開かれた PR が `claude agents` の PR URL 検索に表示されない問題",
+        "t_en": "Fixed background agent search by PR URL: PRs opened during scheduled wakeups or while a job was blocked now appear in `claude agents` search",
         "tags": ["バグ修正", "Agent"]
       },
       {
@@ -363,13 +368,13 @@
         "tags": ["バグ修正", "Windows", "Agent"]
       },
       {
-        "t": "修正: アイドル時間が長すぎると認証メソッドエラーでクラウドセッションが失敗する問題",
-        "t_en": "Fixed cloud sessions failing with auth method error when idle too long",
+        "t": "修正: クレーム（claim）される前に長時間アイドル状態になると、認証メソッドエラー（\"Could not resolve authentication method\"）でクラウドセッションが失敗する問題",
+        "t_en": "Fixed cloud sessions failing with \"Could not resolve authentication method\" when idle for too long before being claimed",
         "tags": ["バグ修正", "Agent"]
       },
       {
-        "t": "改善: 自動更新ウィンドウの問題に対してバックグラウンドセッションがより明確なガイダンスを表示",
-        "t_en": "Background sessions show clearer guidance for auto-update window issues",
+        "t": "改善: 自動更新をまたいで開いたままのウィンドウが返信を送信できない場合のバックグラウンドセッションのガイダンスを明確化し、`claude daemon status` がバージョン差異時の挙動を説明するように",
+        "t_en": "Background sessions now show clearer guidance when a window left open across an auto-update can't submit a reply, and `claude daemon status` explains version-skew behavior",
         "tags": ["改善", "Agent"]
       }
     ]
@@ -383,13 +388,13 @@
         "tags": ["新機能", "Security"]
       },
       {
-        "t": "追加: ネストされた `.claude/skills` ディレクトリのスキルを読み込み可能に — 名前衝突時は `<dir>:<name>` 形式で表示",
-        "t_en": "Skills in nested `.claude/skills` directories now load; nested skills appear as `<dir>:<name>` on name clashes",
+        "t": "追加: 作業対象ファイルに応じてネストされた `.claude/skills` ディレクトリのスキルを読み込み可能に — 名前衝突時は `<dir>:<name>` 形式で表示",
+        "t_en": "Skills in nested `.claude/skills` directories now load when working on files there; on a name clash, the nested skill appears as `<dir>:<name>` so both stay available",
         "tags": ["新機能"]
       },
       {
-        "t": "改善: ネストされた `.claude/` ディレクトリのエージェント・ワークフロー・出力スタイルは作業ディレクトリに最も近いものが優先",
-        "t_en": "Nested `.claude/` directories: closest agent, workflow, and output-style to working directory wins on collisions",
+        "t": "改善: ネストされた `.claude/` ディレクトリのエージェント・ワークフロー・出力スタイルは作業ディレクトリに最も近いものが優先 — プロジェクトスコープのワークフロー保存先も最も近い既存の `.claude/workflows/` に",
+        "t_en": "Nested `.claude/` directories: the agent, workflow, and output-style closest to the working directory now wins when names collide; project-scope workflow saves now target the closest existing `.claude/workflows/`",
         "tags": ["改善"]
       },
       {
@@ -433,8 +438,8 @@
         "tags": ["バグ修正", "MCP"]
       },
       {
-        "t": "修正: ディレクトリ修飾名を持つネストされた `.claude/skills` がパーミッションプロンプトでブロックされる問題",
-        "t_en": "Fixed nested `.claude/skills` with directory-qualified names blocked by permission prompts",
+        "t": "修正: 非対話型実行でディレクトリ修飾名を持つネストされた `.claude/skills` がパーミッションプロンプトでブロックされる問題",
+        "t_en": "Fixed nested `.claude/skills` skills with directory-qualified names being blocked by permission prompts in non-interactive runs",
         "tags": ["バグ修正"]
       },
       {
@@ -483,9 +488,19 @@
         "tags": ["バグ修正", "Agent"]
       },
       {
-        "t": "修正: Esc キーで CJK IME 候補ウィンドウを閉じると実行中の Claude タスクがキャンセルされる問題",
-        "t_en": "Fixed pressing Esc to dismiss CJK IME candidate window canceling running Claude task",
-        "tags": ["バグ修正"]
+        "t": "修正: [VSCode] Esc キーで CJK IME 候補ウィンドウを閉じると実行中の Claude タスクがキャンセルされる問題",
+        "t_en": "[VSCode] Fixed pressing Esc to dismiss a CJK IME candidate window canceling the running Claude task",
+        "tags": ["バグ修正", "IDE"]
+      },
+      {
+        "t": "変更: Agent teams — `TeamCreate`・`TeamDelete` ツールを削除、`CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` 設定時は全セッションが暗黙のチームを持つように",
+        "tags": ["改善", "Agent"],
+        "t_en": "Agent teams: removed the `TeamCreate` and `TeamDelete` tools. With `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` set, every session now has one implicit team — spawn teammates directly with the Agent tool's `name` parameter, no setup step needed. The `team_name` parameter on the Agent tool is still accepted but ignored."
+      },
+      {
+        "t": "修正: `.claude/skills` または `.claude/hooks` がシンボリックリンクの場合に Linux サンドボックスが起動失敗する問題",
+        "tags": ["バグ修正"],
+        "t_en": "Fixed Linux sandbox failing to start when `.claude/skills` or `.claude/hooks` is a symlink"
       }
     ]
   },
@@ -493,8 +508,8 @@
     "v": "2.1.179",
     "items": [
       {
-        "t": "修正: ストリーミング途中の接続切断時に部分的なレスポンスが保持されるように",
-        "t_en": "Fixed mid-stream connection drops: partial responses now preserved",
+        "t": "修正: ストリーミング接続の途中切断時に生のエラー表示ではなく部分的なレスポンスが保持されるようになり、スピナーが「running tool」のまま固まる問題も解消",
+        "t_en": "Fixed mid-stream connection drops: partial responses are now preserved instead of showing a raw error, and the spinner no longer gets stuck at \"running tool\"",
         "tags": ["バグ修正"]
       },
       {
@@ -503,13 +518,13 @@
         "tags": ["バグ修正", "Windows"]
       },
       {
-        "t": "修正: 大きなディレクトリに対するサンドボックスの `denyRead`/`allowRead` グロブでセッションが操作不能になる問題",
-        "t_en": "Fixed sandbox `denyRead`/`allowRead` glob over a large directory making the session unusable",
+        "t": "修正: 大きなディレクトリツリーに対するサンドボックスの `denyRead`/`allowRead` グロブで Bash ツールの説明が肥大化し、Linux でセッションが操作不能になる問題",
+        "t_en": "Fixed a sandbox `denyRead`/`allowRead` glob over a large directory tree making the Bash tool description enormous and the session unusable on Linux",
         "tags": ["バグ修正", "Perf"]
       },
       {
-        "t": "修正: フィードバックアンケートで1桁の返信がセッション評価として誤って記録される問題",
-        "t_en": "Fixed feedback survey capturing a single-digit reply as a session rating",
+        "t": "修正: ターン完了直後にフィードバックアンケートで入力した1桁の返信がセッション評価として誤って記録される問題",
+        "t_en": "Fixed the feedback survey capturing a single-digit reply as a session rating immediately after a turn completes",
         "tags": ["バグ修正"]
       },
       {

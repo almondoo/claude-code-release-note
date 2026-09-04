@@ -340,11 +340,11 @@
       "category_en": "Configuration"
     },
     {
-      "t": "修正: エンタープライズアカウントに「Fable 5 がクレジットを消費しています」バナーが誤って表示される問題",
-      "t_en": "Fixed \"Fable 5 consuming credits\" banner incorrectly showing for enterprise accounts",
+      "t": "修正: 従量課金のエンタープライズアカウントに「Fable 5 がクレジットを消費しています」バナーが誤って表示される問題",
+      "t_en": "Fixed the \"Fable 5 is now consuming usage credits\" banner incorrectly showing for enterprise accounts with usage-based billing",
       "tags": ["バグ修正"],
-      "detail": "エンタープライズアカウントのユーザーに対して、「Fable 5 がクレジットを消費しています」というバナー通知が誤って表示される問題が修正されました。このバナーはエンタープライズ以外のアカウントで Fable 5 を使用した際の使用量通知として意図されたものですが、エンタープライズアカウントでは誤って表示されていました。\n\n修正により、バナーが表示される対象が正しく絞り込まれ、エンタープライズアカウントには表示されなくなりました。",
-      "detail_en": "Fixed an issue where the \"Fable 5 consuming credits\" banner notification was incorrectly shown for enterprise account users. This banner is intended as a usage notification when using Fable 5 on non-enterprise accounts, but it was incorrectly appearing for enterprise accounts.\n\nWith this fix, the banner is correctly scoped to the appropriate audience and no longer appears for enterprise accounts.",
+      "detail": "従量課金（usage-based billing）を利用しているエンタープライズアカウントのユーザーに対して、「Fable 5 がクレジットを消費しています」というバナー通知が誤って表示される問題が修正されました。\n\n修正により、バナーの表示対象が正しく判定されるようになり、該当のエンタープライズアカウントには表示されなくなりました。",
+      "detail_en": "Fixed an issue where the \"Fable 5 consuming credits\" banner notification was incorrectly shown to users on enterprise accounts using usage-based billing.\n\nWith this fix, the banner's display targeting is now correctly evaluated, and it no longer appears for the affected enterprise accounts.",
       "category": "UX",
       "category_en": "UX"
     },
@@ -419,6 +419,15 @@
       "detail_en": "Usage attribution information has been added to the Account & usage dialog in the VS Code extension (opened via `/usage`). Factors accounting for more than 10% of usage — such as cache misses, long context, and highly parallel subagents — are automatically detected and displayed.\n\nAttribution tables for skills, subagents, plugins, and MCP servers are also shown. This makes it easier to identify the cause of high token consumption for cost management. See the [account and usage documentation](https://code.claude.com/docs/en/ide-integrations#check-account-and-usage) for details.",
       "category": "IDE",
       "category_en": "IDE"
+    },
+    {
+      "t": "修正: 事前起動済みのバックグラウンドワーカーが、アイドル状態のまま放置された後に割り当てられると「Could not resolve authentication method」エラーで失敗する問題",
+      "tags": ["バグ修正", "Agent"],
+      "detail": "Claude Code はバックグラウンドタスクの起動を高速化するため、あらかじめワーカープロセスを起動してプールしておき、タスク実行時にそのプールから割り当てる仕組みを持っています。このプール済みのワーカーがしばらくアイドル状態のまま放置された後に実際のタスクへ割り当てられると、「Could not resolve authentication method」というエラーで失敗してしまう問題が修正されました。\n\n修正により、アイドル状態が続いたワーカーを再利用する場合でも認証方式が正しく解決されるようになり、バックグラウンドタスクが正常に実行されるようになりました。",
+      "category": "セッション管理",
+      "detail_en": "Claude Code has a mechanism to speed up background task startup: it pre-launches worker processes into a pool and assigns from that pool when a task runs. When a pooled worker was left idle for a while before being claimed for an actual task, it would fail with a \"Could not resolve authentication method\" error.\n\nThe fix ensures the authentication method is resolved correctly even when reusing a worker that has been idle for an extended period, so background tasks now run successfully.",
+      "t_en": "Fixed pre-warmed background workers failing with \"Could not resolve authentication method\" when claimed after sitting idle",
+      "category_en": "Session Management"
     }
   ],
   "2.1.175": [
@@ -437,8 +446,8 @@
       "t": "追加: セッションタイトルが会話の言語で自動生成されるように。`language` 設定で変更可能",
       "t_en": "Session titles now generate in conversation language; configurable via `language` setting",
       "tags": ["新機能"],
-      "detail": "セッションタイトルが会話で使用されている言語で自動生成されるようになりました。これまではセッションタイトルが常に英語で生成されていましたが、日本語などの言語で会話している場合はその言語でタイトルが付くようになります。\n\nタイトル生成言語を明示的に指定したい場合は、`settings.json` の `language` 設定を使用してください。詳細は[設定のドキュメント](https://code.claude.com/docs/en/settings#available-settings)を参照してください。",
-      "detail_en": "Session titles are now automatically generated in the language of the conversation. Previously, session titles were always generated in English, but now they are titled in whichever language the conversation is conducted in.\n\nIf you want to explicitly specify the language for title generation, use the `language` setting in `settings.json`. See the [settings documentation](https://code.claude.com/docs/en/settings#available-settings) for details.",
+      "detail": "セッションタイトルが会話で使用されている言語で自動生成されるようになりました。これまではセッションタイトルが常に英語で生成されていましたが、日本語などの言語で会話している場合はその言語でタイトルが付くようになります。\n\nタイトル生成言語を明示的に指定したい場合は、`settings.json` の `language` 設定を使用してください。詳細は[設定のドキュメント](https://code.claude.com/docs/en/settings-reference)を参照してください。",
+      "detail_en": "Session titles are now automatically generated in the language of the conversation. Previously, session titles were always generated in English, but now they are titled in whichever language the conversation is conducted in.\n\nIf you want to explicitly specify the language for title generation, use the `language` setting in `settings.json`. See the [settings documentation](https://code.claude.com/docs/en/settings-reference) for details.",
       "category": "国際化",
       "category_en": "Internationalization"
     },
@@ -497,38 +506,38 @@
       "category_en": "Sandbox"
     },
     {
-      "t": "修正: tmux over SSH で `/copy` とマウス選択によるコピーがクリップボードに届かない問題",
-      "t_en": "Fixed `/copy` and mouse-selection copy not reaching clipboard in tmux over SSH",
+      "t": "修正: tmux over SSH で `/copy` とマウス選択によるコピーがクリップボードに届かない問題と、tmux 3.2 より古いバージョンで paste buffer が読み込まれない問題",
+      "t_en": "Fixed `/copy` and mouse-selection copy not reaching the system clipboard inside tmux over SSH, and tmux paste buffer not loading on versions older than 3.2",
       "tags": ["バグ修正"],
-      "detail": "SSH 越しに tmux を使用している環境で、`/copy` コマンドやマウス選択によるテキストコピーがローカルのクリップボードに反映されない問題が修正されました。tmux over SSH の組み合わせではクリップボード転送のパスが特殊で、コピー操作が正常に到達していませんでした。\n\n修正により、SSH 接続＋tmux 環境でもコピー操作がクリップボードに正しく届くようになりました。",
-      "detail_en": "Fixed an issue where `/copy` command and mouse-selection copy operations were not reaching the local clipboard when using tmux over SSH. The combination of tmux over SSH has a special clipboard transfer path, and copy operations were not successfully reaching the clipboard.\n\nWith this fix, copy operations correctly reach the clipboard even in SSH + tmux environments.",
+      "detail": "SSH 越しに tmux を使用している環境で、`/copy` コマンドやマウス選択によるテキストコピーがローカルのクリップボードに反映されない問題が修正されました。tmux over SSH の組み合わせではクリップボード転送のパスが特殊で、コピー操作が正常に到達していませんでした。\n\nあわせて、tmux 3.2 より古いバージョンでは paste buffer が読み込まれない問題も修正されました。\n\n修正により、SSH 接続＋tmux 環境でのコピー操作と、古いバージョンの tmux での paste buffer 読み込みの両方が正しく機能するようになりました。",
+      "detail_en": "Fixed an issue where, in environments using tmux over SSH, text copied via the `/copy` command or mouse selection was not reaching the local clipboard. The tmux-over-SSH combination has a special clipboard transfer path, and copy operations were not successfully reaching it.\n\nAlso fixed an issue where the paste buffer was not read on tmux versions older than 3.2.\n\nWith this fix, both copy operations in SSH + tmux environments and paste buffer reading on older tmux versions now work correctly.",
       "category": "UX",
       "category_en": "UX"
     },
     {
-      "t": "修正: Remote Control がセッションのモデルを無言で切り替える問題",
-      "t_en": "Fixed Remote Control silently switching session model",
+      "t": "修正: Remote Control で web/mobile から接続するとセッションのモデルが無言で切り替わる問題",
+      "t_en": "Fixed Remote Control connecting from web/mobile silently switching the session's model",
       "tags": ["バグ修正"],
-      "detail": "Remote Control 機能が有効な状態で、ユーザーに通知することなくセッションのモデルが自動的に切り替わってしまう問題が修正されました。意図せずモデルが変更されることで、期待しない応答や課金上の問題が発生する可能性がありました。\n\n修正により、Remote Control を使用中に不意なモデル切り替えが起きなくなりました。",
-      "detail_en": "Fixed an issue where Remote Control would silently switch the session's model without notifying the user. Unexpected model changes could lead to unexpected responses and billing concerns.\n\nWith this fix, unintended model switches no longer occur while using Remote Control.",
+      "detail": "Remote Control 機能を使って web またはモバイルから接続した際に、ユーザーに通知することなくセッションのモデルが自動的に切り替わってしまう問題が修正されました。意図せずモデルが変更されることで、期待しない応答や課金上の問題が発生する可能性がありました。\n\n修正により、web/mobile からの Remote Control 接続時に不意なモデル切り替えが起きなくなりました。",
+      "detail_en": "Fixed an issue where connecting via Remote Control from web or mobile could automatically switch the session's model without notifying the user. This unintended model change could lead to unexpected responses or billing concerns.\n\nWith this fix, unexpected model switches no longer occur when connecting via Remote Control from web/mobile.",
       "category": "UX",
       "category_en": "UX"
     },
     {
-      "t": "修正: Remote Control の切断通知に人間が読める理由ではなく数値コードが表示される問題",
-      "t_en": "Fixed Remote Control disconnect notifications showing numeric code instead of human-readable reason",
+      "t": "修正: Remote Control の切断通知に人間が読める理由ではなく数値コードが表示される問題と、接続失敗時に会話のトランスクリプトに重複した行が追加される問題",
+      "t_en": "Fixed Remote Control disconnect notifications showing a bare numeric code instead of a human-readable reason, and connection failures adding a duplicate line to the conversation transcript",
       "tags": ["バグ修正"],
-      "detail": "Remote Control セッションが切断された際の通知に、人間が読みやすい理由テキストではなく数値コード（例: `1006`）が表示される問題が修正されました。数値コードだけでは切断の原因がわからず、トラブルシューティングが困難でした。\n\n修正により、切断理由が人間が読みやすいテキストで表示されるようになりました。",
-      "detail_en": "Fixed an issue where Remote Control session disconnect notifications showed a numeric code (e.g., `1006`) instead of a human-readable reason. The numeric code alone made it difficult to understand the cause of the disconnection and troubleshoot.\n\nWith this fix, disconnect reasons are displayed as human-readable text.",
+      "detail": "Remote Control セッションが切断された際の通知に、人間が読みやすい理由テキストではなく数値コード（例: `1006`）が表示される問題が修正されました。数値コードだけでは切断の原因がわからず、トラブルシューティングが困難でした。\n\nまた、接続に失敗した際に会話のトランスクリプトへ重複した行が追加されてしまう問題もあわせて修正されました。\n\n修正により、切断理由が人間が読みやすいテキストで表示され、接続失敗時に重複行が追加されることもなくなりました。",
+      "detail_en": "Fixed an issue where notifications for a disconnected Remote Control session showed a numeric code (e.g., `1006`) instead of a human-readable reason text. With only the numeric code, it was hard to understand the cause of the disconnection and troubleshoot it.\n\nAlso fixed an issue where a duplicate line was added to the conversation transcript when a connection attempt failed.\n\nWith this fix, disconnect reasons are now shown as human-readable text, and duplicate lines are no longer added on connection failure.",
       "category": "UX",
       "category_en": "UX"
     },
     {
-      "t": "修正: Remote Control セッションがアカウントサインイン時に切断されない問題",
-      "t_en": "Fixed Remote Control sessions not disconnecting on account sign-in",
+      "t": "修正: 別のアカウントにサインインしても Remote Control セッションが切断されない問題",
+      "t_en": "Fixed Remote Control sessions not disconnecting when you sign in to a different account",
       "tags": ["バグ修正"],
-      "detail": "アカウントへのサインインが行われた際に、既存の Remote Control セッションが適切に切断されない問題が修正されました。サインイン後も古いセッションが残ることで、認証状態の不整合が生じる可能性がありました。\n\n修正により、アカウントサインイン時に Remote Control セッションが正しく切断されるようになりました。",
-      "detail_en": "Fixed an issue where existing Remote Control sessions were not properly disconnected when an account sign-in occurred. Stale sessions remaining after sign-in could cause authentication state inconsistencies.\n\nWith this fix, Remote Control sessions are correctly disconnected on account sign-in.",
+      "detail": "別のアカウントへサインインした際に、既存の Remote Control セッションが適切に切断されない問題が修正されました。サインイン後も古いセッションが残ることで、認証状態の不整合が生じる可能性がありました。\n\n修正により、別のアカウントへのサインイン時に Remote Control セッションが正しく切断されるようになりました。",
+      "detail_en": "Fixed an issue where existing Remote Control sessions were not properly disconnected when signing in to a different account. Stale sessions remaining after sign-in could cause authentication state inconsistencies.\n\nWith this fix, Remote Control sessions are now correctly disconnected when signing in to a different account.",
       "category": "UX",
       "category_en": "UX"
     },
@@ -560,11 +569,11 @@
       "category_en": "Session Management"
     },
     {
-      "t": "修正: PR URL によるバックグラウンドエージェントの検索が機能しない問題",
-      "t_en": "Fixed background agent search by PR URL",
+      "t": "修正: スケジュールされたウェイクアップ中またはジョブがブロックされている間に開かれた PR が `claude agents` の PR URL 検索に表示されない問題",
+      "t_en": "Fixed background agent search by PR URL: PRs opened during scheduled wakeups or while a job was blocked now appear in `claude agents` search",
       "tags": ["バグ修正", "Agent"],
-      "detail": "バックグラウンドエージェントの一覧でプルリクエスト URL を使った検索が機能しない問題が修正されました。PR URL でエージェントを素早く特定できる機能が期待どおりに動作していませんでした。\n\n修正により、PR URL を入力してバックグラウンドエージェントを正しく絞り込めるようになりました。",
-      "detail_en": "Fixed an issue where searching for a background agent using a pull request URL was not working. The ability to quickly identify agents by PR URL was not functioning as expected.\n\nWith this fix, entering a PR URL correctly filters the background agent list.",
+      "detail": "スケジュールされたウェイクアップ（scheduled wakeup）中や、ジョブがブロックされている間に開かれたプルリクエストが、`claude agents` の PR URL 検索結果に表示されない問題が修正されました。\n\n修正により、これらのタイミングで作成された PR も PR URL 検索で正しく見つけられるようになりました。",
+      "detail_en": "Fixed an issue where pull requests opened during a scheduled wakeup or while a job was blocked did not appear in `claude agents`' PR URL search results.\n\nWith this fix, PRs created at these times are now correctly found by PR URL search.",
       "category": "マルチエージェント",
       "category_en": "Multi-Agent"
     },
@@ -614,20 +623,20 @@
       "category_en": "Platform Compatibility"
     },
     {
-      "t": "修正: アイドル時間が長すぎると認証メソッドエラーでクラウドセッションが失敗する問題",
-      "t_en": "Fixed cloud sessions failing with auth method error when idle too long",
+      "t": "修正: クレーム（claim）される前に長時間アイドル状態になると、認証メソッドエラー（\"Could not resolve authentication method\"）でクラウドセッションが失敗する問題",
+      "t_en": "Fixed cloud sessions failing with \"Could not resolve authentication method\" when idle for too long before being claimed",
       "tags": ["バグ修正", "Agent"],
-      "detail": "クラウドセッションが長時間アイドル状態になった後に操作を再開しようとすると、認証メソッドエラーが発生してセッションが失敗する問題が修正されました。認証トークンの有効期限切れ後に適切な再認証が行われていませんでした。\n\n修正により、長時間アイドル後でもクラウドセッションが認証エラーなく正常に動作を再開できるようになりました。",
-      "detail_en": "Fixed an issue where cloud sessions would fail with an auth method error when attempting to resume operation after being idle for too long. Proper re-authentication was not being performed after auth token expiration.\n\nWith this fix, cloud sessions can correctly resume operation without authentication errors even after extended idle periods.",
+      "detail": "クラウドセッションがユーザーにクレーム（claim）される前に長時間アイドル状態のままになると、\"Could not resolve authentication method\" エラーが発生してセッションが失敗する問題が修正されました。\n\n修正により、クレーム前に長時間アイドル状態が続いた場合でも、クラウドセッションが認証エラーなく正常に動作を再開できるようになりました。",
+      "detail_en": "Fixed an issue where cloud sessions would fail with a \"Could not resolve authentication method\" error if they remained idle for an extended period before being claimed by a user.\n\nWith this fix, cloud sessions can now correctly resume operation without authentication errors even after an extended idle period before being claimed.",
       "category": "セッション管理",
       "category_en": "Session Management"
     },
     {
-      "t": "改善: 自動更新ウィンドウの問題に対してバックグラウンドセッションがより明確なガイダンスを表示",
-      "t_en": "Background sessions show clearer guidance for auto-update window issues",
+      "t": "改善: 自動更新をまたいで開いたままのウィンドウが返信を送信できない場合のバックグラウンドセッションのガイダンスを明確化し、`claude daemon status` がバージョン差異時の挙動を説明するように",
+      "t_en": "Background sessions now show clearer guidance when a window left open across an auto-update can't submit a reply, and `claude daemon status` explains version-skew behavior",
       "tags": ["改善", "Agent"],
-      "detail": "バックグラウンドセッションで自動更新に関連したウィンドウの問題が発生した場合に表示されるガイダンスメッセージが改善されました。以前は問題の解決方法がわかりにくいメッセージが表示されていましたが、ユーザーが取るべき対処手順をより明確に案内するようになりました。\n\nこれにより、自動更新まわりのトラブルが発生した際にユーザーが自己解決しやすくなります。",
-      "detail_en": "The guidance message displayed when background sessions encounter auto-update related window issues has been improved. Previously the message was unclear about how to resolve the issue, but it now more clearly guides users through the steps they should take.\n\nThis makes it easier for users to self-resolve issues related to auto-updates.",
+      "detail": "自動更新をまたいで開いたままになっていたウィンドウが返信を送信できない場合に表示されるガイダンスメッセージが改善されました。以前は問題の解決方法がわかりにくいメッセージが表示されていましたが、ユーザーが取るべき対処手順をより明確に案内するようになりました。\n\nあわせて、`claude daemon status` がバージョンの不一致（version skew）が発生している際の挙動について説明を表示するようになりました。\n\nこれにより、自動更新まわりのトラブルが発生した際にユーザーが自己解決しやすくなります。",
+      "detail_en": "The guidance message shown when a window that had stayed open across an auto-update fails to send replies has been improved. Previously the message made it unclear how to resolve the problem, but it now more clearly walks users through the steps they should take.\n\nIn addition, `claude daemon status` now displays an explanation of the behavior when a version skew is occurring.\n\nThis makes it easier for users to self-resolve issues related to auto-updates.",
       "category": "UX",
       "category_en": "UX"
     }
@@ -643,20 +652,20 @@
       "category_en": "Permissions"
     },
     {
-      "t": "追加: ネストされた `.claude/skills` ディレクトリのスキルを読み込み可能に — 名前衝突時は `<dir>:<name>` 形式で表示",
-      "t_en": "Skills in nested `.claude/skills` directories now load; nested skills appear as `<dir>:<name>` on name clashes",
+      "t": "追加: 作業対象ファイルに応じてネストされた `.claude/skills` ディレクトリのスキルを読み込み可能に — 名前衝突時は `<dir>:<name>` 形式で表示",
+      "t_en": "Skills in nested `.claude/skills` directories now load when working on files there; on a name clash, the nested skill appears as `<dir>:<name>` so both stay available",
       "tags": ["新機能"],
-      "detail": "`.claude/skills` ディレクトリのサブディレクトリに配置したスキルも読み込まれるようになりました。スキル名が衝突する場合は `<dir>:<name>` 形式（例: `tools:search`）で区別して表示されます。\n\nスキルをカテゴリごとにサブディレクトリで整理できるようになり、大量のスキルを管理しやすくなります。詳しくは[スキルのドキュメント](https://code.claude.com/docs/en/skills)を参照してください。",
-      "detail_en": "Skills placed in subdirectories of `.claude/skills` are now loaded. When skill names clash, they appear in `<dir>:<name>` format (e.g., `tools:search`) to disambiguate them.\n\nThis allows skills to be organized by category in subdirectories, making it easier to manage a large number of skills. See the [skills documentation](https://code.claude.com/docs/en/skills) for details.",
+      "detail": "そのディレクトリ配下のファイルを操作する際に、ネストされた `.claude/skills` ディレクトリに配置したスキルも読み込まれるようになりました。スキル名が衝突する場合は `<dir>:<name>` 形式（例: `tools:search`）で区別して表示され、両方のスキルが利用可能なままになります。\n\nスキルをカテゴリごとにサブディレクトリで整理できるようになり、大量のスキルを管理しやすくなります。詳しくは[スキルのドキュメント](https://code.claude.com/docs/en/skills)を参照してください。",
+      "detail_en": "Skills placed in nested `.claude/skills` directories now load when operating on files under that directory. When skill names clash, they are shown disambiguated in `<dir>:<name>` format (e.g., `tools:search`), and both skills remain available.\n\nThis lets skills be organized into subdirectories by category, making it easier to manage a large number of skills. See the [skills documentation](https://code.claude.com/docs/en/skills) for details.",
       "category": "スキル",
       "category_en": "Skills"
     },
     {
-      "t": "改善: ネストされた `.claude/` ディレクトリのエージェント・ワークフロー・出力スタイルは作業ディレクトリに最も近いものが優先",
-      "t_en": "Nested `.claude/` directories: closest agent, workflow, and output-style to working directory wins on collisions",
+      "t": "改善: ネストされた `.claude/` ディレクトリのエージェント・ワークフロー・出力スタイルは作業ディレクトリに最も近いものが優先 — プロジェクトスコープのワークフロー保存先も最も近い既存の `.claude/workflows/` に",
+      "t_en": "Nested `.claude/` directories: the agent, workflow, and output-style closest to the working directory now wins when names collide; project-scope workflow saves now target the closest existing `.claude/workflows/`",
       "tags": ["改善"],
-      "detail": "複数の `.claude/` ディレクトリが存在する場合（例: プロジェクトルートとサブディレクトリの両方に `.claude/` がある構成）、エージェント・ワークフロー・出力スタイルの定義が衝突する際は現在の作業ディレクトリに最も近いものが優先されるようになりました。\n\nモノレポや複雑なディレクトリ構成で複数の `.claude/` 設定を使い分ける際の予測可能性が向上します。詳しくは[.claude ディレクトリのドキュメント](https://code.claude.com/docs/en/claude-directory)を参照してください。",
-      "detail_en": "When multiple `.claude/` directories exist (for example, when both a project root and a subdirectory have `.claude/`), the agent, workflow, and output-style definition closest to the current working directory wins when there are collisions.\n\nThis improves predictability when using multiple `.claude/` configurations in monorepos or complex directory structures. See the [.claude directory documentation](https://code.claude.com/docs/en/claude-directory) for details.",
+      "detail": "複数の `.claude/` ディレクトリが存在する場合（例: プロジェクトルートとサブディレクトリの両方に `.claude/` がある構成）、エージェント・ワークフロー・出力スタイルの定義が衝突する際は現在の作業ディレクトリに最も近いものが優先されるようになりました。\n\nまた、プロジェクトスコープでワークフローを保存する際の保存先も、最も近い既存の `.claude/workflows/` ディレクトリが使われるようになりました。\n\nモノレポや複雑なディレクトリ構成で複数の `.claude/` 設定を使い分ける際の予測可能性が向上します。詳しくは[.claude ディレクトリのドキュメント](https://code.claude.com/docs/en/claude-directory)を参照してください。",
+      "detail_en": "When multiple `.claude/` directories exist (for example, a configuration with `.claude/` in both the project root and a subdirectory), the agent, workflow, and output-style definitions closest to the current working directory now win when there are collisions.\n\nThe save location for project-scoped workflows has also changed: workflows are now saved to the closest existing `.claude/workflows/` directory.\n\nThis improves predictability when working with multiple `.claude/` configurations in monorepos or complex directory structures. See the [.claude directory documentation](https://code.claude.com/docs/en/claude-directory) for details.",
       "category": "設定",
       "category_en": "Settings"
     },
@@ -733,11 +742,11 @@
       "category_en": "MCP Integration"
     },
     {
-      "t": "修正: ディレクトリ修飾名を持つネストされた `.claude/skills` がパーミッションプロンプトでブロックされる問題",
-      "t_en": "Fixed nested `.claude/skills` with directory-qualified names blocked by permission prompts",
+      "t": "修正: 非対話型実行でディレクトリ修飾名を持つネストされた `.claude/skills` がパーミッションプロンプトでブロックされる問題",
+      "t_en": "Fixed nested `.claude/skills` skills with directory-qualified names being blocked by permission prompts in non-interactive runs",
       "tags": ["バグ修正"],
-      "detail": "ネストされた `.claude/skills` ディレクトリ内のスキルが `<dir>:<name>` 形式のディレクトリ修飾名を持つ場合に、パーミッションプロンプトでブロックされてしまい使用できない問題が修正されました。\n\n修正により、ディレクトリ修飾名を持つスキルもパーミッション処理が正しく行われ、許可リストや承認ダイアログを通じて正常に使用できるようになりました。",
-      "detail_en": "Fixed an issue where skills in nested `.claude/skills` directories with directory-qualified names in `<dir>:<name>` format were being blocked by permission prompts and could not be used.\n\nWith this fix, permission handling for skills with directory-qualified names works correctly, allowing them to be used normally through allowlists or approval dialogs.",
+      "detail": "非対話型（non-interactive）で Claude Code を実行した際に、ネストされた `.claude/skills` ディレクトリ内のスキルが `<dir>:<name>` 形式のディレクトリ修飾名を持つ場合、パーミッションプロンプトでブロックされてしまい使用できない問題が修正されました。\n\n修正により、非対話型実行でもディレクトリ修飾名を持つスキルのパーミッション処理が正しく行われ、正常に使用できるようになりました。",
+      "detail_en": "Fixed an issue where, when running Claude Code non-interactively, skills inside nested `.claude/skills` directories with directory-qualified names in the `<dir>:<name>` format were blocked by permission prompts and could not be used.\n\nWith this fix, permission handling for skills with directory-qualified names now works correctly even in non-interactive execution, allowing them to be used normally.",
       "category": "スキル",
       "category_en": "Skills"
     },
@@ -823,22 +832,40 @@
       "category_en": "Multi-Agent"
     },
     {
-      "t": "修正: Esc キーで CJK IME 候補ウィンドウを閉じると実行中の Claude タスクがキャンセルされる問題",
-      "t_en": "Fixed pressing Esc to dismiss CJK IME candidate window canceling running Claude task",
-      "tags": ["バグ修正"],
-      "detail": "日本語・中国語・韓国語（CJK）の IME 候補ウィンドウが表示されているときに Esc キーを押して候補ウィンドウを閉じると、実行中の Claude タスクまでキャンセルされてしまう問題が修正されました。IME の Esc キー操作がアプリケーション全体のキャンセル操作として誤って解釈されていました。\n\n修正により、IME 候補ウィンドウを Esc キーで閉じても、実行中の Claude タスクに影響しなくなりました。",
-      "detail_en": "Fixed an issue where pressing Esc to dismiss the CJK (Japanese, Chinese, Korean) IME candidate window would also cancel the running Claude task. The Esc key action for IME was being incorrectly interpreted as an application-wide cancel operation.\n\nWith this fix, closing the IME candidate window with Esc no longer affects the running Claude task.",
+      "t": "修正: [VSCode] Esc キーで CJK IME 候補ウィンドウを閉じると実行中の Claude タスクがキャンセルされる問題",
+      "t_en": "[VSCode] Fixed pressing Esc to dismiss a CJK IME candidate window canceling the running Claude task",
+      "tags": ["バグ修正", "IDE"],
+      "detail": "VS Code 拡張機能で、日本語・中国語・韓国語（CJK）の IME 候補ウィンドウが表示されているときに Esc キーを押して候補ウィンドウを閉じると、実行中の Claude タスクまでキャンセルされてしまう問題が修正されました。IME の Esc キー操作がエディター全体のキャンセル操作として誤って解釈されていました。\n\n修正により、IME 候補ウィンドウを Esc キーで閉じても、実行中の Claude タスクに影響しなくなりました。",
+      "detail_en": "In the VS Code extension, pressing Esc to dismiss the IME candidate window for Japanese, Chinese, or Korean (CJK) input while it was open would also cancel the running Claude task. The Esc key press for the IME was being incorrectly interpreted as an editor-wide cancel action.\n\nWith this fix, dismissing the IME candidate window with Esc no longer affects the running Claude task.",
       "category": "国際化",
       "category_en": "Internationalization"
+    },
+    {
+      "t": "変更: Agent teams — `TeamCreate`・`TeamDelete` ツールを削除、`CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` 設定時は全セッションが暗黙のチームを持つように",
+      "tags": ["改善", "Agent"],
+      "detail": "Agent teams 機能から `TeamCreate` と `TeamDelete` ツールが削除されました。`CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` を設定している場合、これまでのように明示的にチームを作成する手順は不要になり、各セッションが最初から1つの暗黙のチームを持つようになります。\n\nチームメイトを追加するには、Agent ツールの `name` パラメーターを指定して直接呼び出すだけで済み、セットアップ用の追加ステップは不要になりました。\n\nなお、Agent ツールに残っている `team_name` パラメーターは引き続き受け付けられますが、内部的には無視されます。",
+      "category": "マルチエージェント",
+      "detail_en": "The `TeamCreate` and `TeamDelete` tools have been removed from the Agent teams feature. With `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` set, there's no longer a need to explicitly create a team as before — each session now starts with one implicit team from the outset.\n\nTo add a teammate, you simply invoke the Agent tool directly with the `name` parameter specified, with no additional setup step required.\n\nThe `team_name` parameter that remains on the Agent tool is still accepted, but is now ignored internally.",
+      "t_en": "Agent teams: removed the `TeamCreate` and `TeamDelete` tools. With `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` set, every session now has one implicit team — spawn teammates directly with the Agent tool's `name` parameter, no setup step needed. The `team_name` parameter on the Agent tool is still accepted but ignored.",
+      "category_en": "Multi-Agent"
+    },
+    {
+      "t": "修正: `.claude/skills` または `.claude/hooks` がシンボリックリンクの場合に Linux サンドボックスが起動失敗する問題",
+      "tags": ["バグ修正"],
+      "detail": "Linux 環境で `.claude/skills` または `.claude/hooks` ディレクトリがシンボリックリンクとして配置されている場合、サンドボックスの起動に失敗する問題が修正されました。\n\n修正により、これらのディレクトリをシンボリックリンク経由で参照する構成でも、Linux サンドボックスが正常に起動するようになりました。",
+      "category": "サンドボックス",
+      "detail_en": "On Linux, an issue was fixed where the sandbox failed to start when the `.claude/skills` or `.claude/hooks` directory was placed as a symlink.\n\nWith this fix, the Linux sandbox now starts correctly even when these directories are referenced via a symlink.",
+      "t_en": "Fixed Linux sandbox failing to start when `.claude/skills` or `.claude/hooks` is a symlink",
+      "category_en": "Sandbox"
     }
   ],
   "2.1.179": [
     {
-      "t": "修正: ストリーミング途中の接続切断時に部分的なレスポンスが保持されるように",
-      "t_en": "Fixed mid-stream connection drops: partial responses now preserved",
+      "t": "修正: ストリーミング接続の途中切断時に生のエラー表示ではなく部分的なレスポンスが保持されるようになり、スピナーが「running tool」のまま固まる問題も解消",
+      "t_en": "Fixed mid-stream connection drops: partial responses are now preserved instead of showing a raw error, and the spinner no longer gets stuck at \"running tool\"",
       "tags": ["バグ修正"],
-      "detail": "API とのストリーミング通信中にネットワーク接続が切断された場合、それまでに受信済みの部分的なレスポンスが破棄されてしまう問題が修正されました。接続切断のタイミング次第では、長時間かかる処理の結果が完全に失われる場合があり、ユーザーがゼロからやり直す必要がありました。\n\n修正により、ストリーミングが途中で切断された場合でも、受信済みの部分レスポンスがセッション内に保持されるようになりました。完全なレスポンスは得られなくても、それまでの出力が手がかりとなり、再試行や問題の診断に活用できます。",
-      "detail_en": "Fixed an issue where partial responses received during a streaming API connection would be discarded if the network connection dropped mid-stream. Depending on the timing of the disconnection, the results of a long-running process could be completely lost, requiring the user to start over from scratch.\n\nWith this fix, partial responses already received are preserved in the session even if the stream is interrupted mid-way. While a complete response is not obtained, the partial output can serve as a reference for retrying or diagnosing the issue.",
+      "detail": "API とのストリーミング通信中にネットワーク接続が途中で切断されると、それまで受信していた部分的な応答が失われて生のエラーメッセージが表示されるだけになるうえ、スピナーが「running tool」の表示のまま止まって動かなくなる問題がありました。長時間かかる処理の結果が完全に失われるだけでなく、UI 上も操作不能に見える状態になっていました。\n\n修正により、ストリーミングが途中で切断された場合でも、受信済みの部分的なレスポンスがそのままセッションに保持されるようになり、生のエラー表示に置き換わることがなくなりました。あわせてスピナーが「running tool」のまま固まる問題も解消され、処理の状態を正しく確認できます。",
+      "detail_en": "During a streaming API connection, if the network connection was dropped mid-stream, the partial response received up to that point was lost and only a raw error message was displayed. The spinner would also get stuck showing \"running tool\" and stop updating. This meant not only were the results of a long-running process completely lost, but the UI also appeared to become unresponsive.\n\nWith this fix, when streaming is interrupted mid-way, the partial response already received is now preserved in the session as-is, instead of being replaced by a raw error message. The issue where the spinner would get stuck on \"running tool\" has also been resolved, so the processing state can now be checked correctly.",
       "category": "ネットワーク",
       "category_en": "Network"
     },
@@ -852,20 +879,20 @@
       "category_en": "Platform Compatibility"
     },
     {
-      "t": "修正: 大きなディレクトリに対するサンドボックスの `denyRead`/`allowRead` グロブでセッションが操作不能になる問題",
-      "t_en": "Fixed sandbox `denyRead`/`allowRead` glob over a large directory making the session unusable",
+      "t": "修正: 大きなディレクトリツリーに対するサンドボックスの `denyRead`/`allowRead` グロブで Bash ツールの説明が肥大化し、Linux でセッションが操作不能になる問題",
+      "t_en": "Fixed a sandbox `denyRead`/`allowRead` glob over a large directory tree making the Bash tool description enormous and the session unusable on Linux",
       "tags": ["バグ修正", "Perf"],
-      "detail": "サンドボックス設定の `denyRead` または `allowRead` に対して大きなディレクトリをカバーするグロブパターンを指定した場合に、グロブの展開処理がブロッキングで行われ、セッション全体がフリーズして操作不能になる問題が修正されました。ファイル数の多いディレクトリ（例: `node_modules` 配下など）を対象にするとセッションが応答しなくなるケースがありました。\n\n修正により、大きなディレクトリに対するグロブパターンを指定してもセッションが正常に動作し続けます。サンドボックスのアクセス制御を細かく設定するワークフローで信頼性が向上しました。",
-      "detail_en": "Fixed an issue where specifying a glob pattern covering a large directory in the sandbox `denyRead` or `allowRead` settings would cause the glob expansion to run as a blocking operation, freezing the entire session and making it unusable. Sessions would become unresponsive when targeting directories with many files, such as under `node_modules`.\n\nWith this fix, the session continues to function normally even when glob patterns targeting large directories are specified. This improves reliability in workflows that use fine-grained sandbox access control.",
+      "detail": "サンドボックス設定の `denyRead` または `allowRead` に、多数のファイルを含む大きなディレクトリツリーを対象とするグロブパターンを指定すると、そのパターンにマッチする内容が Bash ツールの説明（definition）に組み込まれて肥大化し、Linux 環境でセッション全体が操作不能になる問題がありました。\n\n修正により、大きなディレクトリツリーを対象とするグロブパターンを指定しても Bash ツールの説明が肥大化しなくなり、Linux 上でもセッションが正常に動作し続けます。サンドボックスのアクセス制御を細かく設定するワークフローでの信頼性が向上しました。",
+      "detail_en": "Specifying a glob pattern in the sandbox `denyRead` or `allowRead` settings that targeted a large directory tree with many files caused the matched content to be inlined into the Bash tool's description (definition), bloating it and making the entire session unusable on Linux.\n\nWith this fix, specifying a glob pattern targeting a large directory tree no longer bloats the Bash tool's description, and the session continues to work normally on Linux. This improves reliability for workflows that configure fine-grained sandbox access control.",
       "category": "サンドボックス",
       "category_en": "Sandbox"
     },
     {
-      "t": "修正: フィードバックアンケートで1桁の返信がセッション評価として誤って記録される問題",
-      "t_en": "Fixed feedback survey capturing a single-digit reply as a session rating",
+      "t": "修正: ターン完了直後にフィードバックアンケートで入力した1桁の返信がセッション評価として誤って記録される問題",
+      "t_en": "Fixed the feedback survey capturing a single-digit reply as a session rating immediately after a turn completes",
       "tags": ["バグ修正"],
-      "detail": "フィードバックアンケートの表示中に、ユーザーが入力した1桁の数字（例: コマンドの一部として入力した `1` や `5` など）がセッション評価スコアとして誤って記録されてしまう問題が修正されました。アンケートの入力フォーカス管理に不備があり、意図しないキー入力がスコアとして解釈されていました。\n\n修正により、フィードバックアンケートのスコア入力が意図した操作のみを受け付けるようになり、誤った評価データが記録されなくなりました。",
-      "detail_en": "Fixed an issue where single-digit numbers entered by the user during a feedback survey (e.g., `1` or `5` entered as part of a command) were being incorrectly recorded as session rating scores. There was a deficiency in the survey's input focus management, causing unintended keystrokes to be interpreted as scores.\n\nWith this fix, the feedback survey's score input only accepts intended actions, preventing incorrect rating data from being recorded.",
+      "detail": "ターンが完了した直後にフィードバックアンケートが表示された際、ユーザーが入力した1桁の返信がそのままセッション評価として記録されてしまう問題がありました。\n\n修正により、ターン完了直後の1桁の入力が意図せずセッション評価として取り込まれることがなくなりました。",
+      "detail_en": "When the feedback survey appeared immediately after a turn completed, a single-digit reply typed by the user was recorded as-is as the session rating.\n\nWith this fix, a single-digit input entered right after a turn completes is no longer unintentionally captured as the session rating.",
       "category": "UX",
       "category_en": "UX"
     },
