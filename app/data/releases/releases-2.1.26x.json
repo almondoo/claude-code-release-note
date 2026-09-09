@@ -683,5 +683,270 @@
         "tags": ["バグ修正", "改善"]
       }
     ]
+  },
+  {
+    "v": "2.1.265",
+    "items": [
+      {
+        "t": "追加: Claude apps gateway 経由で Claude Desktop と Cowork が送信するテレメトリに `user.email` と `user.groups` を追加。ターミナルセッションと同様の識別情報を含めるように",
+        "t_en": "Added `user.email` and `user.groups` to the telemetry Claude Desktop and Cowork send through a Claude apps gateway, matching terminal sessions",
+        "tags": ["新機能"]
+      },
+      {
+        "t": "追加: `--plugin-dir` に複数プラグインを含むフォルダを指定できるように。マニフェストを持つ各子フォルダが読み込まれ、実行中に追加・削除されたプラグインも反映される",
+        "t_en": "Added support for pointing `--plugin-dir` at a folder of plugins: each child folder with a manifest loads, and children added or removed while running are picked up",
+        "tags": ["新機能", "Plugin"]
+      },
+      {
+        "t": "追加: ディスクに保存されるツール結果に1GBの上限を設定。会話内のプレビューには保存ファイルが切り詰められた旨を表示",
+        "t_en": "Added a 1 GB cap on tool results saved to disk; the in-conversation preview says when a saved file was truncated",
+        "tags": ["新機能", "Perf"]
+      },
+      {
+        "t": "修正: フォアグラウンドで起動したサブエージェントを再開すると、ツール一覧とシステムプロンプトのプレフィックスが変化し、そのエージェントのプロンプトキャッシュが再利用できなくなっていた問題を修正",
+        "t_en": "Fixed resuming a foreground-spawned subagent changing its tool list and system prompt prefix, which broke prompt-cache reuse for that agent",
+        "tags": ["バグ修正", "Agent", "Perf"]
+      },
+      {
+        "t": "修正: エージェントチームのチームメイトと再開されたサブエージェントが、後続ターンで SubagentStart フックのコンテキストとプリロード済みスキルをプロンプトプレフィックスの外に移動させてしまい、プロンプトキャッシュが無効化されていた問題を修正",
+        "t_en": "Fixed agent teammates and resumed subagents moving SubagentStart hook context and preloaded skills out of the prompt prefix on later turns, which broke prompt-cache reuse",
+        "tags": ["バグ修正", "Agent", "Perf"]
+      },
+      {
+        "t": "修正: ツール実行中に前回のプロセスが強制終了した後の再開で、最後のプロンプトが書き換えられてしまう問題を修正。中断されたツール呼び出しはそのまま保持され「中断された」と明示されるように",
+        "t_en": "Fixed resume after the previous process died while a tool was running: the last prompt is no longer rewritten, and the interrupted tool call is kept and marked interrupted",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: `/model opusplan[1m]` が「Model not found」として拒否されていた問題を修正",
+        "t_en": "Fixed `/model opusplan[1m]` being rejected with \"Model not found\"",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: パーミッションプロンプトやメッセージのシンタックスハイライトで、Ruby の `?` や Erlang/Perl の `$` といった1文字の記号の直後の文字が欠落することがあった問題を修正",
+        "t_en": "Fixed syntax-highlighted code in permission prompts and messages sometimes omitting a character after a Ruby `?`, Erlang `$`, or Perl `$` sigil",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: フルスクリーンモードで、スラッシュコマンドや @ ファイルの候補リストが開閉するたびにトランスクリプトが1行分ずれてしまう問題を修正",
+        "t_en": "Fixed the fullscreen transcript jumping by one row whenever the slash-command or @-file suggestion list opened or closed",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: パスにバックスラッシュを含むプラグインパスが、macOS と Linux でシンボリックリンクの範囲チェックをすり抜けてしまう問題を修正",
+        "t_en": "Fixed a plugin path containing a backslash bypassing the symlink containment check on macOS and Linux",
+        "tags": ["バグ修正", "Security", "Plugin"]
+      },
+      {
+        "t": "修正: 名前が2つのドットで始まるプラグインディレクトリが、プラグインルートの外にあると誤って判定され拒否されていた問題を修正",
+        "t_en": "Fixed plugin directories whose names begin with two dots being wrongly refused as outside the plugin root",
+        "tags": ["バグ修正", "Plugin"]
+      },
+      {
+        "t": "修正: セッションがトークンのリフレッシュ中に閉じられると、VS Code や SDK セッションで再ログインが必要になることがあった問題を修正",
+        "t_en": "Fixed VS Code and SDK sessions occasionally requiring re-login when a session was closed while refreshing its token",
+        "tags": ["バグ修正", "IDE", "SDK"]
+      },
+      {
+        "t": "修正: Remote Control セッションが返信の最後のメッセージより先にターン終了シグナルを送ってしまい、Claude アプリ側で最後の部分が届く前に返信が完了したように表示されることがあった問題を修正",
+        "t_en": "Fixed Remote Control sessions sending the end-of-turn signal before the reply's last message, which could show a reply as finished in the Claude app before its last part arrived",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: アイドルタイムアウト直前にメッセージが届いた場合に、バックグラウンド（`--bg`）セッションがターンの途中で終了扱いになってしまうことがあった問題を修正",
+        "t_en": "Fixed background (`--bg`) sessions occasionally being retired mid-turn when a message arrived just before the idle timeout",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: Claude Code 自身の git status・diff の内部チェックが、作業ツリー内にネストしたリポジトリが設定した clean フィルターを実行してしまっていた問題を修正",
+        "t_en": "Fixed Claude Code's own git status and diff probes running clean filters configured by a nested repository inside the working tree",
+        "tags": ["バグ修正", "Security"]
+      },
+      {
+        "t": "修正: advisor ツールとその指示がリクエストごとにモデルに基づいて再判定されていた問題を修正。判定は一度だけ行われ、変化した場合のみ会話内に通知されるように",
+        "t_en": "Fixed the advisor tool and its instructions being re-decided per request from the request's model; the decision is now made once and announced in the conversation when it changes",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: Artifact の公開時に、connector が実際には提供していないツール名を宣言していても受け付けてしまっていた問題を修正。宣言したツールが1つも存在しない場合は公開を拒否し、一部のみ存在しない場合は警告するように",
+        "t_en": "Fixed artifact publish accepting connector tool names the connector doesn't expose; the publish is now refused when none of the declared tools exist, and warned when only some don't",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: 管理設定がスキルのみをプラグインに限定している場合に `/add-dir <サブディレクトリ>` がそのサブディレクトリのエージェントまで読み込まなくなり、逆にエージェントのみが制限されている場合には読み込むと誤って表示していた問題を修正",
+        "t_en": "Fixed `/add-dir <subdirectory>` refusing to load a subdirectory's agents when managed settings lock only skills to plugins, and promising agents when only agents are locked",
+        "tags": ["バグ修正", "Agent", "Plugin"]
+      },
+      {
+        "t": "修正: tmux などで2つ目のキーが1秒以上遅れて届くと、2キーのキーボードショートカットが何も表示せずキャンセルされていた問題を修正。3秒まで待機し、タイムアウト時には通知を表示するように",
+        "t_en": "Fixed two-key keyboard shortcuts cancelling silently when the second key arrived more than a second later, as happens inside tmux; they now wait 3 seconds and show a notice when they time out",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: `context: fork` で実行されるスキルがキックオフプロンプトをストリーミングせず、`--forward-subagent-text` 指定時もそのテキストターンが stream-json の進捗イベントとして流れていなかった問題を修正",
+        "t_en": "Fixed forked skills (`context: fork`) not streaming their kickoff prompt and, with `--forward-subagent-text`, their text turns as progress events in stream-json",
+        "tags": ["バグ修正", "SDK"]
+      },
+      {
+        "t": "修正: シンボリックリンクループなど OS がチェックできないプラグインのデフォルトコンポーネントフォルダが、何も表示されずスキップされていた問題を修正。エラーコード付きで `/plugin` に表示されるように",
+        "t_en": "Fixed a plugin's default component folder that the OS cannot check, such as a symlink loop, being silently skipped; it is now reported in `/plugin` with the error code",
+        "tags": ["バグ修正", "Plugin"]
+      },
+      {
+        "t": "修正: Claude apps gateway の OTLP テレメトリリレーが、コレクターがペイロードを不正または大きすぎるとして拒否すると、30秒間すべての転送を停止してしまっていた問題を修正",
+        "t_en": "Fixed the Claude apps gateway's OTLP telemetry relay pausing all forwarding to a collector for 30 seconds after it rejected a few payloads as malformed or too large",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: メタデータが `plugin.json` にしかないマーケットプレイスプラグインについて、`/plugin` の Discover/Browse や `claude plugin list --json --available` で説明文や表示名が表示されていなかった問題を修正",
+        "t_en": "Fixed `/plugin` Discover/Browse and `claude plugin list --json --available` showing no description or display name for marketplace plugins whose metadata lives only in their `plugin.json`",
+        "tags": ["バグ修正", "Plugin"]
+      },
+      {
+        "t": "修正: 管理設定で設定された Claude apps gateway にサインイン済みのセッションで `/login` を再実行すると「no gateway URL is configured」と表示されてしまう問題を修正",
+        "t_en": "Fixed `/login` showing \"no gateway URL is configured\" when re-run in a session that signed in to a Claude apps gateway set by managed settings",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: 設定ファイルへの書き込みに失敗しても `/model` が「デフォルトとして保存されました」と表示していた問題を修正。保存に失敗した場合はその理由を表示するように",
+        "t_en": "Fixed `/model` claiming a model was \"saved as your default\" when the settings file couldn't be written; it now says the save failed and why",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: Remote Control からの `/clear` が、SessionStart フックや開いたままのターミナルダイアログの完了を待ってから完了していた問題を修正",
+        "t_en": "Fixed `/clear` from Remote Control waiting on SessionStart hooks and on open terminal dialogs before completing",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: `/config` ダイアログがタブを切り替えるたびに高さが変化していた問題を修正",
+        "t_en": "Fixed the `/config` dialog changing height when switching between its tabs",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: ワークフロー実行をコンテナ再起動後に再開する際の不具合を修正。実行ジャーナルが見つからない場合は、すべてのエージェントを再実行するのではなく明確なエラーで失敗するように",
+        "t_en": "Fixed resuming a workflow run after its container restarted; a resume whose run journal is missing now fails with a clear error instead of rerunning every agent",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: バンドル済み `claude-api` スキルのエラーコードに関する記載を修正。モデルアクセス失敗は404、利用不可なベータヘッダーは400が正しく、403ではない",
+        "t_en": "Fixed the `claude-api` skill's error-code reference: model access failures return 404 and unavailable beta headers return 400, not 403",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: 非対話型セッション（stream-json 入力の `-p`、Agent SDK、クラウドセッション）で、新しいユーザーメッセージのたびにシェルの作業ディレクトリがリセットされていた問題を修正。`cd` がターンをまたいで持続するように",
+        "t_en": "Fixed non-interactive sessions (`-p` with stream-json input, Agent SDK, cloud sessions) resetting the shell working directory at each new user message; a `cd` now persists across turns",
+        "tags": ["バグ修正", "SDK"]
+      },
+      {
+        "t": "修正: `http` として設定された MCP サーバーが、実際には旧来の HTTP+SSE トランスポートしか話さない場合に接続できなかった問題を修正。MCP 仕様どおり SSE へフォールバックするように",
+        "t_en": "Fixed MCP servers configured as `http` that only speak the legacy HTTP+SSE transport never connecting; Claude Code now falls back to SSE as the MCP spec describes",
+        "tags": ["バグ修正", "MCP"]
+      },
+      {
+        "t": "修正: クラウドセッションで一部の claude.ai connector が、claude.ai 上では接続済みであるにもかかわらず認証が必要と表示されていた問題を修正（未対応リクエストに HTTP 401 で応答する connector が原因）",
+        "t_en": "Fixed some claude.ai connectors in cloud sessions showing as needing authentication even though they are connected in claude.ai (servers that answer an unsupported request with HTTP 401)",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: connector の承認やサインインリンクの完了を待っている間、リモートセッションがサンドボックスコンテナを稼働させたままにしていた問題を修正",
+        "t_en": "Fixed remote sessions keeping their sandbox container alive while a connector approval or sign-in link waits for you",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: 再開したセッションの「バックグラウンドタスクが完了していません」という通知に、モデル向けの長い復旧手順が表示されていた問題を修正。短いステータス行のみを表示するように",
+        "t_en": "Fixed resumed sessions showing long model-facing recovery instructions in \"background task didn't finish\" notices instead of a short status line",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: Windows の AppContainer や制限付きトークンサンドボックス内で実行すると、Read/Write/Edit がすべてのファイルを「symlink resolution changed after permission was checked」で拒否していた問題を修正",
+        "t_en": "Windows: Fixed Read, Write and Edit refusing every file (\"symlink resolution changed after permission was checked\") when running inside an AppContainer or restricted-token sandbox",
+        "tags": ["バグ修正", "Windows", "Security"]
+      },
+      {
+        "t": "改善: 大規模リポジトリでの `--worktree` 起動を改善。新しい worktree のチェックアウトが並列で行われるように（git 2.32以降）",
+        "t_en": "Improved `--worktree` startup on large repositories: the new worktree is now checked out in parallel (git 2.32+)",
+        "tags": ["改善", "Perf"]
+      },
+      {
+        "t": "改善: `/workflows` のエージェント詳細を改善。ツール呼び出しが実行中・失敗・完了として表示され、サブエージェントのタスクリストがある場合はそれも表示。Enter キーで呼び出しの入力・結果を展開できるように",
+        "t_en": "Improved `/workflows` agent detail: tool calls are marked running, failed or done, the subagent's task list is shown when it has one, and Enter unfolds the listed calls with their inputs and results",
+        "tags": ["改善", "Agent"]
+      },
+      {
+        "t": "改善: プロンプトの途中でスラッシュコマンドを入力した際、これまでの単一候補ではなく候補リストが表示されるように改善（Tab でフルスクリーン外に表示）。プラグインスキルもベア名で見つかるように",
+        "t_en": "Improved slash commands typed mid-prompt: matches now show in a list (Tab opens it outside fullscreen) instead of a single suggestion, and a plugin skill is now found by its bare name",
+        "tags": ["改善"]
+      },
+      {
+        "t": "改善: サインインが必要なリモート MCP サーバーについて、実際に認証を行うまで OAuth クライアントを登録しないように改善",
+        "t_en": "Improved remote MCP servers that need sign-in: Claude Code no longer registers an OAuth client with them until you actually authenticate",
+        "tags": ["改善", "MCP", "Security"]
+      },
+      {
+        "t": "改善: 多数のファイルを読み取った長いセッションの再開時間を改善",
+        "t_en": "Improved the time to resume long sessions that read many files",
+        "tags": ["改善", "Perf"]
+      },
+      {
+        "t": "改善: サイズ上限を超えてデコードできない画像のエラーメッセージを改善。上限を伝えるだけでなく原因と対処法を明示するように",
+        "t_en": "Improved the error shown when an image over the size limits cannot be decoded: it now names the cause and how to fix it instead of only citing the limit",
+        "tags": ["改善"]
+      },
+      {
+        "t": "改善: 他人が作成した Artifact を Claude が読む際、その内容を信頼できないものとして扱い、埋め込まれた指示をそのまま伝えるのではなくフラグを立てて示すように改善",
+        "t_en": "Improved the Artifact tool's read of an artifact someone else wrote: the summary now treats the page as untrusted content and flags embedded instructions rather than relaying them",
+        "tags": ["改善", "Security"]
+      },
+      {
+        "t": "改善: `.claude` フォルダに関するパーミッションオプションの説明文を改善。実際に許可される内容（そのセッションでプロジェクトの `.claude` フォルダ（または `~/.claude`）内のファイルを編集できること）を明示するように",
+        "t_en": "Updated the `.claude` folder permission option to say what it actually allows: editing files in the project's `.claude` folder (or `~/.claude`) for the session",
+        "tags": ["改善"]
+      },
+      {
+        "t": "変更: 管理設定で `forceLoginGatewayUrl` を設定したマシンを、`forceLoginMethod: \"gateway\"` と同様に起動時から Claude apps gateway セッションとして扱うように変更。残存する claude.ai ログインや API キーは使用されない",
+        "t_en": "Changed machines with `forceLoginGatewayUrl` in managed settings to be Claude apps gateway sessions from startup, like `forceLoginMethod: \"gateway\"`; a leftover claude.ai login or API key is not used",
+        "tags": ["改善"]
+      },
+      {
+        "t": "変更: 画像処理をランタイム組み込みの画像サポートを使うように変更。CLI が起動時にネイティブの画像モジュールを一時ディレクトリへ展開しなくなった",
+        "t_en": "Changed image processing to use the runtime's built-in image support; the CLI no longer extracts a native image module to the temp directory",
+        "tags": ["改善", "Perf"]
+      },
+      {
+        "t": "変更: Installed タブと `claude plugin details` でのプラグイン表示メタデータを、マーケットプレイスエントリを優先し `plugin.json` で不足分を補うように変更",
+        "t_en": "Changed plugin display metadata to prefer the marketplace entry over `plugin.json` on the Installed tab and `claude plugin details`, filling gaps from `plugin.json`",
+        "tags": ["改善", "Plugin"]
+      },
+      {
+        "t": "変更: 管理設定でコレクターを指定している場合、Claude apps gateway セッションが `OTEL_EXPORTER_OTLP_ENDPOINT` にそのコレクターへ OpenTelemetry を直接エクスポートするように変更。ゲートウェイのリレー経由ではなくなる（コレクター未指定のセッションは引き続きリレーを使用）",
+        "t_en": "Changed Claude apps gateway sessions to export OpenTelemetry directly to a collector the gateway's managed settings name in `OTEL_EXPORTER_OTLP_ENDPOINT`, instead of through the gateway's relay; sessions without a named collector still use the relay",
+        "tags": ["改善"]
+      },
+      {
+        "t": "追加: [VSCode] 一定期間操作のないセッションを自動的にアーカイブする機能を追加（新設定「Archive inactive sessions」、既定は14日）",
+        "t_en": "[VSCode] Added automatic archiving of sessions inactive for a set period (new \"Archive inactive sessions\" setting, default 14 days)",
+        "tags": ["新機能", "IDE"]
+      },
+      {
+        "t": "修正: [VSCode] 会話を10分以上開いたままにしていると、ウィンドウのリロードや再起動後にサイドバーのチャットが空欄で表示されてしまう問題を修正",
+        "t_en": "[VSCode] Fixed the sidebar chat coming back blank after Reload Window or a restart when the conversation had been open for more than 10 minutes",
+        "tags": ["バグ修正", "IDE"]
+      },
+      {
+        "t": "修正: [VSCode] 「Remote Control is active」メッセージのタイムラインドットがテキストの下にずれて表示されていた問題を修正",
+        "t_en": "[VSCode] Fixed the timeline dot sitting below the text on the \"Remote Control is active\" message",
+        "tags": ["バグ修正", "IDE"]
+      }
+    ]
+  },
+  {
+    "v": "2.1.266",
+    "items": [
+      {
+        "t": "修正: 2.1.265 で発生した LLM ゲートウェイ・プロキシ構成に影響する回帰を修正。ドキュメント化されていない環境変数 `CLAUDE_CODE_USE_GATEWAY` が単独で Cloud gateway サインインを強制してしまっていた問題（API キーや `apiKeyHelper`、カスタム認証ヘッダーとの併用構成が「Not signed in to the Cloud gateway」で失敗する原因になっていた）を修正。設定変更は不要",
+        "t_en": "Fixed a 2.1.265 regression affecting LLM-gateway and proxy setups: the undocumented `CLAUDE_CODE_USE_GATEWAY` environment variable, previously ignored unless `ANTHROPIC_BASE_URL` and `ANTHROPIC_AUTH_TOKEN` were both set, began forcing Cloud-gateway sign-in on its own in 2.1.265, so configurations that set it alongside an API key, `apiKeyHelper`, or custom auth headers failed every request with \"Not signed in to the Cloud gateway\". The variable on its own is ignored again; no configuration change is needed",
+        "tags": ["バグ修正"]
+      }
+    ]
   }
 ]
