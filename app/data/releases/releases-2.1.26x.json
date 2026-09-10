@@ -948,5 +948,275 @@
         "tags": ["バグ修正"]
       }
     ]
+  },
+  {
+    "v": "2.1.267",
+    "items": [
+      {
+        "t": "追加: エフォートレベルの上限を全プロバイダー（Bedrock・Vertex・Foundry 含む）に一括で設定できる `maxEffortLevel` 設定を追加。ユーザーはこれより低いレベルを選択可能",
+        "t_en": "Added `maxEffortLevel` setting (top-level or per model under `modelSettings`): caps the effort level on every provider, including Bedrock, Vertex and Foundry; users can still pick a lower level",
+        "tags": ["新機能"]
+      },
+      {
+        "t": "追加: 会話に記録されたシステムプロンプトを再利用せず、リクエストのたびにシステムプロンプトを再生成する `--system-prompt-snapshot off` を追加(プロンプト文言の試行錯誤向け)",
+        "t_en": "Added `--system-prompt-snapshot off` to render the system prompt fresh on every request instead of reusing the conversation's recorded prompt (for iterating on prompt text)",
+        "tags": ["新機能"]
+      },
+      {
+        "t": "修正: サンドボックス化を必須とする管理設定の組織で、クラウド上の Cowork スケジュール実行タスクが起動時に失敗する問題を修正",
+        "t_en": "Fixed Cowork scheduled tasks in the cloud failing at startup for organizations whose managed settings require sandboxing",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: モバイルクライアントで `/context` など一部のローカルコマンドの出力が空白表示になる問題を修正",
+        "t_en": "Fixed `/context` and other local command output rendering blank on mobile clients",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: agent view 内で tmux/ssh セッションへの再接続後、shift+enter と option+backspace が効かなくなる問題を修正",
+        "t_en": "Fixed shift+enter and option+backspace not working after reconnecting to a tmux or ssh session inside an agent view",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: フルスクリーンモードで会話を上にスクロールした際、直前のプロンプトを示す薄いヘッダーが画面上部に表示されない問題を修正",
+        "t_en": "Fixed the dim last-prompt header not appearing at the top of the conversation when scrolling up in fullscreen mode",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: 出力スキーマが大きい Workflow の `agent()` 呼び出しが、auto モードで安全性分類器によるチェックを受けずにそのまま拒否されていた問題を修正",
+        "t_en": "Fixed Workflow `agent()` calls with large output schemas being refused in auto mode instead of being checked by the safety classifier",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: バックスラッシュを含むマーケットプレイスのエントリパスが、macOS・Linux 上でフェッチ済みマーケットプレイスに対するコンテナメント（隔離）チェックをすり抜けられる問題を修正",
+        "t_en": "Fixed a case where a marketplace entry path containing a backslash could bypass the containment check for fetched marketplaces on macOS and Linux",
+        "tags": ["バグ修正", "Security", "Plugin"]
+      },
+      {
+        "t": "修正: Claude Desktop などのホストアプリ配下で AWS/Google Cloud の認証情報が期限切れの場合、再認証エラーが表示されるまでに汎用的な「request failed」で10回リトライしていた問題を修正",
+        "t_en": "Fixed expired AWS or Google Cloud credentials under a host app such as Claude Desktop retrying ten times with a generic \"request failed\" before the re-authenticate error appeared",
+        "tags": ["バグ修正", "Platform"]
+      },
+      {
+        "t": "修正: `/compact` など直前がスラッシュコマンドだった会話を `-p --resume` で再開する際、「Continue from where you left off.」という不要なターンが挿入される問題を修正",
+        "t_en": "Fixed resuming a session after `/compact` or another slash command ran via `-p --resume`: a spurious \"Continue from where you left off.\" turn is no longer inserted",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: 5MB を超える大きなセッションを再開した際、並列ツール呼び出しとそのフック出力が再読み込み後の会話から欠落する問題を修正",
+        "t_en": "Fixed resuming a large session (transcript over 5 MB): parallel tool calls and their hook output are no longer dropped from the reloaded conversation",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: 管理設定の `allowedHttpHookUrls`・`httpHookAllowedEnvVars`・`allowedChannelPlugins` が読み取れない場合、すべて許可ではなくすべて拒否となるように修正",
+        "t_en": "Fixed managed `allowedHttpHookUrls`, `httpHookAllowedEnvVars` and `allowedChannelPlugins` to admit nothing, not everything, when unreadable",
+        "tags": ["バグ修正", "Security"]
+      },
+      {
+        "t": "修正: Claude apps gateway へのサインインを必須とする管理設定のマシンで、`/login` ダイアログを Esc キーで閉じられない問題を修正",
+        "t_en": "Fixed `/login` on machines whose managed settings require Claude apps gateway sign-in: Esc now closes the dialog instead of doing nothing",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: アップロード中に接続が切断されて中断されたアーティファクトの公開について、アップロードが未完了だと判定できる場合は結果不明として報告する代わりに1回自動リトライするように修正",
+        "t_en": "Fixed artifact publishes cut off by a dropped connection mid-upload: they now retry once when Claude Code can tell the upload never completed, instead of reporting an unknown outcome",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: デフォルトのエフォートレベルが固定されているモデル（Opus 4.7・Opus 4.8・Fable 5）で、カスタムコマンド・スキル・サブエージェントの `effort:` フロントマターが無視される問題を修正",
+        "t_en": "Fixed `effort:` frontmatter on custom commands, skills, and subagents being ignored on models whose default effort is still pinned (Opus 4.7, Opus 4.8, Fable 5)",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: アーティファクトのページファイルが有効な UTF-8 でない場合や置換文字（U+FFFD）を含む場合に公開が分かりにくいエラーで失敗する問題を修正。エラーに修正すべき行と列を明示するように",
+        "t_en": "Fixed artifact publish failing with an unhelpful error when the page file isn't valid UTF-8 or contains a replacement character (U+FFFD); the error now names the line and column to fix",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: `claude agents` の `@` ディレクトリメニューで、セッション開始後に作成されたリポジトリが一覧に表示されない問題を修正",
+        "t_en": "Fixed `claude agents` `@` directory menu not listing repositories created after the session started",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: Claude Desktop または VS Code のセッションに参加した Remote Control クライアントで、パーミッションモードが再度変更されるまで古い状態のまま表示される問題を修正",
+        "t_en": "Fixed Remote Control clients that join a Claude Desktop or VS Code session showing a stale permission mode until it was changed again",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: `claude remote-control` のサーバー認証情報が（起動から約30日で）失効すると、接続中の全セッションが切断されてプロセスごと終了していた問題を修正。ホスト側で再登録して継続するように",
+        "t_en": "Fixed `claude remote-control` exiting and dropping every attached session when its server credential expires (about 30 days after start); the host now re-registers and keeps going",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: モデルやモードによって異なる利用上限のウィンドウが報告される場合に、利用上限の警告表示がセッション中にちらつく問題を修正",
+        "t_en": "Fixed the usage-limit warning flickering on and off during a session when requests for different models or modes report different limit windows",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: MCP サーバーがツールを再送信した場合やビルトインツールが既に読み込み済みのツールを再描画した場合に、それ以前の推論内容が失われる問題を修正",
+        "t_en": "Fixed earlier reasoning being dropped when an MCP server re-sends, or a built-in tool re-renders, a tool the model already loaded",
+        "tags": ["バグ修正", "MCP", "Perf"]
+      },
+      {
+        "t": "修正: MCP サーバーの切断やアップグレードによって会話の途中でツールが消えた際、ツール一覧の書き換えとともにそれ以前の推論内容まで失われる問題を修正",
+        "t_en": "Fixed a tool that disappears mid-conversation, from a disconnected MCP server or an upgrade, rewriting the tool list and discarding earlier thinking",
+        "tags": ["バグ修正", "MCP"]
+      },
+      {
+        "t": "修正: 会話からフォークされたバックグラウンドワーカーが、セッション途中で `EnterWorktree` を会話本体のツールブロックに追加してしまい、プロンプトキャッシュの再利用が壊れる問題を修正",
+        "t_en": "Fixed a background worker forked from a conversation adding EnterWorktree to the conversation's tool block mid-session, which broke prompt-cache reuse",
+        "tags": ["バグ修正", "Perf", "Agent"]
+      },
+      {
+        "t": "修正: ToolSearch が使えないセッションで、セッション途中に追加された MCP・プラグインのツールがツール一覧に直接追加されプロンプトキャッシュの再利用を壊していた問題を修正。対応モデルではこれらを deferred な定義として受け取るように",
+        "t_en": "Fixed mid-session MCP and plugin tools being added to the tool list in sessions without ToolSearch, which broke prompt-cache reuse; supported models now receive them as deferred definitions",
+        "tags": ["バグ修正", "MCP", "Plugin", "Perf"]
+      },
+      {
+        "t": "修正: `/model` でモデルを切り替えるとすべてのツール定義が再送信されプロンプトキャッシュのミスとなっていた問題を修正。コミット・PR の帰属テキストはモデル変更時に更新される会話内のノートとして渡されるように",
+        "t_en": "Fixed switching models with /model re-sending every tool definition (a prompt-cache miss); commit and PR attribution text now arrives as a conversation note that updates on model changes",
+        "tags": ["バグ修正", "Perf"]
+      },
+      {
+        "t": "修正: MCP コネクタが前回とは異なるタイミングで再接続した際、再開したセッションでインラインのツール一覧が書き換わってしまう問題を修正",
+        "t_en": "Fixed resumed sessions rewriting the inline tool set when an MCP connector reconnects at a different moment than before",
+        "tags": ["バグ修正", "MCP", "Perf"]
+      },
+      {
+        "t": "修正: 会話の最初のターンでツールを実行していた場合、そのセッションを再開すると記録済みのツール説明を再生する代わりに新しく描画し直してしまっていた問題を修正",
+        "t_en": "Fixed resumed sessions re-rendering tool descriptions instead of replaying the recorded ones when the first turn ran a tool",
+        "tags": ["バグ修正", "Perf"]
+      },
+      {
+        "t": "修正: claude.ai コネクタが提供するツールがセッション開始時と再開時で変化していた場合に、プロンプトキャッシュがミスし拡張思考の内容が失われる問題を修正",
+        "t_en": "Fixed prompt-cache misses and dropped extended thinking when a claude.ai connector's tools change between a session and its resume",
+        "tags": ["バグ修正", "MCP", "Perf"]
+      },
+      {
+        "t": "修正: 再開したセッションで MCP コネクタが再接続を終える前に、過去のツール通知内容が書き換えられ拡張思考の内容が失われる問題を修正",
+        "t_en": "Fixed resumed sessions rewriting earlier MCP tool announcements (and dropping extended thinking) before their connectors reconnect",
+        "tags": ["バグ修正", "MCP", "Perf"]
+      },
+      {
+        "t": "修正: 非対話的な print モード（`-p`）で開始した会話を対話的に再開した際にシステムプロンプトのプレフィックスが変わってしまいプロンプトキャッシュが壊れる問題を修正",
+        "t_en": "Fixed a prompt-cache break when a print-mode (`-p`) conversation is resumed interactively: the system prompt prefix no longer changes",
+        "tags": ["バグ修正", "Perf"]
+      },
+      {
+        "t": "改善: `/diff` パネルが表示確定前に「0 files changed」とスピナーを一瞬表示してしまう挙動を解消し、変更なし時の空状態表示を中央揃えに",
+        "t_en": "Improved the `/diff` panel: it no longer flashes \"0 files changed\" and a spinner before settling, and its empty state is centered in the panel",
+        "tags": ["改善"]
+      },
+      {
+        "t": "改善: Bash ツールの説明文に関するガイダンスを改善し、コマンドをそのままエコーするのではなく、そのコマンドが何をするかを平易な言葉で説明するように",
+        "t_en": "Improved the Bash tool's description guidance so Claude describes what a command does in plain words instead of echoing the command",
+        "tags": ["改善"]
+      },
+      {
+        "t": "改善: サンドボックス内で `pbcopy` などのクリップボードコマンドが失敗した場合に Claude が `/copy` を提案するよう、サンドボックスのガイダンスを改善",
+        "t_en": "Improved sandbox guidance so Claude suggests `/copy` when clipboard commands such as `pbcopy` fail inside the sandbox",
+        "tags": ["改善"]
+      },
+      {
+        "t": "改善: Bash ツール呼び出しの多いセッションで `--resume` の初回描画時間を改善",
+        "t_en": "Improved `--resume` first-render time for sessions with many Bash tool calls",
+        "tags": ["改善", "Perf"]
+      },
+      {
+        "t": "改善: プロンプト入力の応答性を改善。スピナーやストリーミング表示の再描画にキー入力が1フレーム遅れることがあった問題を解消",
+        "t_en": "Improved prompt input responsiveness: keystrokes no longer occasionally wait a frame behind spinner or streaming repaints",
+        "tags": ["改善"]
+      },
+      {
+        "t": "改善: `--system-prompt` または `--append-system-prompt` を指定して起動したサブエージェントやセッションでも、システムプロンプトとツール定義を再描画せず一度だけ記録するようにしてプロンプトキャッシュの安定性を改善",
+        "t_en": "Improved prompt-cache stability: subagents and sessions started with `--system-prompt` or `--append-system-prompt` now record the system prompt and tool definitions once instead of re-rendering them",
+        "tags": ["改善", "Perf"]
+      },
+      {
+        "t": "改善: アーティファクトの公開が拒否された場合のエラーメッセージを改善し、拒否された理由と対処法を説明するように",
+        "t_en": "Improved Artifact tool publish errors: when a publish is refused, the message now says why and what to do about it",
+        "tags": ["改善"]
+      },
+      {
+        "t": "改善: セルフホストランナーの `--use-anthropic-git-proxy` を登録時にサーバーへ報告するようにし、旧来の git プロキシ経由でクローンし続けているセッションごとに警告を表示するように変更",
+        "t_en": "Self-hosted runner: Changed `--use-anthropic-git-proxy` to be reported to the server at registration and to print a warning for each session that still clones through the legacy git proxy",
+        "tags": ["改善"]
+      },
+      {
+        "t": "改善: `forward_user_identity` を有効にしたアップストリームからの 429 を、別のアップストリームへフェイルオーバーせず、そのメールが転送された開発者へそのまま返すように変更し、プロキシ側のユーザー単位の制限が機能するように",
+        "t_en": "Gateway: Changed `forward_user_identity` upstreams to return a 429 as-is to a developer whose email was forwarded, instead of failing over to the next upstream, so the proxy's per-user limits hold",
+        "tags": ["改善"]
+      },
+      {
+        "t": "修正: [VS Code] 保存済みトランスクリプトに循環した親リンクが含まれる会話をフォーク・以前のメッセージの編集・巻き戻しした際、拡張機能ホストが CPU 使用率100%でハングする問題を修正",
+        "t_en": "[VSCode] Fixed the extension host hanging at 100% CPU when forking, editing an earlier message, or rewinding in a conversation whose saved transcript contains a cyclic parent link",
+        "tags": ["バグ修正", "IDE"]
+      },
+      {
+        "t": "修正: [VS Code] WSL2/WSLg でスクリーンショットを貼り付けるとチャット入力欄に生の画像バイト列が挿入されてしまう問題を修正。クリップボードが画像を提供する場合は画像として添付し、それ以外は貼り付けを無視するように",
+        "t_en": "[VSCode] Fixed pasting a screenshot on WSL2/WSLg inserting raw image bytes into the chat input; the image is now attached when the clipboard provides it, otherwise the paste is ignored",
+        "tags": ["バグ修正", "IDE"]
+      },
+      {
+        "t": "修正: [VS Code] チャット内の diff ブロックが常にダークテーマで表示されていた問題を修正し、ハイコントラストを含む VS Code のアクティブなカラーテーマに追従するように",
+        "t_en": "[VSCode] Fixed chat diff blocks always rendering with a dark editor theme; they now follow the active VS Code color theme, including high contrast",
+        "tags": ["バグ修正", "IDE"]
+      },
+      {
+        "t": "修正: [VS Code] メッセージ入力欄で右から左に書く言語と英語が混在するテキストを入力すると、表示順が乱れる問題を修正",
+        "t_en": "[VSCode] Fixed mixed right-to-left and English text rendering in the wrong order while typing in the message input",
+        "tags": ["バグ修正", "IDE"]
+      },
+      {
+        "t": "修正: [VS Code] Windows（CRLF）の改行コードを使うファイルで、diff ビュー上の編集を承認すると「String not found in file」エラーで失敗する問題を修正",
+        "t_en": "[VSCode] Fixed accepting an edit in the diff view on a file with Windows (CRLF) line endings failing with \"String not found in file\"",
+        "tags": ["バグ修正", "IDE", "Windows"]
+      },
+      {
+        "t": "修正: [VS Code] スペースを含むパスのファイルが `@` メンションで無視されてしまう問題を修正",
+        "t_en": "[VSCode] Fixed @-mentions dropping files whose paths contain spaces",
+        "tags": ["バグ修正", "IDE"]
+      },
+      {
+        "t": "修正: [VS Code] ワークスペースフォルダがリモートホストにのみ存在する Remote-SSH 接続のウィンドウで、セッション一覧ビューが読み込みに失敗する問題を修正",
+        "t_en": "[VSCode] Fixed the sessions list view failing to load in windows connected over Remote-SSH when the workspace folder exists only on the remote host",
+        "tags": ["バグ修正", "IDE"]
+      },
+      {
+        "t": "修正: [VS Code] 大規模またはシンボリックリンクの多いワークスペースでファイルを閲覧した際、ripgrep プロセスが暴走する問題を修正",
+        "t_en": "[VSCode] Fixed runaway ripgrep processes when viewing files in large or symlink-heavy workspaces",
+        "tags": ["バグ修正", "IDE", "Perf"]
+      },
+      {
+        "t": "修正: [Claude Code on the web] GitHub Enterprise Server セッションで、トークンが失効すると GitHub アカウントが未接続と表示される問題を修正。PR・issue 操作時にトークンを自動的に更新するように",
+        "t_en": "[Claude Code on the web] Fixed GitHub Enterprise Server sessions showing your GitHub account as disconnected once its token expired; PR and issue operations now refresh it automatically",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: [Claude Code on the web] Claude GitHub App が未導入の組織で `gh` コマンドや GitHub API 呼び出しが失敗する問題を修正。接続済みの GitHub アカウントを使うようにし、未接続の場合はその旨を表示するように",
+        "t_en": "[Claude Code on the web] Fixed `gh` and GitHub API calls failing in organizations without the Claude GitHub App; they now use your connected GitHub account and say so when none is connected",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "追加: [Claude Tag] Claude Tag の管理設定にあるプリセット接続フォームに「カスタムコネクタを使用」リンクを追加し、途中からでもカスタム接続に切り替えられるように",
+        "t_en": "[Claude Tag] Added a \"Use a custom connector\" link to the preset connection forms in Claude Tag admin settings, so you can switch to a custom connection without starting over",
+        "tags": ["新機能"]
+      },
+      {
+        "t": "修正: [Claude Tag] 組織の利用クレジットを使い切った際に Claude が「The API rejected the request as invalid」と返信していた問題を修正。クレジット不足である旨と追加方法を説明するように",
+        "t_en": "[Claude Tag] Fixed Claude replying \"The API rejected the request as invalid\" when the organization has run out of usage credits; the reply now says so and explains how to add more",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: [Claude Tag] チャンネル最上位に Claude が投稿したメッセージの編集・削除をスレッドで依頼すると、投稿元のセッションに届かず訂正で返されてしまう問題を修正",
+        "t_en": "[Claude Tag] Fixed thread requests to edit or delete a message Claude posted at the channel's top level being answered with a correction instead of reaching the session that posted it",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: [Claude Tag] 管理設定の Review requests でツールアクセスリクエストの Connect が「Authorization failed」で失敗する、またはリクエスト対象の access bundle が削除済みと表示される問題を修正",
+        "t_en": "[Claude Tag] Fixed **Connect** on Tool access requests under Admin settings > Review requests failing with \"Authorization failed\" or showing the requested access bundle as deleted",
+        "tags": ["バグ修正"]
+      }
+    ]
   }
 ]
