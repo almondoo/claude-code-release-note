@@ -1703,5 +1703,500 @@
         "tags": ["バグ修正"]
       }
     ]
+  },
+  {
+    "v": "2.1.269",
+    "items": [
+      {
+        "t": "追加: `claude plugin eval` を追加。プラグインの eval スイートを Claude Code に対して実行し、スコア付きの再現可能な結果（JSON + HTML レポート）を取得可能に。詳細は `claude plugin eval --help` を参照",
+        "t_en": "Added `claude plugin eval`: run a plugin's eval suite against Claude Code and get scored, reproducible results (JSON + HTML report); see `claude plugin eval --help`",
+        "tags": ["新機能", "Plugin"]
+      },
+      {
+        "t": "追加: 出力スタイルの一覧表示・切り替えを行う `/output-style [name]` を追加。Remote Control 経由やクラウド・その他のヘッドレスセッションでも利用可能",
+        "t_en": "Added `/output-style [name]` to list and switch output styles, including over Remote Control and in cloud and other headless sessions",
+        "tags": ["新機能"]
+      },
+      {
+        "t": "追加: Bash ツールがファイル編集を扱った際、そのコマンドが変更したファイルの diff を Bash ツールの結果に追加（`bashEditDiffEnabled` 設定）",
+        "t_en": "Added a diff of the files a Bash command changed to the Bash tool result when the Bash tool handles file edits (setting `bashEditDiffEnabled`)",
+        "tags": ["新機能"]
+      },
+      {
+        "t": "追加: `OTEL_METRICS_INCLUDE_REPOSITORY` を追加し、OpenTelemetry のメトリクス・イベントに `vcs.*` のリポジトリ属性を付与可能に。`OTEL_LOG_TOOL_DETAILS` と併用するとコミットイベントに `vcs.ref.head.*` も付与される",
+        "t_en": "Added `OTEL_METRICS_INCLUDE_REPOSITORY` to tag OpenTelemetry metrics and events with `vcs.*` repository attributes; commit events get `vcs.ref.head.*` with `OTEL_LOG_TOOL_DETAILS`",
+        "tags": ["新機能"]
+      },
+      {
+        "t": "追加: `CLAUDE_CODE_GATEWAY_MODEL_DISCOVERY_TIMEOUT_MS` を追加し、LLM ゲートウェイの `/v1/models` 検出タイムアウト（デフォルト3秒）を延長可能に",
+        "t_en": "Added `CLAUDE_CODE_GATEWAY_MODEL_DISCOVERY_TIMEOUT_MS` to extend the LLM gateway `/v1/models` discovery timeout (default 3s)",
+        "tags": ["新機能", "Platform"]
+      },
+      {
+        "t": "追加: スピナー表示に `/focus` を提案するヒントを追加。プロンプト・1行の作業サマリー・応答だけを表示するビューに切り替えられる",
+        "t_en": "Added a spinner tip suggesting `/focus` for a view with just your prompt, a one-line work summary, and the response",
+        "tags": ["新機能"]
+      },
+      {
+        "t": "追加: `CLAUDE_CODE_WORKFLOW_MAX_CONCURRENT_AGENTS`（1〜256）を追加し、推論律速なファンアウト処理向けに Workflow ツールの実行あたりの同時エージェント数上限を引き上げ可能に",
+        "t_en": "Added `CLAUDE_CODE_WORKFLOW_MAX_CONCURRENT_AGENTS` (1–256) to raise the Workflow tool's per-run concurrent agent limit for inference-bound fan-outs",
+        "tags": ["新機能", "Agent", "Perf"]
+      },
+      {
+        "t": "修正: 応答が出力トークン上限で打ち切られ自動的に再開された次のターンで、プロンプトキャッシュが部分的に無効化されていた問題を修正",
+        "t_en": "Fixed the prompt cache being partially invalidated on the turn after a response was cut off at the output-token limit and automatically resumed",
+        "tags": ["バグ修正", "Perf"]
+      },
+      {
+        "t": "修正: Claude の思考中に中断してからセッションを再開すると、それ以前のコンテキストの再送信のされ方が変わり、プロンプトキャッシュの再利用が損なわれることがあった問題を修正",
+        "t_en": "Fixed a case where resuming a session after interrupting Claude mid-thought could change how earlier context was re-sent, hurting prompt-cache reuse",
+        "tags": ["バグ修正", "Perf"]
+      },
+      {
+        "t": "修正: 2.1.247 で発生したリグレッションを修正。kitty プロトコル対応ターミナルで F1/F2/F4 が効かない問題、st で Delete が効かない問題、rxvt-unicode で Alt+矢印が Escape として扱われる問題、WezTerm で Shift+記号がシフトなしのキーとして入力される問題",
+        "t_en": "Fixed F1/F2/F4 not working in kitty-protocol terminals and Delete in st, Alt+arrows acting as Escape in rxvt-unicode, and Shift+punctuation typing the unshifted key in WezTerm (regression in 2.1.247)",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: バックグラウンドエージェントがまだ実行中であるにもかかわらず、リモート・ヘッドレスセッションが「入力待ち」と報告してしまう問題を修正（`CLAUDE_CODE_BG_TASKS_REPORT_RUNNING=0` で従来の挙動に戻せる）",
+        "t_en": "Fixed remote and headless sessions reporting \"waiting for your input\" while background agents were still running (set `CLAUDE_CODE_BG_TASKS_REPORT_RUNNING=0` to restore the old behavior)",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: 一部のターミナルで、起動時にターミナルの機能問い合わせへの応答（`^[[?1;2c`）が余計な文字列として画面に表示されてしまう問題を修正",
+        "t_en": "Fixed the terminal's replies to capability queries (`^[[?1;2c`) appearing as stray text at startup in some terminals",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: ターミナルをリサイズした後、フルスクリーンモードでトランスクリプトの上端・下端の行が空白になってしまう問題を修正",
+        "t_en": "Fixed rows at the top or bottom of the transcript going blank in fullscreen after resizing the terminal",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: `!` で始まる deny・ask パーミッションルールが、それを定義した設定ソースの範囲を超えて適用されてしまう問題を修正。このようなルールは定義元の設定ソース内でのみ適用されるようになり、意味を持たない単独の `!` 否定は無視されるように",
+        "t_en": "Fixed a deny or ask permission rule starting with `!` applying beyond the settings source that wrote it; such a rule now applies only within its own source, and a bare `!` negation is ignored",
+        "tags": ["バグ修正", "Security"]
+      },
+      {
+        "t": "修正: コンパクション後に Claude へ伝えられる git status が、セッション開始時点のものではなく現在の状態になるように修正",
+        "t_en": "Fixed the git status Claude is told after a compaction: it is now the current status, not the one from the start of the session",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: リモートセッションを再開した際に、claude.ai から同期されたプラグインの MCP サーバーが接続されない問題を修正",
+        "t_en": "Fixed synced plugin MCP servers not connecting when a remote session resumes",
+        "tags": ["バグ修正", "MCP", "Plugin"]
+      },
+      {
+        "t": "修正: モデルが切り替えられた、またはターンの途中でリクエストが再試行された場合に、ヘッドレスセッションを再開すると当該ターンの応答が失われてしまう問題を修正",
+        "t_en": "Fixed resumed headless sessions losing a turn's replies when the model was switched or a request was retried mid-turn",
+        "tags": ["バグ修正", "SDK"]
+      },
+      {
+        "t": "修正: 作業を再開した際、バックグラウンドタスクのディスク上の記録に含まれるターミナルのエスケープコード・改行・過大なテキストが、タスク一覧やタスク通知にそのまま表示されてしまう問題を修正",
+        "t_en": "Fixed terminal escape codes, line breaks and oversized text from a background task's on-disk record reaching the task list and task notifications when work is resumed",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: CMYK 形式の JPEG 画像が「cannot decode」で添付に失敗する問題を修正。他の JPEG と同様に変換・リサイズされるように",
+        "t_en": "Fixed CMYK JPEG images failing to attach with \"cannot decode\"; they are now converted and resized like other JPEGs",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: スキームを省略した gRPC テレメトリエンドポイントが設定された場合に、managed settings の承認ダイアログが収集先の名前を表示できていなかった問題を修正",
+        "t_en": "Fixed the managed settings approval dialog not naming the collector for a gRPC telemetry endpoint set without a scheme",
+        "tags": ["バグ修正", "Security"]
+      },
+      {
+        "t": "修正: プラグインの `headersHelper` 同意プロンプトで、URL のパス部分が別のホストであるかのように誤読されうる表示になっていた問題を修正",
+        "t_en": "Fixed plugin `headersHelper` consent prompts showing a URL path that could be misread as a different host",
+        "tags": ["バグ修正", "Plugin", "Security"]
+      },
+      {
+        "t": "修正: フォルダ名が `@` で始まる相対的な Windows パスが、プラグインのエラーメッセージで `[redacted URL]` に置き換えられて表示されてしまう問題を修正",
+        "t_en": "Fixed plugin errors showing `[redacted URL]` in place of a relative Windows path with a folder name that starts with `@`",
+        "tags": ["バグ修正", "Windows", "Plugin"]
+      },
+      {
+        "t": "修正: ターミナルのネイティブカーソルを有効にしている場合、パーミッションルール・auto モードルール・ディレクトリ追加・セッション名変更・フィードバックレビューの各入力欄でカーソルが表示されない問題を修正",
+        "t_en": "Fixed missing cursor in the permission-rule, auto-mode-rule, add-directory, session-rename and feedback-review text fields when the terminal's native cursor is enabled",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: `/fork` の完了通知を1秒未満の間隔で連続してクリックすると、実行中のツールが終わるまでセッションがすぐにバックグラウンド化されなかった問題を修正",
+        "t_en": "Fixed repeated clicks on a `/fork` receipt, each under a second apart, never backgrounding the session right away while it waited for the current tool to finish",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: `shutdown` のパラメータを拒否する（rust-analyzer など）プラグイン提供の LSP サーバーが、セッション終了後もプロセスとして残り続けてしまう問題を修正。`shutdown` が失敗した場合でも `exit` を送信するように",
+        "t_en": "Fixed plugin LSP servers that reject `shutdown` params (e.g. rust-analyzer) being left running at session end; `exit` is now sent even if `shutdown` fails",
+        "tags": ["バグ修正", "Plugin"]
+      },
+      {
+        "t": "修正: コミット・プルリクエストへの帰属表記を付けないよう CLAUDE.md やメモリで指示していても、帰属表記のリマインダーがその指示を上書きしてしまっていた問題を修正。managed settings で設定された帰属表記は引き続き適用される",
+        "t_en": "Fixed the attribution reminder overriding a CLAUDE.md or memory rule against commit and pull request attribution; lines set by managed settings still apply",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: 日本語・中国語・タイ語など単語間にスペースを置かない言語のテキストで、プロンプト提案が表示されなくなってしまう問題を修正",
+        "t_en": "Fixed prompt suggestions being dropped for text in Japanese, Chinese, Thai and other languages written without spaces between words",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: GNOME Terminal・Konsole で、対応していないバージョンでもターミナル名だけから synchronized output 対応と誤判定されてしまう問題を修正",
+        "t_en": "Fixed synchronized output being assumed from the terminal's name in GNOME Terminal and Konsole versions that do not support it",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: `--output-format stream-json` の結果に含まれる `permission_denials` から、パス指定の deny ルールでブロックされた Read・Edit・Write の呼び出しが漏れていた問題を修正",
+        "t_en": "Fixed `permission_denials` in `--output-format stream-json` results omitting Read, Edit and Write calls blocked by a path-scoped deny rule",
+        "tags": ["バグ修正", "SDK", "Security"]
+      },
+      {
+        "t": "修正: SDK 経由やデスクトップアプリ経由で実行されたセッションが、他のセッションのエージェント一覧で不明なステータスとして表示されてしまう問題を修正",
+        "t_en": "Fixed sessions run through the SDK or the desktop app showing an unknown status in other sessions' agent list",
+        "tags": ["バグ修正", "SDK"]
+      },
+      {
+        "t": "修正: デフォルトの Opus モデルにアクセスできないアカウントの Bedrock・Vertex・Foundry・ゲートウェイ環境で `/insights` が失敗する問題を修正。そのようなセッションでは代わりにセッションで使用中のモデルを利用するように",
+        "t_en": "Fixed `/insights` failing on Bedrock, Vertex, Foundry, and gateway deployments whose account can't reach the default Opus model by using the session model there instead",
+        "tags": ["バグ修正", "Platform"]
+      },
+      {
+        "t": "修正: 別の Claude Code プロセスが同じタイミングでログインを更新した場合に、組織のポリシー上限がセッションに読み込まれないことがあった問題を修正",
+        "t_en": "Fixed organization policy limits not loading for the session when another Claude Code process refreshed the login at the same moment",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: Bedrock・Vertex・ゲートウェイ経由の Claude Desktop セッションで、ターン終了時に「Claude が何を必要としているか」を伝える文脈に応じた通知テキストが表示されない問題を修正",
+        "t_en": "Fixed Claude Desktop sessions using Bedrock, Vertex, or a gateway not getting the contextual \"what Claude needs\" turn-end notification text",
+        "tags": ["バグ修正", "Platform"]
+      },
+      {
+        "t": "修正: 更新後の設定でサーバー URL のクエリパラメータの順序だけが変わった場合に、MCP サーバーが不要に再接続されてしまう問題を修正",
+        "t_en": "Fixed MCP servers reconnecting when an updated config only changed the order of the server URL's query parameters",
+        "tags": ["バグ修正", "MCP"]
+      },
+      {
+        "t": "修正: 名前や説明に改行が含まれる、またはターミナル幅より長いバックグラウンドエージェントを表示した際、プロンプト入力欄の上端の罫線が複数行に分裂してしまう問題を修正",
+        "t_en": "Fixed the prompt box's top border splitting into extra lines when viewing a background agent whose name or description has line breaks or is wider than the terminal",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: オートコンパクションが要約できる完全な過去のやり取りを持たない場合に、セッションが「Prompt is too long」から永久に抜け出せなくなる問題を修正（非常に大きなプロンプトを使う Agent SDK セッションで主に発生）",
+        "t_en": "Fixed sessions getting permanently stuck on \"Prompt is too long\" when auto-compaction had no complete earlier exchange to summarize (mostly Agent SDK sessions with very large prompts)",
+        "tags": ["バグ修正", "SDK"]
+      },
+      {
+        "t": "修正: API エラー・ネットワーク切断・トークン上限が発生した後に `/goal` の実行が黙って停止してしまう問題を修正。バックオフしながら再試行するか、進められない場合はその理由（利用上限のリセット待ちを含む）を明示して一時停止するように",
+        "t_en": "Fixed `/goal` runs silently stalling after API errors, network drops, or token limits: the goal now retries with backoff, or pauses and says why, including until a usage limit resets",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: クラウドセッションの最初のリクエストの前にサーバー設定を短時間待機するようにし、プロンプトキャッシュのミスを修正",
+        "t_en": "Fixed prompt cache misses in cloud sessions by waiting briefly for server configuration before the first request",
+        "tags": ["バグ修正", "Perf"]
+      },
+      {
+        "t": "修正: `/btw` の回答に実際には存在しないツール呼び出しとその出力が含まれてしまう問題を修正。サイドクエスチョンにはそれらを書かないよう指示し、それでも現れた場合は「実行されていない」ものとして明示するように",
+        "t_en": "Fixed `/btw` answers that contained made-up tool calls and output: the side question is now told not to write them, and any that appear are flagged as not executed",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: `CLAUDE_CODE_RESUME_INTERRUPTED_TURN` が、6時間以上前（設定時は `CLAUDE_CODE_RESUME_INTERRUPTED_TURN_MAX_AGE_MS` を超えた時間）に API エラーで失敗したターンまで再実行してしまう問題を修正",
+        "t_en": "Fixed `CLAUDE_CODE_RESUME_INTERRUPTED_TURN` re-running a turn that had failed with an API error over 6 hours earlier, or longer ago than `CLAUDE_CODE_RESUME_INTERRUPTED_TURN_MAX_AGE_MS` when set",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: managed settings で有効化された組織のプラグインが、ヘッドレスセッションや Claude Desktop（Desktop がこの CLI バージョンを同梱した後）で読み込まれない問題を修正。次回以降のセッションから読み込まれるように",
+        "t_en": "Fixed organization plugins enabled through managed settings not loading in headless sessions and on Claude Desktop (once Desktop bundles this CLI version); they load from the next session",
+        "tags": ["バグ修正", "Plugin"]
+      },
+      {
+        "t": "修正: セッション向けに展開されたプラグインアーカイブが同一マシンの他のローカルユーザーから読み取り可能だった問題、展開されたファイルがアーカイブ内の world-writable ビットを引き継いでしまう問題、再展開時に古いファイルが残ってしまう問題を修正",
+        "t_en": "Fixed plugin archives extracted for a session being readable by other local users, extracted files keeping world-writable bits from the archive, and stale files surviving re-extraction",
+        "tags": ["バグ修正", "Security", "Plugin"]
+      },
+      {
+        "t": "修正: Bash の `tee` コマンドが書き込むファイルに `Edit()` の deny ルールと書き込みパスのチェックが適用されていなかった問題を修正。`Bash(tee:*)` の allow ルールが作業ディレクトリ外への書き込みまで許可してしまわないように",
+        "t_en": "Fixed `Edit()` deny rules and the write-path check not applying to the file a Bash `tee` command writes; a `Bash(tee:*)` allow rule no longer covers destinations outside the working directories",
+        "tags": ["バグ修正", "Security"]
+      },
+      {
+        "t": "修正: SSH やブラウザ内ターミナルなど低速な接続の場合に、起動時に `22c` のような断片文字やターミナルの色・バージョン応答がプロンプトへそのまま入力されてしまう問題を修正",
+        "t_en": "Fixed stray characters like `22c`, or a terminal's color or version reply, being typed into the prompt at startup over slow connections (ssh, browser terminals)",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: rxvt-unicode でフルスクリーンモードを終了・再入場した際に、ターミナルのブロックカーソルが画面の下に表示されたままになってしまう問題を修正",
+        "t_en": "Fixed the terminal's block cursor showing under the interface in rxvt-unicode after leaving or re-entering fullscreen",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: rxvt-unicode のフルスクリーンモードで外部エディタから戻った際に、カーソルブロックが表示されたままになってしまう問題を修正",
+        "t_en": "Fixed the cursor block staying visible after returning from an external editor in fullscreen mode on rxvt-unicode",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: フルスクリーンモード以外で Ctrl+G から外部エディタを開いて戻った際に、インターフェースが二重に描画されてしまう問題を修正",
+        "t_en": "Fixed the interface being drawn twice after returning from an external editor (Ctrl+G) outside fullscreen mode",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: Konsole で外部エディタから戻った際に、インターフェースが二重に描画されてしまう問題を修正",
+        "t_en": "Fixed the interface being drawn twice in Konsole after returning from an external editor",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: Windows で、バックグラウンドに送った PowerShell ツールのコマンドが Claude Code の終了時に停止してしまう問題を修正",
+        "t_en": "Windows: Fixed PowerShell tool commands sent to the background stopping when Claude Code exits",
+        "tags": ["バグ修正", "Windows"]
+      },
+      {
+        "t": "改善: `/diff` パネルを、読み込み中の状態を経由せず最初から完全に描画された状態で開くように改善",
+        "t_en": "Improved the `/diff` panel to open fully rendered in one step instead of showing a loading state first",
+        "tags": ["改善"]
+      },
+      {
+        "t": "改善: 日本語・中国語・韓国語のテキストに対するプロンプト提案のフィルタリングを改善。複数スクリプト混在や単語1つだけの提案を維持しつつ、英語と同様にメタ的・評価的な内容は除外するように",
+        "t_en": "Improved prompt suggestion filtering for Japanese, Chinese and Korean text: mixed-script and single-word suggestions are kept, and meta or evaluative text is dropped as it is for English",
+        "tags": ["改善"]
+      },
+      {
+        "t": "改善: Skill ツールの「Unknown skill」エラーで、ベア名（接頭辞なしの名前）が1つのプラグインスキルにのみ一致する場合、そのプラグインスキルのフルネームを提示するように改善",
+        "t_en": "Improved the Skill tool's \"Unknown skill\" error to name the plugin skill's full name when a bare name matches exactly one plugin skill",
+        "tags": ["改善", "Plugin"]
+      },
+      {
+        "t": "改善: SSH 経由や未知のターミナルでのキーボード対応を改善。kitty キーボードプロトコルの問い合わせに応答するターミナル（foot・Alacritty 0.16 以降など）で Shift+Enter・Ctrl+Shift のショートカットが使えるように",
+        "t_en": "Improved keyboard support over SSH and in unrecognized terminals: terminals that answer the kitty keyboard query (such as foot and Alacritty 0.16+) now get Shift+Enter and Ctrl+Shift shortcuts",
+        "tags": ["改善"]
+      },
+      {
+        "t": "改善: 長いセッションでの応答性を改善。トランスクリプトの更新時に、折りたたまれたツール使用サマリーの構築のため会話全体を再処理しなくなった",
+        "t_en": "Improved responsiveness in long sessions: transcript updates no longer re-process the whole conversation to build the collapsed tool-use summaries",
+        "tags": ["改善", "Perf"]
+      },
+      {
+        "t": "改善: テレメトリを無効化したファーストパーティセッションを改善。会話の途中で接続が完了した `alwaysLoad` の MCP サーバーが、ツール検索の往復なしで次のターンからすぐ使えるように",
+        "t_en": "Improved first-party sessions with telemetry disabled: an `alwaysLoad` MCP server that finishes connecting mid-conversation is usable on the next turn without a tool-search round trip",
+        "tags": ["改善", "MCP"]
+      },
+      {
+        "t": "変更: `/ultrareview --post` を、所見が届いた時点で直接 PR にコメントを投稿しコメントへのリンクを表示するように変更。投稿のために別のクラウドセッションを起動しなくなった",
+        "t_en": "Changed `/ultrareview --post` to post the PR comment directly when the findings arrive and print the comment link, instead of starting a second cloud session to post it",
+        "tags": ["改善"]
+      },
+      {
+        "t": "変更: セッションのスクラッチパッドへ保存する Artifact データベースの読み取りが、作業フォルダの承認で止まらないように変更",
+        "t_en": "Changed artifact database reads that save into the session scratchpad so they no longer stop for working-folder approval",
+        "tags": ["改善"]
+      },
+      {
+        "t": "変更: クラウドセッションで claude.ai から同期されたスキルの名前を、Claude Desktop と同様に `anthropic-skills:<name>` にするよう変更。他に使用者がいなければベア名も引き続き利用可能",
+        "t_en": "Changed skills synced from claude.ai in cloud sessions to be named `anthropic-skills:<name>`, matching Claude Desktop; the bare name still works when nothing else uses it",
+        "tags": ["改善", "Plugin"]
+      },
+      {
+        "t": "追加: [VSCode] エージェントマップを追加。フッターの「N agents」ピルから、セッションのサブエージェントを一覧できるマップを開き、エージェントごとのカード表示・Stop agent・読み取り専用トランスクリプトを確認可能に",
+        "t_en": "[VSCode] Added an agent map: an \"N agents\" footer pill opens a map of the session's sub-agents with per-agent cards, Stop agent, and read-only transcripts",
+        "tags": ["新機能", "IDE"]
+      },
+      {
+        "t": "追加: [VSCode] コマンドメニューに Hooks ダイアログを追加。user・project・local の各設定でフックの閲覧・追加・編集・削除が可能に（managed・プラグイン・セッションのフックは引き続き読み取り専用）",
+        "t_en": "[VSCode] Added a Hooks dialog to the command menu for viewing hooks and adding, editing, or removing them in user, project, and local settings; managed, plugin, and session hooks stay read-only",
+        "tags": ["新機能", "IDE"]
+      },
+      {
+        "t": "追加: [VSCode] Focus view のツール呼び出しグループの下に、実行中のサブエージェントのライブ進捗行を追加",
+        "t_en": "[VSCode] Added live progress rows for running subagents under the tool-call groups in Focus view",
+        "tags": ["新機能", "IDE", "Agent"]
+      },
+      {
+        "t": "追加: [VSCode] Permission rules ダイアログを追加。user・project・local の各設定でパーミッションルールの一覧表示・追加・削除が可能に（起動オプション・セッション限定・managed のルールは引き続き読み取り専用）",
+        "t_en": "[VSCode] Added a Permission rules dialog that lists permission rules and adds or removes them in user, project, and local settings; startup-option, session-only, and managed rules stay read-only",
+        "tags": ["新機能", "IDE"]
+      },
+      {
+        "t": "追加: [VSCode] Switch account 画面に Cancel ボタンを追加。現在のアカウントのままセッションに戻れるように",
+        "t_en": "[VSCode] Added a Cancel button to the Switch account screen that returns to your session as the current account",
+        "tags": ["新機能", "IDE"]
+      },
+      {
+        "t": "修正: [VSCode] Focus view で、スケジュールタスクなどから届いたプレーンテキストのプロンプトによって開始されたターンが、前のターンの一部として表示されてしまう問題を修正",
+        "t_en": "[VSCode] Fixed Focus view showing a turn started by a delivered plain-text prompt, such as a scheduled task's, as part of the previous turn",
+        "tags": ["バグ修正", "IDE"]
+      },
+      {
+        "t": "修正: [VSCode] パネル幅が狭い場合に、フッターのプロンプトキャッシュ時計から分の表示が消えてしまう問題を修正",
+        "t_en": "[VSCode] Fixed the footer's prompt cache clock hiding its minutes when the panel is narrow",
+        "tags": ["バグ修正", "IDE"]
+      },
+      {
+        "t": "修正: [VSCode] `CLAUDE_CONFIG_DIR` を設定ファイルまたは拡張機能の `environmentVariables` 設定で指定した場合に、セッション一覧がデフォルトフォルダのセッションを表示し続けてしまう問題を修正",
+        "t_en": "[VSCode] Fixed the session list keeping sessions from the default folder when `CLAUDE_CONFIG_DIR` is set in a settings file or the `environmentVariables` setting",
+        "tags": ["バグ修正", "IDE"]
+      },
+      {
+        "t": "修正: [VSCode] プランプレビューの読み込みが遅れて完了した場合に、コメント欄が隠れてしまう、または古いプランが表示されてしまうことがある問題を修正",
+        "t_en": "[VSCode] Fixed a plan preview that finished loading late sometimes hiding its comment box or showing an older plan",
+        "tags": ["バグ修正", "IDE"]
+      },
+      {
+        "t": "修正: [VSCode] プランプレビューが、対応する Claude タブが閉じられた後もコメント入力を受け付けてしまい、そのコメントがどこにも届かなくなってしまう問題を修正",
+        "t_en": "[VSCode] Fixed a plan preview accepting comments that went nowhere after its Claude tab closed",
+        "tags": ["バグ修正", "IDE"]
+      },
+      {
+        "t": "修正: [VSCode] 最後の応答の後にコンパクションされてから閉じられたセッションで、プロンプトキャッシュ時計と再オープン通知が誤った状態を示していた問題を修正。再度開くと正しく「コールド」と表示されるように",
+        "t_en": "[VSCode] Fixed the prompt cache clock and reopen notice for a session compacted after its last reply and then closed, which now reads as cold when reopened",
+        "tags": ["バグ修正", "IDE"]
+      },
+      {
+        "t": "修正: [VSCode] Remote Control が有効な状態で拡張機能上でセッション名を変更しても、claude.ai/code 側では古い名前のままになってしまう問題を修正",
+        "t_en": "[VSCode] Fixed a session renamed in the extension while Remote Control is on keeping its old name on claude.ai/code",
+        "tags": ["バグ修正", "IDE"]
+      },
+      {
+        "t": "修正: [VSCode] ターミナルから設定がデフォルトへリセットされた後も、「Enable Remote Control for all sessions」トグルが以前の位置のまま表示されてしまう問題を修正",
+        "t_en": "[VSCode] Fixed the \"Enable Remote Control for all sessions\" toggle keeping its last position after the setting was reset to default from a terminal",
+        "tags": ["バグ修正", "IDE"]
+      },
+      {
+        "t": "修正: [VSCode] ウィンドウのリロード後、復元された Claude タブがクリックされるまでセッション一覧上で「開いている」として認識されず、その行をクリックすると別のタブが開いてしまう問題を修正",
+        "t_en": "[VSCode] Fixed restored Claude tabs not counting as open in the session list after a window reload until clicked, and their row opening a second tab",
+        "tags": ["バグ修正", "IDE"]
+      },
+      {
+        "t": "修正: [VSCode] Switch account を実行すると、同じアカウントでサインインし直した場合でもタブが既に閉じたはずの利用上限警告を忘れてしまう問題を修正",
+        "t_en": "[VSCode] Fixed Switch account making a tab forget its dismissed usage-limit warnings when you sign back in as the same account",
+        "tags": ["バグ修正", "IDE"]
+      },
+      {
+        "t": "修正: [VSCode] 長時間のターンの実行中にセッション名を変更した場合、その後のウィンドウリロードで自動生成された名前に上書きされてしまう問題を修正",
+        "t_en": "[VSCode] Fixed a session rename being replaced by the generated name after a window reload when the session was renamed during a long turn",
+        "tags": ["バグ修正", "IDE"]
+      },
+      {
+        "t": "修正: [VSCode] アカウントがモデル別の週間上限を失った後も、サイドバーの使用量メーターにその古い上限の行が残り続けてしまう問題を修正",
+        "t_en": "[VSCode] Fixed the sidebar usage meter keeping a stale per-model weekly limit row after the account loses that limit",
+        "tags": ["バグ修正", "IDE"]
+      },
+      {
+        "t": "修正: [VSCode] 新しいチャットビューがまだ起動中の間にキーボードショートカットで送った @メンションが、キー入力からかなり時間が経ってから入力欄に挿入されてしまう稀なケースを修正",
+        "t_en": "[VSCode] Fixed a rare case where an @-mention sent with the keyboard shortcut while a new chat view was still starting could be inserted into the input long after the keystroke",
+        "tags": ["バグ修正", "IDE"]
+      },
+      {
+        "t": "修正: [VSCode] Claude サイドバーを開いた直後、少し遅れて Account & usage ヘッダーが表示された際にセッション一覧が下にずれてしまう問題を修正",
+        "t_en": "[VSCode] Fixed the session list jumping down when the Account & usage header appeared a moment after opening the Claude side bar",
+        "tags": ["バグ修正", "IDE"]
+      },
+      {
+        "t": "改善: [VSCode] 利用者以外の誰かに向けて書くドキュメントやメッセージの作成を改善。Claude がその読み手に合わせて文章を書き、応答の冒頭で対象読者を明示するように",
+        "t_en": "[VSCode] Improved documents and messages written for someone other than the user: Claude now writes them for that audience and names it at the top of its reply",
+        "tags": ["改善", "IDE"]
+      },
+      {
+        "t": "改善: [VSCode] スラッシュコマンドメニュー・@メンションメニュー・出力スタイルピッカー・送信/停止ボタン・パーミッションおよび質問カード・オンボーディングチェックリストにおけるスクリーンリーダー・キーボード操作性を改善",
+        "t_en": "[VSCode] Improved screen reader and keyboard accessibility in the slash-command menu, @-mention menu, output-style picker, Send/Stop button, permission and question cards, and onboarding checklist",
+        "tags": ["改善", "IDE"]
+      },
+      {
+        "t": "変更: [VSCode] メッセージ入力欄の現在のファイルチップを変更。Hide トグルの代わりに X で削除できるように",
+        "t_en": "[VSCode] Changed the current-file chip in the message box: an X now removes it, replacing the Hide toggle",
+        "tags": ["改善", "IDE"]
+      },
+      {
+        "t": "削除: [VSCode] セッションタブの右クリックメニューとエディタタイトルバーの「...」メニューから Claude Code の項目を削除。開いたタブに対して操作できていなかったため",
+        "t_en": "[VSCode] Removed the Claude Code items from a session tab's right-click menu and the editor title bar's \"...\" menu; they could not act on the tab the menu was opened on",
+        "tags": ["非推奨", "IDE"]
+      },
+      {
+        "t": "追加: [Claude Code on the web] クラウドセッションで、Claude がまだ読んでいないキュー内のメッセージを取り戻せるように。キューから削除するか、Esc・↑キーでテキストを入力欄に戻せる",
+        "t_en": "[Claude Code on the web] Added taking back a queued message in a cloud session before Claude reads it: remove it from the queue, or press Esc or Up, and the text returns to the message box",
+        "tags": ["新機能"]
+      },
+      {
+        "t": "修正: [Claude Code on the web] モデルを制限している組織のクラウドセッションで `/model default` を実行すると、以降の全てのメッセージが失敗し続けてしまう問題を修正",
+        "t_en": "[Claude Code on the web] Fixed `/model default` in a cloud session leaving every later message failing in organizations that restrict which models Claude Code can use",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: [Claude Code on the web] 一度きりのスケジュールルーティンが、一時的なサーバーエラーの後に稀に2回実行されてしまう問題を修正",
+        "t_en": "[Claude Code on the web] Fixed one-off scheduled routines occasionally running a second time after a transient server error",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: [Claude Code on the web] サブエージェントを使うルーティンの実行が、まだ終わっていないのに完了済みと判定されてしまうことがある問題を修正。本来の失敗後の再試行がスキップされたり、重複した実行が開始されたりする可能性があった",
+        "t_en": "[Claude Code on the web] Fixed routine runs that use subagents sometimes being treated as finished too early, which could skip the retry after a real failure or start a duplicate run",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: [Claude Code on the web] リポジトリのサブフォルダで作業していた場合に、クラウドセッションのトランスクリプト内のファイルリンクを開くと GitHub の404になってしまう問題を修正",
+        "t_en": "[Claude Code on the web] Fixed file links in cloud session transcripts opening a GitHub 404 when Claude was working from a subfolder of the repository",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "変更: [Claude Code on the web] Cloud environments の管理ページを変更し、5行に制限して「Show more」の背後に隠すのではなく全ての環境を一覧表示するように",
+        "t_en": "[Claude Code on the web] Changed the Cloud environments admin page to list every environment instead of capping each table at five rows behind a Show more control that could be unreachable",
+        "tags": ["改善"]
+      },
+      {
+        "t": "変更: [Claude Code on the web] Free プランの利用者が claude.ai/code にアクセスした際、「組織の管理者により無効化されています」という行き止まりのページの代わりに、アップグレードへの導線があるプランページを開くように変更",
+        "t_en": "[Claude Code on the web] Changed claude.ai/code for Free-plan users to open the plans page with a path to upgrade, instead of a \"Disabled by org admin\" page with no way forward",
+        "tags": ["改善"]
+      },
+      {
+        "t": "追加: [Claude Tag] 管理設定の GitHub インストールで Connect all・Disconnect を実行する前に確認ダイアログを表示するように。組織全体に影響する誤操作を防止",
+        "t_en": "[Claude Tag] Added a confirmation dialog before Connect all or Disconnect on a GitHub installation in admin settings, to guard against accidental organization-wide changes",
+        "tags": ["新機能"]
+      },
+      {
+        "t": "修正: [Claude Tag] Slack から一時的にレート制限を受けた際に失敗通知が失われ、ターン失敗後にスレッドが無言になってしまうことがある問題を修正。通知を再試行するように",
+        "t_en": "[Claude Tag] Fixed threads occasionally going silent after a failed turn because the failure notice was dropped when Slack briefly rate-limited it; the notice is now retried",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: [Claude Tag] 組織が有効化していないモデルへの切り替え要求を Claude が受け入れてしまい、実際には別のフォールバックモデルで黙って回答していた問題を修正。今後はそのモデルの切り替えを拒否し、管理者が有効化できる旨を伝えるように",
+        "t_en": "[Claude Tag] Fixed Claude accepting a switch to a model your organization hasn't enabled and then quietly answering with a fallback model; it now declines and says an admin can enable it",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: [Claude Tag] Claude が同じメッセージにファイルを添付すると、表がパイプ記号だらけの生テキストとして投稿されてしまう問題を修正。表は通常の応答として投稿され、添付ファイルはその後にシンプルなキャプション付きで続くように",
+        "t_en": "[Claude Tag] Fixed a table posting as raw pipe text when Claude attached files to the same message; the table now posts as a normal reply and the files follow with a plain caption",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: [Claude Tag] Claude がまだアクティブでないチャンネルのトップレベルで `@Claude !restart` を実行すると、無関係な会話が新しく始まってしまう問題を修正。再起動対象が無い旨を非公開で伝えるように",
+        "t_en": "[Claude Tag] Fixed `@Claude !restart` at the top level of a channel where Claude isn't active starting an unrelated conversation; it now privately says there is nothing to restart",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: [Claude Tag] Slack のアクセス設定でプラグインの行が名前の無い生の ID として表示され、無効化する手段も無かった問題を修正。プラグイン名を表示し、それを管理するバンドルへのリンクを表示するように",
+        "t_en": "[Claude Tag] Fixed plugin rows in Slack access settings showing an unlabeled raw ID with no way to turn the plugin off; they now show its name and link to the bundle that manages it",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: [Claude Tag] Slack から開始したセッションの共有バナーと Share ダイアログが「組織全体がリンクを開ける」と表示していた問題を修正。実際の対象である Slack チャンネルの範囲を明示するように",
+        "t_en": "[Claude Tag] Fixed the shared-session banner and Share dialog on sessions started from Slack claiming the whole organization could open the link; they now name the Slack channel's audience",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "改善: [Claude Tag] 管理設定ページとその Slack チャンネルピッカーの読み込み速度を改善。チャンネル数が多い、または複数のワークスペースを接続している組織で特に効果あり",
+        "t_en": "[Claude Tag] Improved load time of the admin settings page and its Slack channel picker, most noticeably for organizations with many channels or several connected workspaces",
+        "tags": ["改善"]
+      },
+      {
+        "t": "改善: [Claude Tag] Slack チャンネルでのスケジュールルーティンを改善。ルーティンの実行が既存のスレッドに返信できるようになり、常に新しいトップレベルのチャンネルメッセージを投稿するとは限らないように",
+        "t_en": "[Claude Tag] Improved scheduled routines in Slack channels: a routine run can now reply in an existing thread instead of always posting a new top-level channel message",
+        "tags": ["改善"]
+      },
+      {
+        "t": "改善: [Claude Tag] Claude のライブ進捗チェックリストのタイムスタンプを改善。固定の UTC 時刻ではなく、閲覧者ごとのローカル時刻と最終更新からの経過時間を表示するように",
+        "t_en": "[Claude Tag] Improved the timestamp on Claude's live progress checklists to show each reader's local time and how long ago it was updated, instead of a fixed UTC time",
+        "tags": ["改善"]
+      }
+    ]
   }
 ]
