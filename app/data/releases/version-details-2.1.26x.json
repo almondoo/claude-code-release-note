@@ -3902,5 +3902,16 @@
       "category": "Claude Tag",
       "category_en": "Claude Tag"
     }
+  ],
+  "2.1.270": [
+    {
+      "t": "修正: 長時間実行中のセッションで、Bash の読み取り専用な git コマンドが意図せずパーミッション確認を求めるようになる問題を修正（2.1.269 で発生した回帰）",
+      "t_en": "Fixed read-only git commands in Bash unexpectedly asking for permission after a session had been running for a while (regression in 2.1.269)",
+      "tags": ["バグ修正"],
+      "detail": "Claude Code には、読み取り専用な Bash コマンド（`git status`・`git log`・`git diff` などの読み取り専用な git 操作を含む）をどのパーミッションモードでも確認なしに実行できるようにする、組み込みかつ設定不可の許可リストが存在する。しかし 2.1.269 で発生した回帰により、セッションがしばらく実行され続けていると、これらのコマンドが再び承認を求めるようになってしまい、破壊的でない通常の git 確認コマンドに対してまで確認疲れを引き起こしていた。\n\n本バージョンでこの回帰が修正され、長時間実行中のセッションでも読み取り専用コマンドが引き続き承認済みとして扱われるようになり、長時間のコーディングセッションで不要な確認が発生しなくなった。詳しくは[パーミッションのドキュメント](https://code.claude.com/docs/en/permissions#read-only-commands)を参照してください。",
+      "detail_en": "Claude Code maintains a built-in, non-configurable allowlist of read-only Bash commands — including read-only forms of git such as `git status`, `git log`, and `git diff` — that are meant to run without a permission prompt in every permission mode. A regression introduced in version 2.1.269 caused these commands to start requiring approval again once a session had been running for some time, reintroducing prompt fatigue for routine, non-destructive git commands.\n\nThis fix in 2.1.270 restores the intended behavior so long-running sessions keep treating these commands as pre-approved, reducing unnecessary interruptions during extended coding sessions. See the [permissions documentation](https://code.claude.com/docs/en/permissions#read-only-commands) for details.",
+      "category": "パーミッション",
+      "category_en": "Permissions"
+    }
   ]
 }
