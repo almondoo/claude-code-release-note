@@ -518,5 +518,330 @@
         "tags": ["バグ修正", "改善"]
       }
     ]
+  },
+  {
+    "v": "2.1.273",
+    "items": [
+      {
+        "t": "追加: LLM ゲートウェイ向けに `x-claude-code-request-class` 等5種のリクエストヘッダーを追加(`CLAUDE_CODE_GATEWAY_HINT_HEADERS=1` でオプトイン)",
+        "t_en": "Added `x-claude-code-request-class`, `x-claude-code-agent-type`, `x-claude-code-prev-tool-durations`, `x-claude-code-compaction` and `x-claude-code-context-compacted` request headers for LLM gateways; opt in with `CLAUDE_CODE_GATEWAY_HINT_HEADERS=1`",
+        "tags": ["新機能", "Platform"]
+      },
+      {
+        "t": "追加: MCP サーバーがセッション中に切断し自動再接続に失敗した際、`/mcp` を案内する通知を追加",
+        "t_en": "Added a notification when an MCP server disconnects mid-session and automatic reconnection gives up, pointing at `/mcp`",
+        "tags": ["新機能", "MCP"]
+      },
+      {
+        "t": "追加: `claude --remote-control` や `/remote-control` で開始したセッションを Claude アプリからフォーク可能に(フォークはローカルのバックグラウンドセッションとして実行)",
+        "t_en": "Added forking a session started with `claude --remote-control` or `/remote-control` from the Claude app; the fork runs as a background session on your computer",
+        "tags": ["新機能"]
+      },
+      {
+        "t": "修正: パーミッションチェッカーが解析しきれない Bash コマンドが `permissions.blockReadsOutsideWorkingDirectories` の確認をすり抜けたり、bypass モードでサブシェルが危険な `rm` を隠せたりする問題",
+        "t_en": "Fixed Bash commands the permission checker cannot fully analyze skipping the prompt under `permissions.blockReadsOutsideWorkingDirectories`, and a subshell hiding a dangerous `rm` in bypass mode",
+        "tags": ["バグ修正", "Security"]
+      },
+      {
+        "t": "修正: 組織が Skills を無効化した後も claude.ai から同期済みのスキルが使用可能なままだった問題(復元可能なゴミ箱に移動するよう修正)",
+        "t_en": "Fixed skills synced from claude.ai staying available after your organization turns Skills off; they now move to the recoverable trash",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: MDM や `managed-settings.json` で設定した `allowManagedMcpServersOnly`・`deniedMcpServers`・`disableClaudeAiConnectors` が、サーバー管理設定も存在する場合に無視される問題",
+        "t_en": "Fixed `allowManagedMcpServersOnly`, `deniedMcpServers` and `disableClaudeAiConnectors` set via MDM or `managed-settings.json` being ignored when server-managed settings are also present",
+        "tags": ["バグ修正", "MCP", "Security"]
+      },
+      {
+        "t": "修正: Bedrock・Vertex・Foundry での 401/403 エラーや Claude apps ゲートウェイの 403 エラーが一律 `/login` を案内していた問題(更新すべき認証情報名かゲートウェイ管理者への確認を案内するよう修正)",
+        "t_en": "Fixed 401/403 errors on Bedrock, Vertex and Foundry, and Claude apps gateway 403s, telling you to run `/login`; the message now names the credential to refresh or points to your gateway administrator",
+        "tags": ["バグ修正", "Platform"]
+      },
+      {
+        "t": "修正: `/login`・`/upgrade`・`/extra-usage` が会話内の以前の思考ブロックを破棄し、次のリクエストでプロンプトキャッシュが全面的に再構築されていた問題",
+        "t_en": "Fixed `/login`, `/upgrade`, and `/extra-usage` discarding earlier thinking from the conversation, which forced a full prompt-cache rewrite on the next request",
+        "tags": ["バグ修正", "Perf"]
+      },
+      {
+        "t": "修正: クラウドセッションや Remote Control セッションでチャットに添付したファイルを Artifact ツールがアップロードする際、auto モードで承認待ちのため停止してしまう問題",
+        "t_en": "Fixed auto mode stopping for approval when the Artifact tool uploads a file you attached to the chat in a cloud or Remote Control session",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: リポジトリの `.git` ディレクトリが削除・移動された後も、長時間実行中のセッションがスタブの `.git/info/exclude` を再作成してしまう問題",
+        "t_en": "Fixed a long-running session recreating a stub `.git/info/exclude` after the repository's `.git` directory was removed or moved away",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: シェルモード中に先頭で入力した `!` が消えてしまい、`! grep …` のような否定コマンドを入力できなかった問題",
+        "t_en": "Fixed the main prompt dropping a `!` typed at the start while already in shell mode, so negated commands like `! grep …` can be typed",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: macOS でドラッグ&ドロップしたスクリーンショットなど、システムが別パスとして報告するファイルの読み取りが「symlink resolution changed after permission was checked」で拒否される問題",
+        "t_en": "Fixed Read on macOS refusing a dragged-in screenshot, or any file the system reports under a second path, with \"symlink resolution changed after permission was checked\"",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: `permissions.blockReadsOutsideWorkingDirectories` 有効時、リポジトリ設定で指定したメモリディレクトリが作業ディレクトリ外にあっても、プロンプトへの読み込み・想起・インデックス化・メモリ抽出で使用されてしまっていた問題",
+        "t_en": "Fixed `permissions.blockReadsOutsideWorkingDirectories`: a memory directory chosen by a repository's settings is no longer loaded into the prompt, recalled, indexed, or used by memory extraction",
+        "tags": ["バグ修正", "Security"]
+      },
+      {
+        "t": "修正: 最終ストリーミング応答にトークン使用量やモデル ID が含まれない場合、サブエージェントやバックグラウンドエージェントが失敗として報告され結果が届かない問題",
+        "t_en": "Fixed sub-agents and background agents being reported as failed, with their result never delivered, when the final streamed reply omitted token usage or carried no model id",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: コンテキストメーターと auto-compact がアドバイザーツールのターンを実際の約2倍のサイズとしてカウントし、auto-compact が実際のウィンドウの約半分で発動していた問題",
+        "t_en": "Fixed the context meter and auto-compact counting advisor-tool turns at roughly twice their real context size, which made auto-compact fire at about half the real window",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: 既に作業を終えてエージェントパネルに表示されなくなったエージェントチームのチームメイトが原因で `/tui` の再起動が拒否される問題",
+        "t_en": "Fixed `/tui` refusing to restart because of an agent-team teammate that had already finished its work and was no longer shown in the agents panel",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: `.claude/scheduled_tasks.json` を別フォルダ(新しい worktree など)にコピーした際、保存済みのスケジュールタスクが誤ったセッションで実行される問題",
+        "t_en": "Fixed saved scheduled tasks running in the wrong session after `.claude/scheduled_tasks.json` was copied into another folder, such as a new worktree",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: サブエージェントが実行中にバックグラウンドへ移動した後(`CLAUDE_AUTO_BACKGROUND_TASKS` 等)、SDK や `--output-format stream-json` の出力がそのサブエージェントの残りのメッセージと最終レポートを取りこぼす問題",
+        "t_en": "Fixed SDK and `--output-format stream-json` output dropping a subagent's remaining messages and final report after it is moved to the background mid-run (e.g. by `CLAUDE_AUTO_BACKGROUND_TASKS`)",
+        "tags": ["バグ修正", "SDK"]
+      },
+      {
+        "t": "修正: `/install-github-app` が SAML シングルサインオンによるブロックを「管理者権限が必要です」と誤って報告する問題",
+        "t_en": "Fixed `/install-github-app` reporting a SAML single sign-on block as \"admin permissions required\"",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: Claude Desktop・VS Code・JetBrains のセッションに接続した Remote Control クライアントが、コンテキストウィンドウ使用量を要求すると拒否される問題",
+        "t_en": "Fixed Remote Control clients attached to a Claude Desktop, VS Code or JetBrains session being refused when they ask for the session's context window usage",
+        "tags": ["バグ修正", "IDE"]
+      },
+      {
+        "t": "修正: 「Running PreCompact hooks…」のようなコンパクション時のステータス行で、スピナーが二重の三点リーダー(「……」)を表示してしまう問題",
+        "t_en": "Fixed the spinner showing a doubled ellipsis (\"……\") on compaction status lines such as \"Running PreCompact hooks…\"",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: Artifacts の読み取りや公開の後に frontend-design プラグインを勧めるスピナーヒントが誤って表示される問題",
+        "t_en": "Fixed a false-positive spinner tip suggesting the frontend-design plugin after reading or publishing Artifacts",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: 2.1.268 で導入された、パーミッションチェッカーが解析できない Bash 行(`eval`・`env -C` 等)にも Read/Edit の拒否ルールを適用する変更を差し戻し(`time -p make build` のようなコマンドは拒否ではなく再び確認を求めるように)",
+        "t_en": "Reverted a 2.1.268 change that checked Read and Edit deny rules on Bash lines the permission checker can't analyze (`eval`, `env -C`); commands like `time -p make build` prompt again instead of being denied",
+        "tags": ["バグ修正", "Security"]
+      },
+      {
+        "t": "改善: 長時間セッションでの応答性を向上、フックの進捗状況とサブエージェントのアクティビティ表示が更新のたびに会話全体を再処理しなくなった",
+        "t_en": "Improved responsiveness in long sessions: hook progress and sub-agent activity no longer re-process the whole conversation on every update",
+        "tags": ["改善", "Perf"]
+      },
+      {
+        "t": "改善: Artifact ツールで配信対象外のファイル形式を公開しようとした際のエラーを改善、配信可能な形式と代替手段を Claude に伝え、ターミナルにはシンプルな1行のみ表示するように",
+        "t_en": "Improved the Artifact tool's error when a publish includes a file type artifacts don't serve: Claude is told which types are served and what to do instead, and the terminal shows one plain line",
+        "tags": ["改善"]
+      },
+      {
+        "t": "改善: Artifact ツールでページを読み取る際、そのページに対してアーティファクトサービスが保持する機能(capabilities)とデータベースルールを、公開権限を持つ全員に対して明示するように",
+        "t_en": "Improved the Artifact tool's page read to state the capabilities and database rules the artifact service holds for the page, for anyone who can publish to it",
+        "tags": ["改善"]
+      },
+      {
+        "t": "改善: アーティファクトデータベースへの書き込みを改善、更新時にドキュメント全体を書き換えることなく単一フィールドのみを削除できるように",
+        "t_en": "Improved artifact database writes: an update can now remove a single field instead of rewriting the whole document",
+        "tags": ["改善"]
+      },
+      {
+        "t": "改善: claude.ai への到達後に接続が切断された公開処理が、失敗や重複バージョンの作成ではなく安全に再送されるように",
+        "t_en": "Improved artifact publishing: a publish whose connection drops after reaching claude.ai is now re-sent safely instead of failing or creating a duplicate version",
+        "tags": ["改善"]
+      },
+      {
+        "t": "改善: IP 許可リスト・停止中のアプリインストール・SAML シングルサインオンが原因のクラウドセッションの GitHub エラーで、汎用的なインストール案内ではなく実際の原因を表示するように",
+        "t_en": "Improved the cloud-session GitHub error for an IP allow list, a suspended app installation or SAML single sign-on to show the cause instead of a generic install hint",
+        "tags": ["改善"]
+      },
+      {
+        "t": "改善: `/autofix-pr` で `gh pr view` が失敗した際、汎用的な終了コード行ではなく gh 自体のエラー(サインイン・SAML・レート制限など)を表示するように",
+        "t_en": "Improved `/autofix-pr`: when `gh pr view` fails it now shows gh's own error (sign-in, SAML, rate limit) instead of a generic exit-code line",
+        "tags": ["改善"]
+      },
+      {
+        "t": "改善: `/autofix-pr` で PR への GitHub Webhook 配信を設定できなかった理由(GitHub アカウント未連携など)を、汎用的な警告ではなく具体的に表示するように",
+        "t_en": "Improved `/autofix-pr` to say why GitHub webhook delivery couldn't be set up for the PR (for example, no linked GitHub account) instead of a generic warning",
+        "tags": ["改善"]
+      },
+      {
+        "t": "改善: `/web-setup` のエラーを改善、GitHub トークンが拒否された場合は考えられる原因と対処法を列挙し、接続失敗時はプロキシや TLS 証明書の問題を具体的に示すように",
+        "t_en": "Improved `/web-setup` errors: a refused GitHub token now lists the likely reasons and the fix, and a connection failure names a configured proxy or TLS certificate problem",
+        "tags": ["改善"]
+      },
+      {
+        "t": "改善: セッション内の SSL 証明書・プロキシ接続エラーを改善、企業の信頼されていない CA には `NODE_EXTRA_CA_CERTS` を案内するなど、エラーコードと対処法を具体的に示すように",
+        "t_en": "Improved the in-session SSL certificate and proxy connection errors to name the error code and what to fix, such as `NODE_EXTRA_CA_CERTS` for an untrusted corporate CA",
+        "tags": ["改善", "Security"]
+      },
+      {
+        "t": "改善: Claude のログインが期限切れ・失効した際にクラウドセッションを作成できないエラーを改善、`/login` の実行を案内するように",
+        "t_en": "Improved the error when a cloud session can't be created because your Claude login expired or was revoked: it now tells you to run `/login`",
+        "tags": ["改善"]
+      },
+      {
+        "t": "改善: MCP サーバーのサインインがセッション中に期限切れになった際のエラーを改善、`/mcp` での再認証方法を案内するように",
+        "t_en": "Improved the error shown when an MCP server's sign-in expires mid-session to say how to re-authenticate (`/mcp`)",
+        "tags": ["改善", "MCP"]
+      },
+      {
+        "t": "変更: Bedrock・Vertex・Foundry での auto モードのデフォルトをローカル分類器に変更(プラットフォームのサーバーサイド分類器を使うには `CLAUDE_CODE_AUTO_MODE_SERVER=1` を設定)",
+        "t_en": "Changed auto mode on Bedrock, Vertex and Foundry to use the local classifier by default for now; set `CLAUDE_CODE_AUTO_MODE_SERVER=1` to use the platform's server-side classifier",
+        "tags": ["改善", "Platform"]
+      },
+      {
+        "t": "変更: `OTEL_LOG_TOOL_DETAILS=1` 設定時、コストおよびトークンメトリクスにも実際のエージェント・スキル・プラグイン・MCP サーバー名を含めるように",
+        "t_en": "Changed `OTEL_LOG_TOOL_DETAILS=1` to also include real agent, skill, plugin and MCP server names on cost and token metrics",
+        "tags": ["改善", "MCP"]
+      },
+      {
+        "t": "変更: Claude アカウントでのサインイン時に claude.ai のプラグインへのアクセス権も要求するように",
+        "t_en": "Changed sign-in with a Claude account to also request access to your claude.ai plugins",
+        "tags": ["改善", "Plugin"]
+      },
+      {
+        "t": "変更: `/bug`・`/feedback` のレポートに含める内容を、直近の API リクエストのうちモデル挙動に関するパラメータ(モデル・システムプロンプト・ツール)のみに限定し、リクエストのメタデータや `CLAUDE_CODE_EXTRA_BODY` のフィールドは含めないように",
+        "t_en": "Changed `/bug` and `/feedback` reports to include only model-behavior params (model, system prompt, tools) from the last API request, omitting request metadata and `CLAUDE_CODE_EXTRA_BODY` fields",
+        "tags": ["改善", "Security"]
+      },
+      {
+        "t": "修正: [VSCode] 製品フィードバックを無効化している組織でも「Report a problem」が表示され、`/bug`・`/feedback` がレポートフォームを開いてしまう問題",
+        "t_en": "[VSCode] Fixed \"Report a problem\" still appearing, and `/bug` / `/feedback` opening a report form, for organizations that have product feedback disabled",
+        "tags": ["バグ修正", "IDE"]
+      },
+      {
+        "t": "修正: [VSCode] Windows でターン完了後に赤い「Claude Code process exited with code 4294967295」バナーが表示されてしまう問題",
+        "t_en": "[VSCode] Fixed a red \"Claude Code process exited with code 4294967295\" banner appearing after completed turns on Windows",
+        "tags": ["バグ修正", "IDE", "Windows"]
+      },
+      {
+        "t": "改善: Windows で `--add-dir` によりマップ済みネットワークドライブを追加した際の UNC パスに対するネットワークパス権限チェックを改善",
+        "t_en": "Windows: Improved the network-path permission check for UNC paths when a mapped network drive was added with `--add-dir`",
+        "tags": ["改善", "Windows"]
+      },
+      {
+        "t": "修正: [Claude Code on the web] 管理者が組織のコネクタを削除して再追加した後、ルーティンがそのコネクタへのアクセスを失い、古いコネクタを呼び続けてしまう問題",
+        "t_en": "[Claude Code on the web] Fixed routines losing access to an organization connector, and still calling the old one, after an admin removed and re-added that connector",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: [Claude Code on the web] 組織設定からのセルフホスト環境の作成が、時折サーバーエラーで失敗し、中途半端に作成された環境が残ってしまう問題",
+        "t_en": "[Claude Code on the web] Fixed creating a self-hosted environment from organization settings occasionally failing with a server error and leaving a half-created environment behind",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "変更: [Claude Code on the web] 管理者設定の「Share cloud sessions」を Claude Code ページから Data and privacy 配下に移動し、Data and privacy 権限を持つ管理者も管理できるように",
+        "t_en": "[Claude Code on the web] Changed the admin \"Share cloud sessions\" setting to live under Data and privacy instead of the Claude Code page, where Data and privacy admins can also manage it",
+        "tags": ["改善"]
+      },
+      {
+        "t": "追加: [Claude Code on the web] 新規ルーティンページや編集ダイアログで入力したルーティン名・プロンプト・編集内容が破棄される前に「Discard unsaved changes?」の確認を表示するように",
+        "t_en": "[Claude Code on the web] Added a \"Discard unsaved changes?\" confirmation before the New routine page or the Edit routine dialog throws away a routine name, prompt or edit you typed",
+        "tags": ["新機能"]
+      },
+      {
+        "t": "削除: [Claude Code on the web] クラウド環境を持たない Mac・Windows の新規ユーザーに表示されていた全画面のデスクトップアプリダウンロード画面を削除し、直接セットアップへ進めるように",
+        "t_en": "[Claude Code on the web] Removed the full-page desktop-app download screen that new users without a cloud environment saw on Mac and Windows; they now go straight to setup",
+        "tags": ["非推奨"]
+      },
+      {
+        "t": "改善: [Claude Code on the web] ルーティン詳細ページを改善、メニューと名前変更をパンくずリストへ、オン/オフ切り替えと「Run now」を上部へ配置し、実行履歴をルーティン設定の隣に表示",
+        "t_en": "[Claude Code on the web] Improved the routine detail page: menu and rename in the breadcrumb, the on/off switch and Run now at the top, and run history beside the routine's settings",
+        "tags": ["改善"]
+      },
+      {
+        "t": "修正: [Claude Tag] Enterprise Grid が切断されたにもかかわらず、その傘下のワークスペースが接続されたままだった場合、アプリ再インストール後の数分後に Claude が応答しなくなる問題",
+        "t_en": "[Claude Tag] Fixed Claude going silent minutes after reinstalling the app when an Enterprise Grid was disconnected but one of its workspaces stayed connected",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: [Claude Tag] 組織共有のプライベート Slack チャンネルで設定したスケジュールタスクが、エラーなく一切投稿されなかった問題(作成時のスレッドで実行を継続するように修正)",
+        "t_en": "[Claude Tag] Fixed scheduled tasks set up in an organization-shared private Slack channel silently never posting; they now keep running in the thread they were created in",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: [Claude Tag] Claude が作業中に古い Slack スレッドへ返信すると、タスクが最初からやり直しになり、まだプッシュしていない作業が失われることがある問題",
+        "t_en": "[Claude Tag] Fixed replying in an older Slack thread while Claude is mid-task sometimes restarting it from scratch and losing work it had not pushed yet",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: [Claude Tag] アカウントトークンの更新直後に、Claude が誤った「couldn't find a Claude Code environment」という通知とともにメッセージを取りこぼすことがある問題",
+        "t_en": "[Claude Tag] Fixed Claude occasionally dropping a message with an incorrect \"couldn't find a Claude Code environment\" notice right after your account token refreshed",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: [Claude Tag] AWS 接続が Budgets・Savings Plans・WAF Classic・Import/Export などリージョンを持たないエンドポイントを拒否していた問題(Global Accelerator へのリクエストの署名も修正)",
+        "t_en": "[Claude Tag] Fixed AWS connections refusing region-less endpoints such as Budgets, Savings Plans, WAF Classic and Import/Export; Global Accelerator requests now sign correctly",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "改善: [Claude Tag] AWS 接続の失敗を改善、リージョンを持たないホスト名などでリクエストの署名ができない場合、素のエラーではなく理由と対処法を Claude に伝えるように",
+        "t_en": "[Claude Tag] Improved AWS connection failures: when a request can't be signed, such as a hostname with no region, Claude is told why and how to fix it instead of a bare error",
+        "tags": ["改善"]
+      },
+      {
+        "t": "修正: [Claude Tag] 小文字のトークンタイプを返す OAuth プロバイダーで client-credentials・JWT-bearer 接続が失敗する問題(標準の Bearer スキームを送信するように修正)",
+        "t_en": "[Claude Tag] Fixed OAuth client-credentials and JWT-bearer connections failing with providers that return a lowercase token type; requests now send the standard Bearer scheme",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: [Claude Tag] Enterprise Grid の共有チャンネル・Claude 未使用のチャンネル・レガシーなプライベートチャンネルでチャンネルマネージャーの追加が拒否される問題",
+        "t_en": "[Claude Tag] Fixed adding a channel manager being refused on Enterprise Grid shared channels, on channels where Claude hasn't been used yet, and on legacy private channels",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "変更: [Claude Tag] 会話が依存するインシデントチャンネルなど、関連する公開チャンネルを Claude が依頼されなくても自ら監視し始めるように",
+        "t_en": "[Claude Tag] Changed Claude to start watching related public channels on its own, such as an incident channel a conversation depends on, instead of only when asked",
+        "tags": ["改善"]
+      },
+      {
+        "t": "修正: [Claude Tag] Claude が自ら設定した Slack チャンネルに保存済みメモリがあっても、管理者の Memory ページに一覧表示されない問題(管理者が開く・編集・削除できるように修正)",
+        "t_en": "[Claude Tag] Fixed the admin Memory page not listing Slack channels Claude set up on its own even when they had saved memory; admins can now open, edit and delete that memory",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: [Code Review] 直前のレビューに「Additional findings」が記載された PR へベースブランチをマージすると、通常のフォローアップレビューではなく全体の再レビューがトリガーされてしまう問題",
+        "t_en": "[Code Review] Fixed merging the base branch into a PR whose earlier review listed \"Additional findings\" triggering a full re-review; these pushes now get the lighter follow-up review",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: [Code Review] @メンション・複数行にまたがるコードスパン・バッククォートで囲まれた HTML タグが原因で REVIEW.md 全体が無視されてしまう問題(変更ファイルへリンクする行のみを除外するように修正)",
+        "t_en": "[Code Review] Fixed a whole REVIEW.md being ignored because of an @-mention, a code span wrapped across lines, or a backticked HTML tag; only lines linking to changed files are withheld",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "改善: [Code Review] 他のコードが変更対象の挙動に依存している場合、提案する修正案でその挙動を維持すべき旨を明示するように",
+        "t_en": "[Code Review] Improved suggested fixes to say what the fix must keep working when other code depends on the behavior being changed",
+        "tags": ["改善"]
+      },
+      {
+        "t": "改善: [Code Review] 2つ目の影響箇所を指摘するレビューコメントが、途中で切れた文の断片ではなく完全な文でその問題を説明するように",
+        "t_en": "[Code Review] Improved review comments that point to a second affected location to state that location's issue in a full sentence instead of a cut-off stub",
+        "tags": ["改善"]
+      },
+      {
+        "t": "修正: [Code Review] `/ultrareview --post` で GitHub エラー後の再試行によって指摘コメントが0回または2回投稿されてしまう問題(正確に1回投稿され、コメントにレビュー対象のコミットが明記されるように修正)",
+        "t_en": "[Code Review] Fixed `/ultrareview --post` so a retry after a GitHub error posts the findings comment exactly once instead of never or twice; the comment now names the reviewed commit",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: [Code Review] オーナー名またはリポジトリ名に大文字を含む GitHub リポジトリで、変更のない・内容が同一のプッシュが再レビューされてしまう問題(スキップされるように修正)",
+        "t_en": "[Code Review] Fixed empty or content-identical pushes being re-reviewed on GitHub repositories whose owner or name contains a capital letter; these pushes are now skipped",
+        "tags": ["バグ修正"]
+      }
+    ]
   }
 ]
