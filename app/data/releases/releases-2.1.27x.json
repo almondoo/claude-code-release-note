@@ -1873,5 +1873,455 @@
         "tags": ["バグ修正"]
       }
     ]
+  },
+  {
+    "v": "2.1.276",
+    "items": [
+      {
+        "t": "修正: `ANTHROPIC_BASE_URL` でプロキシ・ゲートウェイを利用時、全リクエストが `400 … Input tag 'advisor_20260301'` エラーで失敗する問題を修正(v2.1.275 のリグレッション)",
+        "t_en": "Fixed every request failing with `400 … Input tag 'advisor_20260301'` when `ANTHROPIC_BASE_URL` points at a proxy or gateway (2.1.275 regression)",
+        "tags": ["バグ修正", "Platform"]
+      }
+    ]
+  },
+  {
+    "v": "2.1.277",
+    "items": [
+      {
+        "t": "追加: CLAUDE.md がないプロジェクトで AGENTS.md を自動的に読み込むよう対応(`/config` の「Project instructions」で変更可能、Bedrock/Vertex/Foundry は未対応)",
+        "t_en": "Added AGENTS.md support: in a project with no CLAUDE.md, Claude Code reads AGENTS.md instead; change it under \"Project instructions\" in `/config` (not yet on Bedrock, Vertex or Foundry)",
+        "tags": ["新機能"]
+      },
+      {
+        "t": "追加: 送信経路がフォワードプロキシのみの Claude apps gateway 向けに `CLAUDE_GATEWAY_PROXY_IS_EGRESS_BOUNDARY=1` を追加し、ホスト名をローカル解決せずプロキシへ渡せるように",
+        "t_en": "Added `CLAUDE_GATEWAY_PROXY_IS_EGRESS_BOUNDARY=1` for Claude apps gateways whose only egress is a forward proxy: every outbound request hands the proxy the hostname instead of resolving it locally",
+        "tags": ["新機能", "Platform"]
+      },
+      {
+        "t": "追加: Claude apps gateway のアップストリームに、プロキシへ固定ヘッダーを送信できる任意の `headers:` マップを追加",
+        "t_en": "Added an optional `headers:` map on Claude apps gateway upstreams, to send static headers to a proxy you run in front of a provider",
+        "tags": ["新機能", "Platform"]
+      },
+      {
+        "t": "追加: `/tasks` などのパネル表示中にバックグラウンドタスクが完了した際、更新が保留中であることを示す表示を追加",
+        "t_en": "Added a line saying a background task's update is waiting when it finishes while a panel such as `/tasks` is open",
+        "tags": ["新機能"]
+      },
+      {
+        "t": "修正: `claude -p` や Agent SDK セッションが内部エラー後に結果を返さずハングする問題を修正し、エラー報告後に終了コード1で終了するように",
+        "t_en": "Fixed `claude -p` and Agent SDK sessions that could hang with no result after an internal error; they now report the error and exit with code 1",
+        "tags": ["バグ修正", "SDK"]
+      },
+      {
+        "t": "修正: 以前のアシスタントターンに空のテキストブロックが残っていると `--resume` 後を含め全リクエストが失敗する問題を修正",
+        "t_en": "Fixed conversations failing every request with \"text content blocks must be non-empty\" when an earlier assistant turn held an empty text block beside other content, including after `--resume`",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: 同一マシン上で旧バージョンの Claude Code(IDE拡張機能同梱のCLIなど)が動作していると意図せずログアウトされる問題を修正",
+        "t_en": "Fixed being unexpectedly logged out when an older Claude Code build (for example an IDE extension's bundled CLI) runs on the same machine as the current one",
+        "tags": ["バグ修正", "IDE"]
+      },
+      {
+        "t": "修正: `~/.claude.json` の `customApiKeyResponses` が不正な場合に `ANTHROPIC_API_KEY` 利用時の対話的起動がハングまたはエラーになる問題を修正",
+        "t_en": "Fixed interactive start-up hanging or showing an error for `ANTHROPIC_API_KEY` users when `~/.claude.json` holds a malformed `customApiKeyResponses` value",
+        "tags": ["バグ修正", "Security"]
+      },
+      {
+        "t": "修正: プロキシが不正なバージョンを返した際にアップデートチェックが繰り返しエラーになり `claude update` がハングする問題を修正し、不正な `minimumVersion` を無視するように",
+        "t_en": "Fixed update checks erroring every 30 minutes, and `claude update` hanging when a minimum or maximum version is set, if a proxy returns an invalid version; a malformed `minimumVersion` is now ignored",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: winget/apk 管理のインストールで、バージョン取得に失敗した際に `claude update` が誤って「最新版です」と表示する問題を修正",
+        "t_en": "Fixed `claude update` on winget- or apk-managed installs reporting \"up to date\" when the version lookup failed",
+        "tags": ["バグ修正", "Windows"]
+      },
+      {
+        "t": "修正: セッションや他プログラムが使用中のプラグインバージョンを再インストールすると失敗しインストール済みコピーが壊れる問題を修正",
+        "t_en": "Fixed `claude plugin install` sometimes failing and breaking the installed copy when reinstalling a plugin version that a session or another program was using; an unchanged copy is now left alone",
+        "tags": ["バグ修正", "Plugin"]
+      },
+      {
+        "t": "修正: プロセス・メモリ・ファイルハンドル不足で検索を開始できない場合に Grep/Glob が「一致なし」と誤報告する問題を修正しエラーを返すように",
+        "t_en": "Fixed Grep and Glob reporting no matches when the search could not start because the system was out of processes, memory or file handles; they now return an error saying so",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: 指定パスが既存ディレクトリの場合に Write ツールが権限拒否として静かに終了する問題を修正し、明確なエラーを表示するように",
+        "t_en": "Fixed the Write tool silently ending the turn as a declined permission when the target path is an existing directory; it now reports a clear error",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: Edit ツールがエスケープされたバックスラッシュ直後の `uXXXX` を `\\uXXXX` エスケープと誤認識する問題を修正",
+        "t_en": "Fixed the Edit tool treating an escaped backslash followed by `uXXXX` text as a `\\uXXXX` escape, which could make an edit of a non-ASCII character rewrite an escaped backslash sequence instead",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: 非ASCII文字を含む大きな編集が一致しない場合に Edit ツールが「正規表現が大きすぎる」という誤ったエラーを表示する問題を修正",
+        "t_en": "Fixed the Edit tool reporting \"Invalid regular expression: regular expression too large\" instead of \"String not found in file\" when a very large edit containing non-ASCII text did not match the file",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: ツール呼び出しのファイルパスに `\\u0000` がエスケープシーケンスとして含まれる場合に「Path contains null bytes」エラーでターンが早期終了する問題を修正",
+        "t_en": "Fixed a turn ending early with \"Path contains null bytes\" when a tool call's file path contained `\\u0000` written as an escape sequence; escaped control characters now stay as literal text",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: プラグインのLSPサーバーが終了または標準入力を閉じた際に、バックグラウンドセッション(`claude --bg`)が終了してしまう問題を修正",
+        "t_en": "Fixed background sessions (`claude --bg`) exiting when a plugin's LSP server exited or closed its stdin",
+        "tags": ["バグ修正", "Plugin"]
+      },
+      {
+        "t": "修正: `~/.claude.json` の `claudeAiMcpEverConnected` の値が不正な場合に `/mcp` または `/plugin manage` を開くとクラッシュ(「Type error」)する問題を修正",
+        "t_en": "Fixed a crash (\"Type error\") when opening `/mcp` or `/plugin manage` with a malformed `claudeAiMcpEverConnected` value in `~/.claude.json`",
+        "tags": ["バグ修正", "MCP", "Plugin"]
+      },
+      {
+        "t": "修正: `~/.claude.json` の `theme` の値が不正な場合に起動時にクラッシュする問題を修正",
+        "t_en": "Fixed a crash at launch when `~/.claude.json` holds a malformed `theme` value",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: 履歴から呼び出したプロンプトや外部エディタから読み込んだテキストなど、ターミナルのカラーコードを含むテキストがプロンプトに含まれる場合にクラッシュ(「unrecoverable interface error」)する問題を修正",
+        "t_en": "Fixed a crash (\"unrecoverable interface error\") when the prompt held text containing terminal color codes, for example a prompt recalled from history or text loaded from the external editor",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: 保存された履歴内のアシスタントメッセージが単純な文字列として保存されているセッションを再開するとクラッシュする問題を修正",
+        "t_en": "Fixed a crash when resuming a session whose saved history holds an assistant message stored as a plain string",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: 処理が遅い、または高負荷なマシンで、最初のスピナーが表示されたタイミングで「Claude Code exited after an unrecoverable interface error」によりセッションが終了してしまうことがある問題を修正",
+        "t_en": "Fixed sessions on slow or heavily loaded machines sometimes exiting with \"Claude Code exited after an unrecoverable interface error\" when the first spinner appeared",
+        "tags": ["バグ修正", "Perf"]
+      },
+      {
+        "t": "修正: 内部的な描画エラーの後、まれにセッションの残り時間中ずっと画面が更新されなくなる問題を修正",
+        "t_en": "Fixed a rare case where the screen could stop updating for the rest of the session after an internal rendering error",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: Windowsでまれに、Claudeの応答直後に「Out of memory」のようなエラーでターンが停止し、その応答に含まれるツール呼び出しが実行されない問題を修正",
+        "t_en": "Fixed a rare case on Windows where a turn could stop with an error such as \"Out of memory\" right after Claude replied, so that reply's tool calls never ran",
+        "tags": ["バグ修正", "Windows"]
+      },
+      {
+        "t": "修正: SessionStartフックが出力を行った場合に、`/clear`後(再起動、`--continue`、`--resume`を含む)に継続したセッションの最初のメッセージの一部が欠落し、プロンプトキャッシュが完全にミスする問題を修正",
+        "t_en": "Fixed sessions continued after `/clear` (restart, `--continue`, `--resume`) missing part of their first message when a SessionStart hook printed output, causing a full prompt-cache miss",
+        "tags": ["バグ修正", "Perf"]
+      },
+      {
+        "t": "修正: サブエージェントのSendMessageなど、ターン途中に届いた他のエージェントからのメッセージが、実際に届いたタイミングではなく「Ran N shell commands」の行の下に表示されてしまう問題を修正",
+        "t_en": "Fixed messages from other agents (such as a subagent's SendMessage) that arrived mid-turn showing up below the \"Ran N shell commands\" row instead of where they arrived",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: フルスクリーンの`/resume`ピッカーなど、プロンプト領域を覆うパネルでドラッグ選択してテキストをコピーしても「copied」通知が表示されない問題を修正",
+        "t_en": "Fixed the \"copied\" notice not appearing after drag-selecting text in the fullscreen `/resume` picker and other panels that cover the prompt area",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: サンドボックスが有効な状態でサンドボックス外で実行されるBashコマンドにおいて`$TMPDIR`が空になる問題を修正",
+        "t_en": "Fixed `$TMPDIR` expanding empty in Bash commands that run outside the sandbox while sandboxing is enabled",
+        "tags": ["バグ修正", "Security"]
+      },
+      {
+        "t": "修正: Cowork クラウドセッションでWebFetchとWebSearchが、フェッチ予算の使い切りや管理者ポリシーなどによりリクエストが拒否された理由をClaudeに伝えていなかった問題を修正",
+        "t_en": "Fixed WebFetch and WebSearch in Cowork cloud sessions not telling Claude why a request was refused, such as a used-up fetch budget or an admin policy",
+        "tags": ["バグ修正", "Platform"]
+      },
+      {
+        "t": "修正: プロキシ設定時にClaude appsゲートウェイのテレメトリ中継が`NO_PROXY`に記載されたコレクターのホスト名やドメインを無視してしまう問題を修正",
+        "t_en": "Fixed the Claude apps gateway's telemetry relay ignoring a collector hostname or domain listed in `NO_PROXY` when a proxy is set",
+        "tags": ["バグ修正", "Platform"]
+      },
+      {
+        "t": "修正: strictKnownMarketplaces または blockedMarketplaces の不正なエントリが1つあるだけでポリシー全体が無効になる問題を修正",
+        "t_en": "Fixed one malformed `strictKnownMarketplaces` or `blockedMarketplaces` entry silently disabling the whole enterprise marketplace policy",
+        "tags": ["バグ修正", "Plugin", "Security"]
+      },
+      {
+        "t": "修正: 自動アップデートが失敗した際に `~/.cache/claude/staging` に大きなステージング済みダウンロードファイルが残る問題を修正",
+        "t_en": "Fixed failed auto-updates leaving large staged downloads behind in `~/.cache/claude/staging`",
+        "tags": ["バグ修正", "Perf"]
+      },
+      {
+        "t": "修正: `/plugin` の Installed タブで、プラグイン更新失敗時のエラーなどのメッセージから端末制御文字が除去されず表示が崩れる問題を修正",
+        "t_en": "Fixed `/plugin` not stripping terminal control characters from messages on the Installed tab, such as the error of a failed plugin update",
+        "tags": ["バグ修正", "Plugin"]
+      },
+      {
+        "t": "修正: スキルまたはレガシーコマンドの名前が `constructor` や `toString` など Object の組み込みプロパティと同じ場合に `/plugin` の Installed や `/skills` がクラッシュする問題を修正",
+        "t_en": "Fixed `/plugin` → Installed and `/skills` crashing when a skill or legacy command is named like a built-in Object property such as `constructor` or `toString`",
+        "tags": ["バグ修正", "Plugin"]
+      },
+      {
+        "t": "修正: 複数選択したプラグインのインストールがすべて失敗した場合に `/plugin` がメッセージなしで閉じてしまう問題を修正",
+        "t_en": "Fixed `/plugin` closing with no message when every install in a multi-select failed",
+        "tags": ["バグ修正", "Plugin"]
+      },
+      {
+        "t": "修正: アンインストール済みのプラグインが `/plugin` の Installed に「failed to load」の行として再表示され、Remove を実行しても消えない問題を修正",
+        "t_en": "Fixed uninstalled plugins reappearing as \"failed to load\" rows in `/plugin` Installed, and Remove not clearing such a row",
+        "tags": ["バグ修正", "Plugin"]
+      },
+      {
+        "t": "修正: 公式マーケットプレイスのプラグインが `installed_plugins.json` にコミット情報なしで記録される問題と、コミット固定プラグインの更新後も `installed_plugins.json` に古いコミットが残る問題を修正",
+        "t_en": "Fixed plugins from the official marketplace being recorded without their commit in `installed_plugins.json`, and `installed_plugins.json` keeping the old commit after updating a pinned-commit plugin",
+        "tags": ["バグ修正", "Plugin"]
+      },
+      {
+        "t": "修正: プラグインのリロードプレビューでプレビューしたアーカイブのコピーが終了まで展開されたまま残る問題と、再ダウンロード失敗時にリロードのフォールバック先である `--plugin-url` のキャッシュ済みアーカイブが上書きされてしまう問題を修正",
+        "t_en": "Fixed plugin reload previews keeping every previewed copy of a plugin archive unpacked until exit, and overwriting the cached `--plugin-url` archive a reload falls back to when its download fails",
+        "tags": ["バグ修正", "Plugin"]
+      },
+      {
+        "t": "修正: `~/.claude.json` に不正な形式のプレースホルダーレコードが含まれている場合に Remote Control のセッション管理が失敗する問題を修正",
+        "t_en": "Fixed Remote Control session bookkeeping failing when `~/.claude.json` holds a malformed placeholder record",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: claude.ai のログインが失効した際のエラーが Anthropic profile の期限切れとして誤って表示される問題を修正し、`/login` を案内するように変更",
+        "t_en": "Fixed the error after a revoked claude.ai login blaming an expired Anthropic profile; it now leads with `/login`",
+        "tags": ["バグ修正", "Security"]
+      },
+      {
+        "t": "修正: キーリピートや非常に高速な入力時に `claude agents` のディスパッチ入力で、入力またはペーストしたテキストが文字化けすることがある問題を修正",
+        "t_en": "Fixed typed or pasted text occasionally coming out scrambled in the `claude agents` dispatch input during key repeat or very fast input",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: 保存されたトランスクリプトに整形式でないフックリストを含む Stop フックのサマリーがある場合、セッション再開時に「unrecoverable interface error」でクラッシュする問題を修正",
+        "t_en": "Fixed a crash (\"unrecoverable interface error\") when resuming a session whose saved transcript contains a stop hook summary without a well-formed hook list",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: `keybindings.json` で Chat コンテキストの Enter を(例えば `chat:queueSubmit` に)再割り当てしている場合、エージェントパネルで選択した行に対する Enter が何も動作しない問題を修正",
+        "t_en": "Fixed Enter on a selected agent panel row doing nothing when `keybindings.json` rebinds Enter in the Chat context, for example to `chat:queueSubmit`",
+        "tags": ["バグ修正", "Agent"]
+      },
+      {
+        "t": "修正: Windows で作業フォルダのパスが長い(約120文字以上)場合に PDF ページの読み込みが失敗する問題を修正",
+        "t_en": "Fixed PDF page reads on Windows failing when the working folder's path is long (about 120 characters or more)",
+        "tags": ["バグ修正", "Windows"]
+      },
+      {
+        "t": "修正: ヘッドレスでのセッション再開(`claude -p --resume`、SDK、VS Code 拡張機能のウィンドウリロード)でコストと使用量の合計がゼロから始まってしまう問題を修正し、ヘッドレスセッションが終了時に合計値を保存するように変更",
+        "t_en": "Fixed a headless resume (`claude -p --resume`, the SDK, a VS Code extension window reload) starting the session's cost and usage totals at zero; headless sessions now save their totals at exit",
+        "tags": ["バグ修正", "SDK"]
+      },
+      {
+        "t": "修正: `.claude/skills` が Git 管理外の場合に `--worktree` セッションでメインリポジトリのプロジェクトスキルが読み込まれない不具合を修正",
+        "t_en": "Fixed project skills from the main repository not loading in `--worktree` sessions when `.claude/skills` is untracked",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: 複合 Bash コマンドの一部だけが `sandbox.excludedCommands` に一致した場合にコマンド全体がサンドボックスから除外されていた不具合を修正",
+        "t_en": "Fixed a `sandbox.excludedCommands` glob exempting an entire compound Bash command from the sandbox when only one part matched; every part must now match",
+        "tags": ["バグ修正", "Security"]
+      },
+      {
+        "t": "修正: 再開したサブエージェントやチームメイトが読み込み済みの MCP ツール定義を再描画し、プロンプトキャッシュが無効化される不具合を修正",
+        "t_en": "Fixed resumed subagents and teammates re-rendering the MCP tool definitions they had loaded, which broke prompt caching for that agent",
+        "tags": ["バグ修正", "MCP", "Agent"]
+      },
+      {
+        "t": "修正: レート制限されたアーティファクトの公開時にリトライを止めるよう指示されていた問題を修正し、公開されていない旨と再試行のタイミングを伝えるよう変更",
+        "t_en": "Fixed rate-limited artifact publishes telling Claude to stop retrying; Claude is now told nothing was published and when to send the same publish again",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: 再開・再起動時に会話中の添付ファイルが再描画され、拡張思考が失われプロンプトキャッシュが効かなくなる不具合を修正",
+        "t_en": "Fixed attachments recorded earlier in a conversation being re-rendered after a resume or relaunch, which dropped extended thinking and missed the prompt cache",
+        "tags": ["バグ修正", "Perf"]
+      },
+      {
+        "t": "修正: Console サインイン時に API キー作成がサーバーに拒否されると「Request failed with status code 400」としか表示されなかった問題を修正し、サーバーのエラーメッセージを表示するよう変更",
+        "t_en": "Fixed Console sign-in showing only \"Request failed with status code 400\" when the server refuses to create an API key; it now shows the server's message",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: Claude が処理中に入力したメッセージが、モデルに無視されることがある不具合を修正",
+        "t_en": "Fixed messages typed while Claude is still working sometimes being ignored by the model",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "改善: SDK・ヘッドレス(`-p`)利用時のセッション起動を高速化し、最初のターンがディレクトリ単位の CLAUDE.md 検索を待たなくなるよう変更",
+        "t_en": "Improved session start-up for SDK and headless (`-p`) use: the first turn no longer waits on the per-directory CLAUDE.md lookup",
+        "tags": ["改善", "SDK"]
+      },
+      {
+        "t": "改善: Claude apps ゲートウェイのループバック接続エラーメッセージに `CLAUDE_GATEWAY_ALLOW_LOOPBACK` の名前を明記するよう変更",
+        "t_en": "Improved the Claude apps gateway's loopback error messages to name `CLAUDE_GATEWAY_ALLOW_LOOPBACK`",
+        "tags": ["改善", "Security"]
+      },
+      {
+        "t": "改善: `/plugin` の Installed 画面で、プラグインから独立して表示される MCP サーバーにも所属プラグイン名を表示するよう変更",
+        "t_en": "Improved `/plugin` Installed: an MCP server listed apart from its plugin now shows which plugin it belongs to",
+        "tags": ["改善", "Plugin", "MCP"]
+      },
+      {
+        "t": "改善: 導入済みプラグインに対して `claude plugin install` を実行した際、マーケットプレイスに新しいバージョンがあれば `claude plugin update` コマンドを案内するよう変更",
+        "t_en": "Improved `claude plugin install` on an already-installed plugin: it now says when the marketplace offers a newer version and names the `claude plugin update` command",
+        "tags": ["改善", "Plugin"]
+      },
+      {
+        "t": "改善: ロゴ下の起動時通知の省略表示を「+N more · /status」から「N more notices hidden」に変更",
+        "t_en": "Improved the startup notice overflow line under the logo: it now reads \"N more notices hidden\" instead of \"+N more · /status\"",
+        "tags": ["改善"]
+      },
+      {
+        "t": "改善: プロンプト内の不可視な Unicode 書式・タグ文字を除去し、送信前にクリーンアップ後のプロンプトを確認表示するよう変更",
+        "t_en": "Improved prompt handling: invisible Unicode formatting and tag characters in a prompt are removed and the cleaned prompt is shown for review before it is sent",
+        "tags": ["改善", "Security"]
+      },
+      {
+        "t": "改善: `/ultrareview` にレビュー対象がない場合に状況別のメッセージと最新コミットをレビューするコマンドを案内し、新規リポジトリでは最初のコミット全体をレビューするよう変更",
+        "t_en": "Improved `/ultrareview` when there's nothing to review: messages say which case you're in, offer a command that reviews your latest commit, and a new repository's first commit is reviewed in full",
+        "tags": ["改善", "Agent"]
+      },
+      {
+        "t": "改善: claude.ai のアーティファクトリンクを、利用可能な場合は WebFetch ではなく Artifact ツールで読み込むよう変更",
+        "t_en": "Improved artifact link handling so Claude reads claude.ai artifact links with the Artifact tool instead of WebFetch when that tool is available",
+        "tags": ["改善"]
+      },
+      {
+        "t": "改善: 危険な rm コマンドの権限プロンプトを改善し、検出されたコマンドを明示した上で `${VAR:?}` ガードを提案(ヘッドレス実行でも復旧可能に)",
+        "t_en": "Improved the dangerous-rm permission prompt to name the flagged rm command and suggest a `${VAR:?}` guard, so headless runs can recover",
+        "tags": ["改善", "Security"]
+      },
+      {
+        "t": "改善: Artifact ツールの権限プロンプトの文言を改善(文章を簡潔化、タイトルやファイル名での明示、リンクを説明文の後に配置)",
+        "t_en": "Improved the Artifact tool's permission prompts: shorter sentences, pages and artifacts named by title or file name, and links listed after the text",
+        "tags": ["改善", "Security"]
+      },
+      {
+        "t": "変更: Anthropic API では `/model` に Fable が常に表示されるように変更(組織設定で無効化されている場合のみグレーアウト)",
+        "t_en": "Changed Fable to always appear in `/model` on the Anthropic API; it is greyed out only when your organization's settings disable it",
+        "tags": ["改善"]
+      },
+      {
+        "t": "変更: Bedrock・Vertex・Foundry での Bash サンドボックスの説明文を、タスクに与えられた範囲としてサンドボックスを説明する Anthropic API 版と同じ文言に変更",
+        "t_en": "Changed the Bash sandbox instructions on Bedrock, Vertex and Foundry to the first-party wording, which frames the sandbox as the boundary of what the task was given",
+        "tags": ["改善", "Security"]
+      },
+      {
+        "t": "変更: 非対話セッションの `/ultrareview` で、リポジトリにベースブランチや共有履歴がない場合は拒否するように変更",
+        "t_en": "Changed `/ultrareview` in non-interactive sessions to refuse when the repository has no base branch or shared history",
+        "tags": ["改善"]
+      },
+      {
+        "t": "変更: サブエージェントの結果をメインエージェントに渡す際、サブエージェント出力であることを示すヘッダーを付けて結果をインデントするように変更(サブエージェントの結果内のテキストがセッション自身の指示として扱われるのを防止)",
+        "t_en": "Changed subagent results to reach the main agent under a header marking them as subagent output, with the result indented, so text in a subagent's result cannot pass as the session's own instructions",
+        "tags": ["改善", "Security", "Agent"]
+      },
+      {
+        "t": "変更: Bedrock・Vertex・Foundry において、ワークフロースクリプトが計算した `agent()` のプロンプトを、スクリプトが作成したテキストとしてサブエージェントに渡すように変更(安全性分類器がユーザー入力と誤認しないように)",
+        "t_en": "Changed workflow scripts' computed `agent()` prompts on Bedrock, Vertex and Foundry to reach the subagent framed as script-authored text, so the safety classifier does not read them as the user",
+        "tags": ["改善", "Security", "Agent"]
+      },
+      {
+        "t": "削除: SDK や IDE を介さずに起動した `claude -p` から、バックグラウンドでの Haiku 自動タイトル付けリクエストを削除",
+        "t_en": "Removed the background Haiku auto-title request from `claude -p` runs launched outside an SDK or IDE",
+        "tags": ["非推奨", "SDK"]
+      },
+      {
+        "t": "削除: 非推奨だった TaskOutput ツールを削除。バックグラウンドタスクの出力は Read で読み取る形に統一され、`taskOutputMaxChars` 設定と `TASK_MAX_OUTPUT_LENGTH` は効果を持たなくなりました",
+        "t_en": "Removed the deprecated TaskOutput tool; Claude reads a background task's output file with Read instead, and the `taskOutputMaxChars` setting and `TASK_MAX_OUTPUT_LENGTH` no longer have any effect",
+        "tags": ["非推奨"]
+      },
+      {
+        "t": "追加: パネルメニューにサインアウト項目を追加、コマンドメニューには `/logout` を追加",
+        "t_en": "[VSCode] Added a Sign out row to the panel menu, with `/logout` in the typed command menu",
+        "tags": ["新機能", "IDE"]
+      },
+      {
+        "t": "追加: エージェントマップにバックグラウンドシェルや実行中の他タスクを表示し各項目に停止ボタンを追加、コマンドメニューにマップを開く `/tasks` を追加",
+        "t_en": "[VSCode] Added background shells and other running tasks to the agent map, each with a Stop, and a typed `/tasks` that opens it",
+        "tags": ["新機能", "IDE", "Agent"]
+      },
+      {
+        "t": "追加: 応答にコピー用ボタンを追加、コマンドとして `/copy` を追加",
+        "t_en": "[VSCode] Added a Copy response button on responses and a typed `/copy`",
+        "tags": ["新機能", "IDE"]
+      },
+      {
+        "t": "追加: 非アクティブなセッションが自動アーカイブされた際に一度だけ表示される通知と、アーカイブ済みセッショングループへの「すべて復元」アクションを追加",
+        "t_en": "[VSCode] Added a one-time notice when inactive sessions are archived automatically, and an \"Unarchive all\" action on the Archived sessions group",
+        "tags": ["新機能", "IDE"]
+      },
+      {
+        "t": "追加: プラン上限が適用されない接続(Vertex・Bedrock・Foundry・API キー)向けに、Account & usage ダイアログとセッションマネージャーにセッションのコストとトークン使用量を追加",
+        "t_en": "[VSCode] Added the session's cost and token usage to the Account & usage dialog and the session manager where plan limits do not apply (Vertex, Bedrock, Foundry, API key)",
+        "tags": ["新機能", "IDE"]
+      },
+      {
+        "t": "修正: コマンドメニューの「General config」が設定を開かず `/config` の使い方テキストを表示していた問題を修正し、`/mcp`・`/hooks`・`/memory`・`/rewind` などの入力コマンドで対応するダイアログが開くように修正",
+        "t_en": "[VSCode] Fixed the \"General config\" menu row showing `/config` usage text instead of opening settings, and made typed `/mcp`, `/hooks`, `/memory`, `/rewind` and similar commands open their dialogs",
+        "tags": ["バグ修正", "IDE"]
+      },
+      {
+        "t": "修正: `/effort` で既にレベルを保存済みのモデルで、エフォートスライダーの選択値が以降のセッションに引き継がれない不具合を修正",
+        "t_en": "[VSCode] Fixed the effort slider's level not persisting into later sessions on a model that already had a level saved with `/effort`",
+        "tags": ["バグ修正", "IDE"]
+      },
+      {
+        "t": "修正: 保存済みのモデル設定が「Sonnet」のような大文字小文字違いのエイリアスの場合、既存パネルで開いた会話のモードピッカーから Auto が消える不具合を修正",
+        "t_en": "[VSCode] Fixed Auto missing from the mode picker for conversations opened in an already-used panel when the saved model setting is a differently-cased alias such as \"Sonnet\"",
+        "tags": ["バグ修正", "IDE"]
+      },
+      {
+        "t": "修正: VS Code で `/fast` を実行してもデフォルト設定として保存されず、拡張機能が Claude Code を再起動すると Fast モードが解除される不具合を修正",
+        "t_en": "[VSCode] Fixed `/fast` not saving fast mode as the default, so it was lost when the extension relaunched Claude Code",
+        "tags": ["バグ修正", "IDE"]
+      },
+      {
+        "t": "追加: Team/Enterprise プランの環境選択画面に「個人」と「組織」のセクションを追加し、Owner ロールのユーザーが個人環境を組織と共有できるように",
+        "t_en": "[Claude Code on the web] Added Personal and Organization sections to the environment picker on Team and Enterprise plans, and admins can now share a personal environment with the organization",
+        "tags": ["新機能", "Platform"]
+      },
+      {
+        "t": "変更: Team/Enterprise プランの Code タブから開く組織環境を読み取り専用のサマリー表示に変更し、編集は管理設定 → クラウド環境から行うように",
+        "t_en": "[Claude Code on the web] Changed organization environments to open as a read-only summary from the Code tab on Team and Enterprise plans, with editing under Admin settings → Cloud environments",
+        "tags": ["改善", "Platform"]
+      },
+      {
+        "t": "修正: ドメイン未設定のまま Custom ネットワークアクセスでクラウド環境を保存すると、警告なく Trusted に戻ってしまう不具合を修正し、保存時に最低1つのドメイン入力を必須化",
+        "t_en": "[Claude Code on the web] Fixed a cloud environment saved with Custom network access and no domains silently reverting to Trusted; the dialog now asks for at least one domain",
+        "tags": ["バグ修正", "Platform", "Security"]
+      },
+      {
+        "t": "変更: 管理設定の Claude Code 設定にある「Web」のラベルを「Cloud sessions」に変更し、その下の冗長な読み取り専用「Mobile」行を削除",
+        "t_en": "[Claude Code on the web] Changed the admin Claude Code setting labeled \"Web\" to \"Cloud sessions\" and removed the redundant read-only Mobile row beneath it",
+        "tags": ["改善", "Platform"]
+      },
+      {
+        "t": "修正: Enterprise Grid の組織全体インストールで Slack チャンネル内に作成したルーチンが、実行時に同じワークスペース内の他のパブリックチャンネルを読み取れない不具合を修正",
+        "t_en": "[Claude Tag] Fixed routines created in a Slack channel on an Enterprise Grid org-wide install failing to read other public channels in their workspace when they ran",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: Claude Tag のアクセスバンドルにある認証情報プリセットの「Learn more」リンクが汎用的な API リファレンスではなく、各ベンダーの認証情報設定ページを開くように修正",
+        "t_en": "[Claude Tag] Fixed the \"Learn more\" links on credential presets in Claude Tag access bundles to open each vendor's credential-setup page instead of a generic API reference",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "変更: Claude Tag のアクセスバンドルにある Pylon の認証情報プリセットで、管理者が Pylon の EU ホストを指定できるように変更",
+        "t_en": "[Claude Tag] Changed the Pylon credential preset in Claude Tag access bundles so admins can point it at Pylon's EU host",
+        "tags": ["改善"]
+      },
+      {
+        "t": "修正: Claude Tag のアクセスバンドルにある Google Cloud 認証情報フォームで、キーファイルが拒否された際に理由を表示し、処理中は website と scopes をロックし、ローテーション失敗時に貼り付け済みキーを保持するように修正",
+        "t_en": "[Claude Tag] Fixed Google Cloud credential forms in Claude Tag access bundles: a refused key file now says why, the website and scopes stay locked, and a rejected rotation keeps the pasted key",
+        "tags": ["バグ修正"]
+      },
+      {
+        "t": "修正: Claude Tag の管理設定にあるネットワークイベントログで、AWS 署名・クライアント証明書・カスタム CA を使用する接続のリクエストにレスポンスステータスが表示されない不具合を修正",
+        "t_en": "[Claude Tag] Fixed the network events log in Claude Tag admin settings showing no response status for requests through connections that use AWS signing, client certificates or a custom CA",
+        "tags": ["バグ修正"]
+      }
+    ]
   }
 ]
